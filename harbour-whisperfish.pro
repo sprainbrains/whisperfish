@@ -44,8 +44,10 @@ SOURCES += \
 OTHER_FILES += \
     qml/cover/CoverPage.qml \
     rpm/harbour-whisperfish.spec \
+    rpm/harbour-whisperfish.yaml \
     icons/*.svg \
     README.rst \
+    harbour-whisperfish-message.conf \
     harbour-whisperfish.desktop \
     rpm/harbour-whisperfish.changes \
     qml/harbour-whisperfish.qml \
