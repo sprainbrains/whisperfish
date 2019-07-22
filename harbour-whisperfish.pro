@@ -44,7 +44,8 @@ TRANSLATIONS += \
     translations/harbour-whisperfish-pl.ts \
 
 INCLUDEPATH += \
-    src
+    src \
+    libsignal-protocol-c/src \
 
 CONFIG(debug, debug|release) {
     DEFINES += HARBOUR_DEBUG=1
