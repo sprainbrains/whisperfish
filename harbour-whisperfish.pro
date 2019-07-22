@@ -27,7 +27,7 @@ isEmpty(VERSION) {
 }
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
-DEFINES += GIT_CURRENT_SHA1="\\\"$(shell git -C \""$$_PRO_FILE_PWD_"\" describe)\\\""
+DEFINES += GIT_CURRENT_SHA1="\\\"$(shell (cd \"$$_PRO_FILE_PWD_\"; git describe))\\\""
 
 CONFIG += sailfishapp_i18n \
     sailfishapp_i18n_idbased \

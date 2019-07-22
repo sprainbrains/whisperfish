@@ -1,0 +1,4 @@
+#ifndef WHISPERFISH_HPP
+#define WHISPERFISH_HPP
+
+#endif // WHISPERFISH_HPP
