@@ -17,7 +17,7 @@ TARGET = $${PREFIX}-$${NAME}
 CONFIG += sailfishapp link_pkgconfig
 PKGCONFIG += sailfishapp mlite5
 
-QT += concurrent sql
+QT += core network concurrent sql
 
 LIBS += -ldl
 
@@ -28,6 +28,20 @@ isEmpty(VERSION) {
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DEFINES += GIT_CURRENT_SHA1="\\\"$(shell git -C \""$$_PRO_FILE_PWD_"\" describe)\\\""
+
+CONFIG += sailfishapp_i18n \
+    sailfishapp_i18n_idbased \
+    sailfishapp_i18n_unfinished
+
+TRANSLATIONS += \
+    translations/harbour-whisperfish.ts \
+    translations/harbour-whisperfish-de.ts \
+    translations/harbour-whisperfish-es.ts \
+    translations/harbour-whisperfish-fi.ts \
+    translations/harbour-whisperfish-hu.ts \
+    translations/harbour-whisperfish-nl.ts \
+    translations/harbour-whisperfish-nl_BE.ts \
+    translations/harbour-whisperfish-pl.ts \
 
 INCLUDEPATH += \
     src
@@ -55,7 +69,8 @@ OTHER_FILES += \
     qml/cover/cover-image.png \
     qml/pages/img/*.png \
     qml/pages/img/*.svg \
-    qml/pages/*.qml
+    qml/pages/*.qml \
+    translations/*.ts \
 
 # Icons
 ICON_SIZES = 86 108 128 256

@@ -27,6 +27,21 @@ static const Version get_version() {
 int main(int argc, char *argv[])
 {
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
+    qApp->setApplicationVersion(QString(APP_VERSION));
+
+    QTranslator translator(qApp);
+    const QString appName = qApp->applicationName();
+    const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
+    const QLocale locale;
+    if (!translator.load(locale, appName, "-", transDir, ".qm")) {
+        qWarning() << "Failed to load translator for" << QLocale::system().uiLanguages()
+                   << "Searched" << transDir << "for" << appName;
+        if(!translator.load(appName, transDir)) {
+            qWarning() << "Could not load default translator either!";
+        }
+        app->installTranslator(&translator);
+    }
+
     QScopedPointer<QQuickView> view(SailfishApp::createView());
 
     auto version = get_version();
