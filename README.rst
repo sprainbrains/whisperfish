@@ -80,76 +80,27 @@ See here for more information.
 Building from source
 -------------------------------------------------------------------------------
 
-*These instructions assume you're running Linux*
 
-1. Install Go >= 1.10 and setup a proper `GOPATH <https://golang.org/doc/code.html#GOPATH>`_
-   somewhere in your home directory, for example ``GOROOT=$HOME/projects/goroot/go`` and
-   ``GOPATH=$HOME/projects/go``.
+1a. This application uses `libsignal-c-protocol
+    <https://github.com/signalapp/libsignal-protocol-c>`_
+    as a git submodule.::
 
-2. Install `Glide <https://glide.sh/>`_
+    $ git clone --recurse-submodules https://github.com/rubdos/whisperfish/
 
-3. Install Qt 5.7.0 the official `prebuilt package <https://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-android-5.7.0.run>`_
+1b. If you already had cloned the repository, you can use::
 
-4. Install `Sailfish OS SDK <https://sailfishos.org/wiki/Application_SDK_Installation>`_ (version
-   Beta-1801 or later). Ensure ``~/SailfishOS/vmshare/devices.xml`` exists. If not,
-   run ``~/SailfishOS/bin/qtcreator`` once and it should create this file.
+    $ git submodule update --init --recursive
 
-5. Clone whisperfish and download dependencies::
-
-    $ git clone https://github.com/aebruno/whisperfish.git
-    $ cd whisperfish
-    $ glide install
-
-6. Download and install Go QT bindings. This will clone
-   https://github.com/therecipe/qt and checkout the specific version that has
-   been known to work with whisperfish::
-
-    $ ./build.sh bootstrap-qt
-
-7. Run qtmoc and qtminimal (this is run on your local machine not the sdk)::
-
-    $ ./build.sh prep
-
-8. Create i386 and arm Go binaries for use in Sailfish SDK. Note this only
-   needs to be done once::
-
-    $ ./build.sh setup-sdk
-
-9a.Login to SDK and setup environment. Installing Go in your home directory
-   will provide SDK access to the Go binaries for compiling whisperfish.
-   Note only needs to be done once::
+2. Since that library is built using `cmake <https://cmake.org/>`_,
+   we need cmake *in the build environment*.
+   You can install it from within the SDK.
+   While you're at it, install git too. `qmake` will embed the current git ref in the build name.
+   If you prefer to install it over the command line, `ssh` into your build system and use `zypper`::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ vim ~/.bashrc
-    [add these lines to .bashrc]
-    export GOROOT=/home/src1/projects/goroot/go
-    export GOPATH=/home/src1/projects/go
-    export PATH=$GOROOT/bin/linux_386:$PATH
+    $ sudo zypper -n install cmake make git
 
-    $ source ~/.bashrc
-
-
-9b.Compile newer version of qemu and create new target for sb2. Older versions
-   of qemu don't work well with Go::
-
-    $ sudo zypper -n install libtool zlib-devel glib2-devel flex bison gcc pkgconfig glib2-static glibc-static make pcre-static
-    $ cd $HOME
-    $ mkdir src; cd src
-    $ curl -O -L https://download.qemu.org/qemu-2.6.2.tar.bz2
-    $ tar xjf qemu-2.6.2.tar.bz2
-    $ ./configure --target-list=arm-softmmu,arm-linux-user
-    $ make
-    $ sudo make install
-    $ sb2-init -L --sysroot=/ -C --sysroot=/ -c /usr/local/bin/qemu-arm -m sdk-build -n -N -t / SailfishOSgo-armv7hl /srv/mer/toolings/SailfishOS-2.1.4.13/opt/cross/bin/armv7hl-meego-linux-gnueabi-gcc
-
-
-10. Login to SDK, compile whisperfish, and deploy to emulator::
-
-    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ cd $GOPATH/src/github.com/aebruno/whisperfish
-    $ ./build.sh compile
-    $ ./build.sh i18n
-    $ ./build.sh deploy
+3. From here on, you can just use the SailfishOS SDK as per usual
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 i18n Translations (help wanted)
