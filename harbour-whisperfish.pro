@@ -54,7 +54,8 @@ CONFIG(debug, debug|release) {
 SOURCES += \
     src/harbour-whisperfish.cpp
 
-# HEADERS += \
+HEADERS += \
+    src/whisperfish.hpp \
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \

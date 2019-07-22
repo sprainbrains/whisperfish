@@ -1,4 +1,7 @@
-#ifndef WHISPERFISH_HPP
-#define WHISPERFISH_HPP
+#pragma once
 
-#endif // WHISPERFISH_HPP
+struct Version {
+    int v1; int v2; int v3;
+};
+
+static const Version get_version();

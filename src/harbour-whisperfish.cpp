@@ -7,9 +7,7 @@
 #include <QQuickView>
 #include <QtQml>
 
-struct Version {
-    int v1; int v2; int v3;
-};
+#include "whisperfish.hpp"
 
 static void register_types(QQmlEngine* engine, const char* uri, Version v)
 {
