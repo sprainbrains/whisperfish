@@ -6,6 +6,7 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QtQml>
+#include <QtCore>
 
 #include "whisperfish.hpp"
 
@@ -20,6 +21,17 @@ static const Version get_version() {
     ss >> v2; ss.get();
     ss >> v3;
     return Version { v1, v2, v3 };
+}
+
+static const Paths get_paths() {
+    const QString appName = qApp->applicationName();
+
+    auto data_paths = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + appName;
+    auto config_paths = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/" + appName;
+    qInfo() << "Data should be at" << data_paths;
+    qInfo() << "Config should be at" << config_paths;
+
+    return Paths { data_paths, config_paths };
 }
 
 int main(int argc, char *argv[])
@@ -48,6 +60,9 @@ int main(int argc, char *argv[])
             << "." << version.v2
             << "." << version.v3;
 
+    get_paths();
+
+    // Start GUI
     QQmlEngine* engine = view->engine();
     register_types(engine, "harbour.whisperfish", version);
 
