@@ -1,0 +1,19 @@
+---
+image: coderus/sailfishos-platform-sdk:3.1.0.11
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  SFOS_VERSION: 3.1.0.11
+
+build-arm:
+  stage: build
+  variables:
+    TARGET: "armv7hl"
+  script:
+    - .ci/build.sh
+
+build-x86:
+  stage: build
+  variables:
+    TARGET: "i486"
+  script:
+    - .ci/build.sh
