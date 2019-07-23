@@ -9,13 +9,16 @@ sb2 -t SailfishOS-$SFOS_VERSION-$TARGET \
 echo Copying source
 sudo cp -r . ~nemo/src
 sudo chown -R nemo:nemo ~nemo/src
-cd ~nemo/src
 
 echo Done copying source.
 pwd
 
-mb2 -t SailfishOS-$SFOS_VERSION-$TARGET build
+(
+    cd ~nemo/src
 
-echo Done building
-pwd
-ls RPMS
+    mb2 -t SailfishOS-$SFOS_VERSION-$TARGET build
+
+    echo Done building
+)
+
+sudo cp -r /home/nemo/src/RPMS RPMS

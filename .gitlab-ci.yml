@@ -10,6 +10,9 @@ build-arm:
     TARGET: "armv7hl"
   script:
     - .ci/build.sh
+  artifacts:
+    paths:
+      - RPMS/*.rpm
 
 build-x86:
   stage: build
@@ -17,3 +20,6 @@ build-x86:
     TARGET: "i486"
   script:
     - .ci/build.sh
+  artifacts:
+    paths:
+      - RPMS/*.rpm
