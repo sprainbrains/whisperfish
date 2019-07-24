@@ -14,3 +14,8 @@ int SessionModel::unread() const {
     // TODO
     return 0;
 }
+
+int SessionModel::count() const {
+    // TODO
+    return 0;
+}
