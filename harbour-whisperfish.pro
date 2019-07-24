@@ -82,6 +82,7 @@ OTHER_FILES += \
     rpm/harbour-whisperfish.spec \
     rpm/harbour-whisperfish.yaml \
     icons/*.svg \
+    icons/86x86/*.png \
     README.rst \
     harbour-whisperfish-message.conf \
     harbour-whisperfish.desktop \
@@ -107,8 +108,18 @@ PRE_TARGETDEPS += libsignal-build/src/libsignal-protocol-c.a
 LIBS += -Llibsignal-build/src/ -lsignal-protocol-c
 
 # Icons
-ICON_SIZES = 86 108 128 256
+ICON_SIZES = 86
+ICON_TYPES = blue connected disconnected gold green red
 for(s, ICON_SIZES) {
+    for(t, ICON_TYPES) {
+        # /usr/share/harbour-whisperfish/icons/86x86/
+        icon_target = icon$${s}$${t}
+        icon_dir = icons/$${s}x$${s}
+        $${icon_target}.files = $${icon_dir}/$${TARGET}-$${t}.png
+        $${icon_target}.path = /usr/share/$${TARGET}/icons/$${s}x$${s}/
+        INSTALLS += $${icon_target}
+    }
+
     icon_target = icon$${s}
     icon_dir = icons/$${s}x$${s}
     $${icon_target}.files = $${icon_dir}/$${TARGET}.png
