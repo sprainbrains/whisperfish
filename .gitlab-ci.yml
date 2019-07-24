@@ -4,12 +4,19 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   SFOS_VERSION: 3.1.0.11
 
+cache:
+  paths:
+    - /var/cache/zypp/
+
 build-arm:
   stage: build
   variables:
     TARGET: "armv7hl"
   script:
     - .ci/build.sh
+  cache:
+    paths:
+      - /srv/mer/targets/SailfishOS-$SFOS_VERSION-$TARGET/var/cache/zypp/
   artifacts:
     paths:
       - RPMS/*.rpm
@@ -20,6 +27,9 @@ build-x86:
     TARGET: "i486"
   script:
     - .ci/build.sh
+  cache:
+    paths:
+      - /srv/mer/targets/SailfishOS-$SFOS_VERSION-$TARGET/var/cache/zypp/
   artifacts:
     paths:
       - RPMS/*.rpm
