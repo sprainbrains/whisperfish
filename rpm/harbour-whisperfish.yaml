@@ -11,7 +11,7 @@ License: GPLv3
 # Usually this line does not need to be modified.
 Sources:
 - '%{name}-%{version}.tar.bz2'
-Description: Signal client for SailfishOS
+Description: Private messaging using Signal for SailfishOS.
 Configure: none
 # The qtc5 builder inserts macros to allow QtCreator to have fine
 # control over qmake/make execution
