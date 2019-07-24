@@ -3,6 +3,10 @@
 #include "settings/settings.hpp"
 #include "whisperfish.hpp"
 
+
+// Creating QSettings is cheap, and by not having it as a field,
+// we can set a default configuration on first start.
+
 void Settings::setup() {
     auto paths = get_paths();
     auto config_path = paths.config + "/harbour-whisperfish.conf";
@@ -20,9 +24,19 @@ bool Settings::boolValue(const QString key) const {
     return settings.value(key).toBool();
 }
 
+void Settings::boolSet(const QString key, bool val) {
+    QSettings settings;
+    settings.setValue(key, val);
+}
+
 QString Settings::stringValue(const QString key) const {
     QSettings settings;
     return settings.value(key).toString();
+}
+
+void Settings::stringSet(const QString key, const QString val) {
+    QSettings settings;
+    settings.setValue(key, val);
 }
 
 void Settings::setDefaults() {
