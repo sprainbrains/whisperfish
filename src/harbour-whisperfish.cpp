@@ -23,7 +23,9 @@
 
 #include "signal++/signal++.hpp"
 
-static void register_types(QQmlEngine* engine, const char* uri, Version v)
+static void register_types(__attribute__((unused)) QQmlEngine* engine,
+        __attribute__((unused)) const char* uri,
+        __attribute__((unused)) Version v)
 {
 }
 
