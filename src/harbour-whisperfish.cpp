@@ -24,7 +24,7 @@ static void register_types(QQmlEngine* engine, const char* uri, Version v)
 {
 }
 
-static const Version get_version() {
+Version get_version() {
     std::stringstream ss(APP_VERSION);
     int v1, v2, v3;
     ss >> v1; ss.get();
@@ -33,7 +33,7 @@ static const Version get_version() {
     return Version { v1, v2, v3 };
 }
 
-static const Paths get_paths() {
+Paths get_paths() {
     const QString appName = qApp->applicationName();
 
     auto data_paths = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/" + appName;
