@@ -2,27 +2,15 @@
 Whisperfish
 ===============================================================================
 
-**WARNING - DO NOT USE THIS CLIENT**
-
-Unfortunately I am no longer able to maintain this project and can not
-recommend anyone continue using Whisperfish. The code base is far from complete
-and does not implement the latest features of the Signal protocol. It's just a
-matter of time before this just completely stops working.  Rather than wait
-until that time, I'm archiving this project and recommend any remaining users
-switch to another client. This repository is archived and here for historical
-purposes only.
-
-Thanks to all who contributed and provided valuable feedback.
-
-Cheers!
-
-**WARNING - DO NOT USE THIS CLIENT**
+Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
+`Sailfish OS <https://sailfishos.org/>`_. The user interface is heavily based on
+the jolla-messages application written by Jolla Ltd.
 
 -------------------------------------------------------------------------------
 Project Status
 -------------------------------------------------------------------------------
 
-This project is based of a now outdated Go-based SailfishOS client for Signal.
+This project was based of a now outdated Go-based SailfishOS client for Signal.
 This version is a port that uses `libsignal-c-protocol
 <https://github.com/signalapp/libsignal-protocol-c>`_ instead.
 This means we aim for better maintainability.
