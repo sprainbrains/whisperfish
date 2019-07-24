@@ -9,6 +9,16 @@
 #include <QtCore>
 
 #include "whisperfish.hpp"
+#include "model/contact.hpp"
+#include "model/device.hpp"
+#include "model/filepicker.hpp"
+#include "model/message.hpp"
+#include "model/prompt.hpp"
+#include "model/session.hpp"
+#include "settings/settings.hpp"
+#include "worker/setup.hpp"
+#include "worker/client.hpp"
+#include "worker/send.hpp"
 
 static void register_types(QQmlEngine* engine, const char* uri, Version v)
 {
@@ -62,12 +72,34 @@ int main(int argc, char *argv[])
 
     get_paths();
 
+    Settings settings;
+    SetupWorker setupWorker;
+    FilePicker filePicker;
+    ContactModel contactModel;
+    Prompt prompt;
+    SessionModel sessionModel;
+    MessageModel messageModel;
+    DeviceModel deviceModel;
+    ClientWorker clientWorker;
+    SendWorker sendWorker;
+
     // Start GUI
     QQmlEngine* engine = view->engine();
     register_types(engine, "harbour.whisperfish", version);
 
     QQmlContext* root = view->rootContext();
     root->setContextProperty("AppVersion", APP_VERSION);
+
+    root->setContextProperty("Prompt", &prompt);
+    root->setContextProperty("SettingsBridge", &settings);
+    root->setContextProperty("FilePicker", &filePicker);
+    root->setContextProperty("SessionModel", &sessionModel);
+    root->setContextProperty("MessageModel", &messageModel);
+    root->setContextProperty("ContactModel", &contactModel);
+    root->setContextProperty("DeviceModel", &deviceModel);
+    root->setContextProperty("SetupWorker", &setupWorker);
+    root->setContextProperty("ClientWorker", &clientWorker);
+    root->setContextProperty("SendWorker", &sendWorker);
 
     view->setSource(SailfishApp::pathTo("qml/harbour-whisperfish.qml"));
     view->setTitle("Whisperfish");

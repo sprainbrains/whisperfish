@@ -52,10 +52,30 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES += \
-    src/harbour-whisperfish.cpp
+    src/harbour-whisperfish.cpp \
+    src/model/contact.cpp \
+    src/model/device.cpp \
+    src/model/filepicker.cpp \
+    src/model/message.cpp \
+    src/model/prompt.cpp \
+    src/model/session.cpp \
+    src/settings/settings.cpp \
+    src/worker/client.cpp \
+    src/worker/send.cpp \
+    src/worker/setup.cpp \
 
 HEADERS += \
     src/whisperfish.hpp \
+    src/model/contact.hpp \
+    src/model/device.hpp \
+    src/model/filepicker.hpp \
+    src/model/message.hpp \
+    src/model/prompt.hpp \
+    src/model/session.hpp \
+    src/settings/settings.hpp \
+    src/worker/client.hpp \
+    src/worker/send.hpp \
+    src/worker/setup.hpp \
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \
