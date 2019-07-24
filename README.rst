@@ -22,20 +22,16 @@ Cheers!
 Project Status
 -------------------------------------------------------------------------------
 
-This project is no longer maintained. Do not use this client.
+This project is based of a now outdated Go-based SailfishOS client for Signal.
+This version is a port that uses `libsignal-c-protocol
+<https://github.com/signalapp/libsignal-protocol-c>`_ instead.
+This means we aim for better maintainability.
+It also means the whole SailfishOS app needs to be rewritten, and you may want
+to make a back-up of your current files. Specifically:
 
-The following text is outdated...
+- `.local/share/harbour-whisperfish/` contains all your data.
+- `.config/harbour-whisperfish/` contains the apps configuration.
 
-Whisperfish should be considered alpha software and used at your own risk. The
-client is not an official Signal client and is not affiliated with Open Whisper
-Systems. The code has not been audited by an expert in computer security or
-cryptography. 
-
-Whisperfish uses the `Signal client library for Go
-<https://github.com/aebruno/textsecure>`_ and `Qt binding for Go
-<https://github.com/therecipe/qt>`_.  The user interface is heavily based on
-the jolla-messages application written by Jolla Ltd.
-  
 -------------------------------------------------------------------------------
 Features
 -------------------------------------------------------------------------------
