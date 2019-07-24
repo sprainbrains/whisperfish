@@ -8,4 +8,11 @@ class Settings : public QObject {
 public:
     Settings(QObject *parent = nullptr): QObject(parent) {
     }
+
+    void setup();
+    void setDefaults();
+
+public slots:
+    bool boolValue(const QString key) const;
+    QString stringValue(const QString key) const;
 };

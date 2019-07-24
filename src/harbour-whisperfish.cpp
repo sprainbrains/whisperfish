@@ -70,9 +70,9 @@ int main(int argc, char *argv[])
             << "." << version.v2
             << "." << version.v3;
 
-    get_paths();
-
     Settings settings;
+    settings.setup();
+
     SetupWorker setupWorker;
     FilePicker filePicker;
     ContactModel contactModel;
