@@ -126,3 +126,12 @@ for(s, ICON_SIZES) {
     $${icon_target}.path = /usr/share/icons/hicolor/$${s}x$${s}/apps
     INSTALLS += $${icon_target}
 }
+
+OTHER_ICONS = ic_done_all_white_18dp  ic_done_white_18dp  ic_send_push_white_24dp
+for(i, OTHER_ICONS) {
+    icon_target = icon$${i}
+    icon_dir = icons/
+    $${icon_target}.files = $${icon_dir}/$${i}.png
+    $${icon_target}.path = /usr/share/$${TARGET}/icons/
+    INSTALLS += $${icon_target}
+}
