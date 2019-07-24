@@ -5,7 +5,7 @@ set -e
 echo Building for SailfishOS-$SFOS_VERSION-$TARGET
 sb2 -t SailfishOS-$SFOS_VERSION-$TARGET \
     -m sdk-install \
-    -R zypper --non-interactive in cmake git make
+    -R zypper --non-interactive in cmake git make openssl-devel
 echo Copying source
 sudo cp -r . ~nemo/src
 sudo chown -R nemo:nemo ~nemo/src

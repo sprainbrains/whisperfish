@@ -1,5 +1,6 @@
 #include <sstream>
 #include <string>
+#include <memory>
 
 #include <sailfishapp.h>
 #include <QTranslator>
@@ -19,6 +20,8 @@
 #include "worker/setup.hpp"
 #include "worker/client.hpp"
 #include "worker/send.hpp"
+
+#include "signal++/signal++.hpp"
 
 static void register_types(QQmlEngine* engine, const char* uri, Version v)
 {
@@ -69,6 +72,8 @@ int main(int argc, char *argv[])
             << version.v1
             << "." << version.v2
             << "." << version.v3;
+
+    auto ctx = std::make_shared<SignalContext>();
 
     Settings settings;
     settings.setup();

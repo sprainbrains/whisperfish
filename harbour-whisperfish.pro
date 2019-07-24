@@ -15,7 +15,7 @@ PREFIX = harbour
 TARGET = $${PREFIX}-$${NAME}
 
 CONFIG += sailfishapp link_pkgconfig
-PKGCONFIG += sailfishapp mlite5
+PKGCONFIG += sailfishapp mlite5 openssl
 
 QT += core network concurrent sql
 
@@ -76,6 +76,7 @@ HEADERS += \
     src/worker/client.hpp \
     src/worker/send.hpp \
     src/worker/setup.hpp \
+    src/signal++/signal++.hpp \
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \

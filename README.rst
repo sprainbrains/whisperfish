@@ -88,11 +88,12 @@ Building from source
 2. Since that library is built using `cmake <https://cmake.org/>`_,
    we need cmake *in the build environment*.
    You can install it from within the SDK.
+   We also need `openssl-devel` for the cryptographic provider.
    While you're at it, install git too. `qmake` will embed the current git ref in the build name.
    If you prefer to install it over the command line, `ssh` into your build system and use `zypper`::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ sudo zypper -n install cmake make git
+    $ sudo zypper -n install cmake make git openssl-devel
 
 3. From here on, you can just use the SailfishOS SDK as per usual
 
