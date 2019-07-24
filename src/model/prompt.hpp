@@ -8,4 +8,10 @@ class Prompt : public QObject {
 public:
     Prompt(QObject *parent = nullptr): QObject(parent) {
     }
+
+signals:
+    void promptPhoneNumber();
+    void promptVerificationCode();
+    void promptPassword();
+    void promptResetPeerIdentity(QString source);
 };
