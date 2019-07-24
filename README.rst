@@ -54,6 +54,16 @@ Features
 - [ ] Archiving conversations
 
 -------------------------------------------------------------------------------
+Nightly builds
+-------------------------------------------------------------------------------
+
+The most recent builds can be found here:
+
+- armv7hl: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build-arm
+- i486: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build-x86
+
+
+-------------------------------------------------------------------------------
 Performance Tips
 -------------------------------------------------------------------------------
 
