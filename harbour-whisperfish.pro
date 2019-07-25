@@ -17,7 +17,7 @@ TARGET = $${PREFIX}-$${NAME}
 CONFIG += sailfishapp link_pkgconfig
 PKGCONFIG += sailfishapp mlite5 openssl
 
-QT += core network concurrent sql
+QT += core network concurrent sql websockets
 
 LIBS += -ldl
 
