@@ -19,9 +19,13 @@ signals:
 private slots:
     void onConnected();
     void onTextMessageReceived(const QString message);
+    void onBinaryMessageReceived(const QByteArray &message);
     void onSslErrors(const QList<QSslError>);
     void onError(QAbstractSocket::SocketError);
+    void onDisconnect();
 
 private:
     QWebSocket wss;
+
+    void open();
 };

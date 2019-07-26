@@ -32,10 +32,13 @@ ClientWorker::ClientWorker(QObject *parent):
 {
     // XXX: un-hardcode
     connect(&wss, &QWebSocket::connected, this, &ClientWorker::onConnected);
+    connect(&wss, &QWebSocket::disconnected, this, &ClientWorker::onDisconnect);
     connect(&wss, &QWebSocket::sslErrors,
             this, &ClientWorker::onSslErrors);
     // These static_casts can be replaced with QOverload for C++14 and Qt>5.7
     connect(&wss, static_cast<void (QWebSocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error), this, &ClientWorker::onError);
+    connect(&wss, &QWebSocket::textMessageReceived, this, &ClientWorker::onTextMessageReceived);
+    connect(&wss, &QWebSocket::binaryMessageReceived, this, &ClientWorker::onBinaryMessageReceived);
 
 
     // Add Signal's custom root certificate
@@ -46,12 +49,25 @@ ClientWorker::ClientWorker(QObject *parent):
     config.setCaCertificates(certs);
     wss.setSslConfiguration(config);
 
+    open();
+}
+
+void ClientWorker::open() {
     qInfo() << "Starting websocket";
     wss.open(QUrl("wss://textsecure-service.whispersystems.org" + websocketPath));
 }
 
 void ClientWorker::onError(QAbstractSocket::SocketError error) {
     qWarning() << "websocket error" << error;
+
+    switch(error) {
+    case QAbstractSocket::RemoteHostClosedError:
+        // reconnect
+        open();
+        break;
+    default:
+        qWarning() << "Not handling error";
+    }
 }
 
 void ClientWorker::onConnected() {
@@ -59,7 +75,15 @@ void ClientWorker::onConnected() {
 }
 
 void ClientWorker::onTextMessageReceived(const QString message) {
-    qDebug() << "Message received:" << message;
+    qDebug() << "TextMessage received:" << message;
+}
+
+void ClientWorker::onBinaryMessageReceived(const QByteArray &message) {
+    qDebug() << "BinaryMessage received of" << message.count() << "bytes";
+}
+
+void ClientWorker::onDisconnect() {
+    qDebug() << "WebSocket disconnected because" << wss.closeReason();
 }
 
 void ClientWorker::onSslErrors(const QList<QSslError> errors) {
