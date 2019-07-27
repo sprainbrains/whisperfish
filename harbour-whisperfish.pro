@@ -63,6 +63,7 @@ SOURCES += \
     src/worker/client.cpp \
     src/worker/send.cpp \
     src/worker/setup.cpp \
+    src/store.cpp \
 
 HEADERS += \
     src/whisperfish.hpp \
@@ -77,6 +78,7 @@ HEADERS += \
     src/worker/send.hpp \
     src/worker/setup.hpp \
     src/signal++/signal++.hpp \
+    src/store.hpp \
 
 OTHER_FILES += \
     qml/cover/CoverPage.qml \

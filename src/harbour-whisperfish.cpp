@@ -20,6 +20,7 @@
 #include "worker/setup.hpp"
 #include "worker/client.hpp"
 #include "worker/send.hpp"
+#include "store.hpp"
 
 #include "signal++/signal++.hpp"
 
@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
     DeviceModel deviceModel;
     ClientWorker clientWorker;
     SendWorker sendWorker;
+    Store store;
 
     // Start GUI
     QQmlEngine* engine = view->engine();
@@ -111,5 +113,8 @@ int main(int argc, char *argv[])
     view->setSource(SailfishApp::pathTo("qml/harbour-whisperfish.qml"));
     view->setTitle("Whisperfish");
     view->showFullScreen();
+
+    store.loadIdentity(&prompt);
+
     return app->exec();
 }

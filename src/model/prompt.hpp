@@ -14,4 +14,9 @@ signals:
     void promptVerificationCode();
     void promptPassword();
     void promptResetPeerIdentity(QString source);
+
+    void receivePassword(QString password);
+
+public slots:
+    void password(const QString string);
 };
