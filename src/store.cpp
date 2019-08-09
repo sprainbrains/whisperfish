@@ -98,25 +98,19 @@ bool decrypt(const unsigned char *encryption_key,
         unsigned char *out) {
     // Check MAC, last 32 bytes
     const unsigned char *hmac_out = ciphertext + ciphertext_len - 32;
-    qInfo() << "Generating MAC context";
     // XXX: maybe reuse signal++?
     HMAC_CTX *ctx = (HMAC_CTX *)malloc(sizeof(HMAC_CTX));
     HMAC_CTX_init(ctx);
     assert(ctx);
-    qInfo() << "Init HMAC with sha256";
     assert(HMAC_Init_ex(ctx, mac_key, 20, EVP_sha256(), 0) == 1);
 
-    qInfo() << "MAC update";
     assert(HMAC_Update(ctx, ciphertext, ciphertext_len - 32) == 1);
 
     unsigned char md[EVP_MAX_MD_SIZE];
     unsigned int md_len = 0;
-    qInfo() << "MAC final";
     HMAC_Final(ctx, md, &md_len);
-    qInfo() << "MAC cleanup";
     HMAC_CTX_cleanup(ctx);
     free(ctx);
-    qInfo() << "MAC freed";
 
     assert(md_len > 0);
     if (memcmp(md, hmac_out, md_len) != 0) return false;
