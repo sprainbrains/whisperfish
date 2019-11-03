@@ -26,9 +26,9 @@ esac
 
 echo Building for Rust target $RUST_TARGET
 
-curl --proto '=https' --tlsv1.2 -sSf -o rustup.sh https://sh.rustup.rs
+curl --proto '=https' --tlsv1.2 -sSf -o ~nemo/rustup.sh https://sh.rustup.rs
 sb2 -t SailfishOS-$SFOS_VERSION-$TARGET -m sdk-install \
-    sh rustup.sh \
+    sh ~nemo/rustup.sh \
         --profile minimal \
         --target $RUST_TARGET \
         -y \
