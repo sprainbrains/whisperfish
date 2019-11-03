@@ -16,16 +16,6 @@ sudo chown -R nemo:nemo ~nemo/src
 echo Done copying source.
 pwd
 
-(
-    cd ~nemo/src
-
-    mb2 -t SailfishOS-$SFOS_VERSION-$TARGET build
-
-    echo Done building
-)
-
-sudo cp -r /home/nemo/src/RPMS RPMS
-
 # Rust
 case "$TARGET" in
     i486 )
@@ -49,3 +39,5 @@ sb2 -t SailfishOS-$SFOS_VERSION-$TARGET -m sdk-install \
         cargo build --target=$RUST_TARGET
     echo Done building Rust version
 )
+
+sudo cp -r /home/nemo/src/RPMS RPMS
