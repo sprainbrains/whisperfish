@@ -27,8 +27,7 @@ source $HOME/.cargo/env
 
 (
     cd ~nemo/src
-    sb2 -t SailfishOS-$SFOS_VERSION-$TARGET -m sdk-build \
-        cargo build
+    mb2 -t SailfishOS-$SFOS_VERSION-$TARGET build
     echo Done building Rust version
 )
 
