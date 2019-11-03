@@ -98,17 +98,9 @@ OTHER_FILES += \
     qml/pages/*.qml \
     translations/*.ts \
     libsignal-protocol-c \
-
-libsignal.target = libsignal-build/src/libsignal-protocol-c.a
-libsignal.commands = \
-    mkdir -p libsignal-build/ ; \
-    ( cd libsignal-build/ ; cmake -DCMAKE_BUILD_TYPE=Release "$$_PRO_FILE_PWD_/libsignal-protocol-c/") ; \ # holy shit this is hacky
-    $(MAKE) -C libsignal-build ; \
-
-
-QMAKE_EXTRA_TARGETS += libsignal
-PRE_TARGETDEPS += libsignal-build/src/libsignal-protocol-c.a
-LIBS += -Llibsignal-build/src/ -lsignal-protocol-c
+    src/*.rs \
+    Cargo.toml \
+    Cargo.lock \
 
 # Icons
 ICON_SIZES = 86
