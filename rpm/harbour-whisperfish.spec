@@ -38,7 +38,7 @@ Private messaging using Signal for SailfishOS.
 # >> build pre
 export RPM_VERSION=%{version}
 source $HOME/.cargo/env
-cargo build --release --manifest-path .mb2/src/Cargo.toml
+cargo build --release --manifest-path %{_sourcedir}/../Cargo.toml
 # << build pre
 
 
