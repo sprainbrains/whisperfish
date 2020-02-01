@@ -2,6 +2,12 @@
 ChangeLog
 ===============================================================================
 
+v0.6.0 (2020-xx-xx)
+---------------------------
+
+* Using the official libsignal-c library as back-end.
+* Add zh_CN translation, thanks to dashinfantry through !6
+
 `v0.5.1`_ (2018-04-01)
 ---------------------------
 
