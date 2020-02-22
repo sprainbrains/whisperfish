@@ -19,3 +19,4 @@ libsignal-build/
 # cargo
 /target
 **/*.rs.bk
+.env

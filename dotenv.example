@@ -1,0 +1,8 @@
+# Building this project requires the SailfishOS Platform SDK, and MERSDK should be set correctly in the environment.
+
+# Path to the platform SDKs, classically /srv/mer/
+export MERSDK="/srv/mer/"
+
+# Target should exist in $SDK_ROOT/mersdk/targets/
+# Default is SailfishOS-latest, this variable is optional.
+export MER_TARGET="SailfishOS-latest"
