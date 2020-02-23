@@ -15,7 +15,7 @@ sh ~nemo/rustup.sh \
     -y \
 
 # Host CC
-zypper install -t "devel_C_C++"
+sudo zypper install -y gcc gcc-c++
 
 source $HOME/.cargo/env
 
