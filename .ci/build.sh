@@ -14,6 +14,9 @@ sh ~nemo/rustup.sh \
     --profile minimal \
     -y \
 
+# Host CC
+zypper install -t "devel_C_C++"
+
 source $HOME/.cargo/env
 
 source .ci/$TARGET.sh
