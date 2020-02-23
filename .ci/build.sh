@@ -20,6 +20,9 @@ source .ci/$TARGET.sh
 rustup target add $RUSTUP_TARGET
 
 cat <<EOF > ~/.cargo/config
+[build]
+target = "$RUSTUP_TARGET"
+
 [target.$RUSTUP_TARGET]
 linker = "$RUSTUP_CC"
 ar = "$RUSTUP_AR"
