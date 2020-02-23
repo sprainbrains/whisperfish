@@ -16,7 +16,7 @@ sh ~nemo/rustup.sh \
 
 source $HOME/.cargo/env
 
-source ./$TARGET.sh
+source .ci/$TARGET.sh
 rustup target add $RUSTUP_TARGET
 
 cat <<EOF > ~/.cargo/config
