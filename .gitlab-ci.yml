@@ -1,8 +1,8 @@
 ---
-image: coderus/sailfishos-platform-sdk:3.2.0.12
+image: coderus/sailfishos-platform-sdk:latest
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  SFOS_VERSION: 3.2.0.12
+  SFOS_VERSION: latest
 
 cache:
   paths:
