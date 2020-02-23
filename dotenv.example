@@ -1,4 +1,6 @@
 # Building this project requires the SailfishOS Platform SDK, and MERSDK should be set correctly in the environment.
+# Technically, build.rs can source these from the file via dotenv,
+# but since dependencies cannot, you should *source this file* before running `cargo build`.
 
 # Path to the platform SDKs, classically /srv/mer/
 export MERSDK="/srv/mer/"
@@ -6,3 +8,8 @@ export MERSDK="/srv/mer/"
 # Target should exist in $SDK_ROOT/mersdk/targets/
 # Default is SailfishOS-latest, this variable is optional.
 export MER_TARGET="SailfishOS-latest"
+
+# For now, this is also put in the environment.
+# After https://github.com/rust-lang/cargo/pull/7811 is in nightly,
+# we can generate these flags in build.rs
+export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-armv7hl/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-armv7hl/lib/"
