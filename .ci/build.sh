@@ -21,6 +21,7 @@ source $HOME/.cargo/env
 
 source .ci/$TARGET.sh
 rustup target add $RUSTUP_TARGET
+export TARGET_CFLAGS="-isystem $MERSDK/targets/$MER_TARGET-$TARGET/usr/include/"
 
 cat <<EOF > ~/.cargo/config
 [build]
