@@ -5,4 +5,4 @@ export RUSTUP_AR=$MERSDK/toolings/SailfishOS-$SFOS_VERSION/opt/cross/bin/armv7hl
 export CC_armv7_unknown_linux_gnueabi="$RUSTUP_CC"
 
 # XXX: potentially also add +neon
-export RUSTFLAGS="$RUSTFLAGS -C target-feature=+v7"
+# export RUSTFLAGS="$RUSTFLAGS -C target-feature=+v7"
