@@ -4,6 +4,8 @@ version = "0.6.0-alpha.1"
 authors = ["Ruben De Smet <ruben.de.smet@rubdos.be>"]
 edition = "2018"
 build = "build.rs"
+license = "GPL-3.0-or-later"
+description = "Private messaging using Signal for SailfishOS."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
