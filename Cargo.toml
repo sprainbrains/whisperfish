@@ -21,6 +21,9 @@ cpp_build = "0.5"
 failure = "0.1.6"
 dotenv = "0.15"
 
+[package.metadata.rpm]
+target_architecture = "armv7hl"
+
 [package.metadata.rpm.cargo]
 buildflags = ["--release"]
 target = "arm-unknown-linux-gnueabihf"
