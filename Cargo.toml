@@ -14,8 +14,31 @@ qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-
 cstr = "0.1.0"
 cpp = "0.5"
 failure = "0.1.6"
+libsignal-protocol = "0.1.0"
 
 [build-dependencies]
 cpp_build = "0.5"
 failure = "0.1.6"
 dotenv = "0.15"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+target = "arm-unknown-linux-gnueabihf"
+
+[package.metadata.rpm.targets]
+harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
+
+[package.metadata.rpm.files]
+"harbour-whisperfish.desktop" = { path = "/usr/share/applications/harbour-whisperfish.desktop" }
+"icons/86x86/harbour-whisperfish.png" = { path = "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png" }
+"../qml/" = { path = "/usr/share/harbour-whisperfish/qml/" }
+
+"icons/86x86/harbour-whisperfish-blue.png" = { path = "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-blue.png" }
+# "icons/86x86/harbour-whisperfish-connected.png" = { path = "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-connected.png" }
+# "icons/86x86/harbour-whisperfish-disconnected.png" = { path = "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-disconnected.png" }
+# "icons/86x86/harbour-whisperfish-gold.png" = { path = "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-gold.png" }
+# "icons/86x86/harbour-whisperfish-green.png" = { path = "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-green.png" }
+# "icons/86x86/harbour-whisperfish-red.png" = { path = "/usr/share/harbour-whisperfish/icons/86x86/harbour-whisperfish-red.png" }
+# "icons/ic_done_all_white_18dp.png" = { path = "/usr/share/harbour-whisperfish/icons/ic_done_all_white_18dp.png" }
+"icons/ic_done_white_18dp.png" = { path = "/usr/share/harbour-whisperfish/icons/ic_done_white_18dp.png" }
+"icons/ic_send_push_white_24dp.png" = { path = "/usr/share/harbour-whisperfish/icons/ic_send_push_white_24dp.png" }

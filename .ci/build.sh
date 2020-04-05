@@ -34,4 +34,6 @@ EOF
 
 cargo build
 
-sudo cp -r /home/nemo/src/RPMS RPMS
+cargo rpm build
+
+sudo cp -r target/$RUSTUP_TARGET/release/rpmbuild/RPMs RPMS
