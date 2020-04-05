@@ -37,3 +37,4 @@ harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
 
 "../qml/" = { path = "/usr/share/harbour-whisperfish/qml/" }
 "../icons/" = { path = "/usr/share/harbour-whisperfish/icons/" }
+"../translations/" = { path = "/usr/share/harbour-whisperfish/translations/" }
