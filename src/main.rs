@@ -7,49 +7,35 @@ use qmetaobject::*;
 
 mod qrc;
 
+mod sfos;
+
+use sfos::*;
+
 fn main() {
+    env_logger::init();
+
     qrc::load();
 
-    unsafe {
-        cpp! { {
-            #include <QtCore/QCoreApplication>
-            #include <QtCore/QString>
+    let mut app = SailfishApp::application("harbour-whisperfish".into());
+    log::info!("SailfishApp::application loaded");
+    let version: QString = "0.6.0".into(); // XXX source from Cargo.toml
+    app.set_title("Whisperfish".into());
+    app.set_application_version(version.clone());
+    app.install_default_translator();
 
-            #include <QtGui/QGuiApplication>
-            #include <QtQuick/QQuickView>
-            #include <QtQml/QtQml>
-            #include <QtCore/QtCore>
+    let mut engine = app.engine();
+    engine.set_property("AppVersion".into(), version.into());
+    // engine.set_object_property("Prompt", prompt);
+    // engine.set_object_property("SettingsBridge", settings);
+    // engine.set_object_property("FilePicker", filePicker);
+    // engine.set_object_property("SessionModel", sessionModel);
+    // engine.set_object_property("MessageModel", messageModel);
+    // engine.set_object_property("ContactModel", contactModel);
+    // engine.set_object_property("DeviceModel", deviceModel);
+    // engine.set_object_property("SetupWorker", setupWorker);
+    // engine.set_object_property("ClientWorker", clientWorker);
+    // engine.set_object_property("SendWorker", sendWorker);
 
-            #include <sailfishapp.h>
-        }}
-        cpp!{[]{
-            int argc = 1;
-            char *_appName = "harbour-whisperfish";
-            char **argv = &_appName;
-            QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
-            qApp->setApplicationVersion("0.6.0");
-
-            QTranslator translator(qApp);
-            const QString appName = qApp->applicationName();
-            const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
-            const QLocale locale;
-            if (!translator.load(locale, appName, "-", transDir, ".qm")) {
-                qWarning() << "Failed to load translator for" << QLocale::system().uiLanguages()
-                           << "Searched" << transDir << "for" << appName;
-                if(!translator.load(appName, transDir)) {
-                    qWarning() << "Could not load default translator either!";
-                }
-                app->installTranslator(&translator);
-            }
-
-            QScopedPointer<QQuickView> view(SailfishApp::createView());
-
-            view->setSource(SailfishApp::pathTo("qml/harbour-whisperfish.qml"));
-            app->exec();
-        }}
-    }
-
-    // let mut engine = QmlEngine::new();
-    // engine.load_file("qrc:/qml/harbour-whisperfish.qml".into());
-    // engine.exec();
+    app.set_source(SailfishApp::path_to("qrc:/qml/harbour-whisperfish.qml".into()));
+    app.exec();
 }
