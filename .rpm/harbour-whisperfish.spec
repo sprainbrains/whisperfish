@@ -24,6 +24,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 %prep
 %setup -q
 
+%build
+lrelease .%{_datadir}/%{name}/translations/*.ts
+rm .%{_datadir}/%{name}/translations/*.ts
+
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
