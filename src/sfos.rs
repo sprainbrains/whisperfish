@@ -17,31 +17,31 @@ cpp! {{
 
     struct SfosSingleApplicationGuard {
         SfosSingleApplicationGuard() {
-            rust!(Rust_SfosQmlEngineHolder_ctor[] {
+            rust!(Rust_SfosApplicationHolder_ctor[] {
                 HAS_ENGINE.compare_exchange(false, true, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
                         .expect("There can only be one QmlEngine in the process");
             });
         }
         ~SfosSingleApplicationGuard() {
-            rust!(Rust_SfosQmlEngineHolder_dtor[] {
+            rust!(Rust_SfosApplicationHolder_dtor[] {
                 HAS_ENGINE.compare_exchange(true, false, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
                     .unwrap();
             });
         }
     };
 
-    struct SfosQmlEngineHolder : SfosSingleApplicationGuard {
+    struct SfosApplicationHolder : SfosSingleApplicationGuard {
         std::unique_ptr<QGuiApplication> app;
         std::unique_ptr<QQuickView> view;
 
-        SfosQmlEngineHolder(int &argc, char **argv)
+        SfosApplicationHolder(int &argc, char **argv)
             : app(SailfishApp::application(argc, argv))
             , view(SailfishApp::createView()) { }
     };
 }}
 
 cpp_class! (
-    pub unsafe struct SailfishApp as "SfosQmlEngineHolder"
+    pub unsafe struct SailfishApp as "SfosApplicationHolder"
 );
 
 impl SailfishApp {
@@ -67,7 +67,7 @@ impl SailfishApp {
 
                 #include <sailfishapp.h>
             }}
-            cpp!([argc as "int", argv as "char**"] -> SailfishApp as "SfosQmlEngineHolder" {
+            cpp!([argc as "int", argv as "char**"] -> SailfishApp as "SfosApplicationHolder" {
                 static int _argc  = argc;
                 static char **_argv = nullptr;
                 if (_argv == nullptr) {
@@ -80,7 +80,7 @@ impl SailfishApp {
                         strcpy(_argv[i], argv[i]);
                     }
                 }
-                return SfosQmlEngineHolder(_argc, _argv);
+                return SfosApplicationHolder(_argc, _argv);
             })
         };
 
@@ -107,7 +107,7 @@ impl SailfishApp {
 
     pub fn exec(&self) {
         unsafe {
-            cpp!([self as "SfosQmlEngineHolder*"] {
+            cpp!([self as "SfosApplicationHolder*"] {
                 self->app->exec();
             })
         }
@@ -115,7 +115,7 @@ impl SailfishApp {
 
     pub fn set_source(&mut self, src: QUrl) {
         unsafe {
-            cpp!([self as "SfosQmlEngineHolder*", src as "QUrl"] {
+            cpp!([self as "SfosApplicationHolder*", src as "QUrl"] {
                 self->view->setSource(src);
             })
         }
@@ -123,7 +123,7 @@ impl SailfishApp {
 
     pub fn set_title(&mut self, title: QString) {
         unsafe {
-            cpp!([self as "SfosQmlEngineHolder*", title as "QString"] {
+            cpp!([self as "SfosApplicationHolder*", title as "QString"] {
                 self->view->setTitle(title);
             })
         }
@@ -131,7 +131,7 @@ impl SailfishApp {
 
     pub fn set_application_version(&mut self, version: QString) {
         unsafe {
-            cpp!([self as "SfosQmlEngineHolder*", version as "QString"] {
+            cpp!([self as "SfosApplicationHolder*", version as "QString"] {
                 self->app->setApplicationVersion(version);
             })
         }
