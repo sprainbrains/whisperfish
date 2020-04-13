@@ -21,7 +21,7 @@ fn main() {
     let version: QString = "0.6.0".into(); // XXX source from Cargo.toml
     app.set_title("Whisperfish".into());
     app.set_application_version(version.clone());
-    app.install_default_translator();
+    app.install_default_translator().unwrap();
 
     let mut engine = app.engine();
     engine.set_property("AppVersion".into(), version.into());

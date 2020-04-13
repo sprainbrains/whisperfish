@@ -25,7 +25,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 %setup -q
 
 %build
-lrelease .%{_datadir}/%{name}/translations/*.ts
+for filename in .%{_datadir}/%{name}/translations/*.ts; do
+    base="${filename%.*}"
+    lrelease -idbased "$base.ts" -qm "$base.qm";
+done
 rm .%{_datadir}/%{name}/translations/*.ts
 
 %install

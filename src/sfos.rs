@@ -2,6 +2,8 @@ use std::os::raw::*;
 
 use qmetaobject::qttypes::*;
 
+use failure::{bail, Error};
+
 /// Qt is not thread safe, and the engine can only be created once and in one thread.
 /// So this is a guard that will be used to panic if the engine is created twice
 static HAS_ENGINE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -137,17 +139,34 @@ impl SailfishApp {
         }
     }
 
-    pub fn install_default_translator(&mut self) {
-        log::error!("Translation are unimplemented")
-    //         const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
-    //         const QLocale locale;
-    //         if (!translator.load(locale, appName, "-", transDir, ".qm")) {
-    //             qWarning() << "Failed to load translator for" << QLocale::system().uiLanguages()
-    //                        << "Searched" << transDir << "for" << appName;
-    //             if(!translator.load(appName, transDir)) {
-    //                 qWarning() << "Could not load default translator either!";
-    //             }
-    //             app->installTranslator(&translator);
-    //         }
+    pub fn install_default_translator(&mut self) -> Result<(), Error> {
+        let result = unsafe {
+            cpp!([self as "SfosApplicationHolder*"] -> u32 as "int" {
+                const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
+                const QString appName = qApp->applicationName();
+                QTranslator translator(qApp);
+                int result = 0;
+                if (!translator.load(QLocale(), appName, "-", transDir)) {
+                    qWarning() << "Failed to load translator for" << QLocale::system().uiLanguages()
+                               << "Searched" << transDir << "for" << appName;
+                    result = 1;
+                    if(!translator.load(appName, transDir)) {
+                        qWarning() << "Could not load default translator either!";
+                        result = 2;
+                    }
+                }
+                self->app->installTranslator(&translator);
+                return result;
+            })
+        };
+        match result {
+            0 => Ok(()),
+            1 => {
+                log::info!("Default translator loaded.");
+                Ok(())
+            },
+            2 => bail!("No translators found"),
+            _ => unreachable!("Impossible return code from C++"),
+        }
     }
 }
