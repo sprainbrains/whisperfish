@@ -1,6 +1,7 @@
 use std::os::raw::*;
 
 use qmetaobject::qttypes::*;
+use qmetaobject::{QObject, QObjectPinned};
 
 use failure::{bail, Error};
 
@@ -95,8 +96,30 @@ impl SailfishApp {
         result
     }
 
-    pub fn engine(&self) -> qmetaobject::QmlEngine {
-        unimplemented!("Getting Qml engine is unimplemented")
+    // TODO: these methods come directly from `qmetaobject::QmlEngine`.  Some form of attribution
+    // is necessary, and some form casting into QmlEngine.  impl Deref<Target=QmlEngine> would be
+    // ideal.
+    /// Sets a property for this QML context (calls QQmlEngine::rootContext()->setContextProperty)
+    pub fn set_property(&mut self, name: QString, value: QVariant) {
+        unsafe {
+            cpp!([self as "SfosApplicationHolder*", name as "QString", value as "QVariant"] {
+                self->view->engine()->rootContext()->setContextProperty(name, value);
+            })
+        }
+    }
+
+    /// Sets a property for this QML context (calls QQmlEngine::rootContext()->setContextProperty)
+    ///
+    // (TODO: consider making the lifetime the one of the engine, instead of static)
+    pub fn set_object_property<T: QObject + Sized>(
+        &mut self,
+        name: QString,
+        obj: QObjectPinned<T>,
+    ) {
+        let obj_ptr = obj.get_or_create_cpp_object();
+        cpp!(unsafe [self as "SfosApplicationHolder*", name as "QString", obj_ptr as "QObject*"] {
+            self->view->engine()->rootContext()->setContextProperty(name, obj_ptr);
+        })
     }
 
     pub fn path_to(path: QString) -> QUrl {
@@ -167,6 +190,14 @@ impl SailfishApp {
             },
             2 => bail!("No translators found"),
             _ => unreachable!("Impossible return code from C++"),
+        }
+    }
+
+    pub fn show(&self) {
+        unsafe {
+            cpp!([self as "SfosApplicationHolder*"] {
+                self->view->show();
+            })
         }
     }
 }

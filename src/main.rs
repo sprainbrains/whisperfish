@@ -23,19 +23,19 @@ fn main() {
     app.set_application_version(version.clone());
     app.install_default_translator().unwrap();
 
-    let mut engine = app.engine();
-    engine.set_property("AppVersion".into(), version.into());
-    // engine.set_object_property("Prompt", prompt);
-    // engine.set_object_property("SettingsBridge", settings);
-    // engine.set_object_property("FilePicker", filePicker);
-    // engine.set_object_property("SessionModel", sessionModel);
-    // engine.set_object_property("MessageModel", messageModel);
-    // engine.set_object_property("ContactModel", contactModel);
-    // engine.set_object_property("DeviceModel", deviceModel);
-    // engine.set_object_property("SetupWorker", setupWorker);
-    // engine.set_object_property("ClientWorker", clientWorker);
-    // engine.set_object_property("SendWorker", sendWorker);
+    app.set_property("AppVersion".into(), version.into());
+    // app.set_object_property("Prompt", prompt);
+    // app.set_object_property("SettingsBridge", settings);
+    // app.set_object_property("FilePicker", filePicker);
+    // app.set_object_property("SessionModel", sessionModel);
+    // app.set_object_property("MessageModel", messageModel);
+    // app.set_object_property("ContactModel", contactModel);
+    // app.set_object_property("DeviceModel", deviceModel);
+    // app.set_object_property("SetupWorker", setupWorker);
+    // app.set_object_property("ClientWorker", clientWorker);
+    // app.set_object_property("SendWorker", sendWorker);
 
-    app.set_source(SailfishApp::path_to("qrc:/qml/harbour-whisperfish.qml".into()));
+    app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
+    app.show();
     app.exec();
 }
