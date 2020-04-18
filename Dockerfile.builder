@@ -9,7 +9,8 @@ FROM fedora:latest
 RUN dnf install -y \
     gcc-arm-linux-gnu gcc-c++-arm-linux-gnu binutils-arm-linux-gnu \
     gcc-aarch64-linux-gnu gcc-c++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
-    curl
+    curl \
+    rpm-build
 RUN dnf groupinstall -y "Development Tools"
 
 # Install MER SDK
@@ -34,3 +35,6 @@ RUN rustup toolchain install beta
 
 # Set environment
 ENV MER_SDK /srv/mer
+
+# Install cargo-rpm
+RUN cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
