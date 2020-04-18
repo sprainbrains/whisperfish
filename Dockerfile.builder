@@ -2,16 +2,18 @@ ARG SFOS_VERSION=latest
 
 FROM coderus/sailfishos-platform-sdk:$SFOS_VERSION as coderus_base
 
-FROM fedora:latest
+FROM debian:latest
 
 # Install cross compilers
 
-RUN dnf install -y \
-    gcc-arm-linux-gnu gcc-c++-arm-linux-gnu binutils-arm-linux-gnu \
-    gcc-aarch64-linux-gnu gcc-c++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+RUN apt-get update
+
+RUN apt-get install -y \
+    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf binutils-arm-linux-gnueabihf \
+    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
     curl \
-    rpm-build
-RUN dnf groupinstall -y "Development Tools"
+    rpm
+RUN apt-get install -y build-essential
 
 # Install MER SDK
 
@@ -33,11 +35,6 @@ RUN rustc --version
 RUN rustup toolchain install nightly
 RUN rustup toolchain install beta
 
-# Set environment
-ENV MER_SDK /srv/mer
-
-RUN ln -s $MER_SDK/targets/SailfishOS-3.3.0.14-armv7hl/* /usr/arm-linux-gnu/sys-root/
-
 # Install cargo-rpm
 RUN cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
 
@@ -47,7 +44,12 @@ RUN rustup target add \
     aarch64-unknown-linux-gnu
 
 # Additional C dependencies for Whisperfish
-RUN dnf install -y cmake
+RUN apt-get install -y cmake
 
 RUN mkdir /root/.cargo
 COPY .ci/cargo.toml /root/.cargo/config
+
+# Set environment
+ENV MER_SDK /srv/mer
+
+# RUN ln -s $MER_SDK/targets/SailfishOS-3.3.0.14-armv7hl/* /usr/arm-linux-gnu/sys-root/
