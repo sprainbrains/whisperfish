@@ -36,8 +36,18 @@ RUN rustup toolchain install beta
 # Set environment
 ENV MER_SDK /srv/mer
 
+RUN ln -s $MER_SDK/targets/SailfishOS-3.3.0.14-armv7hl/* /usr/arm-linux-gnu/sys-root/
+
 # Install cargo-rpm
 RUN cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
 
-RUN mkdir .cargo
-COPY ci/cargo.toml .cargo/config
+# Add cargo targets
+RUN rustup target add \
+    arm-unknown-linux-gnueabihf \
+    aarch64-unknown-linux-gnu
+
+# Additional C dependencies for Whisperfish
+RUN dnf install -y cmake
+
+RUN mkdir /root/.cargo
+COPY .ci/cargo.toml /root/.cargo/config
