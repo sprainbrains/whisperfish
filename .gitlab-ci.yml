@@ -1,35 +1,33 @@
 ---
 image: coderus/sailfishos-platform-sdk:3.3.0.14
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
-  SFOS_VERSION: 3.3.0.14
 
 cache:
   paths:
     - /var/cache/zypp/
 
-build-arm:
-  stage: build
-  variables:
-    TARGET: "armv7hl"
-  script:
-    - .ci/build.sh
-  cache:
-    paths:
-      - /srv/mer/targets/SailfishOS-$SFOS_VERSION-$TARGET/var/cache/zypp/
-  artifacts:
-    paths:
-      - RPMS/*.rpm
+stages:
+  - prepare
+  - build
+  - test
+  - deploy
 
-build-x86:
-  stage: build
-  variables:
-    TARGET: "i486"
+.docker:builder: &builder
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: prepare
   script:
-    - .ci/build.sh
-  cache:
-    paths:
-      - /srv/mer/targets/SailfishOS-$SFOS_VERSION-$TARGET/var/cache/zypp/
-  artifacts:
-    paths:
-      - RPMS/*.rpm
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo "Working around https://github.com/GoogleContainerTools/kaniko/issues/595"
+    - rm -f .dockerignore
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
+
+docker:builder:3.2.1.20:
+  variables:
+    SFOS_VERSION: 3.2.1.20
+  <<: *builder
+
+docker:builder:3.3.0.15:
+  variables:
+    SFOS_VERSION: 3.3.0.14
+  <<: *builder

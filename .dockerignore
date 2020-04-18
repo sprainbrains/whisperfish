@@ -1,0 +1,7 @@
+target
+*/target
+
+.env
+.gitignore
+.gitlab-ci.yml
+.git
