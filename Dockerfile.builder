@@ -15,7 +15,7 @@ RUN dnf groupinstall -y "Development Tools"
 
 # Install MER SDK
 
-COPY --from=coderus_base /srv/mer /srv/
+COPY --from=coderus_base /srv/mer /srv/mer
 
 # Install Rust
 ENV RUSTUP_HOME /usr/local/rustup
