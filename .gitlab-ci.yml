@@ -22,12 +22,18 @@ stages:
     - rm -f .dockerignore
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
 
-docker:builder:3.2.1.20:
+.sfos330: &sfos330
+  variables:
+    SFOS_VERSION: 3.3.0.14
+
+.sfos321: &sfos321
   variables:
     SFOS_VERSION: 3.2.1.20
+
+docker:builder:3.2.1.20:
+  <<: *sfos321
   <<: *builder
 
 docker:builder:3.3.0.15:
-  variables:
-    SFOS_VERSION: 3.3.0.14
+  <<: *sfos330
   <<: *builder
