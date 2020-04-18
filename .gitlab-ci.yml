@@ -1,10 +1,4 @@
 ---
-image: coderus/sailfishos-platform-sdk:3.3.0.14
-
-cache:
-  paths:
-    - /var/cache/zypp/
-
 stages:
   - prepare
   - build

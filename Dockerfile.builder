@@ -38,3 +38,6 @@ ENV MER_SDK /srv/mer
 
 # Install cargo-rpm
 RUN cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
+
+RUN mkdir .cargo
+COPY ci/cargo.toml .cargo/config
