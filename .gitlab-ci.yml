@@ -50,13 +50,19 @@ docker:builder:3.3.0.15:
     - cat Cargo.toml
     - export MERSDK=$MER_SDK #FIXME
     - export MER_TARGET="SailfishOS-$SFOS_VERSION"
-    - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-armv7hl/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-armv7hl/lib/"
+    - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
     - cargo rpm build
 
 .build:arm: &build-arm
   variables:
     MER_ARCH: armv7hl
     RUST_ARCH: arm-unknown-linux-gnueabihf
+  <<: *build
+
+.build:i486: &build-i486
+  variables:
+    MER_ARCH: i486
+    RUST_ARCH: i686-unknown-linux-gnu
   <<: *build
 
 .build:aarch64: &build-aarch64
@@ -72,6 +78,14 @@ build:3.2.1.20:arm:
 build:3.3.0.15:arm:
   <<: *sfos330
   <<: *build-arm
+
+build:3.2.1.20:i486:
+  <<: *sfos321
+  <<: *build-i486
+
+build:3.3.0.15:i486:
+  <<: *sfos330
+  <<: *build-i486
 
 # Jolla/coderus doesn't provide us with aarch64 buildroot.
 .build:3.2.1.20:aarch64:
