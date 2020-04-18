@@ -47,7 +47,7 @@ RUN rustup target add \
 RUN apt-get install -y cmake
 
 RUN mkdir /root/.cargo
-COPY .ci/cargo.toml /root/.cargo/config
+COPY .ci/cargo.toml $CARGO_HOME/config
 
 # Set environment
 ENV MER_SDK /srv/mer
