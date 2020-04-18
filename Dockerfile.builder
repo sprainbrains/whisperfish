@@ -51,5 +51,3 @@ COPY .ci/cargo.toml /root/.cargo/config
 
 # Set environment
 ENV MER_SDK /srv/mer
-
-# RUN ln -s $MER_SDK/targets/SailfishOS-3.3.0.14-armv7hl/* /usr/arm-linux-gnu/sys-root/
