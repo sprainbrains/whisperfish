@@ -52,6 +52,8 @@ build:i486:
     <<: *variables
     MER_ARCH: i486
     RUST_ARCH: i686-unknown-linux-gnu
+    CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
+    CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build
 
 # Jolla/coderus doesn't provide us with aarch64 buildroot.
