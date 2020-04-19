@@ -40,7 +40,7 @@ docker:builder:
     - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
     - cargo rpm build
 
-build:arm:
+build:armv7hl:
   variables:
     <<: *variables
     MER_ARCH: armv7hl
