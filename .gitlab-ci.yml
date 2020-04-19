@@ -38,7 +38,7 @@ docker:builder:
     - export MERSDK=$MER_SDK #FIXME
     - export MER_TARGET="SailfishOS-$SFOS_VERSION"
     - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
-    - cargo rpm build
+    - cargo rpm build --verbose
 
 build:armv7hl:
   variables:
