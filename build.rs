@@ -18,14 +18,24 @@ use std::io::Write;
 
 use failure::*;
 
-fn mock_libc(mer_root: &str) -> Result<String, Error> {
+fn mock_libc(mer_root: &str, arch: &str) -> Result<String, Error> {
     let out_dir = env::var("OUT_DIR")?;
     let qml_path = &Path::new(&out_dir).join("libc.so");
 
     let mut f = std::fs::File::create(qml_path)?;
-    writeln!(f, "OUTPUT_FORMAT(elf32-littlearm)")?;
-    writeln!(f, "GROUP ( {}/lib/libc.so.6 {}/usr/lib/libc_nonshared.a  AS_NEEDED ( {}/lib/ld-linux-armhf.so.3 ))",
-        mer_root, mer_root, mer_root)?;
+    match arch {
+        "armv7hl" => {
+            writeln!(f, "OUTPUT_FORMAT(elf32-littlearm)")?;
+            writeln!(f, "GROUP ( {}/lib/libc.so.6 {}/usr/lib/libc_nonshared.a  AS_NEEDED ( {}/lib/ld-linux-armhf.so.3 ))",
+                mer_root, mer_root, mer_root)?;
+        },
+        "i486" => {
+            writeln!(f, "OUTPUT_FORMAT(elf32-i386)")?;
+            writeln!(f, "GROUP ( {}/lib/libc.so.6 {}/usr/lib/libc_nonshared.a  AS_NEEDED ( {}/lib/ld-linux.so.2 ))",
+                mer_root, mer_root, mer_root)?;
+        },
+        _ => unreachable!(),
+    }
 
     Ok(out_dir)
 }
@@ -87,7 +97,7 @@ fn main() {
     };
     let macos_lib_framework = if cfg!(target_os = "macos") { "" } else { "5" };
 
-    let mock_lib_path = mock_libc(&mer_target_root).unwrap();
+    let mock_lib_path = mock_libc(&mer_target_root, arch).unwrap();
     println!(
         "cargo:rustc-link-search{}={}",
         macos_lib_search,
