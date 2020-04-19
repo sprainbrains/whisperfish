@@ -67,6 +67,7 @@ fn main() {
     let arch = match &std::env::var("CARGO_CFG_TARGET_ARCH").unwrap() as &str {
         "arm" => "armv7hl",
         "i686" => "i486",
+        "x86" => "i486",
         unsupported => panic!("Target {} is not supported for Mer", unsupported),
     };
 
