@@ -1,11 +1,14 @@
 ---
+variables: &variables
+  SFOS_VERSION: 3.3.0.14
+
 stages:
   - prepare
   - build
   - test
   - deploy
 
-.docker:builder: &builder
+docker:builder:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -15,22 +18,6 @@ stages:
     - echo "Working around https://github.com/GoogleContainerTools/kaniko/issues/595"
     - rm -f .dockerignore
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
-
-.sfos330: &sfos330
-  variables:
-    SFOS_VERSION: 3.3.0.14
-
-.sfos321: &sfos321
-  variables:
-    SFOS_VERSION: 3.2.1.20
-
-docker:builder:3.2.1.20:
-  <<: *sfos321
-  <<: *builder
-
-docker:builder:3.3.0.15:
-  <<: *sfos330
-  <<: *builder
 
 .build: &build
   image: registry.gitlab.com/rubdos/whisperfish/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG
@@ -53,46 +40,24 @@ docker:builder:3.3.0.15:
     - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
     - cargo rpm build
 
-.build:arm: &build-arm
+build:arm:
   variables:
+    <<: *variables
     MER_ARCH: armv7hl
     RUST_ARCH: arm-unknown-linux-gnueabihf
   <<: *build
 
-.build:i486: &build-i486
+build:i486:
   variables:
+    <<: *variables
     MER_ARCH: i486
     RUST_ARCH: i686-unknown-linux-gnu
   <<: *build
 
-.build:aarch64: &build-aarch64
+# Jolla/coderus doesn't provide us with aarch64 buildroot.
+.build:aarch64:
   variables:
+    <<: *variables
     MER_ARCH: aarch64
     RUST_ARCH: aarch64-unknown-linux-gnu
   <<: *build
-
-build:3.2.1.20:arm:
-  <<: *sfos321
-  <<: *build-arm
-
-build:3.3.0.15:arm:
-  <<: *sfos330
-  <<: *build-arm
-
-build:3.2.1.20:i486:
-  <<: *sfos321
-  <<: *build-i486
-
-build:3.3.0.15:i486:
-  <<: *sfos330
-  <<: *build-i486
-
-# Jolla/coderus doesn't provide us with aarch64 buildroot.
-.build:3.2.1.20:aarch64:
-  <<: *sfos321
-  <<: *build-aarch64
-
-# Jolla/coderus doesn't provide us with aarch64 buildroot.
-.build:3.3.0.15:aarch64:
-  <<: *sfos330
-  <<: *build-aarch64
