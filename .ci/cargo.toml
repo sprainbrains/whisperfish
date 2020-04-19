@@ -7,3 +7,7 @@ rustflags = ["-C", "target-feature=+v7,+neon"]
 linker = "aarch64-linux-gnu-gcc"
 ar = "aarch64-linux-gnu-ar"
 rustflags = ["-C", "target-feature=+neon"]
+
+[target.i686-unknown-linux-gnu]
+linker = "i686-linux-gnu-gcc"
+ar = "i686-linux-gnu-ar"

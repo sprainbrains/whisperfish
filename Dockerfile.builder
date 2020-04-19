@@ -9,6 +9,7 @@ FROM debian:latest
 RUN apt-get update
 
 RUN apt-get install -y \
+    gcc-i686-linux-gnu g++-i686-linux-gnu binutils-i686-linux-gnu \
     gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf binutils-arm-linux-gnueabihf \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
     curl \
