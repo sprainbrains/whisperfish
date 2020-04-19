@@ -14,6 +14,7 @@ RUN apt-get install -y \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
     curl \
     qttools5-dev-tools qtchooser qt5-default \
+    desktop-file-utils \
     rpm
 RUN apt-get install -y build-essential
 
