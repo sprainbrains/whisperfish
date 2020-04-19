@@ -40,6 +40,7 @@ RUN cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
 
 # Add cargo targets
 RUN rustup target add \
+    i686-unknown-linux-gnu \
     arm-unknown-linux-gnueabihf \
     aarch64-unknown-linux-gnu
 
