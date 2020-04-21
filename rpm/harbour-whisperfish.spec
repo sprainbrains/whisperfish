@@ -8,10 +8,6 @@ Name:       harbour-whisperfish
 # >> macros
 # << macros
 
-%{!?qtc_qmake:%define qtc_qmake %qmake}
-%{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
-%{!?qtc_make:%define qtc_make make}
-%{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Signal client for SailfishOS
 Version:    0.6.0
 Release:    1
@@ -27,7 +23,6 @@ BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
-BuildRequires:  pkgconfig(openssl)
 BuildRequires:  desktop-file-utils
 
 %description
@@ -41,12 +36,13 @@ Private messaging using Signal for SailfishOS.
 
 %build
 # >> build pre
+export RPM_VERSION=%{version}
+source $HOME/.cargo/env
+export CARGO_INCREMENTAL=0
+cargo build --release --manifest-path %{_sourcedir}/../Cargo.toml
 # << build pre
 
-%qtc_qmake5  \
-    VERSION=%{version}
 
-%qtc_make %{?_smp_mflags}
 
 # >> build post
 # << build post
@@ -55,9 +51,9 @@ Private messaging using Signal for SailfishOS.
 rm -rf %{buildroot}
 # >> install pre
 # << install pre
-%qmake5_install
 
 # >> install post
+install -m 755 target/release/whisperfish %{buildroot}/usr/bin/harbour-whisperfish
 # << install post
 
 desktop-file-install --delete-original       \

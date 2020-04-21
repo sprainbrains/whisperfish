@@ -1,35 +1,65 @@
 ---
-image: coderus/sailfishos-platform-sdk:3.1.0.11
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
-  SFOS_VERSION: 3.1.0.11
+variables: &variables
+  SFOS_VERSION: 3.3.0.14
 
-cache:
-  paths:
-    - /var/cache/zypp/
+stages:
+  - prepare
+  - build
+  - test
+  - deploy
 
-build-arm:
-  stage: build
-  variables:
-    TARGET: "armv7hl"
+docker:builder:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: prepare
   script:
-    - .ci/build.sh
-  cache:
-    paths:
-      - /srv/mer/targets/SailfishOS-$SFOS_VERSION-$TARGET/var/cache/zypp/
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo "Working around https://github.com/GoogleContainerTools/kaniko/issues/595"
+    - rm -f .dockerignore
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
+
+.build: &build
+  image: registry.gitlab.com/rubdos/whisperfish/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG
+  stage: build
   artifacts:
     paths:
-      - RPMS/*.rpm
-
-build-x86:
-  stage: build
-  variables:
-    TARGET: "i486"
-  script:
-    - .ci/build.sh
+      - target/*/release/rpmbuild/RPMS/*/*.rpm
   cache:
     paths:
-      - /srv/mer/targets/SailfishOS-$SFOS_VERSION-$TARGET/var/cache/zypp/
-  artifacts:
-    paths:
-      - RPMS/*.rpm
+      - target
+      - $CARGO_HOME
+  script:
+    - echo "Building for $SFOS_VERSION"
+    - echo "Configuring cargo-rpm (cfr https://github.com/RustRPM/cargo-rpm/issues/47)"
+    - sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
+    - sed -ie "s/arm-unknown-linux-gnueabihf/$RUST_ARCH/" Cargo.toml
+    - cat Cargo.toml
+    - export MERSDK=$MER_SDK #FIXME
+    - export MER_TARGET="SailfishOS-$SFOS_VERSION"
+    - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
+    - cargo rpm build --verbose
+
+build:armv7hl:
+  variables:
+    <<: *variables
+    MER_ARCH: armv7hl
+    RUST_ARCH: arm-unknown-linux-gnueabihf
+  <<: *build
+
+build:i486:
+  variables:
+    <<: *variables
+    MER_ARCH: i486
+    RUST_ARCH: i686-unknown-linux-gnu
+    CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
+    CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
+  <<: *build
+
+# Jolla/coderus doesn't provide us with aarch64 buildroot.
+.build:aarch64:
+  variables:
+    <<: *variables
+    MER_ARCH: aarch64
+    RUST_ARCH: aarch64-unknown-linux-gnu
+  <<: *build

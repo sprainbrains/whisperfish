@@ -13,11 +13,7 @@ Sources:
 - '%{name}-%{version}.tar.bz2'
 Description: Private messaging using Signal for SailfishOS.
 Configure: none
-# The qtc5 builder inserts macros to allow QtCreator to have fine
-# control over qmake/make execution
-QMakeOptions:
-- VERSION=%{version}
-Builder: qtc5
+Builder: none
 
 # This section specifies build dependencies that are resolved using pkgconfig.
 # This is the preferred way of specifying build dependencies for your package.
