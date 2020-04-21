@@ -2,40 +2,24 @@
 Whisperfish
 ===============================================================================
 
-**WARNING - DO NOT USE THIS CLIENT**
-
-Unfortunately I am no longer able to maintain this project and can not
-recommend anyone continue using Whisperfish. The code base is far from complete
-and does not implement the latest features of the Signal protocol. It's just a
-matter of time before this just completely stops working.  Rather than wait
-until that time, I'm archiving this project and recommend any remaining users
-switch to another client. This repository is archived and here for historical
-purposes only.
-
-Thanks to all who contributed and provided valuable feedback.
-
-Cheers!
-
-**WARNING - DO NOT USE THIS CLIENT**
+Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
+`Sailfish OS <https://sailfishos.org/>`_. The user interface is heavily based on
+the jolla-messages application written by Jolla Ltd.
 
 -------------------------------------------------------------------------------
 Project Status
 -------------------------------------------------------------------------------
 
-This project is no longer maintained. Do not use this client.
+This project was based of a now outdated Go-based SailfishOS client for Signal.
+This version is a port that uses `libsignal-c-protocol
+<https://github.com/signalapp/libsignal-protocol-c>`_ instead.
+This means we aim for better maintainability.
+It also means the whole SailfishOS app needs to be rewritten, and you may want
+to make a back-up of your current files. Specifically:
 
-The following text is outdated...
+- `.local/share/harbour-whisperfish/` contains all your data.
+- `.config/harbour-whisperfish/` contains the apps configuration.
 
-Whisperfish should be considered alpha software and used at your own risk. The
-client is not an official Signal client and is not affiliated with Open Whisper
-Systems. The code has not been audited by an expert in computer security or
-cryptography. 
-
-Whisperfish uses the `Signal client library for Go
-<https://github.com/aebruno/textsecure>`_ and `Qt binding for Go
-<https://github.com/therecipe/qt>`_.  The user interface is heavily based on
-the jolla-messages application written by Jolla Ltd.
-  
 -------------------------------------------------------------------------------
 Features
 -------------------------------------------------------------------------------
@@ -52,6 +36,16 @@ Features
 - [ ] Multi-Device support (links with Signal Desktop)
 - [ ] Encrypted local attachment store
 - [ ] Archiving conversations
+
+-------------------------------------------------------------------------------
+Nightly builds
+-------------------------------------------------------------------------------
+
+The most recent builds can be found here:
+
+- armv7hl: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build-armv7hl
+- i486: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build-i486
+
 
 -------------------------------------------------------------------------------
 Performance Tips
@@ -80,76 +74,29 @@ See here for more information.
 Building from source
 -------------------------------------------------------------------------------
 
-*These instructions assume you're running Linux*
 
-1. Install Go >= 1.10 and setup a proper `GOPATH <https://golang.org/doc/code.html#GOPATH>`_
-   somewhere in your home directory, for example ``GOROOT=$HOME/projects/goroot/go`` and
-   ``GOPATH=$HOME/projects/go``.
+1a. This application uses `libsignal-c-protocol
+    <https://github.com/signalapp/libsignal-protocol-c>`_
+    as a git submodule.::
 
-2. Install `Glide <https://glide.sh/>`_
+    $ git clone --recurse-submodules https://github.com/rubdos/whisperfish/
 
-3. Install Qt 5.7.0 the official `prebuilt package <https://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-android-5.7.0.run>`_
+1b. If you already had cloned the repository, you can use::
 
-4. Install `Sailfish OS SDK <https://sailfishos.org/wiki/Application_SDK_Installation>`_ (version
-   Beta-1801 or later). Ensure ``~/SailfishOS/vmshare/devices.xml`` exists. If not,
-   run ``~/SailfishOS/bin/qtcreator`` once and it should create this file.
+    $ git submodule update --init --recursive
 
-5. Clone whisperfish and download dependencies::
-
-    $ git clone https://github.com/aebruno/whisperfish.git
-    $ cd whisperfish
-    $ glide install
-
-6. Download and install Go QT bindings. This will clone
-   https://github.com/therecipe/qt and checkout the specific version that has
-   been known to work with whisperfish::
-
-    $ ./build.sh bootstrap-qt
-
-7. Run qtmoc and qtminimal (this is run on your local machine not the sdk)::
-
-    $ ./build.sh prep
-
-8. Create i386 and arm Go binaries for use in Sailfish SDK. Note this only
-   needs to be done once::
-
-    $ ./build.sh setup-sdk
-
-9a.Login to SDK and setup environment. Installing Go in your home directory
-   will provide SDK access to the Go binaries for compiling whisperfish.
-   Note only needs to be done once::
+2. Since that library is built using `cmake <https://cmake.org/>`_,
+   we need cmake *in the build environment*.
+   You can install it from within the SDK.
+   We also need `openssl-devel` for the cryptographic provider,
+   and `qt5-qtwebsockets-devel` to communicate with the Signal server.
+   While you're at it, install git too. `qmake` will embed the current git ref in the build name.
+   If you prefer to install it over the command line, `ssh` into your build system and use `zypper`::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ vim ~/.bashrc
-    [add these lines to .bashrc]
-    export GOROOT=/home/src1/projects/goroot/go
-    export GOPATH=/home/src1/projects/go
-    export PATH=$GOROOT/bin/linux_386:$PATH
+    $ sudo zypper -n install cmake make git openssl-devel qt5-qtwebsockets-devel
 
-    $ source ~/.bashrc
-
-
-9b.Compile newer version of qemu and create new target for sb2. Older versions
-   of qemu don't work well with Go::
-
-    $ sudo zypper -n install libtool zlib-devel glib2-devel flex bison gcc pkgconfig glib2-static glibc-static make pcre-static
-    $ cd $HOME
-    $ mkdir src; cd src
-    $ curl -O -L https://download.qemu.org/qemu-2.6.2.tar.bz2
-    $ tar xjf qemu-2.6.2.tar.bz2
-    $ ./configure --target-list=arm-softmmu,arm-linux-user
-    $ make
-    $ sudo make install
-    $ sb2-init -L --sysroot=/ -C --sysroot=/ -c /usr/local/bin/qemu-arm -m sdk-build -n -N -t / SailfishOSgo-armv7hl /srv/mer/toolings/SailfishOS-2.1.4.13/opt/cross/bin/armv7hl-meego-linux-gnueabi-gcc
-
-
-10. Login to SDK, compile whisperfish, and deploy to emulator::
-
-    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ cd $GOPATH/src/github.com/aebruno/whisperfish
-    $ ./build.sh compile
-    $ ./build.sh i18n
-    $ ./build.sh deploy
+3. From here on, you can just use the SailfishOS SDK as per usual
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 i18n Translations (help wanted)

@@ -1,0 +1,42 @@
+[package]
+name = "harbour-whisperfish"
+version = "0.6.0-alpha.1"
+authors = ["Ruben De Smet <ruben.de.smet@rubdos.be>"]
+edition = "2018"
+build = "build.rs"
+license = "GPL-3.0-or-later"
+description = "Private messaging using Signal for SailfishOS."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-sfos-rs", branch = "sailfishos" }
+cstr = "0.1.0"
+cpp = "0.5"
+failure = "0.1.6"
+libsignal-protocol = "0.1.0"
+log = "0.4.8"
+env_logger = "0.7"
+
+[build-dependencies]
+cpp_build = "0.5"
+failure = "0.1.6"
+dotenv = "0.15"
+
+[package.metadata.rpm]
+target_architecture = "armv7hl"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+target = "arm-unknown-linux-gnueabihf"
+
+[package.metadata.rpm.targets]
+harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
+
+[package.metadata.rpm.files]
+"../harbour-whisperfish.desktop" = { path = "/usr/share/applications/harbour-whisperfish.desktop" }
+"../icons/86x86/harbour-whisperfish.png" = { path = "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png" }
+
+"../qml/" = { path = "/usr/share/harbour-whisperfish/qml/" }
+"../icons/" = { path = "/usr/share/harbour-whisperfish/icons/" }
+"../translations/" = { path = "/usr/share/harbour-whisperfish/translations" }

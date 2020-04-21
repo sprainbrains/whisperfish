@@ -230,25 +230,25 @@ Page {
                 //: Settings page unsent messages
                 //% "Unsent Messages"
                 label: qsTrId("whisperfish-settings-unsent-messages")
-                value: MessageModel.unsentCount()
+                value: MessageModel.unsentCount
             }
             DetailItem {
                 //: Settings page total sessions
                 //% "Total Sessions"
                 label: qsTrId("whisperfish-settings-total-sessions")
-                value: SessionModel.count()
+                value: SessionModel.count
             }
             DetailItem {
                 //: Settings page total messages
                 //% "Total Messages"
                 label: qsTrId("whisperfish-settings-total-messages")
-                value: MessageModel.total()
+                value: MessageModel.total
             }
             DetailItem {
                 //: Settings page total signal contacts
                 //% "Signal Contacts"
                 label: qsTrId("whisperfish-settings-total-contacts")
-                value: ContactModel.total()
+                value: ContactModel.total
             }
             DetailItem {
                 //: Settings page encrypted key store
