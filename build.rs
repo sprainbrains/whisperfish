@@ -54,10 +54,10 @@ fn qml_to_qrc() -> Result<(), Error> {
     while let Some(read_dir) = read_dirs.pop_front() {
         for entry in read_dir {
             let entry = entry?.path();
-            println!("cargo:rerun-if-changed={:?}", entry);
             if entry.is_dir() {
                 read_dirs.push_back(std::fs::read_dir(entry)?);
             } else if entry.is_file() {
+                println!("cargo:rerun-if-changed={}", entry.display());
                 writeln!(f, "{:?},", entry)?;
             }
         }
@@ -88,7 +88,9 @@ fn main() {
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
         .include(format!("{}/usr/include/qt5/", mer_target_root))
         .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
-        .build("src/main.rs");
+        .build("src/sfos.rs");
+
+    println!("cargo:rerun-if-changed=src/sfos.rs");
 
     let macos_lib_search = if cfg!(target_os = "macos") {
         "=framework"
