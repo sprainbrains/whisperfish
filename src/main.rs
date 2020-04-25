@@ -32,12 +32,14 @@ fn main() {
     let message_model = QObjectBox::new(model::MessageModel::default());
     let contact_model = QObjectBox::new(model::ContactModel::default());
     let device_model = QObjectBox::new(model::DeviceModel::default());
+    let prompt = QObjectBox::new(model::Prompt::default());
+    let filepicker = QObjectBox::new(model::FilePicker::default());
 
     let client_worker = QObjectBox::new(worker::ClientWorker::default());
     let send_worker = QObjectBox::new(worker::SendWorker::default());
     let setup_worker = QObjectBox::new(worker::SetupWorker::default());
 
-    // app.set_object_property("Prompt", prompt);
+    app.set_object_property("Prompt".into(), prompt.pinned());
     // app.set_object_property("SettingsBridge", settings);
     // app.set_object_property("FilePicker", filePicker);
     app.set_object_property("SessionModel".into(), session_model.pinned());
