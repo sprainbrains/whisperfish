@@ -9,6 +9,8 @@ mod qrc;
 
 mod sfos;
 
+mod model;
+
 use sfos::*;
 
 fn main() {
@@ -24,13 +26,19 @@ fn main() {
     app.install_default_translator().unwrap();
 
     app.set_property("AppVersion".into(), version.into());
+
+    let session_model = QObjectBox::new(model::SessionModel::default());
+    let message_model = QObjectBox::new(model::MessageModel::default());
+    let contact_model = QObjectBox::new(model::ContactModel::default());
+    let device_model = QObjectBox::new(model::DeviceModel::default());
+
     // app.set_object_property("Prompt", prompt);
     // app.set_object_property("SettingsBridge", settings);
     // app.set_object_property("FilePicker", filePicker);
-    // app.set_object_property("SessionModel", sessionModel);
-    // app.set_object_property("MessageModel", messageModel);
-    // app.set_object_property("ContactModel", contactModel);
-    // app.set_object_property("DeviceModel", deviceModel);
+    app.set_object_property("SessionModel".into(), session_model.pinned());
+    app.set_object_property("MessageModel".into(), message_model.pinned());
+    app.set_object_property("ContactModel".into(), contact_model.pinned());
+    app.set_object_property("DeviceModel".into(), device_model.pinned());
     // app.set_object_property("SetupWorker", setupWorker);
     // app.set_object_property("ClientWorker", clientWorker);
     // app.set_object_property("SendWorker", sendWorker);
