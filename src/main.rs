@@ -12,6 +12,9 @@ mod sfos;
 mod model;
 mod worker;
 
+mod settings;
+use settings::Settings;
+
 use sfos::*;
 
 fn main() {
@@ -33,15 +36,17 @@ fn main() {
     let contact_model = QObjectBox::new(model::ContactModel::default());
     let device_model = QObjectBox::new(model::DeviceModel::default());
     let prompt = QObjectBox::new(model::Prompt::default());
-    let filepicker = QObjectBox::new(model::FilePicker::default());
+    let file_picker = QObjectBox::new(model::FilePicker::default());
 
     let client_worker = QObjectBox::new(worker::ClientWorker::default());
     let send_worker = QObjectBox::new(worker::SendWorker::default());
     let setup_worker = QObjectBox::new(worker::SetupWorker::default());
 
+    let settings = QObjectBox::new(Settings::default());
+
     app.set_object_property("Prompt".into(), prompt.pinned());
-    // app.set_object_property("SettingsBridge", settings);
-    // app.set_object_property("FilePicker", filePicker);
+    app.set_object_property("SettingsBridge".into(), settings.pinned());
+    app.set_object_property("FilePicker".into(), file_picker.pinned());
     app.set_object_property("SessionModel".into(), session_model.pinned());
     app.set_object_property("MessageModel".into(), message_model.pinned());
     app.set_object_property("ContactModel".into(), contact_model.pinned());
