@@ -10,6 +10,7 @@ mod qrc;
 mod sfos;
 
 mod model;
+mod worker;
 
 use sfos::*;
 
@@ -32,6 +33,10 @@ fn main() {
     let contact_model = QObjectBox::new(model::ContactModel::default());
     let device_model = QObjectBox::new(model::DeviceModel::default());
 
+    let client_worker = QObjectBox::new(worker::ClientWorker::default());
+    let send_worker = QObjectBox::new(worker::SendWorker::default());
+    let setup_worker = QObjectBox::new(worker::SetupWorker::default());
+
     // app.set_object_property("Prompt", prompt);
     // app.set_object_property("SettingsBridge", settings);
     // app.set_object_property("FilePicker", filePicker);
@@ -39,9 +44,9 @@ fn main() {
     app.set_object_property("MessageModel".into(), message_model.pinned());
     app.set_object_property("ContactModel".into(), contact_model.pinned());
     app.set_object_property("DeviceModel".into(), device_model.pinned());
-    // app.set_object_property("SetupWorker", setupWorker);
-    // app.set_object_property("ClientWorker", clientWorker);
-    // app.set_object_property("SendWorker", sendWorker);
+    app.set_object_property("SetupWorker".into(), setup_worker.pinned());
+    app.set_object_property("ClientWorker".into(), client_worker.pinned());
+    app.set_object_property("SendWorker".into(), send_worker.pinned());
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
     app.show();
