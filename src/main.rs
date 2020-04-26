@@ -15,9 +15,11 @@ mod worker;
 mod settings;
 use settings::Settings;
 
+mod store;
+
 use sfos::*;
 
-fn main() {
+fn main() -> Result<(), failure::Error> {
     env_logger::init();
 
     qrc::load();
@@ -44,6 +46,8 @@ fn main() {
 
     let settings = QObjectBox::new(Settings::default());
 
+    let _store = store::Storage::open(&store::default_location()?, "")?;
+
     app.set_object_property("Prompt".into(), prompt.pinned());
     app.set_object_property("SettingsBridge".into(), settings.pinned());
     app.set_object_property("FilePicker".into(), file_picker.pinned());
@@ -58,4 +62,6 @@ fn main() {
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
     app.show();
     app.exec();
+
+    Ok(())
 }

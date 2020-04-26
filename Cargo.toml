@@ -13,10 +13,14 @@ description = "Private messaging using Signal for SailfishOS."
 qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-sfos-rs", branch = "sailfishos" }
 cstr = "0.1.0"
 cpp = "0.5"
+dirs = "2.0"
 failure = "0.1.6"
 libsignal-protocol = "0.1.0"
 log = "0.4.8"
 env_logger = "0.7"
+
+diesel = { version = "1.4", features = ["sqlite"] }
+libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }
 
 [build-dependencies]
 cpp_build = "0.5"
