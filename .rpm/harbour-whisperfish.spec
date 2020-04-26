@@ -15,6 +15,7 @@ Source0: %{name}-%{version}.tar.gz
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   nemo-qml-plugin-configuration-qt5
 Requires:   nemo-qml-plugin-notifications-qt5
+Requires:   sqlcipher
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 

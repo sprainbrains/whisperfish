@@ -2,6 +2,14 @@ ARG SFOS_VERSION=latest
 
 FROM coderus/sailfishos-platform-sdk:$SFOS_VERSION as coderus_base
 
+ARG SFOS_VERSION=latest
+
+RUN sdk-manage develpkg install SailfishOS-$SFOS_VERSION-armv7hl sqlcipher-devel
+RUN sdk-manage develpkg install SailfishOS-$SFOS_VERSION-i486 sqlcipher-devel
+
+RUN sudo rm -rf /srv/mer/targets/SailfishOS-$SFOS_VERSION-armv7hl/var/cache/zypp/*
+RUN sudo rm -rf /srv/mer/targets/SailfishOS-$SFOS_VERSION-i486/var/cache/zypp/*
+
 FROM debian:latest
 
 # Install cross compilers
