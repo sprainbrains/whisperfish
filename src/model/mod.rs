@@ -1,15 +1,15 @@
-pub mod session;
-pub mod message;
 pub mod contact;
 pub mod device;
+pub mod message;
+pub mod session;
 
-pub mod prompt;
 pub mod filepicker;
+pub mod prompt;
 
-pub use session::*;
-pub use message::*;
 pub use contact::*;
 pub use device::*;
+pub use message::*;
+pub use session::*;
 
-pub use prompt::*;
 pub use filepicker::*;
+pub use prompt::*;

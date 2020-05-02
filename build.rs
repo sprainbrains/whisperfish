@@ -13,8 +13,8 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 use std::env;
-use std::path::Path;
 use std::io::Write;
+use std::path::Path;
 
 use failure::*;
 
@@ -28,12 +28,12 @@ fn mock_libc(mer_root: &str, arch: &str) -> Result<String, Error> {
             writeln!(f, "OUTPUT_FORMAT(elf32-littlearm)")?;
             writeln!(f, "GROUP ( {}/lib/libc.so.6 {}/usr/lib/libc_nonshared.a  AS_NEEDED ( {}/lib/ld-linux-armhf.so.3 ))",
                 mer_root, mer_root, mer_root)?;
-        },
+        }
         "i486" => {
             writeln!(f, "OUTPUT_FORMAT(elf32-i386)")?;
             writeln!(f, "GROUP ( {}/lib/libc.so.6 {}/usr/lib/libc_nonshared.a  AS_NEEDED ( {}/lib/ld-linux.so.2 ))",
                 mer_root, mer_root, mer_root)?;
-        },
+        }
         _ => unreachable!(),
     }
 
@@ -69,10 +69,11 @@ fn qml_to_qrc() -> Result<(), Error> {
 }
 
 fn main() {
-    let mer_sdk = std::env::var("MERSDK").ok()
-        .expect("MERSDK should be set.");
+    let mer_sdk = std::env::var("MERSDK").ok().expect("MERSDK should be set.");
 
-    let mer_target = std::env::var("MER_TARGET").ok().unwrap_or("SailfishOS-latest".into());
+    let mer_target = std::env::var("MER_TARGET")
+        .ok()
+        .unwrap_or("SailfishOS-latest".into());
 
     let arch = match &std::env::var("CARGO_CFG_TARGET_ARCH").unwrap() as &str {
         "arm" => "armv7hl",
@@ -102,40 +103,44 @@ fn main() {
     let mock_lib_path = mock_libc(&mer_target_root, arch).unwrap();
     println!(
         "cargo:rustc-link-search{}={}",
-        macos_lib_search,
-        mock_lib_path,
-    );
-
-    println!("cargo:rustc-bin-link-arg=-rpath-link,{}/usr/lib", mer_target_root);
-    println!("cargo:rustc-bin-link-arg=-rpath-link,{}/lib", mer_target_root);
-
-    println!(
-        "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/{}-meego-linux-gnueabi/lib",
-        macos_lib_search,
-        mer_sdk, mer_target, arch
+        macos_lib_search, mock_lib_path,
     );
 
     println!(
-        "cargo:rustc-link-search{}={}/usr/lib/qt5/qml/Nemo/Notifications/",
-        macos_lib_search,
+        "cargo:rustc-bin-link-arg=-rpath-link,{}/usr/lib",
+        mer_target_root
+    );
+    println!(
+        "cargo:rustc-bin-link-arg=-rpath-link,{}/lib",
         mer_target_root
     );
 
     println!(
+        "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/{}-meego-linux-gnueabi/lib",
+        macos_lib_search, mer_sdk, mer_target, arch
+    );
+
+    println!(
+        "cargo:rustc-link-search{}={}/usr/lib/qt5/qml/Nemo/Notifications/",
+        macos_lib_search, mer_target_root
+    );
+
+    println!(
         "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/lib/gcc/{}-meego-linux-gnueabi/4.9.4/",
-        macos_lib_search,
-        mer_sdk, mer_target, arch
+        macos_lib_search, mer_sdk, mer_target, arch
     );
 
     println!(
         "cargo:rustc-link-search{}={}/usr/lib/",
-        macos_lib_search,
-        mer_target_root,
+        macos_lib_search, mer_target_root,
     );
 
     let qt_libs = ["OpenGL", "Gui", "Core", "Quick", "Qml"];
     for lib in &qt_libs {
-        println!("cargo:rustc-link-lib{}=Qt{}{}", macos_lib_search, macos_lib_framework, lib);
+        println!(
+            "cargo:rustc-link-lib{}=Qt{}{}",
+            macos_lib_search, macos_lib_framework, lib
+        );
     }
 
     let libs = ["EGL", "nemonotifications", "sailfishapp"];

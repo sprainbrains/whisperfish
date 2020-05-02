@@ -1,9 +1,9 @@
-#![recursion_limit="256"]
+#![recursion_limit = "256"]
 
 #[macro_use]
 extern crate cpp;
 
-use qmetaobject::*;
+use actix::prelude::*;
 
 mod qrc;
 

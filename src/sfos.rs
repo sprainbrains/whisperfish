@@ -51,7 +51,8 @@ impl SailfishApp {
     pub fn application(name: String) -> SailfishApp {
         use std::ffi::CString;
 
-        let mut arguments: Vec<*mut c_char> = std::iter::once(name).chain(std::env::args())
+        let mut arguments: Vec<*mut c_char> = std::iter::once(name)
+            .chain(std::env::args())
             .map(|arg| CString::new(arg.into_bytes()).expect("argument contains invalid c-string!"))
             .map(|arg| arg.into_raw())
             .collect();
@@ -187,7 +188,7 @@ impl SailfishApp {
             1 => {
                 log::info!("Default translator loaded.");
                 Ok(())
-            },
+            }
             2 => bail!("No translators found"),
             _ => unreachable!("Impossible return code from C++"),
         }

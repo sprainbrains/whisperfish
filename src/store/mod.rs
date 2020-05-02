@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
-use failure::*;
 use diesel::prelude::*;
+use failure::*;
 
 /// Location of the storage.
 ///
@@ -29,21 +29,26 @@ pub fn memory() -> StorageLocation<PathBuf> {
 }
 
 pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
-    let data_dir = dirs::data_local_dir()
-        .ok_or(format_err!("Could not find data directory."))?;
+    let data_dir = dirs::data_local_dir().ok_or(format_err!("Could not find data directory."))?;
 
-    Ok(StorageLocation::Path(data_dir.join("harbour-whisperfish").into()))
+    Ok(StorageLocation::Path(
+        data_dir.join("harbour-whisperfish").into(),
+    ))
 }
 
 impl<P: AsRef<Path>> StorageLocation<P> {
     fn open_db(&self) -> Result<SqliteConnection, Error> {
         let database_url = match self {
             StorageLocation::Memory => ":memory:".into(),
-            StorageLocation::Path(p) => {
-                p.as_ref().join("db").join("harbour-whisperfish.db").to_str()
-                    .ok_or(format_err!("path to db contains a non-UTF8 character, please file a bug."))?
-                    .to_string()
-            },
+            StorageLocation::Path(p) => p
+                .as_ref()
+                .join("db")
+                .join("harbour-whisperfish.db")
+                .to_str()
+                .ok_or(format_err!(
+                    "path to db contains a non-UTF8 character, please file a bug."
+                ))?
+                .to_string(),
         };
 
         Ok(SqliteConnection::establish(&database_url)?)
