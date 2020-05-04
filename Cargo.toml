@@ -32,7 +32,7 @@ target_architecture = "armv7hl"
 
 [package.metadata.rpm.cargo]
 buildflags = ["--release"]
-target = "arm-unknown-linux-gnueabihf"
+target = "armv7-unknown-linux-gnueabihf"
 
 [package.metadata.rpm.targets]
 harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
