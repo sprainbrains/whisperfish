@@ -1,0 +1,403 @@
+use std::task::{Waker, Context, Poll};
+use std::os::unix::io::RawFd;
+
+use std::cell::RefCell;
+
+use tokio::io::Registration;
+use qmetaobject::QObject;
+use futures::prelude::*;
+
+cpp_class!(
+    pub unsafe struct QSocketNotifier as "QSocketNotifier"
+);
+
+impl QSocketNotifier {
+    fn socket(&self) -> RawFd {
+        unsafe { cpp!( [self as "QSocketNotifier *"] -> RawFd as "int" {
+            return self->socket();
+        })}
+    }
+}
+
+#[derive(Debug, Clone)]
+struct TimerSpec {
+    timer_id: i32,
+    interval: u32,
+    obj: *mut std::os::raw::c_void,
+}
+
+impl Eq for TimerSpec {}
+impl PartialEq for TimerSpec {
+    fn eq(&self, rhs: &Self) -> bool {
+        self.timer_id == rhs.timer_id
+    }
+}
+
+impl Ord for TimerSpec {
+    fn cmp(&self, rhs: &Self) -> std::cmp::Ordering {
+        self.timer_id.cmp(&rhs.timer_id)
+    }
+}
+impl PartialOrd for TimerSpec {
+    fn partial_cmp(&self, rhs: &Self) -> Option<std::cmp::Ordering> {
+        self.timer_id.partial_cmp(&rhs.timer_id)
+    }
+}
+
+struct Timer {
+    spec: TimerSpec,
+    interval: tokio::time::Interval,
+}
+
+impl Eq for Timer {}
+impl PartialEq for Timer {
+    fn eq(&self, rhs: &Self) -> bool {
+        self.spec == rhs.spec
+    }
+}
+
+impl Ord for Timer {
+    fn cmp(&self, rhs: &Self) -> std::cmp::Ordering {
+        self.spec.cmp(&rhs.spec)
+    }
+}
+impl PartialOrd for Timer {
+    fn partial_cmp(&self, rhs: &Self) -> Option<std::cmp::Ordering> {
+        self.spec.partial_cmp(&rhs.spec)
+    }
+}
+
+impl Stream for Timer {
+    type Item = TimerSpec;
+
+    fn poll_next(mut self: std::pin::Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Option<TimerSpec>> {
+        match Stream::poll_next(std::pin::Pin::new(&mut self.interval), ctx) {
+            Poll::Ready(Some(_instant)) => Poll::Ready(Some(self.spec.clone())),
+            Poll::Ready(None) => {
+                log::warn!("Unexpected end of Interval stream. Please file a bug report.");
+                Poll::Ready(None)
+            },
+            Poll::Pending => Poll::Pending,
+        }
+    }
+}
+
+impl From<TimerSpec> for Timer {
+    fn from(spec: TimerSpec) -> Timer {
+        let duration = std::time::Duration::from_millis(spec.interval as u64);
+        let start = std::time::Instant::now() + duration;
+        Timer {
+            spec,
+            interval: tokio::time::interval_at(start.into(), duration),
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct TokioQEventDispatcherPriv {
+    socket_registrations: Vec<(*mut QSocketNotifier, Registration)>,
+    timers: Vec<Timer>,
+    waker: RefCell<Option<Waker>>,
+}
+
+impl TokioQEventDispatcherPriv {
+    fn register_socket_notifier(&mut self, raw_notifier: *mut QSocketNotifier) {
+        let fd = unsafe {raw_notifier.as_mut()}.unwrap().socket();
+        log::debug!("registerSocketNotifier: fd={}", fd);
+        log::trace!("register_socket_notifier thread {:?}", std::thread::current().id());
+
+        self.socket_registrations.push((
+            raw_notifier, Registration::new(&mio::unix::EventedFd(&fd)).unwrap() // XXX unwrap
+        ));
+    }
+
+    fn register_timer(&mut self, timer_id: i32, interval: u32, obj: *mut std::os::raw::c_void) {
+        log::trace!("register_timer thread {:?}", std::thread::current().id());
+        self.timers.push(TimerSpec {
+            timer_id,
+            interval,
+            obj,
+        }.into());
+        self.timers.sort_unstable();
+        self.timers.dedup();
+
+        self.wake_up();
+    }
+
+    fn unregister_timer(&mut self, timer_id: i32) -> bool {
+        log::trace!("unregister_timer thread {:?}", std::thread::current().id());
+        let idx = match self.timers.binary_search_by_key(&timer_id, |timer| timer.spec.timer_id) {
+            Ok(idx) => idx,
+            Err(_) => {
+                return false;
+            },
+        };
+
+        log::trace!("Removing timer at idx={} from thread {:?}", idx, std::thread::current().id());
+        self.timers.remove(idx);
+
+        for (i, timer) in self.timers.iter().enumerate() {
+            log::trace!("- {}: {}ms", i, timer.spec.interval);
+        }
+
+        self.wake_up();
+
+        true
+    }
+
+    fn wake_up(&mut self) {
+        log::trace!("wake_up thread {:?}", std::thread::current().id());
+        if let Some(waker) = self.waker.borrow().as_ref() {
+            // XXX: Consider waking by value.
+            waker.wake_by_ref();
+        } else {
+            log::trace!("Already awaken");
+        }
+    }
+
+    fn set_waker(&mut self, w: &Waker) {
+        log::trace!("set_waker thread {:?}", std::thread::current().id());
+        drop(self.waker.replace(Some(w.clone())));
+    }
+
+    fn poll_sockets(&mut self, ctx: &mut Context<'_>) -> Poll<()> {
+        log::trace!("poll_sockets thread {:?}", std::thread::current().id());
+        let mut ev_count: usize = 0;
+
+        for (notifier, registration) in &self.socket_registrations {
+            let notifier: *mut QSocketNotifier = *notifier;
+
+            let read = match registration.poll_read_ready(ctx) {
+                Poll::Ready(Ok(readiness)) => {
+                    log::trace!("Socket readiness: {:?}", readiness);
+                    true
+                },
+                Poll::Ready(Err(e)) => {
+                    log::error!("Something wrong with registration {:?}: {:?}", registration, e);
+                    false
+                }
+                Poll::Pending => false,
+            };
+
+            let write = match registration.poll_write_ready(ctx) {
+                Poll::Ready(Ok(readiness)) => {
+                    log::trace!("Socket readiness: {:?}", readiness);
+                    true
+                },
+                Poll::Ready(Err(e)) => {
+                    log::error!("Something wrong with registration {:?}: {:?}", registration, e);
+                    false
+                }
+                Poll::Pending => false,
+            };
+
+            if read || write {
+                let result = unsafe{cpp!([notifier as "QSocketNotifier *"] -> bool as "bool" {
+                    QEvent ev(QEvent::SockAct);
+                    return QCoreApplication::sendEvent(notifier, &ev);
+                })};
+                if result {
+                    log::trace!("Socket ready, event sent.");
+                } else {
+                    log::warn!("Socket ready, sendEvent returned false.");
+                }
+
+                ev_count += 1;
+            }
+        }
+
+        if ev_count > 0 {
+            self.wake_up();
+        }
+
+        Poll::Pending
+    }
+
+    fn poll_timers(&mut self, ctx: &mut Context<'_>) -> Poll<()> {
+        log::trace!("poll_timers thread {:?}", std::thread::current().id());
+        let mut stream = stream::select_all(&mut self.timers);
+
+        while let Poll::Ready(Some(spec)) = Stream::poll_next(std::pin::Pin::new(&mut stream), ctx) {
+            let obj = spec.obj;
+            let id = spec.timer_id;
+            let ev = unsafe { cpp! ( [obj as "QObject *", id as "int"] -> bool as "bool" {
+                QTimerEvent e(id);
+                return QCoreApplication::sendEvent(obj, &e);
+            })};
+
+            if ! ev {
+                log::error!("Sending timer event for {} responded to with false", id);
+            }
+        }
+
+        Poll::Pending
+    }
+}
+
+cpp! {{
+    #include <QtCore/QAbstractEventDispatcher>
+
+    class TokioQEventDispatcher : public QAbstractEventDispatcher {
+    public:
+        void *m_priv;
+
+        TokioQEventDispatcher(void *d) : m_priv(d) { }
+
+        bool processEvents(QEventLoop::ProcessEventsFlags flags) override {
+            emit awake();
+            QCoreApplication::sendPostedEvents();
+            return true;
+        }
+
+        bool hasPendingEvents(void) override {
+            rust!(hasPendingEvents_r [] {
+                log::warn!("hasPendingEvents called, untested");
+            });
+
+            extern uint qGlobalPostedEventsCount();
+            return qGlobalPostedEventsCount() > 0;
+        }
+
+        void registerSocketNotifier(QSocketNotifier* notifier) override {
+            rust!(registerSocketNotifier_r [m_priv: &mut TokioQEventDispatcherPriv as "void *", notifier: *mut QSocketNotifier as "QSocketNotifier *"] {
+                m_priv.register_socket_notifier(notifier);
+            });
+            wakeUp();
+        }
+
+        void unregisterSocketNotifier(QSocketNotifier* notifier) override {
+            int fd = notifier->socket();
+            rust!(unregisterSocketNotifier_r [m_priv: &mut TokioQEventDispatcherPriv as "void *", notifier: *mut QSocketNotifier as "QSocketNotifier *", fd: isize as "int"] {
+                log::error!("unregisterSocketNotifier: fd={}", fd);
+            });
+        }
+
+        void registerTimer(
+            int timerId,
+            int interval,
+            Qt::TimerType timerType,
+            QObject* object
+        ) override {
+            // XXX: respect TimerType
+            rust!(registerTimer_r [m_priv: &mut TokioQEventDispatcherPriv as "void *", timerId: std::os::raw::c_int as "int", interval: std::os::raw::c_int as "int", object: *mut std::os::raw::c_void as "QObject *"] {
+                log::trace!("registerTimer(id={}, interval={})", timerId, interval);
+                m_priv.register_timer(timerId, interval as u32, object);
+            });
+        }
+
+        bool unregisterTimer(int timerId) override {
+            return rust!(unregisterTimer_r [m_priv: &mut TokioQEventDispatcherPriv as "void *", timerId: std::os::raw::c_int as "int"] -> bool as "bool" {
+                log::trace!("unregisterTimer(id={})", timerId);
+                m_priv.unregister_timer(timerId as i32)
+            });
+        }
+
+        bool unregisterTimers(QObject* object) override {
+            rust!(unregisterTimers_r [] {
+                log::error!("unregisterTimers");
+            });
+            return false;
+        }
+
+        QList<QAbstractEventDispatcher::TimerInfo> registeredTimers(QObject *obj) const override {
+            QList<QPair<int, int>> list;
+            size_t amount = rust!(countTimers [m_priv: &mut TokioQEventDispatcherPriv as "void *"] -> usize as "size_t"{
+                m_priv.timers.len()
+            });
+
+            for (size_t i = 0; i < amount; ++i) {
+                int id = rust!(registeredTimers_id_r [m_priv: &mut TokioQEventDispatcherPriv as "void *", obj: *mut std::os::raw::c_void as "QObject *", i: usize as "size_t"] -> std::os::raw::c_int as "int" {
+                    let entry = &m_priv.timers[i].spec;
+                    if entry.obj == obj {
+                        entry.timer_id
+                    } else {
+                        -1
+                    }
+                });
+                int interval = rust!(registeredTimers_interval_r [m_priv: &mut TokioQEventDispatcherPriv as "void *", i: usize as "size_t"] -> std::os::raw::c_int as "int" {
+                    m_priv.timers[i].spec.interval as i32
+                });
+                if (id >= 0) {
+                    list << QPair<int, int>(id, interval);
+                }
+            }
+
+            return QList<QAbstractEventDispatcher::TimerInfo>();
+        }
+
+        int remainingTime(int) override {
+            rust!(remainingTime_r [] {
+                unimplemented!("remainingTime");
+            });
+            return -1;
+        }
+
+        void wakeUp() override {
+            rust!(wakeUp_r [m_priv: &mut TokioQEventDispatcherPriv as "void *"] {
+                m_priv.wake_up();
+            });
+        }
+        void interrupt() override {
+            rust!(interrupt_r [] {
+                unimplemented!("interrupt");
+            });
+
+            wakeUp();
+        }
+        void flush() override {
+            rust!(flush_r [] {
+                unimplemented!("flush");
+            });
+        }
+    };
+}}
+
+cpp_class! (
+    pub unsafe struct TokioQEventDispatcher as "TokioQEventDispatcher"
+);
+
+impl TokioQEventDispatcher {
+    pub fn poll(&mut self, ctx: &mut Context<'_>) -> Poll<()> {
+        let waker = Box::new(ctx.waker().clone());
+        let waker = Box::into_raw(waker);
+        unsafe {
+            cpp!([self as "TokioQEventDispatcher*", waker as "void *", ctx as "void *"] {
+                self->processEvents(QEventLoop::AllEvents);
+            })
+        }
+
+        let m_priv = self.m_priv_mut();
+        m_priv.set_waker(ctx.waker());
+
+        if let Poll::Ready(_) = m_priv.poll_sockets(ctx) {
+            return Poll::Ready(());
+        }
+
+        if let Poll::Ready(_) = m_priv.poll_timers(ctx) {
+            return Poll::Ready(());
+        }
+
+        let interrupted = false; // XXX
+        if interrupted {
+            Poll::Ready(())
+        } else {
+            Poll::Pending
+        }
+    }
+
+    pub fn m_priv_mut(&mut self) -> &mut TokioQEventDispatcherPriv {
+        unsafe {cpp!([self as "TokioQEventDispatcher *"] -> &mut TokioQEventDispatcherPriv as "void *" {
+            return self->m_priv;
+        })}
+    }
+
+    pub fn install() {
+        let p = Box::leak(Box::new(TokioQEventDispatcherPriv::default()));
+        unsafe {
+            cpp!([p as "void *"] {
+                TokioQEventDispatcher *dispatch = new TokioQEventDispatcher(p);
+                QCoreApplication::setEventDispatcher(dispatch);
+            })
+        }
+    }
+}

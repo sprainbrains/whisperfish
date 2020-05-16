@@ -89,7 +89,7 @@ fn main() {
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
         .include(format!("{}/usr/include/qt5/", mer_target_root))
         .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
-        .build("src/sfos.rs");
+        .build("src/sfos/mod.rs");
 
     println!("cargo:rerun-if-changed=src/sfos.rs");
 

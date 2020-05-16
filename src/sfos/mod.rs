@@ -1,9 +1,14 @@
 use std::os::raw::*;
+use std::sync::Arc;
+use std::future::Future;
 
 use qmetaobject::qttypes::*;
 use qmetaobject::{QObject, QObjectPinned};
 
 use failure::{bail, Error};
+
+mod tokio_qt;
+pub use tokio_qt::*;
 
 /// Qt is not thread safe, and the engine can only be created once and in one thread.
 /// So this is a guard that will be used to panic if the engine is created twice
@@ -46,6 +51,18 @@ cpp! {{
 cpp_class! (
     pub unsafe struct SailfishApp as "SfosApplicationHolder"
 );
+
+struct SfosApplicationFuture {
+    app: SailfishApp,
+}
+
+impl Future for SfosApplicationFuture {
+    type Output = ();
+    fn poll(mut self: std::pin::Pin<&mut Self>, ctx: &mut std::task::Context<'_>) -> std::task::Poll<()> {
+        let dispatch = self.app.event_dispatcher_mut().unwrap();
+        dispatch.poll(ctx)
+    }
+}
 
 impl SailfishApp {
     pub fn application(name: String) -> SailfishApp {
@@ -136,6 +153,23 @@ impl SailfishApp {
             cpp!([self as "SfosApplicationHolder*"] {
                 self->app->exec();
             })
+        }
+    }
+
+    pub fn event_dispatcher_mut(&mut self) -> Option<&mut TokioQEventDispatcher> {
+        unsafe {
+            cpp!([self as "SfosApplicationHolder*"] -> Option<&mut TokioQEventDispatcher> as "TokioQEventDispatcher*" {
+                QAbstractEventDispatcher *dispatch = self->app->eventDispatcher();
+                TokioQEventDispatcher *tqed = dynamic_cast<TokioQEventDispatcher *>(dispatch);
+                return tqed;
+            })
+        }
+    }
+
+    pub fn exec_async(mut self) -> impl Future<Output=()> {
+        assert!(self.event_dispatcher_mut().is_some());
+        SfosApplicationFuture {
+            app: self,
         }
     }
 
