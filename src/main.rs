@@ -3,11 +3,9 @@
 #[macro_use]
 extern crate cpp;
 
-use actix::prelude::*;
+use qmetaobject::*;
 
 mod qrc;
-
-mod sfos;
 
 mod model;
 mod worker;
@@ -16,8 +14,6 @@ mod settings;
 use settings::Settings;
 
 mod store;
-
-use sfos::*;
 
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
