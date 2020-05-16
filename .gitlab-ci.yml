@@ -33,7 +33,7 @@ docker:builder:
     - echo "Building for $SFOS_VERSION"
     - echo "Configuring cargo-rpm (cfr https://github.com/RustRPM/cargo-rpm/issues/47)"
     - sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
-    - sed -ie "s/arm-unknown-linux-gnueabihf/$RUST_ARCH/" Cargo.toml
+    - sed -ie "s/armv7-unknown-linux-gnueabihf/$RUST_ARCH/" Cargo.toml
     - cat Cargo.toml
     - export MERSDK=$MER_SDK #FIXME
     - export MER_TARGET="SailfishOS-$SFOS_VERSION"
