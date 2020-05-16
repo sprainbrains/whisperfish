@@ -3,6 +3,9 @@
 #[macro_use]
 extern crate cpp;
 
+#[macro_use]
+extern crate diesel;
+
 use qmetaobject::*;
 
 mod qrc;
@@ -11,6 +14,8 @@ mod sfos;
 
 mod model;
 mod worker;
+
+mod schema;
 
 mod settings;
 use settings::Settings;
