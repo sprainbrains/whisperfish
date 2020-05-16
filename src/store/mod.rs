@@ -60,10 +60,21 @@ pub struct Storage {
 }
 
 impl Storage {
-    pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>, _password: impl AsRef<str>) -> Result<Storage, Error> {
+    pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
-        Ok(Storage {
-            db,
-        })
+
+        Ok(Storage { db })
+    }
+
+    pub fn open_with_key<T: AsRef<Path>>(
+        db_path: &StorageLocation<T>,
+        key: [u8; 32],
+    ) -> Result<Storage, Error> {
+        let db = db_path.open_db()?;
+
+        // Decrypt db
+        // XXX we assume all databases to be encrypted.
+
+        Ok(Storage { db })
     }
 }

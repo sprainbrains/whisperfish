@@ -46,7 +46,7 @@ fn main() -> Result<(), failure::Error> {
 
     let settings = QObjectBox::new(Settings::default());
 
-    let _store = store::Storage::open(&store::default_location()?, "")?;
+    let _store = store::Storage::open(&store::default_location()?)?;
 
     app.set_object_property("Prompt".into(), prompt.pinned());
     app.set_object_property("SettingsBridge".into(), settings.pinned());
