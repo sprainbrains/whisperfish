@@ -44,7 +44,7 @@ build:armv7hl:
   variables:
     <<: *variables
     MER_ARCH: armv7hl
-    RUST_ARCH: arm-unknown-linux-gnueabihf
+    RUST_ARCH: armv7-unknown-linux-gnueabihf
   <<: *build
 
 build:i486:
