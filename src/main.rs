@@ -6,6 +6,8 @@ extern crate cpp;
 #[macro_use]
 extern crate diesel;
 
+use actix::prelude::*;
+
 use qmetaobject::*;
 
 mod qrc;
