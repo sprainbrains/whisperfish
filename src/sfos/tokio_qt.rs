@@ -9,6 +9,10 @@ use qmetaobject::QObject;
 use futures::prelude::*;
 use pin_utils::unsafe_unpinned;
 
+cpp! {{
+#include <QSocketNotifier>
+}}
+
 cpp_class!(
     pub unsafe struct QSocketNotifier as "QSocketNotifier"
 );
