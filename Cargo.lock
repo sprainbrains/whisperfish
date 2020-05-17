@@ -898,6 +898,7 @@ dependencies = [
  "libsqlite3-sys",
  "log",
  "mio",
+ "pin-utils",
  "qmetaobject",
  "tokio",
 ]
