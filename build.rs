@@ -18,6 +18,29 @@ use std::path::Path;
 
 use failure::*;
 
+fn mock_pthread(mer_root: &str, arch: &str) -> Result<String, Error> {
+    let out_dir = env::var("OUT_DIR")?;
+    let qml_path = &Path::new(&out_dir).join("libpthread.so");
+
+    let mut f = std::fs::File::create(qml_path)?;
+    match arch {
+        "armv7hl" => {
+            writeln!(f, "OUTPUT_FORMAT(elf32-littlearm)")?;
+        }
+        "i486" => {
+            writeln!(f, "OUTPUT_FORMAT(elf32-i386)")?;
+        }
+        _ => unreachable!(),
+    }
+    writeln!(
+        f,
+        "GROUP ( {}/lib/libpthread.so.0 {}/usr/lib/libpthread_nonshared.a )",
+        mer_root, mer_root
+    )?;
+
+    Ok(out_dir)
+}
+
 fn mock_libc(mer_root: &str, arch: &str) -> Result<String, Error> {
     let out_dir = env::var("OUT_DIR")?;
     let qml_path = &Path::new(&out_dir).join("libc.so");
@@ -100,10 +123,15 @@ fn main() {
     };
     let macos_lib_framework = if cfg!(target_os = "macos") { "" } else { "5" };
 
-    let mock_lib_path = mock_libc(&mer_target_root, arch).unwrap();
+    let mock_libc_path = mock_libc(&mer_target_root, arch).unwrap();
+    let mock_pthread_path = mock_pthread(&mer_target_root, arch).unwrap();
     println!(
         "cargo:rustc-link-search{}={}",
-        macos_lib_search, mock_lib_path,
+        macos_lib_search, mock_pthread_path,
+    );
+    println!(
+        "cargo:rustc-link-search{}={}",
+        macos_lib_search, mock_libc_path,
     );
 
     println!(
