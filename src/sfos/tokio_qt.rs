@@ -9,10 +9,6 @@ use qmetaobject::QObject;
 use futures::prelude::*;
 use pin_utils::unsafe_unpinned;
 
-cpp! {{
-#include <QSocketNotifier>
-}}
-
 cpp_class!(
     pub unsafe struct QSocketNotifier as "QSocketNotifier"
 );
@@ -134,13 +130,18 @@ impl TokioQEventDispatcherPriv {
     fn register_timer(mut self: Pin<&mut Self>, timer_id: i32, interval: u32, obj: *mut std::os::raw::c_void) {
         log::trace!("register_timer thread {:?}", std::thread::current().id());
         let mut timers = self.as_mut().timers();
+        for timer in timers.iter() {
+            if timer.spec.timer_id == timer_id {
+                log::trace!("Registering duplicate timer");
+                return;
+            }
+        }
+
         timers.push(TimerSpec {
             timer_id,
             interval,
             obj,
         }.into());
-        timers.sort_unstable();
-        timers.dedup();
 
         self.wake_up();
     }
@@ -148,11 +149,9 @@ impl TokioQEventDispatcherPriv {
     fn unregister_timer(mut self: Pin<&mut Self>, timer_id: i32) -> bool {
         log::trace!("unregister_timer thread {:?}", std::thread::current().id());
         let mut timers = self.as_mut().timers();
-        let idx = match timers.binary_search_by_key(&timer_id, |timer| timer.spec.timer_id) {
-            Ok(idx) => idx,
-            Err(_) => {
-                return false;
-            },
+        let (idx, _timer) = match timers.iter().enumerate().find(|(id, t)| t.spec.timer_id == timer_id) {
+            Some(v) => v,
+            None => return false,
         };
 
         log::trace!("Removing timer at idx={} from thread {:?}", idx, std::thread::current().id());
