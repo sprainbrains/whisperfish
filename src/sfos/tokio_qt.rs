@@ -49,6 +49,7 @@ impl PartialOrd for TimerSpec {
 struct Timer {
     spec: TimerSpec,
     interval: tokio::time::Interval,
+    valid: bool,
 }
 
 impl Eq for Timer {}
@@ -91,6 +92,7 @@ impl From<TimerSpec> for Timer {
         Timer {
             spec,
             interval: tokio::time::interval_at(start.into(), duration),
+            valid: true,
         }
     }
 }
@@ -149,15 +151,16 @@ impl TokioQEventDispatcherPriv {
     fn unregister_timer(mut self: Pin<&mut Self>, timer_id: i32) -> bool {
         log::trace!("unregister_timer thread {:?}", std::thread::current().id());
         let mut timers = self.as_mut().timers();
-        let (idx, _timer) = match timers.iter().enumerate().find(|(_id, t)| t.spec.timer_id == timer_id) {
+        let (idx, timer) = match timers.iter_mut().enumerate().find(|(_id, t)| t.spec.timer_id == timer_id) {
             Some(v) => v,
             None => return false,
         };
 
-        log::trace!("Removing timer at idx={} from thread {:?}", idx, std::thread::current().id());
-        timers.remove(idx);
+        log::trace!("Invalidating timer at idx={} from thread {:?}", idx, std::thread::current().id());
+        timer.valid = false;
 
         for (i, timer) in timers.iter().enumerate() {
+            if !timer.valid { continue }
             log::trace!("- {}: {}ms", i, timer.spec.interval);
         }
 
@@ -213,6 +216,7 @@ impl TokioQEventDispatcherPriv {
             };
 
             if read || write {
+                // XXX: UB: re-entrace risk
                 let result = unsafe{cpp!([notifier as "QSocketNotifier *"] -> bool as "bool" {
                     QEvent ev(QEvent::SockAct);
                     return QCoreApplication::sendEvent(notifier, &ev);
@@ -237,11 +241,14 @@ impl TokioQEventDispatcherPriv {
     fn poll_timers(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
         log::trace!("poll_timers thread {:?}", std::thread::current().id());
         let mut timers = self.as_mut().timers();
+        timers.retain(|t| t.valid);
+
         let mut stream = stream::select_all(timers.iter_mut());
 
         while let Poll::Ready(Some(spec)) = Stream::poll_next(Pin::new(&mut stream), ctx) {
             let obj = spec.obj;
             let id = spec.timer_id;
+            // XXX: UB: re-entrace risk
             let ev = unsafe { cpp! ( [obj as "QObject *", id as "int"] -> bool as "bool" {
                 QTimerEvent e(id);
                 return QCoreApplication::sendEvent(obj, &e);
@@ -407,9 +414,9 @@ impl TokioQEventDispatcher {
     }
 
     pub fn m_priv_mut(&mut self) -> Pin<&mut TokioQEventDispatcherPriv> {
-        unsafe {cpp!([self as "TokioQEventDispatcher *"] -> &mut Pin<Box<TokioQEventDispatcherPriv>> as "void *" {
+        unsafe {cpp!([self as "TokioQEventDispatcher *"] -> *mut Pin<Box<TokioQEventDispatcherPriv>> as "void *" {
             return self->m_priv;
-        })}.as_mut()
+        }).as_mut()}.unwrap().as_mut()
     }
 
     pub fn install() {

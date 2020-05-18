@@ -158,11 +158,11 @@ impl SailfishApp {
 
     pub fn event_dispatcher_mut(&mut self) -> Option<&mut TokioQEventDispatcher> {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*"] -> Option<&mut TokioQEventDispatcher> as "TokioQEventDispatcher*" {
+            cpp!([self as "SfosApplicationHolder*"] -> *mut TokioQEventDispatcher as "TokioQEventDispatcher*" {
                 QAbstractEventDispatcher *dispatch = self->app->eventDispatcher();
                 TokioQEventDispatcher *tqed = dynamic_cast<TokioQEventDispatcher *>(dispatch);
                 return tqed;
-            })
+            }).as_mut()
         }
     }
 
