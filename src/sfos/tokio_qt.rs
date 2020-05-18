@@ -149,7 +149,7 @@ impl TokioQEventDispatcherPriv {
     fn unregister_timer(mut self: Pin<&mut Self>, timer_id: i32) -> bool {
         log::trace!("unregister_timer thread {:?}", std::thread::current().id());
         let mut timers = self.as_mut().timers();
-        let (idx, _timer) = match timers.iter().enumerate().find(|(id, t)| t.spec.timer_id == timer_id) {
+        let (idx, _timer) = match timers.iter().enumerate().find(|(_id, t)| t.spec.timer_id == timer_id) {
             Some(v) => v,
             None => return false,
         };
