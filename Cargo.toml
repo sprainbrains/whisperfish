@@ -10,7 +10,7 @@ description = "Private messaging using Signal for SailfishOS."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix = "0.9"
+actix = "0.10.0-alpha.3"
 actix-threadpool = "0.3"
 actix-rt = "1.0.0"
 actix_derive = "0.5"
