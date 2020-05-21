@@ -77,7 +77,6 @@ impl PartialOrd for TimerSpec {
 struct Timer {
     spec: TimerSpec,
     interval: tokio::time::Interval,
-    valid: bool,
 }
 
 impl Eq for Timer {}
@@ -120,7 +119,6 @@ impl From<TimerSpec> for Timer {
         Timer {
             spec,
             interval: tokio::time::interval_at(start.into(), duration),
-            valid: true,
         }
     }
 }
@@ -211,12 +209,9 @@ impl TokioQEventDispatcherPriv {
             idx,
             std::thread::current().id()
         );
-        timer.valid = false;
+        timers.remove(idx);
 
         for (i, timer) in timers.iter().enumerate() {
-            if !timer.valid {
-                continue;
-            }
             log::trace!("- {}: {}ms", i, timer.spec.interval);
         }
 
@@ -314,12 +309,10 @@ impl TokioQEventDispatcherPriv {
     fn poll_timers(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
         log::trace!("poll_timers thread {:?}", std::thread::current().id());
         let events = {
-            let timers = self.as_mut().timers();
-            timers.retain(|t| t.valid);
-
-            let mut stream = stream::select_all(timers.iter_mut());
-
             let mut events = Vec::new();
+
+            let timers = self.as_mut().timers();
+            let mut stream = stream::select_all(timers.iter_mut());
 
             while let Poll::Ready(Some(spec)) = Stream::poll_next(Pin::new(&mut stream), ctx) {
                 events.push((spec.obj, spec.timer_id))
