@@ -171,11 +171,10 @@ impl TokioQEventDispatcherPriv {
         interval: u32,
         obj: *mut std::os::raw::c_void,
     ) {
-        log::trace!("register_timer thread {:?}", std::thread::current().id());
         let timers = self.as_mut().timers();
         for timer in timers.iter() {
             if timer.spec.timer_id == timer_id {
-                log::trace!("Registering duplicate timer");
+                log::warn!("Registering duplicate timer");
                 return;
             }
         }
@@ -193,7 +192,6 @@ impl TokioQEventDispatcherPriv {
     }
 
     fn unregister_timer(mut self: Pin<&mut Self>, timer_id: i32) -> bool {
-        log::trace!("unregister_timer thread {:?}", std::thread::current().id());
         let timers = self.as_mut().timers();
         let (idx, timer) = match timers
             .iter_mut()
@@ -204,11 +202,6 @@ impl TokioQEventDispatcherPriv {
             None => return false,
         };
 
-        log::trace!(
-            "Invalidating timer at idx={} from thread {:?}",
-            idx,
-            std::thread::current().id()
-        );
         timers.remove(idx);
 
         for (i, timer) in timers.iter().enumerate() {
