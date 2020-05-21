@@ -12,11 +12,38 @@ cpp_class!(
     pub unsafe struct QSocketNotifier as "QSocketNotifier"
 );
 
+#[repr(u32)]
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum QSocketNotifierType {
+    Read = 0,
+    Write = 1,
+    Exception = 2,
+}
+
+impl Into<mio::Ready> for QSocketNotifierType {
+    fn into(self) -> mio::Ready {
+        use QSocketNotifierType::*;
+        match self {
+            Read => mio::Ready::readable(),
+            Write => mio::Ready::writable(),
+            Exception => *mio::unix::UnixReady::error(),
+        }
+    }
+}
+
 impl QSocketNotifier {
     fn socket(&self) -> RawFd {
         unsafe {
             cpp!( [self as "QSocketNotifier *"] -> RawFd as "int" {
                 return self->socket();
+            })
+        }
+    }
+
+    fn notifier_type(&self) -> QSocketNotifierType {
+        unsafe {
+            cpp!( [self as "QSocketNotifier *"] -> QSocketNotifierType as "int" {
+                return self->type();
             })
         }
     }
@@ -121,16 +148,22 @@ impl TokioQEventDispatcherPriv {
     unsafe_unpinned!(socket_registrations: Vec<(*mut QSocketNotifier, Registration)>);
 
     fn register_socket_notifier(self: Pin<&mut Self>, raw_notifier: *mut QSocketNotifier) {
-        let fd = unsafe { raw_notifier.as_mut() }.unwrap().socket();
+        let notifier = unsafe { raw_notifier.as_mut() }.unwrap();
+        let fd = notifier.socket();
         log::debug!("registerSocketNotifier: fd={}", fd);
         log::trace!(
             "register_socket_notifier thread {:?}",
             std::thread::current().id()
         );
 
+        let reg = Registration::new_with_ready(
+            &mio::unix::EventedFd(&fd),
+            notifier.notifier_type().into(),
+        ).unwrap(); // XXX unwrap
+
         self.socket_registrations().push((
             raw_notifier,
-            Registration::new(&mio::unix::EventedFd(&fd)).unwrap(), // XXX unwrap
+            reg
         ));
     }
 
