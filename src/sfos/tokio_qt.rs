@@ -1,7 +1,7 @@
 use std::os::unix::io::RawFd;
 use std::pin::Pin;
 use std::task::{Context, Poll, Waker};
-
+use std::sync::Mutex;
 use std::cell::RefCell;
 
 use futures::prelude::*;
@@ -128,7 +128,7 @@ impl From<TimerSpec> for Timer {
 pub struct TokioQEventDispatcherPriv {
     socket_registrations: Vec<(*mut QSocketNotifier, Registration)>,
     timers: Vec<Timer>,
-    waker: RefCell<Option<Waker>>,
+    waker: Mutex<RefCell<Option<Waker>>>,
     _unpin: std::marker::PhantomPinned,
 }
 
@@ -227,8 +227,9 @@ impl TokioQEventDispatcherPriv {
 
     fn wake_up(self: Pin<&mut Self>) {
         log::trace!("wake_up thread {:?}", std::thread::current().id());
-        if let Some(waker) = self.waker.borrow().clone() {
-            // XXX: Consider waking by value.
+        if let Some(waker) = self.waker.lock().unwrap().borrow().clone() {
+            // XXX: Consider waking by value,
+            //      maybe store wakers in thread-local storage or something.
             waker.wake();
         } else {
             log::trace!("Already awaken");
@@ -237,7 +238,7 @@ impl TokioQEventDispatcherPriv {
 
     fn set_waker(self: Pin<&mut Self>, w: &Waker) {
         log::trace!("set_waker thread {:?}", std::thread::current().id());
-        drop(self.waker.replace(Some(w.clone())));
+        drop(self.waker.lock().unwrap().replace(Some(w.clone())));
     }
 
     fn poll_sockets(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
