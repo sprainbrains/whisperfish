@@ -148,11 +148,7 @@ impl TokioQEventDispatcherPriv {
     fn register_socket_notifier(self: Pin<&mut Self>, raw_notifier: *mut QSocketNotifier) {
         let notifier = unsafe { raw_notifier.as_mut() }.unwrap();
         let fd = notifier.socket();
-        log::debug!("registerSocketNotifier: fd={}", fd);
-        log::trace!(
-            "register_socket_notifier thread {:?}",
-            std::thread::current().id()
-        );
+        log::debug!("registerSocketNotifier: fd={} for {:?} on thread {:?}", fd, notifier.notifier_type(), std::thread::current().id());
 
         let reg = Registration::new_with_ready(
             &mio::unix::EventedFd(&fd),
@@ -372,14 +368,12 @@ cpp! {{
         ) override {
             // XXX: respect TimerType
             rust!(registerTimer_r [m_priv: &mut Pin<Box<TokioQEventDispatcherPriv>> as "void *", timerId: std::os::raw::c_int as "int", interval: std::os::raw::c_int as "int", object: *mut std::os::raw::c_void as "QObject *"] {
-                log::trace!("registerTimer(id={}, interval={})", timerId, interval);
                 m_priv.as_mut().register_timer(timerId, interval as u32, object);
             });
         }
 
         bool unregisterTimer(int timerId) override {
             return rust!(unregisterTimer_r [m_priv: &mut Pin<Box<TokioQEventDispatcherPriv>> as "void *", timerId: std::os::raw::c_int as "int"] -> bool as "bool" {
-                log::trace!("unregisterTimer(id={})", timerId);
                 m_priv.as_mut().unregister_timer(timerId as i32)
             });
         }
