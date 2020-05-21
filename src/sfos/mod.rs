@@ -1,5 +1,4 @@
 use std::os::raw::*;
-use std::sync::Arc;
 use std::future::Future;
 
 use qmetaobject::qttypes::*;

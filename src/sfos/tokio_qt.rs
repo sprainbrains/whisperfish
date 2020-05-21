@@ -6,7 +6,6 @@ use std::cell::RefCell;
 
 use futures::prelude::*;
 use pin_utils::unsafe_unpinned;
-use qmetaobject::QObject;
 use tokio::io::Registration;
 
 cpp_class!(

@@ -8,8 +8,6 @@ extern crate diesel;
 
 use actix::prelude::*;
 
-use qmetaobject::*;
-
 mod qrc;
 
 mod sfos;
