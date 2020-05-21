@@ -221,7 +221,6 @@ impl TokioQEventDispatcherPriv {
     }
 
     fn wake_up(self: Pin<&mut Self>) {
-        log::trace!("wake_up thread {:?}", std::thread::current().id());
         if let Some(waker) = self.waker.lock().unwrap().borrow().clone() {
             // XXX: Consider waking by value,
             //      maybe store wakers in thread-local storage or something.
@@ -232,20 +231,17 @@ impl TokioQEventDispatcherPriv {
     }
 
     fn set_waker(self: Pin<&mut Self>, w: &Waker) {
-        log::trace!("set_waker thread {:?}", std::thread::current().id());
         drop(self.waker.lock().unwrap().replace(Some(w.clone())));
     }
 
     fn poll_sockets(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
-        log::trace!("poll_sockets thread {:?}", std::thread::current().id());
         let mut events = Vec::new();
 
         for (notifier, registration) in &self.socket_registrations {
             let notifier: *mut QSocketNotifier = *notifier;
 
             let read = match registration.poll_read_ready(ctx) {
-                Poll::Ready(Ok(readiness)) => {
-                    log::trace!("Socket readiness: {:?}", readiness);
+                Poll::Ready(Ok(_readiness)) => {
                     true
                 }
                 Poll::Ready(Err(e)) => {
@@ -260,8 +256,7 @@ impl TokioQEventDispatcherPriv {
             };
 
             let write = match registration.poll_write_ready(ctx) {
-                Poll::Ready(Ok(readiness)) => {
-                    log::trace!("Socket readiness: {:?}", readiness);
+                Poll::Ready(Ok(_readiness)) => {
                     true
                 }
                 Poll::Ready(Err(e)) => {
@@ -296,9 +291,7 @@ impl TokioQEventDispatcherPriv {
                     return QCoreApplication::sendEvent(notifier, &ev);
                 })
             };
-            if result {
-                log::trace!("Socket ready, event sent.");
-            } else {
+            if ! result {
                 log::warn!("Socket ready, sendEvent returned false.");
             }
         }
@@ -307,7 +300,6 @@ impl TokioQEventDispatcherPriv {
     }
 
     fn poll_timers(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
-        log::trace!("poll_timers thread {:?}", std::thread::current().id());
         let events = {
             let mut events = Vec::new();
 
