@@ -200,10 +200,6 @@ impl TokioQEventDispatcherPriv {
 
         timers.remove(idx);
 
-        for (i, timer) in timers.iter().enumerate() {
-            log::trace!("- {}: {}ms", i, timer.spec.interval);
-        }
-
         self.wake_up();
 
         true
