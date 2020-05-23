@@ -330,6 +330,8 @@ cpp! {{
         bool processEvents(QEventLoop::ProcessEventsFlags flags) override {
             emit awake();
             QCoreApplication::sendPostedEvents();
+            emit aboutToBlock();
+
             return true;
         }
 
@@ -456,12 +458,7 @@ impl TokioQEventDispatcher {
             return Poll::Ready(());
         }
 
-        let interrupted = false; // XXX
-        if interrupted {
-            Poll::Ready(())
-        } else {
-            Poll::Pending
-        }
+        Poll::Pending
     }
 
     pub fn m_priv_mut(&mut self) -> Pin<&mut TokioQEventDispatcherPriv> {

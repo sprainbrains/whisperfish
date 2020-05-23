@@ -84,8 +84,14 @@ fn main() {
 
     let mer_target_root = format!("{}/targets/{}-{}", mer_sdk, mer_target, arch);
 
-    cpp_build::Config::new()
-        .include(format!("{}/usr/include/", mer_target_root))
+    let mut cfg = cpp_build::Config::new();
+
+    let qt_versions = ["5.6.2", "5.6.3"];
+    for version in &qt_versions {
+        cfg.include(format!("{}/usr/include/qt5/QtGui/{}", mer_target_root, version));
+    }
+
+    cfg.include(format!("{}/usr/include/", mer_target_root))
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
         .include(format!("{}/usr/include/qt5/", mer_target_root))
         .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))

@@ -55,11 +55,29 @@ struct SfosApplicationFuture {
     app: SailfishApp,
 }
 
+use std::task::{Context, Poll};
+
+cpp!{{
+    #include <QtGui/qpa/qwindowsysteminterface.h>
+}}
+
 impl Future for SfosApplicationFuture {
     type Output = ();
-    fn poll(mut self: std::pin::Pin<&mut Self>, ctx: &mut std::task::Context<'_>) -> std::task::Poll<()> {
+    fn poll(mut self: std::pin::Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
         let dispatch = self.app.event_dispatcher_mut().unwrap();
-        dispatch.poll(ctx)
+        match dispatch.poll(ctx) {
+            Poll::Ready(()) => {
+                log::warn!("Tokio-Qt event dispatcher finished");
+                return Poll::Ready(())
+            },
+            Poll::Pending => (),
+        }
+
+        unsafe {cpp!([] {
+            QWindowSystemInterface::sendWindowSystemEvents(QEventLoop::AllEvents);
+        })};
+
+        Poll::Pending
     }
 }
 
