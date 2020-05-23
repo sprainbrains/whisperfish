@@ -19,6 +19,8 @@ cpp! {{
     #include <QtCore/QDebug>
     #include <QtWidgets/QApplication>
     #include <QtQml/QQmlComponent>
+    #include <QtGui/qpa/qwindowsysteminterface.h>
+    #include <QtQuick/QQuickWindow>
 
     #include <sailfishapp.h>
 
@@ -45,7 +47,26 @@ cpp! {{
             : app(SailfishApp::application(argc, argv))
             , view(SailfishApp::createView()) { }
     };
+
+    struct CloseEventFilter : public QObject {
+        CloseEventFilter(QObject *parent=nullptr): QObject(parent), isClosed(false) {}
+        virtual ~CloseEventFilter() {}
+
+        bool isClosed;
+
+    protected:
+        bool eventFilter(QObject *obj, QEvent *event) override {
+            if (event->type() == QEvent::Close) {
+                isClosed = true;
+            }
+            return QObject::eventFilter(obj, event);
+        }
+    };
 }}
+
+cpp_class!(
+    unsafe struct CloseEventFilter as "CloseEventFilter"
+);
 
 cpp_class! (
     pub unsafe struct SailfishApp as "SfosApplicationHolder"
@@ -53,13 +74,10 @@ cpp_class! (
 
 struct SfosApplicationFuture {
     app: SailfishApp,
+    close_event_filter: *mut CloseEventFilter,
 }
 
 use std::task::{Context, Poll};
-
-cpp!{{
-    #include <QtGui/qpa/qwindowsysteminterface.h>
-}}
 
 impl Future for SfosApplicationFuture {
     type Output = ();
@@ -73,11 +91,17 @@ impl Future for SfosApplicationFuture {
             Poll::Pending => (),
         }
 
-        unsafe {cpp!([] {
+        let filter: *mut CloseEventFilter = self.close_event_filter;
+        let has_closed = unsafe {cpp!([filter as "CloseEventFilter*"] -> bool as "bool" {
             QWindowSystemInterface::sendWindowSystemEvents(QEventLoop::AllEvents);
+            return filter->isClosed;
         })};
 
-        Poll::Pending
+        if has_closed {
+            Poll::Ready(())
+        } else {
+            Poll::Pending
+        }
     }
 }
 
@@ -185,8 +209,16 @@ impl SailfishApp {
 
     pub fn exec_async(mut self) -> impl Future<Output=()> {
         assert!(self.event_dispatcher_mut().is_some());
+        // XXX: implement Drop to deregister the filter.
+        let app: &mut Self = &mut self;
+        let close_event_filter = unsafe {cpp!([app as "SfosApplicationHolder*"] -> *mut CloseEventFilter as "CloseEventFilter *" {
+            CloseEventFilter *f = new CloseEventFilter();
+            app->view->installEventFilter(f);
+            return f;
+        })};
         SfosApplicationFuture {
             app: self,
+            close_event_filter,
         }
     }
 
