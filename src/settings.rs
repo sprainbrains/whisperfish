@@ -48,7 +48,10 @@ pub struct Settings {
     stringSet: qt_method!(fn(&self, key: String, value: String)),
     stringValue: qt_method!(fn(&self, key: String) -> String),
 
+    // XXX
     // stringListSet: qt_method!(fn (&self, key: String, value: String)),
+    // stringListValue: qt_method!(fn (&self, key: String, value: String)),
+
     boolSet: qt_method!(fn(&self, key: String, value: bool)),
     boolValue: qt_method!(fn(&self, key: String) -> bool),
 
@@ -80,5 +83,8 @@ impl Settings {
         self.inner.value_bool(&key)
     }
 
-    fn defaults(&mut self) {}
+    fn defaults(&mut self) {
+        // FIXME
+        log::error!("Setting default settings unimplemented.");
+    }
 }
