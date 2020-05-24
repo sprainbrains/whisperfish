@@ -43,8 +43,8 @@ Nightly builds
 
 The most recent builds can be found here:
 
-- armv7hl: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build-armv7hl
-- i486: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build-i486
+- armv7hl: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build:armv7hl
+- i486: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build:i486
 
 
 -------------------------------------------------------------------------------
