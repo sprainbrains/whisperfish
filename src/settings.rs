@@ -69,7 +69,7 @@ impl Settings {
 
     #[allow(non_snake_case)]
     fn stringValue(&self, key: String) -> String {
-        self.inner.value_string(&key)
+        self.get_string(key)
     }
 
     #[allow(non_snake_case)]
@@ -80,11 +80,19 @@ impl Settings {
 
     #[allow(non_snake_case)]
     fn boolValue(&mut self, key: String) -> bool {
-        self.inner.value_bool(&key)
+        self.get_bool(key)
     }
 
     fn defaults(&mut self) {
         // FIXME
         log::error!("Setting default settings unimplemented.");
+    }
+
+    pub fn get_string(&self, key: impl AsRef<str>) -> String {
+        self.inner.value_string(key.as_ref())
+    }
+
+    pub fn get_bool(&self, key: impl AsRef<str>) -> bool {
+        self.inner.value_bool(key.as_ref())
     }
 }

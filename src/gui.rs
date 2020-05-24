@@ -1,9 +1,24 @@
 use std::rc::Rc;
 
-use crate::{model, worker, Settings, sfos::SailfishApp, store};
+use crate::{model, sfos::SailfishApp, worker, Settings};
 
-use qmetaobject::*;
 use actix::prelude::*;
+use qmetaobject::*;
+
+pub struct WhisperfishApp {
+    pub session_model: QObjectBox<model::SessionModel>,
+    pub message_model: QObjectBox<model::MessageModel>,
+    pub contact_model: QObjectBox<model::ContactModel>,
+    pub device_model: QObjectBox<model::DeviceModel>,
+    pub prompt: QObjectBox<model::Prompt>,
+    pub file_picker: QObjectBox<model::FilePicker>,
+
+    pub client_worker: QObjectBox<worker::ClientWorker>,
+    pub send_worker: QObjectBox<worker::SendWorker>,
+    pub setup_worker: QObjectBox<worker::SetupWorker>,
+
+    pub settings: QObjectBox<Settings>,
+}
 
 pub async fn run() -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
@@ -13,34 +28,35 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_application_version(version.clone());
     app.install_default_translator().unwrap();
 
-    let session_model = Rc::new(QObjectBox::new(model::SessionModel::default()));
-    let message_model = Rc::new(QObjectBox::new(model::MessageModel::default()));
-    let contact_model = Rc::new(QObjectBox::new(model::ContactModel::default()));
-    let device_model = Rc::new(QObjectBox::new(model::DeviceModel::default()));
-    let prompt = Rc::new(QObjectBox::new(model::Prompt::default()));
-    let file_picker = Rc::new(QObjectBox::new(model::FilePicker::default()));
+    let whisperfish = Rc::new(WhisperfishApp {
+        session_model: QObjectBox::new(model::SessionModel::default()),
+        message_model: QObjectBox::new(model::MessageModel::default()),
+        contact_model: QObjectBox::new(model::ContactModel::default()),
+        device_model: QObjectBox::new(model::DeviceModel::default()),
+        prompt: QObjectBox::new(model::Prompt::default()),
+        file_picker: QObjectBox::new(model::FilePicker::default()),
 
-    let client_worker = Rc::new(QObjectBox::new(worker::ClientWorker::default()));
-    let send_worker = Rc::new(QObjectBox::new(worker::SendWorker::default()));
-    let setup_worker = Rc::new(QObjectBox::new(worker::SetupWorker::default()));
+        client_worker: QObjectBox::new(worker::ClientWorker::default()),
+        send_worker: QObjectBox::new(worker::SendWorker::default()),
+        setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
-    let settings = Rc::new(QObjectBox::new(Settings::default()));
+        settings: QObjectBox::new(Settings::default()),
+    });
 
-    Arbiter::spawn(worker::SetupWorker::run(setup_worker.clone()));
+    Arbiter::spawn(worker::SetupWorker::run(whisperfish.clone()));
 
     app.set_property("AppVersion".into(), version.into());
 
-
-    app.set_object_property("Prompt".into(), prompt.pinned());
-    app.set_object_property("SettingsBridge".into(), settings.pinned());
-    app.set_object_property("FilePicker".into(), file_picker.pinned());
-    app.set_object_property("SessionModel".into(), session_model.pinned());
-    app.set_object_property("MessageModel".into(), message_model.pinned());
-    app.set_object_property("ContactModel".into(), contact_model.pinned());
-    app.set_object_property("DeviceModel".into(), device_model.pinned());
-    app.set_object_property("SetupWorker".into(), setup_worker.pinned());
-    app.set_object_property("ClientWorker".into(), client_worker.pinned());
-    app.set_object_property("SendWorker".into(), send_worker.pinned());
+    app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
+    app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
+    app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
+    app.set_object_property("SessionModel".into(), whisperfish.session_model.pinned());
+    app.set_object_property("MessageModel".into(), whisperfish.message_model.pinned());
+    app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
+    app.set_object_property("DeviceModel".into(), whisperfish.device_model.pinned());
+    app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
+    app.set_object_property("ClientWorker".into(), whisperfish.client_worker.pinned());
+    app.set_object_property("SendWorker".into(), whisperfish.send_worker.pinned());
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
