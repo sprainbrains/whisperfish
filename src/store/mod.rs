@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 
 use diesel::prelude::*;
 use failure::*;
@@ -55,15 +56,16 @@ impl<P: AsRef<Path>> StorageLocation<P> {
     }
 }
 
+#[derive(Clone)]
 pub struct Storage {
-    db: SqliteConnection,
+    db: Rc<SqliteConnection>,
 }
 
 impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
 
-        Ok(Storage { db })
+        Ok(Storage { db: Rc::new(db) })
     }
 
     pub fn open_with_key<T: AsRef<Path>>(
@@ -75,6 +77,6 @@ impl Storage {
         // Decrypt db
         // XXX we assume all databases to be encrypted.
 
-        Ok(Storage { db })
+        Ok(Storage { db: Rc::new(db) })
     }
 }
