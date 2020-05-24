@@ -75,28 +75,23 @@ Building from source
 -------------------------------------------------------------------------------
 
 
-1a. This application uses `libsignal-c-protocol
-    <https://github.com/signalapp/libsignal-protocol-c>`_
-    as a git submodule.::
+1. Clone the repository::
 
-    $ git clone --recurse-submodules https://github.com/rubdos/whisperfish/
+    $ git clone https://gitlab.com/rubdos/whisperfish
 
-1b. If you already had cloned the repository, you can use::
-
-    $ git submodule update --init --recursive
-
-2. Since that library is built using `cmake <https://cmake.org/>`_,
+2. Since the libsignal-c library is built using `cmake <https://cmake.org/>`_,
    we need cmake *in the build environment*.
    You can install it from within the SDK.
-   We also need `openssl-devel` for the cryptographic provider,
-   and `qt5-qtwebsockets-devel` to communicate with the Signal server.
-   While you're at it, install git too. `qmake` will embed the current git ref in the build name.
+   We also need `openssl-devel` for the cryptographic provider.
    If you prefer to install it over the command line, `ssh` into your build system and use `zypper`::
 
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
     $ sudo zypper -n install cmake make git openssl-devel qt5-qtwebsockets-devel
 
-3. From here on, you can just use the SailfishOS SDK as per usual
+3. From here on, you can use cargo to build the project;
+   make sure to have the correct targets installed (rustup target) and a C compiler set::
+
+   $ cargo build --release --target=armv7-unknown-linux-gnueabihf
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 i18n Translations (help wanted)
