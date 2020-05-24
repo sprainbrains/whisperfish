@@ -29,11 +29,9 @@ fn main() -> Result<(), failure::Error> {
     qrc::load();
 
     sfos::TokioQEventDispatcher::install();
-    let app = gui::WhisperfishApp::new();
 
-    Arbiter::spawn(worker::SetupWorker::run(app.setup_worker.clone()));
     sys.block_on(async {
-        app.run().await.unwrap();
+        gui::run().await.unwrap();
     });
 
     log::info!("Shut down.");

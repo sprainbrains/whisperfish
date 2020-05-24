@@ -1,5 +1,5 @@
 use qmetaobject::*;
-use std::sync::Arc;
+use std::rc::Rc;
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -12,7 +12,7 @@ pub struct SetupWorker {
 }
 
 impl SetupWorker {
-    pub async fn run(this: Arc<QObjectBox<Self>>) {
+    pub async fn run(this: Rc<QObjectBox<Self>>) {
         log::info!("SetupWorker::run");
 
         //let _store = store::Storage::open(&store::default_location()?)?;
