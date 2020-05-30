@@ -38,6 +38,7 @@ impl SetupWorker {
             .join("storage")
             .join("identity")
             .join("identity_key");
+
         // Check registration
         if identity_path.is_file() {
             log::info!("identity_key found, assuming registered");
@@ -47,24 +48,28 @@ impl SetupWorker {
         }
 
         // Open storage
-        let _storage = match SetupWorker::setup_storage(app.clone()).await {
-            Ok(s) => s,
-            Err(e) => {
-                log::error!("Error setting up storage: {}", e);
-                this.borrow().clientFailed();
-                return;
-            }
-        };
+        if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
+            log::error!("Error setting up storage: {}", e);
+            this.borrow().clientFailed();
+            return;
+        }
     }
 
-    async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<Storage, Error> {
+    async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
         let settings = app.settings.pinned();
 
-        if settings.borrow().get_bool("encrypt_database") {
-            let password = app.prompt.pinned().borrow_mut().ask_password().await;
-            bail!("Decrypting not yet implemented")
+        let storage = if settings.borrow().get_bool("encrypt_database") {
+            let password: String = app.prompt.pinned().borrow_mut().ask_password().await
+                .ok_or(format_err!("No password provided"))?
+                .into();
+
+            Storage::open_with_password(&store::default_location()?, password).await?
         } else {
-            Ok(Storage::open(&store::default_location()?)?)
-        }
+            Storage::open(&store::default_location()?)?
+        };
+
+        *app.storage.borrow_mut() = Some(storage);
+
+        Ok(())
     }
 }

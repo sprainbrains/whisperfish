@@ -1,6 +1,8 @@
 use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::{model, sfos::SailfishApp, worker, Settings};
+use crate::store::Storage;
 
 use actix::prelude::*;
 use qmetaobject::*;
@@ -18,6 +20,8 @@ pub struct WhisperfishApp {
     pub setup_worker: QObjectBox<worker::SetupWorker>,
 
     pub settings: QObjectBox<Settings>,
+
+    pub storage: RefCell<Option<Storage>>,
 }
 
 pub async fn run() -> Result<(), failure::Error> {
@@ -41,6 +45,8 @@ pub async fn run() -> Result<(), failure::Error> {
         setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
         settings: QObjectBox::new(Settings::default()),
+
+        storage: RefCell::new(None),
     });
 
     Arbiter::spawn(worker::SetupWorker::run(whisperfish.clone()));
