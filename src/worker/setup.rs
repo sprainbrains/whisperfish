@@ -33,7 +33,18 @@ impl SetupWorker {
         log::info!("SetupWorker::run");
         let this = app.setup_worker.pinned();
 
+        let identity_path = crate::store::default_location()
+            .unwrap()
+            .join("storage")
+            .join("identity")
+            .join("identity_key");
         // Check registration
+        if identity_path.is_file() {
+            log::info!("identity_key found, assuming registered");
+            this.borrow_mut().registered = true;
+        } else {
+            log::info!("identity_key not found");
+        }
 
         // Open storage
         let _storage = match SetupWorker::setup_storage(app.clone()).await {

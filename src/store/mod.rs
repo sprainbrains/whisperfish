@@ -37,6 +37,16 @@ pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
     ))
 }
 
+impl std::ops::Deref for StorageLocation<PathBuf> {
+    type Target = Path;
+    fn deref(&self) -> &Path {
+        match self {
+            StorageLocation::Memory => unimplemented!(":memory: deref"),
+            StorageLocation::Path(p) => p,
+        }
+    }
+}
+
 impl<P: AsRef<Path>> StorageLocation<P> {
     fn open_db(&self) -> Result<SqliteConnection, Error> {
         let database_url = match self {
