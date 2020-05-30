@@ -1,8 +1,13 @@
 use std::path::{Path, PathBuf};
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
+use actix::prelude::*;
 use diesel::prelude::*;
 use failure::*;
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct StorageReady(pub Storage);
 
 /// Location of the storage.
 ///
@@ -70,7 +75,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 
 #[derive(Clone)]
 pub struct Storage {
-    db: Rc<SqliteConnection>,
+    db: Arc<Mutex<SqliteConnection>>,
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
@@ -101,7 +106,7 @@ impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
 
-        Ok(Storage { db: Rc::new(db) })
+        Ok(Storage { db: Arc::new(Mutex::new(db)) })
     }
 
     pub async fn open_with_password<T: AsRef<Path>>(
@@ -124,6 +129,6 @@ impl Storage {
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
 
-        Ok(Storage { db: Rc::new(db) })
+        Ok(Storage { db: Arc::new(Mutex::new(db)) })
     }
 }

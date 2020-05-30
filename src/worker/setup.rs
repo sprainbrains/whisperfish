@@ -53,6 +53,7 @@ impl SetupWorker {
             this.borrow().clientFailed();
             return;
         }
+        app.storage_ready().await;
 
         this.borrow().setupChanged();
     }

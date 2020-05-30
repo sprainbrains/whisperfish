@@ -2,14 +2,14 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use crate::{model, sfos::SailfishApp, worker, Settings};
-use crate::store::Storage;
+use crate::store::{Storage, StorageReady};
 
 use actix::prelude::*;
 use qmetaobject::*;
 
 pub struct WhisperfishApp {
-    pub session_model: QObjectBox<model::SessionModel>,
-    pub message_model: QObjectBox<model::MessageModel>,
+    pub session_actor: Addr<model::SessionActor>,
+    pub message_actor: Addr<model::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
     pub device_model: QObjectBox<model::DeviceModel>,
     pub prompt: QObjectBox<model::Prompt>,
@@ -24,6 +24,14 @@ pub struct WhisperfishApp {
     pub storage: RefCell<Option<Storage>>,
 }
 
+impl WhisperfishApp {
+    pub async fn storage_ready(&self) {
+        let storage = self.storage.borrow().as_ref().unwrap().clone();
+        self.session_actor.send(StorageReady(storage)).await
+            .expect("Session Actor should not be busy");
+    }
+}
+
 pub async fn run() -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
     log::info!("SailfishApp::application loaded");
@@ -32,9 +40,12 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_application_version(version.clone());
     app.install_default_translator().unwrap();
 
+    let message_actor = model::MessageActor::new(&mut app).start();
+    let session_actor = model::SessionActor::new(&mut app).start();
+
     let whisperfish = Rc::new(WhisperfishApp {
-        session_model: QObjectBox::new(model::SessionModel::default()),
-        message_model: QObjectBox::new(model::MessageModel::default()),
+        session_actor,
+        message_actor,
         contact_model: QObjectBox::new(model::ContactModel::default()),
         device_model: QObjectBox::new(model::DeviceModel::default()),
         prompt: QObjectBox::new(model::Prompt::default()),
@@ -56,8 +67,6 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
     app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
     app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
-    app.set_object_property("SessionModel".into(), whisperfish.session_model.pinned());
-    app.set_object_property("MessageModel".into(), whisperfish.message_model.pinned());
     app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
     app.set_object_property("DeviceModel".into(), whisperfish.device_model.pinned());
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
