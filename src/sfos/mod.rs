@@ -189,6 +189,7 @@ impl SailfishApp {
         }
     }
 
+    #[allow(dead_code)]
     pub fn exec(&self) {
         unsafe {
             cpp!([self as "SfosApplicationHolder*"] {

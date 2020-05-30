@@ -14,6 +14,7 @@ cpp_class!(
 
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[allow(dead_code)]
 enum QSocketNotifierType {
     Read = 0,
     Write = 1,
@@ -189,7 +190,7 @@ impl TokioQEventDispatcherPriv {
 
     fn unregister_timer(mut self: Pin<&mut Self>, timer_id: i32) -> bool {
         let timers = self.as_mut().timers();
-        let (idx, timer) = match timers
+        let (idx, _timer) = match timers
             .iter_mut()
             .enumerate()
             .find(|(_id, t)| t.spec.timer_id == timer_id)

@@ -8,6 +8,7 @@ use failure::*;
 ///
 /// Path is for persistent storage.
 /// Memory is for running tests or 'incognito' mode.
+#[cfg_attr(not(test), allow(unused))]
 pub enum StorageLocation<P> {
     Path(P),
     Memory,
@@ -25,6 +26,7 @@ impl From<PathBuf> for StorageLocation<PathBuf> {
     }
 }
 
+#[cfg_attr(not(test), allow(unused))]
 pub fn memory() -> StorageLocation<PathBuf> {
     StorageLocation::Memory
 }
