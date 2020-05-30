@@ -27,6 +27,7 @@ libsignal-protocol = "0.1.0"
 log = "0.4.8"
 env_logger = "0.7"
 rust-crypto = "0.2"
+hex="0.4"
 
 diesel = { version = "1.4", features = ["sqlite"] }
 libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }

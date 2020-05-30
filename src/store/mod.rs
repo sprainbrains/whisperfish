@@ -82,7 +82,7 @@ async fn derive_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], Er
     actix_threadpool::run(move || -> Result<_, failure::Error> {
         let mut salt_file = std::fs::File::open(salt_path)?;
         let mut salt = [0u8; 8];
-        salt_file.read(&mut salt)?;
+        ensure!(salt_file.read(&mut salt)? == 8, "salt file too short");
 
         let params = scrypt::ScryptParams::new(14, 8, 1);
         let mut key = [0u8; 32];
@@ -112,12 +112,17 @@ impl Storage {
             .unwrap()
             .join("db")
             .join("salt");
-        let key = derive_key(password, salt_path).await;
 
+        let key = derive_key(password, salt_path).await?;
         let db = db_path.open_db()?;
+        db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(key)))?;
+        db.execute("PRAGMA cipher_page_size = 4096;")?;
 
-        // Decrypt db
-        // XXX we assume all databases to be encrypted.
+        // From the sqlcipher manual:
+        // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
+        db.execute("SELECT count(*) FROM sqlite_master;")?;
+        // XXX: Do we have to signal somehow that the password was wrong?
+        //      Offer retries?
 
         Ok(Storage { db: Rc::new(db) })
     }
