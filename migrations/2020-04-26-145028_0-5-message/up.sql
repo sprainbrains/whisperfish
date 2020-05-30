@@ -2,15 +2,13 @@ CREATE TABLE message (
     id INTEGER PRIMARY KEY,
     session_id INTEGER,
     source TEXT,
--- message used to say STRING
-    message TEXT,
+    message STRING,
     timestamp INTEGER,
     sent INTEGER DEFAULT 0,
     received INTEGER DEFAULT 0,
     flags INTEGER DEFAULT 0,
     attachment TEXT,
--- mime_type used to say STRING
-    mime_type TEXT,
+    mime_type STRING,
     has_attachment INTEGER DEFAULT 0,
     outgoing INTEGER DEFAULT 0
 );

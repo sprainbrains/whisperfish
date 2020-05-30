@@ -1,9 +1,7 @@
 CREATE TABLE session (
     id INTEGER PRIMARY KEY,
--- source used to be STRING
-    source TEXT,
--- message used to be STRING
-    message TEXT,
+    source STRING,
+    message STRING,
     timestamp INTEGER,
     sent INTEGER DEFAULT 0,
     received INTEGER DEFAULT 0,
