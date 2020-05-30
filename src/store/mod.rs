@@ -71,6 +71,30 @@ pub struct Storage {
     db: Rc<SqliteConnection>,
 }
 
+// Cannot borrow password/salt because threadpool requires 'static...
+async fn derive_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], Error> {
+    use actix_threadpool::BlockingError;
+    use crypto::scrypt;
+    use std::io::Read;
+
+    actix_threadpool::run(move || -> Result<_, failure::Error> {
+        let mut salt_file = std::fs::File::open(salt_path)?;
+        let mut salt = [0u8; 8];
+        salt_file.read(&mut salt)?;
+
+        let params = scrypt::ScryptParams::new(14, 8, 1);
+        let mut key = [0u8; 32];
+        scrypt::scrypt(password.as_bytes(), &salt, &params, &mut key);
+        log::trace!("Computed the key, salt was {:?}", salt);
+        Ok(key)
+    })
+    .await
+    .map_err(|e| match e {
+        BlockingError::Canceled => format_err!("Threadpool Canceled"),
+        BlockingError::Error(e) => e,
+    })
+}
+
 impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
@@ -82,29 +106,11 @@ impl Storage {
         db_path: &StorageLocation<T>,
         password: String,
     ) -> Result<Storage, Error> {
-        use std::io::Read;
-        use crypto::scrypt;
-        use actix_threadpool::BlockingError;
-
         let salt_path = crate::store::default_location()
             .unwrap()
             .join("db")
             .join("salt");
-
-        let key: [u8; 32] = actix_threadpool::run(move || -> Result<_, failure::Error> {
-            let mut salt_file = std::fs::File::open(salt_path)?;
-            let mut salt = [0u8; 8];
-            salt_file.read(&mut salt)?;
-
-            let params = scrypt::ScryptParams::new(14, 8, 1);
-            let mut key = [0u8; 32];
-            scrypt::scrypt(password.as_bytes(), &salt, &params, &mut key);
-            log::trace!("Computed the key, salt was {:?}", salt);
-            Ok(key)
-        }).await.map_err(|e| match e {
-            BlockingError::Canceled => format_err!("Threadpool Canceled"),
-            BlockingError::Error(e) => e,
-        })?;
+        let key = derive_key(password, salt_path).await;
 
         let db = db_path.open_db()?;
 
