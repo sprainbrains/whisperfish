@@ -53,6 +53,8 @@ impl SetupWorker {
             this.borrow().clientFailed();
             return;
         }
+
+        this.borrow().setupChanged();
     }
 
     async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
