@@ -79,7 +79,20 @@ Building from source
 
     $ git clone https://gitlab.com/rubdos/whisperfish
 
-2. Since the libsignal-c library is built using `cmake <https://cmake.org/>`_,
+2. Whisperfish is built from the `Platform SDK <https://sailfishos.org/wiki/Platform_SDK>`, outside of the classic ``sb2`` and ``mb2`` environments.
+   Refer to the Platform SDK page for installation instructions.
+   After that, `install the relevant targets <https://sailfishos.org/wiki/Platform_SDK_Target_Installation>` for the device you are building for,
+   e.g.::
+
+    sdk-assistant create SailfishOS-latest-armv7hl http://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
+
+4. Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency::
+
+   sdk-manage develpkg install SailfishOS-latest-armv7hl sqlcipher-devel
+
+5. Make a copy of ``dotenv.example``, adapt it to your configuration and source it.
+
+6. Since the libsignal-c library is built using `cmake <https://cmake.org/>`_,
    we need cmake *in the build environment*.
    You can install it from within the SDK.
    We also need `openssl-devel` for the cryptographic provider.
@@ -88,10 +101,19 @@ Building from source
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
     $ sudo zypper -n install cmake make git openssl-devel qt5-qtwebsockets-devel
 
-3. From here on, you can use cargo to build the project;
+7. From here on, you can use cargo to build the project;
    make sure to have the correct targets installed (rustup target) and a C compiler set::
 
-   $ cargo build --release --target=armv7-unknown-linux-gnueabihf
+    $ cargo build --release --target=armv7-unknown-linux-gnueabihf
+
+   The ``harbour-whisperfish`` executable resides in ``target/[target]/release``.
+   You can also use ``cargo rpm`` to build an RPM package,
+   note that you need ``rpmtools`` installed on the host system::
+
+    $ cargo install cargo-rpm
+    $ cargo rpm build
+
+   The generated RPM can be found in ``target/[target]/release/rpmbuild/RPMS/armv7hl/``.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 i18n Translations (help wanted)
