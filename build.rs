@@ -118,6 +118,10 @@ fn main() {
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
         .include(format!("{}/usr/include/qt5/", mer_target_root))
         .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
+        // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
+        // It is annoying to look at while developing, and we cannot do anything about it
+        // ourselves.
+        .flag("-Wno-deprecated-copy")
         .build("src/main.rs");
 
     println!("cargo:rerun-if-changed=src/sfos/mod.rs");

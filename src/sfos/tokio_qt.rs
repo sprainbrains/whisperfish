@@ -329,6 +329,8 @@ cpp! {{
         TokioQEventDispatcher(void *d) : m_priv(d) { }
 
         bool processEvents(QEventLoop::ProcessEventsFlags flags) override {
+            // XXX: Maybe respect flags
+            Q_UNUSED(flags);
             emit awake();
             QCoreApplication::sendPostedEvents();
             emit aboutToBlock();
@@ -366,6 +368,7 @@ cpp! {{
             QObject* object
         ) override {
             // XXX: respect TimerType
+            Q_UNUSED(timerType);
             rust!(registerTimer_r [m_priv: &mut Pin<Box<TokioQEventDispatcherPriv>> as "void *", timerId: std::os::raw::c_int as "int", interval: std::os::raw::c_int as "int", object: *mut std::os::raw::c_void as "QObject *"] {
                 m_priv.as_mut().register_timer(timerId, interval as u32, object);
             });
@@ -378,6 +381,7 @@ cpp! {{
         }
 
         bool unregisterTimers(QObject* object) override {
+            Q_UNUSED(object);
             rust!(unregisterTimers_r [] {
                 log::error!("unregisterTimers");
             });
