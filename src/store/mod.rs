@@ -87,7 +87,7 @@ async fn derive_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], Er
     actix_threadpool::run(move || -> Result<_, failure::Error> {
         let mut salt_file = std::fs::File::open(salt_path)?;
         let mut salt = [0u8; 8];
-        ensure!(salt_file.read(&mut salt)? == 8, "salt file too short");
+        ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
 
         let params = scrypt::ScryptParams::new(14, 8, 1);
         let mut key = [0u8; 32];
