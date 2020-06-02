@@ -16,10 +16,10 @@ ApplicationWindow
 
     ListModel {
         id: contactList
-       
+
         function refresh() {
             contactList.clear()
-            for (var i = 0; i < ContactModel.rowCount(); i++) {
+            for (var i = 0; i < ContactModel.rowCount; i++) {
                 var c = ContactModel.get(i)
                 contactList.append(c)
             }
