@@ -75,7 +75,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 
 #[derive(Clone)]
 pub struct Storage {
-    db: Arc<Mutex<SqliteConnection>>,
+    pub db: Arc<Mutex<SqliteConnection>>,
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...

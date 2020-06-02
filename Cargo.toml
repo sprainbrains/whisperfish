@@ -14,6 +14,7 @@ actix = "0.10.0-alpha.3"
 actix-threadpool = "0.3"
 actix-rt = "1.0.0"
 actix_derive = "0.5"
+chrono = "0.4"
 tokio = {version="0.2", features=["io-driver", "time", "stream"]}
 mio = "0.6"
 futures = "0.3"
@@ -29,7 +30,7 @@ env_logger = "0.7"
 rust-crypto = "0.2"
 hex="0.4"
 
-diesel = { version = "1.4", features = ["sqlite"] }
+diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }
 
 [build-dependencies]

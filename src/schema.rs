@@ -25,18 +25,18 @@ table! {
 
 table! {
     session (id) {
-        id -> Nullable<Integer>,
-        source -> Nullable<Text>,
-        message -> Nullable<Text>,
-        timestamp -> Nullable<Integer>,
-        sent -> Nullable<Integer>,
-        received -> Nullable<Integer>,
-        unread -> Nullable<Integer>,
-        is_group -> Nullable<Integer>,
+        id -> Integer,
+        source -> Text,
+        message -> Text,
+        timestamp -> BigInt,
+        sent -> Bool,
+        received -> Bool,
+        unread -> Bool,
+        is_group -> Bool,
         group_members -> Nullable<Text>,
         group_id -> Nullable<Text>,
         group_name -> Nullable<Text>,
-        has_attachment -> Nullable<Integer>,
+        has_attachment -> Bool,
     }
 }
 
