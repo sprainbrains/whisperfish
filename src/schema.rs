@@ -1,3 +1,5 @@
+#![allow(non_snake_case)] // for Contacts db
+
 table! {
     message (id) {
         id -> Nullable<Integer>,
@@ -40,10 +42,31 @@ table! {
     }
 }
 
+table! {
+    contacts (contactId) {
+        contactId -> Integer,
+        displayLabel -> Text,
+    }
+}
+
+table! {
+    phoneNumbers (id) {
+        id -> Integer,
+        phoneNumber -> Text,
+        contactId -> Integer,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
     message,
     sentq,
     session,
 );
 
+allow_tables_to_appear_in_same_query!(
+    contacts,
+    phoneNumbers,
+);
+
 joinable!(sentq -> message (message_id));
+joinable!(phoneNumbers -> contacts (contactId));
