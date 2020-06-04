@@ -1,8 +1,10 @@
 extern crate phonenumber;
 
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use crate::sfos::SailfishApp;
+use crate::settings::*;
 
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -58,7 +60,17 @@ define_model_roles! {
 
 impl ContactModel {
     fn format_helper(&self, number: &QString, mode: Mode) -> String {
-        let country = phonenumber::country::FI;  // TODO: Read from settings
+        let settings = Settings::default();
+
+        let country_code = settings.get_string("country_code");
+
+        let res = phonenumber::country::Id::from_str(&country_code);
+
+        if res.is_err() {
+            return String::new();
+        }
+
+        let country = res.unwrap();
 
         let res = phonenumber::parse(Some(country), number.to_string());
 
