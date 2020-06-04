@@ -64,21 +64,15 @@ impl ContactModel {
 
         let country_code = settings.get_string("country_code");
 
-        let res = phonenumber::country::Id::from_str(&country_code);
+        let country = match phonenumber::country::Id::from_str(&country_code) {
+            Ok(country) => country,
+            Err(_) => return String::new(),
+        };
 
-        if res.is_err() {
-            return String::new();
-        }
-
-        let country = res.unwrap();
-
-        let res = phonenumber::parse(Some(country), number.to_string());
-
-        if res.is_err() {
-            return String::new()
-        }
-
-        let number = res.unwrap();
+        let number = match phonenumber::parse(Some(country), number.to_string()) {
+            Ok(number) => number,
+            Err(_) => return String::new(),
+        };
 
         let is_valid = phonenumber::is_valid(&number);
 
