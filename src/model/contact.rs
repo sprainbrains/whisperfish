@@ -1,5 +1,3 @@
-extern crate phonenumber;
-
 use std::collections::HashMap;
 use std::str::FromStr;
 
