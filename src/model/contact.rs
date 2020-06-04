@@ -1,9 +1,12 @@
+extern crate phonenumber;
+
 use std::collections::HashMap;
 
 use crate::sfos::SailfishApp;
 
 use actix::prelude::*;
 use diesel::prelude::*;
+use phonenumber::Mode;
 use qmetaobject::*;
 
 const DB_PATH: &str = "/home/nemo/.local/share/system/Contacts/qtcontacts-sqlite/contacts.db";
@@ -15,6 +18,7 @@ pub struct ContactModel {
 
     content: Vec<Contact>,
 
+    format: qt_method!(fn(&self, string: QString) -> QString),
     name: qt_method!(fn(&self, source: QString) -> QString),
 }
 
@@ -53,6 +57,30 @@ define_model_roles! {
 }
 
 impl ContactModel {
+    fn format(&self, string: QString) -> QString {
+        if string.to_string().len() == 0 {
+            return QString::from("");
+        }
+
+        let country = phonenumber::country::FI;  // TODO: Read from settings
+
+        let res = phonenumber::parse(Some(country), string.to_string());
+
+        if res.is_err() {
+            return QString::from("");
+        }
+
+        let number = res.unwrap();
+
+        let is_valid = phonenumber::is_valid(&number);
+
+        if !is_valid {
+            return QString::from("");  // QML takes over and can't accept
+        }
+
+        QString::from(number.format().mode(Mode::E164).to_string())
+    }
+
     fn name(&self, source: QString) -> QString {
         use crate::schema::contacts;
         use crate::schema::phoneNumbers;
