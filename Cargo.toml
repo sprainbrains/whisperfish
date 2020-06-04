@@ -29,6 +29,7 @@ log = "0.4.8"
 env_logger = "0.7"
 rust-crypto = "0.2"
 hex="0.4"
+phonenumber = "0.2.4"
 
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }
