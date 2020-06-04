@@ -57,17 +57,13 @@ define_model_roles! {
 }
 
 impl ContactModel {
-    fn format(&self, string: QString) -> QString {
-        if string.to_string().len() == 0 {
-            return QString::from("");
-        }
-
+    fn format_helper(&self, number: &QString, mode: Mode) -> String {
         let country = phonenumber::country::FI;  // TODO: Read from settings
 
-        let res = phonenumber::parse(Some(country), string.to_string());
+        let res = phonenumber::parse(Some(country), number.to_string());
 
         if res.is_err() {
-            return QString::from("");
+            return String::new()
         }
 
         let number = res.unwrap();
@@ -75,10 +71,19 @@ impl ContactModel {
         let is_valid = phonenumber::is_valid(&number);
 
         if !is_valid {
-            return QString::from("");  // QML takes over and can't accept
+            return String::new()
         }
 
-        QString::from(number.format().mode(Mode::E164).to_string())
+        String::from(number.format().mode(mode).to_string())
+    }
+
+    // The default formatter expected by QML
+    fn format(&self, string: QString) -> QString {
+        if string.to_string().len() == 0 {
+            return QString::from("");
+        }
+
+        QString::from(self.format_helper(&string, Mode::E164))
     }
 
     fn name(&self, source: QString) -> QString {
@@ -87,14 +92,18 @@ impl ContactModel {
 
         let db = SqliteConnection::establish(DB_PATH); // This should maybe be established only once
         let conn = db.unwrap();
+
+        // This will ensure the format to query is ok
+        let e164_source = self.format_helper(&source, Mode::E164);
+        let mut national_source = self.format_helper(&source, Mode::National);
+        national_source.retain(|c| c != ' ');  // At least FI numbers had spaces after parsing
         let source = source.to_string();
 
-        // FIXME: phonenumbers.like(&source) is not good enough, we need real phone number parsing
-        //        like in Go.
         let (name, _phone_number): (String, String) = contacts::table
             .inner_join(phoneNumbers::table)
             .select((contacts::displayLabel, phoneNumbers::phoneNumber))
-            .filter(phoneNumbers::phoneNumber.like(&source))
+            .filter(phoneNumbers::phoneNumber.like(&e164_source))
+            .or_filter(phoneNumbers::phoneNumber.like(&national_source))
             .get_result(&conn)
             .unwrap_or((source.clone(), source));
 
