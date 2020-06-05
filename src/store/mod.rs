@@ -1,6 +1,9 @@
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+use crate::schema::session;
+use crate::model::session::*;
+
 use actix::prelude::*;
 use diesel::prelude::*;
 use failure::*;
@@ -130,5 +133,17 @@ impl Storage {
         //      Offer retries?
 
         Ok(Storage { db: Arc::new(Mutex::new(db)) })
+    }
+
+    pub fn fetch_session(&self, sid: i64) -> Option<Session> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called fetch_session({})", sid);
+        match session::table.filter(session::columns::id.eq(sid))
+                            .first(&*conn) {
+                                Ok(data) => Some(data),
+                                Err(_) => None,
+                             }
     }
 }
