@@ -29,6 +29,9 @@ impl WhisperfishApp {
         let storage = self.storage.borrow().as_ref().unwrap().clone();
         self.session_actor.send(StorageReady(storage)).await
             .expect("Session Actor should not be busy");
+        let storage = self.storage.borrow().as_ref().unwrap().clone();
+        self.message_actor.send(StorageReady(storage)).await
+            .expect("Message Actor should not be busy");
     }
 }
 
