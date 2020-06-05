@@ -1299,7 +1299,7 @@ checksum = "9a1574a51c3fd37b26d2c0032b649d08a7d51d4cca9c41bbc5bf7118fa4509d0"
 [[package]]
 name = "qmetaobject"
 version = "0.1.4"
-source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#300971a9b292d6e3d2b7d55a809035fbf6c322fd"
+source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#54d654c3cecdc3f573dcc7f25a7913a6838392db"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -1311,7 +1311,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject_impl"
 version = "0.1.4"
-source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#300971a9b292d6e3d2b7d55a809035fbf6c322fd"
+source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#54d654c3cecdc3f573dcc7f25a7913a6838392db"
 dependencies = [
  "proc-macro2",
  "quote",
