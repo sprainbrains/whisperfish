@@ -3,7 +3,7 @@
 table! {
     message (id) {
         id -> Nullable<Integer>,
-        session_id -> Nullable<Integer>,
+        session_id -> Nullable<BigInt>,
         source -> Nullable<Text>,
         #[sql_name="message"]
         text -> Nullable<Text>,
@@ -27,7 +27,7 @@ table! {
 
 table! {
     session (id) {
-        id -> Integer,
+        id -> BigInt,
         source -> Text,
         message -> Text,
         timestamp -> BigInt,

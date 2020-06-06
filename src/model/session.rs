@@ -21,19 +21,19 @@ pub struct SessionModel {
 
 #[derive(Queryable)]
 pub struct Session {
-    id: i32,
-    source: String,
-    message: String,
-    timestamp: i64,
-    sent: bool,
-    received: bool,
-    unread: bool,
-    is_group: bool,
-    group_members: Option<String>,
+    pub id: i64,
+    pub source: String,
+    pub message: String,
+    pub timestamp: i64,
+    pub sent: bool,
+    pub received: bool,
+    pub unread: bool,
+    pub is_group: bool,
+    pub group_members: Option<String>,
     #[allow(dead_code)]
-    group_id: Option<String>,
-    group_name: Option<String>,
-    has_attachment: bool,
+    pub group_id: Option<String>,
+    pub group_name: Option<String>,
+    pub has_attachment: bool,
 }
 
 impl Session {
