@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use futures::prelude::*;
 
+use crate::model::*;
 use crate::sfos::SailfishApp;
 use crate::store::{Storage, StorageReady};
 
@@ -39,21 +40,6 @@ impl Session {
     fn section(&self) -> String {
         // XXX: stub
         "Section".into()
-    }
-}
-
-fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
-    let dt = NaiveDateTime::from_timestamp(timestamp / 1000, (timestamp % 1000) as u32);
-    let date = QDate::from_y_m_d(dt.year(), dt.month() as i32, dt.day() as i32);
-    let time = QTime::from_h_m_s_ms(dt.hour() as i32, dt.minute() as i32, Some(dt.second() as i32), None);
-
-    QDateTime::from_date_time_local_timezone(date, time)
-}
-
-fn qstring_from_option(opt: Option<String>) -> QVariant {
-    match opt {
-        Some(s) => QString::from(s).into(),
-        None => QVariant::default(),
     }
 }
 
