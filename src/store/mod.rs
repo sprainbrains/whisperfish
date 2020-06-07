@@ -5,7 +5,7 @@ use actix::prelude::*;
 use diesel::prelude::*;
 use failure::*;
 
-#[derive(Message)]
+#[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage);
 
