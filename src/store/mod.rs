@@ -1,13 +1,19 @@
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+use crate::schema::message;
+use crate::schema::session;
+use crate::model::session::*;
+use crate::model::message::*;
+
 use actix::prelude::*;
 use diesel::prelude::*;
 use failure::*;
 
-#[derive(Message)]
+#[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage);
+
 
 /// Location of the storage.
 ///
@@ -130,5 +136,30 @@ impl Storage {
         //      Offer retries?
 
         Ok(Storage { db: Arc::new(Mutex::new(db)) })
+    }
+
+    pub fn fetch_session(&self, sid: i64) -> Option<Session> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called fetch_session({})", sid);
+        match session::table.filter(session::columns::id.eq(sid))
+                            .first(&*conn) {
+                                Ok(data) => Some(data),
+                                Err(_) => None,
+                             }
+    }
+
+    pub fn fetch_all_messages(&self, sid: i64) -> Option<Vec<crate::model::message::Message>> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called fetch_all_messages({})", sid);
+        match message::table.filter(message::columns::session_id.eq(sid))
+                            .order_by(message::columns::id.desc())
+                            .get_results(&*conn) {
+                                Ok(data) => Some(data),
+                                Err(_) => None,
+                             }
     }
 }

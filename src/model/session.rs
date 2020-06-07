@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use futures::prelude::*;
 
+use crate::model::*;
 use crate::sfos::SailfishApp;
 use crate::store::{Storage, StorageReady};
 
@@ -20,40 +21,25 @@ pub struct SessionModel {
 
 #[derive(Queryable)]
 pub struct Session {
-    id: i32,
-    source: String,
-    message: String,
-    timestamp: i64,
-    sent: bool,
-    received: bool,
-    unread: bool,
-    is_group: bool,
-    group_members: Option<String>,
+    pub id: i64,
+    pub source: String,
+    pub message: String,
+    pub timestamp: i64,
+    pub sent: bool,
+    pub received: bool,
+    pub unread: bool,
+    pub is_group: bool,
+    pub group_members: Option<String>,
     #[allow(dead_code)]
-    group_id: Option<String>,
-    group_name: Option<String>,
-    has_attachment: bool,
+    pub group_id: Option<String>,
+    pub group_name: Option<String>,
+    pub has_attachment: bool,
 }
 
 impl Session {
     fn section(&self) -> String {
         // XXX: stub
         "Section".into()
-    }
-}
-
-fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
-    let dt = NaiveDateTime::from_timestamp(timestamp / 1000, (timestamp % 1000) as u32);
-    let date = QDate::from_y_m_d(dt.year(), dt.month() as i32, dt.day() as i32);
-    let time = QTime::from_h_m_s_ms(dt.hour() as i32, dt.minute() as i32, Some(dt.second() as i32), None);
-
-    QDateTime::from_date_time_local_timezone(date, time)
-}
-
-fn qstring_from_option(opt: Option<String>) -> QVariant {
-    match opt {
-        Some(s) => QString::from(s).into(),
-        None => QVariant::default(),
     }
 }
 

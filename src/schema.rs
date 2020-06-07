@@ -2,19 +2,19 @@
 
 table! {
     message (id) {
-        id -> Nullable<Integer>,
-        session_id -> Nullable<Integer>,
-        source -> Nullable<Text>,
+        id -> Integer,
+        session_id -> BigInt,
+        source -> Text,
         #[sql_name="message"]
-        text -> Nullable<Text>,
-        timestamp -> Nullable<Integer>,
-        sent -> Nullable<Integer>,
-        received -> Nullable<Integer>,
-        flags -> Nullable<Integer>,
+        text -> Text,
+        timestamp -> BigInt,
+        sent -> Bool,
+        received -> Bool,
+        flags -> Integer,
         attachment -> Nullable<Text>,
         mime_type -> Nullable<Text>,
-        has_attachment -> Nullable<Integer>,
-        outgoing -> Nullable<Integer>,
+        has_attachment -> Bool,
+        outgoing -> Bool,
     }
 }
 
@@ -27,7 +27,7 @@ table! {
 
 table! {
     session (id) {
-        id -> Integer,
+        id -> BigInt,
         source -> Text,
         message -> Text,
         timestamp -> BigInt,
