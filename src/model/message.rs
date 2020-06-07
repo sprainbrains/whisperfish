@@ -38,6 +38,11 @@ impl actix::Message for FetchSession {
     type Result = ();
 }
 
+struct FetchAllMessages(i64);
+impl actix::Message for FetchAllMessages {
+    type Result = ();
+}
+
 pub struct MessageActor {
     inner: QObjectBox<MessageModel>,
     storage: Option<Storage>,
@@ -132,6 +137,14 @@ impl MessageModel {
         self.groupMembersChanged();
 
         // TODO: contact identity key
+        use futures::prelude::*;
+        Arbiter::spawn(self.actor.as_ref().unwrap().send(FetchAllMessages(sess.id)).map(Result::unwrap));
+        log::trace!("Dispatched FetchAllMessages({})", sess.id);
+    }
+
+    pub fn handle_fetch_all_messages(&mut self, messages: ()) {
+        // log::trace!("handle_fetch_all_messages({})", messages.unwrap().sid);
+        log::trace!("handle_fetch_all_messages(SID)");
         // TODO: fetch all messages
         self.messages.push(Message {
             sid: 2,
@@ -184,5 +197,17 @@ impl Handler<FetchSession> for MessageActor {
     ) -> Self::Result {
         let sess = self.storage.as_ref().unwrap().fetch_session(sid);
         self.inner.pinned().borrow_mut().handle_fetch_session(sess.expect("FIXME No session returned!"));
+    }
+}
+
+impl Handler<FetchAllMessages> for MessageActor {
+    type Result = ();
+
+    fn handle(&mut self,
+              FetchAllMessages(sid): FetchAllMessages,
+              _ctx: &mut Self::Context
+    ) -> Self::Result {
+        let messages = self.storage.as_ref().unwrap().fetch_all_messages(sid);
+        self.inner.pinned().borrow_mut().handle_fetch_all_messages(messages);
     }
 }

@@ -12,6 +12,7 @@ use failure::*;
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage);
 
+
 /// Location of the storage.
 ///
 /// Path is for persistent storage.
@@ -145,5 +146,14 @@ impl Storage {
                                 Ok(data) => Some(data),
                                 Err(_) => None,
                              }
+    }
+
+    pub fn fetch_all_messages(&self, sid: i64) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        // TODO add return value and execute the SQL
+
+        log::trace!("Called fetch_all_messages({})", sid);
     }
 }
