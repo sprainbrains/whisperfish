@@ -7,6 +7,7 @@ use crate::store::{Storage, StorageReady};
 use crate::{actor, model, settings::Settings, sfos::SailfishApp, worker};
 
 use actix::prelude::*;
+use futures::prelude::*;
 use qmetaobject::*;
 
 pub struct WhisperfishApp {
@@ -29,15 +30,27 @@ pub struct WhisperfishApp {
 impl WhisperfishApp {
     pub async fn storage_ready(&self) {
         let storage = self.storage.borrow().as_ref().unwrap().clone();
-        self.session_actor
-            .send(StorageReady(storage))
-            .await
-            .expect("Session Actor should not be busy");
-        let storage = self.storage.borrow().as_ref().unwrap().clone();
-        self.message_actor
-            .send(StorageReady(storage))
-            .await
-            .expect("Message Actor should not be busy");
+        let msg = StorageReady(storage);
+
+        let mut sends = futures::stream::FuturesUnordered::<
+            Box<dyn Future<Output = Result<(), String>> + std::marker::Unpin>,
+        >::new();
+        sends.push(Box::new(
+            self.session_actor
+                .send(msg.clone())
+                .map_err(|e| format!("SessionActor {:?}", e)),
+        ));
+        sends.push(Box::new(
+            self.message_actor
+                .send(msg.clone())
+                .map_err(|e| format!("MessageActor {:?}", e)),
+        ));
+
+        while let Some(res) = sends.next().await {
+            if let Err(e) = res {
+                log::error!("Error handling StorageReady: {}", e);
+            }
+        }
     }
 }
 
