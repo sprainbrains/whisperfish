@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::model::*;
 use crate::sfos::*;
 use crate::store::{Storage, StorageReady};
 use crate::model::session;
@@ -50,18 +51,19 @@ pub struct MessageActor {
 
 #[derive(Queryable)]
 pub struct Message {
+    pub id: i32,
     pub sid: i64,
     pub source: String,
-    pub message: String,
-    pub timestamp: u64,
-    pub outgoing: bool,
+    pub message: String,  // NOTE: "text" in schema, doesn't apparently matter
+    pub timestamp: i64,
     pub sent: bool,
     pub received: bool,
-    pub attachment: String,
-    pub mimetype: String,
+    pub flags: i32,
+    pub attachment: Option<String>,
+    pub mimetype: Option<String>,
     pub hasattachment: bool,
-    pub flags: u32,
-    pub queued: bool,
+    pub outgoing: bool,
+    // pub queued: bool, // TODO Used only by LEFT OUTER JOIN - implement that
 }
 
 impl MessageActor {
@@ -93,11 +95,11 @@ define_model_roles! {
         Outgoing(outgoing):                       "outgoing",
         Sent(sent):                               "sent",
         Received(received):                       "received",
-        Attachment(attachment via QString::from): "attachment",
-        MimeType(mimetype via QString::from):     "mimetype",
+        Attachment(attachment via qstring_from_option): "attachment",
+        MimeType(mimetype via qstring_from_option):     "mimetype",
         HasAttachment(hasattachment):             "hasattachment",
         Flags(flags):                             "flags",
-        Queued(queued):                           "queued",
+        // Queued(queued):                           "queued",
     }
 }
 
@@ -142,25 +144,14 @@ impl MessageModel {
         log::trace!("Dispatched FetchAllMessages({})", sess.id);
     }
 
-    pub fn handle_fetch_all_messages(&mut self, messages: ()) {
-        // log::trace!("handle_fetch_all_messages({})", messages.unwrap().sid);
-        log::trace!("handle_fetch_all_messages(SID)");
-        // TODO: fetch all messages
-        self.messages.push(Message {
-            sid: 2,
-            source: String::from("CONTACT_PHONE_NUMBER_HERE"),
-            message: String::from("WHISPERFISH!"),
-            timestamp: 1588934301257,
-            outgoing: true,
-            sent: true,
-            received: true,
-            hasattachment: false,
-            attachment: String::new(),
-            mimetype: String::new(),
-            flags: 0,
-            queued: false,
-        });
-        // TODO: begin insert, push messages, end insert
+    pub fn handle_fetch_all_messages(&mut self, messages: Vec<Message>) {
+        log::trace!("handle_fetch_all_messages({}) count {}", messages[0].sid, messages.len());
+
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
+
+        self.messages.extend(messages);
+
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 }
 
@@ -172,6 +163,10 @@ impl QAbstractListModel for MessageModel {
     fn data(&self, index: QModelIndex, role: i32) -> QVariant {
         let role = MessageRoles::from(role);
         role.get(&self.messages[index.row() as usize])
+    }
+
+    fn role_names(&self) -> HashMap<i32, QByteArray> {
+        MessageRoles::role_names()
     }
 }
 
@@ -208,6 +203,6 @@ impl Handler<FetchAllMessages> for MessageActor {
               _ctx: &mut Self::Context
     ) -> Self::Result {
         let messages = self.storage.as_ref().unwrap().fetch_all_messages(sid);
-        self.inner.pinned().borrow_mut().handle_fetch_all_messages(messages);
+        self.inner.pinned().borrow_mut().handle_fetch_all_messages(messages.expect("death"));
     }
 }

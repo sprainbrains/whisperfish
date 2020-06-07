@@ -1,8 +1,10 @@
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+use crate::schema::message;
 use crate::schema::session;
 use crate::model::session::*;
+use crate::model::message::*;
 
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -148,12 +150,16 @@ impl Storage {
                              }
     }
 
-    pub fn fetch_all_messages(&self, sid: i64) {
+    pub fn fetch_all_messages(&self, sid: i64) -> Option<Vec<crate::model::message::Message>> {
         let db = self.db.lock();
         let conn = db.unwrap();
 
-        // TODO add return value and execute the SQL
-
         log::trace!("Called fetch_all_messages({})", sid);
+        match message::table.filter(message::columns::session_id.eq(sid))
+                            .order_by(message::columns::id.desc())
+                            .get_results(&*conn) {
+                                Ok(data) => Some(data),
+                                Err(_) => None,
+                             }
     }
 }
