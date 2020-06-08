@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use crate::schema::message;
+use crate::schema::sentq;
 use crate::schema::session;
 use crate::model::session::*;
 use crate::model::message::*;
@@ -154,12 +155,25 @@ impl Storage {
         let db = self.db.lock();
         let conn = db.unwrap();
 
+        use diesel::expression::sql_literal::sql;
+        use diesel::debug_query;
+
         log::trace!("Called fetch_all_messages({})", sid);
-        match message::table.filter(message::columns::session_id.eq(sid))
-                            .order_by(message::columns::id.desc())
-                            .get_results(&*conn) {
-                                Ok(data) => Some(data),
-                                Err(_) => None,
-                             }
+        let query = message::table.left_join(sentq::table)
+                            .select((message::columns::id, message::columns::session_id, message::columns::source,
+                                     message::columns::text, message::columns::timestamp, message::columns::sent,
+                                     message::columns::received, message::columns::flags, message::columns::attachment,
+                                     message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
+                            sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
+                            .filter(message::columns::session_id.eq(sid))
+                            .order_by(message::columns::id.desc());
+
+        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+        log::trace!("{}", debug.to_string());
+
+        match query.load::<crate::model::message::Message>(&*conn) {
+                    Ok(data) => Some(data),
+                    Err(_) => None,
+                }
     }
 }
