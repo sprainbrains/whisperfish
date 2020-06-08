@@ -63,7 +63,7 @@ pub struct Message {
     pub mimetype: Option<String>,
     pub hasattachment: bool,
     pub outgoing: bool,
-    // pub queued: bool, // TODO Used only by LEFT OUTER JOIN - implement that
+    pub queued: bool,
 }
 
 impl MessageActor {
@@ -88,18 +88,19 @@ impl Actor for MessageActor {
 
 define_model_roles! {
     enum MessageRoles for Message {
-        SID(sid):                                 "sid",
-        Source(source via QString::from):         "source",
-        Message(message via QString::from):       "message",
-        Timestamp(timestamp):                     "timestamp",
-        Outgoing(outgoing):                       "outgoing",
-        Sent(sent):                               "sent",
-        Received(received):                       "received",
+        ID(id):                                         "id",
+        SID(sid):                                       "sid",
+        Source(source via QString::from):               "source",
+        Message(message via QString::from):             "message",
+        Timestamp(timestamp via qdatetime_from_i64):    "timestamp",
+        Sent(sent):                                     "sent",
+        Received(received):                             "received",
+        Flags(flags):                                   "flags",
         Attachment(attachment via qstring_from_option): "attachment",
         MimeType(mimetype via qstring_from_option):     "mimetype",
-        HasAttachment(hasattachment):             "hasattachment",
-        Flags(flags):                             "flags",
-        // Queued(queued):                           "queued",
+        HasAttachment(hasattachment):                   "hasattachment",
+        Outgoing(outgoing):                             "outgoing",
+        Queued(queued):                                 "queued",
     }
 }
 
@@ -203,6 +204,6 @@ impl Handler<FetchAllMessages> for MessageActor {
               _ctx: &mut Self::Context
     ) -> Self::Result {
         let messages = self.storage.as_ref().unwrap().fetch_all_messages(sid);
-        self.inner.pinned().borrow_mut().handle_fetch_all_messages(messages.expect("death"));
+        self.inner.pinned().borrow_mut().handle_fetch_all_messages(messages.expect("FIXME No messages returned!"));
     }
 }
