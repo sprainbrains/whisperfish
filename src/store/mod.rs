@@ -6,6 +6,9 @@ use crate::schema::sentq;
 use crate::schema::session;
 
 use diesel::prelude::*;
+use diesel::expression::sql_literal::sql;
+use diesel::debug_query;
+
 use failure::*;
 use libsignal_service::models as svcmodels;
 
@@ -466,8 +469,6 @@ impl Storage {
         let db = self.db.lock();
         let conn = db.unwrap();
 
-        use diesel::expression::sql_literal::sql;
-
         log::trace!("Called update_message_if_needed({})", new_message.session_id);
 
         let mut msg: Message = message::table.left_join(sentq::table)
@@ -563,8 +564,6 @@ impl Storage {
         let db = self.db.lock();
         let conn = db.unwrap();
 
-        use diesel::expression::sql_literal::sql;
-
         log::trace!("Called fetch_latest_message()");
         message::table.left_join(sentq::table)
                       .select((message::columns::id, message::columns::session_id, message::columns::source,
@@ -577,12 +576,29 @@ impl Storage {
                       .ok()
     }
 
-    pub fn fetch_all_messages(&self, sid: i64) -> Option<Vec<Message>> {
+    pub fn fetch_message(&self, id: i32) -> Option<Message> {
         let db = self.db.lock();
         let conn = db.unwrap();
 
-        use diesel::expression::sql_literal::sql;
-        use diesel::debug_query;
+        // Even a single message needs to know if it's queued to satisfy the `Message` trait
+        log::trace!("Called fetch_message({})", id);
+        let query = message::table.left_join(sentq::table)
+                            .select((message::columns::id, message::columns::session_id, message::columns::source,
+                                     message::columns::text, message::columns::timestamp, message::columns::sent,
+                                     message::columns::received, message::columns::flags, message::columns::attachment,
+                                     message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
+                            sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
+                            .filter(message::columns::id.eq(id));
+
+        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+        log::trace!("{}", debug.to_string());
+
+        query.first(&*conn).ok()
+    }
+
+    pub fn fetch_all_messages(&self, sid: i64) -> Option<Vec<Message>> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
 
         log::trace!("Called fetch_all_messages({})", sid);
         let query = message::table.left_join(sentq::table)
