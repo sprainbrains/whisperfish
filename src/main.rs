@@ -31,6 +31,10 @@ fn main() -> Result<(), failure::Error> {
     sfos::TokioQEventDispatcher::install();
 
     sys.block_on(async {
+        // Currently not possible, default QmlEngine does not run asynchronous.
+        // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
+
+        #[cfg(feature = "sailfish")]
         gui::run().await.unwrap();
     });
 

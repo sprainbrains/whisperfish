@@ -58,6 +58,70 @@ build:i486:
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build
 
+.rust: &rust
+  cache: &rust-cache
+    paths:
+      - cargo/
+      - target/
+      - $CI_PROJECT_DIR/cargo
+  variables:
+    CARGO_HOME: $CI_PROJECT_DIR/cargo
+  before_script:
+    - apt-get update
+    - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default
+    - cargo --version
+    - rustc --version
+
+.rust-stable: &rust-stable
+  <<: *rust
+  image: rust
+  cache:
+    <<: *rust-cache
+    key: rust-stable
+
+.rust-nightly: &rust-nightly
+  <<: *rust
+  image: rustlang/rust:nightly
+  cache:
+    <<: *rust-cache
+    key: rust-nightly
+
+build:host:stable:
+  <<: *rust-stable
+  stage: build
+  script:
+    - cargo build
+    - cargo build --release
+
+build:host:nightly:
+  <<: *rust-nightly
+  stage: build
+  script:
+    - cargo build
+    - cargo build --release
+
+test:stable:
+  <<: *rust-stable
+  stage: test
+  script:
+    - cargo test
+    - cargo test --release
+
+test:nightly:
+  <<: *rust-nightly
+  stage: test
+  script:
+    - cargo test
+    - cargo test --release
+
+clippy:
+  <<: *rust-nightly
+  stage: test
+  allow_failure: true
+  script:
+    - rustup component add clippy
+    - cargo clippy
+
 # Jolla/coderus doesn't provide us with aarch64 buildroot.
 .build:aarch64:
   variables:

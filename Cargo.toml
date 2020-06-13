@@ -38,6 +38,7 @@ libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }
 cpp_build = "0.5"
 failure = "0.1.6"
 dotenv = "0.15"
+regex = "1.3.9"
 
 [package.metadata.rpm]
 target_architecture = "armv7hl"
@@ -56,3 +57,6 @@ harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
 "../qml/" = { path = "/usr/share/harbour-whisperfish/qml/" }
 "../icons/" = { path = "/usr/share/harbour-whisperfish/icons/" }
 "../translations/" = { path = "/usr/share/harbour-whisperfish/translations" }
+
+[features]
+sailfish = []

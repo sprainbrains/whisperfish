@@ -13,10 +13,25 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 use std::env;
-use std::io::Write;
+use std::io::prelude::*;
+use std::io::BufReader;
 use std::path::Path;
+use std::process::Command;
 
 use failure::*;
+
+fn qmake_query(var: &str) -> String {
+    let qmake = std::env::var("QMAKE").unwrap_or("qmake".to_string());
+    String::from_utf8(
+        Command::new(qmake)
+            .env("QT_SELECT", "qt5")
+            .args(&["-query", var])
+            .output()
+            .expect("Failed to execute qmake. Make sure 'qmake' is in your path")
+            .stdout,
+    )
+    .expect("UTF-8 conversion failed")
+}
 
 fn mock_pthread(mer_root: &str, arch: &str) -> Result<String, Error> {
     let out_dir = env::var("OUT_DIR")?;
@@ -91,8 +106,11 @@ fn qml_to_qrc() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() {
-    let mer_sdk = std::env::var("MERSDK").ok().expect("MERSDK should be set.");
+fn install_mer_hacks() -> (String, bool) {
+    let mer_sdk = match std::env::var("MERSDK").ok() {
+        Some(path) => path,
+        None => return ("".into(), false),
+    };
 
     let mer_target = std::env::var("MER_TARGET")
         .ok()
@@ -105,38 +123,19 @@ fn main() {
         unsupported => panic!("Target {} is not supported for Mer", unsupported),
     };
 
+    println!("cargo:rustc-cfg=feature=\"sailfish\"");
+
     let mer_target_root = format!("{}/targets/{}-{}", mer_sdk, mer_target, arch);
 
-    let mut cfg = cpp_build::Config::new();
-
-    let qt_versions = ["5.6.2", "5.6.3"];
-    for version in &qt_versions {
-        cfg.include(format!("{}/usr/include/qt5/QtGui/{}", mer_target_root, version));
-    }
-
-    cfg.include(format!("{}/usr/include/", mer_target_root))
-        .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
-        .include(format!("{}/usr/include/qt5/", mer_target_root))
-        .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
-        // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
-        // It is annoying to look at while developing, and we cannot do anything about it
-        // ourselves.
-        .flag("-Wno-deprecated-copy")
-        .build("src/main.rs");
-
-    println!("cargo:rerun-if-changed=src/sfos/mod.rs");
-    println!("cargo:rerun-if-changed=src/sfos/tokio_qt.rs");
-    println!("cargo:rerun-if-changed=src/settings.rs");
+    let mock_libc_path = mock_libc(&mer_target_root, arch).unwrap();
+    let mock_pthread_path = mock_pthread(&mer_target_root, arch).unwrap();
 
     let macos_lib_search = if cfg!(target_os = "macos") {
         "=framework"
     } else {
         ""
     };
-    let macos_lib_framework = if cfg!(target_os = "macos") { "" } else { "5" };
 
-    let mock_libc_path = mock_libc(&mer_target_root, arch).unwrap();
-    let mock_pthread_path = mock_pthread(&mer_target_root, arch).unwrap();
     println!(
         "cargo:rustc-link-search{}={}",
         macos_lib_search, mock_pthread_path,
@@ -175,6 +174,88 @@ fn main() {
         macos_lib_search, mer_target_root,
     );
 
+    (mer_target_root, true)
+}
+
+fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
+    let path = qt_include_path.join("QtCore").join("qconfig.h");
+    let f = std::fs::File::open(&path).expect(&format!("Cannot open `{:?}`", path));
+    let b = BufReader::new(f);
+
+    // append qconfig-64.h or config-32.h, depending on TARGET_POINTER_WIDTH
+    let arch_specific: Box<dyn BufRead> = {
+        let pointer_width = std::env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap();
+        let path = qt_include_path
+            .join("QtCore")
+            .join(format!("qconfig-{}.h", pointer_width));
+        match std::fs::File::open(&path) {
+            Ok(f) => Box::new(BufReader::new(f)),
+            Err(_) => Box::new(std::io::Cursor::new("")),
+        }
+    };
+
+    let regex = regex::Regex::new("#define +QT_VERSION_STR +\"(.*)\"")?;
+
+    for line in b.lines().chain(arch_specific.lines()) {
+        let line = line.expect("qconfig.h is valid UTF-8");
+        if let Some(capture) = regex.captures_iter(&line).next() {
+            return Ok(capture[1].into());
+        }
+        if line.contains("QT_VERION_STR") {
+            bail!("QT_VERSION_STR: {}, not matched by regex", line);
+        }
+    }
+    bail!("Could not detect Qt version");
+}
+
+fn main() {
+    let (mer_target_root, cross_compile) = install_mer_hacks();
+    let qt_include_path = if cross_compile {
+        format!("{}/usr/include/qt5/", mer_target_root)
+    } else {
+        qmake_query("QT_INSTALL_HEADERS")
+    };
+    let qt_include_path = qt_include_path.trim();
+
+    let mut cfg = cpp_build::Config::new();
+
+    cfg.include(format!(
+        "{}/QtGui/{}",
+        qt_include_path,
+        detect_qt_version(std::path::Path::new(&qt_include_path)).unwrap()
+    ));
+
+    // This is kinda hacky. Sorry.
+    if cross_compile {
+        std::env::set_var("CARGO_FEATURE_SAILFISH", "");
+    }
+    cfg.include(format!("{}/usr/include/", mer_target_root))
+        .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
+        .include(&qt_include_path)
+        .include(format!("{}/QtCore", qt_include_path))
+        // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
+        // It is annoying to look at while developing, and we cannot do anything about it
+        // ourselves.
+        .flag("-Wno-deprecated-copy")
+        .build("src/main.rs");
+
+    let contains_cpp = [
+        "sfos/mod.rs",
+        "sfos/tokio_qt.rs",
+        "settings.rs",
+        "sfos/native.rs",
+    ];
+    for f in &contains_cpp {
+        println!("cargo:rerun-if-changed=src/{}", f);
+    }
+
+    let macos_lib_search = if cfg!(target_os = "macos") {
+        "=framework"
+    } else {
+        ""
+    };
+    let macos_lib_framework = if cfg!(target_os = "macos") { "" } else { "5" };
+
     let qt_libs = ["OpenGL", "Gui", "Core", "Quick", "Qml"];
     for lib in &qt_libs {
         println!(
@@ -183,8 +264,13 @@ fn main() {
         );
     }
 
-    let libs = ["EGL", "nemonotifications", "sailfishapp"];
-    for lib in &libs {
+    let sailfish_libs: &[&str] = if cross_compile {
+        &["nemonotifications", "sailfishapp"]
+    } else {
+        &[]
+    };
+    let libs = ["EGL"];
+    for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 

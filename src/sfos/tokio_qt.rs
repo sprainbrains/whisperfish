@@ -1,8 +1,8 @@
+use std::cell::RefCell;
 use std::os::unix::io::RawFd;
 use std::pin::Pin;
-use std::task::{Context, Poll, Waker};
 use std::sync::Mutex;
-use std::cell::RefCell;
+use std::task::{Context, Poll, Waker};
 
 use futures::prelude::*;
 use pin_utils::unsafe_unpinned;
@@ -149,17 +149,20 @@ impl TokioQEventDispatcherPriv {
     fn register_socket_notifier(self: Pin<&mut Self>, raw_notifier: *mut QSocketNotifier) {
         let notifier = unsafe { raw_notifier.as_mut() }.unwrap();
         let fd = notifier.socket();
-        log::debug!("registerSocketNotifier: fd={} for {:?} on thread {:?}", fd, notifier.notifier_type(), std::thread::current().id());
+        log::debug!(
+            "registerSocketNotifier: fd={} for {:?} on thread {:?}",
+            fd,
+            notifier.notifier_type(),
+            std::thread::current().id()
+        );
 
         let reg = Registration::new_with_ready(
             &mio::unix::EventedFd(&fd),
             notifier.notifier_type().into(),
-        ).unwrap(); // XXX unwrap
+        )
+        .unwrap(); // XXX unwrap
 
-        self.socket_registrations().push((
-            raw_notifier,
-            reg
-        ));
+        self.socket_registrations().push((raw_notifier, reg));
     }
 
     fn register_timer(
@@ -227,9 +230,7 @@ impl TokioQEventDispatcherPriv {
             let notifier: *mut QSocketNotifier = *notifier;
 
             let read = match registration.poll_read_ready(ctx) {
-                Poll::Ready(Ok(_readiness)) => {
-                    true
-                }
+                Poll::Ready(Ok(_readiness)) => true,
                 Poll::Ready(Err(e)) => {
                     log::error!(
                         "Something wrong with registration {:?}: {:?}",
@@ -242,9 +243,7 @@ impl TokioQEventDispatcherPriv {
             };
 
             let write = match registration.poll_write_ready(ctx) {
-                Poll::Ready(Ok(_readiness)) => {
-                    true
-                }
+                Poll::Ready(Ok(_readiness)) => true,
                 Poll::Ready(Err(e)) => {
                     log::error!(
                         "Something wrong with registration {:?}: {:?}",
@@ -277,7 +276,7 @@ impl TokioQEventDispatcherPriv {
                     return QCoreApplication::sendEvent(notifier, &ev);
                 })
             };
-            if ! result {
+            if !result {
                 log::warn!("Socket ready, sendEvent returned false.");
             }
         }
@@ -318,7 +317,9 @@ impl TokioQEventDispatcherPriv {
 }
 
 cpp! {{
+    #include <QtWidgets/QApplication>
     #include <QtCore/QAbstractEventDispatcher>
+    #include <QtCore/QSocketNotifier>
 
     class TokioQEventDispatcher : public QAbstractEventDispatcher {
     public:
