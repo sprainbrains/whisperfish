@@ -16,8 +16,22 @@ use std::env;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::path::Path;
+use std::process::Command;
 
 use failure::*;
+
+fn qmake_query(var: &str) -> String {
+    let qmake = std::env::var("QMAKE").unwrap_or("qmake".to_string());
+    String::from_utf8(
+        Command::new(qmake)
+            .env("QT_SELECT", "qt5")
+            .args(&["-query", var])
+            .output()
+            .expect("Failed to execute qmake. Make sure 'qmake' is in your path")
+            .stdout,
+    )
+    .expect("UTF-8 conversion failed")
+}
 
 fn mock_pthread(mer_root: &str, arch: &str) -> Result<String, Error> {
     let out_dir = env::var("OUT_DIR")?;
@@ -196,18 +210,19 @@ fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
 
 fn main() {
     let (mer_target_root, cross_compile) = install_mer_hacks();
+    let qt_include_path = if cross_compile {
+        format!("{}/usr/include/qt5/", mer_target_root)
+    } else {
+        qmake_query("QT_INSTALL_HEADERS")
+    };
+    let qt_include_path = qt_include_path.trim();
 
     let mut cfg = cpp_build::Config::new();
 
-    // XXX: for the host, we might want to run a qmake query for the Qt include path.
     cfg.include(format!(
-        "{}/usr/include/qt5/QtGui/{}",
-        mer_target_root,
-        detect_qt_version(&std::path::PathBuf::from(format!(
-            "{}/usr/include/qt5/",
-            mer_target_root
-        )))
-        .unwrap()
+        "{}/QtGui/{}",
+        qt_include_path,
+        detect_qt_version(std::path::Path::new(&qt_include_path)).unwrap()
     ));
 
     // This is kinda hacky. Sorry.
@@ -216,15 +231,20 @@ fn main() {
     }
     cfg.include(format!("{}/usr/include/", mer_target_root))
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
-        .include(format!("{}/usr/include/qt5/", mer_target_root))
-        .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
+        .include(&qt_include_path)
+        .include(format!("{}/QtCore", qt_include_path))
         // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
         // It is annoying to look at while developing, and we cannot do anything about it
         // ourselves.
         .flag("-Wno-deprecated-copy")
         .build("src/main.rs");
 
-    let contains_cpp = ["sfos/mod.rs", "sfos/tokio_qt.rs", "settings.rs", "sfos/native.rs"];
+    let contains_cpp = [
+        "sfos/mod.rs",
+        "sfos/tokio_qt.rs",
+        "settings.rs",
+        "sfos/native.rs",
+    ];
     for f in &contains_cpp {
         println!("cargo:rerun-if-changed=src/{}", f);
     }
