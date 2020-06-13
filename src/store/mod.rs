@@ -177,3 +177,15 @@ impl Storage {
                 }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn open_memory_db() -> Result<(), Error> {
+        let _storage = Storage::open(&memory())?;
+
+        Ok(())
+    }
+}
