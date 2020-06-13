@@ -91,8 +91,11 @@ fn qml_to_qrc() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() {
-    let mer_sdk = std::env::var("MERSDK").ok().expect("MERSDK should be set.");
+fn install_mer_hacks() -> (String, bool) {
+    let mer_sdk = match std::env::var("MERSDK").ok() {
+        Some(path) => path,
+        None => return ("".into(), false),
+    };
 
     let mer_target = std::env::var("MER_TARGET")
         .ok()
@@ -107,36 +110,15 @@ fn main() {
 
     let mer_target_root = format!("{}/targets/{}-{}", mer_sdk, mer_target, arch);
 
-    let mut cfg = cpp_build::Config::new();
-
-    let qt_versions = ["5.6.2", "5.6.3"];
-    for version in &qt_versions {
-        cfg.include(format!("{}/usr/include/qt5/QtGui/{}", mer_target_root, version));
-    }
-
-    cfg.include(format!("{}/usr/include/", mer_target_root))
-        .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
-        .include(format!("{}/usr/include/qt5/", mer_target_root))
-        .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
-        // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
-        // It is annoying to look at while developing, and we cannot do anything about it
-        // ourselves.
-        .flag("-Wno-deprecated-copy")
-        .build("src/main.rs");
-
-    println!("cargo:rerun-if-changed=src/sfos/mod.rs");
-    println!("cargo:rerun-if-changed=src/sfos/tokio_qt.rs");
-    println!("cargo:rerun-if-changed=src/settings.rs");
+    let mock_libc_path = mock_libc(&mer_target_root, arch).unwrap();
+    let mock_pthread_path = mock_pthread(&mer_target_root, arch).unwrap();
 
     let macos_lib_search = if cfg!(target_os = "macos") {
         "=framework"
     } else {
         ""
     };
-    let macos_lib_framework = if cfg!(target_os = "macos") { "" } else { "5" };
 
-    let mock_libc_path = mock_libc(&mer_target_root, arch).unwrap();
-    let mock_pthread_path = mock_pthread(&mer_target_root, arch).unwrap();
     println!(
         "cargo:rustc-link-search{}={}",
         macos_lib_search, mock_pthread_path,
@@ -175,6 +157,43 @@ fn main() {
         macos_lib_search, mer_target_root,
     );
 
+    (mer_target_root, true)
+}
+
+fn main() {
+    let (mer_target_root, cross_compile) = install_mer_hacks();
+
+    let mut cfg = cpp_build::Config::new();
+
+    let qt_versions = ["5.6.2", "5.6.3"];
+    for version in &qt_versions {
+        cfg.include(format!(
+            "{}/usr/include/qt5/QtGui/{}",
+            mer_target_root, version
+        ));
+    }
+
+    cfg.include(format!("{}/usr/include/", mer_target_root))
+        .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
+        .include(format!("{}/usr/include/qt5/", mer_target_root))
+        .include(format!("{}/usr/include/qt5/QtCore", mer_target_root))
+        // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
+        // It is annoying to look at while developing, and we cannot do anything about it
+        // ourselves.
+        .flag("-Wno-deprecated-copy")
+        .build("src/main.rs");
+
+    println!("cargo:rerun-if-changed=src/sfos/mod.rs");
+    println!("cargo:rerun-if-changed=src/sfos/tokio_qt.rs");
+    println!("cargo:rerun-if-changed=src/settings.rs");
+
+    let macos_lib_search = if cfg!(target_os = "macos") {
+        "=framework"
+    } else {
+        ""
+    };
+    let macos_lib_framework = if cfg!(target_os = "macos") { "" } else { "5" };
+
     let qt_libs = ["OpenGL", "Gui", "Core", "Quick", "Qml"];
     for lib in &qt_libs {
         println!(
@@ -183,8 +202,13 @@ fn main() {
         );
     }
 
-    let libs = ["EGL", "nemonotifications", "sailfishapp"];
-    for lib in &libs {
+    let sailfish_libs: &[&str] = if cross_compile {
+        &["nemonotifications", "sailfishapp"]
+    } else {
+        &[]
+    };
+    let libs = ["EGL"];
+    for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 
