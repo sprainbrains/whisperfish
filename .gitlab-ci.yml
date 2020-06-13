@@ -64,6 +64,8 @@ build:i486:
       - cargo/
       - target/
       - $CI_PROJECT_DIR/cargo
+  variables:
+    CARGO_HOME: $CI_PROJECT_DIR/cargo
   before_script:
     - apt-get update
     - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default
@@ -83,6 +85,20 @@ build:i486:
   cache:
     <<: *rust-cache
     key: rust-nightly
+
+build:host:stable:
+  <<: *rust-stable
+  stage: build
+  script:
+    - cargo build
+    - cargo build --release
+
+build:host:nightly:
+  <<: *rust-nightly
+  stage: build
+  script:
+    - cargo build
+    - cargo build --release
 
 test:stable:
   <<: *rust-stable
