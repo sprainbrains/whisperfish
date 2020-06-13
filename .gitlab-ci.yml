@@ -98,6 +98,14 @@ test:nightly:
     - cargo test
     - cargo test --release
 
+clippy:
+  <<: *rust-nightly
+  stage: test
+  allow_failure: true
+  script:
+    - rustup component add clippy
+    - cargo clippy
+
 # Jolla/coderus doesn't provide us with aarch64 buildroot.
 .build:aarch64:
   variables:
