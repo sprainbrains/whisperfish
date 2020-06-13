@@ -109,6 +109,8 @@ fn install_mer_hacks() -> (String, bool) {
         unsupported => panic!("Target {} is not supported for Mer", unsupported),
     };
 
+    println!("cargo:rustc-cfg=feature=\"sailfish\"");
+
     let mer_target_root = format!("{}/targets/{}-{}", mer_sdk, mer_target, arch);
 
     let mock_libc_path = mock_libc(&mer_target_root, arch).unwrap();
@@ -208,6 +210,10 @@ fn main() {
         .unwrap()
     ));
 
+    // This is kinda hacky. Sorry.
+    if cross_compile {
+        std::env::set_var("CARGO_FEATURE_SAILFISH", "");
+    }
     cfg.include(format!("{}/usr/include/", mer_target_root))
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
         .include(format!("{}/usr/include/qt5/", mer_target_root))
@@ -218,9 +224,10 @@ fn main() {
         .flag("-Wno-deprecated-copy")
         .build("src/main.rs");
 
-    println!("cargo:rerun-if-changed=src/sfos/mod.rs");
-    println!("cargo:rerun-if-changed=src/sfos/tokio_qt.rs");
-    println!("cargo:rerun-if-changed=src/settings.rs");
+    let contains_cpp = ["sfos/mod.rs", "sfos/tokio_qt.rs", "settings.rs", "sfos/native.rs"];
+    for f in &contains_cpp {
+        println!("cargo:rerun-if-changed=src/{}", f);
+    }
 
     let macos_lib_search = if cfg!(target_os = "macos") {
         "=framework"

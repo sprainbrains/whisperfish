@@ -35,6 +35,7 @@ impl WhisperfishApp {
     }
 }
 
+#[cfg(feature = "sailfish")]
 pub async fn run() -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
     log::info!("SailfishApp::application loaded");
