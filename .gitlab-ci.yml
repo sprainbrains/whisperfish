@@ -58,6 +58,44 @@ build:i486:
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build
 
+.rust: &rust
+  cache: &rust-cache
+    paths:
+      - cargo/
+      - target/
+      - $CI_PROJECT_DIR/cargo
+  before_script:
+    - cargo --version
+    - rustc --version
+
+.rust-stable: &rust-stable
+  <<: *rust
+  image: rust
+  cache:
+    <<: *rust-cache
+    key: rust-stable
+
+.rust-nightly: &rust-nightly
+  <<: *rust
+  image: rustlang/rust:nightly
+  cache:
+    <<: *rust-cache
+    key: rust-nightly
+
+test:stable:
+  <<: *rust-stable
+  stage: test
+  script:
+    - cargo test
+    - cargo test --release
+
+test:nightly:
+  <<: *rust-nightly
+  stage: test
+  script:
+    - cargo test
+    - cargo test --release
+
 # Jolla/coderus doesn't provide us with aarch64 buildroot.
 .build:aarch64:
   variables:
