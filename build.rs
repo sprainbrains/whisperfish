@@ -13,7 +13,8 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 use std::env;
-use std::io::Write;
+use std::io::prelude::*;
+use std::io::BufReader;
 use std::path::Path;
 
 use failure::*;
@@ -160,18 +161,52 @@ fn install_mer_hacks() -> (String, bool) {
     (mer_target_root, true)
 }
 
+fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
+    let path = qt_include_path.join("QtCore").join("qconfig.h");
+    let f = std::fs::File::open(&path).expect(&format!("Cannot open `{:?}`", path));
+    let b = BufReader::new(f);
+
+    // append qconfig-64.h or config-32.h, depending on TARGET_POINTER_WIDTH
+    let arch_specific: Box<dyn BufRead> = {
+        let pointer_width = std::env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap();
+        let path = qt_include_path
+            .join("QtCore")
+            .join(format!("qconfig-{}.h", pointer_width));
+        match std::fs::File::open(&path) {
+            Ok(f) => Box::new(BufReader::new(f)),
+            Err(_) => Box::new(std::io::Cursor::new("")),
+        }
+    };
+
+    let regex = regex::Regex::new("#define +QT_VERSION_STR +\"(.*)\"")?;
+
+    for line in b.lines().chain(arch_specific.lines()) {
+        let line = line.expect("qconfig.h is valid UTF-8");
+        if let Some(capture) = regex.captures_iter(&line).next() {
+            return Ok(capture[1].into());
+        }
+        if line.contains("QT_VERION_STR") {
+            bail!("QT_VERSION_STR: {}, not matched by regex", line);
+        }
+    }
+    bail!("Could not detect Qt version");
+}
+
 fn main() {
     let (mer_target_root, cross_compile) = install_mer_hacks();
 
     let mut cfg = cpp_build::Config::new();
 
-    let qt_versions = ["5.6.2", "5.6.3"];
-    for version in &qt_versions {
-        cfg.include(format!(
-            "{}/usr/include/qt5/QtGui/{}",
-            mer_target_root, version
-        ));
-    }
+    // XXX: for the host, we might want to run a qmake query for the Qt include path.
+    cfg.include(format!(
+        "{}/usr/include/qt5/QtGui/{}",
+        mer_target_root,
+        detect_qt_version(&std::path::PathBuf::from(format!(
+            "{}/usr/include/qt5/",
+            mer_target_root
+        )))
+        .unwrap()
+    ));
 
     cfg.include(format!("{}/usr/include/", mer_target_root))
         .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
