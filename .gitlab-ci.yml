@@ -100,6 +100,15 @@ build:host:nightly:
     - cargo build
     - cargo build --release
 
+build:host:nightly:docs:
+  <<: *rust-nightly
+  stage: build
+  script:
+    - cargo doc --all-features --no-deps
+  artifacts:
+    paths:
+      - target/doc
+
 test:stable:
   <<: *rust-stable
   stage: test
@@ -137,3 +146,16 @@ clippy:
     MER_ARCH: aarch64
     RUST_ARCH: aarch64-unknown-linux-gnu
   <<: *build
+
+pages:
+  dependencies:
+    - build:host:nightly:docs
+  stage: deploy
+  only:
+    - master
+  script:
+    - mkdir -p public
+    - mv target/doc public/
+  artifacts:
+    paths:
+      - public
