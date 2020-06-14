@@ -114,6 +114,14 @@ test:nightly:
     - cargo test
     - cargo test --release
 
+coverage:nightly:
+  <<: *rust-nightly
+  image: xd009642/tarpaulin:develop-nightly
+  stage: test
+  script:
+    - export PATH="$CARGO_HOME/bin:$PATH"
+    - cargo tarpaulin -v
+
 clippy:
   <<: *rust-nightly
   stage: test
