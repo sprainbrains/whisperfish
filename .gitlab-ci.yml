@@ -104,7 +104,7 @@ build:host:nightly:docs:
   <<: *rust-nightly
   stage: build
   script:
-    - cargo doc --all-features --no-deps
+    - cargo doc --no-deps
   artifacts:
     paths:
       - target/doc
