@@ -120,7 +120,7 @@ coverage:nightly:
   stage: test
   script:
     - export PATH="$CARGO_HOME/bin:$PATH"
-    - cargo tarpaulin -v
+    - cargo tarpaulin -v --exclude-files cargo/*
 
 clippy:
   <<: *rust-nightly
