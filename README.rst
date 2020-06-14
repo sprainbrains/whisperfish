@@ -6,6 +6,11 @@ Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
 `Sailfish OS <https://sailfishos.org/>`_. The user interface is heavily based on
 the jolla-messages application written by Jolla Ltd.
 
+It is currently *in non working state*, except where noted otherwise.  Join our
+development channel on Matrix
+(`#whisperfish:rubdos.be <https://matrix.to/#/#whisperfish:rubdos.be>`_) or
+Freenode (#whisperfish) to get in touch.
+
 -------------------------------------------------------------------------------
 Project Status
 -------------------------------------------------------------------------------
@@ -24,6 +29,13 @@ to make a back-up of your current files. Specifically:
 Features
 -------------------------------------------------------------------------------
 
+Currently, only this is re-implemented:
+
+- [x] Open and read existing encrypted database.
+
+We are currently aiming for 0.5 compatibility, which means on 0.6 release we
+have these features:
+
 - [x] Registration
 - [x] Contact Discovery
 - [x] Direct messages
@@ -36,6 +48,11 @@ Features
 - [ ] Multi-Device support (links with Signal Desktop)
 - [ ] Encrypted local attachment store
 - [ ] Archiving conversations
+
+Please search the `issue tracker <https://gitlab.com/rubdos/whisperfish/-/issues>`_
+before filing a regression issue from 0.5.
+Feel free to post feature requests for features that were *not* available in 0.6,
+however!
 
 -------------------------------------------------------------------------------
 Nightly builds
@@ -134,6 +151,7 @@ License
 -------------------------------------------------------------------------------
 
 Copyright (C) 2016-2018 Andrew E. Bruno
+Copyright (C) 2019-2020 Ruben De Smet and contributors
 
 Whisperfish is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
