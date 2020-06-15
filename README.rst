@@ -107,7 +107,7 @@ Building from source
 
    sdk-manage develpkg install SailfishOS-latest-armv7hl sqlcipher-devel
 
-5. Make a copy of ``dotenv.example``, adapt it to your configuration and source it.
+5. Make a copy of ``dotenv.example`` to ``.env``, adapt it to your configuration and source it.
 
 6. Since the libsignal-c library is built using `cmake <https://cmake.org/>`_,
    we need cmake *in the build environment*.
@@ -118,7 +118,31 @@ Building from source
     $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
     $ sudo zypper -n install cmake make git openssl-devel qt5-qtwebsockets-devel
 
-7. From here on, you can use cargo to build the project;
+7. For building on the host, ie. running ``cargo test`` or whatever you may desire, the Debian
+   requirements are in ``Dockerfile.builder``, reproduced here::
+
+           $ sudo apt-get install -y \
+                   build-essential
+                   gcc-i686-linux-gnu g++-i686-linux-gnu binutils-i686-linux-gnu \
+                   gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf binutils-arm-linux-gnueabihf \
+                   gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+                   curl \
+                   qtbase5-dev \
+                   qt5-qmake \
+                   qtdeclarative5-dev \
+                   qttools5-dev-tools qtchooser qt5-default \
+                   desktop-file-utils \
+                   rpm \
+                   cmake \
+                   libsqlcipher-dev
+
+   You will also be needing some Rust things::
+
+           $ rustup toolchain install nightly
+           $ rustup target add armv7-unknown-linux-gnueabihf
+           $ cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
+
+8. From here on, you can use cargo to build the project;
    make sure to have the correct targets installed (rustup target) and a C compiler set::
 
     $ cargo build --release --target=armv7-unknown-linux-gnueabihf
@@ -131,6 +155,12 @@ Building from source
     $ cargo rpm build
 
    The generated RPM can be found in ``target/[target]/release/rpmbuild/RPMS/armv7hl/``.
+
+-------------------------------------------------------------------------------
+Testing on the device
+-------------------------------------------------------------------------------
+
+The ``run.sh`` script will will source the ``.env`` file and run the build on your device.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 i18n Translations (help wanted)
