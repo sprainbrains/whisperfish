@@ -26,6 +26,13 @@ RUN apt-get install -y \
     rpm
 RUN apt-get install -y build-essential
 
+RUN apt-get install -y \
+    libsqlcipher-dev \
+    qtbase5-dev \
+    qt5-qmake \
+    qtdeclarative5-dev \
+    qt5-default
+
 # Install MER SDK
 
 COPY --from=coderus_base /srv/mer /srv/mer
