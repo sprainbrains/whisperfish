@@ -806,6 +806,7 @@ dependencies = [
  "pin-utils",
  "qmetaobject",
  "regex",
+ "rstest",
  "scrypt",
  "tokio",
 ]
@@ -1592,6 +1593,19 @@ checksum = "11834e137f3b14e309437a8276714eed3a80d1ef894869e510f2c0c0b98b9f4a"
 dependencies = [
  "hostname",
  "quick-error",
+]
+
+[[package]]
+name = "rstest"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea1555a95dd3db6095e7695ff1cb173d9d57731209684ef544ead2ff0f6d7077"
+dependencies = [
+ "cfg-if",
+ "proc-macro2",
+ "quote",
+ "rustc_version",
+ "syn",
 ]
 
 [[package]]
