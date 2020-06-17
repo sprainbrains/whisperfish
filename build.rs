@@ -237,7 +237,7 @@ fn main() {
         // It is annoying to look at while developing, and we cannot do anything about it
         // ourselves.
         .flag("-Wno-deprecated-copy")
-        .build("src/main.rs");
+        .build("src/lib.rs");
 
     let contains_cpp = [
         "sfos/mod.rs",
