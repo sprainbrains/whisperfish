@@ -1,8 +1,8 @@
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
-use crate::{actor, model, sfos::SailfishApp, worker, Settings};
 use crate::store::{Storage, StorageReady};
+use crate::{actor, model, settings::Settings, sfos::SailfishApp, worker};
 
 use actix::prelude::*;
 use qmetaobject::*;
@@ -27,10 +27,14 @@ pub struct WhisperfishApp {
 impl WhisperfishApp {
     pub async fn storage_ready(&self) {
         let storage = self.storage.borrow().as_ref().unwrap().clone();
-        self.session_actor.send(StorageReady(storage)).await
+        self.session_actor
+            .send(StorageReady(storage))
+            .await
             .expect("Session Actor should not be busy");
         let storage = self.storage.borrow().as_ref().unwrap().clone();
-        self.message_actor.send(StorageReady(storage)).await
+        self.message_actor
+            .send(StorageReady(storage))
+            .await
             .expect("Message Actor should not be busy");
     }
 }
