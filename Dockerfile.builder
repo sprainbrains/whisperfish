@@ -23,6 +23,7 @@ RUN apt-get install -y \
     curl \
     qttools5-dev-tools qtchooser qt5-default \
     desktop-file-utils \
+    protobuf-compiler \
     rpm
 RUN apt-get install -y build-essential
 
