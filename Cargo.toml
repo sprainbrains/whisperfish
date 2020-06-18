@@ -24,7 +24,10 @@ cstr = "0.1.0"
 cpp = "0.5"
 dirs = "2.0"
 failure = "0.1.6"
-libsignal-protocol = "0.1.0"
+thiserror = "1"
+libsignal-protocol = { git = "https://github.com/Michael-F-Bryan/libsignal-protocol-rs" }
+libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "MessageReceiver" }
+libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "MessageReceiver" }
 log = "0.4.8"
 env_logger = "0.7"
 scrypt = { version = "0.3", default-features = false, features=["std"] }
