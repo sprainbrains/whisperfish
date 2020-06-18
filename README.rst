@@ -134,6 +134,7 @@ Building from source
                    desktop-file-utils \
                    rpm \
                    cmake \
+                   protobuf-compiler \
                    libsqlcipher-dev
 
    You will also be needing some Rust things::
