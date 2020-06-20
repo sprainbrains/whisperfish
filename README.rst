@@ -162,9 +162,15 @@ Testing on the device
 
 The ``run.sh`` script will will source the ``.env`` file and run the build on your device.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------------------------------
+Development environment tips, tricks and hacks
+-------------------------------------------------------------------------------
+
+See :doc:`Cool hacks for development <doc/dev-env-hacks>`_
+
+-------------------------------------------------------------------------------
 i18n Translations (help wanted)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------------------------------
 
 Whisperfish supports i18n translations and uses Text ID Based Translations. See
 `here <http://doc.qt.io/qt-5/linguist-id-based-i18n.html>`_ for more info. To

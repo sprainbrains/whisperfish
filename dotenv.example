@@ -1,5 +1,10 @@
 # Copy this file to .env
-#
+
+# General Rust config
+# Set this if you use racer and don't have it globally
+# export RUST_SRC_PATH="${HOME}/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src/"
+export RUST_BACKTRACE="full"
+
 # Building this project requires the SailfishOS Platform SDK, and MERSDK should be set correctly in the environment.
 # Technically, build.rs can source these from the file via dotenv,
 # but since dependencies cannot, you should *source this file* before running `cargo build`.
@@ -19,3 +24,6 @@ export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-armv7
 # If you want to use the included ./run.sh script,
 # set this variable to your hostname or IP address of your SailfishOS device.
 export SSH_TARGET=xperia.rubdos.be
+
+# Overload potential Python virtualenv support in your shell prompt
+# export VIRTUAL_ENV=whisperfish
