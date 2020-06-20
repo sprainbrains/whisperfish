@@ -150,10 +150,36 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 #[derive(Clone)]
 pub struct Storage {
     pub db: Arc<Mutex<SqliteConnection>>,
+    // aesKey + macKey
+    keys: Option<[u8; 16 + 20]>,
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
-async fn derive_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], Error> {
+async fn derive_storage_key(password: String, salt_path: PathBuf) -> Result<[u8; 16 + 20], Error> {
+    use actix_threadpool::BlockingError;
+    use std::io::Read;
+
+    actix_threadpool::run(move || -> Result<_, failure::Error> {
+        let mut salt_file = std::fs::File::open(salt_path)?;
+        let mut salt = [0u8; 8];
+        ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
+
+        let mut key = [0u8; 16 + 20];
+        // Please don't blame me, I'm only the implementer.
+        pbkdf2::pbkdf2::<hmac::Hmac<sha1::Sha1>>(password.as_bytes(), &salt, 1024, &mut key);
+        log::trace!("Computed the key, salt was {:?}", salt);
+
+        Ok(key)
+    })
+    .await
+    .map_err(|e| match e {
+        BlockingError::Canceled => format_err!("Threadpool Canceled"),
+        BlockingError::Error(e) => e,
+    })
+}
+
+// Cannot borrow password/salt because threadpool requires 'static...
+async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], Error> {
     use actix_threadpool::BlockingError;
     use std::io::Read;
 
@@ -179,21 +205,31 @@ impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
 
-        Ok(Storage { db: Arc::new(Mutex::new(db)) })
+        Ok(Storage {
+            db: Arc::new(Mutex::new(db)),
+            keys: None,
+        })
     }
 
     pub async fn open_with_password<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
         password: String,
     ) -> Result<Storage, Error> {
-        let salt_path = crate::store::default_location()
+        let db_salt_path = crate::store::default_location()
             .unwrap()
             .join("db")
             .join("salt");
+        let storage_salt_path = crate::store::default_location()
+            .unwrap()
+            .join("storage")
+            .join("salt");
+        // XXX: The storage_key could already be polled while we're querying the database,
+        // but we don't want to wait for it either.
+        let db_key = derive_db_key(password.clone(), db_salt_path);
+        let storage_key = derive_storage_key(password, storage_salt_path);
 
-        let key = derive_key(password, salt_path).await?;
         let db = db_path.open_db()?;
-        db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(key)))?;
+        db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key.await?)))?;
         db.execute("PRAGMA cipher_page_size = 4096;")?;
 
         // From the sqlcipher manual:
@@ -202,7 +238,70 @@ impl Storage {
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
 
-        Ok(Storage { db: Arc::new(Mutex::new(db)) })
+        // 2. decrypt storage
+        let keys = Some(storage_key.await?);
+
+        Ok(Storage {
+            db: Arc::new(Mutex::new(db)),
+            keys,
+        })
+    }
+
+    /// Asynchronously loads the signal HTTP password from storage and decrypts it.
+    pub async fn signal_password(&self) -> Result<String, Error> {
+        let http_password_path = crate::store::default_location()
+            .unwrap()
+            .join("storage")
+            .join("identity")
+            .join("http_password");
+        // XXX: unencrypted storage.
+        let keys = self.keys.unwrap();
+
+        let password = actix_threadpool::run(move || {
+            use std::io::Read;
+
+            // XXX This is *full* of bad practices.
+            // Let's try to migrate to nacl or something alike in the future.
+
+            let mut iv = [0u8; 16];
+            let mut password = [0u8; 32];
+            let mut mac = [0u8; 32];
+
+            let mut f = std::fs::File::open(http_password_path)?;
+            ensure!(f.read(&mut iv)? == 16, "IV not 16 bytes");
+            ensure!(f.read(&mut password)? == 32, "password not 32 bytes");
+            ensure!(f.read(&mut mac)? == 32, "mac not 32 bytes");
+
+            {
+                use hmac::{Hmac, Mac, NewMac};
+                use sha2::Sha256;
+                // Verify HMAC SHA256, 32 last bytes
+                let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
+                    .map_err(|_| format_err!("MAC keylength error"))?;
+                verifier.update(&iv);
+                verifier.update(&password);
+                verifier
+                    .verify(&mac)
+                    .map_err(|_| format_err!("MAC error"))?;
+            }
+
+            {
+                use aes::Aes128;
+                use block_modes::block_padding::NoPadding;
+                use block_modes::{BlockMode, Cbc};
+                // Decrypt password
+                let cipher = Cbc::<Aes128, NoPadding>::new_var(&keys[0..16], &iv)
+                    .map_err(|_| format_err!("CBC initialization error"))?;
+                cipher
+                    .decrypt(&mut password)
+                    .map_err(|_| format_err!("AES CBC decryption error"))?;
+            }
+
+            Ok(password)
+        })
+        .await?;
+
+        Ok(std::str::from_utf8(&password)?.to_owned())
     }
 
     /// Process message and store in database and update or create a session
