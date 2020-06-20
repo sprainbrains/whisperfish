@@ -1,10 +1,41 @@
 use std::rc::Rc;
 
-use qmetaobject::*;
 use failure::*;
+use qmetaobject::*;
 
 use crate::gui::WhisperfishApp;
 use crate::store::{self, Storage};
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct SignalConfig {
+    /// Our telephone number
+    tel: String,
+    /// The TextSecure server URL
+    server: String,
+    #[serde(rename = "rootCA")]
+    /// The TLS signing certificate of the server we connect to
+    root_ca: String,
+    #[serde(rename = "proxy")]
+    /// HTTP Proxy URL if one is being used
+    proxy_server: String,
+    /// Code verification method during registration (SMS/VOICE/DEV)
+    verification_type: String,
+    /// Directory for the persistent storage
+    storage_dir: String,
+    /// Whether to store plaintext keys and session state (only for development)
+    unencrypted_storage: bool,
+    /// Password to the storage
+    storage_password: String,
+    #[serde(rename = "loglevel")]
+    /// Verbosity of the logging messages
+    log_level: String,
+    /// Override for the default HTTP User Agent header field
+    user_agent: String,
+    #[serde(rename = "alwaysTrustPeerID")]
+    /// Workaround until proper handling of peer reregistering with new ID.
+    always_trust_peer_id: bool,
+}
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -47,6 +78,19 @@ impl SetupWorker {
             log::info!("identity_key not found");
         }
 
+        let config = match SetupWorker::read_config(app.clone()).await {
+            Ok(config) => config,
+            Err(e) => {
+                log::error!("Error reading config: {:?}", e);
+                this.borrow().clientFailed();
+                return;
+            }
+        };
+
+        log::debug!("config: {:?}", config);
+        // XXX: nice formatting?
+        this.borrow_mut().phoneNumber = config.tel.into();
+
         // Open storage
         if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
             log::error!("Error setting up storage: {}", e);
@@ -58,11 +102,25 @@ impl SetupWorker {
         this.borrow().setupChanged();
     }
 
+    async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
+        // XXX non-existing file?
+        let conf_dir = dirs::config_dir().ok_or(format_err!("Could not find config directory."))?;
+        let signal_config_file = conf_dir.join("harbour-whisperfish").join("config.yml");
+        let signal_config_file = std::fs::File::open(signal_config_file)?;
+
+        Ok(serde_yaml::from_reader(signal_config_file)?)
+    }
+
     async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
         let settings = app.settings.pinned();
 
         let storage = if settings.borrow().get_bool("encrypt_database") {
-            let password: String = app.prompt.pinned().borrow_mut().ask_password().await
+            let password: String = app
+                .prompt
+                .pinned()
+                .borrow_mut()
+                .ask_password()
+                .await
                 .ok_or(format_err!("No password provided"))?
                 .into();
 
