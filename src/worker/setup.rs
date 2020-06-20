@@ -6,7 +6,7 @@ use qmetaobject::*;
 use crate::gui::WhisperfishApp;
 use crate::store::{self, Storage};
 
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct SignalConfig {
     /// Our telephone number
@@ -57,6 +57,8 @@ pub struct SetupWorker {
 
     /// Emitted when any of the properties change.
     setupChanged: qt_signal!(),
+
+    config: Option<SignalConfig>,
 }
 
 impl SetupWorker {
@@ -78,14 +80,16 @@ impl SetupWorker {
             log::info!("identity_key not found");
         }
 
-        let config = match SetupWorker::read_config(app.clone()).await {
-            Ok(config) => config,
+        this.borrow_mut().config = match SetupWorker::read_config(app.clone()).await {
+            Ok(config) => Some(config),
             Err(e) => {
                 log::error!("Error reading config: {:?}", e);
                 this.borrow().clientFailed();
                 return;
             }
         };
+
+        let config = this.borrow().config.as_ref().unwrap().clone();
 
         log::debug!("config: {:?}", config);
         // XXX: nice formatting?
