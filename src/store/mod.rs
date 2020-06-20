@@ -13,10 +13,6 @@ use failure::*;
 use libsignal_service::models as svcmodels;
 use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
 
-#[derive(actix::Message, Clone)]
-#[rtype(result = "()")]
-pub struct StorageReady(pub Storage);
-
 /// Session as it relates to the schema
 #[derive(Queryable)]
 pub struct Session {

@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use futures::prelude::*;
 
+use crate::gui::StorageReady;
 use crate::model::*;
 use crate::sfos::SailfishApp;
-use crate::store::{Session, Storage, StorageReady};
+use crate::store::{Session, Storage};
 
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -124,7 +125,7 @@ impl Handler<StorageReady> for SessionActor {
 
     fn handle(
         &mut self,
-        StorageReady(storage): StorageReady,
+        StorageReady(storage, _config): StorageReady,
         ctx: &mut Self::Context,
     ) -> Self::Result {
         self.storage = Some(storage);
