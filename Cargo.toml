@@ -32,6 +32,7 @@ hex="0.4"
 phonenumber = "0.2.4"
 
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
+diesel_migrations = "1.4"
 libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }
 
 [build-dependencies]
