@@ -186,8 +186,15 @@ translate the application strings in your language run (for example German)::
 License
 -------------------------------------------------------------------------------
 
+Before Whisperfish 0.6.0-alpha.1, "the Rust port", Whisperfish was licensed under
+the GNU General Public License.  Since Whisperfish 0.6.0-alpha.1, Whisperfish links
+to AGPLv3 code, and as such is a combined work as meant under clause 13 of the GPLv3.
+
+The original GPLv3 licensed code that is still contained in this repository,
+still falls under GPLv3, as per the copyright of Andrew E. Bruno.
+This is the original license statement:
+
 Copyright (C) 2016-2018 Andrew E. Bruno
-Copyright (C) 2019-2020 Ruben De Smet and contributors
 
 Whisperfish is free software: you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
@@ -200,3 +207,21 @@ PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
+
+
+This is the license statement since 2019, since Whisperfish 0.6.0-alpha.1.
+
+Copyright (C) 2019-2020 Ruben De Smet, Markus Törnqvist
+
+Whisperfish is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Whisperfish is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
