@@ -15,6 +15,42 @@ use failure::*;
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage);
 
+/// Session as it relates to the schema
+#[derive(Queryable)]
+pub struct Session {
+    pub id: i64,
+    pub source: String,
+    pub message: String,
+    pub timestamp: i64,
+    pub sent: bool,
+    pub received: bool,
+    pub unread: bool,
+    pub is_group: bool,
+    pub group_members: Option<String>,
+    #[allow(dead_code)]
+    pub group_id: Option<String>,
+    pub group_name: Option<String>,
+    pub has_attachment: bool,
+}
+
+/// ID-free model for insertions
+#[derive(Insertable)]
+#[table_name = "session"]
+pub struct NewSession {
+    pub source: String,
+    pub message: String,
+    pub timestamp: i64,
+    pub sent: bool,
+    pub received: bool,
+    pub unread: bool,
+    pub is_group: bool,
+    pub group_members: Option<String>,
+    #[allow(dead_code)]
+    pub group_id: Option<String>,
+    pub group_name: Option<String>,
+    pub has_attachment: bool,
+}
+
 /// Message as it relates to the schema
 #[derive(Queryable)]
 pub struct Message {
@@ -32,7 +68,6 @@ pub struct Message {
     pub outgoing: bool,
     pub queued: bool,
 }
-
 
 /// Location of the storage.
 ///

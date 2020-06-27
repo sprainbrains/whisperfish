@@ -71,7 +71,7 @@ impl MessageModel {
         log::trace!("Dispatched actor::FetchSession({})", sid);
     }
 
-    pub fn handle_fetch_session(&mut self, sess: session::Session) {
+    pub fn handle_fetch_session(&mut self, sess: store::Session) {
         log::trace!("handle_fetch_session({})", sess.message);
         self.sessionId = sess.id;
         self.sessionIdChanged();

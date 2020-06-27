@@ -4,7 +4,7 @@ use futures::prelude::*;
 
 use crate::model::*;
 use crate::sfos::SailfishApp;
-use crate::store::{Storage, StorageReady};
+use crate::store::{Session, Storage, StorageReady};
 
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -17,23 +17,6 @@ pub struct SessionModel {
     actor: Option<Addr<SessionActor>>,
 
     content: Vec<Session>,
-}
-
-#[derive(Queryable)]
-pub struct Session {
-    pub id: i64,
-    pub source: String,
-    pub message: String,
-    pub timestamp: i64,
-    pub sent: bool,
-    pub received: bool,
-    pub unread: bool,
-    pub is_group: bool,
-    pub group_members: Option<String>,
-    #[allow(dead_code)]
-    pub group_id: Option<String>,
-    pub group_name: Option<String>,
-    pub has_attachment: bool,
 }
 
 impl Session {
