@@ -106,7 +106,7 @@ impl SetupWorker {
         this.borrow().setupChanged();
     }
 
-    async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
+    async fn read_config(_app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
         // XXX non-existing file?
         let conf_dir = dirs::config_dir().ok_or(format_err!("Could not find config directory."))?;
         let signal_config_file = conf_dir.join("harbour-whisperfish").join("config.yml");

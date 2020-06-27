@@ -8,7 +8,6 @@ use crate::store::{Session, Storage, StorageReady};
 
 use actix::prelude::*;
 use diesel::prelude::*;
-use chrono::prelude::*;
 use qmetaobject::*;
 
 #[derive(QObject, Default)]

@@ -1,10 +1,9 @@
 use rstest::{fixture,rstest};
-use failure::Error;
 
 use diesel::prelude::*;
 use diesel_migrations;
 
-use harbour_whisperfish::store::{Session, NewSession};
+use harbour_whisperfish::store::NewSession;
 use harbour_whisperfish::store::Storage;
 use harbour_whisperfish::store::memory;
 
@@ -25,7 +24,6 @@ fn setup_db(in_memory_db: &Storage) {
 /// Setup helper for creating a session
 fn setup_session(in_memory_db: &Storage, new_session: &NewSession) -> usize {
     use harbour_whisperfish::schema::session::dsl::*;
-    use diesel::debug_query;
 
     let db = in_memory_db.db.lock();
     let conn = db.unwrap();

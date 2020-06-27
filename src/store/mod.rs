@@ -4,10 +4,7 @@ use std::sync::{Arc, Mutex};
 use crate::schema::message;
 use crate::schema::sentq;
 use crate::schema::session;
-use crate::model::session::*;
-use crate::model::message::*;
 
-use actix::prelude::*;
 use diesel::prelude::*;
 use failure::*;
 
@@ -33,7 +30,7 @@ pub struct Session {
     pub has_attachment: bool,
 }
 
-/// ID-free model for insertions
+/// ID-free Session model for insertions
 #[derive(Insertable)]
 #[table_name = "session"]
 pub struct NewSession {
