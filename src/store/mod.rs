@@ -66,6 +66,23 @@ pub struct Message {
     pub queued: bool,
 }
 
+/// ID-free Message model for insertions
+#[derive(Insertable)]
+#[table_name = "message"]
+pub struct NewMessage {
+    pub session_id: i64,
+    pub source: String,
+    pub text: String,
+    pub timestamp: i64,
+    pub sent: bool,
+    pub received: bool,
+    pub flags: i32,
+    pub attachment: Option<String>,
+    pub mime_type: Option<String>,
+    pub has_attachment: bool,
+    pub outgoing: bool,
+}
+
 /// Location of the storage.
 ///
 /// Path is for persistent storage.
