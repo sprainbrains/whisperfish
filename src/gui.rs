@@ -1,7 +1,9 @@
 use std::cell::RefCell;
+#[allow(unused_imports)]
 use std::rc::Rc;
 
 use crate::store::{Storage, StorageReady};
+#[allow(unused_imports)]
 use crate::{actor, model, settings::Settings, sfos::SailfishApp, worker};
 
 use actix::prelude::*;

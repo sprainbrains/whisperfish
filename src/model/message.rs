@@ -1,12 +1,10 @@
 use std::collections::HashMap;
 
 use crate::actor;
-use crate::model::session;
 use crate::model::*;
 use crate::store;
 
 use actix::prelude::*;
-use diesel::prelude::*;
 use qmetaobject::*;
 
 define_model_roles! {
@@ -53,7 +51,7 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
-    fn load(&mut self, sid: i64, peer_name: QString) {
+    fn load(&mut self, sid: i64, _peer_name: QString) {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
 
         self.messages.clear();

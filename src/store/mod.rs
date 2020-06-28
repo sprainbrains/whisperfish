@@ -4,10 +4,7 @@ use std::sync::{Arc, Mutex};
 use crate::schema::message;
 use crate::schema::sentq;
 use crate::schema::session;
-use crate::model::session::*;
-use crate::model::message::*;
 
-use actix::prelude::*;
 use diesel::prelude::*;
 use failure::*;
 
@@ -33,7 +30,7 @@ pub struct Session {
     pub has_attachment: bool,
 }
 
-/// ID-free model for insertions
+/// ID-free Session model for insertions
 #[derive(Insertable)]
 #[table_name = "session"]
 pub struct NewSession {
@@ -67,6 +64,23 @@ pub struct Message {
     pub hasattachment: bool,
     pub outgoing: bool,
     pub queued: bool,
+}
+
+/// ID-free Message model for insertions
+#[derive(Insertable)]
+#[table_name = "message"]
+pub struct NewMessage {
+    pub session_id: i64,
+    pub source: String,
+    pub text: String,
+    pub timestamp: i64,
+    pub sent: bool,
+    pub received: bool,
+    pub flags: i32,
+    pub attachment: Option<String>,
+    pub mime_type: Option<String>,
+    pub has_attachment: bool,
+    pub outgoing: bool,
 }
 
 /// Location of the storage.
@@ -191,16 +205,204 @@ impl Storage {
         Ok(Storage { db: Arc::new(Mutex::new(db)) })
     }
 
+    /// Process message and store in database and update or create a session
+    /// TODO: textsecure Group not implemented
+    pub fn process_message(&self, mut new_message: NewMessage, is_unread: bool) {
+        let group = false;  // TODO: textsecure Group not implemented
+
+        let db_session_res = if !group {
+            self.fetch_session_by_source(&new_message.source)
+        } else {
+            panic!("textsecure Group not implemented: fetch_session_by_group")
+        };
+
+        // Initialize the session data to work with, modify it in case of a group
+        let mut session_data = NewSession {
+            source: new_message.source.clone(),
+            message: new_message.text.clone(),
+            timestamp: new_message.timestamp,
+            sent: new_message.sent,
+            received: new_message.received,
+            unread: is_unread,
+            has_attachment: new_message.has_attachment,
+            is_group: false,
+            group_id: None,
+            group_name: None,
+            group_members: None,
+        };
+
+        if group {
+            session_data.is_group = true;
+            session_data.group_id = Some(String::from("TODO"));
+            session_data.group_name = Some(String::from("TODO"));
+            session_data.group_members = Some(String::from("TODO"));
+        }
+
+        let db_session: Session = if db_session_res.is_some() {
+            let db_session = db_session_res.unwrap();
+            self.update_session(&db_session, &session_data, is_unread);
+            db_session
+        } else {
+            self.create_session(&session_data)
+                .expect("Unable to create session yet create_session() did not panic")
+        };
+
+        new_message.session_id = db_session.id;
+
+        let msg = self.create_message(&new_message);
+        log::trace!("Inserted message id {}", msg.id);
+    }
+
+    /// Create a new session. This was transparent within SaveSession in Go.
+    ///
+    /// It needs to be locked from the outside because sqlite sucks.
+    pub fn create_session(&self, new_session: &NewSession) -> Option<Session> {
+        use crate::schema::session::dsl as schema_dsl;
+
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called create_session()");
+
+        let query = diesel::insert_into(schema_dsl::session).values(new_session);
+
+        let res = query.execute(&*conn).expect("inserting a session");
+
+        // Then see if the session was inserted ok and what it was
+        drop(conn);  // Connection must be dropped because everyone wants a lock here
+        let latest_session_res = self.fetch_latest_session();
+
+        if res != 1 || latest_session_res.is_none() {
+            panic!("Non-error non-insert!")
+        }
+
+        let latest_session = latest_session_res.unwrap();
+
+        // XXX: This is checking that we got the latest one we expect,
+        //      because sqlite sucks and some other thread might have inserted
+        if latest_session.timestamp != new_session.timestamp ||
+            latest_session.source != new_session.source {
+                panic!("Could not match latest session to this one!
+                       latest.source {} == new.source {} | latest.tstamp {} == new.timestamp {}",
+                       latest_session.source, new_session.source,
+                       latest_session.timestamp, new_session.timestamp);
+            }
+
+        // Better hope something panicked before now if something went wrong
+        Some(latest_session)
+    }
+
+    /// Update an existing session. This was transparent within SaveSession in Go.
+    ///
+    /// It needs to be locked from the outside because sqlite sucks.
+    /// Also with better schema design this whole thing would be moot!
+    pub fn update_session(&self, db_session: &Session, new_session: &NewSession, is_unread: bool) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called update_session()");
+
+        let query = diesel::update(session::table.filter(session::id.eq(db_session.id))).set((
+            session::message.eq(&new_session.message),
+            session::timestamp.eq(new_session.timestamp),
+            session::unread.eq(is_unread),
+            session::sent.eq(new_session.sent),
+            session::received.eq(new_session.received),
+            session::has_attachment.eq(new_session.has_attachment),
+        ));
+        query.execute(&*conn).expect("updating session");
+    }
+
+    /// This was implicit in Go, which probably didn't use threads.
+    ///
+    /// It needs to be locked from the outside because sqlite sucks.
+    pub fn fetch_latest_session(&self) -> Option<Session> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called fetch_latest_session()");
+        session::table.order_by(session::columns::id.desc())
+                      .first(&*conn)
+                      .ok()
+    }
+
     pub fn fetch_session(&self, sid: i64) -> Option<Session> {
         let db = self.db.lock();
         let conn = db.unwrap();
 
         log::trace!("Called fetch_session({})", sid);
-        match session::table.filter(session::columns::id.eq(sid))
-                            .first(&*conn) {
-                                Ok(data) => Some(data),
-                                Err(_) => None,
-                             }
+        session::table.filter(session::columns::id.eq(sid))
+                      .first(&*conn)
+                      .ok()
+    }
+
+    pub fn fetch_session_by_source(&self, source: &str) -> Option<Session> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called fetch_session_by_source({})", source);
+        session::table.filter(session::columns::source.eq(source))
+                      .first(&*conn)
+                      .ok()
+    }
+
+    /// Create a new message. This was transparent within SaveMessage in Go.
+    pub fn create_message(&self, new_message: &NewMessage) -> Message {
+        use crate::schema::message::dsl as schema_dsl;
+
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called create_message()");
+
+        let query = diesel::insert_into(schema_dsl::message).values(new_message);
+
+        let res = query.execute(&*conn).expect("inserting a message");
+
+        // Then see if the message was inserted ok and what it was
+        drop(conn);  // Connection must be dropped because everyone wants a lock here
+        let latest_message_res = self.fetch_latest_message();
+
+        if res != 1 || latest_message_res.is_none() {
+            panic!("Non-error non-insert!")
+        }
+
+        let latest_message = latest_message_res.unwrap();
+
+        // XXX: This is checking that we got the latest one we expect,
+        //      because sqlite sucks and some other thread might have inserted
+
+        if latest_message.timestamp != new_message.timestamp ||
+            latest_message.source != new_message.source {
+                panic!("Could not match latest message to this one!
+                       latest.source {} == new.source {} | latest.tstamp {} == new.timestamp {}",
+                       latest_message.source, new_message.source,
+                       latest_message.timestamp, new_message.timestamp);
+            }
+
+
+        latest_message
+    }
+
+    /// This was implicit in Go, which probably didn't use threads.
+    ///
+    /// It needs to be locked from the outside because sqlite sucks.
+    pub fn fetch_latest_message(&self) -> Option<Message> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        use diesel::expression::sql_literal::sql;
+
+        log::trace!("Called fetch_latest_message()");
+        message::table.left_join(sentq::table)
+                      .select((message::columns::id, message::columns::session_id, message::columns::source,
+                               message::columns::text, message::columns::timestamp, message::columns::sent,
+                               message::columns::received, message::columns::flags, message::columns::attachment,
+                               message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
+                      sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
+                      .order_by(message::columns::id.desc())
+                      .first(&*conn)
+                      .ok()
     }
 
     pub fn fetch_all_messages(&self, sid: i64) -> Option<Vec<Message>> {
@@ -223,10 +425,7 @@ impl Storage {
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        match query.load::<Message>(&*conn) {
-                    Ok(data) => Some(data),
-                    Err(_) => None,
-                }
+        query.load::<Message>(&*conn).ok()
     }
 }
 

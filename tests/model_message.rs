@@ -1,10 +1,9 @@
 use rstest::{fixture,rstest};
-use failure::Error;
 
 use diesel::prelude::*;
 use diesel_migrations;
 
-use harbour_whisperfish::store::{Session, NewSession};
+use harbour_whisperfish::store::{NewSession, NewMessage};
 use harbour_whisperfish::store::Storage;
 use harbour_whisperfish::store::memory;
 
@@ -25,7 +24,6 @@ fn setup_db(in_memory_db: &Storage) {
 /// Setup helper for creating a session
 fn setup_session(in_memory_db: &Storage, new_session: &NewSession) -> usize {
     use harbour_whisperfish::schema::session::dsl::*;
-    use diesel::debug_query;
 
     let db = in_memory_db.db.lock();
     let conn = db.unwrap();
@@ -37,7 +35,21 @@ fn setup_session(in_memory_db: &Storage, new_session: &NewSession) -> usize {
         Err(error) => panic!(error.to_string()),
     };
 
-    return res;
+    res
+}
+
+/// Setup helper for creating a proper chat
+/// where each message in `Vec<NewMessage>`
+/// would be received by the message processor
+fn setup_messages(in_memory_db: &Storage, new_messages: Vec<NewMessage>) -> usize {
+    use harbour_whisperfish::schema::message::dsl::*;
+
+    let db = in_memory_db.db.lock();
+    let conn = db.unwrap();
+
+    let query = diesel::insert_into(message).values(new_messages);
+
+    query.execute(&*conn).expect("failed")
 }
 
 #[rstest]
@@ -138,4 +150,126 @@ fn test_fetch_all_messages_none(in_memory_db: Storage) {
 
     let messages = in_memory_db.fetch_all_messages(1).unwrap();
     assert_eq!(messages.len(), 0);
+}
+
+#[rstest]
+fn test_receive_messages_no_session(in_memory_db: Storage) {
+    setup_db(&in_memory_db);
+
+    let mut new_messages: Vec<NewMessage> = Vec::new();
+
+    for i in 1..4 {
+        new_messages.push(
+            NewMessage {
+                session_id: 1,
+                source: String::from("a number"),
+                text: String::from(format!("MSG {}", i)),
+                timestamp: i,
+                sent: false,
+                received: true,
+                flags: 0,
+                attachment: None,
+                mime_type: None,
+                has_attachment: false,
+                outgoing: false,
+            }
+        );
+    };
+
+    let inserted = setup_messages(&in_memory_db, new_messages);
+    assert_eq!(inserted, 3);
+
+    // Now testify SQLite sucks
+    let res = in_memory_db.fetch_session(1);
+    assert!(res.is_none());
+}
+
+#[rstest]
+fn test_process_message_no_session_source(in_memory_db: Storage) {
+    setup_db(&in_memory_db);
+
+    let res = in_memory_db.fetch_session(1);
+    assert!(res.is_none());
+
+    let new_message = NewMessage {
+        session_id: 1,
+        source: String::from("a number"),
+        text: String::from("MSG 1"),
+        timestamp: 0,
+        sent: false,
+        received: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: false,
+    };
+
+    in_memory_db.process_message(new_message, true);
+
+    // Test a session was created
+    let res = in_memory_db.fetch_session(1);
+    assert!(res.is_some());
+
+    // Test a message was created
+    let res = in_memory_db.fetch_latest_message();
+    assert!(res.is_some());
+}
+
+#[rstest]
+fn test_process_message_exists_session_source(in_memory_db: Storage) {
+    let session_config = NewSession {
+        source: String::from("+358501234567"),
+        message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
+        timestamp: 0,
+        sent: true,
+        received: false,
+        unread: false,
+        is_group: false,
+        group_id: None,
+        group_name: None,
+        group_members: None,
+        has_attachment: false,
+    };
+
+    setup_db(&in_memory_db);
+    setup_session(&in_memory_db, &session_config);
+
+    let sess1_res = in_memory_db.fetch_session(1);
+    assert!(sess1_res.is_some());
+    let sess1 = sess1_res.unwrap();
+    assert_eq!(sess1.timestamp, 0);
+
+    for i in 1..11 {
+        let new_message = NewMessage {
+            session_id: 1,
+            source: String::from("+358501234567"),
+            text: String::from("nyt joni ne velat!"),
+            timestamp: i,
+            sent: false,
+            received: true,
+            flags: 0,
+            attachment: None,
+            mime_type: None,
+            has_attachment: false,
+            outgoing: false,
+        };
+
+        in_memory_db.process_message(new_message, true);
+
+        // Test no extra session was created
+        let latest_sess_res = in_memory_db.fetch_latest_session();
+        assert!(latest_sess_res.is_some());
+        let latest_sess = latest_sess_res.unwrap();
+
+        assert_eq!(latest_sess.id, sess1.id);
+        assert_eq!(latest_sess.timestamp, i);
+
+        // Test a message was created
+        let res = in_memory_db.fetch_latest_message();
+        assert!(res.is_some());
+
+        let msg = res.unwrap();
+        assert_eq!(msg.timestamp, i);
+    }
 }

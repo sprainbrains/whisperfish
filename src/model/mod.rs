@@ -19,6 +19,7 @@ macro_rules! define_model_roles {
 
         impl $enum_name {
             #[allow(unused_assignments)]
+            #[allow(dead_code)]
             fn role_names() -> HashMap<i32, QByteArray> {
                 let mut hm = HashMap::new();
 
