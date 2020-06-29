@@ -7,6 +7,7 @@ use crate::schema::session;
 
 use diesel::prelude::*;
 use failure::*;
+use libsignal_service::models as svcmodels;
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -306,14 +307,11 @@ impl Storage {
     }
 
     /// Process message and store in database and update or create a session
-    /// TODO: textsecure Group not implemented
-    pub fn process_message(&self, mut new_message: NewMessage, is_unread: bool) {
-        let group = false;  // TODO: textsecure Group not implemented
-
-        let db_session_res = if !group {
+    pub fn process_message(&self, mut new_message: NewMessage, group: &Option<svcmodels::Group>, is_unread: bool) {
+        let db_session_res = if group.is_none() {
             self.fetch_session_by_source(&new_message.source)
         } else {
-            panic!("textsecure Group not implemented: fetch_session_by_group")
+            self.fetch_session_by_group(&group.as_ref().unwrap().hex_id)
         };
 
         // Initialize the session data to work with, modify it in case of a group
@@ -331,12 +329,13 @@ impl Storage {
             group_members: None,
         };
 
-        if group {
+        if let Some(group) = group.as_ref() {
             session_data.is_group = true;
-            session_data.group_id = Some(String::from("TODO"));
-            session_data.group_name = Some(String::from("TODO"));
-            session_data.group_members = Some(String::from("TODO"));
-        }
+            session_data.source = group.hex_id.clone();
+            session_data.group_id = Some(group.hex_id.clone());
+            session_data.group_name = Some(group.name.clone());
+            session_data.group_members = Some(group.members.join(","));
+        };
 
         let db_session: Session = if db_session_res.is_some() {
             let db_session = db_session_res.unwrap();
@@ -446,6 +445,16 @@ impl Storage {
 
         log::trace!("Called fetch_session_by_source({})", source);
         session::table.filter(session::columns::source.eq(source))
+                      .first(&*conn)
+                      .ok()
+    }
+
+    pub fn fetch_session_by_group(&self, group_id: &str) -> Option<Session> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called fetch_session_by_group({})", group_id);
+        session::table.filter(session::columns::group_id.eq(group_id))
                       .first(&*conn)
                       .ok()
     }

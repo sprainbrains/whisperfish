@@ -10,6 +10,8 @@ use rstest::fixture;
 use diesel::prelude::*;
 use diesel_migrations;
 
+use libsignal_service::models as svcmodels;
+
 use harbour_whisperfish::store::memory;
 
 /// We do not want to test on a live db, use :memory:
@@ -212,7 +214,7 @@ fn test_process_message_no_session_source(in_memory_db: Storage) {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, true);
+    in_memory_db.process_message(new_message, &None, true);
 
     // Test a session was created
     let res = in_memory_db.fetch_session(1);
@@ -262,7 +264,7 @@ fn test_process_message_exists_session_source(in_memory_db: Storage) {
             outgoing: false,
         };
 
-        in_memory_db.process_message(new_message, true);
+        in_memory_db.process_message(new_message, &None, true);
 
         // Test no extra session was created
         let latest_sess_res = in_memory_db.fetch_latest_session();
@@ -317,7 +319,7 @@ fn test_dev_message_update(in_memory_db: Storage) {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, true);
+    in_memory_db.process_message(new_message, &None, true);
 
     // Though this is tested in other cases, double-check a message exists
     let db_messages_res = in_memory_db.fetch_all_messages(1);
@@ -340,10 +342,57 @@ fn test_dev_message_update(in_memory_db: Storage) {
         outgoing: false,
     };
 
-    in_memory_db.process_message(other_message, true);
+    in_memory_db.process_message(other_message, &None, true);
 
     // And all the messages should still be only one message
     let db_messages_res = in_memory_db.fetch_all_messages(1);
     let db_messages = db_messages_res.unwrap();
     assert_eq!(db_messages.len(), 1);
+}
+
+#[rstest]
+fn test_process_message_with_group(in_memory_db: Storage) {
+    setup_db(&in_memory_db);
+
+    let res = in_memory_db.fetch_session(1);
+    assert!(res.is_none());
+
+    let new_message = NewMessage {
+        session_id: 1,
+        source: String::from("a number"),
+        text: String::from("MSG 1"),
+        timestamp: 0,
+        sent: false,
+        received: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: false,
+    };
+
+    // Here the client worker will have resolved a group exists
+    let group_id = vec![42u8, 126u8, 71u8, 75u8];
+    let group = svcmodels::Group {
+        id: group_id.clone(),
+        hex_id: hex::encode(group_id.clone()),
+        flags: 0,
+        name: String::from("Spurdospärde"),
+        members: vec![String::from("Joni"),String::from("Make"),String::from("Spurdoliina")],
+        avatar: None,
+    };
+
+    in_memory_db.process_message(new_message, &Some(group), true);
+
+    // Test a session was created
+    let session = in_memory_db.fetch_session(1).expect("Expected to find session");
+    assert!(session.is_group);
+    assert_eq!(session.group_name, Some(String::from("Spurdospärde")));
+    assert_eq!(session.group_id, Some(String::from("2a7e474b")));
+    assert_eq!(session.source, String::from("2a7e474b"));
+
+    // Test a message was created
+    let message = in_memory_db.fetch_latest_message().expect("Expected to find message");
+    assert_eq!(message.source, "a number");
+    assert_eq!(message.sid, session.id);
 }
