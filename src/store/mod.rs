@@ -349,8 +349,12 @@ impl Storage {
 
         new_message.session_id = db_session.id;
 
-        let msg = self.create_message(&new_message);
-        log::trace!("Inserted message id {}", msg.id);
+        // With the prepared new_message in hand, see if it's an update or a new one
+        let update_msg_res = self.update_message_if_needed(&new_message);
+
+        if update_msg_res.is_none() {
+            self.create_message(&new_message);
+        };
     }
 
     /// Create a new session. This was transparent within SaveSession in Go.
@@ -446,6 +450,64 @@ impl Storage {
                       .ok()
     }
 
+    /// Check if message exists and explicitly update it if required
+    ///
+    /// This is because during development messages may come in partially
+    fn update_message_if_needed(&self, new_message: &NewMessage) -> Option<Message> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        use diesel::expression::sql_literal::sql;
+
+        log::trace!("Called update_message_if_needed({})", new_message.session_id);
+
+        let mut msg: Message = message::table.left_join(sentq::table)
+                                             .select((message::columns::id, message::columns::session_id, message::columns::source,
+                                                      message::columns::text, message::columns::timestamp, message::columns::sent,
+                                                      message::columns::received, message::columns::flags, message::columns::attachment,
+                                                      message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
+                                             sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
+                                             .filter(message::columns::session_id.eq(new_message.session_id))
+                                             .filter(message::columns::timestamp.eq(new_message.timestamp))
+                                             .filter(message::columns::text.eq(&new_message.text))
+                                             .order_by(message::columns::id.desc())
+                                             .first(&*conn)
+                                             .ok()?;
+
+        // Do not update `(session_id, timestamp, message)` because that's considered unique
+        // nor `source` which is correlated with `session_id`
+        if msg.sent != new_message.sent ||
+            msg.received != new_message.received ||
+            msg.flags != new_message.flags ||
+            msg.attachment != new_message.attachment ||
+            msg.mimetype != new_message.mime_type ||
+            msg.hasattachment != new_message.has_attachment ||
+            msg.outgoing != new_message.outgoing {
+                let query = diesel::update(message::table.filter(message::id.eq(msg.id))).set((
+                    message::sent.eq(new_message.sent),
+                    message::received.eq(new_message.received),
+                    message::flags.eq(new_message.flags),
+                    message::attachment.eq(&new_message.attachment),
+                    message::mime_type.eq(&new_message.mime_type),
+                    message::has_attachment.eq(new_message.has_attachment),
+                    message::outgoing.eq(new_message.outgoing),
+                ));
+
+                query.execute(&*conn).expect("updating message");
+
+                // Also update the message we got from the db to match what was updated
+                msg.sent = new_message.sent;
+                msg.received = new_message.received;
+                msg.flags = new_message.flags;
+                msg.attachment = new_message.attachment.clone();
+                msg.mimetype = new_message.mime_type.clone();
+                msg.hasattachment = new_message.has_attachment;
+                msg.outgoing = new_message.outgoing;
+            }
+
+        Some(msg)
+    }
+
     /// Create a new message. This was transparent within SaveMessage in Go.
     pub fn create_message(&self, new_message: &NewMessage) -> Message {
         use crate::schema::message::dsl as schema_dsl;
@@ -481,6 +543,7 @@ impl Storage {
             }
 
 
+        log::trace!("Inserted message id {}", latest_message.id);
         latest_message
     }
 

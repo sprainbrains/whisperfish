@@ -280,3 +280,70 @@ fn test_process_message_exists_session_source(in_memory_db: Storage) {
         assert_eq!(msg.timestamp, i);
     }
 }
+
+/// This tests code that may potentially be removed after release
+/// but it's important as long as we receive messages without ACK
+#[rstest]
+fn test_dev_message_update(in_memory_db: Storage) {
+    let session_config = NewSession {
+        source: String::from("+358501234567"),
+        message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
+        timestamp: 0,
+        sent: true,
+        received: false,
+        unread: false,
+        is_group: false,
+        group_id: None,
+        group_name: None,
+        group_members: None,
+        has_attachment: false,
+    };
+
+    setup_db(&in_memory_db);
+    setup_session(&in_memory_db, &session_config);
+
+    // Receive basic message
+    let new_message = NewMessage {
+        session_id: 1,
+        source: String::from("+358501234567"),
+        text: String::from("nyt joni ne velat!"),
+        timestamp: 123,
+        sent: false,
+        received: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: false,
+    };
+
+    in_memory_db.process_message(new_message, true);
+
+    // Though this is tested in other cases, double-check a message exists
+    let db_messages_res = in_memory_db.fetch_all_messages(1);
+    let db_messages = db_messages_res.unwrap();
+    assert_eq!(db_messages.len(), 1);
+
+    // However, there should have been an attachment
+    // which the Go worker would do before `process_message`
+    let other_message = NewMessage {
+        session_id: 1,
+        source: String::from("+358501234567"),
+        text: String::from("nyt joni ne velat!"),
+        timestamp: 123,
+        sent: false,
+        received: true,
+        flags: 0,
+        attachment: Some(String::from("uuid-uuid-uuid-uuid")),
+        mime_type: Some(String::from("text/plain")),
+        has_attachment: true,
+        outgoing: false,
+    };
+
+    in_memory_db.process_message(other_message, true);
+
+    // And all the messages should still be only one message
+    let db_messages_res = in_memory_db.fetch_all_messages(1);
+    let db_messages = db_messages_res.unwrap();
+    assert_eq!(db_messages.len(), 1);
+}
