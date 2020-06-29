@@ -8,7 +8,7 @@ use crate::schema::session;
 use diesel::prelude::*;
 use failure::*;
 
-#[derive(actix::Message)]
+#[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage);
 
@@ -228,6 +228,7 @@ impl Storage {
         let db_key = derive_db_key(password.clone(), db_salt_path);
         let storage_key = derive_storage_key(password, storage_salt_path);
 
+        // 1. decrypt DB
         let db = db_path.open_db()?;
         db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key.await?)))?;
         db.execute("PRAGMA cipher_page_size = 4096;")?;
@@ -285,23 +286,23 @@ impl Storage {
                     .map_err(|_| format_err!("MAC error"))?;
             }
 
-            {
+            let password = {
                 use aes::Aes128;
-                use block_modes::block_padding::NoPadding;
+                use block_modes::block_padding::Pkcs7;
                 use block_modes::{BlockMode, Cbc};
                 // Decrypt password
-                let cipher = Cbc::<Aes128, NoPadding>::new_var(&keys[0..16], &iv)
+                let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
                     .map_err(|_| format_err!("CBC initialization error"))?;
                 cipher
                     .decrypt(&mut password)
-                    .map_err(|_| format_err!("AES CBC decryption error"))?;
-            }
-
+                    .map_err(|_| format_err!("AES CBC decryption error"))?
+            };
+            let password = std::str::from_utf8(password)?.to_owned();
             Ok(password)
         })
         .await?;
 
-        Ok(std::str::from_utf8(&password)?.to_owned())
+        Ok(password)
     }
 
     /// Process message and store in database and update or create a session

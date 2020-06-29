@@ -68,7 +68,7 @@ build:i486:
     CARGO_HOME: $CI_PROJECT_DIR/cargo
   before_script:
     - apt-get update
-    - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default
+    - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler
     - cargo --version
     - rustc --version
 
