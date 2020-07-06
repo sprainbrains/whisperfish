@@ -1,65 +1,12 @@
 use rstest::rstest;
 
-use harbour_whisperfish::store::{NewSession, NewMessage};
 use harbour_whisperfish::store::Storage;
-
-// BEGIN: MOVE THIS TO tests/common/mod.rs
-// Right now it seems to break fixtures when moved :(
-use rstest::fixture;
-
-use diesel::prelude::*;
-use diesel_migrations;
+use harbour_whisperfish::store::{NewMessage, NewSession};
 
 use libsignal_service::models as svcmodels;
 
-use harbour_whisperfish::store::memory;
-
-/// We do not want to test on a live db, use :memory:
-#[fixture]
-fn in_memory_db() -> Storage {
-    Storage::open(&memory()).unwrap()
-}
-
-/// Setup helper for basic, empty database
-fn setup_db(in_memory_db: &Storage) {
-    let db = in_memory_db.db.lock();
-    let conn = db.unwrap();
-
-    diesel_migrations::run_pending_migrations(&*conn).unwrap()
-}
-
-/// Setup helper for creating a session
-fn setup_session(in_memory_db: &Storage, new_session: &NewSession) -> usize {
-    use harbour_whisperfish::schema::session::dsl::*;
-
-    let db = in_memory_db.db.lock();
-    let conn = db.unwrap();
-
-    let query = diesel::insert_into(session).values(new_session);
-
-    let res = match query.execute(&*conn) {
-        Ok(rows_inserted) => rows_inserted,
-        Err(error) => panic!(error.to_string()),
-    };
-
-    res
-}
-
-/// Setup helper for creating a proper chat
-/// where each message in `Vec<NewMessage>`
-/// would be received by the message processor
-fn setup_messages(in_memory_db: &Storage, new_messages: Vec<NewMessage>) -> usize {
-    use harbour_whisperfish::schema::message::dsl::*;
-
-    let db = in_memory_db.db.lock();
-    let conn = db.unwrap();
-
-    let query = diesel::insert_into(message).values(new_messages);
-
-    query.execute(&*conn).expect("failed")
-}
-
-// END
+mod common;
+use common::*;
 
 #[rstest]
 fn test_fetch_session_none(in_memory_db: Storage) {
@@ -95,7 +42,10 @@ fn test_fetch_group_session(in_memory_db: Storage) {
     assert_eq!(session.id, 1);
     assert_eq!(session.source, String::from("+358501234567"));
     assert_eq!(session.group_name, Some(String::from("Spurdospärde")));
-    assert_eq!(session.message, String::from("whisperfish on paras:DDDD ja signal:DDD"));
+    assert_eq!(
+        session.message,
+        String::from("whisperfish on paras:DDDD ja signal:DDD")
+    );
 }
 
 #[rstest]
@@ -376,7 +326,11 @@ fn test_process_message_with_group(in_memory_db: Storage) {
         hex_id: hex::encode(group_id.clone()),
         flags: 0,
         name: String::from("Spurdospärde"),
-        members: vec![String::from("Joni"), String::from("Make"), String::from("Spurdoliina")],
+        members: vec![
+            String::from("Joni"),
+            String::from("Make"),
+            String::from("Spurdoliina"),
+        ],
         avatar: None,
     };
 
