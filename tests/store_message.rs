@@ -168,22 +168,20 @@ fn test_receive_messages_no_session(in_memory_db: Storage) {
     let mut new_messages: Vec<NewMessage> = Vec::new();
 
     for i in 1..4 {
-        new_messages.push(
-            NewMessage {
-                session_id: 1,
-                source: String::from("a number"),
-                text: String::from(format!("MSG {}", i)),
-                timestamp: i,
-                sent: false,
-                received: true,
-                flags: 0,
-                attachment: None,
-                mime_type: None,
-                has_attachment: false,
-                outgoing: false,
-            }
-        );
-    };
+        new_messages.push(NewMessage {
+            session_id: 1,
+            source: String::from("a number"),
+            text: String::from(format!("MSG {}", i)),
+            timestamp: i,
+            sent: false,
+            received: true,
+            flags: 0,
+            attachment: None,
+            mime_type: None,
+            has_attachment: false,
+            outgoing: false,
+        });
+    }
 
     let inserted = setup_messages(&in_memory_db, new_messages);
     assert_eq!(inserted, 3);
@@ -378,21 +376,25 @@ fn test_process_message_with_group(in_memory_db: Storage) {
         hex_id: hex::encode(group_id.clone()),
         flags: 0,
         name: String::from("Spurdospärde"),
-        members: vec![String::from("Joni"),String::from("Make"),String::from("Spurdoliina")],
+        members: vec![String::from("Joni"), String::from("Make"), String::from("Spurdoliina")],
         avatar: None,
     };
 
     in_memory_db.process_message(new_message, &Some(group), true);
 
     // Test a session was created
-    let session = in_memory_db.fetch_session(1).expect("Expected to find session");
+    let session = in_memory_db
+        .fetch_session(1)
+        .expect("Expected to find session");
     assert!(session.is_group);
     assert_eq!(session.group_name, Some(String::from("Spurdospärde")));
     assert_eq!(session.group_id, Some(String::from("2a7e474b")));
     assert_eq!(session.source, String::from("2a7e474b"));
 
     // Test a message was created
-    let message = in_memory_db.fetch_latest_message().expect("Expected to find message");
+    let message = in_memory_db
+        .fetch_latest_message()
+        .expect("Expected to find message");
     assert_eq!(message.source, "a number");
     assert_eq!(message.sid, session.id);
 }
