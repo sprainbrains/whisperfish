@@ -1404,7 +1404,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=MessageReceiver#495726f22a36317454f85ae17fed41390cf8e09b"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=MessageReceiver#e8f2c542c7b3da17f43bcb4bfb1503c9bf26b0c4"
 dependencies = [
  "async-trait",
  "base64 0.12.3",
@@ -1421,7 +1421,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=MessageReceiver#495726f22a36317454f85ae17fed41390cf8e09b"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=MessageReceiver#e8f2c542c7b3da17f43bcb4bfb1503c9bf26b0c4"
 dependencies = [
  "actix",
  "actix-rt",
