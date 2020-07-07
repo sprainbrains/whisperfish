@@ -19,7 +19,7 @@ docker:builder:
     - rm -f .dockerignore
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
 
-.build: &build
+.build-target: &build-target
   image: registry.gitlab.com/rubdos/whisperfish/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG
   stage: build
   artifacts:
@@ -47,7 +47,7 @@ build:armv7hl:
     RUST_ARCH: armv7-unknown-linux-gnueabihf
     CC_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
     CXX_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
-  <<: *build
+  <<: *build-target
 
 build:i486:
   variables:
@@ -56,7 +56,7 @@ build:i486:
     RUST_ARCH: i686-unknown-linux-gnu
     CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
-  <<: *build
+  <<: *build-target
 
 .rust: &rust
   cache: &rust-cache
@@ -145,7 +145,7 @@ clippy:
     <<: *variables
     MER_ARCH: aarch64
     RUST_ARCH: aarch64-unknown-linux-gnu
-  <<: *build
+  <<: *build-target
 
 pages:
   dependencies:
