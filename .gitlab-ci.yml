@@ -63,7 +63,7 @@ build:i486:
     paths:
       - cargo/
       - target/
-      - $CI_PROJECT_DIR/cargo
+      - $CI_PROJECT_DIR/cargo/registry
   variables:
     CARGO_HOME: $CI_PROJECT_DIR/cargo
   before_script:
