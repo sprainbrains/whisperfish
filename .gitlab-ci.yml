@@ -28,7 +28,7 @@ docker:builder:
   cache:
     paths:
       - target
-      - $CARGO_HOME
+      - $CARGO_HOME/registry
   script:
     - echo "Building for $SFOS_VERSION"
     - echo "Configuring cargo-rpm (cfr https://github.com/RustRPM/cargo-rpm/issues/47)"
