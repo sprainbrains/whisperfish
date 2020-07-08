@@ -1,6 +1,7 @@
 ---
 variables: &variables
   SFOS_VERSION: 3.3.0.14
+  CARGO_HOME: $CI_PROJECT_DIR/cargo
 
 stages:
   - prepare
@@ -28,9 +29,14 @@ docker:builder:
   cache:
     paths:
       - target
-      - $CI_PROJECT_DIR/.cargo/registry
+      - $CARGO_HOME/bin/
+      - $CARGO_HOME/registry/index/
+      - $CARGO_HOME/registry/cache/
+      - $CARGO_HOME/git/db/
     key: target-$MER_ARCH
   script:
+    - mkdir -p $CARGO_HOME
+    - cp .ci/cargo.toml $CARGO_HOME/config
     - echo "Building for $SFOS_VERSION"
     - echo "Configuring cargo-rpm (cfr https://github.com/RustRPM/cargo-rpm/issues/47)"
     - sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
@@ -64,9 +70,10 @@ build:i486:
     paths:
       - cargo/
       - target/
-      - $CI_PROJECT_DIR/cargo/registry
-  variables:
-    CARGO_HOME: $CI_PROJECT_DIR/cargo
+      - $CARGO_HOME/bin/
+      - $CARGO_HOME/registry/index/
+      - $CARGO_HOME/registry/cache/
+      - $CARGO_HOME/git/db/
   before_script:
     - apt-get update
     - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler
