@@ -29,6 +29,7 @@ docker:builder:
     paths:
       - target
       - $CARGO_HOME/registry
+    key: target-$MER_ARCH
   script:
     - echo "Building for $SFOS_VERSION"
     - echo "Configuring cargo-rpm (cfr https://github.com/RustRPM/cargo-rpm/issues/47)"
