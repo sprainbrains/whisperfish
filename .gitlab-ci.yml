@@ -28,7 +28,7 @@ docker:builder:
   cache:
     paths:
       - target
-      - $CARGO_HOME/registry
+      - $CI_PROJECT_DIR/.cargo/registry
     key: target-$MER_ARCH
   script:
     - echo "Building for $SFOS_VERSION"
