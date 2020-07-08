@@ -1,6 +1,6 @@
 [package]
 name = "harbour-whisperfish"
-version = "0.6.0-alpha.1"
+version = "0.6.0-alpha.2"
 authors = ["Ruben De Smet <ruben.de.smet@rubdos.be>"]
 edition = "2018"
 build = "build.rs"
