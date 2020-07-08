@@ -58,7 +58,7 @@ impl WhisperfishApp {
 pub async fn run() -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
     log::info!("SailfishApp::application loaded");
-    let version: QString = "0.6.0".into(); // XXX source from Cargo.toml
+    let version: QString = env!("CARGO_PKG_VERSION").into();
     app.set_title("Whisperfish".into());
     app.set_application_version(version.clone());
     app.install_default_translator().unwrap();
