@@ -119,7 +119,7 @@ fn test_receive_messages_no_session(in_memory_db: Storage) {
 
     for i in 1..4 {
         new_messages.push(NewMessage {
-            session_id: 1,
+            session_id: Some(1),
             source: String::from("a number"),
             text: String::from(format!("MSG {}", i)),
             timestamp: i,
@@ -149,7 +149,7 @@ fn test_process_message_no_session_source(in_memory_db: Storage) {
     assert!(res.is_none());
 
     let new_message = NewMessage {
-        session_id: 1,
+        session_id: Some(1),
         source: String::from("a number"),
         text: String::from("MSG 1"),
         timestamp: 0,
@@ -171,6 +171,36 @@ fn test_process_message_no_session_source(in_memory_db: Storage) {
     // Test a message was created
     let res = in_memory_db.fetch_latest_message();
     assert!(res.is_some());
+}
+
+#[rstest]
+fn test_process_message_unresolved_session_source_resolved(in_memory_db: Storage) {
+    setup_db(&in_memory_db);
+
+    let new_message = NewMessage {
+        session_id: None,
+        source: String::from("a number"),
+        text: String::from("MSG 1"),
+        timestamp: 0,
+        sent: false,
+        received: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: false,
+    };
+
+    in_memory_db.process_message(new_message, &None, true);
+
+    let messages = in_memory_db.fetch_all_messages(1).unwrap();
+    assert_eq!(messages.len(), 1);
+
+    let res = in_memory_db.fetch_latest_message();
+    assert!(res.is_some());
+
+    let msg = res.unwrap();
+    assert_eq!(msg.sid, 1);
 }
 
 #[rstest]
@@ -199,7 +229,7 @@ fn test_process_message_exists_session_source(in_memory_db: Storage) {
 
     for i in 1..11 {
         let new_message = NewMessage {
-            session_id: 1,
+            session_id: Some(1),
             source: String::from("+358501234567"),
             text: String::from("nyt joni ne velat!"),
             timestamp: i,
@@ -254,7 +284,7 @@ fn test_dev_message_update(in_memory_db: Storage) {
 
     // Receive basic message
     let new_message = NewMessage {
-        session_id: 1,
+        session_id: Some(1),
         source: String::from("+358501234567"),
         text: String::from("nyt joni ne velat!"),
         timestamp: 123,
@@ -277,7 +307,7 @@ fn test_dev_message_update(in_memory_db: Storage) {
     // However, there should have been an attachment
     // which the Go worker would do before `process_message`
     let other_message = NewMessage {
-        session_id: 1,
+        session_id: Some(1),
         source: String::from("+358501234567"),
         text: String::from("nyt joni ne velat!"),
         timestamp: 123,
@@ -306,7 +336,7 @@ fn test_process_message_with_group(in_memory_db: Storage) {
     assert!(res.is_none());
 
     let new_message = NewMessage {
-        session_id: 1,
+        session_id: Some(1),
         source: String::from("a number"),
         text: String::from("MSG 1"),
         timestamp: 0,
