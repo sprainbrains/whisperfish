@@ -294,28 +294,54 @@ impl Storage {
 
     /// Asynchronously loads the signal HTTP password from storage and decrypts it.
     pub async fn signal_password(&self) -> Result<String, Error> {
-        let http_password_path = crate::store::default_location()
-            .unwrap()
-            .join("storage")
-            .join("identity")
-            .join("http_password");
+        let contents = self
+            .load_file(
+                crate::store::default_location()
+                    .unwrap()
+                    .join("storage")
+                    .join("identity")
+                    .join("http_password"),
+            )
+            .await?;
+        Ok(String::from_utf8(contents)?)
+    }
+
+    /// Asynchronously loads the base64 encoded signaling key.
+    pub async fn signaling_key(&self) -> Result<[u8; 52], Error> {
+        let v = self
+            .load_file(
+                crate::store::default_location()
+                    .unwrap()
+                    .join("storage")
+                    .join("identity")
+                    .join("http_signaling_key"),
+            )
+            .await?;
+        ensure!(v.len() == 52, "Signaling key is 52 bytes");
+        let mut out = [0u8; 52];
+        out.copy_from_slice(&v);
+        Ok(out)
+    }
+
+    async fn load_file<'s>(&'s self, path: PathBuf) -> Result<Vec<u8>, Error> {
         // XXX: unencrypted storage.
         let keys = self.keys.unwrap();
-
-        let password = actix_threadpool::run(move || {
+        let contents = actix_threadpool::run(move || {
             use std::io::Read;
 
             // XXX This is *full* of bad practices.
             // Let's try to migrate to nacl or something alike in the future.
 
-            let mut iv = [0u8; 16];
-            let mut password = [0u8; 32];
-            let mut mac = [0u8; 32];
+            let mut f = std::fs::File::open(&path)?;
+            let mut contents = Vec::new();
+            let count = f.read_to_end(&mut contents)?;
 
-            let mut f = std::fs::File::open(http_password_path)?;
-            ensure!(f.read(&mut iv)? == 16, "IV not 16 bytes");
-            ensure!(f.read(&mut password)? == 32, "password not 32 bytes");
-            ensure!(f.read(&mut mac)? == 32, "mac not 32 bytes");
+            log::trace!("Read {:?}, {} bytes", path, count);
+            ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
+
+            let (iv, contents) = contents.split_at_mut(16);
+            let count = count - 16;
+            let (contents, mac) = contents.split_at_mut(count - 32);
 
             {
                 use hmac::{Hmac, Mac, NewMac};
@@ -324,29 +350,26 @@ impl Storage {
                 let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
                     .map_err(|_| format_err!("MAC keylength error"))?;
                 verifier.update(&iv);
-                verifier.update(&password);
+                verifier.update(contents);
                 verifier
                     .verify(&mac)
                     .map_err(|_| format_err!("MAC error"))?;
             }
 
-            let password = {
-                use aes::Aes128;
-                use block_modes::block_padding::Pkcs7;
-                use block_modes::{BlockMode, Cbc};
-                // Decrypt password
-                let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
-                    .map_err(|_| format_err!("CBC initialization error"))?;
-                cipher
-                    .decrypt(&mut password)
-                    .map_err(|_| format_err!("AES CBC decryption error"))?
-            };
-            let password = std::str::from_utf8(password)?.to_owned();
-            Ok(password)
+            use aes::Aes128;
+            use block_modes::block_padding::Pkcs7;
+            use block_modes::{BlockMode, Cbc};
+            // Decrypt password
+            let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
+                .map_err(|_| format_err!("CBC initialization error"))?;
+            Ok(cipher
+                .decrypt(contents)
+                .map_err(|_| format_err!("AES CBC decryption error"))?
+                .to_owned())
         })
         .await?;
 
-        Ok(password)
+        Ok(contents)
     }
 
     /// Process incoming message from Signal
