@@ -11,6 +11,7 @@ use diesel::debug_query;
 
 use failure::*;
 use libsignal_service::models as svcmodels;
+use libsignal_service::{GROUP_UPDATE_FLAG, GROUP_LEAVE_FLAG};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -386,8 +387,20 @@ impl Storage {
             }
         }
 
+        let group = if let Some(group) = msg.group.as_ref() {
+            if group.flags == GROUP_UPDATE_FLAG {
+                new_message.text = String::from("Member joined group");
+            } else if group.flags == GROUP_LEAVE_FLAG {
+                new_message.text = String::from("Member left group");
+            }
+
+            msg.group
+        } else {
+            None
+        };
+
         let is_unread = !new_message.sent.clone();
-        self.process_message(new_message, &msg.group, is_unread)
+        self.process_message(new_message, &group, is_unread)
 
         // TODO: This is Go code that emits signals in the client worker; do it here too
         // c.MessageReceived(sess.ID, message.ID)
