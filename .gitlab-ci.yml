@@ -23,6 +23,8 @@ docker:builder:
 .build-target: &build-target
   image: registry.gitlab.com/rubdos/whisperfish/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG
   stage: build
+  needs:
+    - docker:builder
   artifacts:
     paths:
       - target/*/release/rpmbuild/RPMS/*/*.rpm
@@ -157,6 +159,8 @@ clippy:
 
 pages:
   dependencies:
+    - build:host:nightly:docs
+  needs:
     - build:host:nightly:docs
   stage: deploy
   only:
