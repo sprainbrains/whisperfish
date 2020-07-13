@@ -116,7 +116,7 @@ build:host:nightly:docs:
   stage: build
   needs: []
   script:
-    - cargo doc --no-deps
+    - cargo doc --no-deps -p harbour-whisperfish -p libsignal-service -p libsignal-protocol
   artifacts:
     paths:
       - target/doc
