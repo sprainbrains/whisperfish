@@ -1399,15 +1399,24 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs#41dd10409408caeee3dde943bd57664afe48a54c"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs#44dda6352aa035e7945ee98c22b89dd69e49532b"
 dependencies = [
+ "aes 0.4.0",
  "async-trait",
+ "base64 0.12.3",
+ "block-modes 0.5.0",
+ "bytes",
  "failure",
+ "futures",
+ "hmac 0.8.1",
+ "http",
  "libsignal-protocol",
+ "log",
+ "pin-project",
  "prost",
  "prost-build",
  "serde",
- "serde_json",
+ "sha2 0.9.1",
  "thiserror",
  "url",
 ]
@@ -1415,16 +1424,23 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs#41dd10409408caeee3dde943bd57664afe48a54c"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs#44dda6352aa035e7945ee98c22b89dd69e49532b"
 dependencies = [
+ "actix",
  "actix-rt",
  "async-trait",
  "awc",
+ "bytes",
  "failure",
+ "futures",
  "libsignal-protocol",
  "libsignal-service",
+ "log",
  "rustls",
+ "serde",
+ "serde_json",
  "thiserror",
+ "url",
 ]
 
 [[package]]
