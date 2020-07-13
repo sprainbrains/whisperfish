@@ -70,7 +70,6 @@ build:i486:
 .rust: &rust
   cache: &rust-cache
     paths:
-      - cargo/
       - target/
       - $CARGO_HOME/bin/
       - $CARGO_HOME/registry/index/
