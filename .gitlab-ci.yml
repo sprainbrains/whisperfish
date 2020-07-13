@@ -106,6 +106,7 @@ build:host:stable:
 build:host:nightly:
   <<: *rust-nightly
   stage: build
+  needs: []
   script:
     - cargo build
     - cargo build --release
@@ -113,6 +114,7 @@ build:host:nightly:
 build:host:nightly:docs:
   <<: *rust-nightly
   stage: build
+  needs: []
   script:
     - cargo doc --no-deps
   artifacts:
@@ -122,6 +124,7 @@ build:host:nightly:docs:
 test:stable:
   <<: *rust-stable
   stage: test
+  needs: []
   script:
     - cargo test
     - cargo test --release
@@ -129,6 +132,7 @@ test:stable:
 test:nightly:
   <<: *rust-nightly
   stage: test
+  needs: []
   script:
     - cargo test
     - cargo test --release
@@ -137,6 +141,7 @@ coverage:nightly:
   <<: *rust-nightly
   image: xd009642/tarpaulin:develop-nightly
   stage: test
+  needs: []
   script:
     - export PATH="$CARGO_HOME/bin:$PATH"
     - cargo tarpaulin -v --exclude-files cargo/*
@@ -144,6 +149,7 @@ coverage:nightly:
 clippy:
   <<: *rust-nightly
   stage: test
+  needs: []
   allow_failure: true
   script:
     - rustup component add clippy
