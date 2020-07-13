@@ -11,6 +11,7 @@ use diesel::debug_query;
 
 use failure::*;
 use libsignal_service::models as svcmodels;
+use libsignal_service::{GROUP_UPDATE_FLAG, GROUP_LEAVE_FLAG};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -74,7 +75,7 @@ pub struct Message {
 #[derive(Insertable)]
 #[table_name = "message"]
 pub struct NewMessage {
-    pub session_id: i64,
+    pub session_id: Option<i64>,
     pub source: String,
     pub text: String,
     pub timestamp: i64,
@@ -85,6 +86,45 @@ pub struct NewMessage {
     pub mime_type: Option<String>,
     pub has_attachment: bool,
     pub outgoing: bool,
+}
+
+/// Saves a given attachment into a random-generated path. Returns the path.
+///
+/// This was a Message method in Go
+pub fn save_attachment(dir: &Path, attachment: &svcmodels::Attachment<u8>) -> PathBuf {
+    use uuid::Uuid;
+    use std::fs::File;
+    use std::io::Write;
+
+    let fname = Uuid::new_v4().to_simple();
+    let fname_formatted = format!("{}", fname);
+    let fname_path = Path::new(&fname_formatted);
+
+    // Sailfish and/or Rust needs "image/jpg" and some others need coaching
+    // before taking a wild guess
+    let ext = if attachment.mime_type == String::from("text/plain") {
+        "txt"
+    } else if attachment.mime_type == String::from("image/jpeg") {
+        "jpg"
+    } else if attachment.mime_type == String::from("image/jpg") {
+        "jpg"
+    } else {
+        mime_guess::get_mime_extensions_str(attachment.mime_type.as_str())
+            .expect("Could not find mime")
+            .first()
+            .unwrap()
+    };
+
+    let mut path = dir.to_path_buf();
+    path.push(fname_path);
+    path.set_extension(ext);
+
+    let mut file = File::create(&path).expect("Could not create file");
+    let content = vec![attachment.reader];
+
+    file.write_all(&content).expect("Could not write to file");
+
+    return path;
 }
 
 /// Location of the storage.
@@ -309,6 +349,64 @@ impl Storage {
         Ok(password)
     }
 
+    /// Process incoming message from Signal
+    ///
+    /// This was a part of the client worker in Go
+    pub fn message_handler(&self, msg: svcmodels::Message, is_sync_sent: bool, timestamp: i64) {
+        let settings = crate::settings::Settings::default();
+
+        let mut new_message = NewMessage {
+            source: msg.source,
+            text: msg.message,
+            flags: msg.flags,
+            outgoing: is_sync_sent,
+            sent: is_sync_sent,
+            timestamp: if is_sync_sent && timestamp > 0 {
+                timestamp
+            } else {
+                msg.timestamp
+            },
+            has_attachment: msg.attachments.len() > 0,
+            mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
+            received: false,    // This is set true by a receipt handler
+            session_id: None,   // Canary value checked later
+            attachment: None,
+        };
+
+        if settings.get_bool("save_settings") && !settings.get_bool("incognito") {
+            for attachment in msg.attachments {
+                // Go used to always set has_attachment and mime_type, but also
+                // in this method, as well as the generated path.
+                // We have this function that returns a filesystem path, so we can
+                // set it ourselves.
+                let dir = settings.get_string("attachment_dir");
+                let dest = Path::new(&dir);
+
+                let attachment_path = save_attachment(&dest, &attachment);
+                new_message.attachment = Some(String::from(attachment_path.to_str().unwrap()));
+            }
+        }
+
+        let group = if let Some(group) = msg.group.as_ref() {
+            if group.flags == GROUP_UPDATE_FLAG {
+                new_message.text = String::from("Member joined group");
+            } else if group.flags == GROUP_LEAVE_FLAG {
+                new_message.text = String::from("Member left group");
+            }
+
+            msg.group
+        } else {
+            None
+        };
+
+        let is_unread = !new_message.sent.clone();
+        self.process_message(new_message, &group, is_unread)
+
+        // TODO: This is Go code that emits signals in the client worker; do it here too
+        // c.MessageReceived(sess.ID, message.ID)
+        // c.NotifyMessage(sess.ID, sess.Source, sess.Message, sess.IsGroup)
+    }
+
     /// Process message and store in database and update or create a session
     pub fn process_message(&self, mut new_message: NewMessage, group: &Option<svcmodels::Group>, is_unread: bool) {
         let db_session_res = if group.is_none() {
@@ -341,15 +439,17 @@ impl Storage {
         };
 
         let db_session: Session = if db_session_res.is_some() {
-            let db_session = db_session_res.unwrap();
-            self.update_session(&db_session, &session_data, is_unread);
-            db_session
+            let db_sess = db_session_res.unwrap();
+            self.update_session(&db_sess, &session_data, is_unread);
+            db_sess
         } else {
             self.create_session(&session_data)
                 .expect("Unable to create session yet create_session() did not panic")
         };
 
-        new_message.session_id = db_session.id;
+        // XXX: Double-checking `is_none()` for this is considered reachable code,
+        // yet the type system should make it obvious it can never be `None`.
+        new_message.session_id = Some(db_session.id);
 
         // With the prepared new_message in hand, see if it's an update or a new one
         let update_msg_res = self.update_message_if_needed(&new_message);
@@ -469,7 +569,7 @@ impl Storage {
         let db = self.db.lock();
         let conn = db.unwrap();
 
-        log::trace!("Called update_message_if_needed({})", new_message.session_id);
+        log::trace!("Called update_message_if_needed({})", new_message.session_id.unwrap());
 
         let mut msg: Message = message::table.left_join(sentq::table)
                                              .select((message::columns::id, message::columns::session_id, message::columns::source,
@@ -477,7 +577,7 @@ impl Storage {
                                                       message::columns::received, message::columns::flags, message::columns::attachment,
                                                       message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
                                              sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
-                                             .filter(message::columns::session_id.eq(new_message.session_id))
+                                             .filter(message::columns::session_id.eq(new_message.session_id.unwrap()))
                                              .filter(message::columns::timestamp.eq(new_message.timestamp))
                                              .filter(message::columns::text.eq(&new_message.text))
                                              .order_by(message::columns::id.desc())
@@ -634,6 +734,7 @@ impl Storage {
 
 #[cfg(test)]
 mod tests {
+    use rstest::rstest;
     use super::*;
 
     #[test]
@@ -641,5 +742,39 @@ mod tests {
         let _storage = Storage::open(&memory())?;
 
         Ok(())
+    }
+
+    #[rstest(mime_type, ext,
+             case("video/mp4", "mp4"),
+             case("image/jpg", "jpg"),
+             case("image/jpeg", "jpg"),
+             case("image/png", "png"),
+             case("text/plain", "txt")
+             )]
+    fn test_save_attachment(mime_type: &str, ext: &str) {
+        use std::env;
+        use std::fs;
+        use std::path::Path;
+
+        let dirname = env::temp_dir().to_str()
+                                     .expect("Temp dir fail")
+                                     .to_string();
+        let dir = Path::new(&dirname);
+        let attachment = svcmodels::Attachment::<u8> {
+            reader: 0u8,
+            mime_type: String::from(mime_type),
+        };
+
+        let fname = save_attachment(&dir, &attachment);
+
+        let exists = Path::new(&fname).exists();
+
+        println!("Looking for {}", fname.to_str().unwrap());
+        assert!(exists);
+
+        assert_eq!(fname.extension().unwrap(), ext,
+                   "{}", format!("{} <> {}", fname.to_str().unwrap(), ext));
+
+        fs::remove_file(fname).expect("Could not remove test case file");
     }
 }
