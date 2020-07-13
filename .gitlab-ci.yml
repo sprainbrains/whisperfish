@@ -99,6 +99,7 @@ build:i486:
 build:host:stable:
   <<: *rust-stable
   stage: build
+  needs: []
   script:
     - cargo build
     - cargo build --release
