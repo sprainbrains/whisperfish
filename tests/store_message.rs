@@ -396,8 +396,8 @@ fn test_message_handler_without_group(in_memory_db: Storage) {
         message: String::from("sup"),
         attachments: Vec::new(),
         group: None,
-        timestamp: 0,
-        flags: 0,
+        timestamp: 0u64,
+        flags: 0u32,
     };
 
     in_memory_db.message_handler(msg, false, 0);
@@ -442,8 +442,8 @@ fn test_message_handler_leave_group(in_memory_db: Storage) {
         message: String::from("Spurdoliina went away or something"),
         attachments: Vec::new(),
         group: Some(group),
-        timestamp: 0,
-        flags: 0,
+        timestamp: 0u64,
+        flags: 0u32,
     };
 
     in_memory_db.message_handler(msg, false, 0);
@@ -488,8 +488,8 @@ fn test_message_handler_join_group(in_memory_db: Storage) {
         message: String::from("Spurdoliina came back or something"),
         attachments: Vec::new(),
         group: Some(group),
-        timestamp: 0,
-        flags: 0,
+        timestamp: 0u64,
+        flags: 0u32,
     };
 
     in_memory_db.message_handler(msg, false, 0);
@@ -540,8 +540,8 @@ fn test_message_handler_group_attachment_no_save(in_memory_db: Storage) {
         message: String::from("KIKKI HIIREN KUVA:DDD"),
         attachments: vec![attachment],
         group: Some(group),
-        timestamp: 0,
-        flags: 0,
+        timestamp: 0u64,
+        flags: 0u32,
     };
 
     in_memory_db.message_handler(msg, false, 0);

@@ -352,20 +352,20 @@ impl Storage {
     /// Process incoming message from Signal
     ///
     /// This was a part of the client worker in Go
-    pub fn message_handler(&self, msg: svcmodels::Message, is_sync_sent: bool, timestamp: i64) {
+    pub fn message_handler(&self, msg: svcmodels::Message, is_sync_sent: bool, timestamp: u64) {
         let settings = crate::settings::Settings::default();
 
         let mut new_message = NewMessage {
             source: msg.source,
             text: msg.message,
-            flags: msg.flags,
+            flags: msg.flags as i32,
             outgoing: is_sync_sent,
             sent: is_sync_sent,
             timestamp: if is_sync_sent && timestamp > 0 {
                 timestamp
             } else {
                 msg.timestamp
-            },
+            } as i64,
             has_attachment: msg.attachments.len() > 0,
             mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
             received: false,    // This is set true by a receipt handler
