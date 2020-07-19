@@ -241,6 +241,53 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
     })
 }
 
+async fn load_file(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+    let contents = actix_threadpool::run(move || {
+        use std::io::Read;
+
+        // XXX This is *full* of bad practices.
+        // Let's try to migrate to nacl or something alike in the future.
+
+        let mut f = std::fs::File::open(&path)?;
+        let mut contents = Vec::new();
+        let count = f.read_to_end(&mut contents)?;
+
+        log::trace!("Read {:?}, {} bytes", path, count);
+        ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
+
+        let (iv, contents) = contents.split_at_mut(16);
+        let count = count - 16;
+        let (contents, mac) = contents.split_at_mut(count - 32);
+
+        {
+            use hmac::{Hmac, Mac, NewMac};
+            use sha2::Sha256;
+            // Verify HMAC SHA256, 32 last bytes
+            let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
+                .map_err(|_| format_err!("MAC keylength error"))?;
+            verifier.update(&iv);
+            verifier.update(contents);
+            verifier
+                .verify(&mac)
+                .map_err(|_| format_err!("MAC error"))?;
+        }
+
+        use aes::Aes128;
+        use block_modes::block_padding::Pkcs7;
+        use block_modes::{BlockMode, Cbc};
+        // Decrypt password
+        let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
+            .map_err(|_| format_err!("CBC initialization error"))?;
+        Ok(cipher
+            .decrypt(contents)
+            .map_err(|_| format_err!("AES CBC decryption error"))?
+            .to_owned())
+    })
+    .await?;
+
+    Ok(contents)
+}
+
 impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
@@ -324,51 +371,7 @@ impl Storage {
 
     async fn load_file<'s>(&'s self, path: PathBuf) -> Result<Vec<u8>, Error> {
         // XXX: unencrypted storage.
-        let keys = self.keys.unwrap();
-        let contents = actix_threadpool::run(move || {
-            use std::io::Read;
-
-            // XXX This is *full* of bad practices.
-            // Let's try to migrate to nacl or something alike in the future.
-
-            let mut f = std::fs::File::open(&path)?;
-            let mut contents = Vec::new();
-            let count = f.read_to_end(&mut contents)?;
-
-            log::trace!("Read {:?}, {} bytes", path, count);
-            ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
-
-            let (iv, contents) = contents.split_at_mut(16);
-            let count = count - 16;
-            let (contents, mac) = contents.split_at_mut(count - 32);
-
-            {
-                use hmac::{Hmac, Mac, NewMac};
-                use sha2::Sha256;
-                // Verify HMAC SHA256, 32 last bytes
-                let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
-                    .map_err(|_| format_err!("MAC keylength error"))?;
-                verifier.update(&iv);
-                verifier.update(contents);
-                verifier
-                    .verify(&mac)
-                    .map_err(|_| format_err!("MAC error"))?;
-            }
-
-            use aes::Aes128;
-            use block_modes::block_padding::Pkcs7;
-            use block_modes::{BlockMode, Cbc};
-            // Decrypt password
-            let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
-                .map_err(|_| format_err!("CBC initialization error"))?;
-            Ok(cipher
-                .decrypt(contents)
-                .map_err(|_| format_err!("AES CBC decryption error"))?
-                .to_owned())
-        })
-        .await?;
-
-        Ok(contents)
+        load_file(self.keys.unwrap(), path).await
     }
 
     /// Process incoming message from Signal
