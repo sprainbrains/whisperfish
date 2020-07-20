@@ -13,6 +13,9 @@ use failure::*;
 use libsignal_service::models as svcmodels;
 use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
 
+mod protocol_store;
+use protocol_store::ProtocolStore;
+
 /// Session as it relates to the schema
 #[derive(Queryable)]
 pub struct Session {
@@ -192,6 +195,7 @@ pub struct Storage {
     pub db: Arc<Mutex<SqliteConnection>>,
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
+    protocol_store: Arc<Mutex<ProtocolStore>>,
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
@@ -241,49 +245,58 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
     })
 }
 
+fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+    drop(keys);
+    drop(path);
+    drop(contents);
+    unimplemented!("write file")
+}
+
+fn load_file_sync(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+    use std::io::Read;
+
+    // XXX This is *full* of bad practices.
+    // Let's try to migrate to nacl or something alike in the future.
+
+    log::trace!("Opening file {:?}", path);
+    let mut f = std::fs::File::open(&path)?;
+    let mut contents = Vec::new();
+    let count = f.read_to_end(&mut contents)?;
+
+    log::trace!("Read {:?}, {} bytes", path, count);
+    ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
+
+    let (iv, contents) = contents.split_at_mut(16);
+    let count = count - 16;
+    let (contents, mac) = contents.split_at_mut(count - 32);
+
+    {
+        use hmac::{Hmac, Mac, NewMac};
+        use sha2::Sha256;
+        // Verify HMAC SHA256, 32 last bytes
+        let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
+            .map_err(|_| format_err!("MAC keylength error"))?;
+        verifier.update(&iv);
+        verifier.update(contents);
+        verifier
+            .verify(&mac)
+            .map_err(|_| format_err!("MAC error"))?;
+    }
+
+    use aes::Aes128;
+    use block_modes::block_padding::Pkcs7;
+    use block_modes::{BlockMode, Cbc};
+    // Decrypt password
+    let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
+        .map_err(|_| format_err!("CBC initialization error"))?;
+    Ok(cipher
+        .decrypt(contents)
+        .map_err(|_| format_err!("AES CBC decryption error"))?
+        .to_owned())
+}
+
 async fn load_file(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
-    let contents = actix_threadpool::run(move || {
-        use std::io::Read;
-
-        // XXX This is *full* of bad practices.
-        // Let's try to migrate to nacl or something alike in the future.
-
-        let mut f = std::fs::File::open(&path)?;
-        let mut contents = Vec::new();
-        let count = f.read_to_end(&mut contents)?;
-
-        log::trace!("Read {:?}, {} bytes", path, count);
-        ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
-
-        let (iv, contents) = contents.split_at_mut(16);
-        let count = count - 16;
-        let (contents, mac) = contents.split_at_mut(count - 32);
-
-        {
-            use hmac::{Hmac, Mac, NewMac};
-            use sha2::Sha256;
-            // Verify HMAC SHA256, 32 last bytes
-            let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
-                .map_err(|_| format_err!("MAC keylength error"))?;
-            verifier.update(&iv);
-            verifier.update(contents);
-            verifier
-                .verify(&mac)
-                .map_err(|_| format_err!("MAC error"))?;
-        }
-
-        use aes::Aes128;
-        use block_modes::block_padding::Pkcs7;
-        use block_modes::{BlockMode, Cbc};
-        // Decrypt password
-        let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
-            .map_err(|_| format_err!("CBC initialization error"))?;
-        Ok(cipher
-            .decrypt(contents)
-            .map_err(|_| format_err!("AES CBC decryption error"))?
-            .to_owned())
-    })
-    .await?;
+    let contents = actix_threadpool::run(move || load_file_sync(keys, path)).await?;
 
     Ok(contents)
 }
@@ -292,9 +305,11 @@ impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
 
+        #[allow(unreachable_code)]
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
             keys: None,
+            protocol_store: unimplemented!(),
         })
     }
 
@@ -332,9 +347,15 @@ impl Storage {
         // 2. decrypt storage
         let keys = Some(storage_key.await?);
 
+        // 3. decrypt protocol store
+        let protocol_store =
+            ProtocolStore::open_with_key(keys.unwrap(), &crate::store::default_location().unwrap())
+                .await?;
+
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
             keys,
+            protocol_store: Arc::new(Mutex::new(protocol_store)),
         })
     }
 

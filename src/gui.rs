@@ -80,7 +80,7 @@ pub async fn run() -> Result<(), failure::Error> {
 
     let message_actor = actor::MessageActor::new(&mut app).start();
     let session_actor = model::SessionActor::new(&mut app).start();
-    let client_actor = worker::ClientActor::new(&mut app).start();
+    let client_actor = worker::ClientActor::new(&mut app)?.start();
 
     let whisperfish = Rc::new(WhisperfishApp {
         session_actor,

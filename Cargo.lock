@@ -1161,6 +1161,8 @@ dependencies = [
  "pbkdf2",
  "phonenumber",
  "pin-utils",
+ "prost",
+ "prost-build",
  "qmetaobject",
  "regex",
  "rstest",

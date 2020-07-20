@@ -5,6 +5,7 @@ use crate::gui::StorageReady;
 use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
+use libsignal_protocol::Context;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
@@ -31,19 +32,23 @@ pub struct ClientActor {
     service: Option<AwcPushService>,
     storage: Option<Storage>,
     cipher: Option<ServiceCipher>,
+    context: Context,
 }
 
 impl ClientActor {
-    pub fn new(app: &mut SailfishApp) -> Self {
+    pub fn new(app: &mut SailfishApp) -> Result<Self, failure::Error> {
         let inner = QObjectBox::new(ClientWorker::default());
         app.set_object_property("ClientWorker".into(), inner.pinned());
 
-        Self {
+        let crypto = libsignal_protocol::crypto::DefaultCrypto::default();
+
+        Ok(Self {
             inner,
             service: None,
             storage: None,
             cipher: None,
-        }
+            context: Context::new(crypto)?,
+        })
     }
 }
 
@@ -71,8 +76,12 @@ impl Handler<StorageReady> for ClientActor {
             cdn_urls: vec![],
             contact_discovery_url: vec![],
         };
+
+        let context = self.context.clone();
+
         Box::pin(
             async move {
+                // Web socket
                 let phonenumber = phonenumber::parse(None, config.tel).unwrap();
                 let e164 = phonenumber
                     .format()
@@ -83,7 +92,7 @@ impl Handler<StorageReady> for ClientActor {
                 let signaling_key = storage.signaling_key().await.unwrap();
                 let credentials = Credentials {
                     uuid: None,
-                    e164,
+                    e164: e164.clone(),
                     password,
                     signaling_key,
                 };
@@ -94,11 +103,32 @@ impl Handler<StorageReady> for ClientActor {
 
                 let pipe = receiver.create_message_pipe(credentials).await.unwrap();
                 let stream = pipe.stream();
-                (service, stream)
+                // end web socket
+
+                // Signal service context
+                let store_context = libsignal_protocol::store_context(
+                    &context,
+                    // Storage is a pointer-to-shared-storage
+                    storage.clone(),
+                    storage.clone(),
+                    storage.clone(),
+                    storage.clone(),
+                )
+                .expect("initialized storage");
+                let local_addr = ServiceAddress {
+                    uuid: None,
+                    e164,
+                    relay: None,
+                };
+                let cipher = ServiceCipher::from_context(context, local_addr, store_context);
+                // end signal service context
+
+                (cipher, service, stream)
             }
             .into_actor(self)
-            .map(|(service, pipe), act, ctx| {
+            .map(move |(cipher, service, pipe), act, ctx| {
                 act.service = Some(service);
+                act.cipher = Some(cipher);
                 ctx.add_stream(pipe);
             }),
         )
@@ -106,12 +136,13 @@ impl Handler<StorageReady> for ClientActor {
 }
 
 impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
-    fn handle(&mut self, msg: Result<Envelope, ServiceError>, _ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: Result<Envelope, ServiceError>, ctx: &mut Self::Context) {
         let msg = match msg {
             Ok(msg) => msg,
             Err(e) => {
                 // XXX: we might want to dispatch on this error.
                 log::error!("MessagePipe pushed an error: {:?}", e);
+                ctx.stop();
                 return;
             }
         };
@@ -121,6 +152,8 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
         let _storage = self.storage.as_mut().expect("storage initialized");
         let cipher = self.cipher.as_mut().expect("cipher initialized");
 
-        let content = cipher.open_envelope(msg);
+        log::trace!("Opening envelope");
+        let content = cipher.open_envelope(msg).expect("Content");
+        log::trace!("Opened envelope {:?}", content);
     }
 }
