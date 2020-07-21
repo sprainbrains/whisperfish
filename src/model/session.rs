@@ -16,12 +16,38 @@ pub struct SessionModel {
 
     content: Vec<Session>,
 
+    count: qt_method!(fn(&self) -> i32),
+    add: qt_method!(fn(&self, id: i64, mark_read: bool)),
+    remove: qt_method!(fn(&self, idx: usize)),
+    removeById: qt_method!(fn(&self, id: i64)),
+    reload: qt_method!(fn(&self)),
+
     markRead: qt_method!(fn(&self, id: usize)),
     markReceived: qt_method!(fn(&self, id: usize)),
     markSent: qt_method!(fn(&self, id: usize, message: QString)),
 }
 
 impl SessionModel {
+    fn count(&self) -> i32 {
+        unimplemented!();
+    }
+
+    fn add(&self, id: i64, mark_read: bool) {
+        unimplemented!();
+    }
+
+    fn remove(&self, idx: usize) {
+        unimplemented!();
+    }
+
+    fn removeById(&self, id: i64) {
+        unimplemented!();
+    }
+
+    fn reload(&self) {
+        unimplemented!();
+    }
+
     fn markRead(&self, _id: usize) {
         log::trace!("STUB: Mark read called");
         // XXX: don't forget sync messages
