@@ -46,13 +46,43 @@ impl Storage {
             // addr_str
         };
 
+        Some(self.path.join("storage").join("sessions").join(format!(
+            "{}_{}",
+            recipient_id,
+            addr.device_id()
+        )))
+    }
+
+    fn identity_path(&self, addr: &Address) -> Option<PathBuf> {
+        let addr_str = addr.as_str().unwrap();
+        let recipient_id = if addr_str.starts_with('+') {
+            // strip the prefix + from e164, as is done in Go (cfr. the `func recID`).
+            &addr_str[1..]
+        } else {
+            return None;
+            // addr_str
+        };
+
         Some(
-            crate::store::default_location()
-                .unwrap()
+            self.path
                 .join("storage")
-                .join("sessions")
-                .join(format!("{}_{}", recipient_id, addr.device_id())),
+                .join("identity")
+                .join(format!("remote_{}", recipient_id,)),
         )
+    }
+
+    fn prekey_path(&self, id: u32) -> PathBuf {
+        self.path
+            .join("storage")
+            .join("prekeys")
+            .join(format!("{:09}", id))
+    }
+
+    fn signed_prekey_path(&self, id: u32) -> PathBuf {
+        self.path
+            .join("storage")
+            .join("signed_prekeys")
+            .join(format!("{:09}", id))
     }
 }
 
@@ -61,34 +91,71 @@ impl IdentityKeyStore for Storage {
         log::trace!("identity_key_pair");
         let protocol_store = self.protocol_store.lock().expect("mutex");
         // (public, private)
-        Ok((
-            Buffer::from(&protocol_store.identity_key[..32]),
-            Buffer::from(&protocol_store.identity_key[32..]),
-        ))
+        let mut public = Buffer::new();
+        public.append(&[quirk::DJB_TYPE]);
+        public.append(&protocol_store.identity_key[..32]);
+        Ok((public, Buffer::from(&protocol_store.identity_key[32..])))
     }
+
     fn local_registration_id(&self) -> Result<u32, InternalError> {
         Ok(self.protocol_store.lock().expect("mutex").regid)
     }
-    fn is_trusted_identity(&self, _: Address, _: &[u8]) -> Result<bool, InternalError> {
-        todo!("is_trusted_identity")
+
+    fn is_trusted_identity(&self, addr: Address, key: &[u8]) -> Result<bool, InternalError> {
+        if let Some(path) = self.identity_path(&addr) {
+            if !path.is_file() {
+                // TOFU
+                Ok(true)
+            } else {
+                // check contents with key
+                let contents = load_file_sync(self.keys.unwrap(), path).expect("identity");
+                Ok(contents == key)
+            }
+        } else {
+            log::warn!("Trying trusted identity with uuid, currently unsupported.");
+            Err(InternalError::InvalidArgument)
+        }
     }
-    fn save_identity(&self, _: Address, _: &[u8]) -> Result<(), InternalError> {
-        todo!("save_identity")
+
+    fn save_identity(&self, addr: Address, key: &[u8]) -> Result<(), InternalError> {
+        if let Some(path) = self.identity_path(&addr) {
+            write_file_sync(self.keys.unwrap(), path, key).expect("save identity key");
+            Ok(())
+        } else {
+            log::warn!("Trying to save trusted identity with uuid, currently unsupported.");
+            Err(InternalError::InvalidArgument)
+        }
     }
 }
 
 impl PreKeyStore for Storage {
-    fn load(&self, _: u32, _: &mut dyn Write) -> Result<(), io::Error> {
-        todo!("load")
+    fn load(&self, id: u32, writer: &mut dyn Write) -> Result<(), io::Error> {
+        log::trace!("Loading prekey {}", id);
+        let path = self.prekey_path(id);
+        let contents = load_file_sync(self.keys.unwrap(), path).unwrap();
+        let contents = quirk::pre_key_from_0_5(&contents).unwrap();
+        writer.write(&contents)?;
+        Ok(())
     }
-    fn store(&self, _: u32, _: &[u8]) -> Result<(), InternalError> {
-        todo!("store")
+
+    fn store(&self, id: u32, body: &[u8]) -> Result<(), InternalError> {
+        log::trace!("Storing prekey {}", id);
+        let path = self.prekey_path(id);
+        let contents = quirk::pre_key_to_0_5(body).unwrap();
+        write_file_sync(self.keys.unwrap(), path, &contents).expect("written file");
+        Ok(())
     }
-    fn contains(&self, _: u32) -> bool {
-        todo!("contains")
+
+    fn contains(&self, id: u32) -> bool {
+        log::trace!("Checking for prekey {}", id);
+        self.prekey_path(id).is_file()
     }
-    fn remove(&self, _: u32) -> Result<(), InternalError> {
-        todo!("remove")
+
+    fn remove(&self, id: u32) -> Result<(), InternalError> {
+        log::trace!("Removing prekey {}", id);
+        let path = self.prekey_path(id);
+        std::fs::remove_file(path).unwrap();
+        Ok(())
     }
 }
 
@@ -102,10 +169,14 @@ impl SessionStore for Storage {
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
 
-        let buf = load_file_sync(self.keys.unwrap(), path).expect("readable file");
+        let buf = if let Ok(buf) = load_file_sync(self.keys.unwrap(), path) {
+            buf
+        } else {
+            return Ok(None);
+        };
 
         Ok(Some(SerializedSession {
-            session: Buffer::from(&quirk::from_0_5(&buf)? as &[u8]),
+            session: Buffer::from(&quirk::session_from_0_5(&buf)? as &[u8]),
             extra_data: None,
         }))
     }
@@ -169,14 +240,15 @@ impl SessionStore for Storage {
 
         log::trace!("Storing session for {:?} at {:?}", addr, path);
 
-        let quirked = quirk::to_0_5(&session.session.as_slice())?;
+        let quirked = quirk::session_to_0_5(&session.session.as_slice())?;
         write_file_sync(self.keys.unwrap(), path, &quirked).unwrap();
         Ok(())
     }
 
     fn delete_session(&self, addr: Address) -> Result<(), InternalError> {
-        let _path = self.session_path(&addr);
-        todo!("delete_session")
+        let path = self.session_path(&addr).expect("path for session deletion");
+        std::fs::remove_file(path).unwrap();
+        Ok(())
     }
 
     fn delete_all_sessions(&self, _: &[u8]) -> Result<usize, InternalError> {
@@ -185,16 +257,34 @@ impl SessionStore for Storage {
 }
 
 impl SignedPreKeyStore for Storage {
-    fn load(&self, _: u32, _: &mut dyn Write) -> Result<(), io::Error> {
-        todo!("load")
+    fn load(&self, id: u32, writer: &mut dyn Write) -> Result<(), io::Error> {
+        log::trace!("Loading signed prekey {}", id);
+        let path = self.signed_prekey_path(id);
+
+        let contents = load_file_sync(self.keys.unwrap(), path).unwrap();
+        let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
+
+        writer.write(&contents)?;
+        Ok(())
     }
-    fn store(&self, _: u32, _: &[u8]) -> Result<(), InternalError> {
-        todo!("store")
+
+    fn store(&self, id: u32, body: &[u8]) -> Result<(), InternalError> {
+        log::trace!("Storing prekey {}", id);
+        let path = self.prekey_path(id);
+        let contents = quirk::signed_pre_key_to_0_5(body).unwrap();
+        write_file_sync(self.keys.unwrap(), path, &contents).expect("written file");
+        Ok(())
     }
-    fn contains(&self, _: u32) -> bool {
-        todo!("contains")
+
+    fn contains(&self, id: u32) -> bool {
+        log::trace!("Checking for signed prekey {}", id);
+        self.signed_prekey_path(id).is_file()
     }
-    fn remove(&self, _: u32) -> Result<(), InternalError> {
-        todo!("remove")
+
+    fn remove(&self, id: u32) -> Result<(), InternalError> {
+        log::trace!("Removing signed prekey {}", id);
+        let path = self.signed_prekey_path(id);
+        std::fs::remove_file(path).unwrap();
+        Ok(())
     }
 }
