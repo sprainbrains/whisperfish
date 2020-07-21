@@ -153,6 +153,12 @@ pub fn memory() -> StorageLocation<PathBuf> {
     StorageLocation::Memory
 }
 
+#[cfg_attr(not(test), allow(unused))]
+#[cfg(unix)]
+pub fn temp() -> StorageLocation<tempdir::TempDir> {
+    StorageLocation::Path(tempdir::TempDir::new("harbour-whisperfish-temp").unwrap())
+}
+
 pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
     let data_dir = dirs::data_local_dir().ok_or(format_err!("Could not find data directory."))?;
 
@@ -161,12 +167,12 @@ pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
     ))
 }
 
-impl std::ops::Deref for StorageLocation<PathBuf> {
+impl<P: AsRef<Path>> std::ops::Deref for StorageLocation<P> {
     type Target = Path;
     fn deref(&self) -> &Path {
         match self {
             StorageLocation::Memory => unimplemented!(":memory: deref"),
-            StorageLocation::Path(p) => p,
+            StorageLocation::Path(p) => p.as_ref(),
         }
     }
 }
@@ -196,6 +202,7 @@ pub struct Storage {
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
     protocol_store: Arc<Mutex<ProtocolStore>>,
+    path: PathBuf,
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
@@ -310,6 +317,7 @@ impl Storage {
             db: Arc::new(Mutex::new(db)),
             keys: None,
             protocol_store: unimplemented!(),
+            path: db_path.to_path_buf(),
         })
     }
 
@@ -317,14 +325,9 @@ impl Storage {
         db_path: &StorageLocation<T>,
         password: String,
     ) -> Result<Storage, Error> {
-        let db_salt_path = crate::store::default_location()
-            .unwrap()
-            .join("db")
-            .join("salt");
-        let storage_salt_path = crate::store::default_location()
-            .unwrap()
-            .join("storage")
-            .join("salt");
+        let path: &Path = std::ops::Deref::deref(db_path);
+        let db_salt_path = path.join("db").join("salt");
+        let storage_salt_path = path.join("storage").join("salt");
         // XXX: The storage_key could already be polled while we're querying the database,
         // but we don't want to wait for it either.
         let db_key = derive_db_key(password.clone(), db_salt_path);
@@ -356,6 +359,7 @@ impl Storage {
             db: Arc::new(Mutex::new(db)),
             keys,
             protocol_store: Arc::new(Mutex::new(protocol_store)),
+            path: path.to_path_buf(),
         })
     }
 
