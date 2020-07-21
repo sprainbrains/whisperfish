@@ -479,7 +479,7 @@ impl Storage {
         };
 
         let is_unread = !new_message.sent.clone();
-        self.process_message(new_message, &group, is_unread)
+        self.process_message(new_message, &group, is_unread);
 
         // TODO: This is Go code that emits signals in the client worker; do it here too
         // c.MessageReceived(sess.ID, message.ID)
@@ -492,7 +492,7 @@ impl Storage {
         mut new_message: NewMessage,
         group: &Option<svcmodels::Group>,
         is_unread: bool,
-    ) {
+    ) -> (Message, Session) {
         let db_session_res = if group.is_none() {
             self.fetch_session_by_source(&new_message.source)
         } else {
@@ -538,9 +538,13 @@ impl Storage {
         // With the prepared new_message in hand, see if it's an update or a new one
         let update_msg_res = self.update_message_if_needed(&new_message);
 
-        if update_msg_res.is_none() {
-            self.create_message(&new_message);
+        let message = if let Some(update_message) = update_msg_res {
+            update_message
+        } else {
+            self.create_message(&new_message)
         };
+
+        (message, db_session)
     }
 
     /// Create a new session. This was transparent within SaveSession in Go.

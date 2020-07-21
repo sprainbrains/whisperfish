@@ -6,6 +6,7 @@ use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
 use libsignal_protocol::Context;
+use libsignal_service::content::ContentBody;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
@@ -16,9 +17,9 @@ const ROOT_CA: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "roo
 #[allow(non_snake_case)]
 pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
-    messageReceived: qt_signal!(),
+    messageReceived: qt_signal!(sid: i64, mid: i32),
     messageReceipt: qt_signal!(),
-    notifyMessage: qt_signal!(),
+    notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, is_group: bool),
     promptResetPeerIdentity: qt_signal!(),
 
     actor: Option<Addr<ClientActor>>,
@@ -136,24 +137,116 @@ impl Handler<StorageReady> for ClientActor {
 }
 
 impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
-    fn handle(&mut self, msg: Result<Envelope, ServiceError>, ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: Result<Envelope, ServiceError>, _ctx: &mut Self::Context) {
         let msg = match msg {
             Ok(msg) => msg,
             Err(e) => {
                 // XXX: we might want to dispatch on this error.
                 log::error!("MessagePipe pushed an error: {:?}", e);
-                ctx.stop();
                 return;
             }
         };
 
         // XXX: figure out edge cases in which these are *not* initialized.
         let _service = self.service.as_mut().expect("service running");
-        let _storage = self.storage.as_mut().expect("storage initialized");
+        let storage = self.storage.as_mut().expect("storage initialized");
         let cipher = self.cipher.as_mut().expect("cipher initialized");
 
-        log::trace!("Opening envelope");
-        let content = cipher.open_envelope(msg).expect("Content");
-        log::trace!("Opened envelope {:?}", content);
+        let Content { body, metadata } = match cipher.open_envelope(msg) {
+            Ok(Some(content)) => content,
+            Ok(None) => {
+                log::info!("Empty envelope");
+                return;
+            }
+            Err(e) => {
+                log::error!("Error opening envelope: {:?}", e);
+                return;
+            }
+        };
+
+        log::trace!(
+            "Opened envelope Content {{ body: {:?}, metadata: {:?} }}",
+            body,
+            metadata
+        );
+
+        let notify = match body {
+            ContentBody::DataMessage(message) => {
+                let msg = crate::store::NewMessage {
+                    session_id: None,
+                    source: metadata.sender.e164.clone(),
+                    text: message.body().to_string(),
+                    timestamp: metadata.timestamp as i64,
+                    sent: false,
+                    received: false,
+                    flags: message.flags() as i32,
+                    attachment: None, // FIXME
+                    mime_type: None,  // FIXME
+                    has_attachment: false,
+                    outgoing: false,
+                };
+                Some(storage.process_message(msg, &None, true))
+            }
+            ContentBody::SynchronizeMessage(message) => {
+                if let Some(sent) = message.sent {
+                    log::trace!("Sync sent message");
+                    // These are messages sent through a paired device.
+
+                    let message = sent.message.expect("sync sent with message");
+                    let msg = crate::store::NewMessage {
+                        session_id: None,
+                        source: metadata.sender.e164.clone(),
+                        text: message.body().to_string(),
+                        timestamp: metadata.timestamp as i64,
+                        sent: true,
+                        received: false,
+                        flags: message.flags() as i32,
+                        attachment: None, // FIXME
+                        mime_type: None,  // FIXME
+                        has_attachment: false,
+                        outgoing: true,
+                    };
+                    Some(storage.process_message(msg, &None, false))
+                } else if let Some(_request) = message.request {
+                    log::trace!("Sync request message");
+                    None
+                } else if message.read.len() > 0 {
+                    log::trace!("Sync read message");
+                    None
+                } else {
+                    log::warn!("Sync message without known sync type");
+                    None
+                }
+            }
+            ContentBody::TypingMessage(_typing) => {
+                log::info!("{} is typing.", metadata.sender.e164);
+                None
+            }
+            ContentBody::ReceiptMessage(_receipt) => {
+                log::info!("{} received a message.", metadata.sender.e164);
+                None
+            }
+            ContentBody::CallMessage(_call) => {
+                log::info!("{} is calling.", metadata.sender.e164);
+                None
+            }
+        };
+
+        if let Some((message, session)) = notify {
+            self.inner
+                .pinned()
+                .borrow_mut()
+                .messageReceived(session.id, message.id);
+            self.inner.pinned().borrow_mut().notifyMessage(
+                session.id,
+                session
+                    .group_name
+                    .as_deref()
+                    .unwrap_or(&session.source)
+                    .into(),
+                message.message.into(),
+                session.group_id.is_some(),
+            );
+        }
     }
 }
