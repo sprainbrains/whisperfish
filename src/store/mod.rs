@@ -5,13 +5,13 @@ use crate::schema::message;
 use crate::schema::sentq;
 use crate::schema::session;
 
-use diesel::prelude::*;
-use diesel::expression::sql_literal::sql;
 use diesel::debug_query;
+use diesel::expression::sql_literal::sql;
+use diesel::prelude::*;
 
 use failure::*;
 use libsignal_service::models as svcmodels;
-use libsignal_service::{GROUP_UPDATE_FLAG, GROUP_LEAVE_FLAG};
+use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -59,7 +59,7 @@ pub struct Message {
     pub id: i32,
     pub sid: i64,
     pub source: String,
-    pub message: String,  // NOTE: "text" in schema, doesn't apparently matter
+    pub message: String, // NOTE: "text" in schema, doesn't apparently matter
     pub timestamp: i64,
     pub sent: bool,
     pub received: bool,
@@ -92,9 +92,9 @@ pub struct NewMessage {
 ///
 /// This was a Message method in Go
 pub fn save_attachment(dir: &Path, attachment: &svcmodels::Attachment<u8>) -> PathBuf {
-    use uuid::Uuid;
     use std::fs::File;
     use std::io::Write;
+    use uuid::Uuid;
 
     let fname = Uuid::new_v4().to_simple();
     let fname_formatted = format!("{}", fname);
@@ -274,7 +274,10 @@ impl Storage {
 
         // 1. decrypt DB
         let db = db_path.open_db()?;
-        db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key.await?)))?;
+        db.execute(&format!(
+            "PRAGMA key = \"x'{}'\";",
+            hex::encode(db_key.await?)
+        ))?;
         db.execute("PRAGMA cipher_page_size = 4096;")?;
 
         // From the sqlcipher manual:
@@ -391,8 +394,8 @@ impl Storage {
             } as i64,
             has_attachment: msg.attachments.len() > 0,
             mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
-            received: false,    // This is set true by a receipt handler
-            session_id: None,   // Canary value checked later
+            received: false,  // This is set true by a receipt handler
+            session_id: None, // Canary value checked later
             attachment: None,
         };
 
@@ -431,7 +434,12 @@ impl Storage {
     }
 
     /// Process message and store in database and update or create a session
-    pub fn process_message(&self, mut new_message: NewMessage, group: &Option<svcmodels::Group>, is_unread: bool) {
+    pub fn process_message(
+        &self,
+        mut new_message: NewMessage,
+        group: &Option<svcmodels::Group>,
+        is_unread: bool,
+    ) {
         let db_session_res = if group.is_none() {
             self.fetch_session_by_source(&new_message.source)
         } else {
@@ -498,7 +506,7 @@ impl Storage {
         let res = query.execute(&*conn).expect("inserting a session");
 
         // Then see if the session was inserted ok and what it was
-        drop(conn);  // Connection must be dropped because everyone wants a lock here
+        drop(conn); // Connection must be dropped because everyone wants a lock here
         let latest_session_res = self.fetch_latest_session();
 
         if res != 1 || latest_session_res.is_none() {
@@ -509,13 +517,18 @@ impl Storage {
 
         // XXX: This is checking that we got the latest one we expect,
         //      because sqlite sucks and some other thread might have inserted
-        if latest_session.timestamp != new_session.timestamp ||
-            latest_session.source != new_session.source {
-                panic!("Could not match latest session to this one!
+        if latest_session.timestamp != new_session.timestamp
+            || latest_session.source != new_session.source
+        {
+            panic!(
+                "Could not match latest session to this one!
                        latest.source {} == new.source {} | latest.tstamp {} == new.timestamp {}",
-                       latest_session.source, new_session.source,
-                       latest_session.timestamp, new_session.timestamp);
-            }
+                latest_session.source,
+                new_session.source,
+                latest_session.timestamp,
+                new_session.timestamp
+            );
+        }
 
         // Better hope something panicked before now if something went wrong
         Some(latest_session)
@@ -550,9 +563,10 @@ impl Storage {
         let conn = db.unwrap();
 
         log::trace!("Called fetch_latest_session()");
-        session::table.order_by(session::columns::id.desc())
-                      .first(&*conn)
-                      .ok()
+        session::table
+            .order_by(session::columns::id.desc())
+            .first(&*conn)
+            .ok()
     }
 
     pub fn fetch_session(&self, sid: i64) -> Option<Session> {
@@ -560,9 +574,10 @@ impl Storage {
         let conn = db.unwrap();
 
         log::trace!("Called fetch_session({})", sid);
-        session::table.filter(session::columns::id.eq(sid))
-                      .first(&*conn)
-                      .ok()
+        session::table
+            .filter(session::columns::id.eq(sid))
+            .first(&*conn)
+            .ok()
     }
 
     pub fn fetch_session_by_source(&self, source: &str) -> Option<Session> {
@@ -570,9 +585,10 @@ impl Storage {
         let conn = db.unwrap();
 
         log::trace!("Called fetch_session_by_source({})", source);
-        session::table.filter(session::columns::source.eq(source))
-                      .first(&*conn)
-                      .ok()
+        session::table
+            .filter(session::columns::source.eq(source))
+            .first(&*conn)
+            .ok()
     }
 
     pub fn fetch_session_by_group(&self, group_id: &str) -> Option<Session> {
@@ -580,9 +596,10 @@ impl Storage {
         let conn = db.unwrap();
 
         log::trace!("Called fetch_session_by_group({})", group_id);
-        session::table.filter(session::columns::group_id.eq(group_id))
-                      .first(&*conn)
-                      .ok()
+        session::table
+            .filter(session::columns::group_id.eq(group_id))
+            .first(&*conn)
+            .ok()
     }
 
     /// Check if message exists and explicitly update it if required
@@ -592,51 +609,68 @@ impl Storage {
         let db = self.db.lock();
         let conn = db.unwrap();
 
-        log::trace!("Called update_message_if_needed({})", new_message.session_id.unwrap());
+        log::trace!(
+            "Called update_message_if_needed({})",
+            new_message.session_id.unwrap()
+        );
 
-        let mut msg: Message = message::table.left_join(sentq::table)
-                                             .select((message::columns::id, message::columns::session_id, message::columns::source,
-                                                      message::columns::text, message::columns::timestamp, message::columns::sent,
-                                                      message::columns::received, message::columns::flags, message::columns::attachment,
-                                                      message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
-                                             sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
-                                             .filter(message::columns::session_id.eq(new_message.session_id.unwrap()))
-                                             .filter(message::columns::timestamp.eq(new_message.timestamp))
-                                             .filter(message::columns::text.eq(&new_message.text))
-                                             .order_by(message::columns::id.desc())
-                                             .first(&*conn)
-                                             .ok()?;
+        let mut msg: Message = message::table
+            .left_join(sentq::table)
+            .select((
+                message::columns::id,
+                message::columns::session_id,
+                message::columns::source,
+                message::columns::text,
+                message::columns::timestamp,
+                message::columns::sent,
+                message::columns::received,
+                message::columns::flags,
+                message::columns::attachment,
+                message::columns::mime_type,
+                message::columns::has_attachment,
+                message::columns::outgoing,
+                sql::<diesel::sql_types::Bool>(
+                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
+                ),
+            ))
+            .filter(message::columns::session_id.eq(new_message.session_id.unwrap()))
+            .filter(message::columns::timestamp.eq(new_message.timestamp))
+            .filter(message::columns::text.eq(&new_message.text))
+            .order_by(message::columns::id.desc())
+            .first(&*conn)
+            .ok()?;
 
         // Do not update `(session_id, timestamp, message)` because that's considered unique
         // nor `source` which is correlated with `session_id`
-        if msg.sent != new_message.sent ||
-            msg.received != new_message.received ||
-            msg.flags != new_message.flags ||
-            msg.attachment != new_message.attachment ||
-            msg.mimetype != new_message.mime_type ||
-            msg.hasattachment != new_message.has_attachment ||
-            msg.outgoing != new_message.outgoing {
-                let query = diesel::update(message::table.filter(message::id.eq(msg.id))).set((
-                    message::sent.eq(new_message.sent),
-                    message::received.eq(new_message.received),
-                    message::flags.eq(new_message.flags),
-                    message::attachment.eq(&new_message.attachment),
-                    message::mime_type.eq(&new_message.mime_type),
-                    message::has_attachment.eq(new_message.has_attachment),
-                    message::outgoing.eq(new_message.outgoing),
-                ));
+        if msg.sent != new_message.sent
+            || msg.received != new_message.received
+            || msg.flags != new_message.flags
+            || msg.attachment != new_message.attachment
+            || msg.mimetype != new_message.mime_type
+            || msg.hasattachment != new_message.has_attachment
+            || msg.outgoing != new_message.outgoing
+        {
+            let query = diesel::update(message::table.filter(message::id.eq(msg.id))).set((
+                message::sent.eq(new_message.sent),
+                message::received.eq(new_message.received),
+                message::flags.eq(new_message.flags),
+                message::attachment.eq(&new_message.attachment),
+                message::mime_type.eq(&new_message.mime_type),
+                message::has_attachment.eq(new_message.has_attachment),
+                message::outgoing.eq(new_message.outgoing),
+            ));
 
-                query.execute(&*conn).expect("updating message");
+            query.execute(&*conn).expect("updating message");
 
-                // Also update the message we got from the db to match what was updated
-                msg.sent = new_message.sent;
-                msg.received = new_message.received;
-                msg.flags = new_message.flags;
-                msg.attachment = new_message.attachment.clone();
-                msg.mimetype = new_message.mime_type.clone();
-                msg.hasattachment = new_message.has_attachment;
-                msg.outgoing = new_message.outgoing;
-            }
+            // Also update the message we got from the db to match what was updated
+            msg.sent = new_message.sent;
+            msg.received = new_message.received;
+            msg.flags = new_message.flags;
+            msg.attachment = new_message.attachment.clone();
+            msg.mimetype = new_message.mime_type.clone();
+            msg.hasattachment = new_message.has_attachment;
+            msg.outgoing = new_message.outgoing;
+        }
 
         Some(msg)
     }
@@ -655,7 +689,7 @@ impl Storage {
         let res = query.execute(&*conn).expect("inserting a message");
 
         // Then see if the message was inserted ok and what it was
-        drop(conn);  // Connection must be dropped because everyone wants a lock here
+        drop(conn); // Connection must be dropped because everyone wants a lock here
         let latest_message_res = self.fetch_latest_message();
 
         if res != 1 || latest_message_res.is_none() {
@@ -667,14 +701,18 @@ impl Storage {
         // XXX: This is checking that we got the latest one we expect,
         //      because sqlite sucks and some other thread might have inserted
 
-        if latest_message.timestamp != new_message.timestamp ||
-            latest_message.source != new_message.source {
-                panic!("Could not match latest message to this one!
+        if latest_message.timestamp != new_message.timestamp
+            || latest_message.source != new_message.source
+        {
+            panic!(
+                "Could not match latest message to this one!
                        latest.source {} == new.source {} | latest.tstamp {} == new.timestamp {}",
-                       latest_message.source, new_message.source,
-                       latest_message.timestamp, new_message.timestamp);
-            }
-
+                latest_message.source,
+                new_message.source,
+                latest_message.timestamp,
+                new_message.timestamp
+            );
+        }
 
         log::trace!("Inserted message id {}", latest_message.id);
         latest_message
@@ -688,15 +726,28 @@ impl Storage {
         let conn = db.unwrap();
 
         log::trace!("Called fetch_latest_message()");
-        message::table.left_join(sentq::table)
-                      .select((message::columns::id, message::columns::session_id, message::columns::source,
-                               message::columns::text, message::columns::timestamp, message::columns::sent,
-                               message::columns::received, message::columns::flags, message::columns::attachment,
-                               message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
-                      sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
-                      .order_by(message::columns::id.desc())
-                      .first(&*conn)
-                      .ok()
+        message::table
+            .left_join(sentq::table)
+            .select((
+                message::columns::id,
+                message::columns::session_id,
+                message::columns::source,
+                message::columns::text,
+                message::columns::timestamp,
+                message::columns::sent,
+                message::columns::received,
+                message::columns::flags,
+                message::columns::attachment,
+                message::columns::mime_type,
+                message::columns::has_attachment,
+                message::columns::outgoing,
+                sql::<diesel::sql_types::Bool>(
+                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
+                ),
+            ))
+            .order_by(message::columns::id.desc())
+            .first(&*conn)
+            .ok()
     }
 
     pub fn fetch_message(&self, id: i32) -> Option<Message> {
@@ -705,13 +756,26 @@ impl Storage {
 
         // Even a single message needs to know if it's queued to satisfy the `Message` trait
         log::trace!("Called fetch_message({})", id);
-        let query = message::table.left_join(sentq::table)
-                            .select((message::columns::id, message::columns::session_id, message::columns::source,
-                                     message::columns::text, message::columns::timestamp, message::columns::sent,
-                                     message::columns::received, message::columns::flags, message::columns::attachment,
-                                     message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
-                            sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
-                            .filter(message::columns::id.eq(id));
+        let query = message::table
+            .left_join(sentq::table)
+            .select((
+                message::columns::id,
+                message::columns::session_id,
+                message::columns::source,
+                message::columns::text,
+                message::columns::timestamp,
+                message::columns::sent,
+                message::columns::received,
+                message::columns::flags,
+                message::columns::attachment,
+                message::columns::mime_type,
+                message::columns::has_attachment,
+                message::columns::outgoing,
+                sql::<diesel::sql_types::Bool>(
+                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
+                ),
+            ))
+            .filter(message::columns::id.eq(id));
 
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
@@ -724,14 +788,27 @@ impl Storage {
         let conn = db.unwrap();
 
         log::trace!("Called fetch_all_messages({})", sid);
-        let query = message::table.left_join(sentq::table)
-                            .select((message::columns::id, message::columns::session_id, message::columns::source,
-                                     message::columns::text, message::columns::timestamp, message::columns::sent,
-                                     message::columns::received, message::columns::flags, message::columns::attachment,
-                                     message::columns::mime_type, message::columns::has_attachment, message::columns::outgoing,
-                            sql::<diesel::sql_types::Bool>("CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued")))
-                            .filter(message::columns::session_id.eq(sid))
-                            .order_by(message::columns::id.desc());
+        let query = message::table
+            .left_join(sentq::table)
+            .select((
+                message::columns::id,
+                message::columns::session_id,
+                message::columns::source,
+                message::columns::text,
+                message::columns::timestamp,
+                message::columns::sent,
+                message::columns::received,
+                message::columns::flags,
+                message::columns::attachment,
+                message::columns::mime_type,
+                message::columns::has_attachment,
+                message::columns::outgoing,
+                sql::<diesel::sql_types::Bool>(
+                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
+                ),
+            ))
+            .filter(message::columns::session_id.eq(sid))
+            .order_by(message::columns::id.desc());
 
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
@@ -757,8 +834,8 @@ impl Storage {
 
 #[cfg(test)]
 mod tests {
-    use rstest::rstest;
     use super::*;
+    use rstest::rstest;
 
     #[test]
     fn open_memory_db() -> Result<(), Error> {
@@ -767,21 +844,21 @@ mod tests {
         Ok(())
     }
 
-    #[rstest(mime_type, ext,
-             case("video/mp4", "mp4"),
-             case("image/jpg", "jpg"),
-             case("image/jpeg", "jpg"),
-             case("image/png", "png"),
-             case("text/plain", "txt")
-             )]
+    #[rstest(
+        mime_type,
+        ext,
+        case("video/mp4", "mp4"),
+        case("image/jpg", "jpg"),
+        case("image/jpeg", "jpg"),
+        case("image/png", "png"),
+        case("text/plain", "txt")
+    )]
     fn test_save_attachment(mime_type: &str, ext: &str) {
         use std::env;
         use std::fs;
         use std::path::Path;
 
-        let dirname = env::temp_dir().to_str()
-                                     .expect("Temp dir fail")
-                                     .to_string();
+        let dirname = env::temp_dir().to_str().expect("Temp dir fail").to_string();
         let dir = Path::new(&dirname);
         let attachment = svcmodels::Attachment::<u8> {
             reader: 0u8,
@@ -795,8 +872,12 @@ mod tests {
         println!("Looking for {}", fname.to_str().unwrap());
         assert!(exists);
 
-        assert_eq!(fname.extension().unwrap(), ext,
-                   "{}", format!("{} <> {}", fname.to_str().unwrap(), ext));
+        assert_eq!(
+            fname.extension().unwrap(),
+            ext,
+            "{}",
+            format!("{} <> {}", fname.to_str().unwrap(), ext)
+        );
 
         fs::remove_file(fname).expect("Could not remove test case file");
     }

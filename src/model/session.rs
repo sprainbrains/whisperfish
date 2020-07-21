@@ -25,7 +25,7 @@ impl Session {
     }
 }
 
-define_model_roles!{
+define_model_roles! {
     enum SessionRoles for Session {
         ID(id):                                              "id",
         Source(source via QString::from):                    "source",
@@ -74,15 +74,19 @@ impl SessionActor {
     }
 
     /// Panics when storage is not yet set.
-    fn reload(&self, session_actor: Addr<SessionActor>) -> impl Future<Output=()> {
+    fn reload(&self, session_actor: Addr<SessionActor>) -> impl Future<Output = ()> {
         let db = self.storage.clone().unwrap().db;
 
         async move {
             let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
-                let db = db.lock().map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                let db = db
+                    .lock()
+                    .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
                 use crate::schema::session::dsl::*;
                 Ok(session.order_by(timestamp.desc()).load(&*db)?)
-            }).await.unwrap();
+            })
+            .await
+            .unwrap();
             // XXX handle error
 
             session_actor.send(SessionsLoaded(sessions)).await.unwrap();

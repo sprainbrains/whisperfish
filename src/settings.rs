@@ -11,32 +11,40 @@ cpp_class!(
 impl QSettings {
     fn value_bool(&self, key: &str) -> bool {
         let key = QString::from(key);
-        unsafe {cpp!([self as "QSettings *", key as "QString"] -> bool as "bool" {
-            return self->value(key).toBool();
-        })}
+        unsafe {
+            cpp!([self as "QSettings *", key as "QString"] -> bool as "bool" {
+                return self->value(key).toBool();
+            })
+        }
     }
 
     fn set_bool(&self, key: &str, value: bool) {
         let key = QString::from(key);
-        unsafe {cpp!([self as "QSettings *", key as "QString", value as "bool"] {
-            self->setValue(key, value);
-        })};
+        unsafe {
+            cpp!([self as "QSettings *", key as "QString", value as "bool"] {
+                self->setValue(key, value);
+            })
+        };
     }
 
     fn value_string(&self, key: &str) -> String {
         let key = QString::from(key);
-        let val = unsafe {cpp!([self as "QSettings *", key as "QString"] -> QString as "QString" {
-            return self->value(key).toString();
-        })};
+        let val = unsafe {
+            cpp!([self as "QSettings *", key as "QString"] -> QString as "QString" {
+                return self->value(key).toString();
+            })
+        };
         val.into()
     }
 
     fn set_string(&self, key: &str, value: &str) {
         let key = QString::from(key);
         let value = QString::from(value);
-        unsafe {cpp!([self as "QSettings *", key as "QString", value as "QString"] {
-            self->setValue(key, value);
-        })};
+        unsafe {
+            cpp!([self as "QSettings *", key as "QString", value as "QString"] {
+                self->setValue(key, value);
+            })
+        };
     }
 }
 
@@ -51,7 +59,6 @@ pub struct Settings {
     // XXX
     // stringListSet: qt_method!(fn (&self, key: String, value: String)),
     // stringListValue: qt_method!(fn (&self, key: String, value: String)),
-
     boolSet: qt_method!(fn(&self, key: String, value: bool)),
     boolValue: qt_method!(fn(&self, key: String) -> bool),
 

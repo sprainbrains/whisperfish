@@ -20,12 +20,10 @@ pub struct Prompt {
 
 impl Prompt {
     #[allow(non_snake_case)]
-    fn phoneNumber(&self, _phone_number: QString) {
-    }
+    fn phoneNumber(&self, _phone_number: QString) {}
 
     #[allow(non_snake_case)]
-    fn verificationCode(&self, _code: QString) {
-    }
+    fn verificationCode(&self, _code: QString) {}
 
     #[allow(non_snake_case)]
     fn password(&mut self, password: QString) {
@@ -37,10 +35,9 @@ impl Prompt {
     }
 
     #[allow(non_snake_case)]
-    fn resetPeerIdentity(&self, _confirm: QString) {
-    }
+    fn resetPeerIdentity(&self, _confirm: QString) {}
 
-    pub fn ask_password(&mut self) -> impl Future<Output=Option<QString>> {
+    pub fn ask_password(&mut self) -> impl Future<Output = Option<QString>> {
         self.promptPassword();
 
         let (sender, receiver) = futures::channel::oneshot::channel();
@@ -53,7 +50,7 @@ impl Prompt {
                 Err(_e) => {
                     log::error!("Password prompt was canceled");
                     None
-                },
+                }
             }
         }
     }

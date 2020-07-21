@@ -1,5 +1,5 @@
-use std::os::raw::*;
 use std::future::Future;
+use std::os::raw::*;
 
 use qmetaobject::qttypes::*;
 use qmetaobject::{QObject, QObjectPinned};
@@ -85,16 +85,18 @@ impl Future for SfosApplicationFuture {
         match dispatch.poll(ctx) {
             Poll::Ready(()) => {
                 log::warn!("Tokio-Qt event dispatcher finished");
-                return Poll::Ready(())
-            },
+                return Poll::Ready(());
+            }
             Poll::Pending => (),
         }
 
         let filter: *mut CloseEventFilter = self.close_event_filter;
-        let has_closed = unsafe {cpp!([filter as "CloseEventFilter*"] -> bool as "bool" {
-            QWindowSystemInterface::sendWindowSystemEvents(QEventLoop::AllEvents);
-            return filter->isClosed;
-        })};
+        let has_closed = unsafe {
+            cpp!([filter as "CloseEventFilter*"] -> bool as "bool" {
+                QWindowSystemInterface::sendWindowSystemEvents(QEventLoop::AllEvents);
+                return filter->isClosed;
+            })
+        };
 
         if has_closed {
             Poll::Ready(())
@@ -207,15 +209,17 @@ impl SailfishApp {
         }
     }
 
-    pub fn exec_async(mut self) -> impl Future<Output=()> {
+    pub fn exec_async(mut self) -> impl Future<Output = ()> {
         assert!(self.event_dispatcher_mut().is_some());
         // XXX: implement Drop to deregister the filter.
         let app: &mut Self = &mut self;
-        let close_event_filter = unsafe {cpp!([app as "SfosApplicationHolder*"] -> *mut CloseEventFilter as "CloseEventFilter *" {
-            CloseEventFilter *f = new CloseEventFilter();
-            app->view->installEventFilter(f);
-            return f;
-        })};
+        let close_event_filter = unsafe {
+            cpp!([app as "SfosApplicationHolder*"] -> *mut CloseEventFilter as "CloseEventFilter *" {
+                CloseEventFilter *f = new CloseEventFilter();
+                app->view->installEventFilter(f);
+                return f;
+            })
+        };
         SfosApplicationFuture {
             app: self,
             close_event_filter,
@@ -285,4 +289,3 @@ impl SailfishApp {
         }
     }
 }
-

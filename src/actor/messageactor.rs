@@ -78,11 +78,7 @@ impl Handler<FetchSession> for MessageActor {
 impl Handler<FetchMessage> for MessageActor {
     type Result = ();
 
-    fn handle(
-        &mut self,
-        FetchMessage(id): FetchMessage,
-        _ctx: &mut Self::Context
-    ) -> Self::Result {
+    fn handle(&mut self, FetchMessage(id): FetchMessage, _ctx: &mut Self::Context) -> Self::Result {
         let message = self.storage.as_ref().unwrap().fetch_message(id);
         self.inner
             .pinned()
@@ -113,12 +109,13 @@ impl Handler<DeleteMessage> for MessageActor {
     fn handle(
         &mut self,
         DeleteMessage(id, idx): DeleteMessage,
-        _ctx: &mut Self::Context
+        _ctx: &mut Self::Context,
     ) -> Self::Result {
         let del_rows = self.storage.as_ref().unwrap().delete_message(id);
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_delete_message(id, idx, del_rows.expect("FIXME no rows deleted"));
+        self.inner.pinned().borrow_mut().handle_delete_message(
+            id,
+            idx,
+            del_rows.expect("FIXME no rows deleted"),
+        );
     }
 }

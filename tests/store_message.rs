@@ -4,7 +4,7 @@ use harbour_whisperfish::store::Storage;
 use harbour_whisperfish::store::{NewMessage, NewSession};
 
 use libsignal_service::models as svcmodels;
-use libsignal_service::{GROUP_UPDATE_FLAG, GROUP_LEAVE_FLAG};
+use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
 
 mod common;
 use common::*;
@@ -476,10 +476,7 @@ fn test_message_handler_join_group(in_memory_db: Storage) {
         hex_id: hex::encode(group_id.clone()),
         flags: GROUP_UPDATE_FLAG,
         name: String::from("Spurdospärde"),
-        members: vec![
-            String::from("Joni"),
-            String::from("Make"),
-        ],
+        members: vec![String::from("Joni"), String::from("Make")],
         avatar: None,
     };
 

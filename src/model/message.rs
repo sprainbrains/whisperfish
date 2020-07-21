@@ -83,7 +83,7 @@ impl MessageModel {
                 .as_ref()
                 .unwrap()
                 .send(actor::FetchMessage(id))
-                .map(Result::unwrap)
+                .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::FetchMessage({})", id);
     }
@@ -177,8 +177,12 @@ impl MessageModel {
     }
 
     pub fn handle_delete_message(&mut self, id: i32, idx: usize, del_rows: usize) {
-        log::trace!("handle_delete_message({}) deleted {} rows, remove qml idx {}",
-                    id, del_rows, idx);
+        log::trace!(
+            "handle_delete_message({}) deleted {} rows, remove qml idx {}",
+            id,
+            del_rows,
+            idx
+        );
 
         (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
 

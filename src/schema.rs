@@ -57,16 +57,9 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(
-    message,
-    sentq,
-    session,
-);
+allow_tables_to_appear_in_same_query!(message, sentq, session,);
 
-allow_tables_to_appear_in_same_query!(
-    contacts,
-    phoneNumbers,
-);
+allow_tables_to_appear_in_same_query!(contacts, phoneNumbers,);
 
 joinable!(sentq -> message (message_id));
 joinable!(phoneNumbers -> contacts (contactId));

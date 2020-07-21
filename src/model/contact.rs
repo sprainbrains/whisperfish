@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use crate::sfos::SailfishApp;
 use crate::settings::*;
+use crate::sfos::SailfishApp;
 
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -75,7 +75,7 @@ impl ContactModel {
         let is_valid = phonenumber::is_valid(&number);
 
         if !is_valid {
-            return String::new()
+            return String::new();
         }
 
         String::from(number.format().mode(mode).to_string())
@@ -100,7 +100,7 @@ impl ContactModel {
         // This will ensure the format to query is ok
         let e164_source = self.format_helper(&source, Mode::E164);
         let mut national_source = self.format_helper(&source, Mode::National);
-        national_source.retain(|c| c != ' ');  // At least FI numbers had spaces after parsing
+        national_source.retain(|c| c != ' '); // At least FI numbers had spaces after parsing
         let source = source.to_string();
 
         let (name, _phone_number): (String, String) = contacts::table
