@@ -137,6 +137,13 @@ test:nightly:
     - cargo test
     - cargo test --release
 
+fmt:nightly:
+  <<: *rust-nightly
+  stage: test
+  needs: []
+  script:
+    - cargo fmt --check
+
 coverage:nightly:
   <<: *rust-nightly
   image: xd009642/tarpaulin:develop-nightly
