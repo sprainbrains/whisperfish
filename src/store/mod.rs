@@ -253,22 +253,51 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
 }
 
 fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Result<(), Error> {
-    drop(keys);
-    drop(path);
-    drop(contents);
-    unimplemented!("write file")
+    log::trace!("Writing file {:?}", path);
+
+    // Generate random IV
+    use rand::RngCore;
+    let mut iv = [0u8; 16];
+    rand::thread_rng().fill_bytes(&mut iv);
+
+    // Encrypt
+    use aes::Aes128;
+    use block_modes::block_padding::Pkcs7;
+    use block_modes::{BlockMode, Cbc};
+    let ciphertext = {
+        let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
+            .map_err(|_| format_err!("CBC initialization error"))?;
+        cipher.encrypt_vec(contents).to_owned()
+    };
+
+    let mac = {
+        use hmac::{Hmac, Mac, NewMac};
+        use sha2::Sha256;
+        // Verify HMAC SHA256, 32 last bytes
+        let mut mac = Hmac::<Sha256>::new_varkey(&keys[16..])
+            .map_err(|_| format_err!("MAC keylength error"))?;
+        mac.update(&iv);
+        mac.update(&ciphertext);
+        mac.finalize().into_bytes()
+    };
+
+    // Write iv, ciphertext, mac
+    use std::io::Write;
+    let mut file = std::fs::File::create(&path)?;
+    file.write(&iv)?;
+    file.write(&ciphertext)?;
+    file.write(&mac)?;
+
+    Ok(())
 }
 
 fn load_file_sync(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
-    use std::io::Read;
-
     // XXX This is *full* of bad practices.
     // Let's try to migrate to nacl or something alike in the future.
 
     log::trace!("Opening file {:?}", path);
-    let mut f = std::fs::File::open(&path)?;
-    let mut contents = Vec::new();
-    let count = f.read_to_end(&mut contents)?;
+    let mut contents = std::fs::read(&path)?;
+    let count = contents.len();
 
     log::trace!("Read {:?}, {} bytes", path, count);
     ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
@@ -904,5 +933,24 @@ mod tests {
         );
 
         fs::remove_file(fname).expect("Could not remove test case file");
+    }
+
+    #[test]
+    fn encrypt_and_decrypt_file() -> Result<(), Error> {
+        let contents = "The funny horse jumped over a river.";
+
+        // Key full of ones.
+        let key = [1u8; 16 + 20];
+        let dir = temp();
+
+        write_file_sync(
+            key,
+            dir.join("encrypt-and-decrypt.temp"),
+            contents.as_bytes(),
+        )?;
+        let res = load_file_sync(key, dir.join("encrypt-and-decrypt.temp"))?;
+        assert_eq!(std::str::from_utf8(&res).expect("utf8"), contents);
+
+        Ok(())
     }
 }
