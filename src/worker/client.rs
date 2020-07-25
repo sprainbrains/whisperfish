@@ -195,7 +195,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                     let message = sent.message.expect("sync sent with message");
                     let msg = crate::store::NewMessage {
                         session_id: None,
-                        source: metadata.sender.e164.clone(),
+                        source: sent.destination_e164.clone().expect("destination"),
                         text: message.body().to_string(),
                         timestamp: metadata.timestamp as i64,
                         sent: true,
@@ -212,6 +212,15 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                     None
                 } else if message.read.len() > 0 {
                     log::trace!("Sync read message");
+                    for read in &message.read {
+                        // XXX: this should probably not be based on ts alone.
+                        let ts = read.timestamp();
+                        let source = read.sender_e164();
+                        log::trace!("Marking message from {} at {} as received.", source, ts);
+                        if storage.mark_message_received(ts).is_none() {
+                            log::warn!("Could not mark as received!");
+                        }
+                    }
                     None
                 } else {
                     log::warn!("Sync message without known sync type");
@@ -222,8 +231,14 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                 log::info!("{} is typing.", metadata.sender.e164);
                 None
             }
-            ContentBody::ReceiptMessage(_receipt) => {
+            ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender.e164);
+                for ts in &receipt.timestamp {
+                    if storage.mark_message_received(*ts).is_none() {
+                        log::warn!("Could not mark {} as received!", ts);
+                        // c.MessageReceipt(sessionId, messageId)
+                    }
+                }
                 None
             }
             ContentBody::CallMessage(_call) => {

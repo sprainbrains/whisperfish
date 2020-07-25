@@ -17,7 +17,7 @@ mod protocol_store;
 use protocol_store::ProtocolStore;
 
 /// Session as it relates to the schema
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct Session {
     pub id: i64,
     pub source: String,
@@ -35,7 +35,7 @@ pub struct Session {
 }
 
 /// ID-free Session model for insertions
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[table_name = "session"]
 pub struct NewSession {
     pub source: String,
@@ -53,7 +53,7 @@ pub struct NewSession {
 }
 
 /// Message as it relates to the schema
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct Message {
     pub id: i32,
     pub sid: i64,
@@ -612,6 +612,35 @@ impl Storage {
         query.execute(&*conn).expect("updating session");
     }
 
+    /// Marks the message with a certain timestamp as received.
+    ///
+    /// Copy from Go's MarkMessageReceived.
+    pub fn mark_message_received(&self, timestamp: u64) -> Option<(Session, Message)> {
+        let message = self.fetch_message_by_timestamp(timestamp)?;
+        log::trace!("mark_message_received: {:?}", message);
+        let session = self.fetch_session(message.sid)?;
+        log::trace!("mark_message_received: {:?}", session);
+
+        let conn = self.db.lock().unwrap();
+        diesel::update(message::table.filter(message::id.eq(message.id)))
+            .set(message::received.eq(true))
+            .execute(&*conn)
+            .expect("update message");
+
+        diesel::update(
+            session::table.filter(
+                session::id
+                    .eq(session.id)
+                    .and(session::timestamp.eq(timestamp as i64)),
+            ),
+        )
+        .set(session::received.eq(true))
+        .execute(&*conn)
+        .expect("update session");
+
+        Some((Session, Message))
+    }
+
     /// This was implicit in Go, which probably didn't use threads.
     ///
     /// It needs to be locked from the outside because sqlite sucks.
@@ -805,6 +834,39 @@ impl Storage {
             .order_by(message::columns::id.desc())
             .first(&*conn)
             .ok()
+    }
+
+    pub fn fetch_message_by_timestamp(&self, ts: u64) -> Option<Message> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        // Even a single message needs to know if it's queued to satisfy the `Message` trait
+        log::trace!("Called fetch_message_by_timestamp({})", ts);
+        let query = message::table
+            .left_join(sentq::table)
+            .select((
+                message::columns::id,
+                message::columns::session_id,
+                message::columns::source,
+                message::columns::text,
+                message::columns::timestamp,
+                message::columns::sent,
+                message::columns::received,
+                message::columns::flags,
+                message::columns::attachment,
+                message::columns::mime_type,
+                message::columns::has_attachment,
+                message::columns::outgoing,
+                sql::<diesel::sql_types::Bool>(
+                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
+                ),
+            ))
+            .filter(message::columns::timestamp.eq(ts as i64));
+
+        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+        log::trace!("{}", debug.to_string());
+
+        query.first(&*conn).ok()
     }
 
     pub fn fetch_message(&self, id: i32) -> Option<Message> {
