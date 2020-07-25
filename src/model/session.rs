@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use std::collections::HashMap;
 
 use futures::prelude::*;
@@ -17,6 +19,27 @@ pub struct SessionModel {
     actor: Option<Addr<SessionActor>>,
 
     content: Vec<Session>,
+
+    markRead: qt_method!(fn(&self, id: usize)),
+    markReceived: qt_method!(fn(&self, id: usize)),
+    markSent: qt_method!(fn(&self, id: usize, message: QString)),
+}
+
+impl SessionModel {
+    fn markRead(&self, _id: usize) {
+        log::trace!("STUB: Mark read called");
+        // XXX: don't forget sync messages
+    }
+
+    fn markReceived(&self, _id: usize) {
+        log::trace!("STUB: Mark received called");
+        // XXX: don't forget sync messages
+    }
+
+    fn markSent(&self, _id: usize, _message: QString) {
+        log::trace!("STUB: Mark sent called");
+        // XXX: don't forget sync messages
+    }
 }
 
 impl Session {

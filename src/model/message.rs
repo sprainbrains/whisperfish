@@ -50,6 +50,8 @@ pub struct MessageModel {
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(fn(&self, id: usize)),
+
+    numericFingerprint: qt_method!(fn(&self, localId: QString, remoteId: QString) -> QString),
 }
 
 impl MessageModel {
@@ -112,6 +114,12 @@ impl MessageModel {
         );
 
         log::trace!("Dispatched actor::DeleteMessage({}, {})", msg.id, idx);
+    }
+
+    #[allow(non_snake_case)]
+    fn numericFingerprint(&self, _localId: QString, _remoteId: QString) -> QString {
+        // XXX
+        "unimplemented".into()
     }
 
     // Event handlers below this line
