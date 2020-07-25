@@ -18,7 +18,7 @@ const ROOT_CA: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "roo
 pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
     messageReceived: qt_signal!(sid: i64, mid: i32),
-    messageReceipt: qt_signal!(),
+    messageReceipt: qt_signal!(sid: i64, mid: i32),
     notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, is_group: bool),
     promptResetPeerIdentity: qt_signal!(),
 
@@ -217,7 +217,12 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                         let ts = read.timestamp();
                         let source = read.sender_e164();
                         log::trace!("Marking message from {} at {} as received.", source, ts);
-                        if storage.mark_message_received(ts).is_none() {
+                        if let Some((sess, msg)) = storage.mark_message_received(ts) {
+                            self.inner
+                                .pinned()
+                                .borrow_mut()
+                                .messageReceipt(sess.id, msg.id)
+                        } else {
                             log::warn!("Could not mark as received!");
                         }
                     }
@@ -234,9 +239,13 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
             ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender.e164);
                 for ts in &receipt.timestamp {
-                    if storage.mark_message_received(*ts).is_none() {
+                    if let Some((sess, msg)) = storage.mark_message_received(*ts) {
+                        self.inner
+                            .pinned()
+                            .borrow_mut()
+                            .messageReceipt(sess.id, msg.id)
+                    } else {
                         log::warn!("Could not mark {} as received!", ts);
-                        // c.MessageReceipt(sessionId, messageId)
                     }
                 }
                 None

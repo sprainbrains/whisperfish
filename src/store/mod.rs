@@ -638,7 +638,7 @@ impl Storage {
         .execute(&*conn)
         .expect("update session");
 
-        Some((Session, Message))
+        Some((session, message))
     }
 
     /// This was implicit in Go, which probably didn't use threads.
