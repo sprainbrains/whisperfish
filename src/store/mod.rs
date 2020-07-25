@@ -575,21 +575,23 @@ impl Storage {
         log::trace!("mark_message_received: {:?}", session);
 
         let conn = self.db.lock().unwrap();
-        diesel::update(message::table.filter(message::id.eq(message.id)))
-            .set(message::received.eq(true))
-            .execute(&*conn)
-            .expect("update message");
+        conn.transaction(|| -> Result<_, diesel::result::Error> {
+            diesel::update(message::table.filter(message::id.eq(&message.id)))
+                .set(message::received.eq(true))
+                .execute(&*conn)?;
 
-        diesel::update(
-            session::table.filter(
-                session::id
-                    .eq(session.id)
-                    .and(session::timestamp.eq(timestamp as i64)),
-            ),
-        )
-        .set(session::received.eq(true))
-        .execute(&*conn)
-        .expect("update session");
+            diesel::update(
+                session::table.filter(
+                    session::id
+                        .eq(&session.id)
+                        .and(session::timestamp.eq(timestamp as i64)),
+                ),
+            )
+            .set(session::received.eq(true))
+            .execute(&*conn)?;
+            Ok(())
+        })
+        .expect("update received state");
 
         Some((session, message))
     }
