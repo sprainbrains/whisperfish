@@ -11,7 +11,6 @@ use diesel::prelude::*;
 
 use failure::*;
 use libsignal_service::models as svcmodels;
-use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
 
 mod protocol_store;
 use protocol_store::ProtocolStore;
@@ -85,6 +84,16 @@ pub struct NewMessage {
     pub mime_type: Option<String>,
     pub has_attachment: bool,
     pub outgoing: bool,
+}
+
+/// ID-free Group model for insertions
+#[derive(Clone, Debug)]
+pub struct NewGroup<'a> {
+    pub id: &'a [u8],
+    /// Group name
+    pub name: String,
+    /// List of E164
+    pub members: Vec<String>,
 }
 
 /// Saves a given attachment into a random-generated path. Returns the path.
@@ -428,75 +437,18 @@ impl Storage {
         load_file(self.keys.unwrap(), path).await
     }
 
-    /// Process incoming message from Signal
-    ///
-    /// This was a part of the client worker in Go
-    pub fn message_handler(&self, msg: svcmodels::Message, is_sync_sent: bool, timestamp: u64) {
-        let settings = crate::settings::Settings::default();
-
-        let mut new_message = NewMessage {
-            source: msg.source,
-            text: msg.message,
-            flags: msg.flags as i32,
-            outgoing: is_sync_sent,
-            sent: is_sync_sent,
-            timestamp: if is_sync_sent && timestamp > 0 {
-                timestamp
-            } else {
-                msg.timestamp
-            } as i64,
-            has_attachment: msg.attachments.len() > 0,
-            mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
-            received: false,  // This is set true by a receipt handler
-            session_id: None, // Canary value checked later
-            attachment: None,
-        };
-
-        if settings.get_bool("save_settings") && !settings.get_bool("incognito") {
-            for attachment in msg.attachments {
-                // Go used to always set has_attachment and mime_type, but also
-                // in this method, as well as the generated path.
-                // We have this function that returns a filesystem path, so we can
-                // set it ourselves.
-                let dir = settings.get_string("attachment_dir");
-                let dest = Path::new(&dir);
-
-                let attachment_path = save_attachment(&dest, &attachment);
-                new_message.attachment = Some(String::from(attachment_path.to_str().unwrap()));
-            }
-        }
-
-        let group = if let Some(group) = msg.group.as_ref() {
-            if group.flags == GROUP_UPDATE_FLAG {
-                new_message.text = String::from("Member joined group");
-            } else if group.flags == GROUP_LEAVE_FLAG {
-                new_message.text = String::from("Member left group");
-            }
-
-            msg.group
-        } else {
-            None
-        };
-
-        let is_unread = !new_message.sent.clone();
-        self.process_message(new_message, &group, is_unread);
-
-        // TODO: This is Go code that emits signals in the client worker; do it here too
-        // c.MessageReceived(sess.ID, message.ID)
-        // c.NotifyMessage(sess.ID, sess.Source, sess.Message, sess.IsGroup)
-    }
-
     /// Process message and store in database and update or create a session
     pub fn process_message(
-        &self,
+        &mut self,
         mut new_message: NewMessage,
-        group: &Option<svcmodels::Group>,
+        group: Option<NewGroup<'_>>,
         is_unread: bool,
     ) -> (Message, Session) {
-        let db_session_res = if group.is_none() {
-            self.fetch_session_by_source(&new_message.source)
+        let db_session_res = if let Some(group) = group.as_ref() {
+            let group_hex_id = hex::encode(group.id);
+            self.fetch_session_by_group(&group_hex_id)
         } else {
-            self.fetch_session_by_group(&group.as_ref().unwrap().hex_id)
+            self.fetch_session_by_source(&new_message.source)
         };
 
         // Initialize the session data to work with, modify it in case of a group
@@ -515,9 +467,10 @@ impl Storage {
         };
 
         if let Some(group) = group.as_ref() {
+            let group_hex_id = hex::encode(group.id);
             session_data.is_group = true;
-            session_data.source = group.hex_id.clone();
-            session_data.group_id = Some(group.hex_id.clone());
+            session_data.source = group_hex_id.clone();
+            session_data.group_id = Some(group_hex_id);
             session_data.group_name = Some(group.name.clone());
             session_data.group_members = Some(group.members.join(","));
         };

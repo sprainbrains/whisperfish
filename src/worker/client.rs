@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use actix::prelude::*;
 use qmetaobject::*;
 
@@ -6,7 +8,7 @@ use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
 use libsignal_protocol::Context;
-use libsignal_service::content::ContentBody;
+use libsignal_service::content::{ContentBody, DataMessage, GroupType};
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
@@ -50,6 +52,94 @@ impl ClientActor {
             cipher: None,
             context: Context::new(crypto)?,
         })
+    }
+
+    /// Process incoming message from Signal
+    ///
+    /// This was `MessageHandler` in Go.
+    ///
+    /// TODO: consider putting this as an actor `Handle<>` implementation instead.
+    pub fn handle_message(
+        &mut self,
+        source: String,
+        msg: DataMessage,
+        is_sync_sent: bool,
+        timestamp: u64,
+    ) {
+        let settings = crate::settings::Settings::default();
+
+        let storage = self.storage.as_mut().expect("storage");
+
+        let mut new_message = crate::store::NewMessage {
+            source: source,
+            text: msg.body().into(),
+            flags: msg.flags() as i32,
+            outgoing: is_sync_sent,
+            sent: is_sync_sent,
+            timestamp: if is_sync_sent && timestamp > 0 {
+                timestamp
+            } else {
+                msg.timestamp()
+            } as i64,
+            has_attachment: msg.attachments.len() > 0,
+            // mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
+            mime_type: None,  // XXX
+            received: false,  // This is set true by a receipt handler
+            session_id: None, // Canary value checked later
+            attachment: None,
+        };
+
+        if settings.get_bool("save_settings") && !settings.get_bool("incognito") {
+            for attachment in msg.attachments {
+                // Go used to always set has_attachment and mime_type, but also
+                // in this method, as well as the generated path.
+                // We have this function that returns a filesystem path, so we can
+                // set it ourselves.
+                let dir = settings.get_string("attachment_dir");
+                let dest = Path::new(&dir);
+
+                // let attachment_path = crate::store::save_attachment(&dest, &attachment);
+                // new_message.attachment = Some(String::from(attachment_path.to_str().unwrap()));
+            }
+        }
+
+        let group = if let Some(group) = msg.group.as_ref() {
+            match group.r#type() {
+                GroupType::Update => {
+                    new_message.text = String::from("Member joined group");
+                }
+                GroupType::Quit => {
+                    new_message.text = String::from("Member left group");
+                }
+                t => log::warn!("Unhandled group type {:?}", t),
+            }
+
+            Some(crate::store::NewGroup {
+                id: group.id(),
+                name: group.name().to_string(),
+                members: group.members_e164.clone(),
+            })
+        } else {
+            None
+        };
+
+        let is_unread = !new_message.sent.clone();
+        let (message, session) = storage.process_message(new_message, group, is_unread);
+
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .messageReceived(session.id, message.id);
+        self.inner.pinned().borrow_mut().notifyMessage(
+            session.id,
+            session
+                .group_name
+                .as_deref()
+                .unwrap_or(&session.source)
+                .into(),
+            message.message.into(),
+            session.group_id.is_some(),
+        );
     }
 }
 
@@ -170,46 +260,29 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
             metadata
         );
 
-        let notify = match body {
-            ContentBody::DataMessage(message) => {
-                let msg = crate::store::NewMessage {
-                    session_id: None,
-                    source: metadata.sender.e164.clone(),
-                    text: message.body().to_string(),
-                    timestamp: metadata.timestamp as i64,
-                    sent: false,
-                    received: false,
-                    flags: message.flags() as i32,
-                    attachment: None, // FIXME
-                    mime_type: None,  // FIXME
-                    has_attachment: false,
-                    outgoing: false,
-                };
-                Some(storage.process_message(msg, &None, true))
-            }
+        match body {
+            ContentBody::DataMessage(message) => self.handle_message(
+                metadata.sender.e164.clone(),
+                message,
+                false,
+                metadata.timestamp,
+            ),
             ContentBody::SynchronizeMessage(message) => {
                 if let Some(sent) = message.sent {
                     log::trace!("Sync sent message");
                     // These are messages sent through a paired device.
 
                     let message = sent.message.expect("sync sent with message");
-                    let msg = crate::store::NewMessage {
-                        session_id: None,
-                        source: sent.destination_e164.clone().expect("destination"),
-                        text: message.body().to_string(),
-                        timestamp: metadata.timestamp as i64,
-                        sent: true,
-                        received: false,
-                        flags: message.flags() as i32,
-                        attachment: None, // FIXME
-                        mime_type: None,  // FIXME
-                        has_attachment: false,
-                        outgoing: true,
-                    };
-                    Some(storage.process_message(msg, &None, false))
+                    self.handle_message(
+                        // Empty string mainly when groups,
+                        // but maybe needs a check. TODO
+                        sent.destination_e164.clone().unwrap_or("".into()),
+                        message,
+                        true,
+                        0,
+                    );
                 } else if let Some(_request) = message.request {
                     log::trace!("Sync request message");
-                    None
                 } else if message.read.len() > 0 {
                     log::trace!("Sync read message");
                     for read in &message.read {
@@ -226,15 +299,12 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                             log::warn!("Could not mark as received!");
                         }
                     }
-                    None
                 } else {
                     log::warn!("Sync message without known sync type");
-                    None
                 }
             }
             ContentBody::TypingMessage(_typing) => {
                 log::info!("{} is typing.", metadata.sender.e164);
-                None
             }
             ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender.e164);
@@ -248,29 +318,10 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                         log::warn!("Could not mark {} as received!", ts);
                     }
                 }
-                None
             }
             ContentBody::CallMessage(_call) => {
                 log::info!("{} is calling.", metadata.sender.e164);
-                None
             }
-        };
-
-        if let Some((message, session)) = notify {
-            self.inner
-                .pinned()
-                .borrow_mut()
-                .messageReceived(session.id, message.id);
-            self.inner.pinned().borrow_mut().notifyMessage(
-                session.id,
-                session
-                    .group_name
-                    .as_deref()
-                    .unwrap_or(&session.source)
-                    .into(),
-                message.message.into(),
-                session.group_id.is_some(),
-            );
         }
     }
 }

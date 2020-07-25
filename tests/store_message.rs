@@ -163,7 +163,7 @@ fn test_process_message_no_session_source(in_memory_db: Storage) {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, &None, true);
+    in_memory_db.process_message(new_message, None, true);
 
     // Test a session was created
     let res = in_memory_db.fetch_session(1);
@@ -192,7 +192,7 @@ fn test_process_message_unresolved_session_source_resolved(in_memory_db: Storage
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, &None, true);
+    in_memory_db.process_message(new_message, None, true);
 
     let messages = in_memory_db.fetch_all_messages(1).unwrap();
     assert_eq!(messages.len(), 1);
@@ -243,7 +243,7 @@ fn test_process_message_exists_session_source(in_memory_db: Storage) {
             outgoing: false,
         };
 
-        in_memory_db.process_message(new_message, &None, true);
+        in_memory_db.process_message(new_message, None, true);
 
         // Test no extra session was created
         let latest_sess_res = in_memory_db.fetch_latest_session();
@@ -298,7 +298,7 @@ fn test_dev_message_update(in_memory_db: Storage) {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, &None, true);
+    in_memory_db.process_message(new_message, None, true);
 
     // Though this is tested in other cases, double-check a message exists
     let db_messages_res = in_memory_db.fetch_all_messages(1);
@@ -321,7 +321,7 @@ fn test_dev_message_update(in_memory_db: Storage) {
         outgoing: false,
     };
 
-    in_memory_db.process_message(other_message, &None, true);
+    in_memory_db.process_message(other_message, None, true);
 
     // And all the messages should still be only one message
     let db_messages_res = in_memory_db.fetch_all_messages(1);
@@ -365,7 +365,7 @@ fn test_process_message_with_group(in_memory_db: Storage) {
         avatar: None,
     };
 
-    in_memory_db.process_message(new_message, &Some(group), true);
+    in_memory_db.process_message(new_message, Some(group), true);
 
     // Test a session was created
     let session = in_memory_db
