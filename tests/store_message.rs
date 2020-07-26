@@ -1,16 +1,13 @@
 use rstest::rstest;
 
-use harbour_whisperfish::store::Storage;
-use harbour_whisperfish::store::{NewMessage, NewSession};
-
-use libsignal_service::models as svcmodels;
-use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
+use harbour_whisperfish::store::{NewGroup, NewMessage, NewSession};
 
 mod common;
 use common::*;
 
 #[rstest]
-fn test_fetch_session_none(in_memory_db: Storage) {
+fn test_fetch_session_none(in_memory_db: InMemoryDb) {
+    let in_memory_db = in_memory_db.0;
     setup_db(&in_memory_db);
 
     let session = in_memory_db.fetch_session(1);
@@ -18,7 +15,8 @@ fn test_fetch_session_none(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_fetch_group_session(in_memory_db: Storage) {
+fn test_fetch_group_session(in_memory_db: InMemoryDb) {
+    let in_memory_db = in_memory_db.0;
     let session_config = NewSession {
         source: String::from("+358501234567"),
         message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
@@ -50,7 +48,8 @@ fn test_fetch_group_session(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_fetch_session_with_other(in_memory_db: Storage) {
+fn test_fetch_session_with_other(in_memory_db: InMemoryDb) {
+    let in_memory_db = in_memory_db.0;
     let session_config_1 = NewSession {
         source: String::from("foo"),
         message: String::from("first"),
@@ -105,7 +104,8 @@ fn test_fetch_session_with_other(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_fetch_all_messages_none(in_memory_db: Storage) {
+fn test_fetch_all_messages_none(in_memory_db: InMemoryDb) {
+    let in_memory_db = in_memory_db.0;
     setup_db(&in_memory_db);
 
     let messages = in_memory_db.fetch_all_messages(1).unwrap();
@@ -113,7 +113,8 @@ fn test_fetch_all_messages_none(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_receive_messages_no_session(in_memory_db: Storage) {
+fn test_receive_messages_no_session(in_memory_db: InMemoryDb) {
+    let in_memory_db = in_memory_db.0;
     setup_db(&in_memory_db);
 
     let mut new_messages: Vec<NewMessage> = Vec::new();
@@ -143,7 +144,8 @@ fn test_receive_messages_no_session(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_process_message_no_session_source(in_memory_db: Storage) {
+fn test_process_message_no_session_source(in_memory_db: InMemoryDb) {
+    let mut in_memory_db = in_memory_db.0;
     setup_db(&in_memory_db);
 
     let res = in_memory_db.fetch_session(1);
@@ -175,7 +177,8 @@ fn test_process_message_no_session_source(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_process_message_unresolved_session_source_resolved(in_memory_db: Storage) {
+fn test_process_message_unresolved_session_source_resolved(in_memory_db: InMemoryDb) {
+    let mut in_memory_db = in_memory_db.0;
     setup_db(&in_memory_db);
 
     let new_message = NewMessage {
@@ -205,7 +208,8 @@ fn test_process_message_unresolved_session_source_resolved(in_memory_db: Storage
 }
 
 #[rstest]
-fn test_process_message_exists_session_source(in_memory_db: Storage) {
+fn test_process_message_exists_session_source(in_memory_db: InMemoryDb) {
+    let mut in_memory_db = in_memory_db.0;
     let session_config = NewSession {
         source: String::from("+358501234567"),
         message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
@@ -265,7 +269,8 @@ fn test_process_message_exists_session_source(in_memory_db: Storage) {
 /// This tests code that may potentially be removed after release
 /// but it's important as long as we receive messages without ACK
 #[rstest]
-fn test_dev_message_update(in_memory_db: Storage) {
+fn test_dev_message_update(in_memory_db: InMemoryDb) {
+    let mut in_memory_db = in_memory_db.0;
     let session_config = NewSession {
         source: String::from("+358501234567"),
         message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
@@ -330,7 +335,8 @@ fn test_dev_message_update(in_memory_db: Storage) {
 }
 
 #[rstest]
-fn test_process_message_with_group(in_memory_db: Storage) {
+fn test_process_message_with_group(in_memory_db: InMemoryDb) {
+    let mut in_memory_db = in_memory_db.0;
     setup_db(&in_memory_db);
 
     let res = in_memory_db.fetch_session(1);
@@ -352,17 +358,14 @@ fn test_process_message_with_group(in_memory_db: Storage) {
 
     // Here the client worker will have resolved a group exists
     let group_id = vec![42u8, 126u8, 71u8, 75u8];
-    let group = svcmodels::Group {
-        id: group_id.clone(),
-        hex_id: hex::encode(group_id.clone()),
-        flags: 0,
+    let group = NewGroup {
+        id: &group_id,
         name: String::from("Spurdospärde"),
         members: vec![
             String::from("Joni"),
             String::from("Make"),
             String::from("Spurdoliina"),
         ],
-        avatar: None,
     };
 
     in_memory_db.process_message(new_message, Some(group), true);
