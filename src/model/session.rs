@@ -16,7 +16,7 @@ pub struct SessionModel {
 
     content: Vec<Session>,
 
-    count: qt_method!(fn(&self) -> i32),
+    count: qt_method!(fn(&self) -> usize),
     add: qt_method!(fn(&self, id: i64, mark_read: bool)),
     remove: qt_method!(fn(&self, idx: usize)),
     removeById: qt_method!(fn(&self, id: i64)),
@@ -28,8 +28,8 @@ pub struct SessionModel {
 }
 
 impl SessionModel {
-    fn count(&self) -> i32 {
-        unimplemented!();
+    fn count(&self) -> usize {
+        self.content.len()
     }
 
     fn add(&self, id: i64, mark_read: bool) {
