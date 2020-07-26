@@ -196,6 +196,115 @@ impl ClientActor {
             session.group_id.is_some(),
         );
     }
+
+    fn process_receipt(&mut self, msg: Envelope) {
+        log::info!("Received receipt: {}", msg.timestamp());
+
+        // XXX: figure out edge cases in which these are *not* initialized.
+        let storage = self.storage.as_mut().expect("storage initialized");
+
+        // XXX: this should probably not be based on ts alone.
+        let ts = msg.timestamp();
+        let source = msg.source_e164();
+        // XXX should this not be encrypted and authenticated?
+        log::trace!("Marking message from {} at {} as received.", source, ts);
+        if let Some((sess, msg)) = storage.mark_message_received(ts) {
+            self.inner
+                .pinned()
+                .borrow_mut()
+                .messageReceipt(sess.id, msg.id)
+        }
+    }
+
+    fn process_message(&mut self, msg: Envelope, ctx: &mut <Self as Actor>::Context) {
+        // XXX: figure out edge cases in which these are *not* initialized.
+        let storage = self.storage.as_mut().expect("storage initialized");
+        let cipher = self.cipher.as_mut().expect("cipher initialized");
+
+        let Content { body, metadata } = match cipher.open_envelope(msg) {
+            Ok(Some(content)) => content,
+            Ok(None) => {
+                log::info!("Empty envelope");
+                return;
+            }
+            Err(e) => {
+                log::error!("Error opening envelope: {:?}", e);
+                return;
+            }
+        };
+
+        log::trace!(
+            "Opened envelope Content {{ body: {:?}, metadata: {:?} }}",
+            body,
+            metadata
+        );
+
+        match body {
+            ContentBody::DataMessage(message) => self.handle_message(
+                ctx,
+                metadata.sender.e164.clone(),
+                message,
+                false,
+                metadata.timestamp,
+            ),
+            ContentBody::SynchronizeMessage(message) => {
+                if let Some(sent) = message.sent {
+                    log::trace!("Sync sent message");
+                    // These are messages sent through a paired device.
+
+                    let message = sent.message.expect("sync sent with message");
+                    self.handle_message(
+                        ctx,
+                        // Empty string mainly when groups,
+                        // but maybe needs a check. TODO
+                        sent.destination_e164.clone().unwrap_or("".into()),
+                        message,
+                        true,
+                        0,
+                    );
+                } else if let Some(_request) = message.request {
+                    log::trace!("Sync request message");
+                } else if message.read.len() > 0 {
+                    log::trace!("Sync read message");
+                    for read in &message.read {
+                        // XXX: this should probably not be based on ts alone.
+                        let ts = read.timestamp();
+                        let source = read.sender_e164();
+                        log::trace!("Marking message from {} at {} as received.", source, ts);
+                        if let Some((sess, msg)) = storage.mark_message_received(ts) {
+                            self.inner
+                                .pinned()
+                                .borrow_mut()
+                                .messageReceipt(sess.id, msg.id)
+                        } else {
+                            log::warn!("Could not mark as received!");
+                        }
+                    }
+                } else {
+                    log::warn!("Sync message without known sync type");
+                }
+            }
+            ContentBody::TypingMessage(_typing) => {
+                log::info!("{} is typing.", metadata.sender.e164);
+            }
+            ContentBody::ReceiptMessage(receipt) => {
+                log::info!("{} received a message.", metadata.sender.e164);
+                for ts in &receipt.timestamp {
+                    if let Some((sess, msg)) = storage.mark_message_received(*ts) {
+                        self.inner
+                            .pinned()
+                            .borrow_mut()
+                            .messageReceipt(sess.id, msg.id)
+                    } else {
+                        log::warn!("Could not mark {} as received!", ts);
+                    }
+                }
+            }
+            ContentBody::CallMessage(_call) => {
+                log::info!("{} is calling.", metadata.sender.e164);
+            }
+        }
+    }
 }
 
 impl Actor for ClientActor {
@@ -305,93 +414,15 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
             }
         };
 
-        // XXX: figure out edge cases in which these are *not* initialized.
-        let _service = self.service.as_mut().expect("service running");
-        let storage = self.storage.as_mut().expect("storage initialized");
-        let cipher = self.cipher.as_mut().expect("cipher initialized");
-
-        let Content { body, metadata } = match cipher.open_envelope(msg) {
-            Ok(Some(content)) => content,
-            Ok(None) => {
-                log::info!("Empty envelope");
-                return;
-            }
-            Err(e) => {
-                log::error!("Error opening envelope: {:?}", e);
-                return;
-            }
-        };
-
-        log::trace!(
-            "Opened envelope Content {{ body: {:?}, metadata: {:?} }}",
-            body,
-            metadata
-        );
-
-        match body {
-            ContentBody::DataMessage(message) => self.handle_message(
-                ctx,
-                metadata.sender.e164.clone(),
-                message,
-                false,
-                metadata.timestamp,
-            ),
-            ContentBody::SynchronizeMessage(message) => {
-                if let Some(sent) = message.sent {
-                    log::trace!("Sync sent message");
-                    // These are messages sent through a paired device.
-
-                    let message = sent.message.expect("sync sent with message");
-                    self.handle_message(
-                        ctx,
-                        // Empty string mainly when groups,
-                        // but maybe needs a check. TODO
-                        sent.destination_e164.clone().unwrap_or("".into()),
-                        message,
-                        true,
-                        0,
-                    );
-                } else if let Some(_request) = message.request {
-                    log::trace!("Sync request message");
-                } else if message.read.len() > 0 {
-                    log::trace!("Sync read message");
-                    for read in &message.read {
-                        // XXX: this should probably not be based on ts alone.
-                        let ts = read.timestamp();
-                        let source = read.sender_e164();
-                        log::trace!("Marking message from {} at {} as received.", source, ts);
-                        if let Some((sess, msg)) = storage.mark_message_received(ts) {
-                            self.inner
-                                .pinned()
-                                .borrow_mut()
-                                .messageReceipt(sess.id, msg.id)
-                        } else {
-                            log::warn!("Could not mark as received!");
-                        }
-                    }
-                } else {
-                    log::warn!("Sync message without known sync type");
-                }
-            }
-            ContentBody::TypingMessage(_typing) => {
-                log::info!("{} is typing.", metadata.sender.e164);
-            }
-            ContentBody::ReceiptMessage(receipt) => {
-                log::info!("{} received a message.", metadata.sender.e164);
-                for ts in &receipt.timestamp {
-                    if let Some((sess, msg)) = storage.mark_message_received(*ts) {
-                        self.inner
-                            .pinned()
-                            .borrow_mut()
-                            .messageReceipt(sess.id, msg.id)
-                    } else {
-                        log::warn!("Could not mark {} as received!", ts);
-                    }
-                }
-            }
-            ContentBody::CallMessage(_call) => {
-                log::info!("{} is calling.", metadata.sender.e164);
-            }
+        if msg.is_receipt() {
+            self.process_receipt(msg);
+        } else if msg.is_prekey_signal_message()
+            || msg.is_signal_message()
+            || msg.is_unidentified_sender()
+        {
+            self.process_message(msg, ctx);
+        } else {
+            log::warn!("Unknown envelope type {:?}", msg.r#type());
         }
     }
 }
