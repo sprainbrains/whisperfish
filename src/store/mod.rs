@@ -9,8 +9,9 @@ use diesel::debug_query;
 use diesel::expression::sql_literal::sql;
 use diesel::prelude::*;
 
+use futures::io::AsyncRead;
+
 use failure::*;
-use libsignal_service::models as svcmodels;
 
 mod protocol_store;
 use protocol_store::ProtocolStore;
@@ -99,38 +100,27 @@ pub struct NewGroup<'a> {
 /// Saves a given attachment into a random-generated path. Returns the path.
 ///
 /// This was a Message method in Go
-pub fn save_attachment(dir: &Path, attachment: &svcmodels::Attachment<u8>) -> PathBuf {
+pub async fn save_attachment(
+    dir: impl AsRef<Path>,
+    ext: &str,
+    mut attachment: impl AsyncRead + Unpin,
+) -> PathBuf {
     use std::fs::File;
-    use std::io::Write;
     use uuid::Uuid;
 
     let fname = Uuid::new_v4().to_simple();
     let fname_formatted = format!("{}", fname);
     let fname_path = Path::new(&fname_formatted);
 
-    // Sailfish and/or Rust needs "image/jpg" and some others need coaching
-    // before taking a wild guess
-    let ext = if attachment.mime_type == String::from("text/plain") {
-        "txt"
-    } else if attachment.mime_type == String::from("image/jpeg") {
-        "jpg"
-    } else if attachment.mime_type == String::from("image/jpg") {
-        "jpg"
-    } else {
-        mime_guess::get_mime_extensions_str(attachment.mime_type.as_str())
-            .expect("Could not find mime")
-            .first()
-            .unwrap()
-    };
-
-    let mut path = dir.to_path_buf();
-    path.push(fname_path);
+    let mut path = dir.as_ref().join(fname_path);
     path.set_extension(ext);
 
-    let mut file = File::create(&path).expect("Could not create file");
-    let content = vec![attachment.reader];
+    let file = File::create(&path).expect("Could not create file");
 
-    file.write_all(&content).expect("Could not write to file");
+    // https://github.com/rust-lang/futures-rs/issues/2105
+    // https://github.com/tokio-rs/tokio/pull/1744
+    let mut file = futures::io::AllowStdIo::new(file);
+    futures::io::copy(&mut attachment, &mut file).await.unwrap();
 
     return path;
 }
@@ -714,6 +704,21 @@ impl Storage {
         }
 
         Some(msg)
+    }
+
+    pub fn register_attachment(&mut self, mid: i32, path: &str) {
+        // XXX: multiple attachments https://gitlab.com/rubdos/whisperfish/-/issues/11
+
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        diesel::update(message::table.filter(message::id.eq(mid)))
+            .set((
+                message::has_attachment.eq(true),
+                message::attachment.eq(path),
+            ))
+            .execute(&*conn)
+            .expect("set attachment");
     }
 
     /// Create a new message. This was transparent within SaveMessage in Go.

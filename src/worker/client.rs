@@ -8,12 +8,18 @@ use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
 use libsignal_protocol::Context;
-use libsignal_service::content::{ContentBody, DataMessage, GroupType};
+use libsignal_service::content::{AttachmentPointer, ContentBody, DataMessage, GroupType};
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
 const SERVICE_URL: &str = "https://textsecure-service.whispersystems.org/";
+const CDN_URL: &str = "https://cdn.signal.org";
+const CDN2_URL: &str = "https://cdn.signal.org";
 const ROOT_CA: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "rootCA.crt"));
+
+#[derive(Message)]
+#[rtype(result = "()")]
+struct AttachmentDownloaded(i32);
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -54,6 +60,56 @@ impl ClientActor {
         })
     }
 
+    /// Downloads the attachment in the background and registers it in the database.
+    /// Saves the given attachment into a random-generated path. Saves the path in the database.
+    ///
+    /// This was a Message method in Go
+    pub fn handle_attachment(
+        &mut self,
+        ctx: &mut <Self as Actor>::Context,
+        mid: i32,
+        dest: impl AsRef<Path> + 'static,
+        ptr: AttachmentPointer,
+    ) {
+        use futures::future::FutureExt;
+
+        let client_addr = ctx.address();
+
+        let mut service = self.service.clone().unwrap();
+        let mut storage = self.storage.clone().unwrap();
+
+        // Sailfish and/or Rust needs "image/jpg" and some others need coaching
+        // before taking a wild guess
+        let ext = match ptr.content_type() {
+            "text/plain" => "txt",
+            "image/jpeg" => "jpg",
+            "image/jpg" => "jpg",
+            other => mime_guess::get_mime_extensions_str(other)
+                .expect("Could not find mime")
+                .first()
+                .unwrap(),
+        };
+        Arbiter::spawn(
+            async move {
+                let mut stream = service.get_attachment(&ptr).await?;
+                log::info!("Downloading attachment");
+                let attachment_path = crate::store::save_attachment(&dest, ext, &mut stream).await;
+
+                storage.register_attachment(
+                    mid,
+                    attachment_path.to_str().expect("attachment path utf-8"),
+                );
+                client_addr.send(AttachmentDownloaded(mid)).await?;
+                Ok(())
+            }
+            .map(|r: Result<(), failure::Error>| {
+                if let Err(e) = r {
+                    log::error!("Error fetching attachment: {:?}", e);
+                }
+            }),
+        )
+    }
+
     /// Process incoming message from Signal
     ///
     /// This was `MessageHandler` in Go.
@@ -61,6 +117,7 @@ impl ClientActor {
     /// TODO: consider putting this as an actor `Handle<>` implementation instead.
     pub fn handle_message(
         &mut self,
+        ctx: &mut <Self as Actor>::Context,
         source: String,
         msg: DataMessage,
         is_sync_sent: bool,
@@ -82,26 +139,11 @@ impl ClientActor {
                 msg.timestamp()
             } as i64,
             has_attachment: msg.attachments.len() > 0,
-            // mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
-            mime_type: None,  // XXX
+            mime_type: None,  // Attachments are further handled asynchronously
             received: false,  // This is set true by a receipt handler
             session_id: None, // Canary value checked later
             attachment: None,
         };
-
-        if settings.get_bool("save_settings") && !settings.get_bool("incognito") {
-            for attachment in msg.attachments {
-                // Go used to always set has_attachment and mime_type, but also
-                // in this method, as well as the generated path.
-                // We have this function that returns a filesystem path, so we can
-                // set it ourselves.
-                let dir = settings.get_string("attachment_dir");
-                let dest = Path::new(&dir);
-
-                // let attachment_path = crate::store::save_attachment(&dest, &attachment);
-                // new_message.attachment = Some(String::from(attachment_path.to_str().unwrap()));
-            }
-        }
 
         let group = if let Some(group) = msg.group.as_ref() {
             match group.r#type() {
@@ -125,6 +167,19 @@ impl ClientActor {
 
         let is_unread = !new_message.sent.clone();
         let (message, session) = storage.process_message(new_message, group, is_unread);
+
+        if settings.get_bool("save_attachments") && !settings.get_bool("incognito") {
+            for attachment in msg.attachments {
+                // Go used to always set has_attachment and mime_type, but also
+                // in this method, as well as the generated path.
+                // We have this function that returns a filesystem path, so we can
+                // set it ourselves.
+                let dir = settings.get_string("attachment_dir");
+                let dest = Path::new(&dir);
+
+                self.handle_attachment(ctx, message.id, dest.to_path_buf(), attachment);
+            }
+        }
 
         self.inner
             .pinned()
@@ -151,6 +206,19 @@ impl Actor for ClientActor {
     }
 }
 
+impl Handler<AttachmentDownloaded> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        AttachmentDownloaded(mid): AttachmentDownloaded,
+        _ctx: &mut Self::Context,
+    ) {
+        log::info!("Attachment downloaded for message {:?}", mid);
+        // XXX: refresh Qt views
+    }
+}
+
 impl Handler<StorageReady> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
@@ -164,7 +232,7 @@ impl Handler<StorageReady> for ClientActor {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = ServiceConfiguration {
             service_urls: vec![SERVICE_URL.to_string()],
-            cdn_urls: vec![],
+            cdn_urls: vec![CDN_URL.to_string(), CDN2_URL.to_string()],
             contact_discovery_url: vec![],
         };
 
@@ -227,7 +295,7 @@ impl Handler<StorageReady> for ClientActor {
 }
 
 impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
-    fn handle(&mut self, msg: Result<Envelope, ServiceError>, _ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: Result<Envelope, ServiceError>, ctx: &mut Self::Context) {
         let msg = match msg {
             Ok(msg) => msg,
             Err(e) => {
@@ -262,6 +330,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
 
         match body {
             ContentBody::DataMessage(message) => self.handle_message(
+                ctx,
                 metadata.sender.e164.clone(),
                 message,
                 false,
@@ -274,6 +343,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
 
                     let message = sent.message.expect("sync sent with message");
                     self.handle_message(
+                        ctx,
                         // Empty string mainly when groups,
                         // but maybe needs a check. TODO
                         sent.destination_e164.clone().unwrap_or("".into()),
