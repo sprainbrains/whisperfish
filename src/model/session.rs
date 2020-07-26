@@ -36,11 +36,45 @@ impl SessionModel {
         unimplemented!();
     }
 
-    fn remove(&self, idx: usize) {
-        unimplemented!();
+    /// Removes session at index. This removes the session from the list model and
+    /// deletes it from the database.
+    fn remove(&mut self, idx: usize) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+
+        use futures::prelude::*;
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::DeleteSession {id: sid, idx})
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::DeleteSession({})", idx);
     }
 
+    /// Removes session by id. This removes the session from the list model and
+    /// deletes it from the database.
     fn removeById(&self, id: i64) {
+        let idx = self
+            .content
+            .iter()
+            .position(|x| x.id == id)
+            .expect("Session ID not found in session model");
+
+        use futures::prelude::*;
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::DeleteSession {id, idx})
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::DeleteSession({})", idx);
         unimplemented!();
     }
 
@@ -71,6 +105,13 @@ impl SessionModel {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
         self.content = sessions;
         (self as &mut dyn QAbstractListModel).end_reset_model();
+    }
+
+    /// Remove deleted session from QML
+    pub fn handle_delete_session(&mut self, idx: usize) {
+        (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+        self.content.remove(idx);
+        (self as &mut dyn QAbstractListModel).end_remove_rows();
     }
 }
 

@@ -11,6 +11,13 @@ use qmetaobject::*;
 #[rtype(result = "()")]
 struct SessionsLoaded(Vec<Session>);
 
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct DeleteSession {
+    pub id: i64,
+    pub idx: usize,
+}
+
 pub struct SessionActor {
     inner: QObjectBox<SessionModel>,
     storage: Option<Storage>,
@@ -86,5 +93,19 @@ impl Handler<StorageReady> for SessionActor {
         log::trace!("SessionActor has a registered storage");
 
         Arbiter::spawn(self.reload(ctx.address()));
+    }
+}
+
+impl Handler<DeleteSession> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        DeleteSession {id, idx}: DeleteSession,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage.as_ref().unwrap().delete_session(id);
+
+        self.inner.pinned().borrow_mut().handle_delete_session(idx);
     }
 }
