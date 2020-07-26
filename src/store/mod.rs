@@ -340,11 +340,13 @@ impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
 
-        #[allow(unreachable_code)]
+        // XXX
+        let protocol_store = ProtocolStore::invalid();
+
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
             keys: None,
-            protocol_store: unimplemented!(),
+            protocol_store: Arc::new(Mutex::new(protocol_store)),
             path: db_path.to_path_buf(),
         })
     }
@@ -917,8 +919,11 @@ mod tests {
     use rstest::rstest;
 
     #[test]
-    fn open_memory_db() -> Result<(), Error> {
-        let _storage = Storage::open(&memory())?;
+    fn open_temp_db() -> Result<(), Error> {
+        let temp = temp();
+        std::fs::create_dir(temp.join("db"))?;
+        std::fs::create_dir(temp.join("storage"))?;
+        let _storage = Storage::open(&temp)?;
 
         Ok(())
     }
@@ -932,19 +937,18 @@ mod tests {
         case("image/png", "png"),
         case("text/plain", "txt")
     )]
-    fn test_save_attachment(mime_type: &str, ext: &str) {
+    #[actix_rt::test]
+    async fn test_save_attachment(mime_type: &str, ext: &str) {
         use std::env;
         use std::fs;
         use std::path::Path;
 
+        drop(mime_type); // This is used in client-worker, consider droppin g this argument.
+
         let dirname = env::temp_dir().to_str().expect("Temp dir fail").to_string();
         let dir = Path::new(&dirname);
-        let attachment = svcmodels::Attachment::<u8> {
-            reader: 0u8,
-            mime_type: String::from(mime_type),
-        };
-
-        let fname = save_attachment(&dir, &attachment);
+        let mut contents = futures::io::Cursor::new([0u8]);
+        let fname = save_attachment(dir, ext, &mut contents).await;
 
         let exists = Path::new(&fname).exists();
 

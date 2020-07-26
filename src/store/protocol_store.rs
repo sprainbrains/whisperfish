@@ -16,6 +16,16 @@ pub struct ProtocolStore {
 }
 
 impl ProtocolStore {
+    // This will be here until https://gitlab.com/rubdos/whisperfish/-/issues/40 is resolved,
+    // for purposes of tests.
+    #[doc(hidden)]
+    pub fn invalid() -> Self {
+        Self {
+            identity_key: vec![],
+            regid: 0,
+        }
+    }
+
     pub async fn open_with_key(keys: [u8; 16 + 20], path: &Path) -> Result<Self, failure::Error> {
         // Identity
         let identity_path = path.join("storage").join("identity");
