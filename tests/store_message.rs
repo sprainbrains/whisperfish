@@ -387,179 +387,183 @@ fn test_process_message_with_group(in_memory_db: InMemoryDb) {
     assert_eq!(message.sid, session.id);
 }
 
-#[rstest]
-fn test_message_handler_without_group(in_memory_db: Storage) {
-    setup_db(&in_memory_db);
+// XXX: These tests worked back when Storage had the message_handler implemented.
+// This has since been moved to ClientActor, and testing that requires Qt-enabled tests.
+// https://gitlab.com/rubdos/whisperfish/-/issues/82
 
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
+// #[rstest]
+// fn test_message_handler_without_group(in_memory_db: InMemoryDb) {
+//     setup_db(&in_memory_db);
+//
+//     let res = in_memory_db.fetch_session(1);
+//     assert!(res.is_none());
+//
+//     let msg = svcmodels::Message {
+//         source: String::from("8483"),
+//         message: String::from("sup"),
+//         attachments: Vec::new(),
+//         group: None,
+//         timestamp: 0u64,
+//         flags: 0u32,
+//     };
+//
+//     in_memory_db.message_handler(msg, false, 0);
+//
+//     // Test a session was created
+//     let session = in_memory_db
+//         .fetch_session(1)
+//         .expect("Expected to find session");
+//     assert!(!session.is_group);
+//
+//     // Test a message was created
+//     let message = in_memory_db
+//         .fetch_latest_message()
+//         .expect("Expected to find message");
+//     assert_eq!(message.source, "8483");
+//     assert_eq!(message.sid, session.id);
+// }
 
-    let msg = svcmodels::Message {
-        source: String::from("8483"),
-        message: String::from("sup"),
-        attachments: Vec::new(),
-        group: None,
-        timestamp: 0u64,
-        flags: 0u32,
-    };
+// #[rstest]
+// fn test_message_handler_leave_group(in_memory_db: InMemoryDb) {
+//     setup_db(&in_memory_db);
+//
+//     let res = in_memory_db.fetch_session(1);
+//     assert!(res.is_none());
+//
+//     let group_id = vec![42u8, 126u8, 71u8, 75u8];
+//     let group = svcmodels::Group {
+//         id: group_id.clone(),
+//         hex_id: hex::encode(group_id.clone()),
+//         flags: GROUP_LEAVE_FLAG,
+//         name: String::from("Spurdospärde"),
+//         members: vec![
+//             String::from("Joni"),
+//             String::from("Make"),
+//             String::from("Spurdoliina"),
+//         ],
+//         avatar: None,
+//     };
+//
+//     let msg = svcmodels::Message {
+//         source: String::from("8483"),
+//         message: String::from("Spurdoliina went away or something"),
+//         attachments: Vec::new(),
+//         group: Some(group),
+//         timestamp: 0u64,
+//         flags: 0u32,
+//     };
+//
+//     in_memory_db.message_handler(msg, false, 0);
+//
+//     // Test a session was created
+//     let session = in_memory_db
+//         .fetch_session(1)
+//         .expect("Expected to find session");
+//     assert!(session.is_group);
+//
+//     // Test a message was created
+//     let message = in_memory_db
+//         .fetch_latest_message()
+//         .expect("Expected to find message");
+//     assert_eq!(message.source, "8483");
+//     assert_eq!(message.message, "Member left group");
+//     assert_eq!(message.sid, session.id);
+// }
 
-    in_memory_db.message_handler(msg, false, 0);
+// #[rstest]
+// fn test_message_handler_join_group(in_memory_db: InMemoryDb) {
+//     setup_db(&in_memory_db);
+//
+//     let res = in_memory_db.fetch_session(1);
+//     assert!(res.is_none());
+//
+//     let group_id = vec![42u8, 126u8, 71u8, 75u8];
+//     let group = svcmodels::Group {
+//         id: group_id.clone(),
+//         hex_id: hex::encode(group_id.clone()),
+//         flags: GROUP_UPDATE_FLAG,
+//         name: String::from("Spurdospärde"),
+//         members: vec![String::from("Joni"), String::from("Make")],
+//         avatar: None,
+//     };
+//
+//     let msg = svcmodels::Message {
+//         source: String::from("8483"),
+//         message: String::from("Spurdoliina came back or something"),
+//         attachments: Vec::new(),
+//         group: Some(group),
+//         timestamp: 0u64,
+//         flags: 0u32,
+//     };
+//
+//     in_memory_db.message_handler(msg, false, 0);
+//
+//     // Test a session was created
+//     let session = in_memory_db
+//         .fetch_session(1)
+//         .expect("Expected to find session");
+//     assert!(session.is_group);
+//
+//     // Test a message was created
+//     let message = in_memory_db
+//         .fetch_latest_message()
+//         .expect("Expected to find message");
+//     assert_eq!(message.source, "8483");
+//     assert_eq!(message.message, "Member joined group");
+//     assert_eq!(message.sid, session.id);
+// }
 
-    // Test a session was created
-    let session = in_memory_db
-        .fetch_session(1)
-        .expect("Expected to find session");
-    assert!(!session.is_group);
-
-    // Test a message was created
-    let message = in_memory_db
-        .fetch_latest_message()
-        .expect("Expected to find message");
-    assert_eq!(message.source, "8483");
-    assert_eq!(message.sid, session.id);
-}
-
-#[rstest]
-fn test_message_handler_leave_group(in_memory_db: Storage) {
-    setup_db(&in_memory_db);
-
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
-
-    let group_id = vec![42u8, 126u8, 71u8, 75u8];
-    let group = svcmodels::Group {
-        id: group_id.clone(),
-        hex_id: hex::encode(group_id.clone()),
-        flags: GROUP_LEAVE_FLAG,
-        name: String::from("Spurdospärde"),
-        members: vec![
-            String::from("Joni"),
-            String::from("Make"),
-            String::from("Spurdoliina"),
-        ],
-        avatar: None,
-    };
-
-    let msg = svcmodels::Message {
-        source: String::from("8483"),
-        message: String::from("Spurdoliina went away or something"),
-        attachments: Vec::new(),
-        group: Some(group),
-        timestamp: 0u64,
-        flags: 0u32,
-    };
-
-    in_memory_db.message_handler(msg, false, 0);
-
-    // Test a session was created
-    let session = in_memory_db
-        .fetch_session(1)
-        .expect("Expected to find session");
-    assert!(session.is_group);
-
-    // Test a message was created
-    let message = in_memory_db
-        .fetch_latest_message()
-        .expect("Expected to find message");
-    assert_eq!(message.source, "8483");
-    assert_eq!(message.message, "Member left group");
-    assert_eq!(message.sid, session.id);
-}
-
-#[rstest]
-fn test_message_handler_join_group(in_memory_db: Storage) {
-    setup_db(&in_memory_db);
-
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
-
-    let group_id = vec![42u8, 126u8, 71u8, 75u8];
-    let group = svcmodels::Group {
-        id: group_id.clone(),
-        hex_id: hex::encode(group_id.clone()),
-        flags: GROUP_UPDATE_FLAG,
-        name: String::from("Spurdospärde"),
-        members: vec![String::from("Joni"), String::from("Make")],
-        avatar: None,
-    };
-
-    let msg = svcmodels::Message {
-        source: String::from("8483"),
-        message: String::from("Spurdoliina came back or something"),
-        attachments: Vec::new(),
-        group: Some(group),
-        timestamp: 0u64,
-        flags: 0u32,
-    };
-
-    in_memory_db.message_handler(msg, false, 0);
-
-    // Test a session was created
-    let session = in_memory_db
-        .fetch_session(1)
-        .expect("Expected to find session");
-    assert!(session.is_group);
-
-    // Test a message was created
-    let message = in_memory_db
-        .fetch_latest_message()
-        .expect("Expected to find message");
-    assert_eq!(message.source, "8483");
-    assert_eq!(message.message, "Member joined group");
-    assert_eq!(message.sid, session.id);
-}
-
-#[rstest]
-fn test_message_handler_group_attachment_no_save(in_memory_db: Storage) {
-    setup_db(&in_memory_db);
-
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
-
-    let group_id = vec![42u8, 126u8, 71u8, 75u8];
-    let group = svcmodels::Group {
-        id: group_id.clone(),
-        hex_id: hex::encode(group_id.clone()),
-        flags: 0,
-        name: String::from("Spurdospärde"),
-        members: vec![
-            String::from("Joni"),
-            String::from("Make"),
-            String::from("Spurdoliina"),
-        ],
-        avatar: None,
-    };
-
-    let attachment = svcmodels::Attachment::<u8> {
-        reader: 0u8,
-        mime_type: String::from("image/jpg"),
-    };
-
-    let msg = svcmodels::Message {
-        source: String::from("8483"),
-        message: String::from("KIKKI HIIREN KUVA:DDD"),
-        attachments: vec![attachment],
-        group: Some(group),
-        timestamp: 0u64,
-        flags: 0u32,
-    };
-
-    in_memory_db.message_handler(msg, false, 0);
-
-    // Test a session was created
-    let session = in_memory_db
-        .fetch_session(1)
-        .expect("Expected to find session");
-    assert!(session.is_group);
-
-    // Test a message was created
-    let message = in_memory_db
-        .fetch_latest_message()
-        .expect("Expected to find message");
-    assert_eq!(message.source, "8483");
-    assert_eq!(message.message, "KIKKI HIIREN KUVA:DDD");
-    assert_eq!(message.sid, session.id);
-
-    // By default, attachments are not saved, so this should not exist
-    assert!(message.attachment.is_none());
-}
+// #[rstest]
+// fn test_message_handler_group_attachment_no_save(in_memory_db: InMemoryDb) {
+//     setup_db(&in_memory_db);
+//
+//     let res = in_memory_db.fetch_session(1);
+//     assert!(res.is_none());
+//
+//     let group_id = vec![42u8, 126u8, 71u8, 75u8];
+//     let group = svcmodels::Group {
+//         id: group_id.clone(),
+//         hex_id: hex::encode(group_id.clone()),
+//         flags: 0,
+//         name: String::from("Spurdospärde"),
+//         members: vec![
+//             String::from("Joni"),
+//             String::from("Make"),
+//             String::from("Spurdoliina"),
+//         ],
+//         avatar: None,
+//     };
+//
+//     let attachment = svcmodels::Attachment::<u8> {
+//         reader: 0u8,
+//         mime_type: String::from("image/jpg"),
+//     };
+//
+//     let msg = svcmodels::Message {
+//         source: String::from("8483"),
+//         message: String::from("KIKKI HIIREN KUVA:DDD"),
+//         attachments: vec![attachment],
+//         group: Some(group),
+//         timestamp: 0u64,
+//         flags: 0u32,
+//     };
+//
+//     in_memory_db.message_handler(msg, false, 0);
+//
+//     // Test a session was created
+//     let session = in_memory_db
+//         .fetch_session(1)
+//         .expect("Expected to find session");
+//     assert!(session.is_group);
+//
+//     // Test a message was created
+//     let message = in_memory_db
+//         .fetch_latest_message()
+//         .expect("Expected to find message");
+//     assert_eq!(message.source, "8483");
+//     assert_eq!(message.message, "KIKKI HIIREN KUVA:DDD");
+//     assert_eq!(message.sid, session.id);
+//
+//     // By default, attachments are not saved, so this should not exist
+//     assert!(message.attachment.is_none());
+// }
