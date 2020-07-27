@@ -86,7 +86,6 @@ impl SessionModel {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::DeleteSession({})", idx);
-        unimplemented!();
     }
 
     fn reload(&self) {
@@ -108,6 +107,14 @@ impl SessionModel {
         // XXX: don't forget sync messages
     }
 
+    /// When a new message is received for a session,
+    /// it gets moved up the QML by this
+    pub fn set_session_first(&mut self, sess: Session) {
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        self.content.insert(0, sess);
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
+    }
+
     // Event handlers below this line
 
     /// Handle loaded session
@@ -122,6 +129,7 @@ impl SessionModel {
     pub fn handle_fetch_session(&mut self, sess: Session, mark_read: bool) {
         log::trace!("set section: session");
 
+        let sid = sess.id;
         let mut already_unread = false;
 
         let found = self
@@ -143,10 +151,38 @@ impl SessionModel {
         };
 
         if sess.unread && mark_read {
+            use futures::prelude::*;
+            Arbiter::spawn(
+                self.actor
+                    .as_ref()
+                    .unwrap()
+                    .send(actor::MarkSessionRead {sess, already_unread})
+                    .map(Result::unwrap),
+            );
+            log::trace!("Dispatched actor::MarkSessionRead({}, {})", sid, already_unread);
+
             unimplemented!();
+        } else if sess.unread && !already_unread {
+            // let count = self.unread() + 1;
+
+            // self.set_unread(count);
+            // self.unread_changed(count);
         }
 
         unimplemented!();
+    }
+
+    /// When a session is marked as read and this handler called, implicitly
+    /// the session will be set at the top of the QML list.
+    pub fn handle_mark_session_read(&mut self, mut sess: Session, already_unread: bool) {
+        sess.unread = false;
+
+        if already_unread {
+            // let count = std::cmp::min(0, self.unread() - 1);
+
+            // self.set_unread(count);
+            // self.unread_changed(count);
+        }
     }
 
     /// Remove deleted session from QML

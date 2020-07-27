@@ -15,6 +15,13 @@ struct SessionsLoaded(Vec<Session>);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
+pub struct MarkSessionRead {
+    pub sess: Session,
+    pub already_unread: bool,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
 pub struct DeleteSession {
     pub id: i64,
     pub idx: usize,
@@ -111,6 +118,22 @@ impl Handler<FetchSession> for SessionActor {
             .pinned()
             .borrow_mut()
             .handle_fetch_session(sess.expect("FIXME No session returned!"), mark_read);
+    }
+}
+
+impl Handler<MarkSessionRead> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        MarkSessionRead {sess, already_unread}: MarkSessionRead,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage.as_ref().unwrap().mark_session_read(&sess);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_mark_session_read(sess, already_unread);
     }
 }
 

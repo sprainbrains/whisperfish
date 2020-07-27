@@ -697,6 +697,20 @@ impl Storage {
             .expect("deleting session and its messages");
     }
 
+    pub fn mark_session_read(&self, sess: &Session) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called mark_session_read({})", sess.id);
+
+        diesel::update(session::table.filter(session::id.eq(sess.id)))
+            .set((
+                session::unread.eq(false),
+            ))
+            .execute(&*conn)
+            .expect("Mark session read");
+    }
+
     /// Check if message exists and explicitly update it if required
     ///
     /// This is because during development messages may come in partially
