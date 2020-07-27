@@ -1,3 +1,5 @@
+use crate::actor::FetchSession;
+
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
 use crate::sfos::SailfishApp;
@@ -64,6 +66,21 @@ impl Actor for SessionActor {
     }
 }
 
+impl Handler<StorageReady> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        StorageReady(storage, _config): StorageReady,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage = Some(storage);
+        log::trace!("SessionActor has a registered storage");
+
+        Arbiter::spawn(self.reload(ctx.address()));
+    }
+}
+
 impl Handler<SessionsLoaded> for SessionActor {
     type Result = ();
 
@@ -81,18 +98,19 @@ impl Handler<SessionsLoaded> for SessionActor {
     }
 }
 
-impl Handler<StorageReady> for SessionActor {
+impl Handler<FetchSession> for SessionActor {
     type Result = ();
 
     fn handle(
         &mut self,
-        StorageReady(storage, _config): StorageReady,
-        ctx: &mut Self::Context,
+        FetchSession {id: sid, mark_read}: FetchSession,
+        _ctx: &mut Self::Context,
     ) -> Self::Result {
-        self.storage = Some(storage);
-        log::trace!("SessionActor has a registered storage");
-
-        Arbiter::spawn(self.reload(ctx.address()));
+        let sess = self.storage.as_ref().unwrap().fetch_session(sid);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_fetch_session(sess.expect("FIXME No session returned!"), mark_read);
     }
 }
 

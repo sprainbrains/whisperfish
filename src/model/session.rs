@@ -32,7 +32,18 @@ impl SessionModel {
         self.content.len()
     }
 
+    /// Add or replace a Session in the model.
     fn add(&self, id: i64, mark_read: bool) {
+        use futures::prelude::*;
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::FetchSession { id, mark_read })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::FetchMessage({})", id);
+
         unimplemented!();
     }
 
@@ -51,7 +62,7 @@ impl SessionModel {
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::DeleteSession {id: sid, idx})
+                .send(actor::DeleteSession { id: sid, idx })
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::DeleteSession({})", idx);
@@ -71,7 +82,7 @@ impl SessionModel {
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::DeleteSession {id, idx})
+                .send(actor::DeleteSession { id, idx })
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::DeleteSession({})", idx);
@@ -105,6 +116,37 @@ impl SessionModel {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
         self.content = sessions;
         (self as &mut dyn QAbstractListModel).end_reset_model();
+    }
+
+    /// Handle add-or-replace session
+    pub fn handle_fetch_session(&mut self, sess: Session, mark_read: bool) {
+        log::trace!("set section: session");
+
+        let mut already_unread = false;
+
+        let found = self
+            .content
+            .iter()
+            .enumerate()
+            .find(|(_i, s)| s.id == sess.id);
+
+        if let Some((idx, session)) = found {
+            if session.unread {
+                already_unread = true;
+            }
+
+            // Remove from this place so it can be added back in later
+            (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            self.content.remove(idx);
+            (self as &mut dyn QAbstractListModel).end_remove_rows();
+
+        };
+
+        if sess.unread && mark_read {
+            unimplemented!();
+        }
+
+        unimplemented!();
     }
 
     /// Remove deleted session from QML
