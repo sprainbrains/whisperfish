@@ -127,6 +127,7 @@ impl SessionModel {
 
     /// Handle add-or-replace session
     pub fn handle_fetch_session(&mut self, sess: Session, mark_read: bool) {
+        // TODO: model/session.go `SetSection`
         log::trace!("set section: session");
 
         let sid = sess.id;
@@ -163,6 +164,7 @@ impl SessionModel {
 
             unimplemented!();
         } else if sess.unread && !already_unread {
+            // TODO: model.session.go:181
             // let count = self.unread() + 1;
 
             // self.set_unread(count);
@@ -178,6 +180,7 @@ impl SessionModel {
         sess.unread = false;
 
         if already_unread {
+            // TODO: model.session.go:173
             // let count = std::cmp::min(0, self.unread() - 1);
 
             // self.set_unread(count);
