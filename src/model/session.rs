@@ -43,8 +43,6 @@ impl SessionModel {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::FetchMessage({})", id);
-
-        unimplemented!();
     }
 
     /// Removes session at index. This removes the session from the list model and
@@ -162,7 +160,7 @@ impl SessionModel {
             );
             log::trace!("Dispatched actor::MarkSessionRead({}, {})", sid, already_unread);
 
-            unimplemented!();
+            // unimplemented!();
         } else if sess.unread && !already_unread {
             // TODO: model.session.go:181
             // let count = self.unread() + 1;
@@ -171,7 +169,9 @@ impl SessionModel {
             // self.unread_changed(count);
         }
 
-        unimplemented!();
+        // XXX: I think it was discussed that the re-inserting would be async
+        //      but it might not be a good use of time now
+        log::trace!("Inserting the message back in qml");
     }
 
     /// When a session is marked as read and this handler called, implicitly
@@ -199,7 +199,24 @@ impl SessionModel {
 impl Session {
     fn section(&self) -> String {
         // XXX: stub
-        "Section".into()
+        let timestamp = chrono::NaiveDateTime::from_timestamp(self.timestamp, 0);
+        let now = chrono::Local::now();
+        let today = chrono::NaiveDate::from_ymd(now.year(), now.month(), now.day())
+            .and_hms(0, 0, 0);
+
+        let diff = today.signed_duration_since(timestamp);
+
+        if diff.num_seconds() <= 0 {
+            String::from("Today")
+        } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
+            String::from("Yesterday")
+        } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
+            let wd = timestamp.weekday().number_from_monday();
+            // TODO: core.QLocale_System().DayName probably not implemented
+            wd.to_string()
+        } else {
+            String::from("Older")
+        }
     }
 }
 
