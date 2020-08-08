@@ -91,9 +91,39 @@ impl ClientActor {
         };
         Arbiter::spawn(
             async move {
+                use futures::io::AsyncReadExt;
+                use libsignal_service::attachment_cipher::*;
+
                 let mut stream = service.get_attachment(&ptr).await?;
                 log::info!("Downloading attachment");
-                let attachment_path = crate::store::save_attachment(&dest, ext, &mut stream).await;
+
+                // We need the whole file for the crypto to check out 😢
+                let mut ciphertext = if let Some(size) = ptr.size {
+                    Vec::with_capacity(size as usize)
+                } else {
+                    Vec::new()
+                };
+                let len = stream.read_to_end(&mut ciphertext).await
+                    .expect("streamed attachment");
+
+                // Downloaded attachment length (1781792) is not equal to expected length of 1708516 bytes.
+                // Not sure where the difference comes from at this point.
+                if len != ptr.size.unwrap() as usize {
+                    log::warn!("Downloaded attachment length ({}) is not equal to expected length of {} bytes.", len, ptr.size.unwrap());
+                }
+                let key_material = ptr.key.expect("attachment with key");
+                assert_eq!(
+                    key_material.len(),
+                    64,
+                    "key material for attachments is ought to be 64 bytes"
+                );
+                let mut key = [0u8; 64];
+                key.copy_from_slice(&key_material);
+                decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
+
+                let attachment_path =
+                    crate::store::save_attachment(&dest, ext, futures::io::Cursor::new(ciphertext))
+                        .await;
 
                 storage.register_attachment(
                     mid,
