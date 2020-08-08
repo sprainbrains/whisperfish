@@ -67,7 +67,10 @@ impl MessageModel {
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::FetchSession {id: sid, mark_read: false})
+                .send(actor::FetchSession {
+                    id: sid,
+                    mark_read: false,
+                })
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::FetchSession({})", sid);
@@ -162,12 +165,8 @@ impl MessageModel {
     pub fn handle_fetch_message(&mut self, message: store::Message) {
         log::trace!("handle_fetch_message({})", message.id);
 
-        let tail = self.row_count();
-
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(tail, tail + 1);
-
-        self.messages.insert(tail as usize, message);
-
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        self.messages.insert(0, message);
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 
