@@ -2,23 +2,25 @@
 
 use std::collections::HashMap;
 
-use futures::prelude::*;
-
-use crate::gui::StorageReady;
+use crate::actor;
 use crate::model::*;
-use crate::sfos::SailfishApp;
-use crate::store::{Session, Storage};
+use crate::store::Session;
 
 use actix::prelude::*;
-use diesel::prelude::*;
 use qmetaobject::*;
 
 #[derive(QObject, Default)]
 pub struct SessionModel {
     base: qt_base_class!(trait QAbstractListModel),
-    actor: Option<Addr<SessionActor>>,
+    pub actor: Option<Addr<actor::SessionActor>>,
 
     content: Vec<Session>,
+
+    count: qt_method!(fn(&self) -> usize),
+    add: qt_method!(fn(&self, id: i64, mark_read: bool)),
+    remove: qt_method!(fn(&self, idx: usize)),
+    removeById: qt_method!(fn(&self, id: i64)),
+    reload: qt_method!(fn(&self)),
 
     markRead: qt_method!(fn(&self, id: usize)),
     markReceived: qt_method!(fn(&self, id: usize)),
@@ -26,6 +28,68 @@ pub struct SessionModel {
 }
 
 impl SessionModel {
+    fn count(&self) -> usize {
+        self.content.len()
+    }
+
+    /// Add or replace a Session in the model.
+    fn add(&self, id: i64, mark_read: bool) {
+        use futures::prelude::*;
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::FetchSession { id, mark_read })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::FetchMessage({})", id);
+    }
+
+    /// Removes session at index. This removes the session from the list model and
+    /// deletes it from the database.
+    fn remove(&mut self, idx: usize) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+
+        use futures::prelude::*;
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::DeleteSession { id: sid, idx })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::DeleteSession({})", idx);
+    }
+
+    /// Removes session by id. This removes the session from the list model and
+    /// deletes it from the database.
+    fn removeById(&self, id: i64) {
+        let idx = self
+            .content
+            .iter()
+            .position(|x| x.id == id)
+            .expect("Session ID not found in session model");
+
+        use futures::prelude::*;
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::DeleteSession { id, idx })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::DeleteSession({})", idx);
+    }
+
+    fn reload(&self) {
+        unimplemented!();
+    }
+
     fn markRead(&self, _id: usize) {
         log::trace!("STUB: Mark read called");
         // XXX: don't forget sync messages
@@ -40,12 +104,119 @@ impl SessionModel {
         log::trace!("STUB: Mark sent called");
         // XXX: don't forget sync messages
     }
+
+    /// When a new message is received for a session,
+    /// it gets moved up the QML by this
+    pub fn set_session_first(&mut self, sess: Session) {
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        self.content.insert(0, sess);
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
+    }
+
+    // Event handlers below this line
+
+    /// Handle loaded session
+    pub fn handle_sessions_loaded(&mut self, sessions: Vec<Session>) {
+        // XXX: maybe this should be called before even accessing the db?
+        (self as &mut dyn QAbstractListModel).begin_reset_model();
+        self.content = sessions;
+        (self as &mut dyn QAbstractListModel).end_reset_model();
+    }
+
+    /// Handle add-or-replace session
+    pub fn handle_fetch_session(&mut self, sess: Session, mark_read: bool) {
+        // TODO: model/session.go `SetSection`
+        log::trace!("set section: session");
+
+        let sid = sess.id;
+        let mut already_unread = false;
+
+        let found = self
+            .content
+            .iter()
+            .enumerate()
+            .find(|(_i, s)| s.id == sess.id);
+
+        if let Some((idx, session)) = found {
+            if session.unread {
+                already_unread = true;
+            }
+
+            // Remove from this place so it can be added back in later
+            (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            self.content.remove(idx);
+            (self as &mut dyn QAbstractListModel).end_remove_rows();
+
+        };
+
+        if sess.unread && mark_read {
+            use futures::prelude::*;
+            Arbiter::spawn(
+                self.actor
+                    .as_ref()
+                    .unwrap()
+                    .send(actor::MarkSessionRead {sess, already_unread})
+                    .map(Result::unwrap),
+            );
+            log::trace!("Dispatched actor::MarkSessionRead({}, {})", sid, already_unread);
+
+            // unimplemented!();
+        } else if sess.unread && !already_unread {
+            // TODO: model.session.go:181
+            // let count = self.unread() + 1;
+
+            // self.set_unread(count);
+            // self.unread_changed(count);
+        }
+
+        // XXX: I think it was discussed that the re-inserting would be async
+        //      but it might not be a good use of time now
+        log::trace!("Inserting the message back in qml");
+    }
+
+    /// When a session is marked as read and this handler called, implicitly
+    /// the session will be set at the top of the QML list.
+    pub fn handle_mark_session_read(&mut self, mut sess: Session, already_unread: bool) {
+        sess.unread = false;
+
+        if already_unread {
+            // TODO: model.session.go:173
+            // let count = std::cmp::min(0, self.unread() - 1);
+
+            // self.set_unread(count);
+            // self.unread_changed(count);
+        }
+    }
+
+    /// Remove deleted session from QML
+    pub fn handle_delete_session(&mut self, idx: usize) {
+        (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+        self.content.remove(idx);
+        (self as &mut dyn QAbstractListModel).end_remove_rows();
+    }
 }
 
 impl Session {
     fn section(&self) -> String {
         // XXX: stub
-        "Section".into()
+        let timestamp = chrono::NaiveDateTime::from_timestamp(self.timestamp, 0);
+        let now = chrono::Local::now();
+        let today = chrono::NaiveDate::from_ymd(now.year(), now.month(), now.day())
+            .and_hms(0, 0, 0);
+
+        let diff = today.signed_duration_since(timestamp);
+
+        if diff.num_seconds() <= 0 {
+            String::from("Today")
+        } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
+            String::from("Yesterday")
+        } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
+            let wd = timestamp.weekday().number_from_monday();
+            // TODO: core.QLocale_System().DayName probably not implemented
+            wd.to_string()
+        } else {
+            String::from("Older")
+        }
     }
 }
 
@@ -78,90 +249,5 @@ impl QAbstractListModel for SessionModel {
 
     fn role_names(&self) -> HashMap<i32, QByteArray> {
         SessionRoles::role_names()
-    }
-}
-
-pub struct SessionActor {
-    inner: QObjectBox<SessionModel>,
-    storage: Option<Storage>,
-}
-
-impl SessionActor {
-    pub fn new(app: &mut SailfishApp) -> Self {
-        let inner = QObjectBox::new(SessionModel::default());
-        app.set_object_property("SessionModel".into(), inner.pinned());
-
-        Self {
-            inner,
-            storage: None,
-        }
-    }
-
-    /// Panics when storage is not yet set.
-    fn reload(&self, session_actor: Addr<SessionActor>) -> impl Future<Output = ()> {
-        let db = self.storage.clone().unwrap().db;
-
-        async move {
-            let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
-                let db = db
-                    .lock()
-                    .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
-                use crate::schema::session::dsl::*;
-                Ok(session.order_by(timestamp.desc()).load(&*db)?)
-            })
-            .await
-            .unwrap();
-            // XXX handle error
-
-            session_actor.send(SessionsLoaded(sessions)).await.unwrap();
-            // XXX handle error
-        }
-    }
-}
-
-#[derive(Message)]
-#[rtype(result = "()")]
-struct SessionsLoaded(Vec<Session>);
-
-impl Handler<SessionsLoaded> for SessionActor {
-    type Result = ();
-
-    fn handle(
-        &mut self,
-        SessionsLoaded(session): SessionsLoaded,
-        _ctx: &mut Self::Context,
-    ) -> Self::Result {
-        use std::ops::DerefMut;
-
-        let inner = self.inner.pinned();
-        let mut inner = inner.borrow_mut();
-
-        // XXX: maybe this should be called before even accessing the db?
-        (inner.deref_mut().deref_mut() as &mut dyn QAbstractListModel).begin_reset_model();
-        inner.content = session;
-        (inner.deref_mut().deref_mut() as &mut dyn QAbstractListModel).end_reset_model();
-    }
-}
-
-impl Handler<StorageReady> for SessionActor {
-    type Result = ();
-
-    fn handle(
-        &mut self,
-        StorageReady(storage, _config): StorageReady,
-        ctx: &mut Self::Context,
-    ) -> Self::Result {
-        self.storage = Some(storage);
-        log::trace!("SessionActor has a registered storage");
-
-        Arbiter::spawn(self.reload(ctx.address()));
-    }
-}
-
-impl Actor for SessionActor {
-    type Context = Context<Self>;
-
-    fn started(&mut self, ctx: &mut Self::Context) {
-        self.inner.pinned().borrow_mut().actor = Some(ctx.address());
     }
 }

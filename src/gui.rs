@@ -20,7 +20,7 @@ use qmetaobject::*;
 pub struct StorageReady(pub Storage, pub SignalConfig);
 
 pub struct WhisperfishApp {
-    pub session_actor: Addr<model::SessionActor>,
+    pub session_actor: Addr<actor::SessionActor>,
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
     pub device_model: QObjectBox<model::DeviceModel>,
@@ -79,7 +79,7 @@ pub async fn run() -> Result<(), failure::Error> {
     app.install_default_translator().unwrap();
 
     let message_actor = actor::MessageActor::new(&mut app).start();
-    let session_actor = model::SessionActor::new(&mut app).start();
+    let session_actor = actor::SessionActor::new(&mut app).start();
     let client_actor = worker::ClientActor::new(&mut app)?.start();
 
     let whisperfish = Rc::new(WhisperfishApp {

@@ -67,7 +67,7 @@ impl MessageModel {
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::FetchSession(sid))
+                .send(actor::FetchSession {id: sid, mark_read: false})
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::FetchSession({})", sid);
@@ -124,6 +124,7 @@ impl MessageModel {
 
     // Event handlers below this line
 
+    /// Handle a fetched session from message's point of view
     pub fn handle_fetch_session(&mut self, sess: store::Session) {
         log::trace!("handle_fetch_session({})", sess.message);
         self.sessionId = sess.id;

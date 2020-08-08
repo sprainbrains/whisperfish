@@ -8,7 +8,10 @@ use qmetaobject::*;
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-pub struct FetchSession(pub i64);
+pub struct FetchSession {
+    pub id: i64,
+    pub mark_read: bool,
+}
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
@@ -65,7 +68,7 @@ impl Handler<FetchSession> for MessageActor {
 
     fn handle(
         &mut self,
-        FetchSession(sid): FetchSession,
+        FetchSession {id: sid, mark_read}: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let sess = self.storage.as_ref().unwrap().fetch_session(sid);
