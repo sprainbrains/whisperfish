@@ -7,6 +7,7 @@ use crate::model::*;
 use crate::store::Session;
 
 use actix::prelude::*;
+use futures::prelude::*;
 use qmetaobject::*;
 
 #[derive(QObject, Default)]
@@ -22,7 +23,7 @@ pub struct SessionModel {
     removeById: qt_method!(fn(&self, id: i64)),
     reload: qt_method!(fn(&self)),
 
-    markRead: qt_method!(fn(&self, id: usize)),
+    markRead: qt_method!(fn(&mut self, id: usize)),
     markReceived: qt_method!(fn(&self, id: usize)),
     markSent: qt_method!(fn(&self, id: usize, message: QString)),
 }
@@ -34,7 +35,6 @@ impl SessionModel {
 
     /// Add or replace a Session in the model.
     fn add(&self, id: i64, mark_read: bool) {
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -55,7 +55,6 @@ impl SessionModel {
 
         let sid = self.content[idx].id;
 
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -75,7 +74,6 @@ impl SessionModel {
             .position(|x| x.id == id)
             .expect("Session ID not found in session model");
 
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -90,8 +88,29 @@ impl SessionModel {
         unimplemented!();
     }
 
-    fn markRead(&self, _id: usize) {
-        log::trace!("STUB: Mark read called");
+    fn markRead(&mut self, id: usize) {
+        if let Some((idx, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.id == id as i64)
+        {
+            Arbiter::spawn(
+                self.actor
+                    .as_ref()
+                    .unwrap()
+                    .send(actor::MarkSessionRead {
+                        sess: session.clone(),
+                        already_unread: session.unread,
+                    })
+                    .map(Result::unwrap),
+            );
+
+            session.unread = false;
+            let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        }
+
         // XXX: don't forget sync messages
     }
 
@@ -124,7 +143,7 @@ impl SessionModel {
     }
 
     /// Handle add-or-replace session
-    pub fn handle_fetch_session(&mut self, sess: Session, mark_read: bool) {
+    pub fn handle_fetch_session(&mut self, mut sess: Session, mark_read: bool) {
         // TODO: model/session.go `SetSection`
         log::trace!("set section: session");
 
@@ -149,7 +168,6 @@ impl SessionModel {
         };
 
         if sess.unread && mark_read {
-            use futures::prelude::*;
             Arbiter::spawn(
                 self.actor
                     .as_ref()
@@ -165,6 +183,7 @@ impl SessionModel {
                 sid,
                 already_unread
             );
+            sess.unread = false;
 
         // unimplemented!();
         } else if sess.unread && !already_unread {

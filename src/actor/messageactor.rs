@@ -68,14 +68,18 @@ impl Handler<FetchSession> for MessageActor {
 
     fn handle(
         &mut self,
-        FetchSession {id: sid, mark_read}: FetchSession,
+        FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let sess = self.storage.as_ref().unwrap().fetch_session(sid);
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_session(sess.expect("FIXME No session returned!"));
+        let storage = self.storage.as_ref().unwrap();
+        let mut sess = storage
+            .fetch_session(sid)
+            .expect("FIXME No session returned!");
+        if mark_read {
+            storage.mark_session_read(&sess);
+            sess.unread = false;
+        }
+        self.inner.pinned().borrow_mut().handle_fetch_session(sess);
     }
 }
 
