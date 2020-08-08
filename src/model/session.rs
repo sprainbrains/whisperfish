@@ -42,7 +42,7 @@ impl SessionModel {
                 .send(actor::FetchSession { id, mark_read })
                 .map(Result::unwrap),
         );
-        log::trace!("Dispatched actor::FetchMessage({})", id);
+        log::trace!("Dispatched actor::FetchSession({})", id);
     }
 
     /// Removes session at index. This removes the session from the list model and
@@ -146,7 +146,6 @@ impl SessionModel {
             (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
             self.content.remove(idx);
             (self as &mut dyn QAbstractListModel).end_remove_rows();
-
         };
 
         if sess.unread && mark_read {
@@ -155,12 +154,19 @@ impl SessionModel {
                 self.actor
                     .as_ref()
                     .unwrap()
-                    .send(actor::MarkSessionRead {sess, already_unread})
+                    .send(actor::MarkSessionRead {
+                        sess: sess.clone(),
+                        already_unread,
+                    })
                     .map(Result::unwrap),
             );
-            log::trace!("Dispatched actor::MarkSessionRead({}, {})", sid, already_unread);
+            log::trace!(
+                "Dispatched actor::MarkSessionRead({}, {})",
+                sid,
+                already_unread
+            );
 
-            // unimplemented!();
+        // unimplemented!();
         } else if sess.unread && !already_unread {
             // TODO: model.session.go:181
             // let count = self.unread() + 1;
@@ -169,9 +175,11 @@ impl SessionModel {
             // self.unread_changed(count);
         }
 
-        // XXX: I think it was discussed that the re-inserting would be async
-        //      but it might not be a good use of time now
         log::trace!("Inserting the message back in qml");
+
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0 as i32, 0 as i32);
+        self.content.insert(0, sess);
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 
     /// When a session is marked as read and this handler called, implicitly
@@ -201,8 +209,8 @@ impl Session {
         // XXX: stub
         let timestamp = chrono::NaiveDateTime::from_timestamp(self.timestamp, 0);
         let now = chrono::Local::now();
-        let today = chrono::NaiveDate::from_ymd(now.year(), now.month(), now.day())
-            .and_hms(0, 0, 0);
+        let today =
+            chrono::NaiveDate::from_ymd(now.year(), now.month(), now.day()).and_hms(0, 0, 0);
 
         let diff = today.signed_duration_since(timestamp);
 

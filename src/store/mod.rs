@@ -17,7 +17,7 @@ mod protocol_store;
 use protocol_store::ProtocolStore;
 
 /// Session as it relates to the schema
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Clone)]
 pub struct Session {
     pub id: i64,
     pub source: String,
@@ -704,9 +704,7 @@ impl Storage {
         log::trace!("Called mark_session_read({})", sess.id);
 
         diesel::update(session::table.filter(session::id.eq(sess.id)))
-            .set((
-                session::unread.eq(false),
-            ))
+            .set((session::unread.eq(false),))
             .execute(&*conn)
             .expect("Mark session read");
     }

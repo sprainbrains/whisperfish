@@ -27,7 +27,7 @@ pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
     messageReceived: qt_signal!(sid: i64, mid: i32),
     messageReceipt: qt_signal!(sid: i64, mid: i32),
-    notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, is_group: bool),
+    notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, isGroup: bool),
     promptResetPeerIdentity: qt_signal!(),
 
     actor: Option<Addr<ClientActor>>,
