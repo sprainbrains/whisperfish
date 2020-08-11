@@ -642,59 +642,57 @@ impl Storage {
         log::trace!("Called delete_session({})", id);
 
         // Preserve the Go order of deleting things
-        let conn = conn
-            .transaction(|| -> Result<_, diesel::result::Error> {
-                // Session
-                // `delete from session where id = ?`
-                let query = diesel::delete(session::table.filter(session::columns::id.eq(id)));
-                let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-                log::trace!("{:?}", debug);
-                query.execute(&*conn)?;
+        conn.transaction(|| -> Result<_, diesel::result::Error> {
+            // SessioN
+            // `delete from session where id = ?`
+            let query = diesel::delete(session::table.filter(session::columns::id.eq(id)));
+            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+            log::trace!("{:?}", debug);
+            query.execute(&*conn)?;
 
-                // SentQ
-                // `delete from sentq where message_id in (select id from message where session_id = ?)`
-                //
-                // XXX: I hate the for loop, but the below fight with Diesel
-                //      is not conductive to getting things actually done...
+            // SentQ
+            // `delete from sentq where message_id in (select id from message where session_id = ?)`
+            //
+            // XXX: I hate the for loop, but the below fight with Diesel
+            //      is not conductive to getting things actually done...
 
-                /*
-                let query = diesel::delete(sentq::table).filter(
-                    sentq::message_id.eq_any(
-                        message::table
-                            .filter(message::columns::session_id.eq(id))
-                            .select(message::columns::session_id),
-                    ),
-                );
-                */
+            /*
+            let query = diesel::delete(sentq::table).filter(
+                sentq::message_id.eq_any(
+                    message::table
+                        .filter(message::columns::session_id.eq(id))
+                        .select(message::columns::session_id),
+                ),
+            );
+            */
 
-                for msg_id in message::table
-                    .select(message::columns::id)
-                    .filter(message::columns::session_id.eq(id))
-                    .load::<i32>(&*conn)
-                    .unwrap()
-                {
-                    let query =
-                        diesel::delete(sentq::table.filter(sentq::columns::message_id.eq(msg_id)));
-                    let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-                    log::trace!("{:?}", debug);
-                    query.execute(&*conn)?;
-                }
-
-                let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-                log::trace!("{:?}", debug);
-                query.execute(&*conn)?;
-
-                // Messages
-                // `delete from message where session_id = ?`
+            for msg_id in message::table
+                .select(message::columns::id)
+                .filter(message::columns::session_id.eq(id))
+                .load::<i32>(&*conn)
+                .unwrap()
+            {
                 let query =
-                    diesel::delete(message::table.filter(message::columns::session_id.eq(id)));
+                    diesel::delete(sentq::table.filter(sentq::columns::message_id.eq(msg_id)));
                 let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
                 log::trace!("{:?}", debug);
                 query.execute(&*conn)?;
+            }
 
-                Ok(())
-            })
-            .expect("deleting session and its messages");
+            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+            log::trace!("{:?}", debug);
+            query.execute(&*conn)?;
+
+            // Messages
+            // `delete from message where session_id = ?`
+            let query = diesel::delete(message::table.filter(message::columns::session_id.eq(id)));
+            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+            log::trace!("{:?}", debug);
+            query.execute(&*conn)?;
+
+            Ok(())
+        })
+        .expect("deleting session and its messages");
     }
 
     pub fn mark_session_read(&self, sess: &Session) {
