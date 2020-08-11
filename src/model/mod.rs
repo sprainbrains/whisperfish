@@ -68,7 +68,10 @@ use chrono::prelude::*;
 use qmetaobject::*;
 
 fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
-    let dt = NaiveDateTime::from_timestamp(timestamp / 1000, (timestamp % 1000) as u32);
+    let dt = Utc
+        .timestamp(timestamp / 1000, (timestamp % 1000) as u32)
+        .with_timezone(&Local)
+        .naive_local();
     let date = QDate::from_y_m_d(dt.year(), dt.month() as i32, dt.day() as i32);
     let time = QTime::from_h_m_s_ms(
         dt.hour() as i32,
