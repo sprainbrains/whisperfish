@@ -89,6 +89,8 @@ impl ClientActor {
                 .first()
                 .unwrap(),
         };
+
+        let ptr2 = ptr.clone();
         Arbiter::spawn(
             async move {
                 use futures::io::AsyncReadExt;
@@ -132,9 +134,9 @@ impl ClientActor {
                 client_addr.send(AttachmentDownloaded(mid)).await?;
                 Ok(())
             }
-            .map(|r: Result<(), failure::Error>| {
+            .map(move |r: Result<(), failure::Error>| {
                 if let Err(e) = r {
-                    log::error!("Error fetching attachment: {:?}", e);
+                    log::error!("Error fetching attachment for message with ID `{}` {:?}: {:?}", mid, ptr2, e);
                 }
             }),
         )

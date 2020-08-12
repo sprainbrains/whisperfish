@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use failure::{ensure, format_err, Error};
+use failure::{bail, ensure, format_err, Error};
 use futures::io::AsyncReadExt;
 use harbour_whisperfish::settings::SignalConfig;
 use harbour_whisperfish::store::{self, Storage};
@@ -26,8 +26,16 @@ struct Opt {
     key: String,
 
     /// Message will be found by timestamp.
+    ///
+    /// Specify either this or `message_id`
     #[structopt(short, long)]
-    timestamp: u64,
+    timestamp: Option<u64>,
+
+    /// Message will be found by ID.
+    ///
+    /// Specify either this or `timestamp`
+    #[structopt(short, long)]
+    message_id: Option<i32>,
 
     /// Extension for file
     #[structopt(short, long)]
@@ -69,10 +77,23 @@ async fn main() -> Result<(), Error> {
     );
 
     // Check whether we can find the message that this attachment should be linked to.
-    let msg = storage
-        .fetch_message_by_timestamp(opt.timestamp)
-        .expect("find message with ts");
-    let mid = msg.id;
+    let (mid, msg) = match (opt.message_id, opt.timestamp) {
+        (Some(mid), None) => {
+            let msg = storage.fetch_message(mid).expect("find message by mid");
+            ensure!(
+                msg.id == mid,
+                "unreachable: Fetched message ID does not equal supplied mid"
+            );
+            (msg.id, msg)
+        }
+        (None, Some(timestamp)) => {
+            let msg = storage
+                .fetch_message_by_timestamp(timestamp)
+                .expect("find message with ts");
+            (msg.id, msg)
+        }
+        _ => bail!("Please specify either message_id or timestamp"),
+    };
 
     // Connection details for OWS servers
     let phonenumber = phonenumber::parse(None, config.tel).unwrap();
