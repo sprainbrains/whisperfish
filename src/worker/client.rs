@@ -39,6 +39,7 @@ pub struct ClientActor {
 
     /// Some(Service) when connected, otherwise None
     service: Option<AwcPushService>,
+    credentials: Option<Credentials>,
     storage: Option<Storage>,
     cipher: Option<ServiceCipher>,
     context: Context,
@@ -53,6 +54,7 @@ impl ClientActor {
 
         Ok(Self {
             inner,
+            credentials: None,
             service: None,
             storage: None,
             cipher: None,
@@ -404,10 +406,6 @@ impl Handler<StorageReady> for ClientActor {
 
                 let service =
                     AwcPushService::new(service_cfg, credentials.clone(), &useragent, &ROOT_CA);
-                let mut receiver = MessageReceiver::new(service.clone());
-
-                let pipe = receiver.create_message_pipe(credentials).await.unwrap();
-                let stream = pipe.stream();
                 // end web socket
 
                 // Signal service context
@@ -428,12 +426,38 @@ impl Handler<StorageReady> for ClientActor {
                 let cipher = ServiceCipher::from_context(context, local_addr, store_context);
                 // end signal service context
 
-                (cipher, service, stream)
+                (credentials, service, cipher)
             }
             .into_actor(self)
-            .map(move |(cipher, service, pipe), act, ctx| {
+            .map(|(credentials, service, cipher), act, ctx| {
+                act.credentials = Some(credentials);
                 act.service = Some(service);
                 act.cipher = Some(cipher);
+                ctx.notify(Restart);
+            }),
+        )
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+struct Restart;
+
+impl Handler<Restart> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
+        let service = self.service.clone().unwrap();
+        let credentials = self.credentials.clone().unwrap();
+        Box::pin(
+            async move {
+                let mut receiver = MessageReceiver::new(service.clone());
+
+                let pipe = receiver.create_message_pipe(credentials).await.unwrap();
+                pipe.stream()
+            }
+            .into_actor(self)
+            .map(move |pipe, _act, ctx| {
                 ctx.add_stream(pipe);
             }),
         )
@@ -461,5 +485,11 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
         } else {
             log::warn!("Unknown envelope type {:?}", msg.r#type());
         }
+    }
+
+    /// Called when the WebSocket somehow has disconnected.
+    fn finished(&mut self, ctx: &mut Self::Context) {
+        log::debug!("Attempting reconnect");
+        ctx.notify(Restart);
     }
 }
