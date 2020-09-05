@@ -121,7 +121,12 @@ impl ClientActor {
                 );
                 let mut key = [0u8; 64];
                 key.copy_from_slice(&key_material);
+
                 decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
+                if let Some(size) = ptr.size {
+                    log::debug!("Truncating attachment to {}B", size);
+                    ciphertext.truncate(size as usize);
+                }
 
                 let attachment_path =
                     crate::store::save_attachment(&dest, ext, futures::io::Cursor::new(ciphertext))
