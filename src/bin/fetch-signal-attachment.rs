@@ -40,6 +40,10 @@ struct Opt {
     /// Extension for file
     #[structopt(short, long)]
     ext: String,
+
+    /// Mime-type for file
+    #[structopt(short, long)]
+    mime_type: String,
 }
 
 fn read_config() -> Result<SignalConfig, Error> {
@@ -147,6 +151,7 @@ async fn main() -> Result<(), Error> {
     storage.register_attachment(
         mid,
         attachment_path.to_str().expect("attachment path utf-8"),
+        &opt.mime_type,
     );
     log::info!("Attachment registred with message {:?}", msg);
     Ok(())

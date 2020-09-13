@@ -780,7 +780,7 @@ impl Storage {
         Some(msg)
     }
 
-    pub fn register_attachment(&mut self, mid: i32, path: &str) {
+    pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
         // XXX: multiple attachments https://gitlab.com/rubdos/whisperfish/-/issues/11
 
         let db = self.db.lock();
@@ -788,6 +788,7 @@ impl Storage {
 
         diesel::update(message::table.filter(message::id.eq(mid)))
             .set((
+                message::mime_type.eq(mime_type),
                 message::has_attachment.eq(true),
                 message::attachment.eq(path),
             ))
