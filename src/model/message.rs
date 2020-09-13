@@ -18,8 +18,8 @@ define_model_roles! {
         Received(received):                             "received",
         Flags(flags):                                   "flags",
         Attachment(attachment via qstring_from_option): "attachment",
-        MimeType(mimetype via qstring_from_option):     "mimetype",
-        HasAttachment(hasattachment):                   "hasattachment",
+        MimeType(mimetype via qstring_from_option):     "mimeType",
+        HasAttachment(hasattachment):                   "hasAttachment",
         Outgoing(outgoing):                             "outgoing",
         Queued(queued):                                 "queued",
     }
@@ -50,6 +50,8 @@ pub struct MessageModel {
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(fn(&self, id: usize)),
+
+    numericFingerprint: qt_method!(fn(&self, localId: QString, remoteId: QString) -> QString),
 }
 
 impl MessageModel {
@@ -65,7 +67,10 @@ impl MessageModel {
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::FetchSession(sid))
+                .send(actor::FetchSession {
+                    id: sid,
+                    mark_read: false,
+                })
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::FetchSession({})", sid);
@@ -114,8 +119,15 @@ impl MessageModel {
         log::trace!("Dispatched actor::DeleteMessage({}, {})", msg.id, idx);
     }
 
+    #[allow(non_snake_case)]
+    fn numericFingerprint(&self, _localId: QString, _remoteId: QString) -> QString {
+        // XXX
+        "unimplemented".into()
+    }
+
     // Event handlers below this line
 
+    /// Handle a fetched session from message's point of view
     pub fn handle_fetch_session(&mut self, sess: store::Session) {
         log::trace!("handle_fetch_session({})", sess.message);
         self.sessionId = sess.id;
@@ -153,12 +165,8 @@ impl MessageModel {
     pub fn handle_fetch_message(&mut self, message: store::Message) {
         log::trace!("handle_fetch_message({})", message.id);
 
-        let tail = self.row_count();
-
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(tail, tail + 1);
-
-        self.messages.insert(tail as usize, message);
-
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        self.messages.insert(0, message);
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 

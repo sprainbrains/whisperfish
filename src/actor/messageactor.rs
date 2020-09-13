@@ -1,13 +1,17 @@
+use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
 use crate::sfos::SailfishApp;
-use crate::store::{Storage, StorageReady};
+use crate::store::Storage;
 
 use actix::prelude::*;
 use qmetaobject::*;
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-pub struct FetchSession(pub i64);
+pub struct FetchSession {
+    pub id: i64,
+    pub mark_read: bool,
+}
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
@@ -51,7 +55,7 @@ impl Handler<StorageReady> for MessageActor {
 
     fn handle(
         &mut self,
-        StorageReady(storage): StorageReady,
+        StorageReady(storage, _config): StorageReady,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         self.storage = Some(storage);
@@ -64,14 +68,18 @@ impl Handler<FetchSession> for MessageActor {
 
     fn handle(
         &mut self,
-        FetchSession(sid): FetchSession,
+        FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let sess = self.storage.as_ref().unwrap().fetch_session(sid);
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_session(sess.expect("FIXME No session returned!"));
+        let storage = self.storage.as_ref().unwrap();
+        let mut sess = storage
+            .fetch_session(sid)
+            .expect("FIXME No session returned!");
+        if mark_read {
+            storage.mark_session_read(&sess);
+            sess.unread = false;
+        }
+        self.inner.pinned().borrow_mut().handle_fetch_session(sess);
     }
 }
 

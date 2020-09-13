@@ -208,7 +208,32 @@ fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
     bail!("Could not detect Qt version");
 }
 
+fn protobuf() -> Result<(), Error> {
+    let protobuf = Path::new("protobuf").to_owned();
+
+    let input: Vec<_> = protobuf
+        .read_dir()
+        .expect("protobuf directory")
+        .filter_map(|entry| {
+            let entry = entry.expect("readable protobuf directory");
+            let path = entry.path();
+            if Some("proto") == path.extension().and_then(std::ffi::OsStr::to_str) {
+                assert!(path.is_file());
+                println!("cargo:rerun-if-changed={}", path.to_str().unwrap());
+                Some(path)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    prost_build::compile_protos(&input, &[protobuf])?;
+    Ok(())
+}
+
 fn main() {
+    protobuf().unwrap();
+
     let (mer_target_root, cross_compile) = install_mer_hacks();
     let qt_include_path = if cross_compile {
         format!("{}/usr/include/qt5/", mer_target_root)

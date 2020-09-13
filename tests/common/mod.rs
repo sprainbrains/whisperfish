@@ -1,14 +1,22 @@
 use diesel::prelude::*;
 use diesel_migrations;
-use harbour_whisperfish::store::memory;
-use harbour_whisperfish::store::Storage;
+use harbour_whisperfish::store::temp;
 use harbour_whisperfish::store::{NewMessage, NewSession};
+use harbour_whisperfish::store::{Storage, StorageLocation};
 use rstest::fixture;
 
-/// We do not want to test on a live db, use :memory:
+pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
+
+/// We do not want to test on a live db, use temporary dir
 #[fixture]
-pub fn in_memory_db() -> Storage {
-    Storage::open(&memory()).unwrap()
+pub fn in_memory_db() -> InMemoryDb {
+    || -> Result<InMemoryDb, failure::Error> {
+        let temp = temp();
+        std::fs::create_dir(temp.join("db"))?;
+        std::fs::create_dir(temp.join("storage"))?;
+        Ok((Storage::open(&temp)?, temp))
+    }()
+    .expect("initialized storage")
 }
 
 /// Setup helper for basic, empty database

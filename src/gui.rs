@@ -2,23 +2,32 @@ use std::cell::RefCell;
 #[allow(unused_imports)]
 use std::rc::Rc;
 
-use crate::store::{Storage, StorageReady};
-#[allow(unused_imports)]
-use crate::{actor, model, settings::Settings, sfos::SailfishApp, worker};
+use crate::store::Storage;
+#[allow(unused_imports)] // XXX: review
+use crate::{
+    actor, model,
+    settings::{Settings, SignalConfig},
+    sfos::SailfishApp,
+    worker,
+};
 
 use actix::prelude::*;
 use futures::prelude::*;
 use qmetaobject::*;
 
+#[derive(actix::Message, Clone)]
+#[rtype(result = "()")]
+pub struct StorageReady(pub Storage, pub SignalConfig);
+
 pub struct WhisperfishApp {
-    pub session_actor: Addr<model::SessionActor>,
+    pub session_actor: Addr<actor::SessionActor>,
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
     pub device_model: QObjectBox<model::DeviceModel>,
     pub prompt: QObjectBox<model::Prompt>,
     pub file_picker: QObjectBox<model::FilePicker>,
 
-    pub client_worker: QObjectBox<worker::ClientWorker>,
+    pub client_actor: Addr<worker::ClientActor>,
     pub send_worker: QObjectBox<worker::SendWorker>,
     pub setup_worker: QObjectBox<worker::SetupWorker>,
 
@@ -30,7 +39,8 @@ pub struct WhisperfishApp {
 impl WhisperfishApp {
     pub async fn storage_ready(&self) {
         let storage = self.storage.borrow().as_ref().unwrap().clone();
-        let msg = StorageReady(storage);
+        let config = self.setup_worker.pinned().borrow().config.clone().unwrap();
+        let msg = StorageReady(storage, config);
 
         let mut sends = futures::stream::FuturesUnordered::<
             Box<dyn Future<Output = Result<(), String>> + std::marker::Unpin>,
@@ -44,6 +54,11 @@ impl WhisperfishApp {
             self.message_actor
                 .send(msg.clone())
                 .map_err(|e| format!("MessageActor {:?}", e)),
+        ));
+        sends.push(Box::new(
+            self.client_actor
+                .send(msg)
+                .map_err(|e| format!("ClientActor {:?}", e)),
         ));
 
         while let Some(res) = sends.next().await {
@@ -64,17 +79,18 @@ pub async fn run() -> Result<(), failure::Error> {
     app.install_default_translator().unwrap();
 
     let message_actor = actor::MessageActor::new(&mut app).start();
-    let session_actor = model::SessionActor::new(&mut app).start();
+    let session_actor = actor::SessionActor::new(&mut app).start();
+    let client_actor = worker::ClientActor::new(&mut app)?.start();
 
     let whisperfish = Rc::new(WhisperfishApp {
         session_actor,
         message_actor,
+        client_actor,
         contact_model: QObjectBox::new(model::ContactModel::default()),
         device_model: QObjectBox::new(model::DeviceModel::default()),
         prompt: QObjectBox::new(model::Prompt::default()),
         file_picker: QObjectBox::new(model::FilePicker::default()),
 
-        client_worker: QObjectBox::new(worker::ClientWorker::default()),
         send_worker: QObjectBox::new(worker::SendWorker::default()),
         setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
@@ -93,7 +109,6 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
     app.set_object_property("DeviceModel".into(), whisperfish.device_model.pinned());
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
-    app.set_object_property("ClientWorker".into(), whisperfish.client_worker.pinned());
     app.set_object_property("SendWorker".into(), whisperfish.send_worker.pinned());
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));

@@ -9,16 +9,15 @@ use diesel::debug_query;
 use diesel::expression::sql_literal::sql;
 use diesel::prelude::*;
 
-use failure::*;
-use libsignal_service::models as svcmodels;
-use libsignal_service::{GROUP_LEAVE_FLAG, GROUP_UPDATE_FLAG};
+use futures::io::AsyncRead;
 
-#[derive(actix::Message, Clone)]
-#[rtype(result = "()")]
-pub struct StorageReady(pub Storage);
+use failure::*;
+
+mod protocol_store;
+use protocol_store::ProtocolStore;
 
 /// Session as it relates to the schema
-#[derive(Queryable)]
+#[derive(Queryable, Debug, Clone)]
 pub struct Session {
     pub id: i64,
     pub source: String,
@@ -36,7 +35,7 @@ pub struct Session {
 }
 
 /// ID-free Session model for insertions
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[table_name = "session"]
 pub struct NewSession {
     pub source: String,
@@ -54,7 +53,7 @@ pub struct NewSession {
 }
 
 /// Message as it relates to the schema
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct Message {
     pub id: i32,
     pub sid: i64,
@@ -88,41 +87,40 @@ pub struct NewMessage {
     pub outgoing: bool,
 }
 
+/// ID-free Group model for insertions
+#[derive(Clone, Debug)]
+pub struct NewGroup<'a> {
+    pub id: &'a [u8],
+    /// Group name
+    pub name: String,
+    /// List of E164
+    pub members: Vec<String>,
+}
+
 /// Saves a given attachment into a random-generated path. Returns the path.
 ///
 /// This was a Message method in Go
-pub fn save_attachment(dir: &Path, attachment: &svcmodels::Attachment<u8>) -> PathBuf {
+pub async fn save_attachment(
+    dir: impl AsRef<Path>,
+    ext: &str,
+    mut attachment: impl AsyncRead + Unpin,
+) -> PathBuf {
     use std::fs::File;
-    use std::io::Write;
     use uuid::Uuid;
 
     let fname = Uuid::new_v4().to_simple();
     let fname_formatted = format!("{}", fname);
     let fname_path = Path::new(&fname_formatted);
 
-    // Sailfish and/or Rust needs "image/jpg" and some others need coaching
-    // before taking a wild guess
-    let ext = if attachment.mime_type == String::from("text/plain") {
-        "txt"
-    } else if attachment.mime_type == String::from("image/jpeg") {
-        "jpg"
-    } else if attachment.mime_type == String::from("image/jpg") {
-        "jpg"
-    } else {
-        mime_guess::get_mime_extensions_str(attachment.mime_type.as_str())
-            .expect("Could not find mime")
-            .first()
-            .unwrap()
-    };
-
-    let mut path = dir.to_path_buf();
-    path.push(fname_path);
+    let mut path = dir.as_ref().join(fname_path);
     path.set_extension(ext);
 
-    let mut file = File::create(&path).expect("Could not create file");
-    let content = vec![attachment.reader];
+    let file = File::create(&path).expect("Could not create file");
 
-    file.write_all(&content).expect("Could not write to file");
+    // https://github.com/rust-lang/futures-rs/issues/2105
+    // https://github.com/tokio-rs/tokio/pull/1744
+    let mut file = futures::io::AllowStdIo::new(file);
+    futures::io::copy(&mut attachment, &mut file).await.unwrap();
 
     return path;
 }
@@ -154,6 +152,12 @@ pub fn memory() -> StorageLocation<PathBuf> {
     StorageLocation::Memory
 }
 
+#[cfg_attr(not(test), allow(unused))]
+#[cfg(unix)]
+pub fn temp() -> StorageLocation<tempdir::TempDir> {
+    StorageLocation::Path(tempdir::TempDir::new("harbour-whisperfish-temp").unwrap())
+}
+
 pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
     let data_dir = dirs::data_local_dir().ok_or(format_err!("Could not find data directory."))?;
 
@@ -162,12 +166,12 @@ pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
     ))
 }
 
-impl std::ops::Deref for StorageLocation<PathBuf> {
+impl<P: AsRef<Path>> std::ops::Deref for StorageLocation<P> {
     type Target = Path;
     fn deref(&self) -> &Path {
         match self {
             StorageLocation::Memory => unimplemented!(":memory: deref"),
-            StorageLocation::Path(p) => p,
+            StorageLocation::Path(p) => p.as_ref(),
         }
     }
 }
@@ -196,6 +200,8 @@ pub struct Storage {
     pub db: Arc<Mutex<SqliteConnection>>,
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
+    protocol_store: Arc<Mutex<ProtocolStore>>,
+    path: PathBuf,
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
@@ -245,13 +251,103 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
     })
 }
 
+fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+    log::trace!("Writing file {:?}", path);
+
+    // Generate random IV
+    use rand::RngCore;
+    let mut iv = [0u8; 16];
+    rand::thread_rng().fill_bytes(&mut iv);
+
+    // Encrypt
+    use aes::Aes128;
+    use block_modes::block_padding::Pkcs7;
+    use block_modes::{BlockMode, Cbc};
+    let ciphertext = {
+        let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
+            .map_err(|_| format_err!("CBC initialization error"))?;
+        cipher.encrypt_vec(contents).to_owned()
+    };
+
+    let mac = {
+        use hmac::{Hmac, Mac, NewMac};
+        use sha2::Sha256;
+        // Verify HMAC SHA256, 32 last bytes
+        let mut mac = Hmac::<Sha256>::new_varkey(&keys[16..])
+            .map_err(|_| format_err!("MAC keylength error"))?;
+        mac.update(&iv);
+        mac.update(&ciphertext);
+        mac.finalize().into_bytes()
+    };
+
+    // Write iv, ciphertext, mac
+    use std::io::Write;
+    let mut file = std::fs::File::create(&path)?;
+    file.write(&iv)?;
+    file.write(&ciphertext)?;
+    file.write(&mac)?;
+
+    Ok(())
+}
+
+fn load_file_sync(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+    // XXX This is *full* of bad practices.
+    // Let's try to migrate to nacl or something alike in the future.
+
+    log::trace!("Opening file {:?}", path);
+    let mut contents = std::fs::read(&path)?;
+    let count = contents.len();
+
+    log::trace!("Read {:?}, {} bytes", path, count);
+    ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
+
+    let (iv, contents) = contents.split_at_mut(16);
+    let count = count - 16;
+    let (contents, mac) = contents.split_at_mut(count - 32);
+
+    {
+        use hmac::{Hmac, Mac, NewMac};
+        use sha2::Sha256;
+        // Verify HMAC SHA256, 32 last bytes
+        let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
+            .map_err(|_| format_err!("MAC keylength error"))?;
+        verifier.update(&iv);
+        verifier.update(contents);
+        verifier
+            .verify(&mac)
+            .map_err(|_| format_err!("MAC error"))?;
+    }
+
+    use aes::Aes128;
+    use block_modes::block_padding::Pkcs7;
+    use block_modes::{BlockMode, Cbc};
+    // Decrypt password
+    let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
+        .map_err(|_| format_err!("CBC initialization error"))?;
+    Ok(cipher
+        .decrypt(contents)
+        .map_err(|_| format_err!("AES CBC decryption error"))?
+        .to_owned())
+}
+
+async fn load_file(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+    let contents = actix_threadpool::run(move || load_file_sync(keys, path)).await?;
+
+    Ok(contents)
+}
+
 impl Storage {
     pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
         let db = db_path.open_db()?;
 
+        // XXX
+        let protocol_store = ProtocolStore::invalid();
+
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
             keys: None,
+            protocol_store: Arc::new(Mutex::new(protocol_store)),
+            path: db_path.to_path_buf(),
         })
     }
 
@@ -259,14 +355,9 @@ impl Storage {
         db_path: &StorageLocation<T>,
         password: String,
     ) -> Result<Storage, Error> {
-        let db_salt_path = crate::store::default_location()
-            .unwrap()
-            .join("db")
-            .join("salt");
-        let storage_salt_path = crate::store::default_location()
-            .unwrap()
-            .join("storage")
-            .join("salt");
+        let path: &Path = std::ops::Deref::deref(db_path);
+        let db_salt_path = path.join("db").join("salt");
+        let storage_salt_path = path.join("storage").join("salt");
         // XXX: The storage_key could already be polled while we're querying the database,
         // but we don't want to wait for it either.
         let db_key = derive_db_key(password.clone(), db_salt_path);
@@ -289,9 +380,16 @@ impl Storage {
         // 2. decrypt storage
         let keys = Some(storage_key.await?);
 
+        // 3. decrypt protocol store
+        let protocol_store =
+            ProtocolStore::open_with_key(keys.unwrap(), &crate::store::default_location().unwrap())
+                .await?;
+
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
             keys,
+            protocol_store: Arc::new(Mutex::new(protocol_store)),
+            path: path.to_path_buf(),
         })
     }
 
@@ -328,122 +426,21 @@ impl Storage {
 
     async fn load_file<'s>(&'s self, path: PathBuf) -> Result<Vec<u8>, Error> {
         // XXX: unencrypted storage.
-        let keys = self.keys.unwrap();
-        let contents = actix_threadpool::run(move || {
-            use std::io::Read;
-
-            // XXX This is *full* of bad practices.
-            // Let's try to migrate to nacl or something alike in the future.
-
-            let mut f = std::fs::File::open(&path)?;
-            let mut contents = Vec::new();
-            let count = f.read_to_end(&mut contents)?;
-
-            log::trace!("Read {:?}, {} bytes", path, count);
-            ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
-
-            let (iv, contents) = contents.split_at_mut(16);
-            let count = count - 16;
-            let (contents, mac) = contents.split_at_mut(count - 32);
-
-            {
-                use hmac::{Hmac, Mac, NewMac};
-                use sha2::Sha256;
-                // Verify HMAC SHA256, 32 last bytes
-                let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
-                    .map_err(|_| format_err!("MAC keylength error"))?;
-                verifier.update(&iv);
-                verifier.update(contents);
-                verifier
-                    .verify(&mac)
-                    .map_err(|_| format_err!("MAC error"))?;
-            }
-
-            use aes::Aes128;
-            use block_modes::block_padding::Pkcs7;
-            use block_modes::{BlockMode, Cbc};
-            // Decrypt password
-            let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
-                .map_err(|_| format_err!("CBC initialization error"))?;
-            Ok(cipher
-                .decrypt(contents)
-                .map_err(|_| format_err!("AES CBC decryption error"))?
-                .to_owned())
-        })
-        .await?;
-
-        Ok(contents)
-    }
-
-    /// Process incoming message from Signal
-    ///
-    /// This was a part of the client worker in Go
-    pub fn message_handler(&self, msg: svcmodels::Message, is_sync_sent: bool, timestamp: u64) {
-        let settings = crate::settings::Settings::default();
-
-        let mut new_message = NewMessage {
-            source: msg.source,
-            text: msg.message,
-            flags: msg.flags as i32,
-            outgoing: is_sync_sent,
-            sent: is_sync_sent,
-            timestamp: if is_sync_sent && timestamp > 0 {
-                timestamp
-            } else {
-                msg.timestamp
-            } as i64,
-            has_attachment: msg.attachments.len() > 0,
-            mime_type: msg.attachments.first().map(|a| a.mime_type.clone()),
-            received: false,  // This is set true by a receipt handler
-            session_id: None, // Canary value checked later
-            attachment: None,
-        };
-
-        if settings.get_bool("save_settings") && !settings.get_bool("incognito") {
-            for attachment in msg.attachments {
-                // Go used to always set has_attachment and mime_type, but also
-                // in this method, as well as the generated path.
-                // We have this function that returns a filesystem path, so we can
-                // set it ourselves.
-                let dir = settings.get_string("attachment_dir");
-                let dest = Path::new(&dir);
-
-                let attachment_path = save_attachment(&dest, &attachment);
-                new_message.attachment = Some(String::from(attachment_path.to_str().unwrap()));
-            }
-        }
-
-        let group = if let Some(group) = msg.group.as_ref() {
-            if group.flags == GROUP_UPDATE_FLAG {
-                new_message.text = String::from("Member joined group");
-            } else if group.flags == GROUP_LEAVE_FLAG {
-                new_message.text = String::from("Member left group");
-            }
-
-            msg.group
-        } else {
-            None
-        };
-
-        let is_unread = !new_message.sent.clone();
-        self.process_message(new_message, &group, is_unread)
-
-        // TODO: This is Go code that emits signals in the client worker; do it here too
-        // c.MessageReceived(sess.ID, message.ID)
-        // c.NotifyMessage(sess.ID, sess.Source, sess.Message, sess.IsGroup)
+        load_file(self.keys.unwrap(), path).await
     }
 
     /// Process message and store in database and update or create a session
     pub fn process_message(
-        &self,
+        &mut self,
         mut new_message: NewMessage,
-        group: &Option<svcmodels::Group>,
+        group: Option<NewGroup<'_>>,
         is_unread: bool,
-    ) {
-        let db_session_res = if group.is_none() {
-            self.fetch_session_by_source(&new_message.source)
+    ) -> (Message, Session) {
+        let db_session_res = if let Some(group) = group.as_ref() {
+            let group_hex_id = hex::encode(group.id);
+            self.fetch_session_by_group(&group_hex_id)
         } else {
-            self.fetch_session_by_group(&group.as_ref().unwrap().hex_id)
+            self.fetch_session_by_source(&new_message.source)
         };
 
         // Initialize the session data to work with, modify it in case of a group
@@ -462,9 +459,10 @@ impl Storage {
         };
 
         if let Some(group) = group.as_ref() {
+            let group_hex_id = hex::encode(group.id);
             session_data.is_group = true;
-            session_data.source = group.hex_id.clone();
-            session_data.group_id = Some(group.hex_id.clone());
+            session_data.source = group_hex_id.clone();
+            session_data.group_id = Some(group_hex_id);
             session_data.group_name = Some(group.name.clone());
             session_data.group_members = Some(group.members.join(","));
         };
@@ -485,9 +483,13 @@ impl Storage {
         // With the prepared new_message in hand, see if it's an update or a new one
         let update_msg_res = self.update_message_if_needed(&new_message);
 
-        if update_msg_res.is_none() {
-            self.create_message(&new_message);
+        let message = if let Some(update_message) = update_msg_res {
+            update_message
+        } else {
+            self.create_message(&new_message)
         };
+
+        (message, db_session)
     }
 
     /// Create a new session. This was transparent within SaveSession in Go.
@@ -555,6 +557,37 @@ impl Storage {
         query.execute(&*conn).expect("updating session");
     }
 
+    /// Marks the message with a certain timestamp as received.
+    ///
+    /// Copy from Go's MarkMessageReceived.
+    pub fn mark_message_received(&self, timestamp: u64) -> Option<(Session, Message)> {
+        let message = self.fetch_message_by_timestamp(timestamp)?;
+        log::trace!("mark_message_received: {:?}", message);
+        let session = self.fetch_session(message.sid)?;
+        log::trace!("mark_message_received: {:?}", session);
+
+        let conn = self.db.lock().unwrap();
+        conn.transaction(|| -> Result<_, diesel::result::Error> {
+            diesel::update(message::table.filter(message::id.eq(&message.id)))
+                .set(message::received.eq(true))
+                .execute(&*conn)?;
+
+            diesel::update(
+                session::table.filter(
+                    session::id
+                        .eq(&session.id)
+                        .and(session::timestamp.eq(timestamp as i64)),
+                ),
+            )
+            .set(session::received.eq(true))
+            .execute(&*conn)?;
+            Ok(())
+        })
+        .expect("update received state");
+
+        Some((session, message))
+    }
+
     /// This was implicit in Go, which probably didn't use threads.
     ///
     /// It needs to be locked from the outside because sqlite sucks.
@@ -600,6 +633,78 @@ impl Storage {
             .filter(session::columns::group_id.eq(group_id))
             .first(&*conn)
             .ok()
+    }
+
+    pub fn delete_session(&self, id: i64) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called delete_session({})", id);
+
+        // Preserve the Go order of deleting things
+        conn.transaction(|| -> Result<_, diesel::result::Error> {
+            // SessioN
+            // `delete from session where id = ?`
+            let query = diesel::delete(session::table.filter(session::columns::id.eq(id)));
+            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+            log::trace!("{:?}", debug);
+            query.execute(&*conn)?;
+
+            // SentQ
+            // `delete from sentq where message_id in (select id from message where session_id = ?)`
+            //
+            // XXX: I hate the for loop, but the below fight with Diesel
+            //      is not conductive to getting things actually done...
+
+            /*
+            let query = diesel::delete(sentq::table).filter(
+                sentq::message_id.eq_any(
+                    message::table
+                        .filter(message::columns::session_id.eq(id))
+                        .select(message::columns::session_id),
+                ),
+            );
+            */
+
+            for msg_id in message::table
+                .select(message::columns::id)
+                .filter(message::columns::session_id.eq(id))
+                .load::<i32>(&*conn)
+                .unwrap()
+            {
+                let query =
+                    diesel::delete(sentq::table.filter(sentq::columns::message_id.eq(msg_id)));
+                let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+                log::trace!("{:?}", debug);
+                query.execute(&*conn)?;
+            }
+
+            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+            log::trace!("{:?}", debug);
+            query.execute(&*conn)?;
+
+            // Messages
+            // `delete from message where session_id = ?`
+            let query = diesel::delete(message::table.filter(message::columns::session_id.eq(id)));
+            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+            log::trace!("{:?}", debug);
+            query.execute(&*conn)?;
+
+            Ok(())
+        })
+        .expect("deleting session and its messages");
+    }
+
+    pub fn mark_session_read(&self, sess: &Session) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        log::trace!("Called mark_session_read({})", sess.id);
+
+        diesel::update(session::table.filter(session::id.eq(sess.id)))
+            .set((session::unread.eq(false),))
+            .execute(&*conn)
+            .expect("Mark session read");
     }
 
     /// Check if message exists and explicitly update it if required
@@ -675,6 +780,22 @@ impl Storage {
         Some(msg)
     }
 
+    pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
+        // XXX: multiple attachments https://gitlab.com/rubdos/whisperfish/-/issues/11
+
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        diesel::update(message::table.filter(message::id.eq(mid)))
+            .set((
+                message::mime_type.eq(mime_type),
+                message::has_attachment.eq(true),
+                message::attachment.eq(path),
+            ))
+            .execute(&*conn)
+            .expect("set attachment");
+    }
+
     /// Create a new message. This was transparent within SaveMessage in Go.
     pub fn create_message(&self, new_message: &NewMessage) -> Message {
         use crate::schema::message::dsl as schema_dsl;
@@ -748,6 +869,39 @@ impl Storage {
             .order_by(message::columns::id.desc())
             .first(&*conn)
             .ok()
+    }
+
+    pub fn fetch_message_by_timestamp(&self, ts: u64) -> Option<Message> {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        // Even a single message needs to know if it's queued to satisfy the `Message` trait
+        log::trace!("Called fetch_message_by_timestamp({})", ts);
+        let query = message::table
+            .left_join(sentq::table)
+            .select((
+                message::columns::id,
+                message::columns::session_id,
+                message::columns::source,
+                message::columns::text,
+                message::columns::timestamp,
+                message::columns::sent,
+                message::columns::received,
+                message::columns::flags,
+                message::columns::attachment,
+                message::columns::mime_type,
+                message::columns::has_attachment,
+                message::columns::outgoing,
+                sql::<diesel::sql_types::Bool>(
+                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
+                ),
+            ))
+            .filter(message::columns::timestamp.eq(ts as i64));
+
+        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
+        log::trace!("{}", debug.to_string());
+
+        query.first(&*conn).ok()
     }
 
     pub fn fetch_message(&self, id: i32) -> Option<Message> {
@@ -838,8 +992,11 @@ mod tests {
     use rstest::rstest;
 
     #[test]
-    fn open_memory_db() -> Result<(), Error> {
-        let _storage = Storage::open(&memory())?;
+    fn open_temp_db() -> Result<(), Error> {
+        let temp = temp();
+        std::fs::create_dir(temp.join("db"))?;
+        std::fs::create_dir(temp.join("storage"))?;
+        let _storage = Storage::open(&temp)?;
 
         Ok(())
     }
@@ -853,19 +1010,18 @@ mod tests {
         case("image/png", "png"),
         case("text/plain", "txt")
     )]
-    fn test_save_attachment(mime_type: &str, ext: &str) {
+    #[actix_rt::test]
+    async fn test_save_attachment(mime_type: &str, ext: &str) {
         use std::env;
         use std::fs;
         use std::path::Path;
 
+        drop(mime_type); // This is used in client-worker, consider droppin g this argument.
+
         let dirname = env::temp_dir().to_str().expect("Temp dir fail").to_string();
         let dir = Path::new(&dirname);
-        let attachment = svcmodels::Attachment::<u8> {
-            reader: 0u8,
-            mime_type: String::from(mime_type),
-        };
-
-        let fname = save_attachment(&dir, &attachment);
+        let mut contents = futures::io::Cursor::new([0u8]);
+        let fname = save_attachment(dir, ext, &mut contents).await;
 
         let exists = Path::new(&fname).exists();
 
@@ -880,5 +1036,24 @@ mod tests {
         );
 
         fs::remove_file(fname).expect("Could not remove test case file");
+    }
+
+    #[test]
+    fn encrypt_and_decrypt_file() -> Result<(), Error> {
+        let contents = "The funny horse jumped over a river.";
+
+        // Key full of ones.
+        let key = [1u8; 16 + 20];
+        let dir = temp();
+
+        write_file_sync(
+            key,
+            dir.join("encrypt-and-decrypt.temp"),
+            contents.as_bytes(),
+        )?;
+        let res = load_file_sync(key, dir.join("encrypt-and-decrypt.temp"))?;
+        assert_eq!(std::str::from_utf8(&res).expect("utf8"), contents);
+
+        Ok(())
     }
 }
