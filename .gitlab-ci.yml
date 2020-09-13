@@ -142,7 +142,7 @@ fmt:nightly:
   stage: test
   needs: []
   script:
-    - cargo fmt --check
+    - cargo fmt -- --check
 
 coverage:nightly:
   <<: *rust-nightly

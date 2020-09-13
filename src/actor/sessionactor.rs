@@ -110,7 +110,7 @@ impl Handler<FetchSession> for SessionActor {
 
     fn handle(
         &mut self,
-        FetchSession {id: sid, mark_read}: FetchSession,
+        FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let sess = self.storage.as_ref().unwrap().fetch_session(sid);
@@ -126,7 +126,10 @@ impl Handler<MarkSessionRead> for SessionActor {
 
     fn handle(
         &mut self,
-        MarkSessionRead {sess, already_unread}: MarkSessionRead,
+        MarkSessionRead {
+            sess,
+            already_unread,
+        }: MarkSessionRead,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         self.storage.as_ref().unwrap().mark_session_read(&sess);
@@ -142,7 +145,7 @@ impl Handler<DeleteSession> for SessionActor {
 
     fn handle(
         &mut self,
-        DeleteSession {id, idx}: DeleteSession,
+        DeleteSession { id, idx }: DeleteSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         self.storage.as_ref().unwrap().delete_session(id);
