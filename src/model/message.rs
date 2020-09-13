@@ -18,7 +18,7 @@ define_model_roles! {
         Received(received):                             "received",
         Flags(flags):                                   "flags",
         Attachment(attachment via qstring_from_option): "attachment",
-        MimeType(mimetype via qstring_from_option):     "mimetype",
+        MimeType(mimetype via qstring_from_option):     "mimeType",
         HasAttachment(hasattachment):                   "hasAttachment",
         Outgoing(outgoing):                             "outgoing",
         Queued(queued):                                 "queued",
