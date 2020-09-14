@@ -115,7 +115,6 @@ impl ClientActor {
                 if len != ptr.size.unwrap() as usize {
                     log::warn!("Downloaded attachment length ({}) is not equal to expected length of {} bytes.", len, ptr.size.unwrap());
                 }
-                // let key_material = ptr.key.expect("attachment with key");
                 let key_material = ptr.key();
                 assert_eq!(
                     key_material.len(),
