@@ -17,9 +17,9 @@ struct Opt {
     #[structopt(short, long)]
     password: String,
 
-    /// AttachmentPointer ID
+    /// AttachmentPointer CdnKey or CdnId
     #[structopt(short, long)]
-    id: u64,
+    cdn_key: String,
 
     /// Key of AttachmentPointer
     #[structopt(short, long)]
@@ -54,11 +54,6 @@ fn read_config() -> Result<SignalConfig, Error> {
 
     Ok(serde_yaml::from_reader(signal_config_file)?)
 }
-
-const SERVICE_URL: &str = "https://textsecure-service.whispersystems.org/";
-const CDN_URL: &str = "https://cdn.signal.org";
-const CDN2_URL: &str = "https://cdn.signal.org";
-const ROOT_CA: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "rootCA.crt"));
 
 #[actix_rt::main]
 async fn main() -> Result<(), Error> {
@@ -115,18 +110,14 @@ async fn main() -> Result<(), Error> {
         signaling_key,
     };
 
-    let service_cfg = ServiceConfiguration {
-        service_urls: vec![SERVICE_URL.to_string()],
-        cdn_urls: vec![CDN_URL.to_string(), CDN2_URL.to_string()],
-        contact_discovery_url: vec![],
-    };
+    let service_cfg = SignalServers::Production.into();
 
     // Connect to OWS
     let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
-    let mut service = AwcPushService::new(service_cfg, credentials.clone(), &useragent, &ROOT_CA);
+    let mut service = AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
 
     // Download the attachment
-    let mut stream = service.get_attachment_by_id(opt.id).await?;
+    let mut stream = service.get_attachment_by_id(&opt.cdn_key).await?;
     log::info!("Downloading attachment");
 
     // We need the whole file for the crypto to check out 😢

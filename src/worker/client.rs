@@ -13,9 +13,6 @@ use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
 const SERVICE_URL: &str = "https://textsecure-service.whispersystems.org/";
-const CDN_URL: &str = "https://cdn.signal.org";
-const CDN2_URL: &str = "https://cdn.signal.org";
-const ROOT_CA: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/", "rootCA.crt"));
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -379,11 +376,7 @@ impl Handler<StorageReady> for ClientActor {
         self.storage = Some(storage.clone());
 
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
-        let service_cfg = ServiceConfiguration {
-            service_urls: vec![SERVICE_URL.to_string()],
-            cdn_urls: vec![CDN_URL.to_string(), CDN2_URL.to_string()],
-            contact_discovery_url: vec![],
-        };
+        let service_cfg = SignalServers::Production.into();
 
         let context = self.context.clone();
 
@@ -406,7 +399,7 @@ impl Handler<StorageReady> for ClientActor {
                 };
 
                 let service =
-                    AwcPushService::new(service_cfg, credentials.clone(), &useragent, &ROOT_CA);
+                    AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
                 // end web socket
 
                 // Signal service context
