@@ -12,8 +12,6 @@ use libsignal_service::content::{AttachmentPointer, ContentBody, DataMessage, Gr
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
-const SERVICE_URL: &str = "https://textsecure-service.whispersystems.org/";
-
 #[derive(Message)]
 #[rtype(result = "()")]
 struct AttachmentDownloaded(i32);
