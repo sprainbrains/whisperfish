@@ -96,8 +96,6 @@ impl Handler<SessionsLoaded> for SessionActor {
         SessionsLoaded(sessions): SessionsLoaded,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        use std::ops::DerefMut;
-
         let inner = self.inner.pinned();
         let mut inner = inner.borrow_mut();
 
