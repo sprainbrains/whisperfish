@@ -6,6 +6,7 @@ use crate::model::*;
 use crate::store;
 
 use actix::prelude::*;
+use futures::prelude::*;
 use qmetaobject::*;
 
 define_model_roles! {
@@ -91,7 +92,6 @@ impl MessageModel {
 
         (self as &mut dyn QAbstractListModel).end_reset_model();
 
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -111,7 +111,6 @@ impl MessageModel {
     ///
     /// Note that the id argument was i64 in Go.
     fn add(&mut self, id: i32) {
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -134,8 +133,6 @@ impl MessageModel {
             log::error!("[remove] Message not found at index {}", idx);
             return;
         };
-
-        use futures::prelude::*;
 
         Arbiter::spawn(
             self.actor
@@ -180,7 +177,6 @@ impl MessageModel {
         self.groupMembersChanged();
 
         // TODO: contact identity key
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
