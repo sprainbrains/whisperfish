@@ -50,6 +50,16 @@ pub struct MessageModel {
     groupChanged: qt_signal!(),
 
     openAttachment: qt_method!(fn(&self, index: usize)),
+    createMessage: qt_method!(
+        fn(
+            &self,
+            source: QString,
+            message: QString,
+            groupName: QString,
+            attachment: QString,
+            add: bool,
+        ) -> i64
+    ),
 
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
@@ -83,6 +93,45 @@ impl MessageModel {
                 return;
             }
         }
+    }
+
+    #[allow(non_snake_case)]
+    fn createMessage(
+        &mut self,
+        source: QString,
+        message: QString,
+        groupName: QString,
+        attachment: QString,
+        _add: bool,
+    ) -> i64 {
+        let source = source.to_string();
+        let message = message.to_string();
+        let group = groupName.to_string();
+        let attachment = attachment.to_string();
+
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::QueueMessage {
+                    source,
+                    message,
+                    attachment,
+                    group,
+                })
+                .map(Result::unwrap),
+        );
+
+        // TODO: Go version modified the `self` model appropriately,
+        //       with the `add`/`_add` parameter.
+        // if add {
+        // 	model.BeginInsertRows(core.NewQModelIndex(), 0, 0)
+        // 	model.messages = append([]*store.Message{msg}, model.messages...)
+        // 	model.EndInsertRows()
+        // }
+
+        // TODO: QML should *not* synchronously wait for a session ID to be returned.
+        -1
     }
 
     fn load(&mut self, sid: i64, _peer_name: QString) {
