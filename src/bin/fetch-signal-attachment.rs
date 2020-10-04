@@ -17,6 +17,10 @@ struct Opt {
     #[structopt(short, long)]
     password: String,
 
+    /// CDN number (normally either 0 or 2)
+    #[structopt(short, long)]
+    cdn_number: u32,
+
     /// AttachmentPointer CdnKey or CdnId
     #[structopt(short, long)]
     cdn_key: String,
@@ -117,7 +121,9 @@ async fn main() -> Result<(), Error> {
     let mut service = AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
 
     // Download the attachment
-    let mut stream = service.get_attachment_by_id(&opt.cdn_key).await?;
+    let mut stream = service
+        .get_attachment_by_id(&opt.cdn_key, opt.cdn_number)
+        .await?;
     log::info!("Downloading attachment");
 
     // We need the whole file for the crypto to check out 😢
