@@ -22,7 +22,7 @@ struct Opt {
     cdn_number: u32,
 
     /// AttachmentPointer CdnKey or CdnId
-    #[structopt(short, long)]
+    #[structopt(short, long, allow_hyphen_values(true))]
     cdn_key: String,
 
     /// Key of AttachmentPointer
