@@ -57,6 +57,12 @@ impl ClientActor {
         })
     }
 
+    fn unauthenticated_service(&self) -> AwcPushService {
+        let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
+        let service_cfg = SignalServers::Production.into();
+        AwcPushService::new(service_cfg, None, &useragent)
+    }
+
     /// Downloads the attachment in the background and registers it in the database.
     /// Saves the given attachment into a random-generated path. Saves the path in the database.
     ///
@@ -72,7 +78,7 @@ impl ClientActor {
 
         let client_addr = ctx.address();
 
-        let mut service = self.service.clone().unwrap();
+        let mut service = self.unauthenticated_service();
         let mut storage = self.storage.clone().unwrap();
 
         // Sailfish and/or Rust needs "image/jpg" and some others need coaching

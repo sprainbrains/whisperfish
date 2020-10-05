@@ -105,12 +105,11 @@ async fn main() -> Result<(), Error> {
         .mode(phonenumber::Mode::E164)
         .to_string();
     log::info!("E164: {}", e164);
-    let password = Some(storage.signal_password().await.unwrap());
     let signaling_key = storage.signaling_key().await.unwrap();
     let credentials = Credentials {
         uuid: None,
         e164: e164.clone(),
-        password,
+        password: None,
         signaling_key,
     };
 
