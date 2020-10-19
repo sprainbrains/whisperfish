@@ -701,7 +701,7 @@
         <location filename="../qml/pages/Verify.qml" line="25"/>
         <source>Verify</source>
         <extracomment>Verify code accept</extracomment>
-        <translation></translation>
+        <translation>验证</translation>
     </message>
     <message id="whisperfish-verify-code-title">
         <location filename="../qml/pages/Verify.qml" line="33"/>
