@@ -4,6 +4,7 @@ use std::process::Command;
 use crate::actor;
 use crate::model::*;
 use crate::store;
+use crate::worker::{ClientActor, SendMessage};
 
 use actix::prelude::*;
 use futures::prelude::*;
@@ -32,6 +33,7 @@ define_model_roles! {
 pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
     pub actor: Option<Addr<actor::MessageActor>>,
+    pub client_actor: Option<Addr<ClientActor>>,
 
     messages: Vec<store::Message>,
 
@@ -61,7 +63,7 @@ pub struct MessageModel {
         ) -> i64
     ),
 
-    sendMessage: qt_signal!(mid: i32),
+    sendMessage: qt_method!(fn(&self, mid: i32)),
 
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
@@ -126,6 +128,18 @@ impl MessageModel {
 
         // TODO: QML should *not* synchronously wait for a session ID to be returned.
         -1
+    }
+
+    #[allow(non_snake_case)]
+    /// Called when a message should be queued to be sent to OWS
+    fn sendMessage(&mut self, mid: i32) {
+        Arbiter::spawn(
+            self.client_actor
+                .as_mut()
+                .unwrap()
+                .send(SendMessage(mid))
+                .map(Result::unwrap),
+        );
     }
 
     pub fn handle_queue_message(&mut self, msg: crate::store::Message) {
