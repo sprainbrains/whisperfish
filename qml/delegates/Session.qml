@@ -103,6 +103,7 @@ ListItem {
                } else if (model.sent) {
                    re += "  ✓"
                }
+               re += " [" + model.id + "]"
                return re
             }
         }

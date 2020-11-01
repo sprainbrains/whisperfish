@@ -16,13 +16,13 @@
         <translation>Csatolmány</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/Session.qml" line="114"/>
+        <location filename="../qml/delegates/Session.qml" line="115"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
         <translation>Minden üzenet törlése</translation>
     </message>
     <message id="whisperfish-delete-session">
-        <location filename="../qml/delegates/Session.qml" line="129"/>
+        <location filename="../qml/delegates/Session.qml" line="130"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Beszélgetés törlése</translation>

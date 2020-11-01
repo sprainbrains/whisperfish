@@ -194,6 +194,7 @@ ListItem {
                    if(inbound && MessageModel.group) {
                        re += " | " + ContactModel.name(modelData.source)
                    }
+                   re += "\n[" + modelData.id + "]"
                    return re
                 }
             }
