@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::process::Command;
 
 use crate::actor;
 use crate::model::*;
@@ -47,6 +48,8 @@ pub struct MessageModel {
     sessionIdChanged: qt_signal!(),
     groupChanged: qt_signal!(),
 
+    openAttachment: qt_method!(fn(&self, index: usize)),
+
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(fn(&self, id: usize)),
@@ -55,6 +58,32 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
+    #[allow(non_snake_case)]
+    fn openAttachment(&mut self, idx: usize) {
+        let msg = if let Some(msg) = self.messages.get(idx) {
+            msg
+        } else {
+            log::error!("[attachment] Message not found at index {}", idx);
+            return;
+        };
+
+        let attachment = msg.attachment.as_ref().unwrap();
+
+        log::debug!("[attachment] Open by index {:?}: {}", idx, &attachment);
+
+        match Command::new("xdg-open").arg(&attachment).status() {
+            Ok(status) => {
+                if !status.success() {
+                    log::error!("[attachment] fail");
+                }
+            }
+            Err(e) => {
+                log::error!("[attachment] Error {}", e);
+                return;
+            }
+        }
+    }
+
     fn load(&mut self, sid: i64, _peer_name: QString) {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
 
