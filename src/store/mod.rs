@@ -984,6 +984,29 @@ impl Storage {
 
         query.execute(&*conn).ok()
     }
+
+    pub fn queue_message(&self, msg: &Message) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        diesel::insert_into(sentq::table)
+            .values((
+                sentq::message_id.eq(msg.id),
+                sentq::timestamp.eq(msg.timestamp),
+            ))
+            .execute(&*conn)
+            .unwrap();
+    }
+
+    pub fn dequeue_message(&self, mid: i32) {
+        let db = self.db.lock();
+        let conn = db.unwrap();
+
+        diesel::delete(sentq::table)
+            .filter(sentq::message_id.eq(mid))
+            .execute(&*conn)
+            .unwrap();
+    }
 }
 
 #[cfg(test)]

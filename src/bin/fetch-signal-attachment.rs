@@ -6,6 +6,7 @@ use harbour_whisperfish::settings::SignalConfig;
 use harbour_whisperfish::store::{self, Storage};
 use structopt::StructOpt;
 
+use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
@@ -105,7 +106,7 @@ async fn main() -> Result<(), Error> {
         .mode(phonenumber::Mode::E164)
         .to_string();
     log::info!("E164: {}", e164);
-    let signaling_key = storage.signaling_key().await.unwrap();
+    let signaling_key = Some(storage.signaling_key().await.unwrap());
     let credentials = Credentials {
         uuid: None,
         e164: e164.clone(),
@@ -146,9 +147,13 @@ async fn main() -> Result<(), Error> {
 
     storage.register_attachment(
         mid,
-        attachment_path.to_str().expect("attachment path utf-8"),
+        attachment_path
+            .canonicalize()
+            .unwrap()
+            .to_str()
+            .expect("attachment path utf-8"),
         &opt.mime_type,
     );
-    log::info!("Attachment registred with message {:?}", msg);
+    log::info!("Attachment registered with message {:?}", msg);
     Ok(())
 }

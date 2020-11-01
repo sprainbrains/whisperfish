@@ -2,6 +2,7 @@ use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
 use crate::sfos::SailfishApp;
 use crate::store::Storage;
+use crate::worker::ClientActor;
 
 use actix::prelude::*;
 use qmetaobject::*;
@@ -25,15 +26,25 @@ pub struct FetchAllMessages(pub i64);
 #[rtype(result = "()")]
 pub struct DeleteMessage(pub i32, pub usize);
 
+#[derive(actix::Message, Debug)]
+#[rtype(result = "()")]
+pub struct QueueMessage {
+    pub source: String,
+    pub message: String,
+    pub attachment: String,
+    pub group: String,
+}
+
 pub struct MessageActor {
     inner: QObjectBox<MessageModel>,
     storage: Option<Storage>,
 }
 
 impl MessageActor {
-    pub fn new(app: &mut SailfishApp) -> Self {
+    pub fn new(app: &mut SailfishApp, client: Addr<ClientActor>) -> Self {
         let inner = QObjectBox::new(MessageModel::default());
         app.set_object_property("MessageModel".into(), inner.pinned());
+        inner.pinned().borrow_mut().client_actor = Some(client);
 
         Self {
             inner,
@@ -125,5 +136,45 @@ impl Handler<DeleteMessage> for MessageActor {
             idx,
             del_rows.expect("FIXME no rows deleted"),
         );
+    }
+}
+
+impl Handler<QueueMessage> for MessageActor {
+    type Result = ();
+
+    fn handle(&mut self, msg: QueueMessage, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("MessageActor::handle({:?})", msg);
+        assert!(
+            &msg.attachment == "",
+            "Sending attachments is unimplemented"
+        );
+        assert!(&msg.group == "", "Creating a new group is unimplemented");
+
+        let storage = self.storage.as_mut().unwrap();
+        let (msg, _session) = storage.process_message(
+            crate::store::NewMessage {
+                session_id: None,
+                source: msg.source,
+                text: msg.message,
+                timestamp: chrono::Utc::now().timestamp_millis(),
+                has_attachment: msg.attachment.len() != 0,
+                attachment: if msg.attachment.len() != 0 {
+                    Some(msg.attachment)
+                } else {
+                    None
+                },
+                flags: 0,
+                outgoing: true,
+                mime_type: None,
+                received: false,
+                sent: false,
+            },
+            None,
+            false,
+        );
+
+        storage.queue_message(&msg);
+
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }
 }

@@ -3,6 +3,7 @@ use std::path::Path;
 
 use libsignal_protocol::stores::SerializedSession;
 use libsignal_protocol::stores::{IdentityKeyStore, PreKeyStore, SessionStore, SignedPreKeyStore};
+use libsignal_protocol::Error as SignalProtocolError;
 use libsignal_protocol::InternalError;
 use libsignal_protocol::{Address, Buffer};
 
@@ -97,7 +98,7 @@ impl Storage {
 }
 
 impl IdentityKeyStore for Storage {
-    fn identity_key_pair(&self) -> Result<(Buffer, Buffer), InternalError> {
+    fn identity_key_pair(&self) -> Result<(Buffer, Buffer), SignalProtocolError> {
         log::trace!("identity_key_pair");
         let protocol_store = self.protocol_store.lock().expect("mutex");
         // (public, private)
@@ -107,11 +108,11 @@ impl IdentityKeyStore for Storage {
         Ok((public, Buffer::from(&protocol_store.identity_key[32..])))
     }
 
-    fn local_registration_id(&self) -> Result<u32, InternalError> {
+    fn local_registration_id(&self) -> Result<u32, SignalProtocolError> {
         Ok(self.protocol_store.lock().expect("mutex").regid)
     }
 
-    fn is_trusted_identity(&self, addr: Address, key: &[u8]) -> Result<bool, InternalError> {
+    fn is_trusted_identity(&self, addr: Address, key: &[u8]) -> Result<bool, SignalProtocolError> {
         if let Some(path) = self.identity_path(&addr) {
             if !path.is_file() {
                 // TOFU
@@ -123,17 +124,17 @@ impl IdentityKeyStore for Storage {
             }
         } else {
             log::warn!("Trying trusted identity with uuid, currently unsupported.");
-            Err(InternalError::InvalidArgument)
+            Err(InternalError::InvalidArgument)?
         }
     }
 
-    fn save_identity(&self, addr: Address, key: &[u8]) -> Result<(), InternalError> {
+    fn save_identity(&self, addr: Address, key: &[u8]) -> Result<(), SignalProtocolError> {
         if let Some(path) = self.identity_path(&addr) {
             write_file_sync(self.keys.unwrap(), path, key).expect("save identity key");
             Ok(())
         } else {
             log::warn!("Trying to save trusted identity with uuid, currently unsupported.");
-            Err(InternalError::InvalidArgument)
+            Err(InternalError::InvalidArgument)?
         }
     }
 }
@@ -148,7 +149,7 @@ impl PreKeyStore for Storage {
         Ok(())
     }
 
-    fn store(&self, id: u32, body: &[u8]) -> Result<(), InternalError> {
+    fn store(&self, id: u32, body: &[u8]) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
         let path = self.prekey_path(id);
         let contents = quirk::pre_key_to_0_5(body).unwrap();
@@ -161,7 +162,7 @@ impl PreKeyStore for Storage {
         self.prekey_path(id).is_file()
     }
 
-    fn remove(&self, id: u32) -> Result<(), InternalError> {
+    fn remove(&self, id: u32) -> Result<(), SignalProtocolError> {
         log::trace!("Removing prekey {}", id);
         let path = self.prekey_path(id);
         std::fs::remove_file(path).unwrap();
@@ -170,7 +171,10 @@ impl PreKeyStore for Storage {
 }
 
 impl SessionStore for Storage {
-    fn load_session(&self, addr: Address) -> Result<Option<SerializedSession>, InternalError> {
+    fn load_session(
+        &self,
+        addr: Address,
+    ) -> Result<Option<SerializedSession>, SignalProtocolError> {
         let path = if let Some(path) = self.session_path(&addr) {
             path
         } else {
@@ -192,6 +196,13 @@ impl SessionStore for Storage {
     }
 
     fn get_sub_device_sessions(&self, addr: &[u8]) -> Result<std::vec::Vec<i32>, InternalError> {
+        log::trace!(
+            "Looking for sub_device sessions for {}",
+            String::from_utf8_lossy(addr)
+        );
+        // Strip `+'
+        let addr = &addr[1..];
+
         let session_dir = crate::store::default_location()
             .unwrap()
             .join("storage")
@@ -211,7 +222,10 @@ impl SessionStore for Storage {
                 let name = entry.file_name();
                 let name = name.as_os_str().as_bytes();
 
+                log::trace!("parsing {:?}", entry);
+
                 if name.len() < addr.len() + 2 {
+                    log::trace!("filename {:?} not long enough", entry);
                     return None;
                 }
 
@@ -224,15 +238,17 @@ impl SessionStore for Storage {
                     let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
                     id.parse().ok()
                 } else {
+                    log::trace!("filename {:?} without prefix match", entry);
                     None
                 }
             })
+            .filter(|id| *id != libsignal_service::push_service::DEFAULT_DEVICE_ID)
             .collect();
 
         Ok(ids)
     }
 
-    fn contains_session(&self, addr: Address) -> Result<bool, InternalError> {
+    fn contains_session(&self, addr: Address) -> Result<bool, SignalProtocolError> {
         let path = self.session_path(&addr);
         if let Some(path) = path {
             Ok(path.is_file())
@@ -255,14 +271,69 @@ impl SessionStore for Storage {
         Ok(())
     }
 
-    fn delete_session(&self, addr: Address) -> Result<(), InternalError> {
+    fn delete_session(&self, addr: Address) -> Result<(), SignalProtocolError> {
         let path = self.session_path(&addr).expect("path for session deletion");
         std::fs::remove_file(path).unwrap();
         Ok(())
     }
 
-    fn delete_all_sessions(&self, _: &[u8]) -> Result<usize, InternalError> {
-        todo!("delete_all_sessions")
+    fn delete_all_sessions(&self, addr: &[u8]) -> Result<usize, SignalProtocolError> {
+        log::warn!(
+            "Deleting all sessions for {}",
+            String::from_utf8_lossy(addr)
+        );
+        // Strip `+'
+        assert_eq!(addr[0], b'+', "expecting session with phone number");
+        let addr = &addr[1..];
+
+        let session_dir = crate::store::default_location()
+            .unwrap()
+            .join("storage")
+            .join("sessions");
+
+        let entries = std::fs::read_dir(session_dir)
+            .expect("initialized storage")
+            .filter_map(|entry| {
+                let entry = entry.expect("directory listing");
+                if !entry.path().is_file() {
+                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
+                    return None;
+                }
+
+                // XXX: *maybe* Signal could become a cross-platform desktop app.
+                use std::os::unix::ffi::OsStrExt;
+                let name = entry.file_name();
+                let name = name.as_os_str().as_bytes();
+
+                log::trace!("parsing {:?}", entry);
+
+                if name.len() < addr.len() + 2 {
+                    log::trace!("filename {:?} not long enough", entry);
+                    return None;
+                }
+
+                if &name[..addr.len()] == addr {
+                    if name[addr.len()] != '_' as u8 {
+                        log::warn!("Weird session directory entry: {:?}. Skipping", entry);
+                        return None;
+                    }
+                    // skip underscore
+                    let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
+                    let _: u32 = id.parse().ok()?;
+                    Some(entry.path())
+                } else {
+                    log::trace!("filename {:?} without prefix match", entry);
+                    None
+                }
+            });
+
+        let mut count = 0;
+        for entry in entries {
+            std::fs::remove_file(entry)?;
+            count += 1;
+        }
+
+        Ok(count)
     }
 }
 
@@ -278,7 +349,7 @@ impl SignedPreKeyStore for Storage {
         Ok(())
     }
 
-    fn store(&self, id: u32, body: &[u8]) -> Result<(), InternalError> {
+    fn store(&self, id: u32, body: &[u8]) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
         let path = self.prekey_path(id);
         let contents = quirk::signed_pre_key_to_0_5(body).unwrap();
@@ -291,7 +362,7 @@ impl SignedPreKeyStore for Storage {
         self.signed_prekey_path(id).is_file()
     }
 
-    fn remove(&self, id: u32) -> Result<(), InternalError> {
+    fn remove(&self, id: u32) -> Result<(), SignalProtocolError> {
         log::trace!("Removing signed prekey {}", id);
         let path = self.signed_prekey_path(id);
         std::fs::remove_file(path).unwrap();

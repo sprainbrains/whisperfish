@@ -4,8 +4,10 @@ use std::process::Command;
 use crate::actor;
 use crate::model::*;
 use crate::store;
+use crate::worker::{ClientActor, SendMessage};
 
 use actix::prelude::*;
+use futures::prelude::*;
 use qmetaobject::*;
 
 define_model_roles! {
@@ -31,6 +33,7 @@ define_model_roles! {
 pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
     pub actor: Option<Addr<actor::MessageActor>>,
+    pub client_actor: Option<Addr<ClientActor>>,
 
     messages: Vec<store::Message>,
 
@@ -49,6 +52,18 @@ pub struct MessageModel {
     groupChanged: qt_signal!(),
 
     openAttachment: qt_method!(fn(&self, index: usize)),
+    createMessage: qt_method!(
+        fn(
+            &self,
+            source: QString,
+            message: QString,
+            groupName: QString,
+            attachment: QString,
+            add: bool,
+        ) -> i64
+    ),
+
+    sendMessage: qt_method!(fn(&self, mid: i32)),
 
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
@@ -84,6 +99,61 @@ impl MessageModel {
         }
     }
 
+    #[allow(non_snake_case)]
+    fn createMessage(
+        &mut self,
+        source: QString,
+        message: QString,
+        groupName: QString,
+        attachment: QString,
+        _add: bool,
+    ) -> i64 {
+        let source = source.to_string();
+        let message = message.to_string();
+        let group = groupName.to_string();
+        let attachment = attachment.to_string();
+
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::QueueMessage {
+                    source,
+                    message,
+                    attachment,
+                    group,
+                })
+                .map(Result::unwrap),
+        );
+
+        // TODO: QML should *not* synchronously wait for a session ID to be returned.
+        -1
+    }
+
+    #[allow(non_snake_case)]
+    /// Called when a message should be queued to be sent to OWS
+    fn sendMessage(&mut self, mid: i32) {
+        Arbiter::spawn(
+            self.client_actor
+                .as_mut()
+                .unwrap()
+                .send(SendMessage(mid))
+                .map(Result::unwrap),
+        );
+    }
+
+    pub fn handle_queue_message(&mut self, msg: crate::store::Message) {
+        self.sendMessage(msg.id);
+
+        // TODO: Go version modified the `self` model appropriately,
+        //       with the `add`/`_add` parameter from createMessage.
+        // if add {
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        self.messages.insert(0, msg);
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
+        // }
+    }
+
     fn load(&mut self, sid: i64, _peer_name: QString) {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
 
@@ -91,7 +161,6 @@ impl MessageModel {
 
         (self as &mut dyn QAbstractListModel).end_reset_model();
 
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -111,7 +180,6 @@ impl MessageModel {
     ///
     /// Note that the id argument was i64 in Go.
     fn add(&mut self, id: i32) {
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()
@@ -134,8 +202,6 @@ impl MessageModel {
             log::error!("[remove] Message not found at index {}", idx);
             return;
         };
-
-        use futures::prelude::*;
 
         Arbiter::spawn(
             self.actor
@@ -180,7 +246,6 @@ impl MessageModel {
         self.groupMembersChanged();
 
         // TODO: contact identity key
-        use futures::prelude::*;
         Arbiter::spawn(
             self.actor
                 .as_ref()

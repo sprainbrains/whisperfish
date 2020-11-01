@@ -8,9 +8,19 @@ use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
 use libsignal_protocol::Context;
-use libsignal_service::content::{AttachmentPointer, ContentBody, DataMessage, GroupType};
+use libsignal_service::configuration::SignalServers;
+use libsignal_service::content::DataMessageFlags;
+use libsignal_service::content::{
+    AttachmentPointer, ContentBody, DataMessage, GroupContext, GroupType, SyncMessage,
+};
 use libsignal_service::prelude::*;
+use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use libsignal_service_actix::prelude::*;
+
+#[derive(Message)]
+#[rtype(result = "()")]
+/// Enqueue a message on socket by MID
+pub struct SendMessage(pub i32);
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -35,6 +45,7 @@ pub struct ClientActor {
     /// Some(Service) when connected, otherwise None
     service: Option<AwcPushService>,
     credentials: Option<Credentials>,
+    local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
     cipher: Option<ServiceCipher>,
     context: Context,
@@ -50,6 +61,7 @@ impl ClientActor {
         Ok(Self {
             inner,
             credentials: None,
+            local_addr: None,
             service: None,
             storage: None,
             cipher: None,
@@ -167,6 +179,13 @@ impl ClientActor {
         let settings = crate::settings::Settings::default();
 
         let storage = self.storage.as_mut().expect("storage");
+
+        if msg.flags() & DataMessageFlags::EndSession as u32 != 0 {
+            use libsignal_protocol::stores::SessionStore;
+            if let Err(e) = storage.delete_all_sessions(source.as_bytes()) {
+                log::error!("End session requested, but could not end session: {:?}", e);
+            }
+        }
 
         let mut new_message = crate::store::NewMessage {
             source: source,
@@ -356,6 +375,157 @@ impl Actor for ClientActor {
     }
 }
 
+impl Handler<SendMessage> for ClientActor {
+    type Result = ();
+
+    // Equiv of worker/send.go
+    fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) {
+        log::info!("ClientActor::SendMessage({:?})", mid);
+        let storage = self.storage.as_mut().unwrap();
+        let msg = storage.fetch_message(mid).unwrap();
+
+        let mut sender = MessageSender::new(
+            self.service.clone().unwrap(),
+            self.cipher.clone().unwrap(),
+            DEFAULT_DEVICE_ID,
+        );
+        let session = storage.fetch_session(msg.sid).unwrap();
+
+        if !msg.queued {
+            log::warn!("Message is not queued, refusing to transmit.");
+            return;
+        }
+
+        log::trace!("Sending for session: {:?}", session);
+        log::trace!("Sending message: {:?}", msg);
+
+        let local_addr = self.local_addr.clone().unwrap();
+        let storage = storage.clone();
+        Arbiter::spawn(async move {
+            let group = if let Some(group_id) = session.group_id.as_ref() {
+                if group_id != "" {
+                    Some(GroupContext {
+                        id: Some(hex::decode(group_id).expect("hex encoded group id")),
+                        r#type: Some(GroupType::Deliver.into()),
+
+                        ..Default::default()
+                    })
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+
+            // XXX online status goes in that bool
+            let online = false;
+            let timestamp = msg.timestamp as u64;
+            let content = DataMessage {
+                body: Some(msg.message.clone()),
+                flags: None,
+                timestamp: Some(timestamp),
+                // XXX: depends on the features in the message!
+                required_protocol_version: Some(0),
+                group,
+
+                ..Default::default()
+            };
+            log::trace!("Transmitting {:?}", content);
+
+            let mut needs_sync = false;
+
+            if msg.flags == 1 {
+                log::warn!("End session unimplemented");
+            } else if let Some(_attachment) = msg.attachment {
+                // Note, in the Go code these conditions were in opposite order (if att == nil)
+                log::warn!("Sending attachment unimplemented");
+            } else {
+                if session.is_group {
+                    let members = session.group_members.as_ref().unwrap();
+                    // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
+                    for member in members.split(',') {
+                        let recipient = ServiceAddress {
+                            e164: member.to_string(),
+                            relay: None,
+                            uuid: None,
+                        };
+                        if local_addr.matches(&recipient) {
+                            continue;
+                        }
+                        // Clone + async closure means we can use an immutable borrow.
+                        match sender
+                            .send_message(recipient, content.clone(), timestamp, online)
+                            .await
+                        {
+                            Ok(s) => {
+                                if s.needs_sync {
+                                    needs_sync = true;
+                                }
+                            }
+                            Err(e) => log::error!("Error sending message: {}", e),
+                        }
+                    }
+                } else {
+                    let recipient = ServiceAddress {
+                        e164: session.source.clone(),
+                        relay: None,
+                        uuid: None,
+                    };
+
+                    match sender
+                        .send_message(recipient, content.clone(), timestamp, online)
+                        .await
+                    {
+                        Ok(s) => {
+                            if s.needs_sync {
+                                needs_sync = true;
+                            }
+                        }
+                        Err(e) => log::error!("Error sending message: {}", e),
+                    }
+                }
+            }
+
+            if needs_sync {
+                // Sync messages for connected devices
+                use libsignal_service::content::sync_message;
+
+                let container = SyncMessage {
+                    sent: Some(sync_message::Sent {
+                        destination_e164: if session.is_group {
+                            None
+                        } else {
+                            Some(session.source)
+                        },
+                        message: Some(content),
+                        timestamp: Some(timestamp),
+
+                        ..Default::default()
+                    }),
+
+                    ..Default::default()
+                };
+                log::trace!("Transmitting {:?}", container);
+
+                match sender
+                    .send_message(local_addr, container, timestamp, online)
+                    .await
+                {
+                    Ok(s) => {
+                        if s.needs_sync {
+                            log::warn!("Still got a needs_sync");
+                        }
+                    }
+                    Err(e) => log::error!("Error sending message: {}", e),
+                }
+            }
+
+            // Mark as sent
+            storage.dequeue_message(mid);
+        })
+    }
+}
+
 impl Handler<AttachmentDownloaded> for ClientActor {
     type Result = ();
 
@@ -394,7 +564,7 @@ impl Handler<StorageReady> for ClientActor {
                     .to_string();
                 log::info!("E164: {}", e164);
                 let password = Some(storage.signal_password().await.unwrap());
-                let signaling_key = storage.signaling_key().await.unwrap();
+                let signaling_key = Some(storage.signaling_key().await.unwrap());
                 let credentials = Credentials {
                     uuid: None,
                     e164: e164.clone(),
@@ -421,16 +591,18 @@ impl Handler<StorageReady> for ClientActor {
                     e164,
                     relay: None,
                 };
-                let cipher = ServiceCipher::from_context(context, local_addr, store_context);
+                let cipher =
+                    ServiceCipher::from_context(context, local_addr.clone(), store_context);
                 // end signal service context
 
-                (credentials, service, cipher)
+                (credentials, local_addr, service, cipher)
             }
             .into_actor(self)
-            .map(|(credentials, service, cipher), act, ctx| {
+            .map(|(credentials, local_addr, service, cipher), act, ctx| {
                 act.credentials = Some(credentials);
                 act.service = Some(service);
                 act.cipher = Some(cipher);
+                act.local_addr = Some(local_addr);
                 ctx.notify(Restart);
             }),
         )
