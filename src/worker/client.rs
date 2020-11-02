@@ -197,7 +197,7 @@ impl ClientActor {
         }
 
         let mut new_message = crate::store::NewMessage {
-            source: source,
+            source,
             text: msg.body().into(),
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
