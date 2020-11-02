@@ -111,7 +111,16 @@ impl ClientActor {
                 use futures::io::AsyncReadExt;
                 use libsignal_service::attachment_cipher::*;
 
-                let mut stream = service.get_attachment(&ptr).await?;
+                let mut stream = loop {
+                    let r = service.get_attachment(&ptr).await;
+                    match r {
+                        Ok(stream) => break stream,
+                        Err(ServiceError::Timeout{ .. }) => {
+                            log::warn!("get_attachment timed out, retrying")
+                        },
+                        Err(e) => Err(e)?,
+                    }
+                };
                 log::info!("Downloading attachment");
 
                 // We need the whole file for the crypto to check out 😢
