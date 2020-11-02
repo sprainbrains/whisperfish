@@ -74,8 +74,13 @@ impl ClientActor {
 
     fn unauthenticated_service(&self) -> AwcPushService {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
-        let service_cfg = SignalServers::Production.into();
+        let service_cfg = self.service_cfg();
         AwcPushService::new(service_cfg, None, &useragent)
+    }
+
+    fn service_cfg(&self) -> ServiceConfiguration {
+        // XXX: read the configuration files!
+        SignalServers::Production.into()
     }
 
     /// Downloads the attachment in the background and registers it in the database.
@@ -583,7 +588,7 @@ impl Handler<StorageReady> for ClientActor {
         self.storage = Some(storage.clone());
 
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
-        let service_cfg = SignalServers::Production.into();
+        let service_cfg = self.service_cfg();
 
         let context = self.context.clone();
 
