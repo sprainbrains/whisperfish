@@ -184,3 +184,33 @@ pages:
   artifacts:
     paths:
       - public
+
+
+openrepos-deploy:
+  stage: deploy
+  image: ubuntu
+  variables: *variables
+    GECKODRIVER_URL: https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
+    GECKODRIVER_TGZ: geckodriver.tgz
+    APPNAME: Whisperfish
+  environment:
+      name: OpenRepos
+      url: https://openrepos.net/content/rubdos/whisperfish
+  script:
+    - "apt-get -y -qq install git firefox xvfb python3-pip wget >/dev/null"
+    - "git clone https://gitlab.com/nobodyinperson/sailfish-devel-tools"
+    - "pip3 install selenium"
+    - "wget -O $GECKODRIVER_TGZ $GECKODRIVER_URL"
+    - "tar -xvzf $GECKODRIVER_TGZ"
+    - "mv geckodriver /usr/bin"
+    - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/armv7-unknown-linux-gnueabihf/release/rpmbuild/RPMS/armv7hl/*.rpm -n "$APPNAME"'
+    - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/i686-unknown-linux-gnu/release/rpmbuild/RPMS/i486/*.rpm -n "$APPNAME"'
+  needs:
+    - build:armv7hl
+    - build:i486
+    - test:nightly
+  dependencies:
+    - build:armv7hl
+    - build:i486
+  only:
+    - tags
