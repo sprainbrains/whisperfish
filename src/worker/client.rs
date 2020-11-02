@@ -35,6 +35,9 @@ pub struct ClientWorker {
     notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, isGroup: bool),
     promptResetPeerIdentity: qt_signal!(),
 
+    connected: qt_property!(bool; NOTIFY connectedChanged),
+    connectedChanged: qt_signal!(),
+
     actor: Option<Addr<ClientActor>>,
 }
 
@@ -649,6 +652,9 @@ impl Handler<Restart> for ClientActor {
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
         let service = self.service.clone().unwrap();
         let credentials = self.credentials.clone().unwrap();
+
+        self.inner.pinned().borrow_mut().connected = false;
+        self.inner.pinned().borrow().connectedChanged();
         Box::pin(
             async move {
                 let mut receiver = MessageReceiver::new(service.clone());
@@ -657,8 +663,10 @@ impl Handler<Restart> for ClientActor {
                 pipe.stream()
             }
             .into_actor(self)
-            .map(move |pipe, _act, ctx| {
+            .map(move |pipe, act, ctx| {
                 ctx.add_stream(pipe);
+                act.inner.pinned().borrow_mut().connected = true;
+                act.inner.pinned().borrow().connectedChanged();
             }),
         )
     }
@@ -690,6 +698,10 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
     /// Called when the WebSocket somehow has disconnected.
     fn finished(&mut self, ctx: &mut Self::Context) {
         log::debug!("Attempting reconnect");
+
+        self.inner.pinned().borrow_mut().connected = false;
+        self.inner.pinned().borrow().connectedChanged();
+
         ctx.notify(Restart);
     }
 }
