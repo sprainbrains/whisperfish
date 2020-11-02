@@ -351,6 +351,11 @@ impl Storage {
         })
     }
 
+    /// Returns the path to the storage.
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
     pub async fn open_with_password<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
         password: String,

@@ -237,6 +237,27 @@ impl ClientActor {
         let is_unread = !new_message.sent.clone();
         let (message, session) = storage.process_message(new_message, group, is_unread);
 
+        if settings.get_bool("attachment_log") {
+            use std::io::Write;
+
+            log::trace!("Logging message to the attachment log");
+            // XXX Sync code, but it's not the only sync code in here...
+            let mut log = std::fs::OpenOptions::new()
+                .append(true)
+                .create(true)
+                .open(storage.path().join("attachments.log"))
+                .expect("open attachment log");
+
+            writeln!(
+                log,
+                "[{}] {:?} for message ID {}",
+                chrono::Utc::now(),
+                msg,
+                message.id
+            )
+            .expect("write to the attachment log");
+        }
+
         if settings.get_bool("save_attachments") && !settings.get_bool("incognito") {
             for attachment in msg.attachments {
                 // Go used to always set has_attachment and mime_type, but also
