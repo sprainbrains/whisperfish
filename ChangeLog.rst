@@ -6,7 +6,11 @@ v0.6.0 (2020-xx-xx)
 ---------------------------
 
 * Using the official libsignal-c library as back-end.
+* Port over to Rust, for easy linking to libsignal-protocol-c
 * Add zh_CN translation, thanks to dashinfantry through !6
+* Introduce `attachment_log` option
+* Fix Whisperfish 0.5 outdated attachment and message handling
+* Add zh_CN translation, thanks to dashinfantry through !6 and !33
 
 `v0.5.1`_ (2018-04-01)
 ---------------------------
