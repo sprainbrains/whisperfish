@@ -73,13 +73,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>版权</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>使用 Liberapay 捐赠</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="74"/>
