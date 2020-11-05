@@ -144,10 +144,6 @@ impl Handler<QueueMessage> for MessageActor {
 
     fn handle(&mut self, msg: QueueMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::trace!("MessageActor::handle({:?})", msg);
-        assert!(
-            &msg.attachment == "",
-            "Sending attachments is unimplemented"
-        );
         assert!(&msg.group == "", "Creating a new group is unimplemented");
 
         let storage = self.storage.as_mut().unwrap();

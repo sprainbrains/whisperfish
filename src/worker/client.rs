@@ -16,6 +16,7 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
+use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
@@ -519,7 +520,7 @@ impl Handler<SendMessage> for ClientActor {
             // XXX online status goes in that bool
             let online = false;
             let timestamp = msg.timestamp as u64;
-            let content = DataMessage {
+            let mut content = DataMessage {
                 body: Some(msg.message.clone()),
                 flags: None,
                 timestamp: Some(timestamp),
@@ -529,16 +530,59 @@ impl Handler<SendMessage> for ClientActor {
 
                 ..Default::default()
             };
+
+            if msg.flags == 1 {
+                log::warn!("End session unimplemented");
+            }
+
+            if let Some(attachment) = msg.attachment {
+                use actix_threadpool::BlockingError;
+                let attachment_path = attachment.clone();
+                let contents =
+                    match actix_threadpool::run(move || std::fs::read(&attachment_path)).await {
+                        Err(BlockingError::Canceled) => {
+                            log::error!("Threadpool Canceled");
+                            return;
+                        }
+                        Err(BlockingError::Error(e)) => {
+                            log::error!("Could not read attachment: {}", e);
+                            return;
+                        }
+                        Ok(contents) => contents,
+                    };
+                let spec = AttachmentSpec {
+                    content_type: mime_guess::from_path(&attachment)
+                        .first()
+                        .unwrap()
+                        .essence_str()
+                        .into(),
+                    length: contents.len(),
+                    file_name: Path::new(&attachment)
+                        .file_name()
+                        .map(|f| f.to_string_lossy().into_owned()),
+                    preview: None,
+                    voice_note: false,
+                    borderless: false,
+                    width: 0,
+                    height: 0,
+                    caption: None,
+                    blur_hash: None,
+                };
+                let ptr = match sender.upload_attachment(spec, contents).await {
+                    Ok(v) => v,
+                    Err(e) => {
+                        log::error!("Failed to upload attachment: {}", e);
+                        return;
+                    }
+                };
+                content.attachments.push(ptr);
+            }
+
             log::trace!("Transmitting {:?}", content);
 
             let mut needs_sync = false;
 
-            if msg.flags == 1 {
-                log::warn!("End session unimplemented");
-            } else if let Some(_attachment) = msg.attachment {
-                // Note, in the Go code these conditions were in opposite order (if att == nil)
-                log::warn!("Sending attachment unimplemented");
-            } else if session.is_group {
+            if session.is_group {
                 let members = session.group_members.as_ref().unwrap();
                 // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
                 for member in members.split(',') {
