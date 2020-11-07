@@ -48,7 +48,9 @@ impl SetupWorker {
             this.borrow_mut().registered = true;
         } else {
             log::info!("identity_key not found");
+            this.borrow_mut().registered = false;
         }
+        this.borrow().setupChanged();
 
         this.borrow_mut().config = match SetupWorker::read_config(app.clone()).await {
             Ok(config) => Some(config),
@@ -65,28 +67,50 @@ impl SetupWorker {
         // XXX: nice formatting?
         this.borrow_mut().phoneNumber = config.tel.into();
 
-        // Open storage
-        if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
-            log::error!("Error setting up storage: {}", e);
-            this.borrow().clientFailed();
-            return;
+        if !this.borrow().registered {
+            if let Err(e) = SetupWorker::register(app.clone()).await {
+                log::error!("Error in registration: {}", e);
+                this.borrow().clientFailed();
+                return;
+            }
+            this.borrow_mut().registered = true;
+            this.borrow().setupChanged();
+        } else {
+            // Open storage
+            if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
+                log::error!("Error setting up storage: {}", e);
+                this.borrow().clientFailed();
+                return;
+            }
         }
+
         app.storage_ready().await;
 
         this.borrow().setupChanged();
     }
 
-    async fn read_config(_app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
-        // XXX non-existing file?
-        let conf_dir = dirs::config_dir().ok_or(format_err!("Could not find config directory."))?;
-        let signal_config_file = conf_dir.join("harbour-whisperfish").join("config.yml");
+    fn conf_dir() -> std::path::PathBuf {
+        let conf_dir = dirs::config_dir()
+            .ok_or(format_err!("Could not find config directory."))
+            .unwrap()
+            .join("harbour-whisperfish");
+
+        if !conf_dir.exists() {
+            std::fs::create_dir(&conf_dir).unwrap();
+        }
+
+        conf_dir
+    }
+
+    async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
+        let signal_config_file = Self::conf_dir().join("config.yml");
 
         if let Ok(file) = std::fs::File::open(&signal_config_file) {
             Ok(serde_yaml::from_reader(file)?)
         } else {
-            let file = std::fs::File::create(signal_config_file)?;
             let contents = SignalConfig {
                 tel: String::new(),
+                uuid: String::new(),
                 // XXX
                 server: String::new(),
                 root_ca: String::new(),
@@ -99,9 +123,16 @@ impl SetupWorker {
                 user_agent: "Whisperfish".into(),
                 always_trust_peer_id: false,
             };
-            serde_yaml::to_writer(file, &contents)?;
+            Self::write_config(app, &contents).await?;
             Ok(contents)
         }
+    }
+
+    async fn write_config(_app: Rc<WhisperfishApp>, contents: &SignalConfig) -> Result<(), Error> {
+        let signal_config_file = Self::conf_dir().join("config.yml");
+        let file = std::fs::File::create(signal_config_file)?;
+        serde_yaml::to_writer(file, &contents)?;
+        Ok(())
     }
 
     async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
@@ -123,6 +154,87 @@ impl SetupWorker {
         };
 
         *app.storage.borrow_mut() = Some(storage);
+
+        Ok(())
+    }
+
+    async fn register(app: Rc<WhisperfishApp>) -> Result<(), Error> {
+        let storage_password: String = app
+            .prompt
+            .pinned()
+            .borrow_mut()
+            .ask_password()
+            .await
+            .ok_or(format_err!("No password code provided"))?
+            .into();
+
+        let number: String = app
+            .prompt
+            .pinned()
+            .borrow_mut()
+            .ask_phone_number()
+            .await
+            .ok_or(format_err!("No phone number provided"))?
+            .into();
+
+        let number = phonenumber::parse(None, number).unwrap();
+        let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
+        log::info!("E164: {}", e164);
+
+        // generate a random 24 bytes password
+        use rand::distributions::Alphanumeric;
+        use rand::{Rng, RngCore};
+        let mut rng = rand::thread_rng();
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+
+        let res = app
+            .client_actor
+            .send(super::client::Register {
+                e164: e164.clone(),
+                password: password.clone(),
+            })
+            .await??;
+
+        if res == super::client::SmsVerificationCodeResponse::CaptchaRequired {
+            return Err(format_err!(
+                "Signal wants you to complete a captcha. Please file a bug report against Whisperfish."
+            ));
+        }
+
+        let code: String = app
+            .prompt
+            .pinned()
+            .borrow_mut()
+            .ask_verification_code()
+            .await
+            .ok_or(format_err!("No verification code provided"))?
+            .into();
+        let code = code.parse()?;
+
+        let mut signaling_key = [0u8; 52];
+        rng.fill_bytes(&mut signaling_key);
+        let signaling_key = signaling_key;
+
+        let (regid, res) = app
+            .client_actor
+            .send(super::client::ConfirmRegistration {
+                e164: e164.clone(),
+                password: password.clone(),
+                confirm_code: code,
+                signaling_key,
+            })
+            .await??;
+
+        log::info!("Registration result: {:?}", res);
+
+        let mut cfg = Self::read_config(app.clone()).await?;
+        cfg.uuid = res.uuid;
+        cfg.tel = e164;
+        Self::write_config(app.clone(), &cfg).await?;
+
+        // Install storage
+
+        // Send pre-keys
 
         Ok(())
     }

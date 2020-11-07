@@ -5,6 +5,8 @@ use qmetaobject::*;
 pub struct SignalConfig {
     /// Our telephone number
     pub tel: String,
+    /// Our uuid
+    pub uuid: String,
     /// The TextSecure server URL
     pub server: String,
     #[serde(rename = "rootCA")]
