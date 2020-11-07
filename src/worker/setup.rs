@@ -80,9 +80,28 @@ impl SetupWorker {
         // XXX non-existing file?
         let conf_dir = dirs::config_dir().ok_or(format_err!("Could not find config directory."))?;
         let signal_config_file = conf_dir.join("harbour-whisperfish").join("config.yml");
-        let signal_config_file = std::fs::File::open(signal_config_file)?;
 
-        Ok(serde_yaml::from_reader(signal_config_file)?)
+        if let Ok(file) = std::fs::File::open(&signal_config_file) {
+            Ok(serde_yaml::from_reader(file)?)
+        } else {
+            let file = std::fs::File::create(signal_config_file)?;
+            let contents = SignalConfig {
+                tel: String::new(),
+                // XXX
+                server: String::new(),
+                root_ca: String::new(),
+                proxy_server: String::new(),
+                verification_type: "voice".into(),
+                storage_dir: "".into(),
+                unencrypted_storage: false,
+                storage_password: "".into(),
+                log_level: "debug".into(),
+                user_agent: "Whisperfish".into(),
+                always_trust_peer_id: false,
+            };
+            serde_yaml::to_writer(file, &contents)?;
+            Ok(contents)
+        }
     }
 
     async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
