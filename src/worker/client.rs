@@ -340,7 +340,11 @@ impl ClientActor {
         match body {
             ContentBody::DataMessage(message) => self.handle_message(
                 ctx,
-                metadata.sender.e164.clone(),
+                metadata
+                    .sender
+                    .e164
+                    .clone()
+                    .expect("valid e164 in ServiceAddress. Whisperfish issue #80"),
                 message,
                 false,
                 metadata.timestamp,
@@ -383,10 +387,10 @@ impl ClientActor {
                 }
             }
             ContentBody::TypingMessage(_typing) => {
-                log::info!("{} is typing.", metadata.sender.e164);
+                log::info!("{} is typing.", metadata.sender);
             }
             ContentBody::ReceiptMessage(receipt) => {
-                log::info!("{} received a message.", metadata.sender.e164);
+                log::info!("{} received a message.", metadata.sender);
                 for ts in &receipt.timestamp {
                     if let Some((sess, msg)) = storage.mark_message_received(*ts) {
                         self.inner
@@ -399,7 +403,7 @@ impl ClientActor {
                 }
             }
             ContentBody::CallMessage(_call) => {
-                log::info!("{} is calling.", metadata.sender.e164);
+                log::info!("{} is calling.", metadata.sender);
             }
         }
     }
@@ -483,7 +487,7 @@ impl Handler<SendMessage> for ClientActor {
                     // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
                     for member in members.split(',') {
                         let recipient = ServiceAddress {
-                            e164: member.to_string(),
+                            e164: Some(member.to_string()),
                             relay: None,
                             uuid: None,
                         };
@@ -505,7 +509,7 @@ impl Handler<SendMessage> for ClientActor {
                     }
                 } else {
                     let recipient = ServiceAddress {
-                        e164: session.source.clone(),
+                        e164: Some(session.source.clone()),
                         relay: None,
                         uuid: None,
                     };
@@ -626,7 +630,7 @@ impl Handler<StorageReady> for ClientActor {
                 .expect("initialized storage");
                 let local_addr = ServiceAddress {
                     uuid: None,
-                    e164,
+                    e164: Some(e164),
                     relay: None,
                 };
                 let cipher =

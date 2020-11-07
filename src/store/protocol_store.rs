@@ -137,6 +137,20 @@ impl IdentityKeyStore for Storage {
             Err(InternalError::InvalidArgument)?
         }
     }
+
+    fn get_identity(&self, addr: Address) -> Result<Option<Buffer>, SignalProtocolError> {
+        if let Some(path) = self.identity_path(&addr) {
+            if path.is_file() {
+                let buf = load_file_sync(self.keys.unwrap(), path).expect("read identity key");
+                Ok(Some(Buffer::from(buf)))
+            } else {
+                Ok(None)
+            }
+        } else {
+            log::warn!("Trying to read trusted identity with uuid, currently unsupported.");
+            Err(InternalError::InvalidArgument)?
+        }
+    }
 }
 
 impl PreKeyStore for Storage {
