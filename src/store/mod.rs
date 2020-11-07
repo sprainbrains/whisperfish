@@ -16,6 +16,8 @@ use failure::*;
 mod protocol_store;
 use protocol_store::ProtocolStore;
 
+embed_migrations!();
+
 /// Session as it relates to the schema
 #[derive(Queryable, Debug, Clone)]
 pub struct Session {
