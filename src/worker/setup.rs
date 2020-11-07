@@ -233,6 +233,15 @@ impl SetupWorker {
         Self::write_config(app.clone(), &cfg).await?;
 
         // Install storage
+        let storage = Storage::new_with_password(
+            &store::default_location()?,
+            &storage_password,
+            regid,
+            &password,
+            signaling_key,
+        )
+        .await?;
+        *app.storage.borrow_mut() = Some(storage);
 
         // Send pre-keys
 

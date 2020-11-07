@@ -292,6 +292,11 @@ fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Resul
     Ok(())
 }
 
+async fn write_file(keys: [u8; 16 + 20], path: PathBuf, contents: Vec<u8>) -> Result<(), Error> {
+    actix_threadpool::run(move || write_file_sync(keys, path, &contents)).await?;
+    Ok(())
+}
+
 fn load_file_sync(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
     // XXX This is *full* of bad practices.
     // Let's try to migrate to nacl or something alike in the future.
@@ -356,6 +361,111 @@ impl Storage {
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), Error> {
+        let root = root.as_ref();
+
+        let directories = [
+            root.join("db"),
+            root.join("storage"),
+            root.join("storage").join("identity"),
+            root.join("storage").join("attachments"),
+            root.join("storage").join("sessions"),
+            root.join("storage").join("prekeys"),
+            root.join("storage").join("signed_prekeys"),
+            root.join("storage").join("groups"),
+        ];
+
+        for dir in &directories {
+            std::fs::create_dir(dir)?;
+        }
+        Ok(())
+    }
+
+    /// Writes (*overwrites*) a new Storage object to the provided path.
+    pub async fn new_with_password<T: AsRef<Path>>(
+        db_path: &StorageLocation<T>,
+        password: &str,
+        regid: u32,
+        http_password: &str,
+        signaling_key: [u8; 52],
+    ) -> Result<Storage, Error> {
+        let path: &Path = std::ops::Deref::deref(db_path);
+
+        log::info!("Creating directory structure");
+        Self::scaffold_directories(path)?;
+
+        let db_salt_path = path.join("db").join("salt");
+        let storage_salt_path = path.join("storage").join("salt");
+
+        // Generate both salts
+        {
+            use rand::RngCore;
+            log::info!("Generating salts");
+            let mut db_salt = [0u8; 8];
+            let mut storage_salt = [0u8; 8];
+            let mut rng = rand::thread_rng();
+            rng.fill_bytes(&mut db_salt);
+            rng.fill_bytes(&mut storage_salt);
+
+            std::fs::write(&db_salt_path, db_salt)?;
+            std::fs::write(&storage_salt_path, storage_salt)?;
+        }
+
+        log::info!("Deriving keys");
+        let db_key = derive_db_key(password.to_string(), db_salt_path);
+        let storage_key = derive_storage_key(password.to_string(), storage_salt_path);
+
+        log::info!("Opening DB");
+        // 1. decrypt DB
+        let db = db_path.open_db()?;
+        db.execute(&format!(
+            "PRAGMA key = \"x'{}'\";",
+            hex::encode(db_key.await?)
+        ))?;
+        db.execute("PRAGMA cipher_page_size = 4096;")?;
+
+        // From the sqlcipher manual:
+        // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
+        db.execute("SELECT count(*) FROM sqlite_master;")?;
+        // XXX: Do we have to signal somehow that the password was wrong?
+        //      Offer retries?
+
+        // Run migrations
+        embedded_migrations::run(&db)?;
+
+        // 2. decrypt storage
+        let keys = storage_key.await?;
+
+        // 3. encrypt and decrypt protocol store
+        let context = libsignal_protocol::Context::default();
+        let identity_key_pair = libsignal_protocol::generate_identity_key_pair(&context).unwrap();
+
+        let protocol_store =
+            ProtocolStore::store_with_key(keys, path, regid, identity_key_pair).await?;
+
+        // 4. Encrypt http password and signaling key
+        let identity_path = path.join("storage").join("identity");
+        write_file(
+            keys,
+            identity_path.join("http_password"),
+            http_password.as_bytes().into(),
+        )
+        .await?;
+        write_file(
+            keys,
+            identity_path.join("http_signaling_key"),
+            signaling_key.to_vec(),
+        )
+        .await?;
+
+        Ok(Storage {
+            db: Arc::new(Mutex::new(db)),
+            keys: Some(keys),
+            protocol_store: Arc::new(Mutex::new(protocol_store)),
+            path: path.to_path_buf(),
+        })
     }
 
     pub async fn open_with_password<T: AsRef<Path>>(
@@ -1082,6 +1192,60 @@ mod tests {
         )?;
         let res = load_file_sync(key, dir.join("encrypt-and-decrypt.temp"))?;
         assert_eq!(std::str::from_utf8(&res).expect("utf8"), contents);
+
+        Ok(())
+    }
+
+    #[actix_rt::test]
+    async fn create_and_open_storage() -> Result<(), Error> {
+        use rand::distributions::Alphanumeric;
+        use rand::{Rng, RngCore};
+
+        env_logger::init();
+
+        let location = super::temp();
+        let mut rng = rand::thread_rng();
+
+        // Storage passphrase of the user
+        let storage_password = "Hello, world! I'm the passphrase";
+
+        // Signaling password for REST API
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+
+        // Signaling key that decrypts the incoming Signal messages
+        let mut signaling_key = [0u8; 52];
+        rng.fill_bytes(&mut signaling_key);
+        let signaling_key = signaling_key;
+
+        // Registration ID
+        let regid = 12345;
+
+        let storage = Storage::new_with_password(
+            &location,
+            storage_password,
+            regid,
+            &password,
+            signaling_key,
+        )
+        .await?;
+
+        macro_rules! tests {
+            ($storage:ident) => {{
+                use libsignal_protocol::stores::IdentityKeyStore;
+                // TODO: assert that tables exist
+                assert_eq!(password, $storage.signal_password().await?);
+                assert_eq!(signaling_key, $storage.signaling_key().await?);
+                assert_eq!(regid, $storage.local_registration_id()?);
+                Result::<_, Error>::Ok(())
+            }};
+        };
+
+        tests!(storage)?;
+        drop(storage);
+
+        let storage = Storage::open_with_password(&location, storage_password.to_string()).await?;
+
+        tests!(storage)?;
 
         Ok(())
     }

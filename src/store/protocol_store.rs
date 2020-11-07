@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 use std::path::Path;
 
+use libsignal_protocol::keys::IdentityKeyPair;
 use libsignal_protocol::stores::SerializedSession;
 use libsignal_protocol::stores::{IdentityKeyStore, PreKeyStore, SessionStore, SignedPreKeyStore};
 use libsignal_protocol::Error as SignalProtocolError;
@@ -25,6 +26,46 @@ impl ProtocolStore {
             identity_key: vec![],
             regid: 0,
         }
+    }
+
+    pub async fn store_with_key(
+        keys: [u8; 16 + 20],
+        path: &Path,
+        regid: u32,
+        identity_key_pair: IdentityKeyPair,
+    ) -> Result<Self, failure::Error> {
+        // Identity
+        let identity_path = path.join("storage").join("identity");
+
+        let mut identity_key = Vec::new();
+        let public = identity_key_pair.public().to_bytes()?;
+        let public = public.as_slice();
+        assert_eq!(public.len(), 32 + 1);
+        assert_eq!(public[0], quirk::DJB_TYPE);
+        identity_key.extend(&public[1..]);
+
+        let private = identity_key_pair.private().to_bytes()?;
+        let private = private.as_slice();
+        assert_eq!(private.len(), 32);
+        identity_key.extend(private);
+
+        write_file(
+            keys,
+            identity_path.join("regid"),
+            format!("{}", regid).into_bytes(),
+        )
+        .await?;
+        write_file(
+            keys,
+            identity_path.join("identity_key"),
+            identity_key.clone(),
+        )
+        .await?;
+
+        Ok(Self {
+            identity_key,
+            regid,
+        })
     }
 
     pub async fn open_with_key(keys: [u8; 16 + 20], path: &Path) -> Result<Self, failure::Error> {
