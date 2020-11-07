@@ -384,6 +384,9 @@ impl Storage {
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
 
+        // Run migrations
+        embedded_migrations::run(&db)?;
+
         // 2. decrypt storage
         let keys = Some(storage_key.await?);
 
