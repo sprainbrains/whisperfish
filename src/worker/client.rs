@@ -16,6 +16,7 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
+use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
 pub use libsignal_service::push_service::{ConfirmCodeResponse, SmsVerificationCodeResponse};
@@ -57,6 +58,7 @@ pub struct ClientActor {
     context: Context,
 
     start_time: chrono::DateTime<chrono::Local>,
+    store_context: Option<libsignal_protocol::StoreContext>,
 }
 
 impl ClientActor {
@@ -76,6 +78,7 @@ impl ClientActor {
             context: Context::new(crypto)?,
 
             start_time: chrono::Local::now(),
+            store_context: None,
         })
     }
 
@@ -681,14 +684,21 @@ impl Handler<StorageReady> for ClientActor {
                     e164: Some(e164),
                     relay: None,
                 };
-                let cipher =
-                    ServiceCipher::from_context(context, local_addr.clone(), store_context);
+                let cipher = ServiceCipher::from_context(
+                    context.clone(),
+                    local_addr.clone(),
+                    store_context.clone(),
+                );
                 // end signal service context
                 act.credentials = Some(credentials);
                 act.service = Some(service);
                 act.cipher = Some(cipher);
                 act.local_addr = Some(local_addr);
+                act.store_context = Some(store_context);
+
                 ctx.notify(Restart);
+
+                ctx.notify(RefreshPreKeys);
             },
         ))
     }
@@ -769,15 +779,12 @@ impl Handler<Register> for ClientActor {
     type Result = ResponseActFuture<Self, Result<SmsVerificationCodeResponse, failure::Error>>;
 
     fn handle(&mut self, reg: Register, _ctx: &mut Self::Context) -> Self::Result {
-        use libsignal_service::AccountManager;
-
         let Register { e164, password } = reg;
 
         let (_credentials, push_service) = self.authenticated_service(e164.clone(), password, None);
-        let registration_procedure = async move {
-            let mut account_manager = AccountManager::new(push_service);
-            account_manager.request_sms_verification_code(&e164).await
-        };
+        let mut account_manager = AccountManager::new(self.context.clone(), push_service);
+        let registration_procedure =
+            async move { account_manager.request_sms_verification_code(&e164).await };
 
         Box::pin(
             registration_procedure
@@ -826,5 +833,39 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 .into_actor(self)
                 .map(move |result, _act, _ctx| Ok((registration_id, result?))),
         )
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RefreshPreKeys;
+
+/// Java's RefreshPreKeysJob
+impl Handler<RefreshPreKeys> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, _: RefreshPreKeys, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(RefreshPreKeys)");
+
+        let service = self.service.clone().unwrap();
+        let mut am = AccountManager::new(self.context.clone(), service);
+
+        let (next_signed_pre_key_id, pre_keys_offset_id) =
+            self.storage.as_ref().unwrap().next_pre_key_ids();
+
+        let store_context = self.store_context.clone().unwrap();
+        let proc = async move {
+            am.update_pre_key_bundle(store_context, next_signed_pre_key_id, pre_keys_offset_id)
+                .await
+        };
+        // XXX: store the last refresh time somewhere.
+
+        Box::pin(proc.into_actor(self).map(move |result, _act, _ctx| {
+            if let Err(e) = result {
+                log::error!("Refresh pre keys failed: {}", e);
+            } else {
+                log::trace!("Successfully refreshed prekeys");
+            }
+        }))
     }
 }

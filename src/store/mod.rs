@@ -1236,6 +1236,12 @@ mod tests {
                 assert_eq!(password, $storage.signal_password().await?);
                 assert_eq!(signaling_key, $storage.signaling_key().await?);
                 assert_eq!(regid, $storage.local_registration_id()?);
+
+                let (signed, unsigned) = $storage.next_pre_key_ids();
+                // Unstarted client will have no pre-keys.
+                assert_eq!(0, signed);
+                assert_eq!(0, unsigned);
+
                 Result::<_, Error>::Ok(())
             }};
         };

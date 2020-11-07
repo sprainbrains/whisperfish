@@ -243,8 +243,6 @@ impl SetupWorker {
         .await?;
         *app.storage.borrow_mut() = Some(storage);
 
-        // Send pre-keys
-
         Ok(())
     }
 }

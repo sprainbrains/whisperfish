@@ -136,6 +136,65 @@ impl Storage {
             .join("signed_prekeys")
             .join(format!("{:09}", id))
     }
+
+    /// Returns a tuple of the next free signed pre-key ID and the next free pre-key ID
+    pub fn next_pre_key_ids(&self) -> (u32, u32) {
+        let mut pre_key_ids: Vec<u32> =
+            std::fs::read_dir(self.path.join("storage").join("prekeys"))
+                .expect("initialized storage")
+                .filter_map(|entry| {
+                    let entry = entry.expect("directory listing");
+                    if !entry.path().is_file() {
+                        log::warn!("Non-file session entry: {:?}. Skipping", entry);
+                        return None;
+                    }
+
+                    // XXX: *maybe* Signal could become a cross-platform desktop app.
+                    use std::os::unix::ffi::OsStrExt;
+                    let name = entry.file_name();
+                    let name = name.as_os_str().as_bytes();
+
+                    log::trace!("parsing {:?}", entry);
+                    let id = std::str::from_utf8(&name).ok()?;
+                    id.parse().ok()
+                })
+                .collect();
+        pre_key_ids.sort();
+
+        let mut signed_pre_key_ids: Vec<u32> =
+            std::fs::read_dir(self.path.join("storage").join("signed_prekeys"))
+                .expect("initialized storage")
+                .filter_map(|entry| {
+                    let entry = entry.expect("directory listing");
+                    if !entry.path().is_file() {
+                        log::warn!("Non-file session entry: {:?}. Skipping", entry);
+                        return None;
+                    }
+
+                    // XXX: *maybe* Signal could become a cross-platform desktop app.
+                    use std::os::unix::ffi::OsStrExt;
+                    let name = entry.file_name();
+                    let name = name.as_os_str().as_bytes();
+
+                    log::trace!("parsing {:?}", entry);
+                    let id = std::str::from_utf8(&name).ok()?;
+                    id.parse().ok()
+                })
+                .collect();
+        signed_pre_key_ids.sort();
+
+        let next_pre_key_id = if pre_key_ids.is_empty() {
+            0
+        } else {
+            pre_key_ids[pre_key_ids.len() - 1] + 1
+        };
+        let next_signed_pre_key_id = if signed_pre_key_ids.is_empty() {
+            0
+        } else {
+            signed_pre_key_ids[signed_pre_key_ids.len() - 1] + 1
+        };
+        (next_signed_pre_key_id, next_pre_key_id)
+    }
 }
 
 impl IdentityKeyStore for Storage {
