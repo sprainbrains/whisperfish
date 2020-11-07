@@ -388,9 +388,7 @@ impl Storage {
         let keys = Some(storage_key.await?);
 
         // 3. decrypt protocol store
-        let protocol_store =
-            ProtocolStore::open_with_key(keys.unwrap(), &crate::store::default_location().unwrap())
-                .await?;
+        let protocol_store = ProtocolStore::open_with_key(keys.unwrap(), path).await?;
 
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
@@ -404,8 +402,7 @@ impl Storage {
     pub async fn signal_password(&self) -> Result<String, Error> {
         let contents = self
             .load_file(
-                crate::store::default_location()
-                    .unwrap()
+                self.path
                     .join("storage")
                     .join("identity")
                     .join("http_password"),
@@ -418,8 +415,7 @@ impl Storage {
     pub async fn signaling_key(&self) -> Result<[u8; 52], Error> {
         let v = self
             .load_file(
-                crate::store::default_location()
-                    .unwrap()
+                self.path
                     .join("storage")
                     .join("identity")
                     .join("http_signaling_key"),
