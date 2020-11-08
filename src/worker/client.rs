@@ -52,6 +52,8 @@ pub struct ClientActor {
     storage: Option<Storage>,
     cipher: Option<ServiceCipher>,
     context: Context,
+
+    start_time: chrono::DateTime<chrono::Local>,
 }
 
 impl ClientActor {
@@ -69,6 +71,8 @@ impl ClientActor {
             storage: None,
             cipher: None,
             context: Context::new(crypto)?,
+
+            start_time: chrono::Local::now(),
         })
     }
 
@@ -245,7 +249,7 @@ impl ClientActor {
         let is_unread = !new_message.sent.clone();
         let (message, session) = storage.process_message(new_message, group, is_unread);
 
-        if settings.get_bool("attachment_log") {
+        if settings.get_bool("attachment_log") && !msg.attachments.is_empty() {
             use std::io::Write;
 
             log::trace!("Logging message to the attachment log");
@@ -253,7 +257,10 @@ impl ClientActor {
             let mut log = std::fs::OpenOptions::new()
                 .append(true)
                 .create(true)
-                .open(storage.path().join("attachments.log"))
+                .open(storage.path().join(format!(
+                    "attachments-{}.log",
+                    self.start_time.format("%Y-%m-%d_%H-%M")
+                )))
                 .expect("open attachment log");
 
             writeln!(
