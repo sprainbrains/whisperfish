@@ -724,14 +724,24 @@ impl Handler<Restart> for ClientActor {
             async move {
                 let mut receiver = MessageReceiver::new(service.clone());
 
-                let pipe = receiver.create_message_pipe(credentials).await.unwrap();
-                pipe.stream()
+                receiver.create_message_pipe(credentials).await
             }
             .into_actor(self)
-            .map(move |pipe, act, ctx| {
-                ctx.add_stream(pipe);
-                act.inner.pinned().borrow_mut().connected = true;
-                act.inner.pinned().borrow().connectedChanged();
+            .map(move |pipe, act, ctx| match pipe {
+                Ok(pipe) => {
+                    ctx.add_stream(pipe.stream());
+                    act.inner.pinned().borrow_mut().connected = true;
+                    act.inner.pinned().borrow().connectedChanged();
+                }
+                Err(e) => {
+                    log::error!("Error starting stream: {}", e);
+                    log::info!("Retrying in 10");
+                    let addr = ctx.address();
+                    Arbiter::spawn(async move {
+                        actix::clock::delay_for(actix::clock::Duration::from_secs(10)).await;
+                        addr.send(Restart).await.expect("retry restart");
+                    });
+                }
             }),
         )
     }
