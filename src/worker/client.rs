@@ -1,4 +1,5 @@
-use std::path::Path;
+use std::io::Write;
+use std::path::{Path, PathBuf};
 
 use actix::prelude::*;
 use qmetaobject::*;
@@ -87,103 +88,6 @@ impl ClientActor {
         SignalServers::Production.into()
     }
 
-    /// Downloads the attachment in the background and registers it in the database.
-    /// Saves the given attachment into a random-generated path. Saves the path in the database.
-    ///
-    /// This was a Message method in Go
-    pub fn handle_attachment(
-        &mut self,
-        ctx: &mut <Self as Actor>::Context,
-        mid: i32,
-        dest: impl AsRef<Path> + 'static,
-        ptr: AttachmentPointer,
-    ) {
-        use futures::future::FutureExt;
-
-        let client_addr = ctx.address();
-
-        let mut service = self.unauthenticated_service();
-        let mut storage = self.storage.clone().unwrap();
-
-        // Sailfish and/or Rust needs "image/jpg" and some others need coaching
-        // before taking a wild guess
-        let ext = match ptr.content_type() {
-            "text/plain" => "txt",
-            "image/jpeg" => "jpg",
-            "image/jpg" => "jpg",
-            other => mime_guess::get_mime_extensions_str(other)
-                .expect("Could not find mime")
-                .first()
-                .unwrap(),
-        };
-
-        let ptr2 = ptr.clone();
-        Arbiter::spawn(
-            async move {
-                use futures::io::AsyncReadExt;
-                use libsignal_service::attachment_cipher::*;
-
-                let mut stream = loop {
-                    let r = service.get_attachment(&ptr).await;
-                    match r {
-                        Ok(stream) => break stream,
-                        Err(ServiceError::Timeout{ .. }) => {
-                            log::warn!("get_attachment timed out, retrying")
-                        },
-                        Err(e) => Err(e)?,
-                    }
-                };
-                log::info!("Downloading attachment");
-
-                // We need the whole file for the crypto to check out 😢
-                let mut ciphertext = if let Some(size) = ptr.size {
-                    Vec::with_capacity(size as usize)
-                } else {
-                    Vec::new()
-                };
-                let len = stream.read_to_end(&mut ciphertext).await
-                    .expect("streamed attachment");
-
-                // Downloaded attachment length (1781792) is not equal to expected length of 1708516 bytes.
-                // Not sure where the difference comes from at this point.
-                if len != ptr.size.unwrap() as usize {
-                    log::warn!("Downloaded attachment length ({}) is not equal to expected length of {} bytes.", len, ptr.size.unwrap());
-                }
-                let key_material = ptr.key();
-                assert_eq!(
-                    key_material.len(),
-                    64,
-                    "key material for attachments is ought to be 64 bytes"
-                );
-                let mut key = [0u8; 64];
-                key.copy_from_slice(&key_material);
-
-                decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
-                if let Some(size) = ptr.size {
-                    log::debug!("Truncating attachment to {}B", size);
-                    ciphertext.truncate(size as usize);
-                }
-
-                let attachment_path =
-                    crate::store::save_attachment(&dest, ext, futures::io::Cursor::new(ciphertext))
-                        .await;
-
-                storage.register_attachment(
-                    mid,
-                    attachment_path.to_str().expect("attachment path utf-8"),
-                    ptr.content_type(),
-                );
-                client_addr.send(AttachmentDownloaded(mid)).await?;
-                Ok(())
-            }
-            .map(move |r: Result<(), failure::Error>| {
-                if let Err(e) = r {
-                    log::error!("Error fetching attachment for message with ID `{}` {:?}: {:?}", mid, ptr2, e);
-                }
-            }),
-        )
-    }
-
     /// Process incoming message from Signal
     ///
     /// This was `MessageHandler` in Go.
@@ -250,18 +154,9 @@ impl ClientActor {
         let (message, session) = storage.process_message(new_message, group, is_unread);
 
         if settings.get_bool("attachment_log") && !msg.attachments.is_empty() {
-            use std::io::Write;
-
             log::trace!("Logging message to the attachment log");
             // XXX Sync code, but it's not the only sync code in here...
-            let mut log = std::fs::OpenOptions::new()
-                .append(true)
-                .create(true)
-                .open(storage.path().join(format!(
-                    "attachments-{}.log",
-                    self.start_time.format("%Y-%m-%d_%H-%M")
-                )))
-                .expect("open attachment log");
+            let mut log = self.attachment_log();
 
             writeln!(
                 log,
@@ -282,7 +177,11 @@ impl ClientActor {
                 let dir = settings.get_string("attachment_dir");
                 let dest = Path::new(&dir);
 
-                self.handle_attachment(ctx, message.id, dest.to_path_buf(), attachment);
+                ctx.notify(FetchAttachment {
+                    mid: message.id,
+                    dest: dest.to_path_buf(),
+                    ptr: attachment,
+                });
             }
         }
 
@@ -414,6 +313,17 @@ impl ClientActor {
             }
         }
     }
+
+    fn attachment_log(&self) -> std::fs::File {
+        std::fs::OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open(self.storage.as_ref().unwrap().path().join(format!(
+                "attachments-{}.log",
+                self.start_time.format("%Y-%m-%d_%H-%M")
+            )))
+            .expect("open attachment log")
+    }
 }
 
 impl Actor for ClientActor {
@@ -421,6 +331,120 @@ impl Actor for ClientActor {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         self.inner.pinned().borrow_mut().actor = Some(ctx.address());
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+struct FetchAttachment {
+    mid: i32,
+    dest: PathBuf,
+    ptr: AttachmentPointer,
+}
+
+impl Handler<FetchAttachment> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    /// Downloads the attachment in the background and registers it in the database.
+    /// Saves the given attachment into a random-generated path. Saves the path in the database.
+    ///
+    /// This was a Message method in Go
+    fn handle(
+        &mut self,
+        fetch: FetchAttachment,
+        ctx: &mut <Self as Actor>::Context,
+    ) -> Self::Result {
+        let FetchAttachment { mid, dest, ptr } = fetch;
+
+        let client_addr = ctx.address();
+
+        let mut service = self.unauthenticated_service();
+        let mut storage = self.storage.clone().unwrap();
+
+        // Sailfish and/or Rust needs "image/jpg" and some others need coaching
+        // before taking a wild guess
+        let ext = match ptr.content_type() {
+            "text/plain" => "txt",
+            "image/jpeg" => "jpg",
+            "image/jpg" => "jpg",
+            other => mime_guess::get_mime_extensions_str(other)
+                .expect("Could not find mime")
+                .first()
+                .unwrap(),
+        };
+
+        let ptr2 = ptr.clone();
+        Box::pin(
+            async move {
+                use futures::io::AsyncReadExt;
+                use libsignal_service::attachment_cipher::*;
+
+                let mut stream = loop {
+                    let r = service.get_attachment(&ptr).await;
+                    match r {
+                        Ok(stream) => break stream,
+                        Err(ServiceError::Timeout{ .. }) => {
+                            log::warn!("get_attachment timed out, retrying")
+                        },
+                        Err(e) => Err(e)?,
+                    }
+                };
+                log::info!("Downloading attachment");
+
+                // We need the whole file for the crypto to check out 😢
+                let mut ciphertext = if let Some(size) = ptr.size {
+                    Vec::with_capacity(size as usize)
+                } else {
+                    Vec::new()
+                };
+                let len = stream.read_to_end(&mut ciphertext).await
+                    .expect("streamed attachment");
+
+                // Downloaded attachment length (1781792) is not equal to expected length of 1708516 bytes.
+                // Not sure where the difference comes from at this point.
+                if len != ptr.size.unwrap() as usize {
+                    log::warn!("Downloaded attachment length ({}) is not equal to expected length of {} bytes.", len, ptr.size.unwrap());
+                }
+                let key_material = ptr.key();
+                assert_eq!(
+                    key_material.len(),
+                    64,
+                    "key material for attachments is ought to be 64 bytes"
+                );
+                let mut key = [0u8; 64];
+                key.copy_from_slice(&key_material);
+
+                decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
+                if let Some(size) = ptr.size {
+                    log::debug!("Truncating attachment to {}B", size);
+                    ciphertext.truncate(size as usize);
+                }
+
+                let attachment_path =
+                    crate::store::save_attachment(&dest, ext, futures::io::Cursor::new(ciphertext))
+                        .await;
+
+                storage.register_attachment(
+                    mid,
+                    attachment_path.to_str().expect("attachment path utf-8"),
+                    ptr.content_type(),
+                );
+                client_addr.send(AttachmentDownloaded(mid)).await?;
+                Ok(())
+            }
+            .into_actor(self)
+            .map(move |r: Result<(), failure::Error>, act, _ctx| {
+                // Synchronise on the actor, to log the error to attachment.log
+                if let Err(e) = r {
+                    let e = format!("Error fetching attachment for message with ID `{}` {:?}: {:?}", mid, ptr2, e);
+                    log::error!("{}", e);
+                    let mut log = act.attachment_log();
+                    if let Err(e) = writeln!(log, "{}", e) {
+                        log::error!("Could not write error to error log: {}", e);
+                    }
+                }
+            })
+        )
     }
 }
 
