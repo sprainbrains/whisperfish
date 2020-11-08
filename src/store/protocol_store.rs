@@ -465,7 +465,7 @@ impl SignedPreKeyStore for Storage {
 
     fn store(&self, id: u32, body: &[u8]) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
-        let path = self.prekey_path(id);
+        let path = self.signed_prekey_path(id);
         let contents = quirk::signed_pre_key_to_0_5(body).unwrap();
         write_file_sync(self.keys.unwrap(), path, &contents).expect("written file");
         Ok(())
