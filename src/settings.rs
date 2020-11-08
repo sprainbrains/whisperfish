@@ -132,6 +132,7 @@ impl Settings {
         self.set_bool("share_contacts", true);
         self.set_bool("enable_enter_send", false);
         self.set_bool("scale_image_attachments", false);
+        self.set_bool("attachment_log", false);
     }
 
     pub fn get_string(&self, key: impl AsRef<str>) -> String {
