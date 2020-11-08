@@ -179,7 +179,7 @@ translations:
     - apt-get install --no-install-recommends -y git qttools5-dev-tools qt5-default python3 python3-requests
   script:
     - lupdate qml/ -ts translations/*.ts
-    - python3 .ci/update-translation-badge.py
+    - '[ "$CI_COMMIT_REF_NAME" == "master" ] && python3 .ci/update-translation-badge.py'
     - git diff --exit-code
 
 pages:
