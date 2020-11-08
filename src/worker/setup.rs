@@ -25,6 +25,8 @@ pub struct SetupWorker {
     localId: qt_property!(QString; NOTIFY setupChanged),
     identity: qt_property!(QString; NOTIFY setupChanged),
 
+    useVoice: qt_property!(bool; NOTIFY setupChanged),
+
     /// Emitted when any of the properties change.
     setupChanged: qt_signal!(),
 
@@ -61,11 +63,16 @@ impl SetupWorker {
             }
         };
 
+        let whisperfish_config_file = Self::conf_dir().join("harbour-whisperfish.conf");
+        if !whisperfish_config_file.exists() {
+            app.settings.pinned().borrow_mut().defaults();
+        }
+
         let config = this.borrow().config.as_ref().unwrap().clone();
 
         log::debug!("config: {:?}", config);
         // XXX: nice formatting?
-        this.borrow_mut().phoneNumber = config.tel.into();
+        this.borrow_mut().phoneNumber = config.tel.unwrap_or("".into()).into();
 
         if !this.borrow().registered {
             if let Err(e) = SetupWorker::register(app.clone()).await {
@@ -109,12 +116,12 @@ impl SetupWorker {
             Ok(serde_yaml::from_reader(file)?)
         } else {
             let contents = SignalConfig {
-                tel: String::new(),
-                uuid: String::new(),
+                tel: None,
+                uuid: None,
                 // XXX
-                server: String::new(),
-                root_ca: String::new(),
-                proxy_server: String::new(),
+                server: None,
+                root_ca: None,
+                proxy_server: None,
                 verification_type: "voice".into(),
                 storage_dir: "".into(),
                 unencrypted_storage: false,
@@ -159,6 +166,8 @@ impl SetupWorker {
     }
 
     async fn register(app: Rc<WhisperfishApp>) -> Result<(), Error> {
+        let this = app.setup_worker.pinned();
+
         let storage_password: String = app
             .prompt
             .pinned()
@@ -180,6 +189,7 @@ impl SetupWorker {
         let number = phonenumber::parse(None, number).unwrap();
         let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
         log::info!("E164: {}", e164);
+        this.borrow_mut().phoneNumber = e164.clone().into();
 
         // generate a random 24 bytes password
         use rand::distributions::Alphanumeric;
@@ -192,10 +202,11 @@ impl SetupWorker {
             .send(super::client::Register {
                 e164: e164.clone(),
                 password: password.clone(),
+                use_voice: this.borrow().useVoice,
             })
             .await??;
 
-        if res == super::client::SmsVerificationCodeResponse::CaptchaRequired {
+        if res == super::client::RegistrationResponse::CaptchaRequired {
             return Err(format_err!(
                 "Signal wants you to complete a captcha. Please file a bug report against Whisperfish."
             ));
@@ -227,10 +238,11 @@ impl SetupWorker {
 
         log::info!("Registration result: {:?}", res);
 
-        let mut cfg = Self::read_config(app.clone()).await?;
-        cfg.uuid = res.uuid;
-        cfg.tel = e164;
-        Self::write_config(app.clone(), &cfg).await?;
+        let mut this = this.borrow_mut();
+        let mut cfg = this.config.as_mut().unwrap();
+        cfg.uuid = Some(res.uuid);
+        cfg.tel = Some(e164);
+        Self::write_config(app.clone(), cfg).await?;
 
         // Install storage
         let storage = Storage::new_with_password(

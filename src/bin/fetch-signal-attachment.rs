@@ -100,7 +100,9 @@ async fn main() -> Result<(), Error> {
     };
 
     // Connection details for OWS servers
-    let phonenumber = phonenumber::parse(None, config.tel).unwrap();
+    // XXX: https://gitlab.com/rubdos/whisperfish/-/issues/80
+    let phonenumber = phonenumber::parse(None, config.tel.expect("phone number")).unwrap();
+    let uuid = config.uuid.clone();
     let e164 = phonenumber
         .format()
         .mode(phonenumber::Mode::E164)
@@ -108,7 +110,7 @@ async fn main() -> Result<(), Error> {
     log::info!("E164: {}", e164);
     let signaling_key = Some(storage.signaling_key().await.unwrap());
     let credentials = Credentials {
-        uuid: None,
+        uuid,
         e164: e164.clone(),
         password: None,
         signaling_key,

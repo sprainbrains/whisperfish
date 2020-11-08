@@ -4,17 +4,17 @@ use qmetaobject::*;
 #[serde(rename_all = "camelCase")]
 pub struct SignalConfig {
     /// Our telephone number
-    pub tel: String,
+    pub tel: Option<String>,
     /// Our uuid
-    pub uuid: String,
+    pub uuid: Option<String>,
     /// The TextSecure server URL
-    pub server: String,
+    pub server: Option<String>,
     #[serde(rename = "rootCA")]
     /// The TLS signing certificate of the server we connect to
-    pub root_ca: String,
+    pub root_ca: Option<String>,
     #[serde(rename = "proxy")]
     /// HTTP Proxy URL if one is being used
-    pub proxy_server: String,
+    pub proxy_server: Option<String>,
     /// Code verification method during registration (SMS/VOICE/DEV)
     pub verification_type: String,
     /// Directory for the persistent storage

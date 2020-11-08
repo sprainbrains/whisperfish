@@ -19,7 +19,8 @@ use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
-pub use libsignal_service::push_service::{ConfirmCodeResponse, SmsVerificationCodeResponse};
+pub use libsignal_service::push_service::ConfirmCodeResponse;
+use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerificationCodeResponse};
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -90,6 +91,7 @@ impl ClientActor {
 
     fn authenticated_service(
         &self,
+        uuid: Option<String>,
         e164: String,
         password: String,
         signaling_key: Option<[u8; 52]>,
@@ -97,7 +99,7 @@ impl ClientActor {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
         let credentials = Credentials {
-            uuid: None,
+            uuid,
             e164,
             password: Some(password),
             signaling_key,
@@ -650,7 +652,8 @@ impl Handler<StorageReady> for ClientActor {
         let storage_for_password = storage.clone();
         let request_password = async move {
             // Web socket
-            let phonenumber = phonenumber::parse(None, config.tel).unwrap();
+            let phonenumber = phonenumber::parse(None, config.tel.expect("phone number")).unwrap();
+            let uuid = config.uuid.clone();
             let e164 = phonenumber
                 .format()
                 .mode(phonenumber::Mode::E164)
@@ -660,13 +663,13 @@ impl Handler<StorageReady> for ClientActor {
             let password = storage_for_password.signal_password().await.unwrap();
             let signaling_key = Some(storage_for_password.signaling_key().await.unwrap());
 
-            (e164, password, signaling_key)
+            (uuid, e164, password, signaling_key)
         };
 
         Box::pin(request_password.into_actor(self).map(
-            move |(e164, password, signaling_key), act, ctx| {
+            move |(uuid, e164, password, signaling_key), act, ctx| {
                 let (credentials, service) =
-                    act.authenticated_service(e164.clone(), password, signaling_key);
+                    act.authenticated_service(uuid.clone(), e164.clone(), password, signaling_key);
                 // end web socket
 
                 // Signal service context
@@ -680,7 +683,7 @@ impl Handler<StorageReady> for ClientActor {
                 )
                 .expect("initialized storage");
                 let local_addr = ServiceAddress {
-                    uuid: None,
+                    uuid,
                     e164: Some(e164),
                     relay: None,
                 };
@@ -768,23 +771,64 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
     }
 }
 
+#[derive(Clone, Eq, PartialEq)]
+pub enum RegistrationResponse {
+    Ok,
+    CaptchaRequired,
+}
+
+impl From<VoiceVerificationCodeResponse> for RegistrationResponse {
+    fn from(response: VoiceVerificationCodeResponse) -> RegistrationResponse {
+        match response {
+            VoiceVerificationCodeResponse::CaptchaRequired => RegistrationResponse::CaptchaRequired,
+            VoiceVerificationCodeResponse::CallIssued => RegistrationResponse::Ok,
+        }
+    }
+}
+
+impl From<SmsVerificationCodeResponse> for RegistrationResponse {
+    fn from(response: SmsVerificationCodeResponse) -> RegistrationResponse {
+        match response {
+            SmsVerificationCodeResponse::CaptchaRequired => RegistrationResponse::CaptchaRequired,
+            SmsVerificationCodeResponse::SmsSent => RegistrationResponse::Ok,
+        }
+    }
+}
+
 #[derive(Message)]
-#[rtype(result = "Result<SmsVerificationCodeResponse, failure::Error>")]
+#[rtype(result = "Result<RegistrationResponse, failure::Error>")]
 pub struct Register {
     pub e164: String,
     pub password: String,
+    pub use_voice: bool,
 }
 
 impl Handler<Register> for ClientActor {
-    type Result = ResponseActFuture<Self, Result<SmsVerificationCodeResponse, failure::Error>>;
+    type Result = ResponseActFuture<Self, Result<RegistrationResponse, failure::Error>>;
 
     fn handle(&mut self, reg: Register, _ctx: &mut Self::Context) -> Self::Result {
-        let Register { e164, password } = reg;
+        let Register {
+            e164,
+            password,
+            use_voice,
+        } = reg;
 
-        let (_credentials, push_service) = self.authenticated_service(e164.clone(), password, None);
+        let (_credentials, push_service) =
+            self.authenticated_service(None, e164.clone(), password, None);
         let mut account_manager = AccountManager::new(self.context.clone(), push_service);
-        let registration_procedure =
-            async move { account_manager.request_sms_verification_code(&e164).await };
+        let registration_procedure = async move {
+            if use_voice {
+                account_manager
+                    .request_voice_verification_code(&e164)
+                    .await
+                    .map(Into::into)
+            } else {
+                account_manager
+                    .request_sms_verification_code(&e164)
+                    .await
+                    .map(Into::into)
+            }
+        };
 
         Box::pin(
             registration_procedure
@@ -819,7 +863,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
         log::trace!("registration_id: {}", registration_id);
 
         let (_credentials, mut push_service) =
-            self.authenticated_service(e164.clone(), password, None);
+            self.authenticated_service(None, e164.clone(), password, None);
         let confirmation_procedure = async move {
             push_service.confirm_verification_code(confirm_code,
                 libsignal_service::push_service::ConfirmCodeMessage::new_without_unidentified_access (

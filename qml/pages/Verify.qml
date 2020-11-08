@@ -42,7 +42,7 @@ Dialog {
             //% "Code"
             label: qsTrId("whisperfish-verify-code-label")
             //: Verify code placeholder
-            //% "Code"
+            //% "123456"
             placeholderText: qsTrId("whisperfish-verify-code-placeholder")
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
@@ -55,9 +55,21 @@ Dialog {
             width: parent.width
             horizontalAlignment: TextEdit.Center
             readOnly: true
-            //: Verify code instructions
+            visible:  SetupWorker.useVoice
+            //: Voice verification code instructions
             //% "Signal will call you with a 6-digit verification code. Please enter it here."
-            text: qsTrId("whisperfish-verify-code-instructions")
+            text: qsTrId("whisperfish-voice-verify-code-instructions")
+        }
+
+        TextArea {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width
+            horizontalAlignment: TextEdit.Center
+            readOnly: true
+            visible:  ! SetupWorker.useVoice
+            //: Text verification code instructions
+            //% "Signal will text you a 6-digit verification code. Please enter it here, using only numbers."
+            text: qsTrId("whisperfish-text-verify-code-instructions")
         }
 
     }
