@@ -67,7 +67,7 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>Signal-sovellus Sailfish-käyttöjärjestelmään</translation>
+        <translation>Signal-sovellus Sailfish-käyttöjärjestelmälle</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="49"/>
@@ -599,7 +599,7 @@
         <location filename="../qml/pages/Settings.qml" line="166"/>
         <source>EnterKey Send</source>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation>Rivinvaihto = lähetä viesti</translation>
+        <translation>Lähetä viesti rivinvaihdosta</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="177"/>
