@@ -17,6 +17,12 @@ pub struct ProtocolStore {
     regid: u32,
 }
 
+fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a str {
+    let addr: &'a [u8] = addr.as_ref();
+    let addr = if addr[0] == b'+' { &addr[1..] } else { addr };
+    std::str::from_utf8(addr).expect("address in valid UTF8")
+}
+
 impl ProtocolStore {
     // This will be here until https://gitlab.com/rubdos/whisperfish/-/issues/40 is resolved,
     // for purposes of tests.
@@ -87,12 +93,7 @@ impl ProtocolStore {
 impl Storage {
     fn session_path(&self, addr: &Address) -> PathBuf {
         let addr_str = addr.as_str().unwrap();
-        let recipient_id = if addr_str.starts_with('+') {
-            // strip the prefix + from e164, as is done in Go (cfr. the `func recID`).
-            &addr_str[1..]
-        } else {
-            addr_str
-        };
+        let recipient_id = addr_to_path_component(addr_str);
 
         self.path.join("storage").join("sessions").join(format!(
             "{}_{}",
@@ -103,12 +104,7 @@ impl Storage {
 
     fn identity_path(&self, addr: &Address) -> PathBuf {
         let addr_str = addr.as_str().unwrap();
-        let recipient_id = if addr_str.starts_with('+') {
-            // strip the prefix + from e164, as is done in Go (cfr. the `func recID`).
-            &addr_str[1..]
-        } else {
-            addr_str
-        };
+        let recipient_id = addr_to_path_component(addr_str);
 
         self.path
             .join("storage")
@@ -291,8 +287,7 @@ impl SessionStore for Storage {
             "Looking for sub_device sessions for {}",
             String::from_utf8_lossy(addr)
         );
-        // Strip `+'
-        let addr = if addr[0] == b'+' { &addr[1..] } else { addr };
+        let addr = addr_to_path_component(addr).as_bytes();
 
         let session_dir = self.path.join("storage").join("sessions");
 
@@ -368,8 +363,7 @@ impl SessionStore for Storage {
             "Deleting all sessions for {}",
             String::from_utf8_lossy(addr)
         );
-        // Strip `+'
-        let addr = if addr[0] == b'+' { &addr[1..] } else { addr };
+        let addr = addr_to_path_component(addr).as_bytes();
 
         let session_dir = self.path.join("storage").join("sessions");
 
