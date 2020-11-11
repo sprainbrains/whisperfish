@@ -152,7 +152,7 @@ impl SetupWorker {
                 .borrow_mut()
                 .ask_password()
                 .await
-                .ok_or(format_err!("No password provided"))?
+                .ok_or_else(|| format_err!("No password provided"))?
                 .into();
 
             Storage::open_with_password(&store::default_location()?, password).await?

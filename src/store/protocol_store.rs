@@ -313,7 +313,7 @@ impl SessionStore for Storage {
                 }
 
                 if &name[..addr.len()] == addr {
-                    if name[addr.len()] != '_' as u8 {
+                    if name[addr.len()] != b'_' {
                         log::warn!("Weird session directory entry: {:?}. Skipping", entry);
                         return None;
                     }

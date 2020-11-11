@@ -124,7 +124,7 @@ pub async fn save_attachment(
     let mut file = futures::io::AllowStdIo::new(file);
     futures::io::copy(&mut attachment, &mut file).await.unwrap();
 
-    return path;
+    path
 }
 
 /// Location of the storage.
@@ -161,11 +161,10 @@ pub fn temp() -> StorageLocation<tempdir::TempDir> {
 }
 
 pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
-    let data_dir = dirs::data_local_dir().ok_or(format_err!("Could not find data directory."))?;
+    let data_dir =
+        dirs::data_local_dir().ok_or_else(|| format_err!("Could not find data directory."))?;
 
-    Ok(StorageLocation::Path(
-        data_dir.join("harbour-whisperfish").into(),
-    ))
+    Ok(StorageLocation::Path(data_dir.join("harbour-whisperfish")))
 }
 
 impl<P: AsRef<Path>> std::ops::Deref for StorageLocation<P> {
@@ -187,9 +186,9 @@ impl<P: AsRef<Path>> StorageLocation<P> {
                 .join("db")
                 .join("harbour-whisperfish.db")
                 .to_str()
-                .ok_or(format_err!(
-                    "path to db contains a non-UTF8 character, please file a bug."
-                ))?
+                .ok_or_else(|| {
+                    format_err!("path to db contains a non-UTF8 character, please file a bug.")
+                })?
                 .to_string(),
         };
 
@@ -268,7 +267,7 @@ fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Resul
     let ciphertext = {
         let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
             .map_err(|_| format_err!("CBC initialization error"))?;
-        cipher.encrypt_vec(contents).to_owned()
+        cipher.encrypt_vec(contents)
     };
 
     let mac = {
@@ -541,7 +540,7 @@ impl Storage {
         Ok(out)
     }
 
-    async fn load_file<'s>(&'s self, path: PathBuf) -> Result<Vec<u8>, Error> {
+    async fn load_file(&self, path: PathBuf) -> Result<Vec<u8>, Error> {
         // XXX: unencrypted storage.
         load_file(self.keys.unwrap(), path).await
     }
@@ -584,8 +583,7 @@ impl Storage {
             session_data.group_members = Some(group.members.join(","));
         };
 
-        let db_session: Session = if db_session_res.is_some() {
-            let db_sess = db_session_res.unwrap();
+        let db_session: Session = if let Some(db_sess) = db_session_res {
             self.update_session(&db_sess, &session_data, is_unread);
             db_sess
         } else {

@@ -97,7 +97,6 @@ impl MessageModel {
             }
             Err(e) => {
                 log::error!("[attachment] Error {}", e);
-                return;
             }
         }
     }
@@ -300,7 +299,7 @@ impl MessageModel {
         self.group = sess.is_group;
         self.groupChanged();
 
-        let group_name = sess.group_name.unwrap_or(String::new());
+        let group_name = sess.group_name.unwrap_or_else(String::new);
         if sess.is_group && group_name != "" {
             self.peerName = QString::from(group_name);
         } else {
@@ -311,7 +310,7 @@ impl MessageModel {
         self.peerTel = QString::from(sess.source);
         self.peerTelChanged();
 
-        self.groupMembers = QString::from(sess.group_members.unwrap_or(String::new()));
+        self.groupMembers = QString::from(sess.group_members.unwrap_or_else(String::new));
         self.groupMembersChanged();
 
         // TODO: contact identity key

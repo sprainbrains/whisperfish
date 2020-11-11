@@ -157,8 +157,8 @@ impl Handler<QueueMessage> for MessageActor {
                 source: msg.source,
                 text: msg.message,
                 timestamp: chrono::Utc::now().timestamp_millis(),
-                has_attachment: msg.attachment.len() != 0,
-                attachment: if msg.attachment.len() != 0 {
+                has_attachment: !msg.attachment.is_empty(),
+                attachment: if !msg.attachment.is_empty() {
                     Some(msg.attachment)
                 } else {
                     None

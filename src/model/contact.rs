@@ -78,12 +78,12 @@ impl ContactModel {
             return String::new();
         }
 
-        String::from(number.format().mode(mode).to_string())
+        number.format().mode(mode).to_string()
     }
 
     // The default formatter expected by QML
     fn format(&self, string: QString) -> QString {
-        if string.to_string().len() == 0 {
+        if string.to_string().is_empty() {
             return QString::from("");
         }
 

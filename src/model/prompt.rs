@@ -44,7 +44,7 @@ impl Prompt {
     #[allow(non_snake_case)]
     fn password(&mut self, password: QString) {
         for listener in self.password_listeners.drain(..) {
-            if let Err(_) = listener.send(password.clone()) {
+            if listener.send(password.clone()).is_err() {
                 log::warn!("Request for password fulfilled, but nobody listens.");
             }
         }

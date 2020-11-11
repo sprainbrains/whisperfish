@@ -149,7 +149,7 @@ impl ClientActor {
             } else {
                 msg.timestamp()
             } as i64,
-            has_attachment: msg.attachments.len() > 0,
+            has_attachment: !msg.attachments.is_empty(),
             mime_type: None,  // Attachments are further handled asynchronously
             received: false,  // This is set true by a receipt handler
             session_id: None, // Canary value checked later
@@ -176,7 +176,7 @@ impl ClientActor {
             None
         };
 
-        let is_unread = !new_message.sent.clone();
+        let is_unread = !new_message.sent;
         let (message, session) = storage.process_message(new_message, group, is_unread);
 
         if settings.get_bool("attachment_log") && !msg.attachments.is_empty() {
@@ -291,14 +291,14 @@ impl ClientActor {
                         ctx,
                         // Empty string mainly when groups,
                         // but maybe needs a check. TODO
-                        sent.destination_e164.clone().unwrap_or("".into()),
+                        sent.destination_e164.unwrap_or_else(|| String::from("")),
                         message,
                         true,
                         0,
                     );
                 } else if let Some(_request) = message.request {
                     log::trace!("Sync request message");
-                } else if message.read.len() > 0 {
+                } else if !message.read.is_empty() {
                     log::trace!("Sync read message");
                     for read in &message.read {
                         // XXX: this should probably not be based on ts alone.
@@ -538,39 +538,19 @@ impl Handler<SendMessage> for ClientActor {
             } else if let Some(_attachment) = msg.attachment {
                 // Note, in the Go code these conditions were in opposite order (if att == nil)
                 log::warn!("Sending attachment unimplemented");
-            } else {
-                if session.is_group {
-                    let members = session.group_members.as_ref().unwrap();
-                    // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
-                    for member in members.split(',') {
-                        let recipient = ServiceAddress {
-                            e164: Some(member.to_string()),
-                            relay: None,
-                            uuid: None,
-                        };
-                        if local_addr.matches(&recipient) {
-                            continue;
-                        }
-                        // Clone + async closure means we can use an immutable borrow.
-                        match sender
-                            .send_message(recipient, content.clone(), timestamp, online)
-                            .await
-                        {
-                            Ok(s) => {
-                                if s.needs_sync {
-                                    needs_sync = true;
-                                }
-                            }
-                            Err(e) => log::error!("Error sending message: {}", e),
-                        }
-                    }
-                } else {
+            } else if session.is_group {
+                let members = session.group_members.as_ref().unwrap();
+                // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
+                for member in members.split(',') {
                     let recipient = ServiceAddress {
-                        e164: Some(session.source.clone()),
+                        e164: Some(member.to_string()),
                         relay: None,
                         uuid: None,
                     };
-
+                    if local_addr.matches(&recipient) {
+                        continue;
+                    }
+                    // Clone + async closure means we can use an immutable borrow.
                     match sender
                         .send_message(recipient, content.clone(), timestamp, online)
                         .await
@@ -582,6 +562,24 @@ impl Handler<SendMessage> for ClientActor {
                         }
                         Err(e) => log::error!("Error sending message: {}", e),
                     }
+                }
+            } else {
+                let recipient = ServiceAddress {
+                    e164: Some(session.source.clone()),
+                    relay: None,
+                    uuid: None,
+                };
+
+                match sender
+                    .send_message(recipient, content.clone(), timestamp, online)
+                    .await
+                {
+                    Ok(s) => {
+                        if s.needs_sync {
+                            needs_sync = true;
+                        }
+                    }
+                    Err(e) => log::error!("Error sending message: {}", e),
                 }
             }
 
