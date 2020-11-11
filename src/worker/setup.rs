@@ -177,16 +177,25 @@ impl SetupWorker {
             .ok_or(format_err!("No password code provided"))?
             .into();
 
-        let number: String = app
-            .prompt
-            .pinned()
-            .borrow_mut()
-            .ask_phone_number()
-            .await
-            .ok_or(format_err!("No phone number provided"))?
-            .into();
+        let number = loop {
+            let number: String = app
+                .prompt
+                .pinned()
+                .borrow_mut()
+                .ask_phone_number()
+                .await
+                .ok_or(format_err!("No phone number provided"))?
+                .into();
 
-        let number = phonenumber::parse(None, number).unwrap();
+            match phonenumber::parse(None, number) {
+                Ok(number) => break number,
+                Err(e) => {
+                    log::warn!("Could not parse phone number: {}", e);
+                    this.borrow().invalidPhoneNumber();
+                }
+            }
+        };
+
         let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
         log::info!("E164: {}", e164);
         this.borrow_mut().phoneNumber = e164.clone().into();
