@@ -1364,7 +1364,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#201b73559fc031d683728246e2cdc4ed07ac716f"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#5ff2be6b8fd835d4fac0ae2753a87b9c425121bb"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1390,7 +1390,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#201b73559fc031d683728246e2cdc4ed07ac716f"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#5ff2be6b8fd835d4fac0ae2753a87b9c425121bb"
 dependencies = [
  "actix",
  "actix-rt",
