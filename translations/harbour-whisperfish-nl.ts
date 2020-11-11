@@ -475,9 +475,8 @@
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="49"/>
         <location filename="../qml/pages/Register.qml" line="46"/>
         <source>+18875550100</source>
-        <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
-        <translation type="unfinished">32474123456</translation>
+        <translation>+32474123456</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="58"/>

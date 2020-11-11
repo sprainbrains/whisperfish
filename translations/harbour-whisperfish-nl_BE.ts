@@ -475,9 +475,8 @@
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="49"/>
         <location filename="../qml/pages/Register.qml" line="46"/>
         <source>+18875550100</source>
-        <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
-        <translation type="unfinished">32474123456</translation>
+        <translation>+32474123456</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="58"/>
@@ -489,19 +488,19 @@
         <location filename="../qml/pages/Register.qml" line="70"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verificatiemethode</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
         <location filename="../qml/pages/Register.qml" line="81"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Oproepverificatie</translation>
     </message>
     <message id="whisperfish-use-text-verification">
         <location filename="../qml/pages/Register.qml" line="76"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>SMS-verificatie</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/Register.qml" line="98"/>
@@ -513,7 +512,7 @@
         <location filename="../qml/pages/Register.qml" line="109"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <extracomment>Registration directions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal stuurt u een SMS met een code van zes cijfers. Ge hebt die nodig in de volgende stap.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -755,9 +754,8 @@
     <message id="whisperfish-verify-code-placeholder">
         <location filename="../qml/pages/Verify.qml" line="46"/>
         <source>123456</source>
-        <oldsource>Code</oldsource>
         <extracomment>Verify code placeholder</extracomment>
-        <translation type="unfinished">Code</translation>
+        <translation>123456</translation>
     </message>
     <message id="whisperfish-voice-verify-code-instructions">
         <location filename="../qml/pages/Verify.qml" line="61"/>
@@ -770,7 +768,7 @@
         <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
         <oldsource>Signal will text you a 6-digit verification code. Please enter it here.</oldsource>
         <extracomment>Text verification code instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal stuurt u een SMS met een code van zes cijfers. Tikt die hier in.</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
