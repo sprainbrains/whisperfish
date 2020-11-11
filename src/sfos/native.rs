@@ -174,7 +174,7 @@ impl SailfishApp {
     pub fn set_object_property<T: QObject + Sized>(
         &mut self,
         name: QString,
-        obj: QObjectPinned<T>,
+        obj: QObjectPinned<'_, T>,
     ) {
         let obj_ptr = obj.get_or_create_cpp_object();
         cpp!(unsafe [self as "SfosApplicationHolder*", name as "QString", obj_ptr as "QObject*"] {
