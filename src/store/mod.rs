@@ -285,9 +285,9 @@ fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Resul
     // Write iv, ciphertext, mac
     use std::io::Write;
     let mut file = std::fs::File::create(&path)?;
-    file.write(&iv)?;
-    file.write(&ciphertext)?;
-    file.write(&mac)?;
+    file.write_all(&iv)?;
+    file.write_all(&ciphertext)?;
+    file.write_all(&mac)?;
 
     Ok(())
 }

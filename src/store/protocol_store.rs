@@ -236,7 +236,7 @@ impl PreKeyStore for Storage {
         let path = self.prekey_path(id);
         let contents = load_file_sync(self.keys.unwrap(), path).unwrap();
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
-        writer.write(&contents)?;
+        writer.write_all(&contents)?;
         Ok(())
     }
 
@@ -421,7 +421,7 @@ impl SignedPreKeyStore for Storage {
         let contents = load_file_sync(self.keys.unwrap(), path).unwrap();
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 
-        writer.write(&contents)?;
+        writer.write_all(&contents)?;
         Ok(())
     }
 
