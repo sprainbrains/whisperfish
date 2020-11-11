@@ -45,7 +45,7 @@ Dialog {
             //% "Phone number (E.164 format)"
             label: qsTrId("whisperfish-phone-number-input-label")
             //: Phone number placeholder
-            //% "18875550100"
+            //% "+18875550100"
             placeholderText: qsTrId("whisperfish-phone-number-input-placeholder")
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft

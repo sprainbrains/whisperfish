@@ -1,4 +1,4 @@
-CREATE TABLE session (
+CREATE TABLE IF NOT EXISTS session (
     id INTEGER PRIMARY KEY,
     source TEXT,
     message STRING,

@@ -16,7 +16,11 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
+use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
+
+pub use libsignal_service::push_service::ConfirmCodeResponse;
+use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerificationCodeResponse};
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -55,6 +59,7 @@ pub struct ClientActor {
     context: Context,
 
     start_time: chrono::DateTime<chrono::Local>,
+    store_context: Option<libsignal_protocol::StoreContext>,
 }
 
 impl ClientActor {
@@ -74,6 +79,7 @@ impl ClientActor {
             context: Context::new(crypto)?,
 
             start_time: chrono::Local::now(),
+            store_context: None,
         })
     }
 
@@ -81,6 +87,26 @@ impl ClientActor {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
         AwcPushService::new(service_cfg, None, &useragent)
+    }
+
+    fn authenticated_service(
+        &self,
+        uuid: Option<String>,
+        e164: String,
+        password: String,
+        signaling_key: Option<[u8; 52]>,
+    ) -> (Credentials, AwcPushService) {
+        let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
+        let service_cfg = self.service_cfg();
+        let credentials = Credentials {
+            uuid,
+            e164,
+            password: Some(password),
+            signaling_key,
+        };
+
+        let service = AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
+        (credentials, service)
     }
 
     fn service_cfg(&self) -> ServiceConfiguration {
@@ -622,31 +648,28 @@ impl Handler<StorageReady> for ClientActor {
     ) -> Self::Result {
         self.storage = Some(storage.clone());
 
-        let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
-        let service_cfg = self.service_cfg();
-
         let context = self.context.clone();
+        let storage_for_password = storage.clone();
+        let request_password = async move {
+            // Web socket
+            let phonenumber = phonenumber::parse(None, config.tel.expect("phone number")).unwrap();
+            let uuid = config.uuid.clone();
+            let e164 = phonenumber
+                .format()
+                .mode(phonenumber::Mode::E164)
+                .to_string();
+            log::info!("E164: {}", e164);
 
-        Box::pin(
-            async move {
-                // Web socket
-                let phonenumber = phonenumber::parse(None, config.tel).unwrap();
-                let e164 = phonenumber
-                    .format()
-                    .mode(phonenumber::Mode::E164)
-                    .to_string();
-                log::info!("E164: {}", e164);
-                let password = Some(storage.signal_password().await.unwrap());
-                let signaling_key = Some(storage.signaling_key().await.unwrap());
-                let credentials = Credentials {
-                    uuid: None,
-                    e164: e164.clone(),
-                    password,
-                    signaling_key,
-                };
+            let password = storage_for_password.signal_password().await.unwrap();
+            let signaling_key = Some(storage_for_password.signaling_key().await.unwrap());
 
-                let service =
-                    AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
+            (uuid, e164, password, signaling_key)
+        };
+
+        Box::pin(request_password.into_actor(self).map(
+            move |(uuid, e164, password, signaling_key), act, ctx| {
+                let (credentials, service) =
+                    act.authenticated_service(uuid.clone(), e164.clone(), password, signaling_key);
                 // end web socket
 
                 // Signal service context
@@ -660,25 +683,27 @@ impl Handler<StorageReady> for ClientActor {
                 )
                 .expect("initialized storage");
                 let local_addr = ServiceAddress {
-                    uuid: None,
+                    uuid,
                     e164: Some(e164),
                     relay: None,
                 };
-                let cipher =
-                    ServiceCipher::from_context(context, local_addr.clone(), store_context);
+                let cipher = ServiceCipher::from_context(
+                    context.clone(),
+                    local_addr.clone(),
+                    store_context.clone(),
+                );
                 // end signal service context
-
-                (credentials, local_addr, service, cipher)
-            }
-            .into_actor(self)
-            .map(|(credentials, local_addr, service, cipher), act, ctx| {
                 act.credentials = Some(credentials);
                 act.service = Some(service);
                 act.cipher = Some(cipher);
                 act.local_addr = Some(local_addr);
+                act.store_context = Some(store_context);
+
                 ctx.notify(Restart);
-            }),
-        )
+
+                ctx.notify(RefreshPreKeys);
+            },
+        ))
     }
 }
 
@@ -699,14 +724,24 @@ impl Handler<Restart> for ClientActor {
             async move {
                 let mut receiver = MessageReceiver::new(service.clone());
 
-                let pipe = receiver.create_message_pipe(credentials).await.unwrap();
-                pipe.stream()
+                receiver.create_message_pipe(credentials).await
             }
             .into_actor(self)
-            .map(move |pipe, act, ctx| {
-                ctx.add_stream(pipe);
-                act.inner.pinned().borrow_mut().connected = true;
-                act.inner.pinned().borrow().connectedChanged();
+            .map(move |pipe, act, ctx| match pipe {
+                Ok(pipe) => {
+                    ctx.add_stream(pipe.stream());
+                    act.inner.pinned().borrow_mut().connected = true;
+                    act.inner.pinned().borrow().connectedChanged();
+                }
+                Err(e) => {
+                    log::error!("Error starting stream: {}", e);
+                    log::info!("Retrying in 10");
+                    let addr = ctx.address();
+                    Arbiter::spawn(async move {
+                        actix::clock::delay_for(actix::clock::Duration::from_secs(10)).await;
+                        addr.send(Restart).await.expect("retry restart");
+                    });
+                }
             }),
         )
     }
@@ -743,5 +778,148 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
         self.inner.pinned().borrow().connectedChanged();
 
         ctx.notify(Restart);
+    }
+}
+
+#[derive(Clone, Eq, PartialEq)]
+pub enum RegistrationResponse {
+    Ok,
+    CaptchaRequired,
+}
+
+impl From<VoiceVerificationCodeResponse> for RegistrationResponse {
+    fn from(response: VoiceVerificationCodeResponse) -> RegistrationResponse {
+        match response {
+            VoiceVerificationCodeResponse::CaptchaRequired => RegistrationResponse::CaptchaRequired,
+            VoiceVerificationCodeResponse::CallIssued => RegistrationResponse::Ok,
+        }
+    }
+}
+
+impl From<SmsVerificationCodeResponse> for RegistrationResponse {
+    fn from(response: SmsVerificationCodeResponse) -> RegistrationResponse {
+        match response {
+            SmsVerificationCodeResponse::CaptchaRequired => RegistrationResponse::CaptchaRequired,
+            SmsVerificationCodeResponse::SmsSent => RegistrationResponse::Ok,
+        }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<RegistrationResponse, failure::Error>")]
+pub struct Register {
+    pub e164: String,
+    pub password: String,
+    pub use_voice: bool,
+}
+
+impl Handler<Register> for ClientActor {
+    type Result = ResponseActFuture<Self, Result<RegistrationResponse, failure::Error>>;
+
+    fn handle(&mut self, reg: Register, _ctx: &mut Self::Context) -> Self::Result {
+        let Register {
+            e164,
+            password,
+            use_voice,
+        } = reg;
+
+        let (_credentials, push_service) =
+            self.authenticated_service(None, e164.clone(), password, None);
+        let mut account_manager = AccountManager::new(self.context.clone(), push_service);
+        let registration_procedure = async move {
+            if use_voice {
+                account_manager
+                    .request_voice_verification_code(&e164)
+                    .await
+                    .map(Into::into)
+            } else {
+                account_manager
+                    .request_sms_verification_code(&e164)
+                    .await
+                    .map(Into::into)
+            }
+        };
+
+        Box::pin(
+            registration_procedure
+                .into_actor(self)
+                .map(|result, _act, _ctx| Ok(result?)),
+        )
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(u32, ConfirmCodeResponse), failure::Error>")]
+pub struct ConfirmRegistration {
+    pub e164: String,
+    pub password: String,
+    pub confirm_code: u32,
+    pub signaling_key: [u8; 52],
+}
+
+impl Handler<ConfirmRegistration> for ClientActor {
+    type Result = ResponseActFuture<Self, Result<(u32, ConfirmCodeResponse), failure::Error>>;
+
+    fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
+        let ConfirmRegistration {
+            e164,
+            password,
+            confirm_code,
+            signaling_key,
+        } = confirm;
+
+        let registration_id =
+            libsignal_protocol::generate_registration_id(&self.context, 0).unwrap();
+        log::trace!("registration_id: {}", registration_id);
+
+        let (_credentials, mut push_service) =
+            self.authenticated_service(None, e164.clone(), password, None);
+        let confirmation_procedure = async move {
+            push_service.confirm_verification_code(confirm_code,
+                libsignal_service::push_service::ConfirmCodeMessage::new_without_unidentified_access (
+                    signaling_key.to_vec(),
+                    registration_id,
+                )).await
+        };
+
+        Box::pin(
+            confirmation_procedure
+                .into_actor(self)
+                .map(move |result, _act, _ctx| Ok((registration_id, result?))),
+        )
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RefreshPreKeys;
+
+/// Java's RefreshPreKeysJob
+impl Handler<RefreshPreKeys> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, _: RefreshPreKeys, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(RefreshPreKeys)");
+
+        let service = self.service.clone().unwrap();
+        let mut am = AccountManager::new(self.context.clone(), service);
+
+        let (next_signed_pre_key_id, pre_keys_offset_id) =
+            self.storage.as_ref().unwrap().next_pre_key_ids();
+
+        let store_context = self.store_context.clone().unwrap();
+        let proc = async move {
+            am.update_pre_key_bundle(store_context, next_signed_pre_key_id, pre_keys_offset_id)
+                .await
+        };
+        // XXX: store the last refresh time somewhere.
+
+        Box::pin(proc.into_actor(self).map(move |result, _act, _ctx| {
+            if let Err(e) = result {
+                log::error!("Refresh pre keys failed: {}", e);
+            } else {
+                log::trace!("Successfully refreshed prekeys");
+            }
+        }))
     }
 }

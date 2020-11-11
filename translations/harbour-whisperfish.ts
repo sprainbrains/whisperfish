@@ -474,7 +474,7 @@
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="49"/>
         <location filename="../qml/pages/Register.qml" line="46"/>
-        <source>18875550100</source>
+        <source>+18875550100</source>
         <extracomment>Phone number placeholder</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -484,9 +484,33 @@
         <extracomment>Share contacts label</extracomment>
         <translation type="unfinished"></translation>
     </message>
-    <message id="whisperfish-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="74"/>
+    <message id="whisperfish-verification-method-label">
+        <location filename="../qml/pages/Register.qml" line="70"/>
+        <source>Verification method</source>
+        <extracomment>Verification method</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-use-voice-verification">
+        <location filename="../qml/pages/Register.qml" line="81"/>
+        <source>Use voice verification</source>
+        <extracomment>Voice verification</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-use-text-verification">
+        <location filename="../qml/pages/Register.qml" line="76"/>
+        <source>Use text verification</source>
+        <extracomment>Text verification</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-voice-registration-directions">
+        <location filename="../qml/pages/Register.qml" line="98"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
+        <extracomment>Registration directions</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-text-registration-directions">
+        <location filename="../qml/pages/Register.qml" line="109"/>
+        <source>Signal will text you a 6-digit verification code.</source>
         <extracomment>Registration directions</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -729,14 +753,20 @@
     </message>
     <message id="whisperfish-verify-code-placeholder">
         <location filename="../qml/pages/Verify.qml" line="46"/>
-        <source>Code</source>
+        <source>123456</source>
         <extracomment>Verify code placeholder</extracomment>
         <translation type="unfinished"></translation>
     </message>
-    <message id="whisperfish-verify-code-instructions">
-        <location filename="../qml/pages/Verify.qml" line="60"/>
+    <message id="whisperfish-voice-verify-code-instructions">
+        <location filename="../qml/pages/Verify.qml" line="61"/>
         <source>Signal will call you with a 6-digit verification code. Please enter it here.</source>
-        <extracomment>Verify code instructions</extracomment>
+        <extracomment>Voice verification code instructions</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-text-verify-code-instructions">
+        <location filename="../qml/pages/Verify.qml" line="72"/>
+        <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
+        <extracomment>Text verification code instructions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">

@@ -37,12 +37,12 @@ Dialog {
             id: telField
             width: parent.width
             inputMethodHints: Qt.ImhDialableCharactersOnly | Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /[0-9]+/;}
+            validator: RegExpValidator{ regExp: /\+[0-9]+/;}
             //: Phone number input
             //% "Phone number (E.164 format)"
             label: qsTrId("whisperfish-phone-number-input-label")
             //: Phone number placeholder
-            //% "18875550100"
+            //% "+18875550100"
             placeholderText: qsTrId("whisperfish-phone-number-input-placeholder")
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
@@ -64,14 +64,49 @@ Dialog {
             }
         }
 
+        ComboBox {
+            //: Verification method
+            //% "Verification method"
+            label: qsTrId("whisperfish-verification-method-label")
+
+            menu: ContextMenu {
+                MenuItem {
+                    //: Text verification
+                    //% "Use text verification"
+                    text: qsTrId("whisperfish-use-text-verification")
+                }
+                MenuItem {
+                    //: Voice verification
+                    //% "Use voice verification"
+                    text: qsTrId("whisperfish-use-voice-verification")
+                }
+            }
+
+            onCurrentIndexChanged: {
+                SetupWorker.useVoice = (currentIndex == 1)
+            }
+        }
+
         TextArea {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width
             horizontalAlignment: TextEdit.Center
             readOnly: true
+            visible: SetupWorker.useVoice
             //: Registration directions
             //% "Signal will call you with a 6-digit verification code. Please be ready to write this down."
-            text: qsTrId("whisperfish-registration-directions")
+            text: qsTrId("whisperfish-voice-registration-directions")
+        }
+
+        TextArea {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width
+            horizontalAlignment: TextEdit.Center
+            readOnly: true
+            visible:  ! SetupWorker.useVoice
+            //: Registration directions
+            //% "Signal will text you a 6-digit verification code."
+            text: qsTrId("whisperfish-text-registration-directions")
         }
 
     }
