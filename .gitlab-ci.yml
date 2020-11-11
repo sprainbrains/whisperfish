@@ -91,6 +91,7 @@ build:i486:
 .rust-nightly: &rust-nightly
   <<: *rust
   image: rustlang/rust:nightly
+  allow_failure: true
   cache:
     <<: *rust-cache
     key: rust-nightly
