@@ -67,19 +67,19 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>Signal-sovellus Sailfish-käyttöjärjestelmään</translation>
+        <translation>Signal-sovellus Sailfish-käyttöjärjestelmälle</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tekijänoikeudet</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tue Liberapayssä</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="74"/>
@@ -97,7 +97,7 @@
         <location filename="../qml/pages/About.qml" line="93"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lisää tekijänoikeuksia</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="31"/>
@@ -624,7 +624,7 @@
         <location filename="../qml/pages/Settings.qml" line="166"/>
         <source>EnterKey Send</source>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation>Rivinvaihto = lähetä viesti</translation>
+        <translation>Lähetä viesti rivinvaihdosta</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="177"/>
