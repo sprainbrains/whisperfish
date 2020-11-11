@@ -378,6 +378,16 @@ impl Storage {
         ];
 
         for dir in &directories {
+            if dir.exists() {
+                if dir.is_dir() {
+                    continue;
+                } else {
+                    failure::bail!(
+                        "Trying to create directory {:?}, but already exists as non-directory.",
+                        dir
+                    );
+                }
+            }
             std::fs::create_dir(dir)?;
         }
         Ok(())
