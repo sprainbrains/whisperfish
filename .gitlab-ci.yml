@@ -1,6 +1,6 @@
 ---
 variables: &variables
-  SFOS_VERSION: 3.3.0.14
+  SFOS_VERSION: 3.4.0.22
   CARGO_HOME: $CI_PROJECT_DIR/cargo
 
 stages:
