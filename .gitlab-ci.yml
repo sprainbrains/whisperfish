@@ -67,6 +67,16 @@ build:i486:
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build-target
 
+# Jolla/coderus doesn't provide us with aarch64 buildroot.
+build:aarch64:
+  variables:
+    <<: *variables
+    MER_ARCH: aarch64
+    RUST_ARCH: aarch64-unknown-linux-gnu
+    CC_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-gcc
+    CXX_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-g++
+  <<: *build-target
+
 .rust: &rust
   cache: &rust-cache
     paths:
@@ -162,14 +172,6 @@ clippy:
   script:
     - rustup component add clippy
     - cargo clippy
-
-# Jolla/coderus doesn't provide us with aarch64 buildroot.
-.build:aarch64:
-  variables:
-    <<: *variables
-    MER_ARCH: aarch64
-    RUST_ARCH: aarch64-unknown-linux-gnu
-  <<: *build-target
 
 translations:
   image: debian
