@@ -116,7 +116,7 @@
         <location filename="../qml/pages/VideoAttachment.qml" line="24"/>
         <source>Me</source>
         <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
-        <translation>我的附件</translation>
+        <translation>我</translation>
     </message>
     <message id="whisperfish-attachment-from-contact">
         <location filename="../qml/pages/AttachmentPage.qml" line="28"/>
@@ -477,7 +477,7 @@
         <source>+18875550100</source>
         <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
-        <translation type="unfinished">18875550100</translation>
+        <translation>18875550100</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="58"/>
@@ -489,19 +489,19 @@
         <location filename="../qml/pages/Register.qml" line="70"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>验证方式</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
         <location filename="../qml/pages/Register.qml" line="81"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>使用语音验证</translation>
     </message>
     <message id="whisperfish-use-text-verification">
         <location filename="../qml/pages/Register.qml" line="76"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>使用文本验证</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/Register.qml" line="98"/>
@@ -513,7 +513,7 @@
         <location filename="../qml/pages/Register.qml" line="109"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <extracomment>Registration directions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal 会以文本形式发送给你6位文本验证码。</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -534,7 +534,7 @@
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>警告： %1 验证码以失效。点击确认以重置验证码。</translation>
+        <translation>警告: %1 验证码以失效。点击确认以重置验证码。</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="25"/>
@@ -642,7 +642,7 @@
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>重启 Whisperfish……</translation>
+        <translation>重新加载 Whisperfish 消息…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="204"/>
@@ -757,7 +757,7 @@
         <source>123456</source>
         <oldsource>Code</oldsource>
         <extracomment>Verify code placeholder</extracomment>
-        <translation type="unfinished">验证码</translation>
+        <translation>123456</translation>
     </message>
     <message id="whisperfish-voice-verify-code-instructions">
         <location filename="../qml/pages/Verify.qml" line="61"/>
@@ -770,7 +770,7 @@
         <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
         <oldsource>Signal will text you a 6-digit verification code. Please enter it here.</oldsource>
         <extracomment>Text verification code instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal 会以文本形式发送给你6位验证码。请在此输入。</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
