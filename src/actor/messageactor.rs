@@ -10,7 +10,7 @@ use qmetaobject::*;
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct FetchSession {
-    pub id: i64,
+    pub id: i32,
     pub mark_read: bool,
 }
 
@@ -20,7 +20,7 @@ pub struct FetchMessage(pub i32);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-pub struct FetchAllMessages(pub i64);
+pub struct FetchAllMessages(pub i32);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
@@ -179,7 +179,7 @@ impl Handler<QueueMessage> for MessageActor {
                 session_id: None,
                 source: msg.source,
                 text: msg.message,
-                timestamp: chrono::Utc::now().timestamp_millis(),
+                timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
                 mime_type: if has_attachment {
                     Some(
@@ -225,7 +225,7 @@ impl Handler<EndSession> for MessageActor {
                 session_id: None,
                 source: e164,
                 text: "[Whisperfish] Reset secure session".into(),
-                timestamp: chrono::Utc::now().timestamp_millis(),
+                timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment: false,
                 mime_type: None,
                 attachment: None,

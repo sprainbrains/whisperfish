@@ -6,6 +6,7 @@ use crate::schema::sentq;
 use crate::schema::session;
 use crate::settings::SignalConfig;
 
+use chrono::prelude::*;
 use diesel::debug_query;
 use diesel::expression::sql_literal::sql;
 use diesel::prelude::*;
@@ -22,10 +23,10 @@ embed_migrations!();
 /// Session as it relates to the schema
 #[derive(Queryable, Debug, Clone)]
 pub struct Session {
-    pub id: i64,
+    pub id: i32,
     pub source: String,
     pub message: String,
-    pub timestamp: i64,
+    pub timestamp: NaiveDateTime,
     pub sent: bool,
     pub received: bool,
     pub unread: bool,
@@ -43,7 +44,7 @@ pub struct Session {
 pub struct NewSession {
     pub source: String,
     pub message: String,
-    pub timestamp: i64,
+    pub timestamp: NaiveDateTime,
     pub sent: bool,
     pub received: bool,
     pub unread: bool,
@@ -59,10 +60,10 @@ pub struct NewSession {
 #[derive(Queryable, Debug)]
 pub struct Message {
     pub id: i32,
-    pub sid: i64,
+    pub sid: i32,
     pub source: String,
     pub message: String, // NOTE: "text" in schema, doesn't apparently matter
-    pub timestamp: i64,
+    pub timestamp: NaiveDateTime,
     pub sent: bool,
     pub received: bool,
     pub flags: i32,
@@ -77,10 +78,10 @@ pub struct Message {
 #[derive(Insertable)]
 #[table_name = "message"]
 pub struct NewMessage {
-    pub session_id: Option<i64>,
+    pub session_id: Option<i32>,
     pub source: String,
     pub text: String,
-    pub timestamp: i64,
+    pub timestamp: NaiveDateTime,
     pub sent: bool,
     pub received: bool,
     pub flags: i32,
@@ -749,7 +750,7 @@ impl Storage {
     /// Marks the message with a certain timestamp as received.
     ///
     /// Copy from Go's MarkMessageReceived.
-    pub fn mark_message_received(&self, timestamp: u64) -> Option<(Session, Message)> {
+    pub fn mark_message_received(&self, timestamp: NaiveDateTime) -> Option<(Session, Message)> {
         let message = self.fetch_message_by_timestamp(timestamp)?;
         log::trace!("mark_message_received: {:?}", message);
         let session = self.fetch_session(message.sid)?;
@@ -765,7 +766,7 @@ impl Storage {
                 session::table.filter(
                     session::id
                         .eq(&session.id)
-                        .and(session::timestamp.eq(timestamp as i64)),
+                        .and(session::timestamp.eq(timestamp)),
                 ),
             )
             .set(session::received.eq(true))
@@ -791,7 +792,7 @@ impl Storage {
             .ok()
     }
 
-    pub fn fetch_session(&self, sid: i64) -> Option<Session> {
+    pub fn fetch_session(&self, sid: i32) -> Option<Session> {
         let db = self.db.lock();
         let conn = db.unwrap();
 
@@ -824,7 +825,7 @@ impl Storage {
             .ok()
     }
 
-    pub fn delete_session(&self, id: i64) {
+    pub fn delete_session(&self, id: i32) {
         let db = self.db.lock();
         let conn = db.unwrap();
 
@@ -1060,7 +1061,7 @@ impl Storage {
             .ok()
     }
 
-    pub fn fetch_message_by_timestamp(&self, ts: u64) -> Option<Message> {
+    pub fn fetch_message_by_timestamp(&self, ts: NaiveDateTime) -> Option<Message> {
         let db = self.db.lock();
         let conn = db.unwrap();
 
@@ -1085,7 +1086,7 @@ impl Storage {
                     "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
                 ),
             ))
-            .filter(message::columns::timestamp.eq(ts as i64));
+            .filter(message::columns::timestamp.eq(ts));
 
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
@@ -1126,7 +1127,7 @@ impl Storage {
         query.first(&*conn).ok()
     }
 
-    pub fn fetch_all_messages(&self, sid: i64) -> Option<Vec<Message>> {
+    pub fn fetch_all_messages(&self, sid: i32) -> Option<Vec<Message>> {
         let db = self.db.lock();
         let conn = db.unwrap();
 

@@ -18,9 +18,9 @@ pub struct SessionModel {
     content: Vec<Session>,
 
     count: qt_method!(fn(&self) -> usize),
-    add: qt_method!(fn(&self, id: i64, mark_read: bool)),
+    add: qt_method!(fn(&self, id: i32, mark_read: bool)),
     remove: qt_method!(fn(&self, idx: usize)),
-    removeById: qt_method!(fn(&self, id: i64)),
+    removeById: qt_method!(fn(&self, id: i32)),
     reload: qt_method!(fn(&self)),
 
     markRead: qt_method!(fn(&mut self, id: usize)),
@@ -34,7 +34,7 @@ impl SessionModel {
     }
 
     /// Add or replace a Session in the model.
-    fn add(&self, id: i64, mark_read: bool) {
+    fn add(&self, id: i32, mark_read: bool) {
         actix::spawn(
             self.actor
                 .as_ref()
@@ -67,7 +67,7 @@ impl SessionModel {
 
     /// Removes session by id. This removes the session from the list model and
     /// deletes it from the database.
-    fn removeById(&self, id: i64) {
+    fn removeById(&self, id: i32) {
         let idx = self
             .content
             .iter()
@@ -99,7 +99,7 @@ impl SessionModel {
             .content
             .iter_mut()
             .enumerate()
-            .find(|(_, s)| s.id == id as i64)
+            .find(|(_, s)| s.id == id as i32)
         {
             actix::spawn(
                 self.actor
@@ -229,18 +229,19 @@ impl SessionModel {
 impl Session {
     fn section(&self) -> String {
         // XXX: stub
-        let timestamp =
-            chrono::Utc.timestamp(self.timestamp / 1000, (self.timestamp % 1000) as u32);
         let now = chrono::Utc::now();
-        let today = Utc.ymd(now.year(), now.month(), now.day()).and_hms(0, 0, 0);
-        let diff = today.signed_duration_since(timestamp);
+        let today = Utc
+            .ymd(now.year(), now.month(), now.day())
+            .and_hms(0, 0, 0)
+            .naive_utc();
+        let diff = today.signed_duration_since(self.timestamp);
 
         if diff.num_seconds() <= 0 {
             String::from("today")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
             String::from("yesterday")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
-            let wd = timestamp.weekday().number_from_monday() % 7;
+            let wd = self.timestamp.weekday().number_from_monday() % 7;
             wd.to_string()
         } else {
             String::from("older")
@@ -257,7 +258,7 @@ define_model_roles! {
         GroupMembers(group_members via qstring_from_option): "groupMembers",
         Message(message via QString::from):                  "message",
         Section(fn section(&self) via QString::from):        "section",
-        Timestamp(timestamp via qdatetime_from_i64):         "timestamp",
+        Timestamp(timestamp via qdatetime_from_naive):       "timestamp",
         Unread(unread):                                      "unread",
         Sent(sent):                                          "sent",
         Received(received):                                  "received",

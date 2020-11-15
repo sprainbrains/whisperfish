@@ -36,6 +36,10 @@ use migrations::*;
 mod linked_devices;
 pub use linked_devices::*;
 
+fn millis_to_naive_chrono(ts: u64) -> NaiveDateTime {
+    NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1000) as u32)
+}
+
 #[derive(Message)]
 #[rtype(result = "()")]
 /// Enqueue a message on socket by MID
@@ -49,11 +53,11 @@ struct AttachmentDownloaded(i32);
 #[allow(non_snake_case)]
 pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
-    messageReceived: qt_signal!(sid: i64, mid: i32),
-    messageReceipt: qt_signal!(sid: i64, mid: i32),
-    notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, isGroup: bool),
+    messageReceived: qt_signal!(sid: i32, mid: i32),
+    messageReceipt: qt_signal!(sid: i32, mid: i32),
+    notifyMessage: qt_signal!(sid: i32, source: QString, message: QString, isGroup: bool),
     promptResetPeerIdentity: qt_signal!(),
-    messageSent: qt_signal!(sid: i64, mid: i32, message: QString),
+    messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
@@ -173,11 +177,11 @@ impl ClientActor {
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
             sent: is_sync_sent,
-            timestamp: if is_sync_sent && timestamp > 0 {
+            timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
                 timestamp
             } else {
                 msg.timestamp()
-            } as i64,
+            } as u64),
             has_attachment: !msg.attachments.is_empty(),
             mime_type: None,  // Attachments are further handled asynchronously
             received: false,  // This is set true by a receipt handler
@@ -357,7 +361,14 @@ impl ClientActor {
         let ts = msg.timestamp();
         let source = msg.source_e164();
         // XXX should this not be encrypted and authenticated?
-        log::trace!("Marking message from {} at {} as received.", source, ts);
+        // Signal uses timestamps in milliseconds, chrono has nanoseconds
+        let ts = millis_to_naive_chrono(ts);
+        log::trace!(
+            "Marking message from {} at {} ({}) as received.",
+            source,
+            ts,
+            msg.timestamp()
+        );
         if let Some((sess, msg)) = storage.mark_message_received(ts) {
             self.inner
                 .pinned()
@@ -424,7 +435,14 @@ impl ClientActor {
                         // XXX: this should probably not be based on ts alone.
                         let ts = read.timestamp();
                         let source = read.sender_e164();
-                        log::trace!("Marking message from {} at {} as received.", source, ts);
+                        // Signal uses timestamps in milliseconds, chrono has nanoseconds
+                        let ts = millis_to_naive_chrono(ts);
+                        log::trace!(
+                            "Marking message from {} at {} ({}) as received.",
+                            source,
+                            ts,
+                            read.timestamp()
+                        );
                         if let Some((sess, msg)) = storage.mark_message_received(ts) {
                             self.inner
                                 .pinned()
@@ -443,8 +461,11 @@ impl ClientActor {
             }
             ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender);
-                for ts in &receipt.timestamp {
-                    if let Some((sess, msg)) = storage.mark_message_received(*ts) {
+                for &ts in &receipt.timestamp {
+                    // Signal uses timestamps in milliseconds, chrono has nanoseconds
+                    if let Some((sess, msg)) =
+                        storage.mark_message_received(millis_to_naive_chrono(ts))
+                    {
                         self.inner
                             .pinned()
                             .borrow_mut()
@@ -639,7 +660,7 @@ impl Handler<SendMessage> for ClientActor {
 
                 // XXX online status goes in that bool
                 let online = false;
-                let timestamp = msg.timestamp as u64;
+                let timestamp = msg.timestamp.timestamp_millis() as u64;
                 let mut content = DataMessage {
                     body: Some(msg.message.clone()),
                     flags: None,

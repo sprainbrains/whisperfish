@@ -85,8 +85,9 @@ fn qdatetime_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDateTime {
     QDateTime::from_date_time_local_timezone(date, time)
 }
 
-fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
-    qdatetime_from_chrono(Utc.timestamp(timestamp / 1000, (timestamp % 1000) as u32))
+fn qdatetime_from_naive(timestamp: NaiveDateTime) -> QDateTime {
+    // Naive in model is Utc, naive displayed should be Local
+    qdatetime_from_chrono(DateTime::<Utc>::from_utc(timestamp, Utc))
 }
 
 fn qstring_from_option(opt: Option<String>) -> QVariant {

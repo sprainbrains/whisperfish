@@ -1,11 +1,11 @@
 table! {
     message (id) {
         id -> Integer,
-        session_id -> BigInt,
+        session_id -> Integer,
         source -> Text,
-        #[sql_name="message"]
+        #[sql_name = "message"]
         text -> Text,
-        timestamp -> BigInt,
+        timestamp -> Timestamp,
         sent -> Bool,
         received -> Bool,
         flags -> Integer,
@@ -19,16 +19,16 @@ table! {
 table! {
     sentq (message_id) {
         message_id -> Integer,
-        timestamp -> BigInt,
+        timestamp -> Timestamp,
     }
 }
 
 table! {
     session (id) {
-        id -> BigInt,
+        id -> Integer,
         source -> Text,
         message -> Text,
-        timestamp -> BigInt,
+        timestamp -> Timestamp,
         sent -> Bool,
         received -> Bool,
         unread -> Bool,
@@ -40,6 +40,7 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(message, sentq, session,);
-
+joinable!(message -> session (session_id));
 joinable!(sentq -> message (message_id));
+
+allow_tables_to_appear_in_same_query!(message, sentq, session,);

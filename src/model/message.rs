@@ -16,7 +16,7 @@ define_model_roles! {
         SID(sid):                                       "sid",
         Source(source via QString::from):               "source",
         Message(message via QString::from):             "message",
-        Timestamp(timestamp via qdatetime_from_i64):    "timestamp",
+        Timestamp(timestamp via qdatetime_from_naive):  "timestamp",
         Sent(sent):                                     "sent",
         Received(received):                             "received",
         Flags(flags):                                   "flags",
@@ -41,7 +41,7 @@ pub struct MessageModel {
     peerName: qt_property!(QString; NOTIFY peerNameChanged),
     peerTel: qt_property!(QString; NOTIFY peerTelChanged),
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
-    sessionId: qt_property!(i64; NOTIFY sessionIdChanged),
+    sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
 
     peerIdentityChanged: qt_signal!(),
@@ -60,13 +60,13 @@ pub struct MessageModel {
             groupName: QString,
             attachment: QString,
             add: bool,
-        ) -> i64
+        ) -> i32
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
     endSession: qt_method!(fn(&self, e164: QString)),
 
-    load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
+    load: qt_method!(fn(&self, sid: i32, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(fn(&self, id: usize)),
 
@@ -113,7 +113,7 @@ impl MessageModel {
         groupName: QString,
         attachment: QString,
         _add: bool,
-    ) -> i64 {
+    ) -> i32 {
         let source = source.to_string();
         let message = message.to_string();
         let group = groupName.to_string();
@@ -172,7 +172,7 @@ impl MessageModel {
         // }
     }
 
-    fn load(&mut self, sid: i64, _peer_name: QString) {
+    fn load(&mut self, sid: i32, _peer_name: QString) {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
 
         self.messages.clear();
