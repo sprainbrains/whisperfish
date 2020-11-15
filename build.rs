@@ -141,6 +141,12 @@ fn install_mer_hacks() -> (String, bool) {
         unsupported => panic!("Target {} is not supported for Mer", unsupported),
     };
 
+    let lib_dir = match arch {
+        "armv7hl" | "i486" => "lib",
+        "aarch64" => "lib64",
+        _ => unreachable!(),
+    };
+
     println!("cargo:rustc-cfg=feature=\"sailfish\"");
 
     let mer_target_root = format!("{}/targets/{}-{}", mer_sdk, mer_target, arch);
@@ -164,32 +170,32 @@ fn install_mer_hacks() -> (String, bool) {
     );
 
     println!(
-        "cargo:rustc-bin-link-arg=-rpath-link,{}/usr/lib",
-        mer_target_root
+        "cargo:rustc-bin-link-arg=-rpath-link,{}/usr/{}",
+        mer_target_root, lib_dir
     );
     println!(
-        "cargo:rustc-bin-link-arg=-rpath-link,{}/lib",
-        mer_target_root
-    );
-
-    println!(
-        "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/{}-meego-linux-gnueabi/lib",
-        macos_lib_search, mer_sdk, mer_target, arch
+        "cargo:rustc-bin-link-arg=-rpath-link,{}/{}",
+        mer_target_root, lib_dir
     );
 
     println!(
-        "cargo:rustc-link-search{}={}/usr/lib/qt5/qml/Nemo/Notifications/",
-        macos_lib_search, mer_target_root
+        "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/{}-meego-linux-gnueabi/{}",
+        macos_lib_search, mer_sdk, mer_target, arch, lib_dir
     );
 
     println!(
-        "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/lib/gcc/{}-meego-linux-gnueabi/4.9.4/",
-        macos_lib_search, mer_sdk, mer_target, arch
+        "cargo:rustc-link-search{}={}/usr/{}/qt5/qml/Nemo/Notifications/",
+        macos_lib_search, mer_target_root, lib_dir
     );
 
     println!(
-        "cargo:rustc-link-search{}={}/usr/lib/",
-        macos_lib_search, mer_target_root,
+        "cargo:rustc-link-search{}={}/toolings/{}/opt/cross/{}/gcc/{}-meego-linux-gnueabi/4.9.4/",
+        macos_lib_search, mer_sdk, mer_target, arch, lib_dir
+    );
+
+    println!(
+        "cargo:rustc-link-search{}={}/usr/{}/",
+        macos_lib_search, mer_target_root, lib_dir
     );
 
     (mer_target_root, true)
