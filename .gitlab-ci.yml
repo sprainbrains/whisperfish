@@ -1,30 +1,16 @@
 ---
 variables: &variables
-  SFOS_VERSION: 3.4.0.22
+  SFOS_VERSION: 3.4.0.24
   CARGO_HOME: $CI_PROJECT_DIR/cargo
 
 stages:
-  - prepare
   - build
   - test
   - deploy
 
-docker:builder:
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: prepare
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - echo "Working around https://github.com/GoogleContainerTools/kaniko/issues/595"
-    - rm -f .dockerignore
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
-
 .build-target: &build-target
-  image: registry.gitlab.com/rubdos/whisperfish/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG
+  image: registry.gitlab.com/rubdos/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:master
   stage: build
-  needs:
-    - docker:builder
   artifacts:
     paths:
       - target/*/release/rpmbuild/RPMS/*/*.rpm
@@ -67,7 +53,6 @@ build:i486:
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build-target
 
-# Jolla/coderus doesn't provide us with aarch64 buildroot.
 build:aarch64:
   variables:
     <<: *variables
