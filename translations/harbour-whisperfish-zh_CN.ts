@@ -478,7 +478,7 @@
         <source>+18875550100</source>
         <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
-        <translation>18875550100</translation>
+        <translation>+8612345678910</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="58"/>
