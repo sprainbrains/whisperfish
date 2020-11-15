@@ -30,7 +30,6 @@ stages:
     - sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
     - sed -ie "s/armv7-unknown-linux-gnueabihf/$RUST_ARCH/" Cargo.toml
     - cat Cargo.toml
-    - export MERSDK=$MER_SDK #FIXME
     - export MER_TARGET="SailfishOS-$SFOS_VERSION"
     - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
     - cargo rpm build --verbose
