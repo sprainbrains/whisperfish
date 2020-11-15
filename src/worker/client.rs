@@ -552,7 +552,7 @@ impl Handler<SendMessage> for ClientActor {
                     }
                     // Clone + async closure means we can use an immutable borrow.
                     match sender
-                        .send_message(recipient, content.clone(), timestamp, online)
+                        .send_message(recipient, None, content.clone(), timestamp, online)
                         .await
                     {
                         Ok(s) => {
@@ -571,7 +571,7 @@ impl Handler<SendMessage> for ClientActor {
                 };
 
                 match sender
-                    .send_message(recipient, content.clone(), timestamp, online)
+                    .send_message(recipient, None, content.clone(), timestamp, online)
                     .await
                 {
                     Ok(s) => {
@@ -605,7 +605,7 @@ impl Handler<SendMessage> for ClientActor {
                 log::trace!("Transmitting {:?}", container);
 
                 match sender
-                    .send_message(local_addr, container, timestamp, online)
+                    .send_message(local_addr, None, container, timestamp, online)
                     .await
                 {
                     Ok(s) => {
@@ -663,6 +663,7 @@ impl Handler<StorageReady> for ClientActor {
 
             (uuid, e164, password, signaling_key)
         };
+        let service_cfg = self.service_cfg();
 
         Box::pin(request_password.into_actor(self).map(
             move |(uuid, e164, password, signaling_key), act, ctx| {
@@ -687,8 +688,11 @@ impl Handler<StorageReady> for ClientActor {
                 };
                 let cipher = ServiceCipher::from_context(
                     context.clone(),
-                    local_addr.clone(),
                     store_context.clone(),
+                    local_addr.clone(),
+                    service_cfg
+                        .credentials_validator(&context)
+                        .expect("trust root"),
                 );
                 // end signal service context
                 act.credentials = Some(credentials);
