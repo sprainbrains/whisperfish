@@ -45,13 +45,25 @@ fn mock_pthread(mer_root: &str, arch: &str) -> Result<String, Error> {
         "i486" => {
             writeln!(f, "OUTPUT_FORMAT(elf32-i386)")?;
         }
+        "aarch64" => {
+            writeln!(f, "OUTPUT_FORMAT(elf64-littleaarch64)")?;
+        }
         _ => unreachable!(),
     }
-    writeln!(
-        f,
-        "GROUP ( {}/lib/libpthread.so.0 {}/usr/lib/libpthread_nonshared.a )",
-        mer_root, mer_root
-    )?;
+
+    match arch {
+        "armv7hl" | "i486" => writeln!(
+            f,
+            "GROUP ( {}/lib/libpthread.so.0 {}/usr/lib/libpthread_nonshared.a )",
+            mer_root, mer_root
+        )?,
+        "aarch64" => writeln!(
+            f,
+            "GROUP ( {}/lib64/libpthread.so.0 {}/usr/lib64/libpthread_nonshared.a )",
+            mer_root, mer_root
+        )?,
+        _ => unreachable!(),
+    }
 
     Ok(out_dir)
 }
@@ -70,6 +82,11 @@ fn mock_libc(mer_root: &str, arch: &str) -> Result<String, Error> {
         "i486" => {
             writeln!(f, "OUTPUT_FORMAT(elf32-i386)")?;
             writeln!(f, "GROUP ( {}/lib/libc.so.6 {}/usr/lib/libc_nonshared.a  AS_NEEDED ( {}/lib/ld-linux.so.2 ))",
+                mer_root, mer_root, mer_root)?;
+        }
+        "aarch64" => {
+            writeln!(f, "OUTPUT_FORMAT(elf64-littleaarch64)")?;
+            writeln!(f, "GROUP ( {}/lib64/libc.so.6 {}/usr/lib64/libc_nonshared.a  AS_NEEDED ( {}/lib64/ld-linux-aarch64.so.1 ))",
                 mer_root, mer_root, mer_root)?;
         }
         _ => unreachable!(),
@@ -120,6 +137,7 @@ fn install_mer_hacks() -> (String, bool) {
         "arm" => "armv7hl",
         "i686" => "i486",
         "x86" => "i486",
+        "aarch64" => "aarch64",
         unsupported => panic!("Target {} is not supported for Mer", unsupported),
     };
 
