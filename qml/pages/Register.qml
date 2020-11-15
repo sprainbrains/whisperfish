@@ -29,7 +29,7 @@ Dialog {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
             //: Registration message
-            //% "Connect with Signal"
+            //% "Enter the phone number you want to register with Signal."
             text: qsTrId("whisperfish-registration-message")
         }
 

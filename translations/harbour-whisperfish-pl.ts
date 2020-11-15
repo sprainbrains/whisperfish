@@ -454,9 +454,10 @@
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/Register.qml" line="33"/>
-        <source>Connect with Signal</source>
+        <source>Enter the phone number you want to register with Signal.</source>
+        <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
-        <translation>Połącz z Signal</translation>
+        <translation type="unfinished">Połącz z Signal</translation>
     </message>
     <message id="whisperfish-new-message-accept-enter-number">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="36"/>
