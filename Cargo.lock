@@ -1892,7 +1892,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject"
 version = "0.1.4"
-source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#54d654c3cecdc3f573dcc7f25a7913a6838392db"
+source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#d77020ea7cc43bb53ea838b84f7404ba294cfd0a"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -1904,7 +1904,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject_impl"
 version = "0.1.4"
-source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#54d654c3cecdc3f573dcc7f25a7913a6838392db"
+source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#d77020ea7cc43bb53ea838b84f7404ba294cfd0a"
 dependencies = [
  "proc-macro2",
  "quote",

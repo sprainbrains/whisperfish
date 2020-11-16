@@ -1,30 +1,16 @@
 ---
 variables: &variables
-  SFOS_VERSION: 3.3.0.14
+  SFOS_VERSION: 3.4.0.24
   CARGO_HOME: $CI_PROJECT_DIR/cargo
 
 stages:
-  - prepare
   - build
   - test
   - deploy
 
-docker:builder:
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: prepare
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - echo "Working around https://github.com/GoogleContainerTools/kaniko/issues/595"
-    - rm -f .dockerignore
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.builder --build-arg SFOS_VERSION="$SFOS_VERSION" --destination $CI_REGISTRY_IMAGE/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG --cache=true
-
 .build-target: &build-target
-  image: registry.gitlab.com/rubdos/whisperfish/builder-$SFOS_VERSION:$CI_COMMIT_REF_SLUG
+  image: registry.gitlab.com/rubdos/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:master
   stage: build
-  needs:
-    - docker:builder
   artifacts:
     paths:
       - target/*/release/rpmbuild/RPMS/*/*.rpm
@@ -44,9 +30,8 @@ docker:builder:
     - sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
     - sed -ie "s/armv7-unknown-linux-gnueabihf/$RUST_ARCH/" Cargo.toml
     - cat Cargo.toml
-    - export MERSDK=$MER_SDK #FIXME
     - export MER_TARGET="SailfishOS-$SFOS_VERSION"
-    - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/"
+    - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
     - cargo rpm build --verbose
 
 build:armv7hl:
@@ -65,6 +50,15 @@ build:i486:
     RUST_ARCH: i686-unknown-linux-gnu
     CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
+  <<: *build-target
+
+build:aarch64:
+  variables:
+    <<: *variables
+    MER_ARCH: aarch64
+    RUST_ARCH: aarch64-unknown-linux-gnu
+    CC_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-gcc
+    CXX_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-g++
   <<: *build-target
 
 .rust: &rust
@@ -163,14 +157,6 @@ clippy:
     - rustup component add clippy
     - cargo clippy
 
-# Jolla/coderus doesn't provide us with aarch64 buildroot.
-.build:aarch64:
-  variables:
-    <<: *variables
-    MER_ARCH: aarch64
-    RUST_ARCH: aarch64-unknown-linux-gnu
-  <<: *build-target
-
 translations:
   image: debian
   stage: test
@@ -218,12 +204,15 @@ openrepos-deploy:
     - "mv geckodriver /usr/bin"
     - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/armv7-unknown-linux-gnueabihf/release/rpmbuild/RPMS/armv7hl/*.rpm -n "$APPNAME"'
     - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/i686-unknown-linux-gnu/release/rpmbuild/RPMS/i486/*.rpm -n "$APPNAME"'
+    - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/aarch64-unknown-linux-gnu/release/rpmbuild/RPMS/aarch64/*.rpm -n "$APPNAME"'
   needs:
     - build:armv7hl
     - build:i486
+    - build:aarch64
     - test:nightly
   dependencies:
     - build:armv7hl
     - build:i486
+    - build:aarch64
   only:
     - tags
