@@ -16,6 +16,9 @@ export MERSDK="/srv/mer/"
 # Default is SailfishOS-latest, this variable is optional.
 export MER_TARGET="SailfishOS-latest"
 
+# Target architecture, should be mirrored in Cargo.toml
+export MER_ARCH=armv7hl
+
 # For now, this is also put in the environment.
 # After https://github.com/rust-lang/cargo/pull/7811 is in nightly,
 # we can generate these flags in build.rs
