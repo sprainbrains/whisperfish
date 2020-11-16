@@ -204,12 +204,15 @@ openrepos-deploy:
     - "mv geckodriver /usr/bin"
     - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/armv7-unknown-linux-gnueabihf/release/rpmbuild/RPMS/armv7hl/*.rpm -n "$APPNAME"'
     - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/i686-unknown-linux-gnu/release/rpmbuild/RPMS/i486/*.rpm -n "$APPNAME"'
+    - 'DISPLAY=:1 xvfb-run sailfish-devel-tools/openrepos-deploy.py -r target/aarch64-unknown-linux-gnu/release/rpmbuild/RPMS/aarch64/*.rpm -n "$APPNAME"'
   needs:
     - build:armv7hl
     - build:i486
+    - build:aarch64
     - test:nightly
   dependencies:
     - build:armv7hl
     - build:i486
+    - build:aarch64
   only:
     - tags
