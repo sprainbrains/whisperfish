@@ -192,6 +192,8 @@ openrepos-deploy:
     GECKODRIVER_URL: https://github.com/mozilla/geckodriver/releases/download/v0.23.0/geckodriver-v0.23.0-linux64.tar.gz
     GECKODRIVER_TGZ: geckodriver.tgz
     APPNAME: Whisperfish
+    DEBIAN_FRONTEND: noninteractive
+    TZ: Etc/UTC
   environment:
       name: OpenRepos
       url: https://openrepos.net/content/rubdos/whisperfish
