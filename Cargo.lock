@@ -1374,7 +1374,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#4de894452af7c546c40c6ec07621a116dfd03fe3"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#e93265324267fd675adaf81e6127be827f10a54a"
 dependencies = [
  "aes",
  "aes-ctr",
@@ -1401,7 +1401,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#4de894452af7c546c40c6ec07621a116dfd03fe3"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#e93265324267fd675adaf81e6127be827f10a54a"
 dependencies = [
  "actix",
  "actix-http",
