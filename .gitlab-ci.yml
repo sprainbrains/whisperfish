@@ -21,7 +21,10 @@ stages:
       - $CARGO_HOME/registry/index/
       - $CARGO_HOME/registry/cache/
       - $CARGO_HOME/git/db/
-    key: target-$MER_ARCH
+    key:
+      files:
+        - Cargo.lock
+      prefix: target-$MER_ARCH
   script:
     - mkdir -p $CARGO_HOME
     - cp .ci/cargo.toml $CARGO_HOME/config
