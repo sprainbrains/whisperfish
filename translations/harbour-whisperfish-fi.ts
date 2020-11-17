@@ -457,7 +457,7 @@
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
-        <translation type="unfinished">Yhdistä</translation>
+        <translation>Anna puhelinnumero, jolla haluat rekisteröityä Signaliin.</translation>
     </message>
     <message id="whisperfish-new-message-accept-enter-number">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="36"/>
@@ -478,7 +478,7 @@
         <source>+18875550100</source>
         <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
-        <translation type="unfinished">358401234567</translation>
+        <translation>+358401234567</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="58"/>
@@ -490,31 +490,31 @@
         <location filename="../qml/pages/Register.qml" line="70"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Varmennuskeino</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
         <location filename="../qml/pages/Register.qml" line="81"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Varmenna puhelulla</translation>
     </message>
     <message id="whisperfish-use-text-verification">
         <location filename="../qml/pages/Register.qml" line="76"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Varmenna viestillä</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/Register.qml" line="98"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
-        <translation>Signal ilmoittaa sinulle puhelimitse 6-numeroisen rekisteröintikoodin. Ole valmiina kirjoittamaan se muistiin.</translation>
+        <translation>Signal ilmoittaa sinulle puhelimitse 6-numeroisen varmennuskoodin. Ole valmiina kirjoittamaan se muistiin.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/Register.qml" line="109"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <extracomment>Registration directions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal ilmoittaa sinulle viestitse 6-numeroisen varmennuskoodin.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -758,7 +758,7 @@
         <source>123456</source>
         <oldsource>Code</oldsource>
         <extracomment>Verify code placeholder</extracomment>
-        <translation type="unfinished">Koodi</translation>
+        <translation>Varmennuskoodi</translation>
     </message>
     <message id="whisperfish-voice-verify-code-instructions">
         <location filename="../qml/pages/Verify.qml" line="61"/>
@@ -771,7 +771,7 @@
         <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
         <oldsource>Signal will text you a 6-digit verification code. Please enter it here.</oldsource>
         <extracomment>Text verification code instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal ilmoittaa sinulle viestitse 6-numeroisen varmennuskoodin. Kirjoita se tähän pelkillä numeroilla.</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
