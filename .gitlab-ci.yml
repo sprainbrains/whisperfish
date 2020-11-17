@@ -197,7 +197,7 @@ openrepos-deploy:
       url: https://openrepos.net/content/rubdos/whisperfish
   script:
     - "apt-get update"
-    - "apt-get -y -qq install git firefox xvfb python3-pip wget >/dev/null"
+    - "apt-get -y -qq install git firefox xvfb python3-pip wget"
     - "git clone https://gitlab.com/nobodyinperson/sailfish-devel-tools"
     - "pip3 install selenium"
     - "wget -O $GECKODRIVER_TGZ $GECKODRIVER_URL"
