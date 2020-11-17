@@ -20,7 +20,7 @@ dependencies = [
  "pin-project 0.4.27",
  "smallvec",
  "tokio",
- "tokio-util",
+ "tokio-util 0.3.1",
  "trust-dns-proto",
  "trust-dns-resolver",
 ]
@@ -38,7 +38,7 @@ dependencies = [
  "log",
  "pin-project 0.4.27",
  "tokio",
- "tokio-util",
+ "tokio-util 0.3.1",
 ]
 
 [[package]]
@@ -1082,14 +1082,14 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio",
- "tokio-util",
+ "tokio-util 0.3.1",
  "tracing",
  "tracing-futures",
 ]
 
 [[package]]
 name = "harbour-whisperfish"
-version = "0.6.0-alpha.5"
+version = "0.6.0-alpha.4"
 dependencies = [
  "actix",
  "actix-rt",
@@ -1582,22 +1582,21 @@ dependencies = [
 
 [[package]]
 name = "mpart-async"
-version = "0.4.2"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e07b32f6b568132fa4b990cff3ff0728780bf4c62c57cf193c84b4d765868ce"
+checksum = "ea338ffba87fdaaea364b314301ead2ee38e584a7a7b06e881ca101a2a059d0f"
 dependencies = [
+ "anyhow",
  "bytes",
- "futures-core",
- "futures-util",
+ "futures",
  "http",
  "httparse",
  "log",
  "mime_guess",
- "pin-project 0.4.27",
  "rand 0.7.3",
  "thiserror",
  "tokio",
- "tokio-util",
+ "tokio-util 0.2.0",
  "twoway",
 ]
 
@@ -2646,10 +2645,23 @@ dependencies = [
  "memchr",
  "mio",
  "mio-uds",
+ "num_cpus",
  "pin-project-lite",
  "signal-hook-registry",
  "slab",
+ "tokio-macros",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e44da00bfc73a25f814cd8d7e57a68a5c31b74b3152a0a1d1f590c97ed06265a"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -2662,6 +2674,20 @@ dependencies = [
  "rustls",
  "tokio",
  "webpki",
+]
+
+[[package]]
+name = "tokio-util"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "571da51182ec208780505a32528fc5512a8fe1443ab960b3f2f3ef093cd16930"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
