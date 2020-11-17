@@ -457,7 +457,7 @@
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
-        <translation type="unfinished">Verbinde dich mit Signal</translation>
+        <translation>Gib die Telefonnummer ein, mit der du dich bei Signal anmelden möchtest.</translation>
     </message>
     <message id="whisperfish-new-message-accept-enter-number">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="36"/>
