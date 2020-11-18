@@ -472,10 +472,9 @@
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="46"/>
-        <location filename="../qml/pages/Register.qml" line="43"/>
-        <source>Phone number (E.164 format)</source>
+        <source>International phone number</source>
         <extracomment>Phone number input</extracomment>
-        <translation>Gsmnummer (E.164-formaat)</translation>
+        <translation>Internationaal gsm-nummer</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="49"/>

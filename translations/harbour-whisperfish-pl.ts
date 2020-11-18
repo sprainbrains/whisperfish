@@ -473,10 +473,10 @@
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="46"/>
-        <location filename="../qml/pages/Register.qml" line="43"/>
-        <source>Phone number (E.164 format)</source>
+        <source>International phone number</source>
+        <oldsource>Phone number (E.164 format)</oldsource>
         <extracomment>Phone number input</extracomment>
-        <translation>Numer telefonu (format E.164)</translation>
+        <translation type="unfinished">Numer telefonu (format E.164)</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="49"/>
