@@ -125,6 +125,14 @@ build:host:nightly:docs:
     paths:
       - target/doc
 
+qmllint:
+  <<: *rust
+  stage: test
+  image: rust
+  cache: {}
+  script:
+    - "qmllint qml/**/*.qml"
+
 test:stable:
   <<: *rust-stable
   stage: test
