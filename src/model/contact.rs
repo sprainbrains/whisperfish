@@ -60,37 +60,47 @@ define_model_roles! {
 }
 
 impl ContactModel {
-    fn format_helper(&self, number: &QString, mode: Mode) -> String {
+    fn format_helper(&self, number: &str, mode: Mode) -> Option<String> {
         let settings = Settings::default();
 
         let country_code = settings.get_string("country_code");
 
         let country = match phonenumber::country::Id::from_str(&country_code) {
             Ok(country) => country,
-            Err(_) => return String::new(),
+            Err(_) => return None,
         };
 
-        let number = match phonenumber::parse(Some(country), number.to_string()) {
+        let number = match phonenumber::parse(Some(country), number) {
             Ok(number) => number,
-            Err(_) => return String::new(),
+            Err(_) => return None,
         };
 
-        let is_valid = phonenumber::is_valid(&number);
-
-        if !is_valid {
-            return String::new();
+        if !phonenumber::is_valid(&number) {
+            return None;
         }
 
-        number.format().mode(mode).to_string()
+        Some(number.format().mode(mode).to_string())
     }
 
     // The default formatter expected by QML
     fn format(&self, string: QString) -> QString {
-        if string.to_string().is_empty() {
+        let string = string.to_string();
+        let string = string.trim();
+        if string.is_empty() {
             return QString::from("");
         }
 
-        QString::from(self.format_helper(&string, Mode::E164))
+        let string_with_plus = format!("+{}", string);
+
+        if let Some(number) = self.format_helper(string, Mode::E164) {
+            QString::from(number)
+        } else if string.starts_with('+') {
+            QString::from("")
+        } else if let Some(number) = self.format_helper(&string_with_plus, Mode::E164) {
+            QString::from(number)
+        } else {
+            QString::from("")
+        }
     }
 
     fn db(&self) -> SqliteConnection {
@@ -103,11 +113,18 @@ impl ContactModel {
         use crate::schema::contacts;
         use crate::schema::phoneNumbers;
 
+        let source = source.to_string();
+        let source = source.trim();
+
         let conn = self.db(); // This should maybe be established only once
 
         // This will ensure the format to query is ok
-        let e164_source = self.format_helper(&source, Mode::E164);
-        let mut national_source = self.format_helper(&source, Mode::National);
+        let e164_source = self
+            .format_helper(&source, Mode::E164)
+            .unwrap_or_else(|| "".into());
+        let mut national_source = self
+            .format_helper(&source, Mode::National)
+            .unwrap_or_else(|| "".into());
         national_source.retain(|c| c != ' '); // At least FI numbers had spaces after parsing
         let source = source.to_string();
 
