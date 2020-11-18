@@ -69,32 +69,38 @@
         <extracomment>Whisperfish description</extracomment>
         <translation>Whisperfish 描述</translation>
     </message>
+    <message id="whisperfish-build-id">
+        <location filename="../qml/pages/About.qml" line="54"/>
+        <source>Build ID: %1</source>
+        <extracomment>Whisperfish long version string and build ID</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-copyright">
-        <location filename="../qml/pages/About.qml" line="49"/>
+        <location filename="../qml/pages/About.qml" line="64"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
         <translation>版权</translation>
     </message>
     <message id="whisperfish-liberapay">
-        <location filename="../qml/pages/About.qml" line="64"/>
+        <location filename="../qml/pages/About.qml" line="79"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
         <translation>使用 Liberapay 捐赠</translation>
     </message>
     <message id="whisperfish-source-code">
-        <location filename="../qml/pages/About.qml" line="74"/>
+        <location filename="../qml/pages/About.qml" line="89"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
         <translation>源代码</translation>
     </message>
     <message id="whisperfish-bug-report">
-        <location filename="../qml/pages/About.qml" line="84"/>
+        <location filename="../qml/pages/About.qml" line="99"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
         <translation>报告缺陷</translation>
     </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="93"/>
+        <location filename="../qml/pages/About.qml" line="108"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation>附加版权声明</translation>
