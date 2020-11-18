@@ -9,7 +9,10 @@ use diesel::prelude::*;
 use phonenumber::Mode;
 use qmetaobject::*;
 
-const DB_PATH: &str = "/home/nemo/.local/share/system/Contacts/qtcontacts-sqlite/contacts.db";
+/// `/home/nemo/.local/share/system/Contacts/qtcontacts-sqlite/contacts.db`
+///
+/// Contains only the part after `share`.
+const DB_PATH: &str = "system/Contacts/qtcontacts-sqlite/contacts.db";
 
 #[derive(QObject, Default)]
 pub struct ContactModel {
@@ -90,12 +93,17 @@ impl ContactModel {
         QString::from(self.format_helper(&string, Mode::E164))
     }
 
+    fn db(&self) -> SqliteConnection {
+        let path = dirs::data_local_dir().expect("find data directory");
+        SqliteConnection::establish(path.join(DB_PATH).to_str().expect("UTF-8 path"))
+            .expect("open contact database")
+    }
+
     fn name(&self, source: QString) -> QString {
         use crate::schema::contacts;
         use crate::schema::phoneNumbers;
 
-        let db = SqliteConnection::establish(DB_PATH); // This should maybe be established only once
-        let conn = db.unwrap();
+        let conn = self.db(); // This should maybe be established only once
 
         // This will ensure the format to query is ok
         let e164_source = self.format_helper(&source, Mode::E164);
