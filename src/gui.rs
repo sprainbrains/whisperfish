@@ -76,7 +76,7 @@ fn long_version() -> String {
     if let (Some(ref_name), Some(job_id)) =
         (option_env!("CI_COMMIT_REF_NAME"), option_env!("CI_JOB_ID"))
     {
-        format!("v{}-{}-{}-{}", pkg, commit, ref_name, job_id)
+        format!("{}-{}-{}", ref_name, commit, job_id)
     } else {
         format!("v{}-{}-dirty", pkg, commit)
     }
