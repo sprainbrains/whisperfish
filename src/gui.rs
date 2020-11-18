@@ -69,10 +69,24 @@ impl WhisperfishApp {
     }
 }
 
+fn long_version() -> String {
+    let pkg = env!("CARGO_PKG_VERSION");
+    let commit = env!("VERGEN_SHA_SHORT");
+
+    if let (Some(ref_name), Some(job_id)) =
+        (option_env!("CI_COMMIT_REF_NAME"), option_env!("CI_JOB_ID"))
+    {
+        format!("{}-{}-{}", ref_name, commit, job_id)
+    } else {
+        format!("v{}-{}-dirty", pkg, commit)
+    }
+}
+
 #[cfg(feature = "sailfish")]
 pub async fn run() -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
-    log::info!("SailfishApp::application loaded");
+    let long_version: QString = long_version().into();
+    log::info!("SailfishApp::application loaded - version {}", long_version);
     let version: QString = env!("CARGO_PKG_VERSION").into();
     app.set_title("Whisperfish".into());
     app.set_application_version(version.clone());
@@ -103,6 +117,10 @@ pub async fn run() -> Result<(), failure::Error> {
     Arbiter::spawn(worker::SetupWorker::run(whisperfish.clone()));
 
     app.set_property("AppVersion".into(), version.into());
+    app.set_property("LongAppVersion".into(), long_version.into());
+    let ci_job_url: Option<QString> = option_env!("CI_JOB_URL").map(Into::into);
+    let ci_job_url = ci_job_url.map(Into::into).unwrap_or(false.into());
+    app.set_property("CiJobUrl".into(), ci_job_url);
 
     app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
     app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());

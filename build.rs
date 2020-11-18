@@ -19,6 +19,7 @@ use std::path::Path;
 use std::process::Command;
 
 use failure::*;
+use vergen::*;
 
 fn qmake_query(var: &str) -> String {
     let qmake = std::env::var("QMAKE").unwrap_or("qmake".to_string());
@@ -324,4 +325,9 @@ fn main() {
     }
 
     qml_to_qrc().unwrap();
+
+    // vergen
+    let flags = ConstantsFlags::all();
+    // Generate the 'cargo:' key output
+    generate_cargo_keys(flags).expect("Unable to generate the cargo keys!");
 }

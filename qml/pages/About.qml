@@ -43,6 +43,21 @@ Page {
                 text: qsTrId("whisperfish-description")
             }
 
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: {
+                    var build_id = CiJobUrl ?
+                        "<a href=\"" + CiJobUrl + "\">" + LongAppVersion + "</a>"
+                        : LongAppVersion ;
+                    //: Whisperfish long version string and build ID
+                    //% "Build ID: %1"
+                    qsTrId("whisperfish-build-id").arg(build_id)
+                }
+                textFormat: Text.StyledText
+                onLinkActivated: Qt.openUrlExternally(link)
+                linkColor: Theme.primaryColor
+            }
+
             SectionHeader {
                 //: Copyright
                 //% "Copyright"

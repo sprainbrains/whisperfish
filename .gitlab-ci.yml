@@ -83,7 +83,10 @@ build:aarch64:
   image: rust
   cache:
     <<: *rust-cache
-    key: rust-stable
+    key:
+      files:
+        - Cargo.lock
+      prefix: rust-stable
 
 .rust-nightly: &rust-nightly
   <<: *rust
@@ -91,7 +94,10 @@ build:aarch64:
   allow_failure: true
   cache:
     <<: *rust-cache
-    key: rust-nightly
+    key:
+      files:
+        - Cargo.lock
+      prefix: rust-stable
 
 build:host:stable:
   <<: *rust-stable
@@ -118,6 +124,14 @@ build:host:nightly:docs:
   artifacts:
     paths:
       - target/doc
+
+qmllint:
+  <<: *rust
+  stage: test
+  image: rust
+  cache: {}
+  script:
+    - "qmllint qml/**/*.qml"
 
 test:stable:
   <<: *rust-stable

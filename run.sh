@@ -3,6 +3,8 @@
 # Source .env for SSH_TARGET
 [ -e ".env" ] && source ./.env
 
+qmllint qml/**/*.qml
+
 # Make sure the `rpm` is up-to-date.
 cargo rpm build
 
