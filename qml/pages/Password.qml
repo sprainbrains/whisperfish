@@ -48,7 +48,7 @@ Dialog {
                 qsTrId("whisperfish-set-password")
         }
 
-        TextField {
+        PasswordField {
             id: passwordField
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
@@ -62,11 +62,18 @@ Dialog {
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight? "red" : Theme.primaryColor
-            EnterKey.onClicked: passwordDialog.accept()
-            echoMode: TextInput.Password
+
+            EnterKey.iconSource: SetupWorker.registered ? "image://theme/icon-m-enter-accept" : "image://theme/icon-m-enter-next"
+            EnterKey.onClicked: {
+                if (SetupWorker.registered) {
+                    passwordDialog.accept()
+                } else {
+                    passwordField.focus = true
+                }
+            }
         }
 
-        TextField {
+        PasswordField {
             id: passwordField2
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
@@ -81,8 +88,9 @@ Dialog {
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight ? "red" : Theme.primaryColor
+
+            EnterKey.iconSource: "image://theme/icon-m-enter-accept"
             EnterKey.onClicked: passwordDialog.accept()
-            echoMode: TextInput.Password
         }
 
         TextArea {
