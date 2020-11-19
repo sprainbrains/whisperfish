@@ -596,7 +596,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="94"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
-        <translation>Identiteit</translation>
+        <translation>Gijzelf</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
         <location filename="../qml/pages/Settings.qml" line="103"/>
@@ -632,7 +632,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="144"/>
         <source>General</source>
         <extracomment>Settings page general section</extracomment>
-        <translation>Algemeen</translation>
+        <translation>Algemene dinges</translation>
     </message>
     <message id="whisperfish-settings-country-code">
         <location filename="../qml/pages/Settings.qml" line="151"/>
@@ -656,14 +656,14 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="173"/>
         <source>Attachments are stored at %1</source>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Bijlagen worden bijgehouden op %1.</translation>
+        <translation>Bijlagen worden bijgehouden in %1.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="206"/>
         <source>Return key send</source>
         <oldsource>EnterKey Send</oldsource>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation>Verzenden met Enter</translation>
+        <translation>Sturen met Enter</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send-description">
         <location filename="../qml/pages/Settings.qml" line="209"/>
@@ -675,7 +675,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="224"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
-        <translation>Geavanceerd</translation>
+        <translation>Moeilijkere dinges</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode">
         <location filename="../qml/pages/Settings.qml" line="231"/>
