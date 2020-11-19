@@ -48,7 +48,7 @@ impl Settings {
         }
     }
 
-    fn set_bool(&mut self, key: &str, value: bool) {
+    pub fn set_bool(&mut self, key: &str, value: bool) {
         let key = QString::from(key);
         unsafe {
             cpp!([key as "QString", value as "bool"] {
@@ -69,7 +69,7 @@ impl Settings {
         val.into()
     }
 
-    fn set_string(&mut self, key: &str, value: &str) {
+    pub fn set_string(&mut self, key: &str, value: &str) {
         let key = QString::from(key);
         let value = QString::from(value);
         unsafe {
@@ -133,6 +133,15 @@ impl Settings {
         self.set_bool("enable_enter_send", false);
         self.set_bool("scale_image_attachments", false);
         self.set_bool("attachment_log", false);
+
+        self.set_string(
+            "attachment_dir",
+            crate::store::default_location()
+                .expect("default location")
+                .join("attachments")
+                .to_str()
+                .expect("utf8 path"),
+        );
     }
 
     pub fn get_string(&self, key: impl AsRef<str>) -> String {

@@ -115,6 +115,23 @@ impl SetupWorker {
     async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
         let signal_config_file = Self::conf_dir().join("config.yml");
 
+        let settings = app.settings.pinned();
+        if settings
+            .borrow()
+            .get_string("attachment_dir")
+            .trim()
+            .is_empty()
+        {
+            settings.borrow_mut().set_string(
+                "attachment_dir",
+                crate::store::default_location()
+                    .expect("default location")
+                    .join("attachments")
+                    .to_str()
+                    .expect("utf8 path"),
+            );
+        }
+
         if let Ok(file) = std::fs::File::open(&signal_config_file) {
             Ok(serde_yaml::from_reader(file)?)
         } else {
