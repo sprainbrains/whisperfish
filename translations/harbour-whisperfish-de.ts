@@ -459,7 +459,7 @@
         <translation>Registrierung</translation>
     </message>
     <message id="whisperfish-registration-message">
-        <location filename="../qml/pages/Register.qml" line="33"/>
+        <location filename="../qml/pages/Register.qml" line="35"/>
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
@@ -480,44 +480,54 @@
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/EnterPhoneNumber.qml" line="49"/>
-        <location filename="../qml/pages/Register.qml" line="46"/>
+        <location filename="../qml/pages/Register.qml" line="48"/>
         <source>+18875550100</source>
         <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
         <translation>+491751234567</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/Register.qml" line="58"/>
+        <location filename="../qml/pages/Register.qml" line="60"/>
+        <location filename="../qml/pages/Settings.qml" line="153"/>
         <source>Share Contacts</source>
-        <extracomment>Share contacts label</extracomment>
+        <extracomment>Share contacts label
+----------
+Settings page share contacts</extracomment>
         <translation>Kontakt teilen</translation>
     </message>
+    <message id="whisperfish-share-contacts-description">
+        <location filename="../qml/pages/Register.qml" line="63"/>
+        <location filename="../qml/pages/Settings.qml" line="156"/>
+        <source>Allow Signal to use your local contact list, to find other Signal users.</source>
+        <extracomment>Share contacts description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/Register.qml" line="70"/>
+        <location filename="../qml/pages/Register.qml" line="76"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Prüfmethode</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/Register.qml" line="81"/>
+        <location filename="../qml/pages/Register.qml" line="87"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Per Anruf</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/Register.qml" line="76"/>
+        <location filename="../qml/pages/Register.qml" line="82"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Per SMS</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="98"/>
+        <location filename="../qml/pages/Register.qml" line="104"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
         <translation>Signal wird dich anrufen, um dir einen 6-stelligen Code mitzuteilen. Sei bereit zum Notieren.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="109"/>
+        <location filename="../qml/pages/Register.qml" line="115"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <extracomment>Registration directions</extracomment>
         <translation>Signal wird dir einen 6-stelligen Code per SMS schicken.</translation>
@@ -621,122 +631,116 @@
         <extracomment>Settings page save attachments</extracomment>
         <translation>Speichere Anhänge</translation>
     </message>
-    <message id="Share Contacts">
-        <location filename="../qml/pages/Settings.qml" line="153"/>
-        <source>Share Contacts</source>
-        <extracomment>Settings page share contacts</extracomment>
-        <translation>Teile Kontakte</translation>
-    </message>
     <message id="whisperfish-settings-enable-enter-send">
-        <location filename="../qml/pages/Settings.qml" line="166"/>
+        <location filename="../qml/pages/Settings.qml" line="170"/>
         <source>EnterKey Send</source>
         <extracomment>Settings page enable enter send</extracomment>
         <translation>Senden mittels Eingabetaste</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
-        <location filename="../qml/pages/Settings.qml" line="177"/>
+        <location filename="../qml/pages/Settings.qml" line="181"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
         <translation>Erweitert</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode">
-        <location filename="../qml/pages/Settings.qml" line="184"/>
+        <location filename="../qml/pages/Settings.qml" line="188"/>
         <source>Incognito Mode</source>
         <extracomment>Settings page incognito mode</extracomment>
         <translation>Inkognito Modus</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
-        <location filename="../qml/pages/Settings.qml" line="191"/>
+        <location filename="../qml/pages/Settings.qml" line="195"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
         <translation>Whisperfish neustarten...</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
-        <location filename="../qml/pages/Settings.qml" line="204"/>
+        <location filename="../qml/pages/Settings.qml" line="208"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
         <translation>JPEG Anhänge verkleinern</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="215"/>
+        <location filename="../qml/pages/Settings.qml" line="219"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Statistiken</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="220"/>
+        <location filename="../qml/pages/Settings.qml" line="224"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Websocket Status</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="224"/>
+        <location filename="../qml/pages/Settings.qml" line="228"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Verbunden</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="227"/>
+        <location filename="../qml/pages/Settings.qml" line="231"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Getrennt</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="232"/>
+        <location filename="../qml/pages/Settings.qml" line="236"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Nicht verschickte Nachrichten</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="238"/>
+        <location filename="../qml/pages/Settings.qml" line="242"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Alle Verbindungen</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="244"/>
+        <location filename="../qml/pages/Settings.qml" line="248"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Alle Nachrichten</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="250"/>
+        <location filename="../qml/pages/Settings.qml" line="254"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Signal Kontakte</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
-        <location filename="../qml/pages/Settings.qml" line="256"/>
+        <location filename="../qml/pages/Settings.qml" line="260"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
         <translation>Chiffrierungsschlüsselspeicher</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
-        <location filename="../qml/pages/Settings.qml" line="260"/>
+        <location filename="../qml/pages/Settings.qml" line="264"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
         <translation>Aktiviert</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
-        <location filename="../qml/pages/Settings.qml" line="263"/>
+        <location filename="../qml/pages/Settings.qml" line="267"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
         <translation>Deaktiviert</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="268"/>
+        <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Verschlüsselte Datenbank</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="272"/>
+        <location filename="../qml/pages/Settings.qml" line="276"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Aktiviert</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="275"/>
+        <location filename="../qml/pages/Settings.qml" line="279"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Deaktiviert</translation>

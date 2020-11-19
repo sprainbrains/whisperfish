@@ -27,7 +27,9 @@ Dialog {
 
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
-            font.bold: true
+            horizontalAlignment: Text.AlignLeft
+            width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             //: Registration message
             //% "Enter the phone number you want to register with Signal."
             text: qsTrId("whisperfish-registration-message")
@@ -50,13 +52,17 @@ Dialog {
             EnterKey.onClicked: parent.focus = true
         }
 
-        TextSwitch {
+        IconTextSwitch {
             id: shareContacts
             anchors.horizontalCenter: parent.horizontalCenter
             //: Share contacts label
             //% "Share Contacts"
             text: qsTrId("whisperfish-share-contacts-label")
+            //: Share contacts description
+            //% "Allow Signal to use your local contact list, to find other Signal users."
+            description: qsTrId("whisperfish-share-contacts-description")
             checked: SettingsBridge.boolValue("share_contacts")
+            icon.source: "image://theme/icon-m-file-vcard"
             onCheckedChanged: {
                 if(checked != SettingsBridge.boolValue("share_contacts")) {
                     SettingsBridge.boolSet("share_contacts", checked)

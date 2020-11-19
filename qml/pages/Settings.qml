@@ -145,13 +145,17 @@ Page {
                     }
                 }
             }
-            TextSwitch {
+            IconTextSwitch {
                 id: shareContacts
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page share contacts
                 //% "Share Contacts"
-                text: qsTrId("Share Contacts")
+                text: qsTrId("whisperfish-share-contacts-label")
+                //: Share contacts description
+                //% "Allow Signal to use your local contact list, to find other Signal users."
+                description: qsTrId("whisperfish-share-contacts-description")
                 checked: SettingsBridge.boolValue("share_contacts")
+                icon.source: "image://theme/icon-m-file-vcard"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("share_contacts")) {
                         SettingsBridge.boolSet("share_contacts", checked)
