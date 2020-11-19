@@ -19,6 +19,8 @@ pub struct SetupWorker {
     setupComplete: qt_signal!(),
 
     phoneNumber: qt_property!(QString; NOTIFY setupChanged),
+    uuid: qt_property!(QString; NOTIFY setupChanged),
+
     registered: qt_property!(bool; NOTIFY setupChanged),
     locked: qt_property!(bool; NOTIFY setupChanged),
     encryptedKeystore: qt_property!(bool; NOTIFY setupChanged),
@@ -73,6 +75,7 @@ impl SetupWorker {
         log::debug!("config: {:?}", config);
         // XXX: nice formatting?
         this.borrow_mut().phoneNumber = config.tel.unwrap_or("".into()).into();
+        this.borrow_mut().uuid = config.uuid.unwrap_or("".into()).into();
 
         if !this.borrow().registered {
             if let Err(e) = SetupWorker::register(app.clone()).await {
@@ -249,9 +252,10 @@ impl SetupWorker {
 
         let mut this = this.borrow_mut();
         let mut cfg = this.config.as_mut().unwrap();
-        cfg.uuid = Some(res.uuid);
+        cfg.uuid = Some(res.uuid.clone());
         cfg.tel = Some(e164);
         Self::write_config(app.clone(), cfg).await?;
+        this.uuid = res.uuid.into();
 
         // Install storage
         let storage = Storage::new_with_password(
