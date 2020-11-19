@@ -56,6 +56,8 @@ Page {
                 //% "Whisperfish Settings"
                 title: qsTrId("whisperfish-settings-title")
             }
+
+            // ------ BEGIN IDENTITY ------
             SectionHeader {
                 //: Settings page My identity section label
                 //% "My Identity"
@@ -67,9 +69,19 @@ Page {
                 readOnly: true
                 width: parent.width
                 //: Settings page My phone number
-                //% "Phone"
+                //% "My Phone"
                 label: qsTrId("whisperfish-settings-my-phone-number")
                 text: SetupWorker.phoneNumber
+            }
+            TextField {
+                id: uuid
+                anchors.horizontalCenter: parent.horizontalCenter
+                readOnly: true
+                width: parent.width
+                //: Settings page My UUID
+                //% "My UUID registration number"
+                label: qsTrId("whisperfish-settings-my-uuid")
+                text: SetupWorker.uuid
             }
             TextArea {
                 id: identity
@@ -82,36 +94,50 @@ Page {
                 label: qsTrId("whisperfish-settings-identity-label")
                 text: SetupWorker.identity
             }
+            // ------ END IDENTITY ------
+
+            // ------ BEGIN NOTIFICATION SETTINGS ------
             SectionHeader {
                 //: Settings page notifications section
                 //% "Notifications"
                 text: qsTrId("whisperfish-settings-notifications-section")
             }
-            TextSwitch {
+            IconTextSwitch {
                 id: enableNotify
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page notifications enable
-                //% "Enabled"
+                //% "Enable notifications"
                 text: qsTrId("whisperfish-settings-notifications-enable")
+                //: Settings page notifications enable description
+                //% "If turned off, Whisperfish will not send any notification"
+                description: qsTrId("whisperfish-settings-notifications-enable-description")
                 checked: SettingsBridge.boolValue("enable_notify")
+                icon.source: "image://theme/icon-m-notifications"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("enable_notify")) {
                         SettingsBridge.boolSet("enable_notify", checked)
                     }
                 }
             }
-            TextSwitch {
+            IconTextSwitch {
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page notifications show message body
                 //% "Show Message Body"
                 text: qsTrId("whisperfish-settings-notifications-show-body")
+                //: Settings page notifications show message body description
+                //% "If turned off, Whisperfish will only show the sender of a message, not the contents."
+                description: qsTrId("whisperfish-settings-notifications-show-body-description")
                 checked: SettingsBridge.boolValue("show_notify_message")
+                icon.source: "image://theme/icon-m-screenlock"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("show_notify_message")) {
                         SettingsBridge.boolSet("show_notify_message", checked)
                     }
                 }
             }
+            // ------ END NOTIFICATION SETTINGS ------
+
+            // ------ BEGIN GENERAL SETTINGS ------
             SectionHeader {
                 //: Settings page general section
                 //% "General"
@@ -123,6 +149,9 @@ Page {
                 //: Settings page country code
                 //% "Country Code"
                 label: qsTrId("whisperfish-settings-country-code")
+                //: Settings page country code description
+                //% "The selected country code determines what happens when a local phone number is entered."
+                description: qsTrId("whisperfish-settings-country-code-description")
                 value: SettingsBridge.stringValue("country_code")
                 onClicked: {
                     var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
@@ -132,13 +161,20 @@ Page {
                     })
                 }
             }
-            TextSwitch {
+            IconTextSwitch {
                 id: saveAttachments
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page save attachments
                 //% "Save Attachments"
                 text: qsTrId("whisperfish-settings-save-attachments")
+                description:  {
+                    //: Settings page save attachments description
+                    //% "Attachments are stored at %1"
+                    qsTrId("whisperfish-settings-save-attachments-description")
+                        .arg(SettingsBridge.stringValue("attachment_dir"))
+                }
                 checked: SettingsBridge.boolValue("save_attachments")
+                icon.source: "image://theme/icon-m-attach"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("save_attachments")) {
                         SettingsBridge.boolSet("save_attachments", checked)
@@ -162,31 +198,42 @@ Page {
                     }
                 }
             }
-            TextSwitch {
+            IconTextSwitch {
                 id: enableEnterSend
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page enable enter send
-                //% "EnterKey Send"
+                //% "Return key send"
                 text: qsTrId("whisperfish-settings-enable-enter-send")
+                //: Settings page enable enter send description
+                //% "When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages."
+                description: qsTrId("whisperfish-settings-enable-enter-send-description")
                 checked: SettingsBridge.boolValue("enable_enter_send")
+                icon.source: "image://theme/icon-m-enter"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("enable_enter_send")) {
                         SettingsBridge.boolSet("enable_enter_send", checked)
                     }
                 }
             }
+            // ------ END GENERAL SETTINGS ------
+
+            // ------ BEGIN ADVANCED SETTINGS ------
             SectionHeader {
                 //: Settings page advanced section
                 //% "Advanced"
                 text: qsTrId("whisperfish-settings-advanced-section")
             }
-            TextSwitch {
+            IconTextSwitch {
                 id: incognitoModeSwitch
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page incognito mode
                 //% "Incognito Mode"
                 text: qsTrId("whisperfish-settings-incognito-mode")
+                //: Settings page incognito mode description
+                //% "Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart."
+                description: qsTrId("whisperfish-settings-incognito-mode-description") + " UNIMPLEMENTED"
                 checked: SettingsBridge.boolValue("incognito")
+                icon.source: "image://theme/icon-m-vpn"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("incognito")) {
                         remorse.execute(
@@ -200,19 +247,26 @@ Page {
                     }
                 }
             }
-            TextSwitch {
+            IconTextSwitch {
                 id: scaleImageAttachments
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page scale image attachments
                 //% "Scale JPEG Attachments"
                 text: qsTrId("whisperfish-settings-scale-image-attachments")
+                //: Settings page scale image attachments description
+                //% "Scale down JPEG attachments to save on bandwidth."
+                description: qsTrId("whisperfish-settings-scale-image-attachments-description") + " UNIMPLEMENTED"
                 checked: SettingsBridge.boolValue("scale_image_attachments")
+                icon.source: "image://theme/icon-m-data-upload"
                 onCheckedChanged: {
                     if(checked != SettingsBridge.boolValue("scale_image_attachments")) {
                         SettingsBridge.boolSet("scale_image_attachments", checked)
                     }
                 }
             }
+            // ------ END ADVANCED SETTINGS ------
+
+            // ------ BEGIN STATS ------
             SectionHeader {
                 //: Settings page stats section
                 //% "Statistics"
@@ -278,6 +332,7 @@ Page {
                     //% "Disabled"
                     qsTrId("whisperfish-settings-encrypted-db-disabled")
             }
+            // ------ END STATS ------
         }
     }
 }

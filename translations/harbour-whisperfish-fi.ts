@@ -435,19 +435,19 @@
         <translation>Salasana</translation>
     </message>
     <message id="whisperfish-verify-password-label">
-        <location filename="../qml/pages/Password.qml" line="77"/>
+        <location filename="../qml/pages/Password.qml" line="84"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Vahvista salasana</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="80"/>
+        <location filename="../qml/pages/Password.qml" line="87"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Vahvista salasana</translation>
     </message>
     <message id="whisperfish-password-info">
-        <location filename="../qml/pages/Password.qml" line="97"/>
+        <location filename="../qml/pages/Password.qml" line="105"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
         <translation>Whisperfish tallentaa salausavaimet, tilaviestit sekä paikallisen viestiarkiston salattuna levylle. Salasanaasi ei tallenneta mihinkään eikä tietojen palauttaminen ole mahdollista mikäli unohdat salasanasi. HUOM: Liitetiedostot tallennetaan salaamattomina. Voit estää liitetiedostojen tallennuksen Asetuksista.</translation>
@@ -488,7 +488,7 @@
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="60"/>
-        <location filename="../qml/pages/Settings.qml" line="153"/>
+        <location filename="../qml/pages/Settings.qml" line="189"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
 ----------
@@ -497,7 +497,7 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-share-contacts-description">
         <location filename="../qml/pages/Register.qml" line="63"/>
-        <location filename="../qml/pages/Settings.qml" line="156"/>
+        <location filename="../qml/pages/Settings.qml" line="192"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation type="unfinished"></translation>
@@ -578,169 +578,220 @@ Settings page share contacts</extracomment>
         <translation>Asetukset</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
-        <location filename="../qml/pages/Settings.qml" line="62"/>
+        <location filename="../qml/pages/Settings.qml" line="64"/>
         <source>My Identity</source>
         <extracomment>Settings page My identity section label</extracomment>
         <translation>Oma profiili</translation>
     </message>
     <message id="whisperfish-settings-my-phone-number">
-        <location filename="../qml/pages/Settings.qml" line="71"/>
-        <source>Phone</source>
+        <location filename="../qml/pages/Settings.qml" line="73"/>
+        <source>My Phone</source>
+        <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation>Puhelin</translation>
+        <translation type="unfinished">Puhelin</translation>
+    </message>
+    <message id="whisperfish-settings-my-uuid">
+        <location filename="../qml/pages/Settings.qml" line="83"/>
+        <source>My UUID registration number</source>
+        <extracomment>Settings page My UUID</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-identity-label">
-        <location filename="../qml/pages/Settings.qml" line="82"/>
+        <location filename="../qml/pages/Settings.qml" line="94"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
         <translation>Turvanumero</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
-        <location filename="../qml/pages/Settings.qml" line="88"/>
+        <location filename="../qml/pages/Settings.qml" line="103"/>
         <source>Notifications</source>
         <extracomment>Settings page notifications section</extracomment>
         <translation>Ilmoitukset</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable">
-        <location filename="../qml/pages/Settings.qml" line="95"/>
-        <source>Enabled</source>
+        <location filename="../qml/pages/Settings.qml" line="110"/>
+        <source>Enable notifications</source>
+        <oldsource>Enabled</oldsource>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation>Päällä</translation>
+        <translation type="unfinished">Päällä</translation>
+    </message>
+    <message id="whisperfish-settings-notifications-enable-description">
+        <location filename="../qml/pages/Settings.qml" line="113"/>
+        <source>If turned off, Whisperfish will not send any notification</source>
+        <extracomment>Settings page notifications enable description</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
-        <location filename="../qml/pages/Settings.qml" line="107"/>
+        <location filename="../qml/pages/Settings.qml" line="126"/>
         <source>Show Message Body</source>
         <extracomment>Settings page notifications show message body</extracomment>
         <translation>Näytä viesti ilmoituksessa</translation>
     </message>
+    <message id="whisperfish-settings-notifications-show-body-description">
+        <location filename="../qml/pages/Settings.qml" line="129"/>
+        <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
+        <extracomment>Settings page notifications show message body description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-general-section">
-        <location filename="../qml/pages/Settings.qml" line="118"/>
+        <location filename="../qml/pages/Settings.qml" line="144"/>
         <source>General</source>
         <extracomment>Settings page general section</extracomment>
         <translation>Yleiset asetukset</translation>
     </message>
     <message id="whisperfish-settings-country-code">
-        <location filename="../qml/pages/Settings.qml" line="125"/>
+        <location filename="../qml/pages/Settings.qml" line="151"/>
         <source>Country Code</source>
         <extracomment>Settings page country code</extracomment>
         <translation>Maatunnus</translation>
     </message>
+    <message id="whisperfish-settings-country-code-description">
+        <location filename="../qml/pages/Settings.qml" line="154"/>
+        <source>The selected country code determines what happens when a local phone number is entered.</source>
+        <extracomment>Settings page country code description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-save-attachments">
-        <location filename="../qml/pages/Settings.qml" line="140"/>
+        <location filename="../qml/pages/Settings.qml" line="169"/>
         <source>Save Attachments</source>
         <extracomment>Settings page save attachments</extracomment>
         <translation>Tallenna liitetiedostot</translation>
     </message>
+    <message id="whisperfish-settings-save-attachments-description">
+        <location filename="../qml/pages/Settings.qml" line="173"/>
+        <source>Attachments are stored at %1</source>
+        <extracomment>Settings page save attachments description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-enable-enter-send">
-        <location filename="../qml/pages/Settings.qml" line="170"/>
-        <source>EnterKey Send</source>
+        <location filename="../qml/pages/Settings.qml" line="206"/>
+        <source>Return key send</source>
+        <oldsource>EnterKey Send</oldsource>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation>Lähetä viesti rivinvaihdosta</translation>
+        <translation type="unfinished">Lähetä viesti rivinvaihdosta</translation>
+    </message>
+    <message id="whisperfish-settings-enable-enter-send-description">
+        <location filename="../qml/pages/Settings.qml" line="209"/>
+        <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
+        <extracomment>Settings page enable enter send description</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
-        <location filename="../qml/pages/Settings.qml" line="181"/>
+        <location filename="../qml/pages/Settings.qml" line="224"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
         <translation>Lisäasetukset</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode">
-        <location filename="../qml/pages/Settings.qml" line="188"/>
+        <location filename="../qml/pages/Settings.qml" line="231"/>
         <source>Incognito Mode</source>
         <extracomment>Settings page incognito mode</extracomment>
         <translation>Yksityinen tila</translation>
     </message>
+    <message id="whisperfish-settings-incognito-mode-description">
+        <location filename="../qml/pages/Settings.qml" line="234"/>
+        <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
+        <extracomment>Settings page incognito mode description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-restarting-message">
-        <location filename="../qml/pages/Settings.qml" line="195"/>
+        <location filename="../qml/pages/Settings.qml" line="242"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
         <translation>Käynnistä Whisperfish uudelleen...</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
-        <location filename="../qml/pages/Settings.qml" line="208"/>
+        <location filename="../qml/pages/Settings.qml" line="255"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
         <translation>Skaalaa JPEG-liitteet</translation>
     </message>
+    <message id="whisperfish-settings-scale-image-attachments-description">
+        <location filename="../qml/pages/Settings.qml" line="258"/>
+        <source>Scale down JPEG attachments to save on bandwidth.</source>
+        <extracomment>Settings page scale image attachments description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="219"/>
+        <location filename="../qml/pages/Settings.qml" line="273"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Käyttötiedot</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="224"/>
+        <location filename="../qml/pages/Settings.qml" line="278"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Yhteyden tila</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="228"/>
+        <location filename="../qml/pages/Settings.qml" line="282"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Yhdistetty</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="231"/>
+        <location filename="../qml/pages/Settings.qml" line="285"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Yhteys katkaistu</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="236"/>
+        <location filename="../qml/pages/Settings.qml" line="290"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Lähettämättömät viestit</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="242"/>
+        <location filename="../qml/pages/Settings.qml" line="296"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Keskusteluita</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="248"/>
+        <location filename="../qml/pages/Settings.qml" line="302"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Viestejä</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="254"/>
+        <location filename="../qml/pages/Settings.qml" line="308"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Signal-käyttäjiä</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
-        <location filename="../qml/pages/Settings.qml" line="260"/>
+        <location filename="../qml/pages/Settings.qml" line="314"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
         <translation>Salattu turvanumeroiden tallennus</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
-        <location filename="../qml/pages/Settings.qml" line="264"/>
+        <location filename="../qml/pages/Settings.qml" line="318"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
         <translation>Käytössä</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
-        <location filename="../qml/pages/Settings.qml" line="267"/>
+        <location filename="../qml/pages/Settings.qml" line="321"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
         <translation>Ei käytössä</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="272"/>
+        <location filename="../qml/pages/Settings.qml" line="326"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Salattu tietokanta</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="276"/>
+        <location filename="../qml/pages/Settings.qml" line="330"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Käytössä</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="279"/>
+        <location filename="../qml/pages/Settings.qml" line="333"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Ei käytössä</translation>
