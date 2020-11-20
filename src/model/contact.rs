@@ -42,47 +42,14 @@ define_model_roles! {
 }
 
 impl ContactModel {
-    fn format_helper(&self, number: &str, mode: Mode) -> Option<String> {
+    // The default formatter expected by QML
+    fn format(&self, number: QString) -> QString {
         let settings = Settings::default();
-
         let country_code = settings.get_string("country_code");
 
-        let country = match phonenumber::country::Id::from_str(&country_code) {
-            Ok(country) => country,
-            Err(_) => return None,
-        };
-
-        let number = match phonenumber::parse(Some(country), number) {
-            Ok(number) => number,
-            Err(_) => return None,
-        };
-
-        if !phonenumber::is_valid(&number) {
-            return None;
-        }
-
-        Some(number.format().mode(mode).to_string())
-    }
-
-    // The default formatter expected by QML
-    fn format(&self, string: QString) -> QString {
-        let string = string.to_string();
-        let string = string.trim();
-        if string.is_empty() {
-            return QString::from("");
-        }
-
-        let string_with_plus = format!("+{}", string);
-
-        if let Some(number) = self.format_helper(string, Mode::E164) {
-            QString::from(number)
-        } else if string.starts_with('+') {
-            QString::from("")
-        } else if let Some(number) = self.format_helper(&string_with_plus, Mode::E164) {
-            QString::from(number)
-        } else {
-            QString::from("")
-        }
+        format_with_country(&number.to_string(), &country_code)
+            .unwrap_or_else(|| "".into())
+            .into()
     }
 
     fn db(&self) -> SqliteConnection {
@@ -95,18 +62,20 @@ impl ContactModel {
         use crate::schema::contacts;
         use crate::schema::phoneNumbers;
 
+        let settings = Settings::default();
+        let country_code = settings.get_string("country_code");
+
         let source = source.to_string();
         let source = source.trim();
 
         let conn = self.db(); // This should maybe be established only once
 
         // This will ensure the format to query is ok
-        let e164_source = self
-            .format_helper(&source, Mode::E164)
+        let e164_source = format_with_country_helper(&source, Mode::E164, &country_code)
             .unwrap_or_else(|| "".into());
-        let mut national_source = self
-            .format_helper(&source, Mode::National)
-            .unwrap_or_else(|| "".into());
+        let mut national_source =
+            format_with_country_helper(&source, Mode::National, &country_code)
+                .unwrap_or_else(|| "".into());
         national_source.retain(|c| c != ' '); // At least FI numbers had spaces after parsing
         let source = source.to_string();
 
@@ -178,6 +147,44 @@ impl ContactModel {
     }
 }
 
+fn format_with_country_helper(number: &str, mode: Mode, country_code: &str) -> Option<String> {
+    let country = phonenumber::country::Id::from_str(country_code).ok();
+
+    log::trace!("Formatting phone number with country {:?}", country);
+
+    let number = match phonenumber::parse(country, number) {
+        Ok(number) => number,
+        Err(_) => return None,
+    };
+
+    log::trace!("Formatted phone number: {:?}", number);
+
+    if !phonenumber::is_valid(&number) {
+        log::warn!(
+            "Phone number is invalid according to the `phonenumber` library. Proceed with caution"
+        );
+        // return None;
+    }
+
+    Some(number.format().mode(mode).to_string())
+}
+
+fn format_with_country(number: &str, country_code: &str) -> Option<String> {
+    let number = number.trim();
+    if number.is_empty() {
+        return None;
+    }
+
+    let try_with_plus = if !number.starts_with('+') {
+        let number_with_plus = format!("+{}", number);
+        format_with_country_helper(&number_with_plus, Mode::E164, &country_code)
+    } else {
+        None
+    };
+
+    format_with_country_helper(number, Mode::E164, &country_code).or(try_with_plus)
+}
+
 impl QAbstractListModel for ContactModel {
     fn row_count(&self) -> i32 {
         log::trace!("ContactModel::row_count");
@@ -193,5 +200,48 @@ impl QAbstractListModel for ContactModel {
     fn role_names(&self) -> HashMap<i32, QByteArray> {
         log::trace!("ContactModel::role_names");
         ContactRoles::role_names()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::*;
+
+    // 00-prefixed numbers tracking issue:
+    // https://github.com/rustonaut/rust-phonenumber/issues/29
+    #[rstest(
+        phone,
+        case("+32474123456"),
+        // case("0032474123456"),
+        case("+3541234567"),
+        // case("003541234567"),
+        case("+18875550100"),
+        // case("0018875550100")
+    )]
+    fn e164_phone_number_acceptance_test(phone: &str) {
+        env_logger::try_init().ok();
+        assert!(
+            format_with_country(phone, "").is_some(),
+            "phone '{}' is not accepted without country",
+            phone
+        )
+    }
+
+    #[rstest(
+        phone,
+        country,
+        case("0474123456", "BE"),
+        case("01234567", "IS"),
+        case("08875550100", "US")
+    )]
+    fn local_phone_number_acceptance_test(phone: &str, country: &str) {
+        env_logger::try_init().ok();
+        assert!(
+            format_with_country(phone, country).is_some(),
+            "phone '{}' with country '{}' is not accepted",
+            phone,
+            country
+        )
     }
 }
