@@ -39,7 +39,6 @@ Page {
                 text: qsTrId("whisperfish-settings-refresh-contacts-menu")
                 onClicked: {
                     ContactModel.refresh()
-                    contactList.refresh()
                     SessionModel.reload()
                 }
             }

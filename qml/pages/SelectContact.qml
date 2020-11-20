@@ -8,8 +8,12 @@ Dialog {
     allowedOrientations: Orientation.All
 
     property string selectedContact: ""
-    property alias contactList: alphaMenu.dataSource
+    property var contactList
     signal selected(string name, string tel)
+
+    Component.onCompleted: function() {
+        console.log("contactList: "+contactList)
+    }
 
     SilicaFlickable {
         id: sc
@@ -32,7 +36,7 @@ Dialog {
 
             AlphaMenu {
                 id: alphaMenu
-                dataSource: ListModel{}
+                dataSource: contactList
                 listDelegate:  BackgroundItem {
                     id: contactItem
                     width: parent.width

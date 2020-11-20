@@ -17,19 +17,16 @@ Page {
                 //% "Add Member"
                 text: qsTrId("whisperfish-group-add-member-menu")
                 onClicked: {
-                    contactList.refresh()
-                    var c = pageStack.push(Qt.resolvedUrl("SelectContact.qml"), {contactList: contactList})
-                    c.selected.connect(function(name, tel) {
-                        console.log("Add group member: "+name+' '+tel)
+                    remorse.execute("Changing group members unimplemented", function() {})
 
-                        //: Add group member remorse message
-                        //% "Adding %1 to group"
-                        remorse.execute(qsTrId("whisperfish-group-add-member-remorse").arg(name),
-                            function() {
-                                MessageModel.addMember(SetupWorker.localId, tel)
-                            })
-
-                        })
+                    return;
+                    //: Add group member remorse message
+                    //% "Adding %1 to group"
+                    remorse.execute(qsTrId("whisperfish-group-add-member-remorse").arg(name),
+                        function() {
+                            // MessageModel.addMember(SetupWorker.localId, tel)
+                        }
+                    )
                 }
             }
             MenuItem {

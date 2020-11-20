@@ -20,12 +20,22 @@
 
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import Sailfish.Messages 1.0
+import Sailfish.Contacts 1.0
+import Sailfish.Telephony 1.0
+import org.nemomobile.contacts 1.0
+import org.nemomobile.commhistory 1.0
 
 Page {
     id: newMessagePage
     property Label errorLabel
-    property string recipientNumber
-    property string recipientName
+
+    property bool recipientSelected: recipientField.selectedContacts.count == 1
+    property QtObject selectedContact: recipientSelected ? recipientField.selectedContacts.get(0) : null
+    property bool isValid: recipientSelected && recipientNumber != ""
+
+    property string recipientNumber: recipientSelected && selectedContact.propertyType == "phoneNumber" ? ContactModel.format(selectedContact.property.number) : ""
+    property string recipientName: recipientSelected ? selectedContact.formattedNameText : ""
 
     _clickablePageIndicators: !(isLandscape && recipientField.activeFocus)
 
@@ -36,22 +46,6 @@ Page {
         anchors.fill: parent
 
         RemorsePopup { id: remorse }
-
-        PullDownMenu {
-            MenuItem {
-                //: Menu option to enter phone number
-                //% "Enter phone number"
-                text: qsTrId("whisperfish-new-message-menu-enter-number")
-                onClicked: {
-                    var c = pageStack.push(Qt.resolvedUrl("EnterPhoneNumber.qml"))
-                    c.selected.connect(function(tel) {
-                        console.log("Entered phone number: "+tel)
-                        recipientNumber = tel
-                        recipientName = ""
-                    })
-                }
-            }
-        }
 
         Column {
             id: content
@@ -71,31 +65,31 @@ Page {
                         visible: newMessagePage.isPortrait
                     }
 
-                    ValueButton {
+                    RecipientField {
                         id: recipientField
+
+                        actionType: Telephony.Message
+                        width: parent.width
+                        recentContactsCategoryMask: CommHistory.VoicecallCategory | CommHistory.VoicemailCategory
+                        contactSearchModel: PeopleModel { filterType: PeopleModel.FilterNone }
+                        requiredProperty: PeopleModel.PhoneNumberRequired
+                        showLabel: newMessagePage.isPortrait
+
+                        multipleAllowed: false
+
                         //: New message recipient label
                         //% "Recipient"
-                        label: qsTrId("whisperfish-new-message-recipient")
-                        value: {
-                            if (recipientName != "") {
-                                return recipientName
-                            } else if (recipientNumber != "") {
-                                return recipientNumber
-                            } else {
-                                //: New message recipient select default label
-                                //% "Select"
-                                return qsTrId("whisperfish-new-message-recipient-select-default")
-                            }
+                        placeholderText: qsTrId("whisperfish-new-message-recipient")
+
+                        //: Summary of all selected recipients, e.g. "Bob, Jane, 75553243"
+                        //% "Recipient"
+                        summaryPlaceholderText: qsTrId("whisperfish-new-message-recipient")
+
+                        onSelectionChanged: {
+                            console.log("Selected recipient name: " + recipientName);
+                            console.log("Selected recipient number: " + recipientNumber);
                         }
-                        onClicked: {
-                            contactList.refresh()
-                            var c = pageStack.push(Qt.resolvedUrl("SelectContact.qml"), {contactList: contactList})
-                            c.selected.connect(function(name, tel) {
-                                console.log("Selected contact: "+name+' '+tel)
-                                recipientNumber = tel
-                                recipientName = name
-                            })
-                        }
+                        onHasFocusChanged: if (!hasFocus) textInput.forceActiveFocus()
                     }
                 }
                 ErrorLabel {
@@ -108,7 +102,8 @@ Page {
                 }
             }
 
-            ChatTextInput {
+            // XXX consider using Sailfish's ChatTextInput
+            WFChatTextInput {
                 id: textInput
                 width: parent.width
                 enabled: recipientNumber.length != 0
@@ -117,16 +112,10 @@ Page {
                 onSendMessage: {
                     if (recipientNumber.length != 0) {
                         var source = recipientNumber
-                        var sid = MessageModel.createMessage(source, text, "", "", false)
-                        if(sid > 0) {
-                            pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
-                            MessageModel.load(sid, ContactModel.name(source))
-                            SessionModel.add(sid, true)
-                        } else {
-                            //: Failed to create message
-                            //% "Failed to create message"
-                            errorLabel.text = qsTrId("whisperfish-error-message-create")
-                        }
+                        // Errors should be handled asynchronously
+                        MessageModel.createMessage(source, text, "", "", false)
+                        SessionModel.reload()
+                        pageStack.pop()
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"

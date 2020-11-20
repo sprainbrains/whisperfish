@@ -13,6 +13,8 @@ Group: Qt/Qt
 URL: https://github.com/rubdos/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 Requires:   sailfishsilica-qt5 >= 0.10.9
+Requires:   sailfish-components-contacts-qt5
+Requires:   nemo-qml-plugin-contacts-qt5
 Requires:   nemo-qml-plugin-configuration-qt5
 Requires:   nemo-qml-plugin-notifications-qt5
 Requires:   sqlcipher
