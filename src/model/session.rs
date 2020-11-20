@@ -85,7 +85,13 @@ impl SessionModel {
     }
 
     fn reload(&self) {
-        unimplemented!();
+        Arbiter::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::LoadAllSessions)
+                .map(Result::unwrap),
+        );
     }
 
     fn markRead(&mut self, id: usize) {

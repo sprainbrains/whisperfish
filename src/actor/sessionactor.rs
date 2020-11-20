@@ -27,6 +27,10 @@ pub struct DeleteSession {
     pub idx: usize,
 }
 
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct LoadAllSessions;
+
 pub struct SessionActor {
     inner: QObjectBox<SessionModel>,
     storage: Option<Storage>,
@@ -40,27 +44,6 @@ impl SessionActor {
         Self {
             inner,
             storage: None,
-        }
-    }
-
-    /// Panics when storage is not yet set.
-    fn reload(&self, session_actor: Addr<SessionActor>) -> impl Future<Output = ()> {
-        let db = self.storage.clone().unwrap().db;
-
-        async move {
-            let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
-                let db = db
-                    .lock()
-                    .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
-                use crate::schema::session::dsl::*;
-                Ok(session.order_by(timestamp.desc()).load(&*db)?)
-            })
-            .await
-            .unwrap();
-            // XXX handle error
-
-            session_actor.send(SessionsLoaded(sessions)).await.unwrap();
-            // XXX handle error
         }
     }
 }
@@ -84,7 +67,7 @@ impl Handler<StorageReady> for SessionActor {
         self.storage = Some(storage);
         log::trace!("SessionActor has a registered storage");
 
-        Arbiter::spawn(self.reload(ctx.address()));
+        ctx.notify(LoadAllSessions);
     }
 }
 
@@ -149,5 +132,31 @@ impl Handler<DeleteSession> for SessionActor {
         self.storage.as_ref().unwrap().delete_session(id);
 
         self.inner.pinned().borrow_mut().handle_delete_session(idx);
+    }
+}
+
+impl Handler<LoadAllSessions> for SessionActor {
+    type Result = ();
+
+    /// Panics when storage is not yet set.
+    fn handle(&mut self, _: LoadAllSessions, ctx: &mut Self::Context) {
+        let session_actor = ctx.address();
+        let db = self.storage.clone().unwrap().db;
+
+        Arbiter::spawn(async move {
+            let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
+                let db = db
+                    .lock()
+                    .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                use crate::schema::session::dsl::*;
+                Ok(session.order_by(timestamp.desc()).load(&*db)?)
+            })
+            .await
+            .unwrap();
+            // XXX handle error
+
+            session_actor.send(SessionsLoaded(sessions)).await.unwrap();
+            // XXX handle error
+        })
     }
 }
