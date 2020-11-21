@@ -35,7 +35,7 @@ Page {
             parent: messages.contentItem
             width: parent.width
 
-            ChatTextInput {
+            WFChatTextInput {
                 id: textInput
                 width: parent.width
                 contactName: MessageModel.peerName

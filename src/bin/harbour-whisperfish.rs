@@ -6,7 +6,6 @@ use harbour_whisperfish::*;
 fn main() -> Result<(), failure::Error> {
     let mut sys = System::new("whisperfish");
     env_logger::init();
-    qrc::load();
 
     sfos::TokioQEventDispatcher::install();
 

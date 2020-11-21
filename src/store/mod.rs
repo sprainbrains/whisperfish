@@ -1210,7 +1210,7 @@ mod tests {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
 
-        env_logger::init();
+        env_logger::try_init().ok();
 
         let location = super::temp();
         let mut rng = rand::thread_rng();

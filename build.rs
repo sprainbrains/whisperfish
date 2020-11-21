@@ -96,34 +96,6 @@ fn mock_libc(mer_root: &str, arch: &str) -> Result<String, Error> {
     Ok(out_dir)
 }
 
-fn qml_to_qrc() -> Result<(), Error> {
-    let out_dir = &env::var("OUT_DIR")?;
-    let qml_path = &Path::new(&out_dir).join("qml.rs");
-
-    let mut f = std::fs::File::create(qml_path)?;
-
-    let mut read_dirs = std::collections::VecDeque::new();
-    read_dirs.push_back(std::fs::read_dir("qml")?);
-
-    writeln!(f, "qrc!{{qml_resources, \"qml\" {{ ")?;
-
-    while let Some(read_dir) = read_dirs.pop_front() {
-        for entry in read_dir {
-            let entry = entry?.path();
-            if entry.is_dir() {
-                read_dirs.push_back(std::fs::read_dir(entry)?);
-            } else if entry.is_file() {
-                println!("cargo:rerun-if-changed={}", entry.display());
-                writeln!(f, "{:?},", entry)?;
-            }
-        }
-    }
-
-    writeln!(f, " }} }}")?;
-
-    Ok(())
-}
-
 fn install_mer_hacks() -> (String, bool) {
     let mer_sdk = match std::env::var("MERSDK").ok() {
         Some(path) => path,
@@ -323,8 +295,6 @@ fn main() {
     for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
-
-    qml_to_qrc().unwrap();
 
     // vergen
     let flags = ConstantsFlags::all();

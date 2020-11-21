@@ -1,11 +1,16 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import Sailfish.Messages 1.0
+import Sailfish.Contacts 1.0
+import Sailfish.Telephony 1.0
+import org.nemomobile.contacts 1.0
+import org.nemomobile.commhistory 1.0
 
 Page {
     id: newGroupPage
     property Label errorLabel
-    property int selectedContacts
-    property var recipients: new Object()
+
+    property var selectedContacts: recipientField.selectedContacts
 
     _clickablePageIndicators: !(isLandscape && recipientField.activeFocus)
 
@@ -46,30 +51,30 @@ Page {
                         horizontalAlignment: TextInput.AlignLeft
                      }
 
-                    ValueButton {
+                    RecipientField {
                         id: recipientField
+
+                        actionType: Telephony.Message
+                        width: parent.width
+                        recentContactsCategoryMask: CommHistory.VoicecallCategory | CommHistory.VoicemailCategory
+                        contactSearchModel: PeopleModel { filterType: PeopleModel.FilterNone }
+                        requiredProperty: PeopleModel.PhoneNumberRequired
+                        showLabel: newGroupPage.isPortrait
+
+                        multipleAllowed: true
+
                         //: New group message members label
                         //% "Members"
-                        label: qsTrId("whisperfish-new-group-message-members")
-                        value: {
-                            if (selectedContacts > 0) {
-                                var numbers = Object.keys(recipients)
-                                return numbers.map(function(v) { return recipients[v]; }).join(",")
-                            } else {
-                                //: New message recipient select default label
-                                //% "Select"
-                                return qsTrId("whisperfish-new-message-recipient-select-default")
-                            }
+                        placeholderText: qsTrId("whisperfish-new-group-message-members")
+
+                        //: Summary of all selected recipients, e.g. "Bob, Jane, 75553243"
+                        //% "Members"
+                        summaryPlaceholderText: qsTrId("whisperfish-new-group-message-members")
+
+                        onSelectionChanged: {
+                            console.log("Selected contact count: " + selectedContacts.count);
                         }
-                        onClicked: {
-                            contactList.refresh()
-                            var c = pageStack.push(Qt.resolvedUrl("SelectGroupContact.qml"), {contactList: contactList})
-                            c.selected.connect(function(contacts) {
-                                console.log("Selected contacts: "+Object.keys(contacts).length)
-                                selectedContacts = Object.keys(contacts).length
-                                recipients = contacts
-                            })
-                        }
+                        onHasFocusChanged: if (!hasFocus) textInput.forceActiveFocus()
                     }
                 }
                 ErrorLabel {
@@ -82,14 +87,14 @@ Page {
                 }
             }
 
-            ChatTextInput {
+            WFChatTextInput {
                 id: textInput
                 width: parent.width
-                enabled: selectedContacts > 0 && groupName.text != ""
-                clearAfterSend: selectedContacts > 0 && groupName.text != ""
+                enabled: selectedContacts.count > 0 && groupName.text != ""
+                clearAfterSend: selectedContacts.count > 0 && groupName.text != ""
 
                 onSendMessage: {
-                    if (selectedContacts == 0) {
+                    if (selectedContacts.count == 0) {
                         //: Invalid recipient error
                         //% "Please select group members"
                         errorLabel.text = qsTrId("whisperfish-error-invalid-group-members")
@@ -98,17 +103,21 @@ Page {
                         //% "Please name the group"
                         errorLabel.text = qsTrId("whisperfish-error-invalid-group-name")
                     } else {
-                        var source = Object.keys(recipients).join(",")
-                        var sid = MessageModel.createMessage(source, text, groupName.text, "", false)
-                        if(sid > 0) {
-                            pageStack.replaceAbove(pageStack.previousPage(), Qt.resolvedUrl("../pages/Conversation.qml"));
-                            MessageModel.load(sid, ContactModel.name(source))
-                            SessionModel.add(sid, true)
-                        } else {
-                            //: Failed to create message
-                            //% "Failed to create message"
-                            errorLabel.text = qsTrId("whisperfish-error-message-create")
+                        var numbers = []
+                        for (var i = 0; i < selectedContacts.count; ++i) {
+                            var contact = selectedContacts.get(i);
+                            var phone = ContactModel.format(contact.property.number);
+                            if (phone == "") {
+                                console.log("Skipping invalid number" + contact.formattedNameText + " (" + contact.property.number + ")");
+                                continue;
+                            }
+                            numbers.push(phone)
                         }
+                        var source = numbers.join(",")
+                        console.log("Creating group for " + source);
+                        MessageModel.createMessage(source, text, groupName.text, "", false)
+                        SessionModel.reload()
+                        pageStack.pop()
                     }
                 }
             }
