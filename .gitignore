@@ -20,3 +20,4 @@ libsignal-build/
 /target
 **/*.rs.bk
 .env
+releases
