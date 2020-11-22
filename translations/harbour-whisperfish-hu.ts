@@ -276,44 +276,44 @@
         <translation>Zárolva</translation>
     </message>
     <message id="whisperfish-group-label">
-        <location filename="../qml/pages/MessagesView.qml" line="88"/>
+        <location filename="../qml/pages/MessagesView.qml" line="89"/>
         <source>Group: %1</source>
         <extracomment>Group message label</extracomment>
         <translation>%1 csoport</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../qml/pages/MessagesView.qml" line="101"/>
+        <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
         <translation>Törlés</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../qml/pages/MessagesView.qml" line="111"/>
+        <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
         <translation>Újraküldés</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="134"/>
+        <location filename="../qml/pages/MessagesView.qml" line="135"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Másolás</translation>
     </message>
     <message id="whisperfish-open-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="140"/>
+        <location filename="../qml/pages/MessagesView.qml" line="141"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
         <translation>Megnyitás</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="147"/>
+        <location filename="../qml/pages/MessagesView.qml" line="148"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
         <translation>Törlés</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="153"/>
+        <location filename="../qml/pages/MessagesView.qml" line="154"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
         <translation>Újraküldés</translation>

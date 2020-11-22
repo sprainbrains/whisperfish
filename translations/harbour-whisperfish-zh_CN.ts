@@ -276,44 +276,44 @@
         <translation>已锁定</translation>
     </message>
     <message id="whisperfish-group-label">
-        <location filename="../qml/pages/MessagesView.qml" line="88"/>
+        <location filename="../qml/pages/MessagesView.qml" line="89"/>
         <source>Group: %1</source>
         <extracomment>Group message label</extracomment>
         <translation>群组:%1</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../qml/pages/MessagesView.qml" line="101"/>
+        <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
         <translation>正在删除</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../qml/pages/MessagesView.qml" line="111"/>
+        <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
         <translation>正在重新发送</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="134"/>
+        <location filename="../qml/pages/MessagesView.qml" line="135"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>复制</translation>
     </message>
     <message id="whisperfish-open-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="140"/>
+        <location filename="../qml/pages/MessagesView.qml" line="141"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
         <translation>打开</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="147"/>
+        <location filename="../qml/pages/MessagesView.qml" line="148"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
         <translation>删除</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="153"/>
+        <location filename="../qml/pages/MessagesView.qml" line="154"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
         <translation>重新发送</translation>
