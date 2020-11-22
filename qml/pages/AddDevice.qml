@@ -20,13 +20,15 @@ Dialog {
         spacing: Theme.paddingLarge
 
         DialogHeader {
-            acceptText: "Add"
+            //: "Add" message, shown in the link device dialog
+            //% "Add"
+            acceptText: qsTrId("whisperfish-add-confirm")
         }
 
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            //: Add Device
+            //: Add Device, shown as pull-down menu item
             //% "Add Device"
             text: qsTrId("whisperfish-add-device")
         }
@@ -35,8 +37,10 @@ Dialog {
             id: urlField
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
-            label: "Device URL"
-            placeholderText: "Device URL"
+            //: Device URL, text input for pasting the QR-scanned code
+            //% "Device URL"
+            label: qsTrId("whisperfish-device-url")
+            placeholderText: "tsdevice://?uuid=FaC...&pub_key=BQ9..."
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             EnterKey.onClicked: parent.focus = true

@@ -105,14 +105,26 @@
         <extracomment>Additional Copyright</extracomment>
         <translation>Droit d&apos;auteur additionnel</translation>
     </message>
+    <message id="whisperfish-add-confirm">
+        <location filename="../qml/pages/AddDevice.qml" line="25"/>
+        <source>Add</source>
+        <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
+        <translation type="unfinished">Ajouter</translation>
+    </message>
     <message id="whisperfish-add-device">
-        <location filename="../qml/pages/AddDevice.qml" line="31"/>
+        <location filename="../qml/pages/AddDevice.qml" line="33"/>
         <source>Add Device</source>
-        <extracomment>Add Device</extracomment>
+        <extracomment>Add Device, shown as pull-down menu item</extracomment>
         <translation>Ajouter Appareil</translation>
     </message>
+    <message id="whisperfish-device-url">
+        <location filename="../qml/pages/AddDevice.qml" line="42"/>
+        <source>Device URL</source>
+        <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-device-link-instructions">
-        <location filename="../qml/pages/AddDevice.qml" line="52"/>
+        <location filename="../qml/pages/AddDevice.qml" line="56"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>Veuillez installer Signal Desktop et scanner le code QR avec l&apos;application CodeReader. Coller le URL ici.</translation>
