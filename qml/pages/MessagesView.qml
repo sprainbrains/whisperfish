@@ -27,6 +27,7 @@ SilicaListView {
     // Necessary to avoid resetting focus every time a row is added, which breaks text input
     currentIndex: -1
     quickScroll: true
+    clip: true
 
     delegate: Item {
         id: wrapper
