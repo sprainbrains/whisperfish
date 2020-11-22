@@ -91,10 +91,10 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_application_version(version.clone());
     app.install_default_translator().unwrap();
 
-    let client_actor = worker::ClientActor::new(&mut app)?.start();
     // XXX Spaghetti
-    let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
     let session_actor = actor::SessionActor::new(&mut app).start();
+    let client_actor = worker::ClientActor::new(&mut app, session_actor.clone())?.start();
+    let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
     let whisperfish = Rc::new(WhisperfishApp {
         session_actor,

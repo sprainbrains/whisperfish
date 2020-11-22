@@ -1132,6 +1132,31 @@ impl Storage {
             .execute(&*conn)
             .unwrap();
     }
+
+    pub fn refresh_session(&self, msg: &Message) {
+        log::debug!("[refresh_session] Fetching session");
+        let db_sess = self
+            .fetch_session_by_source(&msg.source)
+            .expect("No session found");
+
+        log::debug!("[refresh_session] {} {}", &msg.id, &msg.source);
+        let session_data = NewSession {
+            source: msg.source.clone(),
+            message: msg.message.clone(),
+            timestamp: msg.timestamp,
+            sent: msg.sent,
+            received: msg.received,
+            unread: false, // You sent the message, you read it
+            has_attachment: msg.hasattachment,
+            is_group: false,
+            group_id: db_sess.group_id.clone(),
+            group_name: db_sess.group_name.clone(),
+            group_members: db_sess.group_members.clone(),
+        };
+
+        self.update_session(&db_sess, &session_data, session_data.unread);
+        log::debug!("[refresh_session] Updated");
+    }
 }
 
 #[cfg(test)]

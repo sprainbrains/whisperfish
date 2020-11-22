@@ -2,8 +2,10 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use actix::prelude::*;
+use futures::prelude::*;
 use qmetaobject::*;
 
+use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
 use crate::sfos::SailfishApp;
 use crate::store::Storage;
@@ -46,6 +48,7 @@ pub struct ClientWorker {
     connectedChanged: qt_signal!(),
 
     actor: Option<Addr<ClientActor>>,
+    session_actor: Option<Addr<SessionActor>>,
 }
 
 /// ClientActor keeps track of the connection state.
@@ -65,9 +68,14 @@ pub struct ClientActor {
 }
 
 impl ClientActor {
-    pub fn new(app: &mut SailfishApp) -> Result<Self, failure::Error> {
+    pub fn new(
+        app: &mut SailfishApp,
+        session_actor: Addr<SessionActor>,
+    ) -> Result<Self, failure::Error> {
         let inner = QObjectBox::new(ClientWorker::default());
         app.set_object_property("ClientWorker".into(), inner.pinned());
+
+        inner.pinned().borrow_mut().session_actor = Some(session_actor);
 
         let crypto = libsignal_protocol::crypto::DefaultCrypto::default();
 
@@ -537,7 +545,7 @@ impl Handler<SendMessage> for ClientActor {
                     log::warn!("End session unimplemented");
                 }
 
-                if let Some(attachment) = msg.attachment {
+                if let Some(ref attachment) = msg.attachment {
                     use actix_threadpool::BlockingError;
                     let attachment_path = attachment.clone();
                     let contents = match actix_threadpool::run(move || {
@@ -666,6 +674,9 @@ impl Handler<SendMessage> for ClientActor {
                 // Mark as sent
                 storage.dequeue_message(mid);
 
+                // Update session list for this message
+                storage.refresh_session(&msg);
+
                 Ok((session.id, mid, msg.message))
             }
             .into_actor(self)
@@ -674,7 +685,18 @@ impl Handler<SendMessage> for ClientActor {
                     act.inner
                         .pinned()
                         .borrow()
-                        .messageSent(sid, mid, message.into())
+                        .messageSent(sid, mid, message.into());
+
+                    Arbiter::spawn(
+                        act.inner
+                            .pinned()
+                            .borrow()
+                            .session_actor
+                            .clone()
+                            .unwrap()
+                            .send(LoadAllSessions)
+                            .map(Result::unwrap),
+                    );
                 }
                 Err(e) => log::error!("Sending message: {}", e),
             }),
