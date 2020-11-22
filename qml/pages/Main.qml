@@ -109,7 +109,27 @@ Page {
             property: 'section'
 
             delegate: SectionHeader {
-                text: section
+                text: {
+                    switch(section) {
+                    case "today":
+                        //: Session section label for today
+                        //% "Today"
+                        qsTrId("whisperfish-session-section-today")
+                        break;
+                    case "yesterday":
+                        //: Session section label for yesterday
+                        //% "Yesterday"
+                        qsTrId("whisperfish-session-section-yesterday")
+                        break;
+                    case "older":
+                        //: Session section label for older
+                        //% "Older"
+                        qsTrId("whisperfish-session-section-older")
+                        break;
+                    default:
+                        Qt.locale().standaloneDayName(parseInt(section), Locale.LongFormat)
+                    }
+                }
                 height: Theme.itemSizeExtraSmall
             }
         }

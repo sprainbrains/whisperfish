@@ -150,9 +150,6 @@ impl SessionModel {
 
     /// Handle add-or-replace session
     pub fn handle_fetch_session(&mut self, mut sess: Session, mark_read: bool) {
-        // TODO: model/session.go `SetSection`
-        log::trace!("set section: session");
-
         let sid = sess.id;
         let mut already_unread = false;
 
@@ -232,23 +229,21 @@ impl SessionModel {
 impl Session {
     fn section(&self) -> String {
         // XXX: stub
-        let timestamp = chrono::NaiveDateTime::from_timestamp(self.timestamp, 0);
-        let now = chrono::Local::now();
-        let today =
-            chrono::NaiveDate::from_ymd(now.year(), now.month(), now.day()).and_hms(0, 0, 0);
-
+        let timestamp =
+            chrono::Utc.timestamp(self.timestamp / 1000, (self.timestamp % 1000) as u32);
+        let now = chrono::Utc::now();
+        let today = Utc.ymd(now.year(), now.month(), now.day()).and_hms(0, 0, 0);
         let diff = today.signed_duration_since(timestamp);
 
         if diff.num_seconds() <= 0 {
-            String::from("Today")
+            String::from("today")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
-            String::from("Yesterday")
+            String::from("yesterday")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
-            let wd = timestamp.weekday().number_from_monday();
-            // TODO: core.QLocale_System().DayName probably not implemented
+            let wd = timestamp.weekday().number_from_monday() % 7;
             wd.to_string()
         } else {
-            String::from("Older")
+            String::from("older")
         }
     }
 }

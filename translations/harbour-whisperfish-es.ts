@@ -34,19 +34,19 @@
         <translation>Nuevo mensaje</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/harbour-whisperfish.qml" line="139"/>
+        <location filename="../qml/pages/Main.qml" line="117"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Hoy</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/harbour-whisperfish.qml" line="143"/>
+        <location filename="../qml/pages/Main.qml" line="122"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Ayer</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/harbour-whisperfish.qml" line="147"/>
+        <location filename="../qml/pages/Main.qml" line="127"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Mayor que</translation>

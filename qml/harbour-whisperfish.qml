@@ -132,18 +132,4 @@ ApplicationWindow
         showMainPage()
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
     }
-
-    function logSectionHeaders() {
-        //: Session section label for today
-        //% "Today"
-        console.log(qsTrId("whisperfish-session-section-today"))
-
-        //: Session section label for yesterday
-        //% "Yesterday"
-        console.log(qsTrId("whisperfish-session-section-yesterday"))
-
-        //: Session section label for older
-        //% "Older"
-        console.log(qsTrId("whisperfish-session-section-older"))
-    }
 }
