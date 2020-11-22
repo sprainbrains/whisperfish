@@ -17,6 +17,7 @@
  */
 
 import QtQuick 2.2
+import QtGraphicalEffects 1.0
 import Sailfish.Silica 1.0
 import Nemo.Thumbnailer 1.0
 
@@ -30,9 +31,13 @@ Thumbnail {
         height: size * 2
     }
 
+    property bool inbound
+
+    property int radius: 0
+
     property var messagePart
     property bool showRetryIcon
-    property int size: Theme.itemSizeLarge
+    property int size: Theme.itemSizeExtraLarge
     property bool highlighted
     property bool isThumbnail: messagePart.mimeType.substr(0, 6) === "image/"
     property bool isVCard: {
@@ -74,6 +79,51 @@ Thumbnail {
             color: Theme.highlightColor
             opacity: 0.1
             visible: true
+        }
+    }
+
+    layer.enabled: radius != 0
+    layer.effect: OpacityMask {
+        maskSource: Item {
+            width: attachment.width
+            height: attachment.height
+
+            // Rectangle that fits the whole thing with all corners rounded
+            Rectangle {
+                id: roundedRectangle
+
+                anchors.centerIn: parent
+                width: attachment.adapt ? attachment.width : Math.min(attachment.width, attachment.height)
+                height: attachment.adapt ? attachment.height : width
+
+                radius: attachment.radius
+            }
+
+            // Rectangles that recolors the corner without radius, depending on whether it's an inbound or outbound message.
+            // The above rectangle cannot specify which corners are (not) rounded, it's all-or-nothing.
+            Rectangle {
+                // Bottom
+                anchors {
+                    left: parent.left
+                    right: parent.right
+
+                    bottom: parent.bottom
+                }
+
+                width: roundedRectangle.width
+                height: attachment.radius * 2
+            }
+            Rectangle {
+                anchors {
+                    left: !inbound ? parent.left  : undefined
+                    right: inbound ? parent.right : undefined
+
+                    top: parent.top
+                }
+
+                width: attachment.radius * 2
+                height: attachment.radius * 2
+            }
         }
     }
 }
