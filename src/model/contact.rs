@@ -77,13 +77,20 @@ impl ContactModel {
             format_with_country_helper(&source, Mode::National, &country_code)
                 .unwrap_or_else(|| "".into());
         national_source.retain(|c| c != ' '); // At least FI numbers had spaces after parsing
+        let doppio_zero = e164_source.clone().replace('+', "00");
         let source = source.to_string();
+
+        let trimmed_number = diesel::dsl::sql::<diesel::sql_types::Text>(
+            "REPLACE(phoneNumbers.phoneNumber, ' ', '')",
+        );
+        let trimmed_number = &trimmed_number;
 
         let (name, _phone_number): (String, String) = contacts::table
             .inner_join(phoneNumbers::table)
-            .select((contacts::displayLabel, phoneNumbers::phoneNumber))
-            .filter(phoneNumbers::phoneNumber.like(&e164_source))
-            .or_filter(phoneNumbers::phoneNumber.like(&national_source))
+            .select((contacts::displayLabel, trimmed_number))
+            .filter(trimmed_number.like(&e164_source))
+            .or_filter(trimmed_number.like(&national_source))
+            .or_filter(trimmed_number.like(&doppio_zero))
             .get_result(&conn)
             .unwrap_or((source.clone(), source));
 
