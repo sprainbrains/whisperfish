@@ -73,7 +73,7 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>构建 ID: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
@@ -201,7 +201,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="64"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
-        <translation>设备 %1</translation>
+        <translation>%1 设备</translation>
     </message>
     <message id="whisperfish-device-link-date">
         <location filename="../qml/pages/LinkedDevices.qml" line="76"/>
@@ -461,14 +461,14 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
-        <translation>输入你想注册 Signal 的电话号码</translation>
+        <translation type="unfinished">连接到 Signal</translation>
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/Register.qml" line="45"/>
-        <source>Phone number (E.164 format)</source>
-        <oldsource>International phone number</oldsource>
+        <source>International phone number</source>
+        <oldsource>Phone number (E.164 format)</oldsource>
         <extracomment>Phone number input</extracomment>
-        <translation>电话号码（E.164格式）</translation>
+        <translation type="unfinished">手机号码（E.164格式）</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/Register.qml" line="48"/>
@@ -491,7 +491,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>允许 Signal 使用本地联系人列表以寻找 Signal 用户。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/Register.qml" line="76"/>
@@ -542,7 +542,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>警告: %1 验证码已失效。点击确认以重置验证码。</translation>
+        <translation>警告: %1 验证码以失效。点击确认以重置验证码。</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="25"/>
@@ -579,13 +579,13 @@ Settings page share contacts</extracomment>
         <source>My Phone</source>
         <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation>我的电话号码</translation>
+        <translation type="unfinished">电话</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="82"/>
         <source>My UUID registration number</source>
         <extracomment>Settings page My UUID</extracomment>
-        <translation>我的 UUID 注册号码</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-identity-label">
         <location filename="../qml/pages/Settings.qml" line="93"/>
@@ -604,13 +604,13 @@ Settings page share contacts</extracomment>
         <source>Enable notifications</source>
         <oldsource>Enabled</oldsource>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation>已启用</translation>
+        <translation type="unfinished">已启用</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="112"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation>如果开启，Whisperfish 将不会给你发送任何通知</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="125"/>
@@ -622,7 +622,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="128"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>如果关闭，Whisperfish 将不会显示发送者</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="143"/>
@@ -640,7 +640,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="153"/>
         <source>The selected country code determines what happens when a local phone number is entered.</source>
         <extracomment>Settings page country code description</extracomment>
-        <translation>所选国家代码决定了输入本地电话号码时的情况。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
         <location filename="../qml/pages/Settings.qml" line="168"/>
@@ -652,20 +652,20 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="172"/>
         <source>Attachments are stored at %1</source>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>附件储存于 %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="205"/>
         <source>Return key send</source>
         <oldsource>EnterKey Send</oldsource>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation>按下 Enter 键以发送</translation>
+        <translation type="unfinished">按下 Enter 键以发送</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send-description">
         <location filename="../qml/pages/Settings.qml" line="208"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation>启用时，回车键将用作发送键，否则，回车键将用于多行信息。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="223"/>
@@ -683,7 +683,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="233"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation>隐身模式将完全禁用存储功能。不会保存任何附件或信息，信息在重新启动前可见。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="241"/>
@@ -701,7 +701,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="257"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation>缩减JPEG附件以节省带宽。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="272"/>
@@ -719,13 +719,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="281"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
-        <translation>连接</translation>
+        <translation>已连接</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
         <location filename="../qml/pages/Settings.qml" line="284"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
-        <translation>断开</translation>
+        <translation>已断开</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
         <location filename="../qml/pages/Settings.qml" line="289"/>
@@ -755,7 +755,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
-        <translation>加密密钥储存</translation>
+        <translation>已加密密钥储存</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
         <location filename="../qml/pages/Settings.qml" line="317"/>
@@ -773,19 +773,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="325"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
-        <translation>加密数据库</translation>
+        <translation>已加密数据库</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
         <location filename="../qml/pages/Settings.qml" line="329"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
-        <translation>开启</translation>
+        <translation>已开启</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../qml/pages/Settings.qml" line="332"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
-        <translation>禁用</translation>
+        <translation>已禁用</translation>
     </message>
     <message id="whisperfish-verify-code-accept">
         <location filename="../qml/pages/Verify.qml" line="25"/>
@@ -855,7 +855,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Group.qml" line="18"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
-        <translation>添加成员</translation>
+        <translation>添加联系人</translation>
     </message>
     <message id="whisperfish-group-add-member-remorse">
         <location filename="../qml/pages/Group.qml" line="25"/>

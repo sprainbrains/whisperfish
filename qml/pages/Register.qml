@@ -41,7 +41,7 @@ Dialog {
             inputMethodHints: Qt.ImhDialableCharactersOnly | Qt.ImhNoPredictiveText
             validator: RegExpValidator{ regExp: /\+[0-9]+/;}
             //: Phone number input
-            //% "Phone number (E.164 format)"
+            //% "International phone number"
             label: qsTrId("whisperfish-phone-number-input-label")
             //: Phone number placeholder
             //% "+18875550100"

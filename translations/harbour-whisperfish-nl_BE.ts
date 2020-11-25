@@ -464,10 +464,9 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/Register.qml" line="45"/>
-        <source>Phone number (E.164 format)</source>
-        <oldsource>International phone number</oldsource>
+        <source>International phone number</source>
         <extracomment>Phone number input</extracomment>
-        <translation type="unfinished">Internationaal gsm-nummer</translation>
+        <translation>Internationaal gsm-nummer</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/Register.qml" line="48"/>

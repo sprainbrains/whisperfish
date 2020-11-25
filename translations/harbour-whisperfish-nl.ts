@@ -109,7 +109,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation type="unfinished">Toevoegen</translation>
+        <translation>Voeg toe</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
@@ -121,7 +121,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="42"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Apparaat-URL</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../qml/pages/AddDevice.qml" line="56"/>
@@ -464,10 +464,9 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/Register.qml" line="45"/>
-        <source>Phone number (E.164 format)</source>
-        <oldsource>International phone number</oldsource>
+        <source>International phone number</source>
         <extracomment>Phone number input</extracomment>
-        <translation type="unfinished">International telefoonnummer</translation>
+        <translation>Internationaal telefoonnummer</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/Register.qml" line="48"/>
