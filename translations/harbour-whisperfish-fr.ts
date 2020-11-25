@@ -170,9 +170,8 @@
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/Register.qml" line="45"/>
         <source>International phone number</source>
-        <oldsource>Phone number (E.164 format)</oldsource>
         <extracomment>Phone number input</extracomment>
-        <translation type="unfinished">Numéro de téléphone international</translation>
+        <translation>Numéro de téléphone international</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/Register.qml" line="48"/>
