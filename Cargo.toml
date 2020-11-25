@@ -70,10 +70,13 @@ vergen = "3"
 rstest = { version = "0.6.5", git = "https://github.com/la10736/rstest" }
 
 [package.metadata.rpm]
+# DOES NOT get overwritten through `cargo rpm build --target xxx`,
+# means we can *lie* to RPM for issue #24.
 target_architecture = "armv7hl"
 
 [package.metadata.rpm.cargo]
 buildflags = ["--release"]
+# Gets overwritten through `cargo rpm build --target xxx`
 target = "armv7-unknown-linux-gnueabihf"
 
 [package.metadata.rpm.targets]
