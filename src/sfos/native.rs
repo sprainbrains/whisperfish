@@ -288,4 +288,12 @@ impl SailfishApp {
             })
         }
     }
+
+    pub fn show_full_screen(&self) {
+        unsafe {
+            cpp!([self as "SfosApplicationHolder*"] {
+                self->view->showFullScreen();
+            })
+        }
+    }
 }

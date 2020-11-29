@@ -134,7 +134,7 @@ pub async fn run() -> Result<(), failure::Error> {
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
-    app.show();
+    app.show_full_screen();
     app.exec_async().await;
 
     Ok(())
