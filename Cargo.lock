@@ -1086,6 +1086,7 @@ dependencies = [
  "rand 0.8.3",
  "regex",
  "rstest",
+ "rstest_reuse",
  "scrypt",
  "serde",
  "serde_yaml",
@@ -2070,6 +2071,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustc_version 0.2.3",
+ "syn",
+]
+
+[[package]]
+name = "rstest_reuse"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea58a205448b6b691df0025d0871882c60ce66b46ee8b26217d68f794eb0f965"
+dependencies = [
+ "quote",
  "syn",
 ]
 

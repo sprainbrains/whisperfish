@@ -5,6 +5,7 @@ use diesel_migrations::Migration;
 
 use diesel::prelude::*;
 use rstest::*;
+use rstest_reuse::{self, *};
 
 type MigrationList = Vec<(String, Box<dyn Migration + 'static>)>;
 
@@ -77,22 +78,21 @@ fn fixed_go_db(empty_db: SqliteConnection, mut migrations: MigrationList) -> Sql
 
 embed_migrations!();
 
+#[template]
 #[rstest(
     db,
     case::empty_db(empty_db()),
     case::original_go_db(original_go_db(empty_db())),
     case::fixed_go_db(fixed_go_db(empty_db(), migrations()))
 )]
+fn initial_dbs(db: SqliteConnection) {}
+
+#[apply(initial_dbs)]
 fn run_plain_migrations(db: SqliteConnection) {
     embedded_migrations::run(&db).unwrap();
 }
 
-#[rstest(
-    db,
-    case::empty_db(empty_db()),
-    case::original_go_db(original_go_db(empty_db())),
-    case::fixed_go_db(fixed_go_db(empty_db(), migrations()))
-)]
+#[apply(initial_dbs)]
 fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
     for (_name, migration) in migrations {
         diesel_migrations::run_migrations(&db, vec![migration], &mut std::io::stdout()).unwrap();
