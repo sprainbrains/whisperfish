@@ -147,21 +147,33 @@ impl Handler<QueueMessage> for MessageActor {
         assert!(&msg.group == "", "Creating a new group is unimplemented");
 
         let storage = self.storage.as_mut().unwrap();
+
+        let has_attachment = !msg.attachment.is_empty();
+
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
                 source: msg.source,
                 text: msg.message,
                 timestamp: chrono::Utc::now().timestamp_millis(),
-                has_attachment: !msg.attachment.is_empty(),
-                attachment: if !msg.attachment.is_empty() {
+                has_attachment,
+                mime_type: if has_attachment {
+                    Some(
+                        mime_guess::from_path(&msg.attachment)
+                            .first_or_octet_stream()
+                            .essence_str()
+                            .into(),
+                    )
+                } else {
+                    None
+                },
+                attachment: if has_attachment {
                     Some(msg.attachment)
                 } else {
                     None
                 },
                 flags: 0,
                 outgoing: true,
-                mime_type: None,
                 received: false,
                 sent: false,
             },
