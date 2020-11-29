@@ -26,12 +26,17 @@ fn migrations() -> MigrationList {
             continue;
         }
 
-        migrations.push(diesel_migrations::migration_from(subdir).unwrap());
+        migrations.push((
+            subdir.to_str().unwrap().to_string(),
+            diesel_migrations::migration_from(subdir).unwrap(),
+        ));
     }
+
+    migrations.sort_by_key(|f| f.0.clone());
 
     assert!(!migrations.is_empty());
 
-    migrations
+    migrations.into_iter().map(|f| f.1).collect()
 }
 
 embed_migrations!();
