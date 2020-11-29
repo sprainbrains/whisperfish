@@ -93,13 +93,6 @@ ApplicationWindow
         onNotifyMessage: {
             newMessageNotification(sid, ContactModel.name(source), source, message, isGroup)
         }
-        onPromptResetPeerIdentity: {
-            pageStack.push(Qt.resolvedUrl("pages/PeerIdentityChanged.qml"), { source: source })
-        }
-    }
-
-    Connections {
-        target: SendWorker
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
                 SessionModel.markSent(sid, message)
@@ -109,7 +102,7 @@ ApplicationWindow
             }
         }
         onPromptResetPeerIdentity: {
-            pageStack.push(Qt.resolvedUrl("pages/ResetPeerIdentity.qml"), { source: source })
+            pageStack.push(Qt.resolvedUrl("pages/PeerIdentityChanged.qml"), { source: source })
         }
     }
 

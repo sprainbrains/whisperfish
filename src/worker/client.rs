@@ -40,6 +40,7 @@ pub struct ClientWorker {
     messageReceipt: qt_signal!(sid: i64, mid: i32),
     notifyMessage: qt_signal!(sid: i64, source: QString, message: QString, isGroup: bool),
     promptResetPeerIdentity: qt_signal!(),
+    messageSent: qt_signal!(sid: i64, mid: i32, message: QString),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
@@ -476,10 +477,10 @@ impl Handler<FetchAttachment> for ClientActor {
 }
 
 impl Handler<SendMessage> for ClientActor {
-    type Result = ();
+    type Result = ResponseActFuture<Self, ()>;
 
     // Equiv of worker/send.go
-    fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) {
+    fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let storage = self.storage.as_mut().unwrap();
         let msg = storage.fetch_message(mid).unwrap();
@@ -493,7 +494,7 @@ impl Handler<SendMessage> for ClientActor {
 
         if !msg.queued {
             log::warn!("Message is not queued, refusing to transmit.");
-            return;
+            return Box::pin(async {}.into_actor(self).map(|_, _, _| ()));
         }
 
         log::trace!("Sending for session: {:?}", session);
@@ -501,100 +502,120 @@ impl Handler<SendMessage> for ClientActor {
 
         let local_addr = self.local_addr.clone().unwrap();
         let storage = storage.clone();
-        Arbiter::spawn(async move {
-            let group = if let Some(group_id) = session.group_id.as_ref() {
-                if group_id != "" {
-                    Some(GroupContext {
-                        id: Some(hex::decode(group_id).expect("hex encoded group id")),
-                        r#type: Some(GroupType::Deliver.into()),
+        Box::pin(
+            async move {
+                let group = if let Some(group_id) = session.group_id.as_ref() {
+                    if group_id != "" {
+                        Some(GroupContext {
+                            id: Some(hex::decode(group_id).expect("hex encoded group id")),
+                            r#type: Some(GroupType::Deliver.into()),
 
-                        ..Default::default()
-                    })
+                            ..Default::default()
+                        })
+                    } else {
+                        None
+                    }
                 } else {
                     None
+                };
+
+                // XXX online status goes in that bool
+                let online = false;
+                let timestamp = msg.timestamp as u64;
+                let mut content = DataMessage {
+                    body: Some(msg.message.clone()),
+                    flags: None,
+                    timestamp: Some(timestamp),
+                    // XXX: depends on the features in the message!
+                    required_protocol_version: Some(0),
+                    group,
+
+                    ..Default::default()
+                };
+
+                if msg.flags == 1 {
+                    log::warn!("End session unimplemented");
                 }
-            } else {
-                None
-            };
 
-            // XXX online status goes in that bool
-            let online = false;
-            let timestamp = msg.timestamp as u64;
-            let mut content = DataMessage {
-                body: Some(msg.message.clone()),
-                flags: None,
-                timestamp: Some(timestamp),
-                // XXX: depends on the features in the message!
-                required_protocol_version: Some(0),
-                group,
-
-                ..Default::default()
-            };
-
-            if msg.flags == 1 {
-                log::warn!("End session unimplemented");
-            }
-
-            if let Some(attachment) = msg.attachment {
-                use actix_threadpool::BlockingError;
-                let attachment_path = attachment.clone();
-                let contents =
-                    match actix_threadpool::run(move || std::fs::read(&attachment_path)).await {
+                if let Some(attachment) = msg.attachment {
+                    use actix_threadpool::BlockingError;
+                    let attachment_path = attachment.clone();
+                    let contents = match actix_threadpool::run(move || {
+                        std::fs::read(&attachment_path)
+                    })
+                    .await
+                    {
                         Err(BlockingError::Canceled) => {
-                            log::error!("Threadpool Canceled");
-                            return;
+                            failure::bail!("Threadpool Canceled");
                         }
                         Err(BlockingError::Error(e)) => {
-                            log::error!("Could not read attachment: {}", e);
-                            return;
+                            failure::bail!("Could not read attachment: {}", e);
                         }
                         Ok(contents) => contents,
                     };
-                let spec = AttachmentSpec {
-                    content_type: mime_guess::from_path(&attachment)
-                        .first()
-                        .unwrap()
-                        .essence_str()
-                        .into(),
-                    length: contents.len(),
-                    file_name: Path::new(&attachment)
-                        .file_name()
-                        .map(|f| f.to_string_lossy().into_owned()),
-                    preview: None,
-                    voice_note: false,
-                    borderless: false,
-                    width: 0,
-                    height: 0,
-                    caption: None,
-                    blur_hash: None,
-                };
-                let ptr = match sender.upload_attachment(spec, contents).await {
-                    Ok(v) => v,
-                    Err(e) => {
-                        log::error!("Failed to upload attachment: {}", e);
-                        return;
+                    let spec = AttachmentSpec {
+                        content_type: mime_guess::from_path(&attachment)
+                            .first()
+                            .unwrap()
+                            .essence_str()
+                            .into(),
+                        length: contents.len(),
+                        file_name: Path::new(&attachment)
+                            .file_name()
+                            .map(|f| f.to_string_lossy().into_owned()),
+                        preview: None,
+                        voice_note: false,
+                        borderless: false,
+                        width: 0,
+                        height: 0,
+                        caption: None,
+                        blur_hash: None,
+                    };
+                    let ptr = match sender.upload_attachment(spec, contents).await {
+                        Ok(v) => v,
+                        Err(e) => {
+                            failure::bail!("Failed to upload attachment: {}", e);
+                        }
+                    };
+                    content.attachments.push(ptr);
+                }
+
+                log::trace!("Transmitting {:?}", content);
+
+                let mut needs_sync = false;
+
+                if session.is_group {
+                    let members = session.group_members.as_ref().unwrap();
+                    // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
+                    for member in members.split(',') {
+                        let recipient = ServiceAddress {
+                            e164: Some(member.to_string()),
+                            relay: None,
+                            uuid: None,
+                        };
+                        if local_addr.matches(&recipient) {
+                            continue;
+                        }
+                        // Clone + async closure means we can use an immutable borrow.
+                        match sender
+                            .send_message(recipient, None, content.clone(), timestamp, online)
+                            .await
+                        {
+                            Ok(s) => {
+                                if s.needs_sync {
+                                    needs_sync = true;
+                                }
+                            }
+                            Err(e) => log::error!("Error sending message: {}", e),
+                        }
                     }
-                };
-                content.attachments.push(ptr);
-            }
-
-            log::trace!("Transmitting {:?}", content);
-
-            let mut needs_sync = false;
-
-            if session.is_group {
-                let members = session.group_members.as_ref().unwrap();
-                // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
-                for member in members.split(',') {
+                } else {
                     let recipient = ServiceAddress {
-                        e164: Some(member.to_string()),
+                        e164: Some(session.source.clone()),
                         relay: None,
                         uuid: None,
                     };
-                    if local_addr.matches(&recipient) {
-                        continue;
-                    }
-                    // Clone + async closure means we can use an immutable borrow.
+
                     match sender
                         .send_message(recipient, None, content.clone(), timestamp, online)
                         .await
@@ -607,63 +628,57 @@ impl Handler<SendMessage> for ClientActor {
                         Err(e) => log::error!("Error sending message: {}", e),
                     }
                 }
-            } else {
-                let recipient = ServiceAddress {
-                    e164: Some(session.source.clone()),
-                    relay: None,
-                    uuid: None,
-                };
 
-                match sender
-                    .send_message(recipient, None, content.clone(), timestamp, online)
-                    .await
-                {
-                    Ok(s) => {
-                        if s.needs_sync {
-                            needs_sync = true;
-                        }
-                    }
-                    Err(e) => log::error!("Error sending message: {}", e),
-                }
-            }
+                if needs_sync {
+                    // Sync messages for connected devices
+                    use libsignal_service::content::sync_message;
 
-            if needs_sync {
-                // Sync messages for connected devices
-                use libsignal_service::content::sync_message;
+                    let container = SyncMessage {
+                        sent: Some(sync_message::Sent {
+                            destination_e164: if session.is_group {
+                                None
+                            } else {
+                                Some(session.source)
+                            },
+                            message: Some(content),
+                            timestamp: Some(timestamp),
 
-                let container = SyncMessage {
-                    sent: Some(sync_message::Sent {
-                        destination_e164: if session.is_group {
-                            None
-                        } else {
-                            Some(session.source)
-                        },
-                        message: Some(content),
-                        timestamp: Some(timestamp),
+                            ..Default::default()
+                        }),
 
                         ..Default::default()
-                    }),
+                    };
+                    log::trace!("Transmitting {:?}", container);
 
-                    ..Default::default()
-                };
-                log::trace!("Transmitting {:?}", container);
-
-                match sender
-                    .send_message(local_addr, None, container, timestamp, online)
-                    .await
-                {
-                    Ok(s) => {
-                        if s.needs_sync {
-                            log::warn!("Still got a needs_sync");
+                    match sender
+                        .send_message(local_addr, None, container, timestamp, online)
+                        .await
+                    {
+                        Ok(s) => {
+                            if s.needs_sync {
+                                log::warn!("Still got a needs_sync");
+                            }
                         }
+                        Err(e) => log::error!("Error sending message: {}", e),
                     }
-                    Err(e) => log::error!("Error sending message: {}", e),
                 }
-            }
 
-            // Mark as sent
-            storage.dequeue_message(mid);
-        })
+                // Mark as sent
+                storage.dequeue_message(mid);
+
+                Ok((session.id, mid, msg.message))
+            }
+            .into_actor(self)
+            .map(move |res, act, _ctx| match res {
+                Ok((sid, mid, message)) => {
+                    act.inner
+                        .pinned()
+                        .borrow()
+                        .messageSent(sid, mid, message.into())
+                }
+                Err(e) => log::error!("Sending message: {}", e),
+            }),
+        )
     }
 }
 
