@@ -552,24 +552,6 @@ Settings page share contacts</extracomment>
         <extracomment>Registration directions</extracomment>
         <translation>Signal vous enverra un code de vérification à 6 chiffres par SMS.</translation>
     </message>
-    <message id="whisperfish-select-contact">
-        <location filename="../qml/pages/SelectContact.qml" line="33"/>
-        <source>Select contact</source>
-        <extracomment>Title for select contact page</extracomment>
-        <translation>Sélectionner contact</translation>
-    </message>
-    <message id="whisperfish-select-group-contact">
-        <location filename="../qml/pages/SelectGroupContact.qml" line="36"/>
-        <source>Select group members</source>
-        <extracomment>Title for select group contact page</extracomment>
-        <translation>Sélectionner les membres du groupe</translation>
-    </message>
-    <message id="whisperfish-select-group-num-contacts">
-        <location filename="../qml/pages/SelectGroupContact.qml" line="39"/>
-        <source>Selected %1</source>
-        <extracomment>placeholder showing selected group contacts</extracomment>
-        <translation>%1 Sélectionné</translation>
-    </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="25"/>
         <source>Linked Devices</source>
