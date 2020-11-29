@@ -40,30 +40,30 @@ cpp! {{
 impl Settings {
     fn value_bool(&self, key: &str) -> bool {
         let key = QString::from(key);
+        let settings = self.inner;
         unsafe {
-            cpp!([key as "QString"] -> bool as "bool" {
-                QSettings settings;
-                return settings.value(key).toBool();
+            cpp!([settings as "QSettings *", key as "QString"] -> bool as "bool" {
+                return settings->value(key).toBool();
             })
         }
     }
 
     pub fn set_bool(&mut self, key: &str, value: bool) {
         let key = QString::from(key);
+        let settings = self.inner;
         unsafe {
-            cpp!([key as "QString", value as "bool"] {
-                QSettings settings;
-                settings.setValue(key, value);
+            cpp!([settings as "QSettings *", key as "QString", value as "bool"] {
+                settings->setValue(key, value);
             })
         };
     }
 
     fn value_string(&self, key: &str) -> String {
         let key = QString::from(key);
+        let settings = self.inner;
         let val = unsafe {
-            cpp!([key as "QString"] -> QString as "QString" {
-                QSettings settings;
-                return settings.value(key).toString();
+            cpp!([settings as "QSettings *", key as "QString"] -> QString as "QString" {
+                return settings->value(key).toString();
             })
         };
         val.into()
@@ -72,16 +72,20 @@ impl Settings {
     pub fn set_string(&mut self, key: &str, value: &str) {
         let key = QString::from(key);
         let value = QString::from(value);
+        let settings = self.inner;
         unsafe {
-            cpp!([ key as "QString", value as "QString"] {
-                QSettings settings;
-                settings.setValue(key, value);
+            cpp!([settings as "QSettings *", key as "QString", value as "QString"] {
+                settings->setValue(key, value);
             })
         };
     }
 }
 
-#[derive(QObject, Default)]
+cpp_class! (
+    unsafe struct QSettings as "QSettings"
+);
+
+#[derive(QObject)]
 #[allow(non_snake_case)]
 pub struct Settings {
     base: qt_base_class!(trait QObject),
@@ -96,6 +100,40 @@ pub struct Settings {
     boolValue: qt_method!(fn(&self, key: String) -> bool),
 
     defaults: qt_method!(fn(&self)),
+
+    inner: *mut QSettings,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            base: Default::default(),
+            stringSet: Default::default(),
+            stringValue: Default::default(),
+
+            boolSet: Default::default(),
+            boolValue: Default::default(),
+
+            defaults: Default::default(),
+
+            inner: unsafe {
+                cpp!([] -> *mut QSettings as "QSettings *" {
+                    return new QSettings();
+                })
+            },
+        }
+    }
+}
+
+impl Drop for Settings {
+    fn drop(&mut self) {
+        let settings = self.inner;
+        unsafe {
+            cpp!([settings as "QSettings *"] {
+                delete settings;
+            })
+        }
+    }
 }
 
 impl Settings {
