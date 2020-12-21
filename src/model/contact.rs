@@ -85,12 +85,25 @@ impl ContactModel {
         );
         let trimmed_number = &trimmed_number;
 
+        let normalized_number = diesel::dsl::sql::<diesel::sql_types::Text>(
+            // normalizedNumber doesn't contain spaces or dashes,
+            // and is formatted to contain *only* the last 8 digits.
+            "REPLACE(phoneNumbers.normalizedNumber, '.', '')",
+        );
+        let normalized_number = &normalized_number;
+        let doppio_zero_sliced = &doppio_zero[(doppio_zero.len().saturating_sub(8))..];
+
         let (name, _phone_number): (String, String) = contacts::table
             .inner_join(phoneNumbers::table)
             .select((contacts::displayLabel, trimmed_number))
+            // Either as-is ...
             .filter(trimmed_number.like(&e164_source))
+            // ... or national format ...
             .or_filter(trimmed_number.like(&national_source))
+            // ... or 00-prefixed ...
             .or_filter(trimmed_number.like(&doppio_zero))
+            // ... or in the normalized column.
+            .or_filter(normalized_number.like(&doppio_zero_sliced))
             .get_result(&conn)
             .unwrap_or((source.clone(), source));
 
