@@ -678,14 +678,16 @@ impl Storage {
             session::sent.eq(new_session.sent),
             session::received.eq(new_session.received),
             session::has_attachment.eq(new_session.has_attachment),
-            session::is_group.eq(new_session.is_group),
         ));
         query.execute(&*conn).expect("updating session");
 
         if let Some(ref members) = &new_session.group_members {
             if !members.is_empty() {
                 let query = diesel::update(session::table.filter(session::id.eq(db_session.id)))
-                    .set((session::group_members.eq(&new_session.group_members),));
+                    .set((
+                        session::group_members.eq(&new_session.group_members),
+                        session::is_group.eq(true),
+                    ));
                 query.execute(&*conn).expect("updating group members");
             }
         }
@@ -693,7 +695,10 @@ impl Storage {
         if let Some(ref name) = &new_session.group_name {
             if !name.is_empty() {
                 let query = diesel::update(session::table.filter(session::id.eq(db_session.id)))
-                    .set((session::group_name.eq(&new_session.group_name),));
+                    .set((
+                        session::group_name.eq(&new_session.group_name),
+                        session::is_group.eq(true),
+                    ));
                 query.execute(&*conn).expect("updating group name");
             }
         }
