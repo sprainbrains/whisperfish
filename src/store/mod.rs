@@ -678,6 +678,9 @@ impl Storage {
             session::sent.eq(new_session.sent),
             session::received.eq(new_session.received),
             session::has_attachment.eq(new_session.has_attachment),
+            session::is_group.eq(new_session.is_group),
+            session::group_name.eq(&new_session.group_name),
+            session::group_members.eq(&new_session.group_members),
         ));
         query.execute(&*conn).expect("updating session");
     }
