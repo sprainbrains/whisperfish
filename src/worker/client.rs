@@ -169,7 +169,7 @@ impl ClientActor {
         let group = if let Some(group) = msg.group.as_ref() {
             match group.r#type() {
                 GroupType::Update => {
-                    new_message.text = String::from("Member joined group");
+                    new_message.text = String::from("Group was updated");
                 }
                 GroupType::Quit => {
                     new_message.text = String::from("Member left group");
