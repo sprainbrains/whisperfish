@@ -5,6 +5,7 @@ use actix::prelude::*;
 use futures::prelude::*;
 use qmetaobject::*;
 
+use crate::actor::connection::*;
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
 use crate::sfos::SailfishApp;
@@ -380,6 +381,12 @@ impl Actor for ClientActor {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         self.inner.pinned().borrow_mut().actor = Some(ctx.address());
+
+        let mgr = ConnectionManager::from_registry();
+        Arbiter::spawn(
+            mgr.send(RequestNotifications(ctx.address().recipient()))
+                .map(Result::unwrap),
+        );
     }
 }
 
@@ -1029,5 +1036,13 @@ impl Handler<RefreshPreKeys> for ClientActor {
                 log::trace!("Successfully refreshed prekeys");
             }
         }))
+    }
+}
+
+impl Handler<ConnectionChange> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, msg: ConnectionChange, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!("ClientActor received connection change: {:?}", msg);
     }
 }
