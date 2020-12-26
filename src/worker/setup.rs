@@ -132,7 +132,13 @@ impl SetupWorker {
             );
         }
 
-        std::fs::create_dir(settings.borrow().get_string("attachment_dir").trim())?;
+        if let Err(e) =
+            std::fs::create_dir_all(settings.borrow().get_string("attachment_dir").trim())
+        {
+            if e.kind() != std::io::ErrorKind::AlreadyExists {
+                log::warn!("Could not create attachment dir: {}", e);
+            }
+        }
 
         if let Ok(file) = std::fs::File::open(&signal_config_file) {
             Ok(serde_yaml::from_reader(file)?)
