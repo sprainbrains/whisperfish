@@ -57,6 +57,7 @@ tempdir = "0.3.5"
 structopt = "0.3.16"
 
 rtnetlink = "0.6.0"
+netlink-packet-route = "0.6.0"
 
 [build-dependencies]
 cpp_build = "0.5"

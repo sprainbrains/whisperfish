@@ -29,6 +29,8 @@ use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerifica
 mod migrations;
 use migrations::*;
 
+const RESTART_SECS: i64 = 10;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 /// Enqueue a message on socket by MID
@@ -66,6 +68,7 @@ pub struct ClientActor {
     context: Context,
 
     start_time: chrono::DateTime<chrono::Local>,
+    starting: bool,
     store_context: Option<libsignal_protocol::StoreContext>,
 }
 
@@ -90,6 +93,7 @@ impl ClientActor {
             context: Context::new(crypto)?,
 
             start_time: chrono::Local::now(),
+            starting: false,
             store_context: None,
         })
     }
@@ -827,27 +831,45 @@ impl Handler<Restart> for ClientActor {
 
         self.inner.pinned().borrow_mut().connected = false;
         self.inner.pinned().borrow().connectedChanged();
+
+        let should_restart = !self.starting;
+        self.starting = true;
+
         Box::pin(
             async move {
-                let mut receiver = MessageReceiver::new(service.clone());
+                let mut receiver = MessageReceiver::new(service);
 
-                receiver.create_message_pipe(credentials).await
+                if !should_restart {
+                    log::info!("Already restarting.");
+                    return None;
+                }
+
+                Some(receiver.create_message_pipe(credentials).await)
             }
             .into_actor(self)
-            .map(move |pipe, act, ctx| match pipe {
-                Ok(pipe) => {
-                    ctx.add_stream(pipe.stream());
-                    act.inner.pinned().borrow_mut().connected = true;
-                    act.inner.pinned().borrow().connectedChanged();
+            .map(move |pipe, act, ctx| {
+                if pipe.is_some() {
+                    act.starting = false;
                 }
-                Err(e) => {
-                    log::error!("Error starting stream: {}", e);
-                    log::info!("Retrying in 10");
-                    let addr = ctx.address();
-                    Arbiter::spawn(async move {
-                        actix::clock::delay_for(actix::clock::Duration::from_secs(10)).await;
-                        addr.send(Restart).await.expect("retry restart");
-                    });
+                match pipe {
+                    Some(Ok(pipe)) => {
+                        ctx.add_stream(pipe.stream());
+                        act.inner.pinned().borrow_mut().connected = true;
+                        act.inner.pinned().borrow().connectedChanged();
+                    }
+                    Some(Err(e)) => {
+                        log::error!("Error starting stream: {}", e);
+                        log::info!("Retrying in {}", RESTART_SECS);
+                        let addr = ctx.address();
+                        Arbiter::spawn(async move {
+                            actix::clock::delay_for(actix::clock::Duration::from_secs(
+                                RESTART_SECS as u64,
+                            ))
+                            .await;
+                            addr.send(Restart).await.expect("retry restart");
+                        });
+                    }
+                    None => (),
                 }
             }),
         )
@@ -884,7 +906,10 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
         self.inner.pinned().borrow_mut().connected = false;
         self.inner.pinned().borrow().connectedChanged();
 
-        ctx.notify(Restart);
+        ctx.notify_later(
+            Restart,
+            actix::clock::Duration::from_secs(RESTART_SECS as u64),
+        );
     }
 }
 
@@ -1042,7 +1067,10 @@ impl Handler<RefreshPreKeys> for ClientActor {
 impl Handler<ConnectionChange> for ClientActor {
     type Result = ();
 
-    fn handle(&mut self, msg: ConnectionChange, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: ConnectionChange, ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor received connection change: {:?}", msg);
+        if msg != ConnectionChange::Disconnected && self.credentials.is_some() {
+            ctx.notify(Restart);
+        }
     }
 }

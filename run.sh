@@ -23,4 +23,4 @@ ssh nemo@$SSH_TARGET sdk-deploy-rpm "/tmp/$RPM"
 
 echo Starting harbour-whisperfish
 # Use -t to force-allocate a terminal, it triggers Qt to log warnings.
-ssh -t nemo@$SSH_TARGET "RUST_BACKTRACE=1 RUST_LOG=harbour_whisperfish=trace,actix=*,awc=*,actix-web=*,libsignal_service=trace,libsignal_service_actix=trace,debug harbour-whisperfish"
+ssh -t nemo@$SSH_TARGET "RUST_BACKTRACE=1 RUST_LOG=harbour_whisperfish=trace,libsignal_service=trace,libsignal_service_actix=trace harbour-whisperfish"
