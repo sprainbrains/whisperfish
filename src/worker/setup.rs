@@ -132,6 +132,8 @@ impl SetupWorker {
             );
         }
 
+        std::fs::create_dir(settings.borrow().get_string("attachment_dir").trim())?;
+
         if let Ok(file) = std::fs::File::open(&signal_config_file) {
             Ok(serde_yaml::from_reader(file)?)
         } else {
