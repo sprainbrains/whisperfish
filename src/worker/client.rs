@@ -58,8 +58,6 @@ pub struct ClientWorker {
 pub struct ClientActor {
     inner: QObjectBox<ClientWorker>,
 
-    /// Some(Service) when connected, otherwise None
-    service: Option<AwcPushService>,
     credentials: Option<Credentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
@@ -86,7 +84,6 @@ impl ClientActor {
             inner,
             credentials: None,
             local_addr: None,
-            service: None,
             storage: None,
             cipher: None,
             context: Context::new(crypto)?,
@@ -102,29 +99,27 @@ impl ClientActor {
         AwcPushService::new(service_cfg, None, &useragent)
     }
 
-    fn authenticated_service(
-        &self,
-        uuid: Option<String>,
-        e164: String,
-        password: String,
-        signaling_key: Option<[u8; 52]>,
-    ) -> (Credentials, AwcPushService) {
+    fn authenticated_service_with_credentials(&self, credentials: Credentials) -> AwcPushService {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
         // Ignore empty UUID strings.
-        let uuid = match uuid {
+        let uuid = match credentials.uuid {
             Some(uuid) if uuid.trim().is_empty() => None,
             uuid => uuid,
         };
         let credentials = Credentials {
             uuid,
-            e164,
-            password: Some(password),
-            signaling_key,
+            e164: credentials.e164,
+            password: credentials.password,
+            signaling_key: credentials.signaling_key,
         };
 
-        let service = AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
-        (credentials, service)
+        AwcPushService::new(service_cfg, Some(credentials), &useragent)
+    }
+
+    /// Panics if no authentication credentials are set.
+    fn authenticated_service(&self) -> AwcPushService {
+        self.authenticated_service_with_credentials(self.credentials.clone().unwrap())
     }
 
     fn service_cfg(&self) -> ServiceConfiguration {
@@ -508,14 +503,12 @@ impl Handler<SendMessage> for ClientActor {
     // Equiv of worker/send.go
     fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
+        let service = self.authenticated_service();
         let storage = self.storage.as_mut().unwrap();
         let msg = storage.fetch_message(mid).unwrap();
 
-        let mut sender = MessageSender::new(
-            self.service.clone().unwrap(),
-            self.cipher.clone().unwrap(),
-            DEFAULT_DEVICE_ID,
-        );
+        let mut sender =
+            MessageSender::new(service, self.cipher.clone().unwrap(), DEFAULT_DEVICE_ID);
         let session = storage.fetch_session(msg.sid).unwrap();
 
         if !msg.queued {
@@ -766,9 +759,15 @@ impl Handler<StorageReady> for ClientActor {
 
         Box::pin(request_password.into_actor(self).map(
             move |(uuid, e164, password, signaling_key), act, ctx| {
-                let (credentials, service) =
-                    act.authenticated_service(uuid.clone(), e164.clone(), password, signaling_key);
-                // end web socket
+                // Store credentials
+                let credentials = Credentials {
+                    uuid: uuid.clone(),
+                    e164: e164.clone(),
+                    password: Some(password),
+                    signaling_key,
+                };
+                act.credentials = Some(credentials);
+                // end store credentials
 
                 // Signal service context
                 let store_context = libsignal_protocol::store_context(
@@ -794,8 +793,6 @@ impl Handler<StorageReady> for ClientActor {
                         .expect("trust root"),
                 );
                 // end signal service context
-                act.credentials = Some(credentials);
-                act.service = Some(service);
                 act.cipher = Some(cipher);
                 act.local_addr = Some(local_addr);
                 act.store_context = Some(store_context);
@@ -818,7 +815,7 @@ impl Handler<Restart> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
-        let service = self.service.clone().unwrap();
+        let service = self.authenticated_service();
         let credentials = self.credentials.clone().unwrap();
 
         self.inner.pinned().borrow_mut().connected = false;
@@ -926,8 +923,12 @@ impl Handler<Register> for ClientActor {
             use_voice,
         } = reg;
 
-        let (_credentials, push_service) =
-            self.authenticated_service(None, e164.clone(), password, None);
+        let push_service = self.authenticated_service_with_credentials(Credentials {
+            uuid: None,
+            e164: e164.clone(),
+            password: Some(password),
+            signaling_key: None,
+        });
         let mut account_manager = AccountManager::new(self.context.clone(), push_service);
         let registration_procedure = async move {
             if use_voice {
@@ -975,8 +976,12 @@ impl Handler<ConfirmRegistration> for ClientActor {
             libsignal_protocol::generate_registration_id(&self.context, 0).unwrap();
         log::trace!("registration_id: {}", registration_id);
 
-        let (_credentials, mut push_service) =
-            self.authenticated_service(None, e164.clone(), password, None);
+        let mut push_service = self.authenticated_service_with_credentials(Credentials {
+            uuid: None,
+            e164: e164.clone(),
+            password: Some(password),
+            signaling_key: None,
+        });
         let confirmation_procedure = async move {
             push_service.confirm_verification_code(confirm_code,
                 libsignal_service::push_service::ConfirmCodeMessage::new_without_unidentified_access (
@@ -1004,7 +1009,7 @@ impl Handler<RefreshPreKeys> for ClientActor {
     fn handle(&mut self, _: RefreshPreKeys, _ctx: &mut Self::Context) -> Self::Result {
         log::trace!("handle(RefreshPreKeys)");
 
-        let service = self.service.clone().unwrap();
+        let service = self.authenticated_service();
         let mut am = AccountManager::new(self.context.clone(), service);
 
         let (next_signed_pre_key_id, pre_keys_offset_id) =

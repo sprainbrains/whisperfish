@@ -12,7 +12,7 @@ impl Handler<WhoAmI> for ClientActor {
         let storage = self.storage.clone().unwrap();
         let cfg = storage.read_config().expect("read config");
 
-        let mut service = self.service.clone().unwrap();
+        let mut service = self.authenticated_service();
 
         Box::pin(
             async move {
