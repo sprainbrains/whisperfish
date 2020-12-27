@@ -1266,7 +1266,8 @@ mod tests {
         let storage_password = "Hello, world! I'm the passphrase";
 
         // Signaling password for REST API
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+        let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
+        let password = std::str::from_utf8(&password)?;
 
         // Signaling key that decrypts the incoming Signal messages
         let mut signaling_key = [0u8; 52];

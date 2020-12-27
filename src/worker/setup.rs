@@ -231,8 +231,9 @@ impl SetupWorker {
         // generate a random 24 bytes password
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
-        let mut rng = rand::thread_rng();
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+        let rng = rand::thread_rng();
+        let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
+        let password = std::str::from_utf8(&password)?.to_string();
 
         let res = app
             .client_actor
@@ -259,6 +260,7 @@ impl SetupWorker {
             .into();
         let code = code.parse()?;
 
+        let mut rng = rand::thread_rng();
         let mut signaling_key = [0u8; 52];
         rng.fill_bytes(&mut signaling_key);
         let signaling_key = signaling_key;
