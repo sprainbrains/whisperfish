@@ -148,9 +148,19 @@ impl ClientActor {
             }
         }
 
+        let alt_body = if let Some(reaction) = &msg.reaction {
+            format!(
+                "R@{}:{}",
+                reaction.target_sent_timestamp(),
+                reaction.emoji()
+            )
+        } else {
+            "".into()
+        };
+
         let mut new_message = crate::store::NewMessage {
             source,
-            text: msg.body().into(),
+            text: msg.body.clone().unwrap_or(alt_body),
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
             sent: is_sync_sent,
