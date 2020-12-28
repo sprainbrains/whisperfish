@@ -1260,7 +1260,7 @@ mod tests {
         env_logger::try_init().ok();
 
         let location = super::temp();
-        let mut rng = rand::thread_rng();
+        let rng = rand::thread_rng();
 
         // Storage passphrase of the user
         let storage_password = "Hello, world! I'm the passphrase";
@@ -1270,6 +1270,7 @@ mod tests {
         let password = std::str::from_utf8(&password)?;
 
         // Signaling key that decrypts the incoming Signal messages
+        let mut rng = rand::thread_rng();
         let mut signaling_key = [0u8; 52];
         rng.fill_bytes(&mut signaling_key);
         let signaling_key = signaling_key;
