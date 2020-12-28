@@ -65,7 +65,7 @@ impl SetupWorker {
             }
         };
 
-        let whisperfish_config_file = Self::conf_dir().join("harbour-whisperfish.conf");
+        let whisperfish_config_file = crate::conf_dir().join("harbour-whisperfish.conf");
         if !whisperfish_config_file.exists() {
             app.settings.pinned().borrow_mut().defaults();
         }
@@ -99,21 +99,8 @@ impl SetupWorker {
         this.borrow().setupChanged();
     }
 
-    fn conf_dir() -> std::path::PathBuf {
-        let conf_dir = dirs::config_dir()
-            .ok_or(format_err!("Could not find config directory."))
-            .unwrap()
-            .join("harbour-whisperfish");
-
-        if !conf_dir.exists() {
-            std::fs::create_dir(&conf_dir).unwrap();
-        }
-
-        conf_dir
-    }
-
     async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
-        let signal_config_file = Self::conf_dir().join("config.yml");
+        let signal_config_file = crate::conf_dir().join("config.yml");
 
         let settings = app.settings.pinned();
         if settings
@@ -164,7 +151,7 @@ impl SetupWorker {
     }
 
     async fn write_config(_app: Rc<WhisperfishApp>, contents: &SignalConfig) -> Result<(), Error> {
-        let signal_config_file = Self::conf_dir().join("config.yml");
+        let signal_config_file = crate::conf_dir().join("config.yml");
         let file = std::fs::File::create(signal_config_file)?;
         serde_yaml::to_writer(file, &contents)?;
         Ok(())

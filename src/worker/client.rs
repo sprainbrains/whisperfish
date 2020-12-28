@@ -25,6 +25,9 @@ use libsignal_service_actix::prelude::*;
 pub use libsignal_service::push_service::ConfirmCodeResponse;
 use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerificationCodeResponse};
 
+mod migrations;
+use migrations::*;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 /// Enqueue a message on socket by MID
@@ -795,6 +798,8 @@ impl Handler<StorageReady> for ClientActor {
                 ctx.notify(Restart);
 
                 ctx.notify(RefreshPreKeys);
+
+                ctx.notify(Migrations);
             },
         ))
     }

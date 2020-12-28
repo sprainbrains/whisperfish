@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use crate::schema::message;
 use crate::schema::sentq;
 use crate::schema::session;
+use crate::settings::SignalConfig;
 
 use diesel::debug_query;
 use diesel::expression::sql_literal::sql;
@@ -360,6 +361,19 @@ impl Storage {
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    pub fn read_config(&self) -> Result<SignalConfig, Error> {
+        let signal_config_file = crate::conf_dir().join("config.yml");
+        let file = std::fs::File::open(&signal_config_file)?;
+        Ok(serde_yaml::from_reader(file)?)
+    }
+
+    pub fn write_config(&self, cfg: SignalConfig) -> Result<(), Error> {
+        let signal_config_file = crate::conf_dir().join("config.yml");
+        let file = std::fs::File::create(signal_config_file)?;
+        serde_yaml::to_writer(file, &cfg)?;
+        Ok(())
     }
 
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), Error> {
