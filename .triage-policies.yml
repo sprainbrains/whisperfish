@@ -1,0 +1,50 @@
+resource_rules:
+  issues:
+    rules:
+      - name: Unlabeled issues get ~"triage::needs attention"
+        conditions:
+          state: opened
+          labels:
+            - None
+        limits:
+          most_recent: 50
+        actions:
+          labels:
+            - triage::needs attention
+            - priority::unknown
+          mention:
+            - rubdos
+          comment: |
+            {{author}} This issue is unlabelled after 2 days. It needs attention.
+
+      - name: Highly upvoted issues with a priority later than 2 get ~"priority::2"
+        conditions:
+          state: opened
+          upvotes:
+            attribute: upvotes
+            condition: greater_than
+            threshold: 1 ## change this when the community grows...
+          ruby: "labels.none? { |l| l.name == 'priority::1' }"
+        actions:
+          labels:
+            - priority::2
+          mention:
+            - rubdos
+          comment: |
+            This issue is is quite popular, so we're putting the priority on ~"priority::2".
+
+      - name: Very highly upvoted issues with a priority later than 2 get ~"priority::1"
+        conditions:
+          state: opened
+          upvotes:
+            attribute: upvotes
+            condition: greater_than
+            threshold: 4 ## change this when the community grows...
+          ruby: "labels.none? { |l| l.name == 'priority::1' }"
+        actions:
+          labels:
+            - priority::1
+          mention:
+            - rubdos
+          comment: |
+            This issue is is very popular, so we're putting the priority on ~"priority::1".
