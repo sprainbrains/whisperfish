@@ -231,3 +231,33 @@ openrepos-deploy:
     - build:aarch64
   only:
     - tags
+
+dry-run:triage:
+  stage: test
+  image: ruby:2.4
+  script:
+    - gem install gitlab-triage
+    - gitlab-triage --help
+    - gitlab-triage --dry-run --token $PRIVATE_TOKEN --source projects --source-id $CI_PROJECT_PATH
+  when: manual
+  except:
+    - schedules
+
+policy:run:
+  stage: deploy
+  image: ruby:2.4
+  script:
+    - gem install gitlab-triage
+    - gitlab-triage --token $PRIVATE_TOKEN --source projects --source-id $CI_PROJECT_PATH
+  when: manual
+  except:
+    - schedules
+
+schedule:policyrun:
+  stage: deploy
+  image: ruby:2.4
+  script:
+    - gem install gitlab-triage
+    - gitlab-triage --token $PRIVATE_TOKEN --source projects --source-id $CI_PROJECT_PATH
+  only:
+    - schedules
