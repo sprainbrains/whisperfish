@@ -36,6 +36,8 @@ pub struct SetupWorker {
 }
 
 impl SetupWorker {
+    const MAX_PASSWORD_ENTER_ATTEMPTS: i8 = 3;
+
     pub async fn run(app: Rc<WhisperfishApp>) {
         log::info!("SetupWorker::run");
         let this = app.setup_worker.pinned();
@@ -87,10 +89,17 @@ impl SetupWorker {
             this.borrow().setupChanged();
         } else {
             // Open storage
-            if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
-                log::error!("Error setting up storage: {}", e);
-                this.borrow().clientFailed();
-                return;
+            for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
+                let res = SetupWorker::setup_storage(app.clone()).await;
+                match res {
+                    Ok(()) => break,
+                    Err(error) => log::error!("Attempt {} of setting up storage: {}", i, error),
+                }
+                if i == SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
+                    log::error!("Error setting up storage: {}", "Bad password");
+                    this.borrow().clientFailed();
+                    return;
+                }
             }
         }
 
