@@ -139,7 +139,11 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
            $ rustup target add armv7-unknown-linux-gnueabihf
            $ cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
 
-7. From here on, you can use cargo to build the project;
+7. Configure your cross compilers: copy ``.ci/cargo.toml`` (which is a working file for Debian)
+   to ``~/.cargo/config`` (or to ``.cargo/config`` if you do not like this system-wide configuration),
+   and edit as necessary for your host operating systems' cross compilers.
+
+8. From here on, you can use cargo to build the project;
    make sure to have the correct targets installed (rustup target) and a C compiler set,
    and to have sourced ``.env``::
 
