@@ -22,7 +22,20 @@ Page {
         PageHeader {
             id: pageHeader
             title: MessageModel.group ? MessageModel.peerName : ContactModel.name(MessageModel.peerTel)
-            description: MessageModel.group ? MessageModel.groupMembers : (pageHeader.title == MessageModel.peerTel ? undefined : MessageModel.peerTel)
+            description:{
+                // Attempt to display group member names
+                if (MessageModel.group) {
+                    var members = []
+                    var lst = MessageModel.groupMembers.split(",")
+                    for(var i = 0; i < lst.length; i++) {
+                        if(lst[i] != SetupWorker.localId) {
+                            members.push(ContactModel.name(lst[i]))
+                        }
+                    }
+                    return members.join(", ")
+                }
+                else return (pageHeader.title == MessageModel.peerTel ? undefined : MessageModel.peerTel)
+            }
         }
 
         // https://together.jolla.com/question/196054/dialogheaderextracontent-read-only/
