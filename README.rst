@@ -92,6 +92,10 @@ See here for more information.
 Building from source
 -------------------------------------------------------------------------------
 
+Whisperfish is built using tooling of the *host* operating system.
+Currently tested are Debian and Arch Linux for this purpose.
+Fedora, notably, does *not* have the necessary infrastructure for this.
+By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Rust since version 3.4.
 
 1. Clone the repository::
 
@@ -104,22 +108,13 @@ Building from source
 
     sdk-assistant create SailfishOS-latest-armv7hl http://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
 
-4. Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency::
+4. Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency, together with some other headers::
 
-   sdk-manage develpkg install SailfishOS-latest-armv7hl sqlcipher-devel
+   sdk-manage develpkg install SailfishOS-latest-armv7hl sqlcipher-devel qt5-qtwebsockets-devel openssl-devel
 
 5. Make a copy of ``dotenv.example`` to ``.env``, adapt it to your configuration and source it.
 
-6. Since the libsignal-c library is built using `cmake <https://cmake.org/>`_,
-   we need cmake *in the build environment*.
-   You can install it from within the SDK.
-   We also need `openssl-devel` for the cryptographic provider.
-   If you prefer to install it over the command line, `ssh` into your build system and use `zypper`::
-
-    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ sudo zypper -n install cmake make git openssl-devel qt5-qtwebsockets-devel
-
-7. For building on the host, ie. running ``cargo test`` or whatever you may desire, the Debian
+6. For building on the host, ie. running ``cargo test`` or whatever you may desire, the Debian
    requirements are in ``Dockerfile.builder``, reproduced here::
 
            $ sudo apt-get install -y \
@@ -144,10 +139,13 @@ Building from source
            $ rustup target add armv7-unknown-linux-gnueabihf
            $ cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
 
-8. From here on, you can use cargo to build the project;
-   make sure to have the correct targets installed (rustup target) and a C compiler set::
+7. From here on, you can use cargo to build the project;
+   make sure to have the correct targets installed (rustup target) and a C compiler set,
+   and to have sourced ``.env``::
 
     $ cargo build --release --target=armv7-unknown-linux-gnueabihf
+
+   Alternatively, you may use the ``run.sh`` script, which copies the RPM to your device.
 
    The ``harbour-whisperfish`` executable resides in ``target/[target]/release``.
    You can also use ``cargo rpm`` to build an RPM package,
