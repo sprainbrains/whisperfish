@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 # Source .env for SSH_TARGET
 [ -e ".env" ] && source ./.env
