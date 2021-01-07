@@ -48,3 +48,34 @@ resource_rules:
             - rubdos
           comment: |
             This issue is is very popular, so we're putting the priority on ~"priority::1".
+  merge_requests:
+    rules:
+      - name: Post CI build links
+        conditions:
+          state: opened
+          ruby: "resource['created_at'] > (Time.now - 24.hours).utc && resource['description'].include?('/post_ci_links') && resource['source_project_id'] == resource['target_project_id']"
+        limits:
+          most_recent: 50
+        actions:
+          comment: |
+            🤖 Bleep bloop, I'm a bot 🤖
+            I was instructed to provide links to CI builds, so here they are for
+            [armv7hl](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse?job=build:armv7hl),
+            [aarch64](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse?job=build:aarch64),
+            and
+            [i486](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse?job=build:i486)
+            .
+            Just click through `target` ➡️ your architecture ➡️ `release` ➡️ `rpmbuild` ➡️ `RPMS` ➡️ another architecture, and you'll have an `.rpm`!
+            Don't forget to revert to OpenRepos after your testing, because you will not receive updates until two new versions appear!
+
+            These builds are only available and up-to-date when the ![pipeline status](https://gitlab.com/#{project_path}/badges/#{resource['source_branch']}/pipeline.svg) is green!
+      - name: "Warn about CI build links when source != target"
+        conditions:
+          state: opened
+          ruby: "resource['created_at'] > (Time.now - 24.hours).utc && resource['description'].include?('/post_ci_links') && resource['source_project_id'] != resource['target_project_id']"
+        limits:
+          most_recent: 50
+        actions:
+          comment: |
+            🤖 Bleep bloop, I'm a bot 🤖
+            I was instructed to provide links to CI builds, but I currenty do not have the ability to do this when the source project doesn't equal the target project. Panda is truly sorry! ☹️ 🐼
