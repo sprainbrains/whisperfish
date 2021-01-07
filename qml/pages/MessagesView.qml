@@ -117,7 +117,7 @@ SilicaListView {
     }
 
     function copy(contentItem) {
-        MessageModel.copyToClipboard(contentItem.modelData.message)
+        Clipboard.text=contentItem.modelData.message
     }
 
     Component {
