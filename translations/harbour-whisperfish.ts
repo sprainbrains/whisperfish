@@ -433,19 +433,19 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verify-password-label">
-        <location filename="../qml/pages/Password.qml" line="84"/>
+        <location filename="../qml/pages/Password.qml" line="83"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="87"/>
+        <location filename="../qml/pages/Password.qml" line="86"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-password-info">
-        <location filename="../qml/pages/Password.qml" line="105"/>
+        <location filename="../qml/pages/Password.qml" line="104"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
         <translation type="unfinished"></translation>
