@@ -62,13 +62,12 @@ Dialog {
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             color: errorHighlight? "red" : Theme.primaryColor
+            focus: true
 
             EnterKey.iconSource: SetupWorker.registered ? "image://theme/icon-m-enter-accept" : "image://theme/icon-m-enter-next"
             EnterKey.onClicked: {
                 if (SetupWorker.registered) {
                     passwordDialog.accept()
-                } else {
-                    passwordField.focus = true
                 }
             }
         }
