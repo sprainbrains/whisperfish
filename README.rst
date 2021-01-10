@@ -6,10 +6,11 @@ Whisperfish is a native `Signal <https://www.whispersystems.org/>`_ client for
 `Sailfish OS <https://sailfishos.org/>`_. The user interface is heavily based on
 the jolla-messages application written by Jolla Ltd.
 
-It is currently *in non working state*, except where noted otherwise.  Join our
-development channel on Matrix
+It is currently mostly working state.  Join our development channel on Matrix
 (`#whisperfish:rubdos.be <https://matrix.to/#/#whisperfish:rubdos.be>`_) or
-Freenode (#whisperfish) to get in touch.
+Freenode (#whisperfish) to get in touch, and check
+`our wiki <https://gitlab.com/rubdos/whisperfish/-/wikis/home>`_ to see whether
+Whisperfish would work for you.
 
 -------------------------------------------------------------------------------
 Project Status
