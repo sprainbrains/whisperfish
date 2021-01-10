@@ -21,3 +21,4 @@ libsignal-build/
 **/*.rs.bk
 .env
 releases
+whisperfish.wiki
