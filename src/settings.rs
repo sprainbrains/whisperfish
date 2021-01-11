@@ -176,6 +176,7 @@ impl Settings {
             "attachment_dir",
             crate::store::default_location()
                 .expect("default location")
+                .join("storage")
                 .join("attachments")
                 .to_str()
                 .expect("utf8 path"),
