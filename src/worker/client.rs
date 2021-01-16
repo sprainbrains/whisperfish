@@ -111,6 +111,11 @@ impl ClientActor {
     ) -> (Credentials, AwcPushService) {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
+        // Ignore empty UUID strings.
+        let uuid = match uuid {
+            Some(uuid) if uuid.trim().is_empty() => None,
+            uuid => uuid,
+        };
         let credentials = Credentials {
             uuid,
             e164,
