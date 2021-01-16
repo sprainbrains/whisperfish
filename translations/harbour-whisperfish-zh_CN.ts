@@ -16,13 +16,13 @@
         <translation>附件</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/Session.qml" line="115"/>
+        <location filename="../qml/delegates/Session.qml" line="117"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
         <translation>正在删除全部信息</translation>
     </message>
     <message id="whisperfish-delete-session">
-        <location filename="../qml/delegates/Session.qml" line="130"/>
+        <location filename="../qml/delegates/Session.qml" line="132"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>删除对话</translation>
@@ -703,86 +703,98 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page scale image attachments description</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-settings-debug-mode">
+        <location filename="../qml/pages/Settings.qml" line="271"/>
+        <source>Debug mode</source>
+        <extracomment>Settings page scale image attachments</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-debug-mode-description">
+        <location filename="../qml/pages/Settings.qml" line="274"/>
+        <source>Show debugging information in the user interface.</source>
+        <extracomment>Settings page scale image attachments description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="272"/>
+        <location filename="../qml/pages/Settings.qml" line="289"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>数据统计</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="277"/>
+        <location filename="../qml/pages/Settings.qml" line="294"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Websocket 模式</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="281"/>
+        <location filename="../qml/pages/Settings.qml" line="298"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>已连接</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="284"/>
+        <location filename="../qml/pages/Settings.qml" line="301"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>已断开</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="289"/>
+        <location filename="../qml/pages/Settings.qml" line="306"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>未发出消息</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="295"/>
+        <location filename="../qml/pages/Settings.qml" line="312"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>总会话数</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="301"/>
+        <location filename="../qml/pages/Settings.qml" line="318"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>总消息数</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="307"/>
+        <location filename="../qml/pages/Settings.qml" line="324"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Signal 联系人</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
-        <location filename="../qml/pages/Settings.qml" line="313"/>
+        <location filename="../qml/pages/Settings.qml" line="330"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
         <translation>已加密密钥储存</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
-        <location filename="../qml/pages/Settings.qml" line="317"/>
+        <location filename="../qml/pages/Settings.qml" line="334"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
         <translation>已启用</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
-        <location filename="../qml/pages/Settings.qml" line="320"/>
+        <location filename="../qml/pages/Settings.qml" line="337"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
         <translation>已禁用</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="325"/>
+        <location filename="../qml/pages/Settings.qml" line="342"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>已加密数据库</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="329"/>
+        <location filename="../qml/pages/Settings.qml" line="346"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>已开启</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="332"/>
+        <location filename="../qml/pages/Settings.qml" line="349"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>已禁用</translation>

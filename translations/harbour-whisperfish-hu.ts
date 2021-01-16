@@ -16,13 +16,13 @@
         <translation>Csatolmány</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/Session.qml" line="115"/>
+        <location filename="../qml/delegates/Session.qml" line="117"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
         <translation>Minden üzenet törlése</translation>
     </message>
     <message id="whisperfish-delete-session">
-        <location filename="../qml/delegates/Session.qml" line="130"/>
+        <location filename="../qml/delegates/Session.qml" line="132"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Beszélgetés törlése</translation>
@@ -703,86 +703,98 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page scale image attachments description</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-settings-debug-mode">
+        <location filename="../qml/pages/Settings.qml" line="271"/>
+        <source>Debug mode</source>
+        <extracomment>Settings page scale image attachments</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-debug-mode-description">
+        <location filename="../qml/pages/Settings.qml" line="274"/>
+        <source>Show debugging information in the user interface.</source>
+        <extracomment>Settings page scale image attachments description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="272"/>
+        <location filename="../qml/pages/Settings.qml" line="289"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Statisztikák</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="277"/>
+        <location filename="../qml/pages/Settings.qml" line="294"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Websocket állapot</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="281"/>
+        <location filename="../qml/pages/Settings.qml" line="298"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Csatlakoztatva</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="284"/>
+        <location filename="../qml/pages/Settings.qml" line="301"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Nincs kapcsolat</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="289"/>
+        <location filename="../qml/pages/Settings.qml" line="306"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Elküldetlen üzenetek</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="295"/>
+        <location filename="../qml/pages/Settings.qml" line="312"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Összes munkamenet</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="301"/>
+        <location filename="../qml/pages/Settings.qml" line="318"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Összes üzenet</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="307"/>
+        <location filename="../qml/pages/Settings.qml" line="324"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Signal névjegyek</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
-        <location filename="../qml/pages/Settings.qml" line="313"/>
+        <location filename="../qml/pages/Settings.qml" line="330"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
         <translation type="unfinished">Titkosított Key Store</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
-        <location filename="../qml/pages/Settings.qml" line="317"/>
+        <location filename="../qml/pages/Settings.qml" line="334"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
         <translation>Engedélyezve</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
-        <location filename="../qml/pages/Settings.qml" line="320"/>
+        <location filename="../qml/pages/Settings.qml" line="337"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
         <translation>Letiltva</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="325"/>
+        <location filename="../qml/pages/Settings.qml" line="342"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Titkosított adatbázis</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="329"/>
+        <location filename="../qml/pages/Settings.qml" line="346"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Engedélyezve</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="332"/>
+        <location filename="../qml/pages/Settings.qml" line="349"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Letiltva</translation>

@@ -263,6 +263,23 @@ Page {
                     }
                 }
             }
+            IconTextSwitch {
+                id: showDebugInformation
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page scale image attachments
+                //% "Debug mode"
+                text: qsTrId("whisperfish-settings-debug-mode")
+                //: Settings page scale image attachments description
+                //% "Show debugging information in the user interface."
+                description: qsTrId("whisperfish-settings-debug-mode-description")
+                checked: SettingsBridge.boolValue("debug_mode")
+                icon.source: "image://theme/icon-m-developer-mode"
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("debug_mode")) {
+                        SettingsBridge.boolSet("debug_mode", checked)
+                    }
+                }
+            }
             // ------ END ADVANCED SETTINGS ------
 
             // ------ BEGIN STATS ------
