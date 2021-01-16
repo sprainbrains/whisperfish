@@ -702,13 +702,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="271"/>
         <source>Debug mode</source>
         <extracomment>Settings page: debug info toggle</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Insectenvangermodus</translation>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
         <location filename="../qml/pages/Settings.qml" line="274"/>
         <source>Show debugging information in the user interface.</source>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Als ge beestjes wilt vangen, kunt ge dees aanzetten om meer zakes te zien in den app.</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="289"/>
