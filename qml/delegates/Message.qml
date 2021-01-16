@@ -148,7 +148,7 @@ ListItem {
                 }
 
                 color: (messageItem.highlighted || !inbound) ? Theme.highlightColor : Theme.primaryColor
-                font.pixelSize: inbound ? Theme.fontSizeMedium : Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeSmall
                 horizontalAlignment: inbound ? Qt.AlignLeft : Qt.AlignRight
                 verticalAlignment: Qt.AlignBottom
             }
