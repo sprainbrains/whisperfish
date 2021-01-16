@@ -129,12 +129,7 @@ ListItem {
 
             LinkedLabel {
                 id: messageText
-                width: {
-                    Math.max(
-                        Math.min(implicitWidth, bubble.maximumMessageWidth - attachmentBox.width - 2 * Theme.paddingMedium),
-                        timestampLabel.implicitWidth + timestampLabel.anchors.rightMargin + timestampLabel.anchors.leftMargin
-                    )
-                }
+                width:  Math.min(implicitWidth, bubble.maximumMessageWidth - attachmentBox.width - 2 * Theme.paddingMedium)
                 wrapMode: Text.Wrap
 
                 plainText: {
@@ -156,12 +151,17 @@ ListItem {
             // Padding to get the timestampLabel tied to the bottom.
             Item {
                 width: 1
-                height: attachmentBox.height - (timestampLabel.height + messageText.height + contentColumn.bottomPadding + contentColumn.topPadding)
+                height: if (messageText.hasText) {
+                    attachmentBox.height - (timestampLabel.height + messageText.height + contentColumn.bottomPadding + contentColumn.topPadding)
+                } else {
+                    attachmentBox.height - (timestampLabel.height + contentColumn.bottomPadding + contentColumn.topPadding)
+                }
                 visible: height > 0
             }
 
             Label {
                 id: timestampLabel
+                width: Math.min(implicitWidth, bubble.maximumMessageWidth - attachmentBox.width - 2 * Theme.paddingMedium)
                 anchors {
                     topMargin: Theme.paddingMedium
                     right: inbound ? undefined : contentColumn.right
@@ -180,6 +180,7 @@ ListItem {
                 opacity: 0.6
                 font.pixelSize: Theme.fontSizeExtraSmall
                 horizontalAlignment: messageText.horizontalAlignment
+                wrapMode: Text.Wrap
 
                 text: {
                    var re = msgDate()
