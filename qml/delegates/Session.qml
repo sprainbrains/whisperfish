@@ -103,7 +103,9 @@ ListItem {
                } else if (model.sent) {
                    re += "  ✓"
                }
-               re += " [" + model.id + "]"
+               if (SettingsBridge.boolValue("debug_mode")) {
+                   re += " [" + model.id + "]"
+               }
                return re
             }
         }
