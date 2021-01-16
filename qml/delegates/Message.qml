@@ -151,7 +151,11 @@ ListItem {
             // Padding to get the timestampLabel tied to the bottom.
             Item {
                 width: 1
-                height: messageText.hasText ?  attachmentBox.height - (timestampLabel.height + messageText.height + contentColumn.bottomPadding + contentColumn.topPadding) : attachmentBox.height - (timestampLabel.height + contentColumn.bottomPadding + contentColumn.topPadding)
+                height: if (messageText.hasText) {
+                    attachmentBox.height - (timestampLabel.height + messageText.height + contentColumn.bottomPadding + contentColumn.topPadding)
+                } else {
+                    attachmentBox.height - (timestampLabel.height + contentColumn.bottomPadding + contentColumn.topPadding)
+                }
                 visible: height > 0
             }
 
