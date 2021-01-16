@@ -706,13 +706,13 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-settings-debug-mode">
         <location filename="../qml/pages/Settings.qml" line="271"/>
         <source>Debug mode</source>
-        <extracomment>Settings page scale image attachments</extracomment>
+        <extracomment>Settings page: debug info toggle</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
         <location filename="../qml/pages/Settings.qml" line="274"/>
         <source>Show debugging information in the user interface.</source>
-        <extracomment>Settings page scale image attachments description</extracomment>
+        <extracomment>Settings page: debug info toggle extended description</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-stats-section">

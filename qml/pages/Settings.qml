@@ -266,10 +266,10 @@ Page {
             IconTextSwitch {
                 id: showDebugInformation
                 anchors.horizontalCenter: parent.horizontalCenter
-                //: Settings page scale image attachments
+                //: Settings page: debug info toggle
                 //% "Debug mode"
                 text: qsTrId("whisperfish-settings-debug-mode")
-                //: Settings page scale image attachments description
+                //: Settings page: debug info toggle extended description
                 //% "Show debugging information in the user interface."
                 description: qsTrId("whisperfish-settings-debug-mode-description")
                 checked: SettingsBridge.boolValue("debug_mode")
