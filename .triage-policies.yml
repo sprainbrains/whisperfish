@@ -23,7 +23,7 @@ resource_rules:
           upvotes:
             attribute: upvotes
             condition: greater_than
-            threshold: 1 ## change this when the community grows...
+            threshold: 2 ## change this when the community grows...
           ruby: "labels.none? { |l| l.name == 'priority::1' ||  l.name == 'priority::2' }"
         actions:
           labels:
