@@ -12,16 +12,33 @@ Freenode (#whisperfish) to get in touch, and check
 `our wiki <https://gitlab.com/rubdos/whisperfish/-/wikis/home>`_ to see whether
 Whisperfish would work for you.
 
+To install, you have two options:
+
+- Releases `from OpenRepos <https://openrepos.net/content/rubdos/whisperfish>`_
+- "Nightly" builds from the master branch (see below).
+
+There's no particular reason to install from the master branch directly.  We
+push regular updates to OpenRepos.
+
+Please mind that Whisperfish in still in *alpha condition*, which means that
+certain things do not work, other things make the application crash, and I've
+heard reports that alpha software can be a cause for dogs eating homework.
+You've been warned.
+On the other hand, we have many people happily using Whisperfish as daily driver,
+and we make up for lacking features in our community support in the aforementioned
+Matrix and IRC room.
+Please come say hello! We don't bite (we may byte), and we don't eat homework.
+
 -------------------------------------------------------------------------------
 Project Status
 -------------------------------------------------------------------------------
 
-This project was based of a now outdated Go-based SailfishOS client for Signal.
-This version is a port that uses `libsignal-c-protocol
+This project started from a now outdated Go-based SailfishOS client for Signal.
+This version, 0.6 and onwards, is a complete rewrite, and uses `libsignal-c-protocol
 <https://github.com/signalapp/libsignal-protocol-c>`_ instead.
 This means we aim for better maintainability.
-It also means the whole SailfishOS app needs to be rewritten, and you may want
-to make a back-up of your current files. Specifically:
+It also means the whole SailfishOS app had to be rewritten, and you may want
+to make a back-up of your current files if you still come from 0.5. Specifically:
 
 - `.local/share/harbour-whisperfish/` contains all your data.
 - `.config/harbour-whisperfish/` contains the apps configuration.
@@ -30,17 +47,10 @@ to make a back-up of your current files. Specifically:
 Features
 -------------------------------------------------------------------------------
 
-Currently, only this is re-implemented:
-
-- [x] Open and read existing encrypted database.
-
-We are currently aiming for 0.5 compatibility, which means on 0.6 release we
-have these features:
-
 - [x] Registration
-- [x] Contact Discovery
+- [ ] Contact Discovery
 - [x] Direct messages
-- [x] Group messages
+- [x] Group messages, but not yet `GroupV2 <>`_
 - [x] Storing conversations
 - [x] Photo attachments
 - [x] Encrypted identity and session store
@@ -51,9 +61,9 @@ have these features:
 - [ ] Archiving conversations
 
 Please search the `issue tracker <https://gitlab.com/rubdos/whisperfish/-/issues>`_
-before filing a regression issue from 0.5.
-Feel free to post feature requests for features that were *not* available in 0.6,
-however!
+before filing any bug report or feature request.
+Please upvote issues that are important to you.  We use the vote counter for
+determining a feature's priority.
 
 -------------------------------------------------------------------------------
 Nightly builds
