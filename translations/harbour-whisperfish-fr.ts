@@ -529,13 +529,13 @@ Settings page share contacts</extracomment>
         <translation>Méthode de vérification</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/Register.qml" line="107"/>
+        <location filename="../qml/pages/Register.qml" line="100"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Utiliser la vérification par SMS</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/Register.qml" line="112"/>
+        <location filename="../qml/pages/Register.qml" line="105"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Utiliser la vérification vocale</translation>

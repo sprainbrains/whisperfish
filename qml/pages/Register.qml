@@ -93,13 +93,6 @@ Dialog {
                 //% "Signal will text you a 6-digit verification code."
                 : qsTrId("whisperfish-text-registration-directions")
 
-            // Slight hackery to align description label of this ComboBox with
-            // that of the above “Share Contacts” toggle button
-            onDescriptionChanged: {
-                _descriptionLabel.anchors.left = _descriptionLabel.parent.left;
-                _descriptionLabel.anchors.leftMargin = Theme.itemSizeExtraSmall - Theme.paddingLarge;
-            }
-
             menu: ContextMenu {
                 MenuItem {
                     //: Text verification
