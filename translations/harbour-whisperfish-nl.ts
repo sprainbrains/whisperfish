@@ -103,13 +103,13 @@
         <location filename="../qml/pages/About.qml" line="108"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation>Bijkomend auteursrecht</translation>
+        <translation>Extra auteursrecht</translation>
     </message>
     <message id="whisperfish-add-confirm">
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation>Voeg toe</translation>
+        <translation>Toevoegen</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
@@ -147,13 +147,13 @@
         <location filename="../qml/pages/WFChatTextInput.qml" line="112"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation>Hé %1</translation>
+        <translation>Hoi %1</translation>
     </message>
     <message id="whisperfish-chatinput-generic">
         <location filename="../qml/pages/WFChatTextInput.qml" line="115"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
-        <translation>Hé</translation>
+        <translation>Hoi</translation>
     </message>
     <message id="whisperfish-select-file">
         <location filename="../qml/pages/WFChatTextInput.qml" line="197"/>
@@ -183,7 +183,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation>Verversen</translation>
+        <translation>Vernieuwen</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
@@ -243,7 +243,7 @@
         <location filename="../qml/pages/Main.qml" line="42"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>FOUT- instellen van Signal-cliënt mislukt</translation>
+        <translation>FOUT - instellen van Signal-cliënt mislukt</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../qml/pages/Main.qml" line="58"/>
@@ -472,7 +472,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Register.qml" line="55"/>
         <source>+18875550100</source>
         <extracomment>Phone number placeholder</extracomment>
-        <translation>+32474123456</translation>
+        <translation>+31612345678</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/Register.qml" line="66"/>
@@ -488,7 +488,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Sta Signal toe je contactenlijst in te kijken, om andere Signalgebruikers te vinden.</translation>
+        <translation>Geef Signal toestemming om je contactenlijst te gebruiken om andere Signalgebruikers te vinden.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/Register.qml" line="87"/>
@@ -506,7 +506,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Register.qml" line="100"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
-        <translation>SMS-verificatie</translation>
+        <translation>Sms-verificatie</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/Register.qml" line="92"/>
@@ -517,7 +517,7 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/Register.qml" line="94"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <translation>Signal stuurt je een 6-cijferige code per SMS</translation>
+        <translation>Signal zal je een sms met een verificatiecode van 6 tekens sturen.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -556,7 +556,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="39"/>
         <source>Refresh Contacts</source>
         <extracomment>Refresh contacts menu</extracomment>
-        <translation>Contacten verversen</translation>
+        <translation>Contacten vernieuwen</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="56"/>
@@ -575,13 +575,13 @@ Settings page share contacts</extracomment>
         <source>My Phone</source>
         <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation>Mijn Telefoonnummer</translation>
+        <translation>Mijn telefoonnummer</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="82"/>
         <source>My UUID registration number</source>
         <extracomment>Settings page My UUID</extracomment>
-        <translation>Mijn UUID registratienummer</translation>
+        <translation>Mijn UUID-registratienummer</translation>
     </message>
     <message id="whisperfish-settings-identity-label">
         <location filename="../qml/pages/Settings.qml" line="93"/>
@@ -599,13 +599,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="109"/>
         <source>Enable notifications</source>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation>Meldingen Inschakelen</translation>
+        <translation>Meldingen inschakelen</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="112"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation>Wanneer uitgeschakeld, krijg je geen meldingen van nieuwe berichten.</translation>
+        <translation>Indien uitgeschakeld zal Whisperfish geen meldingen geven</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="125"/>
@@ -617,7 +617,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="128"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>Wanneer uitgeschakeld, toont een melding enkel de afzender, niet de berichtinhoud.</translation>
+        <translation>Indien uitgeschakeld toont Whisperfish in meldingen enkel de afzender, niet de berichtinhoud.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="143"/>
@@ -647,7 +647,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="172"/>
         <source>Attachments are stored at %1</source>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Bijlagen worden op %1 opgeslagen.</translation>
+        <translation>Bijlagen worden op %1 opgeslagen</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="205"/>
@@ -683,7 +683,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Herstart Whisperfish...</translation>
+        <translation>Whisperfish herstarten…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="254"/>
@@ -695,7 +695,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="257"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation>Schaal JPEG bijlagen om bandbreedte te besparen.</translation>
+        <translation>Schaal JPEG-bijlagen om bandbreedte te besparen.</translation>
     </message>
     <message id="whisperfish-settings-debug-mode">
         <location filename="../qml/pages/Settings.qml" line="271"/>
@@ -829,7 +829,7 @@ Settings page share contacts</extracomment>
         <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
         <oldsource>Signal will text you a 6-digit verification code. Please enter it here.</oldsource>
         <extracomment>Text verification code instructions</extracomment>
-        <translation>Signal stuurt je een 6-cijferige code per SMS. Voer deze hier in.</translation>
+        <translation>Signal zal je een sms met een verificatiecode van 6 tekens sturen. Voer deze hier in.</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
