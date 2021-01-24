@@ -111,6 +111,7 @@ Page {
                         //% "Unlink"
                         text: qsTrId("whisperfish-device-unlink")
                         onClicked: remove(menu.parent)
+                        enabled: model.id != 1
                     }
                 }
             }
