@@ -30,6 +30,9 @@ use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerifica
 mod migrations;
 use migrations::*;
 
+mod linked_devices;
+pub use linked_devices::*;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 /// Enqueue a message on socket by MID
@@ -57,18 +60,6 @@ pub struct ClientWorker {
     device_model: Option<QObjectBox<DeviceModel>>,
 
     reload_linked_devices: qt_method!(fn(&self)),
-}
-
-impl ClientWorker {
-    // method called from Qt
-    fn reload_linked_devices(&self) {
-        let actor = self.actor.clone().unwrap();
-        Arbiter::spawn(async move {
-            if let Err(e) = actor.send(ReloadLinkedDevices).await {
-                log::error!("{:?}", e);
-            }
-        })
-    }
 }
 
 /// ClientActor keeps track of the connection state.
@@ -1056,42 +1047,5 @@ impl Handler<RefreshPreKeys> for ClientActor {
                 log::trace!("Successfully refreshed prekeys");
             }
         }))
-    }
-}
-
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct ReloadLinkedDevices;
-
-impl Handler<ReloadLinkedDevices> for ClientActor {
-    type Result = ResponseActFuture<Self, ()>;
-
-    fn handle(&mut self, _: ReloadLinkedDevices, _ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("handle(ReloadLinkedDevices)");
-
-        let mut service = self.authenticated_service();
-
-        Box::pin(
-            // Without `async move`, service would be borrowed instead of encapsulated in a Future.
-            async move { service.devices().await }.into_actor(self).map(
-                move |result, act, _ctx| {
-                    match result {
-                        Err(e) => {
-                            // XXX show error
-                            log::error!("Refresh linked devices failed: {}", e);
-                        }
-                        Ok(devices) => {
-                            log::trace!("Successfully refreshed linked devices: {:?}", devices);
-                            // A bunch bindings because of scope
-                            let client_worker = act.inner.pinned();
-                            let client_worker = client_worker.borrow_mut();
-                            let device_model =
-                                client_worker.device_model.as_ref().unwrap().pinned();
-                            device_model.borrow_mut().set_devices(devices);
-                        }
-                    }
-                },
-            ),
-        )
     }
 }
