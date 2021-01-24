@@ -190,7 +190,7 @@ i18n Translations (help wanted)
 Whisperfish supports i18n translations and uses Text ID Based Translations. See
 `here <http://doc.qt.io/qt-5/linguist-id-based-i18n.html>`_ for more info. For
 an easy way to help translating, you can join on
-`Weblate <https://hosted.weblate.org/projects/whisperfish/whisperfish-application/>`_.
+`Weblate <https://hosted.weblate.org/engage/whisperfish/>`_.
 
 -------------------------------------------------------------------------------
 License
