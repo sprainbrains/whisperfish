@@ -416,6 +416,8 @@ impl Handler<FetchAttachment> for ClientActor {
             "text/plain" => "txt",
             "image/jpeg" => "jpg",
             "image/jpg" => "jpg",
+            "text/x-signal-plain" => "txt",
+            "application/x-signal-view-once" => "bin",
             other => mime_guess::get_mime_extensions_str(other)
                 .expect("Could not find mime")
                 .first()
