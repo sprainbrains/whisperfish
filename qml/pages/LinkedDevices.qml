@@ -20,7 +20,7 @@ Page {
                     d.addDevice.connect(function(tsurl) {
                         console.log("Add device: "+tsurl)
                         // TODO: handle errors
-                        DeviceModel.link(tsurl)
+                        ClientWorker.link_device(tsurl)
                     })
                 }
             }
@@ -48,8 +48,8 @@ Page {
                 //% "Unlinking"
                 contentItem.remorseAction(qsTrId("whisperfish-device-unlink-message"),
                     function() {
-                        console.log("Unlink device: "+model.index)
-                        DeviceModel.unlink(model.index)
+                        console.log("Unlink device: ", model)
+                        ClientWorker.unlink_device(model.id)
                     })
             }
 

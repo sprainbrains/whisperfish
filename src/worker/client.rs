@@ -59,6 +59,9 @@ pub struct ClientWorker {
     session_actor: Option<Addr<SessionActor>>,
     device_model: Option<QObjectBox<DeviceModel>>,
 
+    // Linked device management
+    link_device: qt_method!(fn(&self, tsurl: String)),
+    unlink_device: qt_method!(fn(&self, id: i64)),
     reload_linked_devices: qt_method!(fn(&self)),
 }
 

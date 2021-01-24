@@ -1,7 +1,40 @@
 use super::*;
 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ReloadLinkedDevices;
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct LinkDevice {
+    pub tsurl: String,
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct UnlinkDevice {
+    pub id: i64,
+}
+
+// methods called from Qt
 impl ClientWorker {
-    // method called from Qt
+    pub fn link_device(&self, tsurl: String) {
+        let actor = self.actor.clone().unwrap();
+        Arbiter::spawn(async move {
+            if let Err(e) = actor.send(LinkDevice { tsurl }).await {
+                log::error!("{:?}", e);
+            }
+        })
+    }
+
+    pub fn unlink_device(&self, id: i64) {
+        let actor = self.actor.clone().unwrap();
+        Arbiter::spawn(async move {
+            if let Err(e) = actor.send(UnlinkDevice { id }).await {
+                log::error!("{:?}", e);
+            }
+        })
+    }
     pub fn reload_linked_devices(&self) {
         let actor = self.actor.clone().unwrap();
         Arbiter::spawn(async move {
@@ -11,10 +44,6 @@ impl ClientWorker {
         })
     }
 }
-
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct ReloadLinkedDevices;
 
 impl Handler<ReloadLinkedDevices> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
@@ -45,6 +74,81 @@ impl Handler<ReloadLinkedDevices> for ClientActor {
                     }
                 },
             ),
+        )
+    }
+}
+
+impl Handler<LinkDevice> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(
+        &mut self,
+        LinkDevice { tsurl }: LinkDevice,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        log::trace!("handle(LinkDevice)");
+
+        let service = self.authenticated_service();
+        let mut account_manager = AccountManager::new(self.context.clone(), service);
+        let store = self.store_context.clone().unwrap();
+        let credentials = self.credentials.clone().unwrap();
+
+        Box::pin(
+            // Without `async move`, service would be borrowed instead of encapsulated in a Future.
+            async move {
+                let url = tsurl.parse()?;
+                Ok::<_, failure::Error>(
+                    account_manager
+                        .link_device(url, store, credentials, None)
+                        .await?,
+                )
+            }
+            .into_actor(self)
+            .map(move |result, _act, ctx| {
+                match result {
+                    Err(e) => {
+                        // XXX show error
+                        log::error!("Linking device failed: {}", e);
+                    }
+                    Ok(()) => {
+                        log::trace!("Linked device succesfully");
+                        // A bunch bindings because of scope
+                        ctx.notify(ReloadLinkedDevices);
+                    }
+                }
+            }),
+        )
+    }
+}
+
+impl Handler<UnlinkDevice> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(
+        &mut self,
+        UnlinkDevice { id }: UnlinkDevice,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        log::trace!("handle(UnlinkDevice)");
+
+        let mut service = self.authenticated_service();
+
+        Box::pin(
+            // Without `async move`, service would be borrowed instead of encapsulated in a Future.
+            async move { service.unlink_device(id).await }
+                .into_actor(self)
+                .map(move |result, _act, ctx| {
+                    match result {
+                        Err(e) => {
+                            // XXX show error in UI
+                            log::error!("Delete linked device failed: {}", e);
+                        }
+                        Ok(()) => {
+                            log::trace!("Successfully unlinked device");
+                            ctx.notify(ReloadLinkedDevices);
+                        }
+                    }
+                }),
         )
     }
 }
