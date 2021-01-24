@@ -57,11 +57,17 @@ Page {
                 id: name
                 truncationMode: TruncationMode.Fade
                 font.pixelSize: Theme.fontSizeMedium
-                text: model.name ? 
-                    model.name : 
-                //: Linked device name
-                //% "Device %1"
+                text: if (model.name) {
+                    model.name
+                } else if (model.id == 1) {
+                    //: Linked device title for current Whisperfish
+                    //% "Current device (Whisperfish, %1)"
+                    qsTrId("whisperfish-current-device-name").arg(model.id)
+                } else {
+                    //: Linked device name
+                    //% "Device %1"
                     qsTrId("whisperfish-device-name").arg(model.id)
+                }
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
