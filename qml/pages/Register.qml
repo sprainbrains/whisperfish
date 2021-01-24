@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.5
 import Sailfish.Silica 1.0
 
 Dialog {
@@ -26,13 +26,20 @@ Dialog {
         }
 
         Label {
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors {
+                left: parent.left
+                right: parent.right
+                leftMargin: Theme.horizontalPageMargin
+                rightMargin: Theme.horizontalPageMargin
+            }
+
             horizontalAlignment: Text.AlignLeft
-            width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+
             //: Registration message
             //% "Enter the phone number you want to register with Signal."
             text: qsTrId("whisperfish-registration-message")
+            textFormat: Text.PlainText
         }
 
         TextField {
@@ -54,7 +61,6 @@ Dialog {
 
         IconTextSwitch {
             id: shareContacts
-            anchors.horizontalCenter: parent.horizontalCenter
             //: Share contacts label
             //% "Share Contacts"
             text: qsTrId("whisperfish-share-contacts-label")
@@ -71,9 +77,21 @@ Dialog {
         }
 
         ComboBox {
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+
             //: Verification method
             //% "Verification method"
             label: qsTrId("whisperfish-verification-method-label")
+
+            //: Registration directions
+            description: SetupWorker.useVoice
+                //% "Signal will call you with a 6-digit verification code. Please be ready to write this down."
+                ? qsTrId("whisperfish-voice-registration-directions")
+                //% "Signal will text you a 6-digit verification code."
+                : qsTrId("whisperfish-text-registration-directions")
 
             menu: ContextMenu {
                 MenuItem {
@@ -93,27 +111,6 @@ Dialog {
             }
         }
 
-        TextArea {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            horizontalAlignment: TextEdit.Center
-            readOnly: true
-            visible: SetupWorker.useVoice
-            //: Registration directions
-            //% "Signal will call you with a 6-digit verification code. Please be ready to write this down."
-            text: qsTrId("whisperfish-voice-registration-directions")
-        }
-
-        TextArea {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            horizontalAlignment: TextEdit.Center
-            readOnly: true
-            visible:  ! SetupWorker.useVoice
-            //: Registration directions
-            //% "Signal will text you a 6-digit verification code."
-            text: qsTrId("whisperfish-text-registration-directions")
-        }
 
     }
 }

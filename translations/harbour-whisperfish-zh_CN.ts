@@ -457,28 +457,28 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>注册</translation>
     </message>
     <message id="whisperfish-registration-message">
-        <location filename="../qml/pages/Register.qml" line="35"/>
+        <location filename="../qml/pages/Register.qml" line="41"/>
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
         <translation>请输入想要用于注册 Signal 的手机号吗。</translation>
     </message>
     <message id="whisperfish-phone-number-input-label">
-        <location filename="../qml/pages/Register.qml" line="45"/>
+        <location filename="../qml/pages/Register.qml" line="52"/>
         <source>International phone number</source>
         <oldsource>Phone number (E.164 format)</oldsource>
         <extracomment>Phone number input</extracomment>
         <translation>手机号码（E.164格式）</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
-        <location filename="../qml/pages/Register.qml" line="48"/>
+        <location filename="../qml/pages/Register.qml" line="55"/>
         <source>+18875550100</source>
         <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
         <translation>+8612345678910</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/Register.qml" line="60"/>
+        <location filename="../qml/pages/Register.qml" line="66"/>
         <location filename="../qml/pages/Settings.qml" line="188"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -487,40 +487,39 @@ Settings page share contacts</extracomment>
         <translation>分享联系人</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/Register.qml" line="63"/>
+        <location filename="../qml/pages/Register.qml" line="69"/>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation>允许 Signal 使用你的本地联系人列表以查询其它 Signal 用户。</translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/Register.qml" line="76"/>
+        <location filename="../qml/pages/Register.qml" line="87"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>验证方式</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/Register.qml" line="87"/>
+        <location filename="../qml/pages/Register.qml" line="105"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>使用语音验证</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/Register.qml" line="82"/>
+        <location filename="../qml/pages/Register.qml" line="100"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>使用文本验证</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="104"/>
+        <location filename="../qml/pages/Register.qml" line="92"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
         <translation>Signal 会以电话形式告知你6位验证码。请准备好在下方输入。</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="115"/>
+        <location filename="../qml/pages/Register.qml" line="94"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <extracomment>Registration directions</extracomment>
         <translation>Signal 会以文本形式发送给你6位文本验证码。</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">

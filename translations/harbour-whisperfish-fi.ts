@@ -457,28 +457,28 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Rekisteröidy</translation>
     </message>
     <message id="whisperfish-registration-message">
-        <location filename="../qml/pages/Register.qml" line="35"/>
+        <location filename="../qml/pages/Register.qml" line="41"/>
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>Registration message</extracomment>
         <translation>Anna puhelinnumero, jolla haluat rekisteröityä Signaliin.</translation>
     </message>
     <message id="whisperfish-phone-number-input-label">
-        <location filename="../qml/pages/Register.qml" line="45"/>
+        <location filename="../qml/pages/Register.qml" line="52"/>
         <source>International phone number</source>
         <oldsource>Phone number (E.164 format)</oldsource>
         <extracomment>Phone number input</extracomment>
         <translation type="unfinished">Puhelinnumero (E.164-muodossa)</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
-        <location filename="../qml/pages/Register.qml" line="48"/>
+        <location filename="../qml/pages/Register.qml" line="55"/>
         <source>+18875550100</source>
         <oldsource>18875550100</oldsource>
         <extracomment>Phone number placeholder</extracomment>
         <translation>+358401234567</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/Register.qml" line="60"/>
+        <location filename="../qml/pages/Register.qml" line="66"/>
         <location filename="../qml/pages/Settings.qml" line="188"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -487,40 +487,39 @@ Settings page share contacts</extracomment>
         <translation>Jaa yhteystiedot</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/Register.qml" line="63"/>
+        <location filename="../qml/pages/Register.qml" line="69"/>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/Register.qml" line="76"/>
+        <location filename="../qml/pages/Register.qml" line="87"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Varmennuskeino</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/Register.qml" line="87"/>
+        <location filename="../qml/pages/Register.qml" line="105"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Varmenna puhelulla</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/Register.qml" line="82"/>
+        <location filename="../qml/pages/Register.qml" line="100"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Varmenna viestillä</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="104"/>
+        <location filename="../qml/pages/Register.qml" line="92"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
         <translation>Signal ilmoittaa sinulle puhelimitse 6-numeroisen varmennuskoodin. Ole valmiina kirjoittamaan se muistiin.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/Register.qml" line="115"/>
+        <location filename="../qml/pages/Register.qml" line="94"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <extracomment>Registration directions</extracomment>
         <translation>Signal ilmoittaa sinulle viestitse 6-numeroisen varmennuskoodin.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
