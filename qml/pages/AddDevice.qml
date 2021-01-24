@@ -33,27 +33,35 @@ Dialog {
             text: qsTrId("whisperfish-add-device")
         }
 
-        TextArea {
+        TextField {
             id: urlField
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
+            validator: RegExpValidator{ regExp: /tsdevice:\/\/?.*/;}
             //: Device URL, text input for pasting the QR-scanned code
             //% "Device URL"
             label: qsTrId("whisperfish-device-url")
             placeholderText: "tsdevice://?uuid=FaC...&pub_key=BQ9..."
-            placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignLeft
             EnterKey.onClicked: parent.focus = true
         }
 
-        TextArea {
-            anchors.horizontalCenter: parent.horizontalCenter
+        Label {
             width: parent.width
-            horizontalAlignment: TextEdit.Center
-            readOnly: true
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             //: Instructions on how to scan QR code for device linking
             //% "Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here."
             text: qsTrId("whisperfish-device-link-instructions")
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.highlightColor
+
+
+            anchors {
+                left: parent.left
+                leftMargin: Theme.horizontalPageMargin
+                right: parent.right
+                rightMargin: Theme.horizontalPageMargin
+            }
         }
 
     }
