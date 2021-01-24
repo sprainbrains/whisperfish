@@ -29,7 +29,7 @@ Page {
                 //% "Refresh"
                 text: qsTrId("whisperfish-refresh-linked-devices")
                 onClicked: {
-                    DeviceModel.reload()
+                    ClientWorker.reload_linked_devices()
                 }
             }
         }
@@ -69,8 +69,7 @@ Page {
             }
             Label {
                 function createdTime() {
-                    var dt = new Date(model.created)
-                    var linkDate = Format.formatDate(dt, Formatter.Timepoint)
+                    var linkDate = Format.formatDate(model.created, Formatter.Timepoint)
                     //: Linked device date
                     //% "Linked: %1"
                     return qsTrId("whisperfish-device-link-date").arg(linkDate)
@@ -87,8 +86,7 @@ Page {
             Label {
                 id: lastSeen
                 function lastSeenTime() {
-                    var dt = new Date(model.lastSeen)
-                    var ls = Format.formatDate(dt, Formatter.DurationElapsed)
+                    var ls = Format.formatDate(model.lastSeen, Formatter.DurationElapsed)
                     //: Linked device last active date
                     //% "Last active: %1"
                     return qsTrId("whisperfish-device-last-active").arg(ls)

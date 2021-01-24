@@ -8,6 +8,7 @@ use qmetaobject::*;
 
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
+use crate::model::DeviceModel;
 use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
@@ -23,7 +24,7 @@ use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
-pub use libsignal_service::push_service::ConfirmCodeResponse;
+pub use libsignal_service::push_service::{ConfirmCodeResponse, DeviceInfo};
 use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerificationCodeResponse};
 
 mod migrations;
@@ -53,6 +54,21 @@ pub struct ClientWorker {
 
     actor: Option<Addr<ClientActor>>,
     session_actor: Option<Addr<SessionActor>>,
+    device_model: Option<QObjectBox<DeviceModel>>,
+
+    reload_linked_devices: qt_method!(fn(&self)),
+}
+
+impl ClientWorker {
+    // method called from Qt
+    fn reload_linked_devices(&self) {
+        let actor = self.actor.clone().unwrap();
+        Arbiter::spawn(async move {
+            if let Err(e) = actor.send(ReloadLinkedDevices).await {
+                log::error!("{:?}", e);
+            }
+        })
+    }
 }
 
 /// ClientActor keeps track of the connection state.
@@ -75,9 +91,12 @@ impl ClientActor {
         session_actor: Addr<SessionActor>,
     ) -> Result<Self, failure::Error> {
         let inner = QObjectBox::new(ClientWorker::default());
+        let device_model = QObjectBox::new(DeviceModel::default());
         app.set_object_property("ClientWorker".into(), inner.pinned());
+        app.set_object_property("DeviceModel".into(), device_model.pinned());
 
         inner.pinned().borrow_mut().session_actor = Some(session_actor);
+        inner.pinned().borrow_mut().device_model = Some(device_model);
 
         let crypto = libsignal_protocol::crypto::DefaultCrypto::default();
 
@@ -1037,5 +1056,42 @@ impl Handler<RefreshPreKeys> for ClientActor {
                 log::trace!("Successfully refreshed prekeys");
             }
         }))
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ReloadLinkedDevices;
+
+impl Handler<ReloadLinkedDevices> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, _: ReloadLinkedDevices, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(ReloadLinkedDevices)");
+
+        let mut service = self.authenticated_service();
+
+        Box::pin(
+            // Without `async move`, service would be borrowed instead of encapsulated in a Future.
+            async move { service.devices().await }.into_actor(self).map(
+                move |result, act, _ctx| {
+                    match result {
+                        Err(e) => {
+                            // XXX show error
+                            log::error!("Refresh linked devices failed: {}", e);
+                        }
+                        Ok(devices) => {
+                            log::trace!("Successfully refreshed linked devices: {:?}", devices);
+                            // A bunch bindings because of scope
+                            let client_worker = act.inner.pinned();
+                            let client_worker = client_worker.borrow_mut();
+                            let device_model =
+                                client_worker.device_model.as_ref().unwrap().pinned();
+                            device_model.borrow_mut().set_devices(devices);
+                        }
+                    }
+                },
+            ),
+        )
     }
 }

@@ -2,39 +2,32 @@
 
 use std::collections::HashMap;
 
+use libsignal_service::push_service::DeviceInfo;
+
 use qmetaobject::*;
 
 use super::*;
 
 #[derive(QObject, Default)]
 pub struct DeviceModel {
-    base: qt_base_class!(trait QObject),
-
-    reload: qt_method!(fn(&self)),
-
-    content: Vec<Device>,
-}
-
-#[derive(Debug, Clone, Default)]
-struct Device {
-    pub id: i32,
-    pub name: String,
-    pub created: i64,
-    pub last_seen: i64,
+    base: qt_base_class!(trait QAbstractListModel),
+    content: Vec<DeviceInfo>,
 }
 
 define_model_roles! {
-    enum DeviceRoles for Device {
-        Id(id):                                   "id",
-        Name(name via QString::from)  :           "name",
-        Created(created via qdatetime_from_i64):  "created",
-        LastSeen(created via qdatetime_from_i64): "last_seen",
+    enum DeviceRoles for DeviceInfo {
+        Id(id):                                        "id",
+        Name(name via qstring_from_option)  :          "name",
+        Created(created via qdatetime_from_chrono):    "created",
+        LastSeen(last_seen via qdatetime_from_chrono): "lastSeen",
     }
 }
 
 impl DeviceModel {
-    fn reload(&self) {
-        log::info!("DeviceModel::reload() called");
+    pub fn set_devices(&mut self, content: Vec<DeviceInfo>) {
+        (self as &mut dyn QAbstractListModel).begin_reset_model();
+        self.content = content;
+        (self as &mut dyn QAbstractListModel).end_reset_model();
     }
 }
 

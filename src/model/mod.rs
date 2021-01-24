@@ -67,11 +67,8 @@ pub use prompt::*;
 use chrono::prelude::*;
 use qmetaobject::*;
 
-fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
-    let dt = Utc
-        .timestamp(timestamp / 1000, (timestamp % 1000) as u32)
-        .with_timezone(&Local)
-        .naive_local();
+fn qdatetime_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDateTime {
+    let dt = dt.with_timezone(&Local).naive_local();
     let date = QDate::from_y_m_d(dt.year(), dt.month() as i32, dt.day() as i32);
     let time = QTime::from_h_m_s_ms(
         dt.hour() as i32,
@@ -81,6 +78,10 @@ fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
     );
 
     QDateTime::from_date_time_local_timezone(date, time)
+}
+
+fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
+    qdatetime_from_chrono(Utc.timestamp(timestamp / 1000, (timestamp % 1000) as u32))
 }
 
 fn qstring_from_option(opt: Option<String>) -> QVariant {
