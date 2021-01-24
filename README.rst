@@ -188,14 +188,9 @@ i18n Translations (help wanted)
 -------------------------------------------------------------------------------
 
 Whisperfish supports i18n translations and uses Text ID Based Translations. See
-`here <http://doc.qt.io/qt-5/linguist-id-based-i18n.html>`_ for more info. To
-translate the application strings in your language run (for example German)::
-
-    $ ssh -p 2222 -i ~/SailfishOS/vmshare/ssh/private_keys/engine/mersdk mersdk@localhost
-    $ cd $GOPATH/src/github.com/aebruno/whisperfish
-    $ sb2 lupdate qml/ -ts qml/i18n/whisperfish_de.ts
-    [edit whisperfish_de.ts]
-    $ sb2 lrelease -idbased qml/i18n/whisperfish_de.ts -qm qml/i18n/whisperfish_de.qm
+`here <http://doc.qt.io/qt-5/linguist-id-based-i18n.html>`_ for more info. For
+an easy way to help translating, you can join on
+`Weblate <https://hosted.weblate.org/projects/whisperfish/whisperfish-application/>`_.
 
 -------------------------------------------------------------------------------
 License
