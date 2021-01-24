@@ -85,7 +85,10 @@ impl MessageModel {
             return;
         };
 
-        let attachment = msg.attachment.as_ref().unwrap();
+        let attachment = msg
+            .attachment
+            .as_ref()
+            .expect("downloaded attachment with path in db");
 
         log::debug!("[attachment] Open by index {:?}: {}", idx, &attachment);
 
