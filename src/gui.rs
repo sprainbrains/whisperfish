@@ -12,7 +12,6 @@ use crate::{
 };
 
 use actix::prelude::*;
-use futures::prelude::*;
 use qmetaobject::*;
 
 #[derive(actix::Message, Clone)]
@@ -41,30 +40,26 @@ impl WhisperfishApp {
         let config = self.setup_worker.pinned().borrow().config.clone().unwrap();
         let msg = StorageReady(storage, config);
 
-        let mut sends = futures::stream::FuturesUnordered::<
-            Box<dyn Future<Output = Result<(), String>> + std::marker::Unpin>,
-        >::new();
-        sends.push(Box::new(
-            self.session_actor
-                .send(msg.clone())
-                .map_err(|e| format!("SessionActor {:?}", e)),
-        ));
-        sends.push(Box::new(
-            self.message_actor
-                .send(msg.clone())
-                .map_err(|e| format!("MessageActor {:?}", e)),
-        ));
-        sends.push(Box::new(
-            self.client_actor
-                .send(msg)
-                .map_err(|e| format!("ClientActor {:?}", e)),
-        ));
-
-        while let Some(res) = sends.next().await {
-            if let Err(e) = res {
-                log::error!("Error handling StorageReady: {}", e);
+        futures::join! {
+            async {
+                if let Err(e) = self.session_actor
+                    .send(msg.clone()).await {
+                    log::error!("Error handling StorageReady: {}", e);
+                }
+            },
+            async {
+                if let Err(e) = self.message_actor
+                    .send(msg.clone()).await {
+                    log::error!("Error handling StorageReady: {}", e);
+                }
+            },
+            async {
+                if let Err(e) = self.client_actor
+                    .send(msg.clone()).await {
+                    log::error!("Error handling StorageReady: {}", e);
+                }
             }
-        }
+        };
     }
 }
 
