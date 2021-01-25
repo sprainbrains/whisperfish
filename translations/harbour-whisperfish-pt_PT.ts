@@ -129,7 +129,7 @@
         <location filename="../qml/pages/CountryCodeDialog.qml" line="17"/>
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation>Escolha o código do país</translation>
+        <translation>Escolhe o código do país</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
         <location filename="../qml/pages/Group.qml" line="18"/>
@@ -165,7 +165,7 @@
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Seleccionar imagem</translation>
+        <translation>Selecionar imagem</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
@@ -177,7 +177,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation>Actualizar</translation>
+        <translation>Atualizar</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
@@ -189,7 +189,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
         <source>Unlinking</source>
         <extracomment>Unlinking remorse info message</extracomment>
-        <translation>A desassociar dispositivo</translation>
+        <translation>A desassociar</translation>
     </message>
     <message id="whisperfish-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="64"/>
@@ -231,7 +231,7 @@
         <location filename="../qml/pages/Main.qml" line="37"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
-        <translation>ERROR - O número de telefone registado no Signal é inválido</translation>
+        <translation>ERRO - Número de telefone registado no Signal inválido</translation>
     </message>
     <message id="whisperfish-error-setup-client">
         <location filename="../qml/pages/Main.qml" line="42"/>
@@ -273,7 +273,7 @@
         <location filename="../qml/pages/Main.qml" line="97"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
-        <translation>É necessário efectuar registo</translation>
+        <translation>Registo necessário</translation>
     </message>
     <message id="whisperfish-locked-message">
         <location filename="../qml/pages/Main.qml" line="101"/>
@@ -372,13 +372,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewGroup.qml" line="100"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation>Por favor seleccione membros do grupo</translation>
+        <translation>Por favor seleciona membros do grupo</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../qml/pages/NewGroup.qml" line="104"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation>Por favor atribua um nome ao grupo</translation>
+        <translation>Por favor atribui um nome ao grupo</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../qml/pages/NewMessage.qml" line="64"/>
@@ -405,43 +405,43 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Password.qml" line="45"/>
         <source>Enter your password</source>
         <extracomment>Enter password prompt</extracomment>
-        <translation>Inserir palavra-passe</translation>
+        <translation>Insere a tua senha</translation>
     </message>
     <message id="whisperfish-set-password">
         <location filename="../qml/pages/Password.qml" line="48"/>
         <source>Set your password</source>
         <extracomment>Set password prompt</extracomment>
-        <translation>Definir palavra-passe</translation>
+        <translation>Define a tua senha</translation>
     </message>
     <message id="whisperfish-password-label">
         <location filename="../qml/pages/Password.qml" line="58"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
-        <translation>Palavra-passe</translation>
+        <translation>Senha</translation>
     </message>
     <message id="whisperfish-password-placeholder">
         <location filename="../qml/pages/Password.qml" line="61"/>
         <source>Password</source>
         <extracomment>Password placeholder</extracomment>
-        <translation>palavra-passe</translation>
+        <translation>Senha</translation>
     </message>
     <message id="whisperfish-verify-password-label">
         <location filename="../qml/pages/Password.qml" line="83"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
-        <translation>Confirmar palavra-passe</translation>
+        <translation>Confirmar senha</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
         <location filename="../qml/pages/Password.qml" line="86"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
-        <translation>Confirmar palavra-passe</translation>
+        <translation>Confirmar senha</translation>
     </message>
     <message id="whisperfish-password-info">
         <location filename="../qml/pages/Password.qml" line="104"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>O Whisperfish guarda as chaves de identificação, o estado da sessão, e os dados das mensagens encriptadas no dispositivo. A palavra-passe que definir não é guardada em nenhum local e não será possível recuperar os seus dados caso perca a palavra-passe. Nota: actualmente os ficheiros anexados são guardados sem encripção. Pode desactivar o arquivo de anexos nas Definições.</translation>
+        <translation>O Whisperfish guarda as chaves de identificação, o estado da sessão, e os dados das mensagens encriptadas no dispositivo. A senha que definires não é guardada em nenhum local e não será possível recuperar os teus dados caso percas a senha. Nota: atualmente, os ficheiros anexados são guardados sem encriptação. Podes desativar o arquivo de anexos nas Definições.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -455,14 +455,14 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="32"/>
         <source>Peer identity is not trusted</source>
         <extracomment>Peer identity not trusted</extracomment>
-        <translation>A identidade do par não é confiável</translation>
+        <translation>Identidade de pares não é confiável</translation>
     </message>
     <message id="whisperfish-peer-not-trusted-message">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="42"/>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>AVISO: a identidade de %1 já não é confiável. Toque Confirmar para repôr a identidade do par.</translation>
+        <translation>AVISO: a identidade de %1 deixou de ser confiável. Toca Confirmar para repôr a identidade de pares.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <location filename="../qml/pages/Register.qml" line="25"/>
@@ -474,7 +474,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Register.qml" line="41"/>
         <source>Enter the phone number you want to register with Signal.</source>
         <extracomment>Registration message</extracomment>
-        <translation>Inserir número de telefone a registar no Signal.</translation>
+        <translation>Insere o número de telefone a registar no Signal.</translation>
     </message>
     <message id="whisperfish-phone-number-input-label">
         <location filename="../qml/pages/Register.qml" line="52"/>
@@ -495,14 +495,14 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>Share contacts label
 ----------
 Settings page share contacts</extracomment>
-        <translation>Partilhar contactos</translation>
+        <translation>Partilhar contatos</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
         <location filename="../qml/pages/Register.qml" line="69"/>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Permite que o Signal use a lista de contactos local para encontrar outros utilizadores do Signal.</translation>
+        <translation>Permitir que o Signal use a lista de contatos local para encontrar outros utilizadores do Signal.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/Register.qml" line="87"/>
@@ -526,7 +526,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Register.qml" line="92"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
-        <translation>O Signal irá efectuar uma chamada e indicar um código de 6 dígitos. Por favor prepare-se para tomar nota.</translation>
+        <translation>O Signal irá efetuar uma chamada e indicar um código de 6 dígitos. Por favor prepara-te para apontar o código.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/Register.qml" line="94"/>
@@ -549,7 +549,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="39"/>
         <source>Refresh Contacts</source>
         <extracomment>Refresh contacts menu</extracomment>
-        <translation>Actualizar contactos</translation>
+        <translation>Atualizar contatos</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="56"/>
