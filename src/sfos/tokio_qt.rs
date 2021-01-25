@@ -6,7 +6,8 @@ use std::task::{Context, Poll, Waker};
 
 use futures::prelude::*;
 use pin_utils::unsafe_unpinned;
-use tokio::io::Registration;
+use tokio::io::unix::AsyncFd;
+use tokio::io::Interest;
 
 cpp_class!(
     pub unsafe struct QSocketNotifier as "QSocketNotifier"
@@ -21,13 +22,13 @@ enum QSocketNotifierType {
     Exception = 2,
 }
 
-impl Into<mio::Ready> for QSocketNotifierType {
-    fn into(self) -> mio::Ready {
+impl Into<Interest> for QSocketNotifierType {
+    fn into(self) -> Interest {
         use QSocketNotifierType::*;
         match self {
-            Read => mio::Ready::readable(),
-            Write => mio::Ready::writable(),
-            Exception => *mio::unix::UnixReady::error(),
+            Read => Interest::READABLE,
+            Write => Interest::WRITABLE,
+            Exception => Interest::READABLE,
         }
     }
 }
@@ -102,12 +103,8 @@ impl Stream for Timer {
     type Item = TimerSpec;
 
     fn poll_next(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Option<TimerSpec>> {
-        match Stream::poll_next(Pin::new(&mut self.interval), ctx) {
-            Poll::Ready(Some(_instant)) => Poll::Ready(Some(self.spec.clone())),
-            Poll::Ready(None) => {
-                log::warn!("Unexpected end of Interval stream. Please file a bug report.");
-                Poll::Ready(None)
-            }
+        match self.interval.poll_tick(ctx) {
+            Poll::Ready(_instant) => Poll::Ready(Some(self.spec.clone())),
             Poll::Pending => Poll::Pending,
         }
     }
@@ -125,7 +122,7 @@ impl From<TimerSpec> for Timer {
 }
 
 pub struct TokioQEventDispatcherPriv {
-    socket_registrations: Vec<(*mut QSocketNotifier, Registration)>,
+    socket_registrations: Vec<(*mut QSocketNotifier, AsyncFd<RawFd>)>,
     timers: Vec<Timer>,
     waker: Mutex<RefCell<Option<Waker>>>,
     _unpin: std::marker::PhantomPinned,
@@ -144,7 +141,7 @@ impl Default for TokioQEventDispatcherPriv {
 
 impl TokioQEventDispatcherPriv {
     unsafe_unpinned!(timers: Vec<Timer>);
-    unsafe_unpinned!(socket_registrations: Vec<(*mut QSocketNotifier, Registration)>);
+    unsafe_unpinned!(socket_registrations: Vec<(*mut QSocketNotifier, AsyncFd<RawFd>)>);
 
     fn register_socket_notifier(self: Pin<&mut Self>, raw_notifier: *mut QSocketNotifier) {
         let notifier = unsafe { raw_notifier.as_mut() }.unwrap();
@@ -156,11 +153,7 @@ impl TokioQEventDispatcherPriv {
             std::thread::current().id()
         );
 
-        let reg = Registration::new_with_ready(
-            &mio::unix::EventedFd(&fd),
-            notifier.notifier_type().into(),
-        )
-        .unwrap(); // XXX unwrap
+        let reg = AsyncFd::with_interest(fd, notifier.notifier_type().into()).unwrap(); // XXX unwrap
 
         self.socket_registrations().push((raw_notifier, reg));
     }

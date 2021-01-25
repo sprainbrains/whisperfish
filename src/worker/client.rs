@@ -1,5 +1,6 @@
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use actix::prelude::*;
 use futures::prelude::*;
@@ -840,7 +841,7 @@ impl Handler<Restart> for ClientActor {
                     log::info!("Retrying in 10");
                     let addr = ctx.address();
                     Arbiter::spawn(async move {
-                        actix::clock::delay_for(actix::clock::Duration::from_secs(10)).await;
+                        actix::clock::sleep(Duration::from_secs(10)).await;
                         addr.send(Restart).await.expect("retry restart");
                     });
                 }
@@ -1019,8 +1020,13 @@ impl Handler<RefreshPreKeys> for ClientActor {
 
         let store_context = self.store_context.clone().unwrap();
         let proc = async move {
-            am.update_pre_key_bundle(store_context, next_signed_pre_key_id, pre_keys_offset_id)
-                .await
+            am.update_pre_key_bundle(
+                store_context,
+                next_signed_pre_key_id,
+                pre_keys_offset_id,
+                false,
+            )
+            .await
         };
         // XXX: store the last refresh time somewhere.
 
