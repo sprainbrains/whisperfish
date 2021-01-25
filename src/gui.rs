@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-#[allow(unused_imports)]
+#[cfg(feature = "sailfish")]
 use std::rc::Rc;
 
 use crate::store::Storage;
