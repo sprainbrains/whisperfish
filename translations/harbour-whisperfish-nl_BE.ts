@@ -7,7 +7,7 @@
         <location filename="../qml/cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation>Nieuw</translation>
+        <translation>Nief</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
         <location filename="../qml/delegates/Session.qml" line="69"/>
@@ -31,7 +31,7 @@
         <location filename="../qml/harbour-whisperfish.qml" line="41"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
-        <translation>Nieuw bericht</translation>
+        <translation>Nief bericht</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/Main.qml" line="117"/>
@@ -67,7 +67,7 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>Signal-cliënt voor Sailfish OS</translation>
+        <translation>Signal-cliënt voôr Sailfish OS</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="54"/>
@@ -85,7 +85,7 @@
         <location filename="../qml/pages/About.qml" line="79"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation>Steun mij op Liberapay</translation>
+        <translation>Steunt mij op Liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="89"/>
@@ -97,7 +97,7 @@
         <location filename="../qml/pages/About.qml" line="99"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation>Meld een probleem</translation>
+        <translation>Meldt e probleem</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="108"/>
@@ -109,19 +109,19 @@
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation>Voeg toe</translation>
+        <translation>Toevoegen</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
-        <translation>Apparaat toevoegen</translation>
+        <translation>Toestel toevoegen</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/AddDevice.qml" line="42"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
-        <translation>Apparaat-URL</translation>
+        <translation>Toestel-URL</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../qml/pages/AddDevice.qml" line="56"/>
@@ -134,7 +134,7 @@
         <location filename="../qml/pages/VideoAttachment.qml" line="24"/>
         <source>Me</source>
         <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
-        <translation>Ik</translation>
+        <translation>Bibi</translation>
     </message>
     <message id="whisperfish-attachment-from-contact">
         <location filename="../qml/pages/AttachmentPage.qml" line="28"/>
@@ -147,31 +147,31 @@
         <location filename="../qml/pages/WFChatTextInput.qml" line="112"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation>Hé %1</translation>
+        <translation>Hey %1</translation>
     </message>
     <message id="whisperfish-chatinput-generic">
         <location filename="../qml/pages/WFChatTextInput.qml" line="115"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
-        <translation>Hé</translation>
+        <translation>Hey</translation>
     </message>
     <message id="whisperfish-select-file">
         <location filename="../qml/pages/WFChatTextInput.qml" line="197"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation>Selecteerd een bestand</translation>
+        <translation>Selecteert een bestand</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <location filename="../qml/pages/CountryCodeDialog.qml" line="17"/>
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation>Selecteerd een landcode</translation>
+        <translation>Selecteert een landcode</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Selecteerd een afbeelding</translation>
+        <translation>Selecteert een afbeelding</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
@@ -183,37 +183,37 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation>Vernieuwen</translation>
+        <translation>Vernieven</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
-        <translation>Gekoppelde apparaten</translation>
+        <translation>Gekoppelde toestellen</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
         <source>Unlinking</source>
         <extracomment>Unlinking remorse info message</extracomment>
-        <translation>Apparaat word ontkoppeld</translation>
+        <translation>Toestel wordt ontkoppeld</translation>
     </message>
     <message id="whisperfish-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="64"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
-        <translation>Apparaat %1</translation>
+        <translation>Toestel %1</translation>
     </message>
     <message id="whisperfish-device-link-date">
         <location filename="../qml/pages/LinkedDevices.qml" line="76"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation>Gekoppeld op %1</translation>
+        <translation>Gekoppeld de %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="94"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation>Laatst actief op %1</translation>
+        <translation>Laatst actief de %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="114"/>
@@ -225,25 +225,25 @@
         <location filename="../qml/pages/Main.qml" line="27"/>
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
-        <translation>Registratie voltooid!</translation>
+        <translation>Registratie voltoôid!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
         <location filename="../qml/pages/Main.qml" line="32"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation>FOUT - instellen van gegevensopslag mislukt</translation>
+        <translation>FOUT - ’t instellen van de gegevensopslag is mislukt</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
         <location filename="../qml/pages/Main.qml" line="37"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
-        <translation>FOUT - ongeldig gsmnummer geregistreerd bij Signal</translation>
+        <translation>FOUT - de gsm-numero da bij Signal is geregistreerd is ongeldig</translation>
     </message>
     <message id="whisperfish-error-setup-client">
         <location filename="../qml/pages/Main.qml" line="42"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>FOUT- instellen van Signal-cliënt mislukt</translation>
+        <translation>FOUT - ’t instellen van de Signal-cliënt is mislukt</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../qml/pages/Main.qml" line="58"/>
@@ -261,19 +261,19 @@
         <location filename="../qml/pages/Main.qml" line="71"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
-        <translation>Nieuwe groep</translation>
+        <translation>Nieve groep</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../qml/pages/Main.qml" line="78"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
-        <translation>Nieuw bericht</translation>
+        <translation>Nief bericht</translation>
     </message>
     <message id="whisperfish-no-messages-found">
         <location filename="../qml/pages/Main.qml" line="92"/>
         <source>No messages</source>
         <extracomment>Whisperfish no messages found message</extracomment>
-        <translation>Geen berichten</translation>
+        <translation>Geên berichten</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/Main.qml" line="97"/>
@@ -298,13 +298,13 @@
         <source>Deleteing</source>
         <oldsource>Deleting</oldsource>
         <extracomment>Deleteing message remorse</extracomment>
-        <translation>Word verwijderd</translation>
+        <translation>Wordt verwijderd</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Word opnieuw verzonden</translation>
+        <translation>Wordt herzonden</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="135"/>
@@ -328,19 +328,19 @@
         <location filename="../qml/pages/MessagesView.qml" line="154"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
-        <translation>Opnieuw verzenden</translation>
+        <translation>Herzenden</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="18"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation>Beveiligde sessie opnieuw instellen</translation>
+        <translation>Beveiligde sessie herinstellen</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="23"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
-        <translation>Beveiligde sessie word opnieuw ingesteld</translation>
+        <translation>Beveiligde sessie wordt heringesteld</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
@@ -352,7 +352,7 @@
         <location filename="../qml/pages/NewMessage.qml" line="64"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
-        <translation>Nieuw bericht</translation>
+        <translation>Nief bericht</translation>
     </message>
     <message id="whisperfish-group-name-label">
         <location filename="../qml/pages/NewGroup.qml" line="46"/>
@@ -370,7 +370,7 @@
         <location filename="../qml/pages/NewGroup.qml" line="37"/>
         <source>New Group</source>
         <extracomment>New group page title</extracomment>
-        <translation>Nieuwe groep</translation>
+        <translation>Nieve groep</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
         <location filename="../qml/pages/NewMessage.qml" line="82"/>
@@ -394,13 +394,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewGroup.qml" line="104"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation>Geefd de groep ne naam</translation>
+        <translation>Geeft de groep ne naam</translation>
     </message>
     <message id="whisperfish-error-invalid-group-members">
         <location filename="../qml/pages/NewGroup.qml" line="100"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation>Selecteerd groepsleden</translation>
+        <translation>Selecteert de groepsleden</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
         <location filename="../qml/pages/NewMessage.qml" line="122"/>
@@ -412,13 +412,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Password.qml" line="45"/>
         <source>Enter your password</source>
         <extracomment>Enter password prompt</extracomment>
-        <translation>Voerd uw paswoord in</translation>
+        <translation>Geeft u paswoord in</translation>
     </message>
     <message id="whisperfish-set-password">
         <location filename="../qml/pages/Password.qml" line="48"/>
         <source>Set your password</source>
         <extracomment>Set password prompt</extracomment>
-        <translation>Steld uw paswoord in</translation>
+        <translation>Stelt u paswoord in</translation>
     </message>
     <message id="whisperfish-password-label">
         <location filename="../qml/pages/Password.qml" line="58"/>
@@ -436,13 +436,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Password.qml" line="83"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
-        <translation>Bevestigd uw paswoord</translation>
+        <translation>Bevestigt u paswoord</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
         <location filename="../qml/pages/Password.qml" line="86"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
-        <translation>Bevestigd uw paswoord</translation>
+        <translation>Bevestigt u paswoord</translation>
     </message>
     <message id="whisperfish-password-info">
         <location filename="../qml/pages/Password.qml" line="104"/>
