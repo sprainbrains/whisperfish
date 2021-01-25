@@ -295,9 +295,8 @@
     </message>
     <message id="whisperfish-delete-message">
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
-        <source>Deleteing</source>
-        <oldsource>Deleting</oldsource>
-        <extracomment>Deleteing message remorse</extracomment>
+        <source>Deleting</source>
+        <extracomment>Deleting message remorse</extracomment>
         <translation>Törlés</translation>
     </message>
     <message id="whisperfish-resend-message">

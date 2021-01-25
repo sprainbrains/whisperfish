@@ -97,8 +97,8 @@ SilicaListView {
     }
 
     function remove(contentItem) {
-        //: Deleteing message remorse
-        //% "Deleteing"
+        //: Deleting message remorse
+        //% "Deleting"
         contentItem.remorseAction(qsTrId("whisperfish-delete-message"),
             function() {
                 console.log("Delete message: "+contentItem.modelData.id)
