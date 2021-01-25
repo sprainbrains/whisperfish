@@ -502,7 +502,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Register.qml" line="105"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
-        <translation>Verificacion  por voz</translation>
+        <translation>Verificacion por voz</translation>
     </message>
     <message id="whisperfish-use-text-verification">
         <location filename="../qml/pages/Register.qml" line="100"/>
