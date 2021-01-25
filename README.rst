@@ -144,11 +144,13 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
                    protobuf-compiler \
                    libsqlcipher-dev
 
-   You will also be needing some Rust things::
+   You will also be needing some Rust things. Make sure to have a Rust version above 1.48::
 
-           $ rustup toolchain install nightly
+           $ rustc --version # Should give something >= 1.48;
+           $                 # if not, install something more recent
+           $ rustup update
            $ rustup target add armv7-unknown-linux-gnueabihf
-           $ cargo install --git https://github.com/RustRPM/cargo-rpm --branch develop
+           $ cargo install cargo-rpm
 
 7. Configure your cross compilers: copy ``.ci/cargo.toml`` (which is a working file for Debian)
    to ``~/.cargo/config`` (or to ``.cargo/config`` if you do not like this system-wide configuration),
