@@ -237,7 +237,7 @@
         <location filename="../qml/pages/Main.qml" line="37"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
-        <translation>FOUT - ongeldig telefoonnummer geregistreerd bij Signal</translation>
+        <translation>FOUT - het telefoonnummer geregistreerd bij Signal is ongeldig</translation>
     </message>
     <message id="whisperfish-error-setup-client">
         <location filename="../qml/pages/Main.qml" line="42"/>
@@ -512,12 +512,12 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Register.qml" line="92"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write this down.</source>
         <extracomment>Registration directions</extracomment>
-        <translation>Signal zal je bellen met een verificatiecode van 6 tekens. Zorg dat je deze ergens kan opschrijven.</translation>
+        <translation>Signal zal je bellen met een 6-cijferige verificatiecode. Zorg dat je deze ergens kan opschrijven.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/Register.qml" line="94"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <translation>Signal stuurt je een 6-cijferige code per SMS</translation>
+        <translation>Signal zal je een sms sturen met een 6-cijferige verificatiecode.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -538,7 +538,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>WAARSCHUWING: de identiteit van %1 is niet meer vertrouwd. Tik op Bevestigen om de peeridentiteit opnieuw in te stellen.</translation>
+        <translation>WAARSCHUWING: de identiteit van %1 wordt niet meer vertrouwd. Tik op ‘Bevestigen’ om de peeridentiteit opnieuw in te stellen.</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="25"/>
@@ -659,7 +659,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="208"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation>Wanneer ingeschakeld, functioneert de entertoets als verzendtoets. Uitgeschakeld kan je de entertoets gebruiken voor berichten met meerdere tekstlijnen.</translation>
+        <translation>Indien ingeschakeld dient de Enter-toets als verzendtoets. Uitgeschakeld kan je de Enter-toets gebruiken voor berichten met meerdere regels tekst.</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="223"/>
@@ -677,7 +677,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="233"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation>Met Incognitomodus wordt geen data opgeslagen. Bijlagen noch berichten worden bijgehouden, berichten zijn zichtbaar tot Whisperfish herstart.</translation>
+        <translation>In de incognitomodus worden geen gegevens opgeslagen. Bijlagen noch berichten worden bijgehouden, berichten zijn zichtbaar tot Whisperfish herstart wordt.</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="241"/>
@@ -822,14 +822,14 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Verify.qml" line="61"/>
         <source>Signal will call you with a 6-digit verification code. Please enter it here.</source>
         <extracomment>Voice verification code instructions</extracomment>
-        <translation>Signal zal je bellen met een verificatiecode van 6 tekens. Voer deze hier in.</translation>
+        <translation>Signal zal je bellen met een 6-cijferige verificatiecode. Voer deze hier in.</translation>
     </message>
     <message id="whisperfish-text-verify-code-instructions">
         <location filename="../qml/pages/Verify.qml" line="72"/>
         <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
         <oldsource>Signal will text you a 6-digit verification code. Please enter it here.</oldsource>
         <extracomment>Text verification code instructions</extracomment>
-        <translation>Signal stuurt je een 6-cijferige code per SMS. Voer deze hier in.</translation>
+        <translation>Signal zal je een sms sturen met een 6-cijferige verificatiecode. Voer deze hier in.</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
