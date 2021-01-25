@@ -34,6 +34,9 @@ stages:
     - cat Cargo.toml
     - export MER_TARGET="SailfishOS-$SFOS_VERSION"
     - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
+    - rustc --version
+    - cargo --version
+    - cargo-rpm --help
     - cargo rpm build --verbose --target $RUST_ARCH
 
 build:armv7hl:
