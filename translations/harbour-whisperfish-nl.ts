@@ -194,7 +194,7 @@
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
         <source>Unlinking</source>
-        <extracomment>Unlinking remorse info message</extracomment>
+        <extracomment>Unlinking remorse info message for unlinking secondary devices.</extracomment>
         <translation>Apparaat wordt ontkoppeld</translation>
     </message>
     <message id="whisperfish-device-name">
