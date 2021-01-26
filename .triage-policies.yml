@@ -15,7 +15,11 @@ resource_rules:
           mention:
             - rubdos
           comment: |
-            {{author}} This issue is unlabelled after 2 days. It needs attention.
+            🤖 Bleep bloop, I'm a bot 🤖
+
+            Hello {{author}} 👋, this issue is unlabelled 🏷️.
+            If you cannot assign labels yourself, another Whisperfish developer will do this for you.
+            Labeling this as ~"triage::needs attention" and ~"priority::unknown" for now.
 
       - name: Highly upvoted issues with a priority later than 2 get ~"priority::2"
         conditions:
@@ -31,7 +35,9 @@ resource_rules:
           mention:
             - rubdos
           comment: |
-            This issue is is quite popular, so we're putting the priority on ~"priority::2".
+            🤖 Bleep bloop, I'm a bot 🤖
+
+            📈 This issue is is quite popular, so we're putting the priority on ~"priority::2".
 
       - name: Very highly upvoted issues with a priority later than 2 get ~"priority::1"
         conditions:
@@ -47,7 +53,7 @@ resource_rules:
           mention:
             - rubdos
           comment: |
-            This issue is is very popular, so we're putting the priority on ~"priority::1".
+            📈 This issue is is ⭐️very popular⭐️, so we're putting the priority on ~"priority::1".
   merge_requests:
     rules:
       - name: Post CI build links
