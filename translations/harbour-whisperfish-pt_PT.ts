@@ -109,7 +109,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="56"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation>Instale o Signal Desktop. Use a aplicação CodeReader para ler o código QR exibido no Signal Desktop e copie o endereço para aqui.</translation>
+        <translation>Instala o Signal Desktop. Usa a aplicação CodeReader para ler o código QR exibido no Signal Desktop e copia o endereço para aqui.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
         <location filename="../qml/pages/AttachmentPage.qml" line="25"/>
@@ -207,7 +207,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="94"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation>Última actividade: %1</translation>
+        <translation>Última atividade: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="114"/>
@@ -297,7 +297,7 @@
         <location filename="../qml/pages/Main.qml" line="127"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
-        <translation>Anteriormente</translation>
+        <translation>Mais antigas</translation>
     </message>
     <message id="whisperfish-group-label">
         <location filename="../qml/pages/MessagesView.qml" line="89"/>
@@ -495,14 +495,14 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>Share contacts label
 ----------
 Settings page share contacts</extracomment>
-        <translation>Partilhar contatos</translation>
+        <translation>Partilhar contactos</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
         <location filename="../qml/pages/Register.qml" line="69"/>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Permitir que o Signal use a lista de contatos local para encontrar outros utilizadores do Signal.</translation>
+        <translation>Permitir que o Signal use a lista de contactos local para encontrar outros utilizadores do Signal.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/Register.qml" line="87"/>
@@ -549,7 +549,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="39"/>
         <source>Refresh Contacts</source>
         <extracomment>Refresh contacts menu</extracomment>
-        <translation>Atualizar contatos</translation>
+        <translation>Atualizar contactos</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="56"/>
@@ -567,13 +567,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="72"/>
         <source>My Phone</source>
         <extracomment>Settings page My phone number</extracomment>
-        <translation>O meu número</translation>
+        <translation>Meu número</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="82"/>
         <source>My UUID registration number</source>
         <extracomment>Settings page My UUID</extracomment>
-        <translation>O meu número de registo UUID</translation>
+        <translation>Meu número de registo UUID</translation>
     </message>
     <message id="whisperfish-settings-identity-label">
         <location filename="../qml/pages/Settings.qml" line="93"/>
@@ -591,13 +591,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="109"/>
         <source>Enable notifications</source>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation>Activar notificações</translation>
+        <translation>Ativar notificações</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="112"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation>Se desactivadas, o Whisperfish não fará nenhuma notificação</translation>
+        <translation>Se desativadas, o Whisperfish não fará nenhuma notificação</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="125"/>
@@ -609,7 +609,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="128"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>Se desligado, o Whisperfish só irá mostrar o remetente da mensagem, o conteúdo não.</translation>
+        <translation>Se desactivada, o Whisperfish só irá mostrar o remetente da mensagem, não o conteúdo.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="143"/>
@@ -639,7 +639,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="172"/>
         <source>Attachments are stored at %1</source>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Anexos guardados no directório %1</translation>
+        <translation>Anexos guardados em %1</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="205"/>
@@ -651,7 +651,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="208"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation>Quando activado, a tecla Enter funciona como o botão para enviar mensagens. De outro modo, a tecla Enter pode ser usada para inserir parágrafos.</translation>
+        <translation>Quando ativada, a tecla Enter funciona como tecla para enviar mensagens. Caso contrário, a tecla Enter pode ser usada para inserir parágrafos.</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="223"/>
@@ -669,13 +669,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="233"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation>O Modo Incógnito desactiva o armazenamento por completo. Anexos e mensagens não serão guardados, as mensagens serão visíveis até a aplicação ser reiniciada.</translation>
+        <translation>No Modo Incógnito, as mensagens e anexos não são guardados. As mensagens são visíveis até a aplicação ser fechada.</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Reiniciar o Whisperfish...</translation>
+        <translation>Reiniciar Whisperfish...</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="254"/>
@@ -735,7 +735,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="312"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
-        <translation>Número total de Sessões</translation>
+        <translation>Número total de sessões</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
         <location filename="../qml/pages/Settings.qml" line="318"/>
@@ -795,7 +795,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Verify.qml" line="33"/>
         <source>Verify Device</source>
         <extracomment>Verify code page title</extracomment>
-        <translation>Confirmar dispositivo</translation>
+        <translation>Verificar dispositivo</translation>
     </message>
     <message id="whisperfish-verify-code-label">
         <location filename="../qml/pages/Verify.qml" line="43"/>
@@ -813,13 +813,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Verify.qml" line="61"/>
         <source>Signal will call you with a 6-digit verification code. Please enter it here.</source>
         <extracomment>Voice verification code instructions</extracomment>
-        <translation>O Signal irá efectuar uma chamada e indicar um código de 6 dígitos. Por favor insira-o aqui.</translation>
+        <translation>O Signal irá efetuar uma chamada e indicar um código de 6 dígitos. Por favor insire-o aqui.</translation>
     </message>
     <message id="whisperfish-text-verify-code-instructions">
         <location filename="../qml/pages/Verify.qml" line="72"/>
         <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
         <extracomment>Text verification code instructions</extracomment>
-        <translation>O Signal irá enviar uma mensagem de texto com um código de 6 dígitos. Por favor insira-o aqui, usando apenas números.</translation>
+        <translation>O Signal irá enviar uma mensagem de texto com um código de 6 dígitos. Por favor insire-o aqui, usando apenas números.</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="18"/>
@@ -843,7 +843,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Para verificar a segurança da criptografia ponta-a-ponta com o contacto %1, compare os números em acima com os números no dispositivo dele.</translation>
+        <translation>Para verificar a segurança da criptografia ponta-a-ponta com %1, compara os números em acima com os números no outro dispositivo.</translation>
     </message>
     <message id="whisperfish-chatinput-contact">
         <location filename="../qml/pages/WFChatTextInput.qml" line="112"/>
@@ -861,7 +861,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/WFChatTextInput.qml" line="197"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation>Seleccionar ficheiro</translation>
+        <translation>Selecionar ficheiro</translation>
     </message>
 </context>
 </TS>
