@@ -67,13 +67,13 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>Signal Client für Sailfish OS</translation>
+        <translation>Signal-Client für Sailfish OS</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Build ID: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
@@ -97,7 +97,7 @@
         <location filename="../qml/pages/About.qml" line="99"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation>Bug melden</translation>
+        <translation>Fehler melden</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="108"/>
@@ -109,7 +109,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
@@ -121,7 +121,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="42"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Geräte-URL</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../qml/pages/AddDevice.qml" line="56"/>
@@ -297,13 +297,13 @@
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen</translation>
+        <translation>Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Erneut senden</translation>
+        <translation>Neuer Versand …</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="135"/>
@@ -467,7 +467,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>International phone number</source>
         <oldsource>Phone number (E.164 format)</oldsource>
         <extracomment>Phone number input</extracomment>
-        <translation type="unfinished">Rufnummer (im E.164 Format)</translation>
+        <translation>Rufnummer (internationales Format)</translation>
     </message>
     <message id="whisperfish-phone-number-input-placeholder">
         <location filename="../qml/pages/Register.qml" line="55"/>
@@ -483,14 +483,14 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>Share contacts label
 ----------
 Settings page share contacts</extracomment>
-        <translation>Kontakt teilen</translation>
+        <translation>Zugriff auf Adressbücher</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
         <location filename="../qml/pages/Register.qml" line="69"/>
         <location filename="../qml/pages/Settings.qml" line="191"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Erlaube Signal, dein Adressbuch zu nutzen, um andere Nutzer zu finden.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/Register.qml" line="87"/>
@@ -577,13 +577,13 @@ Settings page share contacts</extracomment>
         <source>My Phone</source>
         <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation type="unfinished">Telefon</translation>
+        <translation>Meine Telefonnummer</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="82"/>
         <source>My UUID registration number</source>
         <extracomment>Settings page My UUID</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meine UUID-Registrierungsnummer</translation>
     </message>
     <message id="whisperfish-settings-identity-label">
         <location filename="../qml/pages/Settings.qml" line="93"/>
@@ -602,13 +602,13 @@ Settings page share contacts</extracomment>
         <source>Enable notifications</source>
         <oldsource>Enabled</oldsource>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation type="unfinished">Aktivieren</translation>
+        <translation>Benachrichtigungen aktivieren</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="112"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish wird keine Benachrichtigungen anzeigen, wenn dies deaktiviert ist.</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="125"/>
@@ -620,7 +620,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="128"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish zeigt nur den Absender, jedoch nicht den Inhalt der Nachricht an, wenn dies deaktiviert ist.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="143"/>
@@ -638,7 +638,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="153"/>
         <source>The selected country code determines what happens when a local phone number is entered.</source>
         <extracomment>Settings page country code description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Die Länderkennung wird ergänzt, wenn eine lokale Rufnummer eingegeben wird.</translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
         <location filename="../qml/pages/Settings.qml" line="168"/>
@@ -650,20 +650,20 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="172"/>
         <source>Attachments are stored at %1</source>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Anhänge werden in %1 gespeichert.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="205"/>
         <source>Return key send</source>
         <oldsource>EnterKey Send</oldsource>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation type="unfinished">Senden mittels Eingabetaste</translation>
+        <translation>Senden mittels Eingabetaste</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send-description">
         <location filename="../qml/pages/Settings.qml" line="208"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Das Drücken der Eingabetaste sendet die Nachricht ab, wenn dies aktiviert ist. Anderenfalls kann die Eingabetaste für mehrzeilige Nachrichten genutzt werden.</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="223"/>
@@ -675,43 +675,43 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="230"/>
         <source>Incognito Mode</source>
         <extracomment>Settings page incognito mode</extracomment>
-        <translation>Inkognito Modus</translation>
+        <translation>Inkognito-Modus</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode-description">
         <location filename="../qml/pages/Settings.qml" line="233"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Der Inkognito-Modus deaktiviert den lokalen Speicher. Keine Anhänge oder Nachrichten werden gespeichert und sind nur bis zum Neustart sichtbar.</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten...</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="254"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
-        <translation>JPEG Anhänge verkleinern</translation>
+        <translation>JPEG-Anhänge verkleinern</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="257"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reduziere die Abmessungen von JPEG-Dateien, um die Datenmenge zu reduzieren.</translation>
     </message>
     <message id="whisperfish-settings-debug-mode">
         <location filename="../qml/pages/Settings.qml" line="271"/>
         <source>Debug mode</source>
         <extracomment>Settings page: debug info toggle</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Entwickler-Modus</translation>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
         <location filename="../qml/pages/Settings.qml" line="274"/>
         <source>Show debugging information in the user interface.</source>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zeige zusätzliche Informationen für Entwickler in der Benutzeroberfläche.</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="289"/>
@@ -723,7 +723,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="294"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
-        <translation>Websocket Status</translation>
+        <translation>Websocket-Status</translation>
     </message>
     <message id="whisperfish-settings-connected">
         <location filename="../qml/pages/Settings.qml" line="298"/>
@@ -759,7 +759,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="324"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
-        <translation>Signal Kontakte</translation>
+        <translation>Signal-Kontakte</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
         <location filename="../qml/pages/Settings.qml" line="330"/>
