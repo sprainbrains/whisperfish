@@ -67,7 +67,7 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>Signal Client für Sailfish OS</translation>
+        <translation>Signal-Client für Sailfish OS</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="54"/>
@@ -97,7 +97,7 @@
         <location filename="../qml/pages/About.qml" line="99"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation>Bug melden</translation>
+        <translation>Fehler melden</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="108"/>
@@ -297,13 +297,13 @@
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen</translation>
+        <translation>Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Erneut senden</translation>
+        <translation>Neuer Versand …</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="135"/>
@@ -602,7 +602,7 @@ Settings page share contacts</extracomment>
         <source>Enable notifications</source>
         <oldsource>Enabled</oldsource>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation>Benachrichtigungen Aktivieren</translation>
+        <translation>Benachrichtigungen aktivieren</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="112"/>
@@ -687,7 +687,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten...</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="254"/>
