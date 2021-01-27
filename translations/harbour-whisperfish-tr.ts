@@ -103,7 +103,7 @@
         <location filename="../qml/pages/About.qml" line="109"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wiki&apos;yi Ziyaret Et</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="118"/>
