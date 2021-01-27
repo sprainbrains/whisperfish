@@ -85,3 +85,10 @@ resource_rules:
           comment: |
             🤖 Bleep bloop, I'm a bot 🤖
             I was instructed to provide links to CI builds, but I currenty do not have the ability to do this when the source project doesn't equal the target project. Panda is truly sorry! ☹️ 🐼
+      - name: "Tag weblate MRs with ~translations"
+        conditions:
+          state: opened
+          ruby: "resource['created_at'] > (Time.now - 24.hours).utc && author == 'weblate'"
+        actions:
+          labels:
+            - translations
