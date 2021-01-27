@@ -102,6 +102,16 @@ Page {
                 }
             }
 
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Visit the Wiki button, tapping links to the Whisperfish Wiki
+                //% "Visit the Wiki"
+                text: qsTrId("whisperfish-about-wiki-link")
+                onClicked: {
+                    Qt.openUrlExternally("https://gitlab.com/rubdos/whisperfish/-/wikis/home")
+                }
+            }
+
             SectionHeader {
                 //: Additional Copyright
                 //% "Additional Copyright"
