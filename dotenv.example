@@ -28,5 +28,8 @@ export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_
 # set this variable to your hostname or IP address of your SailfishOS device.
 export SSH_TARGET=xperia.rubdos.be
 
+# Architecture of the target device when using ./run.sh script
+export TARGET_ARCH=armv7-unknown-linux-gnueabihf
+
 # Overload potential Python virtualenv support in your shell prompt
 # export VIRTUAL_ENV=whisperfish

@@ -68,6 +68,23 @@ vergen = "3"
 # so revert to crates.io on release
 rstest = { version = "0.6.5", git = "https://github.com/la10736/rstest" }
 
+# Smart dev mode: Compile most stuff in release mode, except for the things
+# that are actually maintained by our community
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev.package.libsignal-protocol]
+opt-level = 0
+
+[profile.dev.package.libsignal-service]
+opt-level = 0
+
+[profile.dev.package.libsignal-service-actix]
+opt-level = 0
+
+[profile.dev.package.qmetaobject]
+opt-level = 0
+
 [package.metadata.rpm]
 # DOES NOT get overwritten through `cargo rpm build --target xxx`,
 # means we can *lie* to RPM for issue #24.
