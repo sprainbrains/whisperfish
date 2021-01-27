@@ -99,8 +99,14 @@
         <extracomment>Report a Bug</extracomment>
         <translation>Fehler melden</translation>
     </message>
+    <message id="whisperfish-about-wiki-link">
+        <location filename="../qml/pages/About.qml" line="109"/>
+        <source>Visit the Wiki</source>
+        <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="108"/>
+        <location filename="../qml/pages/About.qml" line="118"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation>Zusätzliches Copyright</translation>
@@ -297,13 +303,13 @@
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen …</translation>
+        <translation>Löschen&#xa0;…</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Neuer Versand …</translation>
+        <translation>Neuer Versand&#xa0;…</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="135"/>
@@ -687,7 +693,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten …</translation>
+        <translation>Whisperfish neustarten&#xa0;…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="254"/>

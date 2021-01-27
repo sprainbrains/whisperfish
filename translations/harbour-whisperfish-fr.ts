@@ -73,7 +73,7 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>ID version : %1</translation>
+        <translation>ID version&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
@@ -99,8 +99,14 @@
         <extracomment>Report a Bug</extracomment>
         <translation>Signaler une erreur</translation>
     </message>
+    <message id="whisperfish-about-wiki-link">
+        <location filename="../qml/pages/About.qml" line="109"/>
+        <source>Visit the Wiki</source>
+        <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="108"/>
+        <location filename="../qml/pages/About.qml" line="118"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation>Droit d&apos;auteur additionnel</translation>
@@ -201,7 +207,7 @@
         <location filename="../qml/pages/Group.qml" line="39"/>
         <source>Leaving group and removing ALL messages!</source>
         <extracomment>Leave group remorse message</extracomment>
-        <translation>Quitter le groupe et suppression de TOUS les messages !</translation>
+        <translation>Quitter le groupe et suppression de TOUS les messages&#xa0;!</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <location filename="../qml/pages/Group.qml" line="62"/>
@@ -249,13 +255,13 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="76"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation>Lié le : %1</translation>
+        <translation>Lié le&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="94"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation>Dernière activité : %1</translation>
+        <translation>Dernière activité&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="114"/>
@@ -267,7 +273,7 @@
         <location filename="../qml/pages/Main.qml" line="27"/>
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
-        <translation>Enregistrement terminé !</translation>
+        <translation>Enregistrement terminé&#xa0;!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
         <location filename="../qml/pages/Main.qml" line="32"/>
@@ -333,7 +339,7 @@
         <location filename="../qml/pages/MessagesView.qml" line="89"/>
         <source>Group: %1</source>
         <extracomment>Group message label</extracomment>
-        <translation>Groupe : %1</translation>
+        <translation>Groupe&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-delete-message">
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
@@ -471,7 +477,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Password.qml" line="104"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish stocke les clés d&apos;identité, l&apos;état de la session et les données de message local chiffrées sur disque. Le mot de passe que vous avez défini n&apos;est stocké nulle part et vous ne pourrez pas restaurer vos données si vous perdez votre mot de passe. Remarque : les pièces jointes sont actuellement stockées non chiffrées. Vous pouvez désactiver le stockage des pièces jointes dans la page Paramètres.</translation>
+        <translation>Whisperfish stocke les clés d&apos;identité, l&apos;état de la session et les données de message local chiffrées sur disque. Le mot de passe que vous avez défini n&apos;est stocké nulle part et vous ne pourrez pas restaurer vos données si vous perdez votre mot de passe. Remarque&#xa0;: les pièces jointes sont actuellement stockées non chiffrées. Vous pouvez désactiver le stockage des pièces jointes dans la page Paramètres.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -492,7 +498,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>ATTENTION : identité %1 corrompue. Appuyez sur Confirmer pour réinitialiser l&apos;identité de l&apos;interlocuteur.</translation>
+        <translation>ATTENTION&#xa0;: identité %1 corrompue. Appuyez sur Confirmer pour réinitialiser l&apos;identité de l&apos;interlocuteur.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <location filename="../qml/pages/Register.qml" line="25"/>

@@ -99,8 +99,14 @@
         <extracomment>Report a Bug</extracomment>
         <translation>Meldt e probleem</translation>
     </message>
+    <message id="whisperfish-about-wiki-link">
+        <location filename="../qml/pages/About.qml" line="109"/>
+        <source>Visit the Wiki</source>
+        <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="108"/>
+        <location filename="../qml/pages/About.qml" line="118"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation>Bijkomend auteursrecht</translation>
