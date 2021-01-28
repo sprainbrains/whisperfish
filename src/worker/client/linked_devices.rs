@@ -89,7 +89,8 @@ impl Handler<LinkDevice> for ClientActor {
         log::trace!("handle(LinkDevice)");
 
         let service = self.authenticated_service();
-        let mut account_manager = AccountManager::new(self.context.clone(), service);
+        // XXX add profile key when #192 implemneted
+        let mut account_manager = AccountManager::new(self.context.clone(), service, None);
         let store = self.store_context.clone().unwrap();
         let credentials = self.credentials.clone().unwrap();
 
@@ -97,11 +98,7 @@ impl Handler<LinkDevice> for ClientActor {
             // Without `async move`, service would be borrowed instead of encapsulated in a Future.
             async move {
                 let url = tsurl.parse()?;
-                Ok::<_, failure::Error>(
-                    account_manager
-                        .link_device(url, store, credentials, None)
-                        .await?,
-                )
+                Ok::<_, failure::Error>(account_manager.link_device(url, store, credentials).await?)
             }
             .into_actor(self)
             .map(move |result, _act, ctx| {

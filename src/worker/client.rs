@@ -945,7 +945,8 @@ impl Handler<Register> for ClientActor {
             password: Some(password),
             signaling_key: None,
         });
-        let mut account_manager = AccountManager::new(self.context.clone(), push_service);
+        // XXX add profile key when #192 implemneted
+        let mut account_manager = AccountManager::new(self.context.clone(), push_service, None);
         let registration_procedure = async move {
             if use_voice {
                 account_manager
@@ -1026,7 +1027,8 @@ impl Handler<RefreshPreKeys> for ClientActor {
         log::trace!("handle(RefreshPreKeys)");
 
         let service = self.authenticated_service();
-        let mut am = AccountManager::new(self.context.clone(), service);
+        // XXX add profile key when #192 implemneted
+        let mut am = AccountManager::new(self.context.clone(), service, None);
 
         let (next_signed_pre_key_id, pre_keys_offset_id) =
             self.storage.as_ref().unwrap().next_pre_key_ids();
