@@ -8,6 +8,7 @@ use qmetaobject::*;
 
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
+use crate::model::DeviceModel;
 use crate::sfos::SailfishApp;
 use crate::store::Storage;
 
@@ -23,11 +24,14 @@ use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
-pub use libsignal_service::push_service::ConfirmCodeResponse;
+pub use libsignal_service::push_service::{ConfirmCodeResponse, DeviceInfo};
 use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerificationCodeResponse};
 
 mod migrations;
 use migrations::*;
+
+mod linked_devices;
+pub use linked_devices::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -53,6 +57,12 @@ pub struct ClientWorker {
 
     actor: Option<Addr<ClientActor>>,
     session_actor: Option<Addr<SessionActor>>,
+    device_model: Option<QObjectBox<DeviceModel>>,
+
+    // Linked device management
+    link_device: qt_method!(fn(&self, tsurl: String)),
+    unlink_device: qt_method!(fn(&self, id: i64)),
+    reload_linked_devices: qt_method!(fn(&self)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -75,9 +85,12 @@ impl ClientActor {
         session_actor: Addr<SessionActor>,
     ) -> Result<Self, failure::Error> {
         let inner = QObjectBox::new(ClientWorker::default());
+        let device_model = QObjectBox::new(DeviceModel::default());
         app.set_object_property("ClientWorker".into(), inner.pinned());
+        app.set_object_property("DeviceModel".into(), device_model.pinned());
 
         inner.pinned().borrow_mut().session_actor = Some(session_actor);
+        inner.pinned().borrow_mut().device_model = Some(device_model);
 
         let crypto = libsignal_protocol::crypto::DefaultCrypto::default();
 
@@ -932,7 +945,8 @@ impl Handler<Register> for ClientActor {
             password: Some(password),
             signaling_key: None,
         });
-        let mut account_manager = AccountManager::new(self.context.clone(), push_service);
+        // XXX add profile key when #192 implemneted
+        let mut account_manager = AccountManager::new(self.context.clone(), push_service, None);
         let registration_procedure = async move {
             if use_voice {
                 account_manager
@@ -1013,7 +1027,8 @@ impl Handler<RefreshPreKeys> for ClientActor {
         log::trace!("handle(RefreshPreKeys)");
 
         let service = self.authenticated_service();
-        let mut am = AccountManager::new(self.context.clone(), service);
+        // XXX add profile key when #192 implemneted
+        let mut am = AccountManager::new(self.context.clone(), service, None);
 
         let (next_signed_pre_key_id, pre_keys_offset_id) =
             self.storage.as_ref().unwrap().next_pre_key_ids();

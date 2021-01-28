@@ -23,7 +23,10 @@ Page {
                 //: Linked devices menu option
                 //% "Linked Devices"
                 text: qsTrId("whisperfish-settings-linked-devices-menu")
-                onClicked: pageStack.push(Qt.resolvedUrl("LinkedDevices.qml"))
+                onClicked: {
+                    ClientWorker.reload_linked_devices();
+                    pageStack.push(Qt.resolvedUrl("LinkedDevices.qml"));
+                }
             }
             MenuItem {
                 //: Reconnect menu

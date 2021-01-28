@@ -20,7 +20,7 @@ Page {
                     d.addDevice.connect(function(tsurl) {
                         console.log("Add device: "+tsurl)
                         // TODO: handle errors
-                        DeviceModel.link(tsurl)
+                        ClientWorker.link_device(tsurl)
                     })
                 }
             }
@@ -29,7 +29,7 @@ Page {
                 //% "Refresh"
                 text: qsTrId("whisperfish-refresh-linked-devices")
                 onClicked: {
-                    DeviceModel.reload()
+                    ClientWorker.reload_linked_devices()
                 }
             }
         }
@@ -48,8 +48,8 @@ Page {
                 //% "Unlinking"
                 contentItem.remorseAction(qsTrId("whisperfish-device-unlink-message"),
                     function() {
-                        console.log("Unlink device: "+model.index)
-                        DeviceModel.unlink(model.index)
+                        console.log("Unlink device: ", model)
+                        ClientWorker.unlink_device(model.id)
                     })
             }
 
@@ -57,11 +57,17 @@ Page {
                 id: name
                 truncationMode: TruncationMode.Fade
                 font.pixelSize: Theme.fontSizeMedium
-                text: model.name ? 
-                    model.name : 
-                //: Linked device name
-                //% "Device %1"
+                text: if (model.name) {
+                    model.name
+                } else if (model.id == 1) {
+                    //: Linked device title for current Whisperfish
+                    //% "Current device (Whisperfish, %1)"
+                    qsTrId("whisperfish-current-device-name").arg(model.id)
+                } else {
+                    //: Linked device name
+                    //% "Device %1"
                     qsTrId("whisperfish-device-name").arg(model.id)
+                }
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
@@ -69,8 +75,7 @@ Page {
             }
             Label {
                 function createdTime() {
-                    var dt = new Date(model.created)
-                    var linkDate = Format.formatDate(dt, Formatter.Timepoint)
+                    var linkDate = Format.formatDate(model.created, Formatter.Timepoint)
                     //: Linked device date
                     //% "Linked: %1"
                     return qsTrId("whisperfish-device-link-date").arg(linkDate)
@@ -87,8 +92,7 @@ Page {
             Label {
                 id: lastSeen
                 function lastSeenTime() {
-                    var dt = new Date(model.lastSeen)
-                    var ls = Format.formatDate(dt, Formatter.DurationElapsed)
+                    var ls = Format.formatDate(model.lastSeen, Formatter.DurationElapsed)
                     //: Linked device last active date
                     //% "Last active: %1"
                     return qsTrId("whisperfish-device-last-active").arg(ls)
@@ -113,6 +117,7 @@ Page {
                         //% "Unlink"
                         text: qsTrId("whisperfish-device-unlink")
                         onClicked: remove(menu.parent)
+                        enabled: model.id != 1
                     }
                 }
             }

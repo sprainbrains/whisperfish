@@ -22,7 +22,6 @@ pub struct WhisperfishApp {
     pub session_actor: Addr<actor::SessionActor>,
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
-    pub device_model: QObjectBox<model::DeviceModel>,
     pub prompt: QObjectBox<model::Prompt>,
     pub file_picker: QObjectBox<model::FilePicker>,
 
@@ -96,7 +95,6 @@ pub async fn run() -> Result<(), failure::Error> {
         message_actor,
         client_actor,
         contact_model: QObjectBox::new(model::ContactModel::default()),
-        device_model: QObjectBox::new(model::DeviceModel::default()),
         prompt: QObjectBox::new(model::Prompt::default()),
         file_picker: QObjectBox::new(model::FilePicker::default()),
 
@@ -121,7 +119,6 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
     app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
     app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
-    app.set_object_property("DeviceModel".into(), whisperfish.device_model.pinned());
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
