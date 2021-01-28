@@ -252,16 +252,19 @@ impl ClientActor {
             .pinned()
             .borrow_mut()
             .messageReceived(session.id, message.id);
-        self.inner.pinned().borrow_mut().notifyMessage(
-            session.id,
-            session
-                .group_name
-                .as_deref()
-                .unwrap_or(&session.source)
-                .into(),
-            message.message.into(),
-            session.group_id.is_some(),
-        );
+        // XXX If from ourselves, skip
+        if !is_sync_sent {
+            self.inner.pinned().borrow_mut().notifyMessage(
+                session.id,
+                session
+                    .group_name
+                    .as_deref()
+                    .unwrap_or(&session.source)
+                    .into(),
+                message.message.into(),
+                session.group_id.is_some(),
+            );
+        }
     }
 
     fn process_receipt(&mut self, msg: Envelope) {
