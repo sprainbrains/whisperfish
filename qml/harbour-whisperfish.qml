@@ -15,6 +15,10 @@ ApplicationWindow
     readonly property string mainPageName: "mainPage"
     property var notificationMap: ({})
 
+    // setting this to "true" will block global navigation
+    // methods (showMainPage() etc.)
+    property bool fatalOccurred: false
+
     Component {
         id: messageNotification
         Notification {}
@@ -118,6 +122,14 @@ ApplicationWindow
     }
 
     function showMainPage() {
+    function showFatalError(message) {
+        fatalOccurred = true
+        // We don't clear the stack to keep transition animations
+        // clean. FatalErrorPage will block any further navigation.
+        pageStack.push(Qt.resolvedUrl("pages/FatalErrorPage.qml"), {
+                           errorMessage: message
+                       })
+    }
         pageStack.clear()
         pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {}, PageStackAction.Immediate)
     }
