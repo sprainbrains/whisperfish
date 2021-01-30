@@ -112,6 +112,16 @@ ApplicationWindow
         }
     }
 
+    Connections {
+        target: SetupWorker
+        onClientFailed: {
+            console.log("[FATAL] client failed")
+            //: Failed to setup signal client error message
+            //% "ERROR - Failed to setup Signal client"
+            showFatalError(qsTrId("whisperfish-error-setup-client"))
+        }
+    }
+
     function clearNotifications(sid) {
         // Close out any existing notifications for the session
         if(sid in notificationMap) {
