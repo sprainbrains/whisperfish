@@ -159,7 +159,7 @@ BlockingInfoPageBase {
 
         Button {
             text: qsTr("Continue")
-            enabled: _inputIsValid
+            enabled: _inputIsValid && !busy
             onClicked: accept()
             anchors.horizontalCenter: parent.horizontalCenter
         }
