@@ -1,29 +1,32 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import "../components"
 
-Page {
+BlockingInfoPageBase {
     id: root
+    pageTitle: qsTr("Unlock")
+    busy: waitThenUnlock.running
+    mainTitle: qsTr("Whisperfish")
+    mainDescription: qsTr("Please enter your password to unlock your conversations.")
 
-    // we don't want users to return to the empty landing page
-    backNavigation: false
-    showNavigationIndicator: false
+    property bool _inputIsValid: !passwordField.errorHighlight &&
+                                 SetupWorker.registered
 
-    function isValid() {
-        if (!SetupWorker.registered || passwordField.errorHighlight){
-            return false
+    signal accept
+    onAccept: {
+        if (!SetupWorker.registered) {
+            // this page should never be reached when not registered
+            showFatalError(qsTr("You are not registered."))
+            return
+        } else if (!_inputIsValid) {
+            return
         }
-        return true
-    }
 
-    function attemptUnlock() {
-        if (isValid()) {
-            Prompt.password(passwordField.text)
-
-            // TODO Until we have a way of knowing if the entered
-            // password was correct, we use the timer to continue
-            // to the main page if no password prompt interrupts it.
-            waitThenUnlock.restart()
-        }
+        Prompt.password(passwordField.text)
+        // TODO Until we have a way of knowing if the entered
+        // password was correct, we use the timer to continue
+        // to the main page if no password prompt interrupts it.
+        waitThenUnlock.restart()
     }
 
     Connections {  // TO BE REMOVED
@@ -53,97 +56,32 @@ Page {
         }
     }
 
-    SilicaFlickable {
-        anchors.fill: parent
-        contentHeight: column.height
+    Column {
+        width: parent.width
+        spacing: 1.5*Theme.paddingLarge
 
-        Column {
-            id: column
-            width: parent.width
-            spacing: 1.5*Theme.paddingLarge
+        PasswordField {
+            id: passwordField
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width - 2*Theme.horizontalPageMargin
+            inputMethodHints: Qt.ImhNoPredictiveText
+            validator: RegExpValidator{ regExp: /.{6,}/ }
+            //: Password label
+            //% "Password"
+            label: qsTrId("whisperfish-password-label")
+            placeholderText: qsTr("Your password")
+            placeholderColor: Theme.highlightColor
+            color: _inputIsValid ? Theme.highlightColor : Theme.primaryColor
+            focus: true
+            EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+            EnterKey.onClicked: accept()
+        }
 
-            PageHeader {
-                title: qsTr("Unlock")
-            }
-
-            Item {
-                anchors.horizontalCenter: parent.horizontalCenter
-                // a bit larger than BusyIndicatorSize.Large
-                width: 1.2*Theme.itemSizeExtraLarge
-                height: 1.2*Theme.itemSizeExtraLarge
-
-                Image {
-                    id: appIcon
-                    anchors.fill: parent
-                    fillMode: Image.PreserveAspectFit
-                    // TODO use a higher resolution source image (not SVG though, not supported)
-                    source: "../../icons/86x86/harbour-whisperfish.png"
-                    verticalAlignment: Image.AlignVCenter
-                    opacity: waitingSpinner.running ? Theme.opacityLow : 1.0
-                    Behavior on opacity { FadeAnimator { } }
-                }
-
-                BusyIndicator {
-                    id: waitingSpinner
-                    anchors.centerIn: parent
-                    size: BusyIndicatorSize.Large
-                    running: waitThenUnlock.running
-                    opacity: running ? 1.0 : 0.0
-                    Behavior on opacity { FadeAnimator { } }
-                }
-            }
-
-            Column {
-                width: parent.width - 4*Theme.horizontalPageMargin
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: Theme.paddingSmall
-
-                Label {
-                    width: parent.width
-                    text: qsTr("Whisperfish")
-                    color: Theme.highlightColor
-                    font.pixelSize: Theme.fontSizeLarge
-                    horizontalAlignment: Text.AlignHCenter
-                }
-
-                Label {
-                    width: parent.width
-                    text: qsTr("Please enter your password to unlock your conversations.")
-                    color: Theme.secondaryHighlightColor
-                    wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeMedium
-                    horizontalAlignment: Text.AlignHCenter
-                }
-            }
-
-            PasswordField {
-                id: passwordField
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width - 2*Theme.horizontalPageMargin
-                inputMethodHints: Qt.ImhNoPredictiveText
-                validator: RegExpValidator{ regExp: /.{6,}/ }
-
-                //: Password label
-                //% "Password"
-                label: qsTrId("whisperfish-password-label")
-
-                placeholderText: qsTr("Your password")
-
-                placeholderColor: Theme.highlightColor
-                color: errorHighlight ? Theme.highlightColor : Theme.primaryColor
-                focus: true
-
-                EnterKey.iconSource: SetupWorker.registered ? "image://theme/icon-m-enter-accept" :
-                                                              "image://theme/icon-m-enter-next"
-                EnterKey.onClicked: attemptUnlock()
-            }
-
-            Button {
-                text: qsTr("Unlock")
-                enabled: !passwordField.errorHighlight
-                onClicked: attemptUnlock()
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+        Button {
+            text: qsTr("Unlock")
+            enabled: _inputIsValid
+            onClicked: accept()
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }
