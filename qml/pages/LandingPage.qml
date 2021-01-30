@@ -15,9 +15,9 @@ Page {
         readyToGo = false
         nextAction = "none"
         if (action === "register") {
-            pageStack.push(Qt.resolvedUrl("Register.qml"))
+            pageStack.push(Qt.resolvedUrl("RegisterPage.qml"))
         } else if (action === "verify") {
-            pageStack.push(Qt.resolvedUrl("Verify.qml"))
+            pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
         } else if (action === "unlock") {
             pageStack.push(Qt.resolvedUrl("UnlockPage.qml"))
         } else if (action === "prepareRegistration") {
