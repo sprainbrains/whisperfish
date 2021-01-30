@@ -134,7 +134,9 @@ ApplicationWindow
     function showMainPage(operationType) {
         if (fatalOccurred) return
         pageStack.clear()
-        pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {}, PageStackAction.Immediate)
+        pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {},
+                       operationType !== undefined ? operationType :
+                                                     PageStackAction.Immediate)
     }
 
     function newMessage(operationType) {
