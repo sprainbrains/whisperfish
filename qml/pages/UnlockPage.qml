@@ -29,11 +29,8 @@ BlockingInfoPageBase {
         waitThenUnlock.restart()
     }
 
-    Connections {  // TO BE REMOVED
-        // TODO This receives a new password prompt if the
-        // password was incorrect. We don't want to lose time,
-        // though. We should receive a success signal so we know
-        // when/if it is safe to continue.
+    Connections {
+        // Receives a new password prompt if the password was incorrect.
         id: validationConnection
         target: Prompt
         onPromptPassword: {
