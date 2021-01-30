@@ -71,7 +71,7 @@ BlockingInfoPageBase {
             label: qsTrId("whisperfish-password-label")
             placeholderText: qsTr("Your password")
             placeholderColor: Theme.highlightColor
-            color: _inputIsValid ? Theme.highlightColor : Theme.primaryColor
+            color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
             focus: true
             EnterKey.iconSource: "image://theme/icon-m-enter-accept"
             EnterKey.onClicked: accept()
