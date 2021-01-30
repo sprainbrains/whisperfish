@@ -16,7 +16,7 @@ use libsignal_service_actix::prelude::*;
 struct Opt {
     /// Whisperfish storage password
     #[structopt(short, long)]
-    password: String,
+    password: Option<String>,
 
     /// CDN number (normally either 0 or 2)
     #[structopt(short, long)]
@@ -71,8 +71,7 @@ async fn main() -> Result<(), Error> {
     let dir = settings.get_string("attachment_dir");
     let dest = Path::new(&dir);
 
-    let mut storage =
-        Storage::open_with_password(&store::default_location()?, opt.password).await?;
+    let mut storage = Storage::open(&store::default_location()?, opt.password).await?;
 
     let key_material = hex::decode(opt.key)?;
     ensure!(

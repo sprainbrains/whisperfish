@@ -14,7 +14,7 @@ pub fn in_memory_db() -> InMemoryDb {
         let temp = temp();
         std::fs::create_dir(temp.join("db"))?;
         std::fs::create_dir(temp.join("storage"))?;
-        Ok((Storage::open(&temp)?, temp))
+        Ok((Storage::open_database_only(&temp)?, temp))
     }()
     .expect("initialized storage")
 }

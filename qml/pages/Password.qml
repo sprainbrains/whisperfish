@@ -9,6 +9,10 @@ Dialog {
     canAccept: isValid()
 
     function isValid() {
+        if(!SetupWorker.registered && passwordField.text == '' && passwordField2.text == ''){
+			return true // XXX: Empty password means no encryption - we should
+						// add a button or so instead of this test.
+		}
         if(passwordField.errorHighlight){
             return false
         }

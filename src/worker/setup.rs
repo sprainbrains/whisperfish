@@ -89,14 +89,22 @@ impl SetupWorker {
             this.borrow().setupChanged();
         } else {
             // Open storage
-            for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
-                let res = SetupWorker::setup_storage(app.clone()).await;
+            let mut encrypted = false;
+            let mut error_count = -1;
+            loop {
+                let res = SetupWorker::setup_storage(app.clone(), encrypted).await;
                 match res {
                     Ok(()) => break,
-                    Err(error) => log::error!("Attempt {} of setting up storage: {}", i, error),
+                    Err(error) => {
+                        encrypted = true; 
+                        error_count += 1;
+                        if error_count > 0 {
+                            log::error!("Attempt {} of setting up storage: {}", error_count, error);
+                        }
+                    }
                 }
-                if i == SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
-                    log::error!("Error setting up storage: {}", "Bad password");
+                if error_count == SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
+                    log::error!("Error setting up storage: {} bad password attempts", error_count);
                     this.borrow().clientFailed();
                     return;
                 }
@@ -149,7 +157,6 @@ impl SetupWorker {
                 proxy_server: None,
                 verification_type: "voice".into(),
                 storage_dir: "".into(),
-                unencrypted_storage: false,
                 storage_password: "".into(),
                 log_level: "debug".into(),
                 user_agent: "Whisperfish".into(),
@@ -167,10 +174,9 @@ impl SetupWorker {
         Ok(())
     }
 
-    async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
-        let settings = app.settings.pinned();
+    async fn setup_storage(app: Rc<WhisperfishApp>, encrypted: bool) -> Result<(), Error> {
 
-        let storage = if settings.borrow().get_bool("encrypt_database") {
+        let storage = if encrypted {
             let password: String = app
                 .prompt
                 .pinned()
@@ -182,7 +188,7 @@ impl SetupWorker {
 
             Storage::open_with_password(&store::default_location()?, password).await?
         } else {
-            Storage::open(&store::default_location()?)?
+            Storage::open_without_password(&store::default_location()?).await?
         };
 
         *app.storage.borrow_mut() = Some(storage);
@@ -278,13 +284,20 @@ impl SetupWorker {
         let mut cfg = this.config.as_mut().unwrap();
         cfg.uuid = Some(res.uuid.clone());
         cfg.tel = Some(e164);
+
+        let storage_password = if storage_password.is_empty() {
+            None
+        } else {
+            Some(storage_password)
+        };
+
         Self::write_config(app.clone(), cfg).await?;
         this.uuid = res.uuid.into();
 
         // Install storage
-        let storage = Storage::new_with_password(
+        let storage = Storage::new(
             &store::default_location()?,
-            &storage_password,
+            storage_password.as_deref(),
             regid,
             &password,
             signaling_key,

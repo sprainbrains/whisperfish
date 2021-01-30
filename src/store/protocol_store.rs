@@ -24,9 +24,8 @@ fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a
 }
 
 impl ProtocolStore {
-    // This will be here until https://gitlab.com/rubdos/whisperfish/-/issues/40 is resolved,
-    // for purposes of tests.
-    #[doc(hidden)]
+    // To be used only in tests.
+    // XXX: get rid of it
     pub fn invalid() -> Self {
         Self {
             identity_key: vec![],
@@ -35,7 +34,7 @@ impl ProtocolStore {
     }
 
     pub async fn store_with_key(
-        keys: [u8; 16 + 20],
+        keys: Option<[u8; 16 + 20]>,
         path: &Path,
         regid: u32,
         identity_key_pair: IdentityKeyPair,
@@ -74,7 +73,7 @@ impl ProtocolStore {
         })
     }
 
-    pub async fn open_with_key(keys: [u8; 16 + 20], path: &Path) -> Result<Self, failure::Error> {
+    pub async fn open_with_key(keys: Option<[u8; 16 + 20]>, path: &Path) -> Result<Self, failure::Error> {
         // Identity
         let identity_path = path.join("storage").join("identity");
 
@@ -208,21 +207,21 @@ impl IdentityKeyStore for Storage {
             Ok(true)
         } else {
             // check contents with key
-            let contents = load_file_sync(self.keys.unwrap(), path).expect("identity");
+            let contents = load_file_sync(self.keys, path).expect("identity");
             Ok(contents == key)
         }
     }
 
     fn save_identity(&self, addr: Address, key: &[u8]) -> Result<(), SignalProtocolError> {
         let path = self.identity_path(&addr);
-        write_file_sync(self.keys.unwrap(), path, key).expect("save identity key");
+        write_file_sync(self.keys, path, key).expect("save identity key");
         Ok(())
     }
 
     fn get_identity(&self, addr: Address) -> Result<Option<Buffer>, SignalProtocolError> {
         let path = self.identity_path(&addr);
         if path.is_file() {
-            let buf = load_file_sync(self.keys.unwrap(), path).expect("read identity key");
+            let buf = load_file_sync(self.keys, path).expect("read identity key");
             Ok(Some(Buffer::from(buf)))
         } else {
             Ok(None)
@@ -234,7 +233,7 @@ impl PreKeyStore for Storage {
     fn load(&self, id: u32, writer: &mut dyn Write) -> Result<(), io::Error> {
         log::trace!("Loading prekey {}", id);
         let path = self.prekey_path(id);
-        let contents = load_file_sync(self.keys.unwrap(), path).unwrap();
+        let contents = load_file_sync(self.keys, path).unwrap();
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
         writer.write_all(&contents)?;
         Ok(())
@@ -244,7 +243,7 @@ impl PreKeyStore for Storage {
         log::trace!("Storing prekey {}", id);
         let path = self.prekey_path(id);
         let contents = quirk::pre_key_to_0_5(body).unwrap();
-        write_file_sync(self.keys.unwrap(), path, &contents).expect("written file");
+        write_file_sync(self.keys, path, &contents).expect("written file");
         Ok(())
     }
 
@@ -270,7 +269,7 @@ impl SessionStore for Storage {
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
 
-        let buf = if let Ok(buf) = load_file_sync(self.keys.unwrap(), path) {
+        let buf = if let Ok(buf) = load_file_sync(self.keys, path) {
             buf
         } else {
             return Ok(None);
@@ -348,7 +347,7 @@ impl SessionStore for Storage {
         log::trace!("Storing session for {:?} at {:?}", addr, path);
 
         let quirked = quirk::session_to_0_5(&session.session.as_slice())?;
-        write_file_sync(self.keys.unwrap(), path, &quirked).unwrap();
+        write_file_sync(self.keys, path, &quirked).unwrap();
         Ok(())
     }
 
@@ -418,7 +417,7 @@ impl SignedPreKeyStore for Storage {
         log::trace!("Loading signed prekey {}", id);
         let path = self.signed_prekey_path(id);
 
-        let contents = load_file_sync(self.keys.unwrap(), path).unwrap();
+        let contents = load_file_sync(self.keys, path).unwrap();
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 
         writer.write_all(&contents)?;
@@ -429,7 +428,7 @@ impl SignedPreKeyStore for Storage {
         log::trace!("Storing prekey {}", id);
         let path = self.signed_prekey_path(id);
         let contents = quirk::signed_pre_key_to_0_5(body).unwrap();
-        write_file_sync(self.keys.unwrap(), path, &contents).expect("written file");
+        write_file_sync(self.keys, path, &contents).expect("written file");
         Ok(())
     }
 
