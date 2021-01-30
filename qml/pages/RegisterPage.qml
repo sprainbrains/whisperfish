@@ -12,18 +12,14 @@ BlockingInfoPageBase {
     //% "Enter the phone number you want to register with Signal."
     mainDescription: qsTrId("whisperfish-registration-message")
 
-    // TODO verify that the number can be parsed and has a
-    // known international prefix
-    // TODO We could add a country combo box to make sure
-    // a proper prefix is set.
     property bool _inputIsValid: !numberField.errorHighlight &&
-                                 numberField.text.charAt(0) === '+' &&
-                                 numberField.text.replace(/[+ ]*/, '').trim() !== ''
+                                 prefixCombo.currentIndex >= 0 &&
+                                 numberField.text.replace(/[- ]*/, '').trim() !== ''
 
     signal accept
     onAccept: {
         if (!_inputIsValid) return
-        Prompt.phoneNumber(numberField.text)
+        Prompt.phoneNumber(prefixCombo.currentItem.prefix+numberField.text)
         busy = true // wait for the backend to prompt the next step
     }
 
@@ -37,13 +33,16 @@ BlockingInfoPageBase {
     Connections {
         // We wait till the backend calls to continue.
         target: Prompt
-        onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("Verify.qml"))
+        onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
         onPromptPhoneNumber: _retry()
     }
 
     Connections {
         target: SetupWorker
-        onInvalidPhoneNumber: _retry()
+        onInvalidPhoneNumber: {
+            console.log("invalid phone number")
+            _retry()
+        }
     }
 
     Column {
@@ -63,13 +62,14 @@ BlockingInfoPageBase {
                 description: qsTr("Prefix")  // translate as short as possible
                 currentIndex: -1
                 value: currentIndex < 0 ?
-                           '+xx' : CallingCodes.c[currentIndex].p
+                           '+xx' : currentItem.prefix
                 menu: ContextMenu {
                     Repeater {
                         model: CallingCodes.c
                         MenuItem {
-                            text: CallingCodes.c[index].p + " - " +
-                                  CallingCodes.c[index].n
+                            property string prefix: CallingCodes.c[index].p
+                            property string name: CallingCodes.c[index].n
+                            text: prefix + " - " + name
                         }
                     }
                 }
@@ -88,16 +88,10 @@ BlockingInfoPageBase {
                     right: parent.right; rightMargin: Theme.horizontalPageMargin
                     verticalCenter: prefixCombo.verticalCenter
                 }
-
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly
-                validator: RegExpValidator{ regExp: /[-+ 0-9]+/ }
-                label: (text.charAt(0) !== '+' ?
-                            qsTr("Please use the international format") :
-                            (_retry ? qsTr("Please try again") :
-                                      //: Phone number input
-                                      //% "International phone number"
-                                      qsTrId("whisperfish-phone-number-input-label")))
-                placeholderText: qsTr("International phone number")
+                validator: RegExpValidator{ regExp: /[- 0-9]{4,}/ }
+                label: qsTr("Phone number")
+                placeholderText: qsTr("Phone number")
                 placeholderColor: color
                 color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
                 focus: true
