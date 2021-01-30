@@ -32,7 +32,11 @@ BlockingInfoPageBase {
     Connections {
         // We wait till the backend calls to continue.
         target: Prompt
-        onPromptPhoneNumber: pageStack.push(Qt.resolvedUrl("RegisterPage.qml"))
+        onPromptPhoneNumber: {
+            root.forceActiveFocus() // to close the keyboard
+            pageStack.replace(Qt.resolvedUrl("RegisterPage.qml"),
+                              PageStackAction.Animated)
+        }
     }
 
     Column {
