@@ -56,27 +56,6 @@ Page {
         }
     }
 
-    Connections {
-        // FIXME Registration is not yet tested! This code
-        // is moved from Main.qml.
-        target: SetupWorker
-        onRegistrationSuccess: {
-            //: Registration complete remorse message
-            //% "Registration complete!"
-            setupRemorse.execute(qsTrId("whisperfish-registration-complete"), function() { console.log("Registration complete") })
-        }
-        onInvalidDatastore: {
-            //: Failed to setup datastore error message
-            //% "ERROR - Failed to setup datastore"
-            setupRemorse.execute(qsTrId("whisperfish-error-invalid-datastore"), function() { console.log("Failed to setup datastore") })
-        }
-        onInvalidPhoneNumber: {
-            //: Invalid phone number error message
-            //% "ERROR - Invalid phone number registered with Signal"
-            setupRemorse.execute(qsTrId("whisperfish-error-invalid-number"), function() { console.log("Invalid phone number registered with Signal") })
-        }
-    }
-
     RemorsePopup { id: setupRemorse }
 
     BusyLabel {

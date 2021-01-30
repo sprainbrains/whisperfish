@@ -120,6 +120,11 @@ ApplicationWindow
             //% "ERROR - Failed to setup Signal client"
             showFatalError(qsTrId("whisperfish-error-setup-client"))
         }
+        onInvalidDatastore: {
+            //: Failed to setup datastore error message
+            //% "ERROR - Failed to setup datastore"
+            showFatalError(qsTrId("whisperfish-error-invalid-datastore"))
+        }
     }
 
     function clearNotifications(sid) {
