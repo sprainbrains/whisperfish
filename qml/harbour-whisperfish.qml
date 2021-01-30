@@ -12,8 +12,8 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
-    property var notificationMap: new Object()
     readonly property string mainPageName: "mainPage"
+    property var notificationMap: ({})
 
     Component {
         id: messageNotification
