@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use actix::prelude::*;
+use chrono::prelude::*;
 use futures::prelude::*;
 use qmetaobject::*;
 
@@ -10,13 +11,14 @@ use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
 use crate::model::DeviceModel;
 use crate::sfos::SailfishApp;
-use crate::store::Storage;
+use crate::store::{Session, Storage};
 
 use libsignal_protocol::Context;
 use libsignal_service::configuration::SignalServers;
+use libsignal_service::content::sync_message::Request as SyncRequest;
 use libsignal_service::content::DataMessageFlags;
 use libsignal_service::content::{
-    AttachmentPointer, ContentBody, DataMessage, GroupContext, GroupType, SyncMessage,
+    sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContext, GroupType, Metadata,
 };
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
@@ -75,7 +77,7 @@ pub struct ClientActor {
     cipher: Option<ServiceCipher>,
     context: Context,
 
-    start_time: chrono::DateTime<chrono::Local>,
+    start_time: DateTime<Local>,
     store_context: Option<libsignal_protocol::StoreContext>,
 }
 
@@ -102,7 +104,7 @@ impl ClientActor {
             cipher: None,
             context: Context::new(crypto)?,
 
-            start_time: chrono::Local::now(),
+            start_time: Local::now(),
             store_context: None,
         })
     }
@@ -224,7 +226,7 @@ impl ClientActor {
             writeln!(
                 log,
                 "[{}] {:?} for message ID {}",
-                chrono::Utc::now(),
+                Utc::now(),
                 msg,
                 message.id
             )
@@ -265,6 +267,93 @@ impl ClientActor {
                 session.group_id.is_some(),
             );
         }
+    }
+
+    fn handle_sync_request(&mut self, meta: Metadata, req: SyncRequest) {
+        use sync_message::request::Type;
+        log::trace!("Processing sync request {:?}", req.r#type());
+
+        let local_addr = self.local_addr.clone().unwrap();
+        let storage = self.storage.clone().unwrap();
+        let mut sender = MessageSender::new(
+            self.authenticated_service(),
+            self.cipher.clone().unwrap(),
+            DEFAULT_DEVICE_ID,
+        );
+
+        Arbiter::spawn(async move {
+            match req.r#type() {
+                Type::Unknown => {
+                    log::warn!("Unknown sync request from {:?}:{}. Please upgrade Whisperfish or file an issue.", meta.sender, meta.sender_device);
+                    return Ok(());
+                }
+                Type::Contacts => {
+                    use libsignal_service::sender::ContactDetails;
+                    // In fact, we should query for registered contacts instead of sessions here.
+                    // https://gitlab.com/rubdos/whisperfish/-/issues/133
+                    let sessions: Vec<Session> = {
+                        use crate::schema::session::dsl::*;
+                        use diesel::prelude::*;
+                        let db = storage.db
+                            .lock()
+                            .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                        session.order_by(timestamp.desc()).load(&*db)?
+                    };
+
+                    let contacts = sessions.into_iter().filter_map(|session| {
+                        if session.is_group {
+                            return None;
+                        } else {
+                            Some(ContactDetails {
+                                number: Some(session.source.clone()),
+                                name: crate::model::contact::name_from_phone_number(&session.source),
+                                ..Default::default()
+                            })
+                        }
+                    });
+
+                    sender.send_contact_details(&local_addr, None, contacts, false, true).await?;
+                },
+                Type::Groups => {
+                    use libsignal_service::sender::GroupDetails;
+                    let sessions: Vec<Session> = {
+                        use crate::schema::session::dsl::*;
+                        use diesel::prelude::*;
+                        let db = storage.db
+                            .lock()
+                            .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                        session.order_by(timestamp.desc()).load(&*db)?
+                    };
+
+                    let groups = sessions.into_iter().filter_map(|session| {
+                        if session.is_group {
+                            Some(GroupDetails {
+                                name: session.group_name,
+                                members_e164: session.group_members.unwrap_or(String::new()).split(',').map(str::to_string).collect(),
+                                // avatar, active?, color, ..., many cool things to add here!
+                                // Tagging issue #204
+                                ..Default::default()
+                            })
+                        } else {
+                            return None;
+                        }
+                    });
+
+                    sender.send_groups_details(&local_addr, None, groups, false).await?;
+                }
+                Type::Blocked => {
+                    failure::bail!("Unimplemented {:?}", req.r#type());
+                }
+                Type::Configuration => {
+                    failure::bail!("Unimplemented {:?}", req.r#type());
+                }
+                Type::Keys => {
+                    failure::bail!("Unimplemented {:?}", req.r#type());
+                }
+            };
+
+            Ok::<_, failure::Error>(())
+        }.map(|v| if let Err(e) = v {log::error!("{:?}", e)}));
     }
 
     fn process_receipt(&mut self, msg: Envelope) {
@@ -336,8 +425,9 @@ impl ClientActor {
                         true,
                         0,
                     );
-                } else if let Some(_request) = message.request {
+                } else if let Some(request) = message.request {
                     log::trace!("Sync request message");
+                    self.handle_sync_request(metadata, request);
                 } else if !message.read.is_empty() {
                     log::trace!("Sync read message");
                     for read in &message.read {
