@@ -6,7 +6,6 @@ import "../js/calling_codes_new.js" as CallingCodes
 BlockingInfoPageBase {
     id: root
     pageTitle: "" // qsTr("Step 2")
-    busy: false
     mainTitle: qsTr("Register")
 
     //: Registration message
@@ -32,6 +31,7 @@ BlockingInfoPageBase {
     on_Retry: {
         // TODO give haptic feedback
         mainDescription = qsTr("Please retry with a valid phone number.")
+        busy = false
     }
 
     Connections {

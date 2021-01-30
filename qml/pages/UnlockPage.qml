@@ -5,7 +5,6 @@ import "../components"
 BlockingInfoPageBase {
     id: root
     pageTitle: qsTr("Unlock")
-    busy: waitThenUnlock.running
     mainTitle: qsTr("Whisperfish")
     mainDescription: qsTr("Please enter your password to unlock your conversations.")
 
@@ -22,6 +21,7 @@ BlockingInfoPageBase {
             return
         }
 
+        busy = true
         Prompt.password(passwordField.text)
         // TODO Until we have a way of knowing if the entered
         // password was correct, we use the timer to continue
@@ -34,6 +34,7 @@ BlockingInfoPageBase {
         id: validationConnection
         target: Prompt
         onPromptPassword: {
+            busy = false
             waitThenUnlock.stop()
             passwordField.text = ''
             // TODO give haptic feedback

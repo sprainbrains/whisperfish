@@ -10,7 +10,6 @@ import "../components"
 BlockingInfoPageBase {
     id: root
     pageTitle: "" // qsTr("Step 1")
-    busy: false
     mainTitle: qsTr("Welcome to Whisperfish")
     mainDescription: qsTr("Set a new password to secure your conversations.")
 
