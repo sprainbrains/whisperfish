@@ -620,31 +620,32 @@ impl Handler<SendMessage> for ClientActor {
 
                 log::trace!("Transmitting {:?}", content);
 
-                let mut needs_sync = false;
-
                 if session.is_group {
                     let members = session.group_members.as_ref().unwrap();
                     // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
-                    for member in members.split(',') {
-                        let recipient = ServiceAddress {
-                            e164: Some(member.to_string()),
-                            relay: None,
-                            uuid: None,
-                        };
-                        if local_addr.matches(&recipient) {
-                            continue;
-                        }
-                        // Clone + async closure means we can use an immutable borrow.
-                        match sender
-                            .send_message(recipient, None, content.clone(), timestamp, online)
-                            .await
-                        {
-                            Ok(s) => {
-                                if s.needs_sync {
-                                    needs_sync = true;
-                                }
+                    let members = members
+                        .split(',')
+                        .filter_map(|e164| {
+                            let member = ServiceAddress {
+                                e164: Some(e164.to_string()),
+                                relay: None,
+                                uuid: None,
+                            };
+                            if local_addr.matches(&member) {
+                                None
+                            } else {
+                                Some(member)
                             }
-                            Err(e) => log::error!("Error sending message: {}", e),
+                        })
+                        .collect::<Vec<_>>();
+                    // Clone + async closure means we can use an immutable borrow.
+                    let results = sender
+                        .send_message_to_group(&members, None, content, timestamp, online)
+                        .await;
+                    for result in results {
+                        if let Err(e) = result {
+                            // XXX maybe don't mark as sent
+                            log::error!("Error sending message: {}", e);
                         }
                     }
                 } else {
@@ -654,50 +655,12 @@ impl Handler<SendMessage> for ClientActor {
                         uuid: None,
                     };
 
-                    match sender
-                        .send_message(recipient, None, content.clone(), timestamp, online)
+                    if let Err(e) = sender
+                        .send_message(&recipient, None, content.clone(), timestamp, online)
                         .await
                     {
-                        Ok(s) => {
-                            if s.needs_sync {
-                                needs_sync = true;
-                            }
-                        }
-                        Err(e) => log::error!("Error sending message: {}", e),
-                    }
-                }
-
-                if needs_sync {
-                    // Sync messages for connected devices
-                    use libsignal_service::content::sync_message;
-
-                    let container = SyncMessage {
-                        sent: Some(sync_message::Sent {
-                            destination_e164: if session.is_group {
-                                None
-                            } else {
-                                Some(session.source)
-                            },
-                            message: Some(content),
-                            timestamp: Some(timestamp),
-
-                            ..Default::default()
-                        }),
-
-                        ..Default::default()
-                    };
-                    log::trace!("Transmitting {:?}", container);
-
-                    match sender
-                        .send_message(local_addr, None, container, timestamp, online)
-                        .await
-                    {
-                        Ok(s) => {
-                            if s.needs_sync {
-                                log::warn!("Still got a needs_sync");
-                            }
-                        }
-                        Err(e) => log::error!("Error sending message: {}", e),
+                        // XXX maybe don't mark as sent
+                        log::error!("Error sending message: {}", e);
                     }
                 }
 
