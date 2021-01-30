@@ -19,18 +19,14 @@ Page {
         if (isValid()) {
             Prompt.password(passwordField.text)
 
-            // TODO Move this to a success handler in validationConnection.
-            // Continue only if password is correct.
-            // -- mainWindow.showMainPage()
-
-            // TODO Until there's a success signal in rust, we return
-            // to the landing page, wait a moment for any error,
-            // and continue to the main page.
-            pageStack.pop()
+            // TODO Until we have a way of knowing if the entered
+            // password was correct, we use the timer to continue
+            // to the main page if no password prompt interrupts it.
+            waitThenUnlock.restart()
         }
     }
 
-    /* Connections {
+    Connections {  // TO BE REMOVED
         // TODO This receives a new password prompt if the
         // password was incorrect. We don't want to lose time,
         // though. We should receive a success signal so we know
@@ -38,11 +34,24 @@ Page {
         id: validationConnection
         target: Prompt
         onPromptPassword: {
+            waitThenUnlock.stop()
             passwordField.text = ''
             // TODO give haptic feedback
             passwordField.placeholderText = qsTr("Please try again")
         }
-    } */
+    }
+
+    Timer {  // TO BE REMOVED
+        id: waitThenUnlock
+        // If nothing happens in this time, we assume the
+        // password was correct. N (3) invalid attempts result
+        // in a fatal error, handled in mainWindow.
+        interval: 1000
+        running: false
+        onTriggered: {
+            mainWindow.showMainPage(PageStackAction.Replace)
+        }
+    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -57,13 +66,31 @@ Page {
                 title: qsTr("Unlock")
             }
 
-            Image {
+            Item {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: Theme.itemSizeExtraLarge
-                height: Theme.itemSizeExtraLarge
-                fillMode: Image.PreserveAspectFit
-                source: "../../icons/86x86/harbour-whisperfish.png"
-                verticalAlignment: Image.AlignVCenter
+                // a bit larger than BusyIndicatorSize.Large
+                width: 1.2*Theme.itemSizeExtraLarge
+                height: 1.2*Theme.itemSizeExtraLarge
+
+                Image {
+                    id: appIcon
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
+                    // TODO use a higher resolution source image (not SVG though, not supported)
+                    source: "../../icons/86x86/harbour-whisperfish.png"
+                    verticalAlignment: Image.AlignVCenter
+                    opacity: waitingSpinner.running ? Theme.opacityLow : 1.0
+                    Behavior on opacity { FadeAnimator { } }
+                }
+
+                BusyIndicator {
+                    id: waitingSpinner
+                    anchors.centerIn: parent
+                    size: BusyIndicatorSize.Large
+                    running: waitThenUnlock.running
+                    opacity: running ? 1.0 : 0.0
+                    Behavior on opacity { FadeAnimator { } }
+                }
             }
 
             Column {

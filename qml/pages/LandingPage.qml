@@ -9,25 +9,17 @@ Page {
     function handleNextStep() {
         if (!readyToGo || nextAction == "none") {
             return
-        } else {
-            readyToGo = false
         }
 
-        if (nextAction == "register") {
-            nextAction = "none" // we'll wait for 'verify'
+        var action = nextAction
+        readyToGo = false
+        nextAction = "none"
+        if (action === "register") {
             pageStack.push(Qt.resolvedUrl("Register.qml"))
-        } else if (nextAction == "verify") {
-            nextAction = "none" // we'll wait for 'unlock'
+        } else if (action === "verify") {
             pageStack.push(Qt.resolvedUrl("Verify.qml"))
-        } else if (nextAction == "unlock") {
-            nextAction = "verifyUnlocked" // we'll be back
+        } else if (action === "unlock") {
             pageStack.push(Qt.resolvedUrl("UnlockPage.qml"))
-        } else if (nextAction == "verifyUnlocked") {
-            nextAction = "none"
-            // TODO Until we have a way of knowing if the entered
-            // password was correct, we use the timer to continue
-            // to the main page if no password prompt interrupts it.
-            waitThenUnlock.restart()
         }
     }
 
@@ -50,10 +42,7 @@ Page {
         target: Prompt
         onPromptPhoneNumber: nextAction = "register"
         onPromptVerificationCode: nextAction = "verify"
-        onPromptPassword: {
-            waitThenUnlock.stop()
-            nextAction = "unlock"
-        }
+        onPromptPassword: nextAction = "unlock"
     }
 
     Connections {
@@ -75,11 +64,6 @@ Page {
             //% "ERROR - Invalid phone number registered with Signal"
             setupRemorse.execute(qsTrId("whisperfish-error-invalid-number"), function() { console.log("Invalid phone number registered with Signal") })
         }
-        onClientFailed: {
-            //: Failed to setup signal client error message
-            //% "ERROR - Failed to setup Signal client"
-            setupRemorse.execute(qsTrId("whisperfish-error-setup-client"), function() { console.log("Failed to setup Signal client") })
-        }
     }
 
     RemorsePopup { id: setupRemorse }
@@ -94,22 +78,10 @@ Page {
 
     Timer {
         // Delay showing "Welcome". We should
-        // already be on the next page when this is
-        // triggered. We'll see it when we come back.
+        // already be on the next page when this is triggered -
+        // but if not, we'll let the user see something.
         running: true
         interval: 500
         onTriggered: waitingPlaceholder.running = true
-    }
-
-    Timer {  // TO BE REMOVED
-        id: waitThenUnlock
-        interval: 200 // If nothing happens in this time,
-                      // we assume the password was correct.
-                      // There is no notification after the third
-                      // invalid attempt, though...
-        running: false
-        onTriggered: {
-            mainWindow.showMainPage()
-        }
     }
 }
