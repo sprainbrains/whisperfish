@@ -4,7 +4,7 @@ use actix::prelude::*;
 use harbour_whisperfish::*;
 
 fn main() -> Result<(), failure::Error> {
-    let mut sys = System::new("whisperfish");
+    let sys = System::new("whisperfish");
     env_logger::init();
 
     sfos::TokioQEventDispatcher::install();
