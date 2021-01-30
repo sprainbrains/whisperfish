@@ -107,6 +107,7 @@ ApplicationWindow
             }
         }
         onPromptResetPeerIdentity: {
+            if (fatalOccurred) return
             pageStack.push(Qt.resolvedUrl("pages/PeerIdentityChanged.qml"), { source: source })
         }
     }
@@ -121,7 +122,6 @@ ApplicationWindow
         }
     }
 
-    function showMainPage() {
     function showFatalError(message) {
         fatalOccurred = true
         // We don't clear the stack to keep transition animations
@@ -130,11 +130,15 @@ ApplicationWindow
                            errorMessage: message
                        })
     }
+
+    function showMainPage(operationType) {
+        if (fatalOccurred) return
         pageStack.clear()
         pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {}, PageStackAction.Immediate)
     }
 
     function newMessage(operationType) {
+        if (fatalOccurred) return
         showMainPage()
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
     }
