@@ -20,6 +20,8 @@ Page {
             pageStack.push(Qt.resolvedUrl("Verify.qml"))
         } else if (action === "unlock") {
             pageStack.push(Qt.resolvedUrl("UnlockPage.qml"))
+        } else if (action === "prepareRegistration") {
+            pageStack.push(Qt.resolvedUrl("SetupPasswordPage.qml"))
         }
     }
 
@@ -40,9 +42,18 @@ Page {
 
     Connections {
         target: Prompt
+        // Registration and verification are handled in the respective
+        // pages. We still catch these signals to allow continuing
+        // an interrupted registration process.
         onPromptPhoneNumber: nextAction = "register"
         onPromptVerificationCode: nextAction = "verify"
-        onPromptPassword: nextAction = "unlock"
+        onPromptPassword: {
+            if (SetupWorker.registered) {
+                nextAction = "unlock"
+            } else {
+                nextAction = "prepareRegistration"
+            }
+        }
     }
 
     Connections {
