@@ -50,7 +50,7 @@ BlockingInfoPageBase {
         interval: 1000
         running: false
         onTriggered: {
-            mainWindow.showMainPage(PageStackAction.Replace)
+            mainWindow.showMainPage(PageStackAction.Animated)
         }
     }
 
