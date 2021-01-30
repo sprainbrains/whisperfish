@@ -7,7 +7,7 @@ ApplicationWindow
 {
     id: mainWindow
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-    initialPage: Component { MainPage { } }
+    initialPage: Component { LandingPage { } }
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
