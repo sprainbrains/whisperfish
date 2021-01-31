@@ -359,8 +359,26 @@
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Vergelijkt de cijferkes hierboven me’ de die op ’t toestel van %1 voôr de veiligheid van u eind-tot-eind-versleuteling te verifiëren.</translation>
     </message>
+    <message id="whisperfish-recipient-number-invalid-chars">
+        <location filename="../qml/pages/NewMessage.qml" line="53"/>
+        <source>This phone number contains invalid characters.</source>
+        <extracomment>invalid recipient phone number: invalid characters</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-recipient-local-number-not-allowed">
+        <location filename="../qml/pages/NewMessage.qml" line="58"/>
+        <source>Please set a country code in the settings, or use the international format.</source>
+        <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-recipient-number-invalid-unspecified">
+        <location filename="../qml/pages/NewMessage.qml" line="62"/>
+        <source>This phone number appears to be invalid.</source>
+        <extracomment>invalid recipient phone number: failed to format</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-new-message-title">
-        <location filename="../qml/pages/NewMessage.qml" line="64"/>
+        <location filename="../qml/pages/NewMessage.qml" line="88"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
         <translation>Nief bericht</translation>
@@ -384,8 +402,8 @@
         <translation>Nieve groep</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="82"/>
-        <location filename="../qml/pages/NewMessage.qml" line="86"/>
+        <location filename="../qml/pages/NewMessage.qml" line="106"/>
+        <location filename="../qml/pages/NewMessage.qml" line="110"/>
         <source>Recipient</source>
         <extracomment>New message recipient label
 ----------
@@ -414,7 +432,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Selecteert de groepsleden</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="122"/>
+        <location filename="../qml/pages/NewMessage.qml" line="152"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Ongeldigen ontvanger</translation>
