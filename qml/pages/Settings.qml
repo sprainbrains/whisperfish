@@ -181,20 +181,6 @@ Page {
                     SettingsBridge.stringSet("country_code", currentItem.iso)
                 }
             }
-
-            ValueButton {
-                id: countryCode
-                anchors.horizontalCenter: parent.horizontalCenter
-
-
-                onClicked: {
-                    var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
-                    cd.setCountryCode.connect(function(code) {
-                        value = code
-                        SettingsBridge.stringSet("country_code", code)
-                    })
-                }
-            }
             IconTextSwitch {
                 id: saveAttachments
                 anchors.horizontalCenter: parent.horizontalCenter
