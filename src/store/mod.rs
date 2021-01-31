@@ -377,21 +377,6 @@ async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>
 
 impl Storage {
 
-    // This is used only in tests that want a synchronous open routine. 
-    // XXX: get rid of it
-    pub fn open_database_only<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
-        let db = db_path.open_db()?;
-
-        let protocol_store = ProtocolStore::invalid();
-
-        Ok(Storage {
-            db: Arc::new(Mutex::new(db)),
-            keys: None,
-            protocol_store: Arc::new(Mutex::new(protocol_store)),
-            path: db_path.to_path_buf(),
-        })
-    }
-
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
         &self.path
@@ -1232,16 +1217,6 @@ impl Storage {
 mod tests {
     use super::*;
     use rstest::rstest;
-
-    #[test]
-    fn open_temp_db() -> Result<(), Error> {
-        let temp = temp();
-        std::fs::create_dir(temp.join("db"))?;
-        std::fs::create_dir(temp.join("storage"))?;
-        let _storage = Storage::open_database_only(&temp)?;
-
-        Ok(())
-    }
 
     #[rstest(
         mime_type,

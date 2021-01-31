@@ -24,14 +24,6 @@ fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a
 }
 
 impl ProtocolStore {
-    // To be used only in tests.
-    // XXX: get rid of it
-    pub fn invalid() -> Self {
-        Self {
-            identity_key: vec![],
-            regid: 0,
-        }
-    }
 
     pub async fn store_with_key(
         keys: Option<[u8; 16 + 20]>,
