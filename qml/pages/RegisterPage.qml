@@ -1,7 +1,7 @@
 import QtQuick 2.5
 import Sailfish.Silica 1.0
 import "../components"
-import "../js/calling_codes_new.js" as CallingCodes
+import "../js/countries.js" as CallingCodes
 
 BlockingInfoPageBase {
     id: root
@@ -19,8 +19,11 @@ BlockingInfoPageBase {
     signal accept
     onAccept: {
         if (!_inputIsValid) return
+        busy = true // we have to wait for the backend to prompt the next step
+        var iso = prefixCombo.currentItem.iso
+        SettingsBridge.stringSet("country_code", iso)
+        if (iso === "") console.warn("registering without ISO country code")
         Prompt.phoneNumber(prefixCombo.currentItem.prefix+numberField.text)
-        busy = true // wait for the backend to prompt the next step
     }
 
     signal _retry
@@ -69,7 +72,8 @@ BlockingInfoPageBase {
                         MenuItem {
                             property string prefix: CallingCodes.c[index].p
                             property string name: CallingCodes.c[index].n
-                            text: prefix + " - " + name
+                            property string iso: CallingCodes.c[index].i
+                            text: prefix + " - " + name + (iso ? " (%1)".arg(iso) : "")
                         }
                     }
                 }
