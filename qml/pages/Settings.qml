@@ -1,10 +1,9 @@
-
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import "../js/countries_iso_only.js" as Countries
 
 Page {
     id: settingsPage
-    property QtObject countryCodeCombo : countryCode
 
     RemorsePopup {
         id: remorse
@@ -145,16 +144,49 @@ Page {
                 //% "General"
                 text: qsTrId("whisperfish-settings-general-section")
             }
-            ValueButton {
-                id: countryCode
-                anchors.horizontalCenter: parent.horizontalCenter
+            ComboBox {
+                id: countryCombo
+                // TODO Change the backend to use a real prefix instead of
+                // a country code. Then update this to use countries.js and save
+                // the prefix. Update RegisterPage.qml to save the prefix.
+                // Remove countries_iso_only.js.
+
+                property string _setting: SettingsBridge.stringValue("country_code")
+                width: parent.width
                 //: Settings page country code
                 //% "Country Code"
                 label: qsTrId("whisperfish-settings-country-code")
                 //: Settings page country code description
                 //% "The selected country code determines what happens when a local phone number is entered."
                 description: qsTrId("whisperfish-settings-country-code-description")
-                value: SettingsBridge.stringValue("country_code")
+                value: currentIndex < 0 ? qsTr('none') : currentItem.iso
+                currentIndex: -1
+                menu: ContextMenu {
+                    Repeater {
+                        model: Countries.c
+                        MenuItem {
+                            property string names: Countries.c[index].n
+                            property string iso: Countries.c[index].i
+                            text: iso + " - " + names
+                            Component.onCompleted: {
+                                if (iso === countryCombo._setting) {
+                                    countryCombo.currentIndex = index
+                                }
+                                console.log(iso, countryCombo._setting)
+                            }
+                        }
+                    }
+                }
+                onCurrentIndexChanged: {
+                    SettingsBridge.stringSet("country_code", currentItem.iso)
+                }
+            }
+
+            ValueButton {
+                id: countryCode
+                anchors.horizontalCenter: parent.horizontalCenter
+
+
                 onClicked: {
                     var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
                     cd.setCountryCode.connect(function(code) {
