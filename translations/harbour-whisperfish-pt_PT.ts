@@ -135,7 +135,7 @@
         <location filename="../qml/pages/CountryCodeDialog.qml" line="17"/>
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation>Escolhe o código do país</translation>
+        <translation>Escolhe o indicativo do país</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
         <location filename="../qml/pages/Group.qml" line="18"/>
@@ -633,13 +633,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="153"/>
         <source>Country Code</source>
         <extracomment>Settings page country code</extracomment>
-        <translation>Código do país</translation>
+        <translation>Indicativo do país</translation>
     </message>
     <message id="whisperfish-settings-country-code-description">
         <location filename="../qml/pages/Settings.qml" line="156"/>
         <source>The selected country code determines what happens when a local phone number is entered.</source>
         <extracomment>Settings page country code description</extracomment>
-        <translation>O código do país determina o que acontece quando é inserido um número de telefone local.</translation>
+        <translation>O indicativo do país determina o que acontece quando é inserido um número de telefone local.</translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
         <location filename="../qml/pages/Settings.qml" line="171"/>
@@ -771,13 +771,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="337"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
-        <translation>Ligado</translation>
+        <translation>Ativado</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
         <location filename="../qml/pages/Settings.qml" line="340"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
-        <translation>Desligado</translation>
+        <translation>Desativado</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
         <location filename="../qml/pages/Settings.qml" line="345"/>
@@ -795,7 +795,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="352"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
-        <translation>Desligado</translation>
+        <translation>Desativado</translation>
     </message>
     <message id="whisperfish-verify-code-accept">
         <location filename="../qml/pages/Verify.qml" line="25"/>
@@ -849,13 +849,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
         <source>Verify safety numbers</source>
         <extracomment>Verify safety numbers</extracomment>
-        <translation>Confirmar números de segurança</translation>
+        <translation>Verificar números de segurança</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Para verificar a segurança da criptografia ponta-a-ponta com %1, compara os números em acima com os números no outro dispositivo.</translation>
+        <translation>Para verificar a segurança da criptografia ponta-a-ponta com %1, compara os números acima com os números no outro dispositivo.</translation>
     </message>
     <message id="whisperfish-chatinput-contact">
         <location filename="../qml/pages/WFChatTextInput.qml" line="112"/>
