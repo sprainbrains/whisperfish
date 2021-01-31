@@ -34,7 +34,7 @@ Page {
                     }
                     return members.join(", ")
                 }
-                else return (pageHeader.title == MessageModel.peerTel ? undefined : MessageModel.peerTel)
+                else return (pageHeader.title == MessageModel.peerTel ? "" : MessageModel.peerTel)
             }
         }
 
