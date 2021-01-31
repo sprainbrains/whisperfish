@@ -162,7 +162,7 @@
         <translation>Merhaba</translation>
     </message>
     <message id="whisperfish-select-file">
-        <location filename="../qml/pages/WFChatTextInput.qml" line="197"/>
+        <location filename="../qml/pages/WFChatTextInput.qml" line="203"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
         <translation>Dosya seç</translation>
