@@ -28,16 +28,40 @@ import org.nemomobile.commhistory 1.0
 
 Page {
     id: newMessagePage
-    property Label errorLabel
-
     property bool recipientSelected: recipientField.selectedContacts.count == 1
     property QtObject selectedContact: recipientSelected ? recipientField.selectedContacts.get(0) : null
     property bool isValid: recipientSelected && recipientNumber != ""
+    property bool localAllowed: String(SettingsBridge.stringValue("country_code")) !== ""
 
-    property string recipientNumber: recipientSelected && selectedContact.propertyType == "phoneNumber" ? ContactModel.format(selectedContact.property.number) : ""
+    property string recipientNumberRaw: recipientSelected && selectedContact.propertyType === "phoneNumber" ? selectedContact.property.number : ""
+    property string recipientNumber: ContactModel.format(recipientNumberRaw)
     property string recipientName: recipientSelected ? selectedContact.formattedNameText : ""
 
     _clickablePageIndicators: !(isLandscape && recipientField.activeFocus)
+
+    function showError(message) {
+        errorLabel.opacity = 0.0
+        errorLabel.text = message
+        errorLabel.opacity = 1.0
+    }
+
+    onRecipientNumberRawChanged: {
+        if (recipientNumberRaw === "") return
+        if (!/^\+?[- 0-9]{4,}$/.test(recipientNumberRaw)) {
+            //: invalid recipient phone number: invalid characters
+            //% "This phone number contains invalid characters."
+            showError(qsTrId("whisperfish-recipient-number-invalid-chars"))
+        } else if (!localAllowed && !/^\+[- 0-9]{4,}$/.test(recipientNumberRaw)) {
+            //: invalid recipient phone number: local numbers are not allowed
+            //% "Please set a country code in the settings, "
+            //% "or use the international format."
+            showError(qsTrId("whisperfish-recipient-local-number-not-allowed asld asdlksad asldkj asdkl asdlk as"))
+        } else if (String(ContactModel.format(recipientNumberRaw)) === "") {
+            //: invalid recipient phone number: failed to format
+            //% "This phone number appears to be invalid."
+            showError(qsTrId("whisperfish-recipient-number-invalid-unspecified"))
+        }
+    }
 
     SilicaFlickable {
         id: newMessage
@@ -92,12 +116,18 @@ Page {
                         onHasFocusChanged: if (!hasFocus) textInput.forceActiveFocus()
                     }
                 }
-                ErrorLabel {
+                Label {
                     id: errorLabel
-                    visible: text.length > 0
+                    width: parent.width - 4*Theme.horizontalPageMargin
+                    wrapMode: Text.Wrap
+                    textFormat: Text.AutoText
+                    horizontalAlignment: Qt.AlignHCenter
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.highlightColor
+                    Behavior on opacity { FadeAnimator { } }
                     anchors {
                         bottom: parent.bottom
-                        bottomMargin: -Theme.paddingSmall
+                        horizontalCenter: parent.horizontalCenter
                     }
                 }
             }
@@ -119,7 +149,7 @@ Page {
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"
-                        errorLabel.text = qsTrId("whisperfish-error-invalid-recipient")
+                        showError(qsTrId("whisperfish-error-invalid-recipient"))
                     }
                 }
             }
