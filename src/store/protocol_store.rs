@@ -305,10 +305,7 @@ impl SessionStore for Storage {
                 let name = entry.file_name();
                 let name = name.as_os_str().as_bytes();
 
-                log::trace!("parsing {:?}", entry);
-
                 if name.len() < addr.len() + 2 {
-                    log::trace!("filename {:?} not long enough", entry);
                     return None;
                 }
 
@@ -321,7 +318,6 @@ impl SessionStore for Storage {
                     let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
                     id.parse().ok()
                 } else {
-                    log::trace!("filename {:?} without prefix match", entry);
                     None
                 }
             })
@@ -332,8 +328,6 @@ impl SessionStore for Storage {
     }
 
     fn contains_session(&self, addr: Address) -> Result<bool, SignalProtocolError> {
-        let addr_str = addr.as_str().unwrap();
-        log::trace!("contains_session({})", addr_str);
         let path = self.session_path(&addr);
         Ok(path.is_file())
     }

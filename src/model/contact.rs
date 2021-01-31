@@ -41,6 +41,55 @@ define_model_roles! {
     }
 }
 
+pub fn name_from_phone_number(source: &str) -> Option<String> {
+    use crate::schema::contacts;
+    use crate::schema::phoneNumbers;
+
+    let settings = Settings::default();
+    let country_code = settings.get_string("country_code");
+
+    let source = source.to_string();
+    let source = source.trim();
+
+    let conn = ContactModel::db(); // This should maybe be established only once
+
+    // This will ensure the format to query is ok
+    let e164_source =
+        format_with_country_helper(&source, Mode::E164, &country_code).unwrap_or_else(|| "".into());
+    let mut national_source = format_with_country_helper(&source, Mode::National, &country_code)
+        .unwrap_or_else(|| "".into());
+    national_source.retain(|c| c != ' '); // At least FI numbers had spaces after parsing
+    let doppio_zero = e164_source.clone().replace('+', "00");
+
+    let trimmed_number =
+        diesel::dsl::sql::<diesel::sql_types::Text>("REPLACE(phoneNumbers.phoneNumber, ' ', '')");
+    let trimmed_number = &trimmed_number;
+
+    let normalized_number = diesel::dsl::sql::<diesel::sql_types::Text>(
+        // normalizedNumber doesn't contain spaces or dashes,
+        // and is formatted to contain *only* the last 8 digits.
+        "REPLACE(phoneNumbers.normalizedNumber, '.', '')",
+    );
+    let normalized_number = &normalized_number;
+    let doppio_zero_sliced = &doppio_zero[(doppio_zero.len().saturating_sub(8))..];
+
+    let result: Option<(String, String)> = contacts::table
+        .inner_join(phoneNumbers::table)
+        .select((contacts::displayLabel, trimmed_number))
+        // Either as-is ...
+        .filter(trimmed_number.like(&e164_source))
+        // ... or national format ...
+        .or_filter(trimmed_number.like(&national_source))
+        // ... or 00-prefixed ...
+        .or_filter(trimmed_number.like(&doppio_zero))
+        // ... or in the normalized column.
+        .or_filter(normalized_number.like(&doppio_zero_sliced))
+        .get_result(&conn)
+        .ok();
+
+    result.map(|x| x.0)
+}
+
 impl ContactModel {
     // The default formatter expected by QML
     fn format(&self, number: QString) -> QString {
@@ -52,62 +101,16 @@ impl ContactModel {
             .into()
     }
 
-    fn db(&self) -> SqliteConnection {
+    fn db() -> SqliteConnection {
         let path = dirs::data_local_dir().expect("find data directory");
         SqliteConnection::establish(path.join(DB_PATH).to_str().expect("UTF-8 path"))
             .expect("open contact database")
     }
 
     fn name(&self, source: QString) -> QString {
-        use crate::schema::contacts;
-        use crate::schema::phoneNumbers;
-
-        let settings = Settings::default();
-        let country_code = settings.get_string("country_code");
-
-        let source = source.to_string();
-        let source = source.trim();
-
-        let conn = self.db(); // This should maybe be established only once
-
-        // This will ensure the format to query is ok
-        let e164_source = format_with_country_helper(&source, Mode::E164, &country_code)
-            .unwrap_or_else(|| "".into());
-        let mut national_source =
-            format_with_country_helper(&source, Mode::National, &country_code)
-                .unwrap_or_else(|| "".into());
-        national_source.retain(|c| c != ' '); // At least FI numbers had spaces after parsing
-        let doppio_zero = e164_source.clone().replace('+', "00");
-        let source = source.to_string();
-
-        let trimmed_number = diesel::dsl::sql::<diesel::sql_types::Text>(
-            "REPLACE(phoneNumbers.phoneNumber, ' ', '')",
-        );
-        let trimmed_number = &trimmed_number;
-
-        let normalized_number = diesel::dsl::sql::<diesel::sql_types::Text>(
-            // normalizedNumber doesn't contain spaces or dashes,
-            // and is formatted to contain *only* the last 8 digits.
-            "REPLACE(phoneNumbers.normalizedNumber, '.', '')",
-        );
-        let normalized_number = &normalized_number;
-        let doppio_zero_sliced = &doppio_zero[(doppio_zero.len().saturating_sub(8))..];
-
-        let (name, _phone_number): (String, String) = contacts::table
-            .inner_join(phoneNumbers::table)
-            .select((contacts::displayLabel, trimmed_number))
-            // Either as-is ...
-            .filter(trimmed_number.like(&e164_source))
-            // ... or national format ...
-            .or_filter(trimmed_number.like(&national_source))
-            // ... or 00-prefixed ...
-            .or_filter(trimmed_number.like(&doppio_zero))
-            // ... or in the normalized column.
-            .or_filter(normalized_number.like(&doppio_zero_sliced))
-            .get_result(&conn)
-            .unwrap_or((source.clone(), source));
-
-        QString::from(name)
+        name_from_phone_number(source.to_string().trim())
+            .map(QString::from)
+            .unwrap_or(source)
     }
 
     pub fn refresh(&mut self) {
@@ -117,7 +120,7 @@ impl ContactModel {
 
         let settings = crate::settings::Settings::default();
         let country_code = settings.get_string("country_code");
-        let db = self.db();
+        let db = Self::db();
 
         let country = match phonenumber::country::Id::from_str(&country_code) {
             Ok(country) => Some(country),
