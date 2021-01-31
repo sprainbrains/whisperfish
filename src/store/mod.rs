@@ -441,25 +441,6 @@ impl Storage {
         Ok(())
     }
 
-    pub async fn new_without_password<T: AsRef<Path>>(
-        db_path: &StorageLocation<T>,
-        regid: u32,
-        http_password: &str,
-        signaling_key: [u8; 52],
-    ) -> Result<Storage, Error> {
-        Self::new(&db_path, None, regid, &http_password, signaling_key).await
-    }
-
-    pub async fn new_with_password<T: AsRef<Path>>(
-        db_path: &StorageLocation<T>,
-        password: &str,
-        regid: u32,
-        http_password: &str,
-        signaling_key: [u8; 52],
-    ) -> Result<Storage, Error> {
-        Self::new(&db_path, Some(password), regid, &http_password, signaling_key).await
-    }
-
     /// Writes (*overwrites*) a new Storage object to the provided path.
     pub async fn new<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
@@ -526,17 +507,6 @@ impl Storage {
             protocol_store: Arc::new(Mutex::new(protocol_store)),
             path: path.to_path_buf(),
         })
-    }
-
-    pub async fn open_without_password<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
-        Self::open(&db_path, None).await
-    }
-
-    pub async fn open_with_password<T: AsRef<Path>>(
-        db_path: &StorageLocation<T>,
-        password: String,
-    ) -> Result<Storage, Error> {
-        Self::open(&db_path, Some(password)).await
     }
 
     pub async fn open<T: AsRef<Path>>(

@@ -186,9 +186,9 @@ impl SetupWorker {
                 .ok_or_else(|| format_err!("No password provided"))?
                 .into();
 
-            Storage::open_with_password(&store::default_location()?, password).await?
+            Storage::open(&store::default_location()?, Some(password)).await?
         } else {
-            Storage::open_without_password(&store::default_location()?).await?
+            Storage::open(&store::default_location()?, None).await?
         };
 
         *app.storage.borrow_mut() = Some(storage);
