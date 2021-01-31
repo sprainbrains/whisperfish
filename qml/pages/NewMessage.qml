@@ -55,7 +55,7 @@ Page {
             //: invalid recipient phone number: local numbers are not allowed
             //% "Please set a country code in the settings, "
             //% "or use the international format."
-            showError(qsTrId("whisperfish-recipient-local-number-not-allowed asld asdlksad asldkj asdkl asdlk as"))
+            showError(qsTrId("whisperfish-recipient-local-number-not-allowed"))
         } else if (String(ContactModel.format(recipientNumberRaw)) === "") {
             //: invalid recipient phone number: failed to format
             //% "This phone number appears to be invalid."
