@@ -98,6 +98,7 @@ impl SetupWorker {
         app.storage_ready().await;
 
         this.borrow().setupChanged();
+        this.borrow().setupComplete();
     }
 
     async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
