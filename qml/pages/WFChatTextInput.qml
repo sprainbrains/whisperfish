@@ -117,32 +117,38 @@ InverseMouseArea {
 
     onClickedOutside: textField.focus = false
 
-    MouseArea {
+    Row {
         id: sendButtonArea
-        anchors {
-            fill: sendButtonText
-            margins: -Theme.paddingLarge
-        }
-        enabled: !textField.empty && chatInputArea.enabled
-        onClicked: chatInputArea.send()
-    }
-
-    IconButton {
-        id: sendButtonText
-        icon.source: "/usr/share/harbour-whisperfish/icons/ic_send_push_white_24dp.png"
-        icon.width: Theme.iconSizeMedium
-        icon.height: Theme.iconSizeMedium
+        spacing: Theme.paddingMedium
+        width: childrenRect.width
         anchors {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
             verticalCenter: textField.top
-            verticalCenterOffset: textField.textVerticalCenterOffset + (textField._editor.height - (height/2))
+            verticalCenterOffset: textField.textVerticalCenterOffset +
+                                  (textField._editor.height - (height/2))
         }
-        onClicked: chatInputArea.send()
-        visible: true
-        onPressAndHold: {
-            chatInputArea.attachmentPath = ""
-            pageStack.push(contentPickerPage)
+        IconButton {
+            icon.source: "image://theme/icon-m-attach"
+            icon.width: Theme.iconSizeMedium
+            icon.height: icon.width
+            onClicked: {
+                chatInputArea.attachmentPath = ""
+                pageStack.push(contentPickerPage)
+            }
+        }
+        Button {
+            width: Theme.iconSizeMedium + 2*Theme.paddingSmall
+            height: width
+            onClicked: chatInputArea.send()
+            Icon {
+                width: Theme.iconSizeMedium
+                height: width
+                source: "image://theme/icon-m-send"
+                highlighted: parent.highlighted
+                anchors.centerIn: parent
+                opacity: parent.enabled ? 1.0 : Theme.opacityLow
+            }
         }
     }
 
