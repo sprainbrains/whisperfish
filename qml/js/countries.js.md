@@ -19,6 +19,10 @@
 	--- manually fix failed lines, think of https://xkcd.com/927/ and politics, hopefully no offence
 	perl -pe 's/^(.*?)\t(.*?)\t(.*?)(\t.*?)?$/{n:"\1",i:"\2",p:"\3"},\4/g; s/,\t/, /g;' joined_fixed |\
 		sort | sed '$a ]' | sed '1i var c=[//n=name,i=ISO,p=prefix -- see countries.js.md for source' > countries.js
+	awk -F $'\t' '$2!=""' joined_fixed | cut -f1,2 | sed -Ee 's/(.*?)\t(.*?)/\2\t\1/g' | sort -u |\
+		awk -F $'\t' '{a[$1]=sprintf("%s\t%s", a[$1],$2)}END{for(i in a){printf "{i:\"%s\",n:\"%s\"},\n", i, a[i]}}' |\
+		sed 's/"\t/"/g; s/\t/, /g' | sort | sed '$a ]' |\
+		sed '1i var c=[//n=names,i=ISO -- see countries.js.md for source' > countries_iso_only.js
 
 **Important:** ISO may be empty, calling code must be available.
 
