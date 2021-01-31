@@ -35,6 +35,11 @@ pub struct QueueMessage {
     pub group: String,
 }
 
+#[derive(Message)]
+#[rtype(result = "()")]
+/// Send a ne
+pub struct EndSession(pub String);
+
 pub struct MessageActor {
     inner: QObjectBox<MessageModel>,
     storage: Option<Storage>,
@@ -173,6 +178,39 @@ impl Handler<QueueMessage> for MessageActor {
                     None
                 },
                 flags: 0,
+                outgoing: true,
+                received: false,
+                sent: false,
+            },
+            None,
+            false,
+        );
+
+        storage.queue_message(&msg);
+
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
+    }
+}
+
+impl Handler<EndSession> for MessageActor {
+    type Result = ();
+
+    fn handle(&mut self, EndSession(e164): EndSession, _ctx: &mut Self::Context) -> Self::Result {
+        use libsignal_service::content::DataMessageFlags;
+        log::trace!("MessageActor::EndSession({})", e164);
+
+        let storage = self.storage.as_mut().unwrap();
+
+        let (msg, _session) = storage.process_message(
+            crate::store::NewMessage {
+                session_id: None,
+                source: e164,
+                text: "[Whisperfish] Reset secure session".into(),
+                timestamp: chrono::Utc::now().timestamp_millis(),
+                has_attachment: false,
+                mime_type: None,
+                attachment: None,
+                flags: DataMessageFlags::EndSession.into(),
                 outgoing: true,
                 received: false,
                 sent: false,

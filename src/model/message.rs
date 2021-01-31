@@ -64,6 +64,7 @@ pub struct MessageModel {
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
+    endSession: qt_method!(fn(&self, e164: QString)),
 
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
@@ -143,6 +144,18 @@ impl MessageModel {
                 .as_mut()
                 .unwrap()
                 .send(SendMessage(mid))
+                .map(Result::unwrap),
+        );
+    }
+
+    #[allow(non_snake_case)]
+    /// Called when a message should be queued to be sent to OWS
+    fn endSession(&mut self, e164: QString) {
+        Arbiter::spawn(
+            self.actor
+                .as_mut()
+                .unwrap()
+                .send(actor::EndSession(e164.into()))
                 .map(Result::unwrap),
         );
     }
