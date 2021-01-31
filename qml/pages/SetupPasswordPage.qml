@@ -63,7 +63,6 @@ BlockingInfoPageBase {
             placeholderText: qsTrId("whisperfish-new-password-placeholder")
             placeholderColor: Theme.highlightColor
             color: errorHighlight ? Theme.highlightColor : Theme.primaryColor
-            focus: true
             EnterKey.iconSource: "image://theme/icon-m-enter-next"
             EnterKey.onClicked: password2Field.forceActiveFocus()
         }

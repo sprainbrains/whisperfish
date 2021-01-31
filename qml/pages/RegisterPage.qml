@@ -116,7 +116,6 @@ BlockingInfoPageBase {
 
                 placeholderColor: color
                 color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
-                focus: true
                 EnterKey.iconSource: _inputIsValid ?
                                          "image://theme/icon-m-enter-next" :
                                          "image://theme/icon-m-enter-close"
