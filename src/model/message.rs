@@ -307,7 +307,7 @@ impl MessageModel {
     // Event handlers below this line
 
     /// Handle a fetched session from message's point of view
-    pub fn handle_fetch_session(&mut self, sess: store::Session) {
+    pub fn handle_fetch_session(&mut self, sess: store::Session, peer_identity: String) {
         log::trace!("handle_fetch_session({})", sess.message);
         self.sessionId = sess.id;
         self.sessionIdChanged();
@@ -328,6 +328,9 @@ impl MessageModel {
 
         self.groupMembers = QString::from(sess.group_members.unwrap_or_else(String::new));
         self.groupMembersChanged();
+
+        self.peerIdentity = peer_identity.into();
+        self.peerIdentityChanged();
 
         // TODO: contact identity key
         Arbiter::spawn(

@@ -1193,6 +1193,17 @@ impl Storage {
         self.update_session(&db_sess, &session_data, session_data.unread);
         log::debug!("[refresh_session] Updated");
     }
+
+    /// Returns a hex-encoded peer identity
+    pub fn peer_identity(&self, e164: &str) -> Result<String, failure::Error> {
+        use libsignal_protocol::stores::IdentityKeyStore;
+        use libsignal_protocol::Address;
+        let addr = Address::new(e164, 1);
+        let ident = self
+            .get_identity(addr)?
+            .ok_or(failure::format_err!("No such identity"))?;
+        Ok(hex::encode_upper(ident.as_slice()))
+    }
 }
 
 #[cfg(test)]

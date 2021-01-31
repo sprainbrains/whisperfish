@@ -95,7 +95,26 @@ impl Handler<FetchSession> for MessageActor {
             storage.mark_session_read(&sess);
             sess.unread = false;
         }
-        self.inner.pinned().borrow_mut().handle_fetch_session(sess);
+
+        let peer_identity = if !sess.source.trim().is_empty() {
+            match storage.peer_identity(&sess.source) {
+                Ok(ident) => ident,
+                Err(e) => {
+                    log::warn!(
+                        "FetchSession: returning empty string for peer_ident because {:?}",
+                        e
+                    );
+                    String::new()
+                }
+            }
+        } else {
+            String::new()
+        };
+
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_fetch_session(sess, peer_identity);
     }
 }
 
