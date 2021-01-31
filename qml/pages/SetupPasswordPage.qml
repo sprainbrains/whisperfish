@@ -55,9 +55,13 @@ BlockingInfoPageBase {
             width: parent.width - 2*Theme.horizontalPageMargin
             inputMethodHints: Qt.ImhNoPredictiveText
             validator: RegExpValidator{ regExp: /.{6,}/ }
-            //: Password label
-            //% "Password"
-            label: qsTrId("whisperfish-password-label")
+            label: errorHighlight /* = validator complained */ ?
+                       //: Password label when too short
+                       //% "Password is too short"
+                       qsTrId("whisperfish-password-label-too-short") :
+                       //: Password label
+                       //% "Password"
+                       qsTrId("whisperfish-password-label")
             //: New password input placeholder
             //% "Your new password"
             placeholderText: qsTrId("whisperfish-new-password-placeholder")
@@ -77,9 +81,15 @@ BlockingInfoPageBase {
                        //: repeated password input label
                        //% "Repeated password"
                        qsTrId("whisperfish-password-repeated-label") :
-                       //: repeated password input label if passwords don't match
-                       //% "Passwords do not match"
-                       qsTrId("whisperfish-password-repeated-label-wrong")
+                       ((password1Field.text === password2Field.text && errorHighlight) ?
+                            /* = passwords match but validator complained */
+                            //: Password label when too short
+                            //% "Password is too short"
+                            qsTrId("whisperfish-password-label-too-short") :
+                            //: repeated password input label if passwords don't match
+                            //% "Passwords do not match"
+                            qsTrId("whisperfish-password-repeated-label-wrong")
+                        )
             //: Repeated new password input placeholder
             //% "Repeat your new password"
             placeholderText: qsTrId("whisperfish-new-password-repeat-placeholder")
