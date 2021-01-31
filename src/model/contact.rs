@@ -173,14 +173,10 @@ impl ContactModel {
 fn format_with_country_helper(number: &str, mode: Mode, country_code: &str) -> Option<String> {
     let country = phonenumber::country::Id::from_str(country_code).ok();
 
-    log::trace!("Formatting phone number with country {:?}", country);
-
     let number = match phonenumber::parse(country, number) {
         Ok(number) => number,
         Err(_) => return None,
     };
-
-    log::trace!("Formatted phone number: {:?}", number);
 
     if !phonenumber::is_valid(&number) {
         log::warn!(
