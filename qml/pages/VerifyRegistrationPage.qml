@@ -1,7 +1,6 @@
 import QtQuick 2.5
 import Sailfish.Silica 1.0
 import "../components"
-import "../js/calling_codes_new.js" as CallingCodes
 
 BlockingInfoPageBase {
     id: root
