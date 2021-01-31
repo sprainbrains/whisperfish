@@ -88,26 +88,10 @@ impl SetupWorker {
             this.borrow_mut().registered = true;
             this.borrow().setupChanged();
         } else {
-            // Open storage
-            let mut encrypted = false;
-            let mut error_count = -1;
-            loop {
-                let res = SetupWorker::setup_storage(app.clone(), encrypted).await;
-                match res {
-                    Ok(()) => break,
-                    Err(error) => {
-                        encrypted = true; 
-                        error_count += 1;
-                        if error_count > 0 {
-                            log::error!("Attempt {} of setting up storage: {}", error_count, error);
-                        }
-                    }
-                }
-                if error_count == SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
-                    log::error!("Error setting up storage: {} bad password attempts", error_count);
-                    this.borrow().clientFailed();
-                    return;
-                }
+            if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
+                log::error!("Error setting up storage: {}", e);
+                this.borrow().clientFailed();
+                return;
             }
         }
 
@@ -174,22 +158,35 @@ impl SetupWorker {
         Ok(())
     }
 
-    async fn setup_storage(app: Rc<WhisperfishApp>, encrypted: bool) -> Result<(), Error> {
+    async fn open_storage(app: Rc<WhisperfishApp>) -> Result<Storage, Error> {
 
-        let storage = if encrypted {
-            let password: String = app
-                .prompt
-                .pinned()
-                .borrow_mut()
-                .ask_password()
-                .await
-                .ok_or_else(|| format_err!("No password provided"))?
-                .into();
+            let res = Storage::open(&store::default_location()?, None).await;
+            if let Ok(storage) = res {
+                return Ok(storage);
+            }
 
-            Storage::open(&store::default_location()?, Some(password)).await?
-        } else {
-            Storage::open(&store::default_location()?, None).await?
-        };
+            for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
+                let password: String = app
+                    .prompt
+                    .pinned()
+                    .borrow_mut()
+                    .ask_password()
+                    .await
+                    .ok_or_else(|| format_err!("No password provided"))?
+                    .into();
+
+                match Storage::open(&store::default_location()?, Some(password)).await {
+                    Ok(storage) => return Ok(storage),
+                    Err(error) => log::error!("Attempt {} of opening encrypted storage failed: {}", i, error)
+                }
+            }
+
+            log::error!("Error setting up storage: too many bad password attempts");
+            res
+    }
+
+    async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
+        let storage = SetupWorker::open_storage(app.clone()).await?;
 
         *app.storage.borrow_mut() = Some(storage);
 
