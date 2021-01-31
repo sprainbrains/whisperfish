@@ -602,10 +602,10 @@ impl Handler<SendMessage> for ClientActor {
                             .file_name()
                             .map(|f| f.to_string_lossy().into_owned()),
                         preview: None,
-                        voice_note: false,
-                        borderless: false,
-                        width: 0,
-                        height: 0,
+                        voice_note: Some(false),
+                        borderless: Some(false),
+                        width: Some(0),
+                        height: Some(0),
                         caption: None,
                         blur_hash: None,
                     };
