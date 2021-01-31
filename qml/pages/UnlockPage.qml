@@ -4,9 +4,15 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
-    pageTitle: qsTr("Unlock")
-    mainTitle: qsTr("Whisperfish")
-    mainDescription: qsTr("Please enter your password to unlock your conversations.")
+    //: unlock page title
+    //% "Unlock"
+    pageTitle: qsTrId("whisperfish-unlock-page-title")
+    //: unlock page welcome title, centered on screen
+    //% "Whisperfish"
+    mainTitle: qsTrId("whisperfish-unlock-welcome-title")
+    //: unlock page password prompt
+    //% "Please enter your password to unlock your conversations."
+    mainDescription: qsTrId("whisperfish-unlock-password-prompt")
 
     property bool _inputIsValid: !passwordField.errorHighlight &&
                                  SetupWorker.registered
@@ -15,7 +21,9 @@ BlockingInfoPageBase {
     onAccept: {
         if (!SetupWorker.registered) {
             // this page should never be reached when not registered
-            showFatalError(qsTr("You are not registered."))
+            //: fatal error when trying to unlock the db when not registered
+            //% "You are not registered."
+            showFatalError(qsTrId("whisperfish-fatal-error-msg-not-registered"))
             return
         } else if (!_inputIsValid) {
             return
@@ -38,7 +46,10 @@ BlockingInfoPageBase {
             waitThenUnlock.stop()
             passwordField.text = ''
             // TODO give haptic feedback
-            passwordField.placeholderText = qsTr("Please try again")
+
+            //: input field placeholder after failed attempt to unlock (keep it short)
+            //% "Please try again"
+            passwordField.placeholderText = qsTrId("whisperfish-unlock-try-again")
         }
     }
 
@@ -67,7 +78,9 @@ BlockingInfoPageBase {
             //: Password label
             //% "Password"
             label: qsTrId("whisperfish-password-label")
-            placeholderText: qsTr("Your password")
+            //: password placeholder
+            //% "Your password"
+            placeholderText: qsTrId("whisperfish-password-placeholder")
             placeholderColor: Theme.highlightColor
             color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
             focus: true
@@ -76,7 +89,9 @@ BlockingInfoPageBase {
         }
 
         Button {
-            text: qsTr("Unlock")
+            //: unlock button label
+            //% "Unlock"
+            text: qsTrId("whisperfish-unlock-button-label")
             enabled: _inputIsValid && !busy
             onClicked: accept()
             anchors.horizontalCenter: parent.horizontalCenter

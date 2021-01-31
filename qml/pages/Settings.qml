@@ -159,7 +159,11 @@ Page {
                 //: Settings page country code description
                 //% "The selected country code determines what happens when a local phone number is entered."
                 description: qsTrId("whisperfish-settings-country-code-description")
-                value: currentIndex < 0 ? qsTr('none') : currentItem.iso
+                //: settings page country code selection: nothing selected
+                //% "none"
+                value: currentIndex < 0 ?
+                           qsTrId("whisperfish-settings-country-code-empty") :
+                           currentItem.iso
                 currentIndex: -1
                 menu: ContextMenu {
                     Repeater {

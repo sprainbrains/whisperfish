@@ -11,7 +11,11 @@ Page {
 
     property string pageTitle: ""  // optional
     property bool busy: false  // if true: dim the icon and show a spinner
-    property string mainTitle: qsTr("Whisperfish")  // below the icon
+
+    //: default title of full-screen info pages (below the icon)
+    //% "Whisperfish"
+    property string mainTitle: qsTrId("whisperfish-info-page-default-title")
+
     property string mainDescription: ""  // should be set; below the main title
     property string detailedDescription: ""  // optional details below all content
     property bool squashDetails: false  // show details in a smaller font

@@ -60,7 +60,10 @@ Page {
 
     BusyLabel {
         id: waitingPlaceholder
-        text: qsTr("Welcome")
+
+        //: welcome text shown when startup takes a long time
+        //% "Welcome"
+        text: qsTrId("whisperfish-startup-placeholder-title")
         running: false
         opacity: running ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { } }

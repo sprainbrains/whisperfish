@@ -4,17 +4,25 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
-    pageTitle: "" // qsTr("Step 3")
-    mainTitle: qsTr("Verify")
-    mainDescription: qsTr("Please enter the code you received from Signal.")
+    pageTitle: "" // xx("Step 3")
+    //: verify registration page title
+    //% "Verify"
+    mainTitle: qsTrId("whisperfish-verify-page-title")
+    //: verify registration prompt
+    //% "Please enter the code you received from Signal."
+    mainDescription: qsTrId("whisperfish-verify-code-prompt")
 
     detailedDescription: SetupWorker.useVoice ?
-                             qsTr("Signal should have called you with a a 6-digit "+
-                                  "verification code. Please wait a moment, or "+
-                                  "restart the process if you have not received a call.") :
-                             qsTr("Signal should have sent you a 6-digit verification "+
-                                  "code via text message. Please wait a moment, or "+
-                                  "restart the process if you have not received a message.")
+                             //: verify registration instructions: voice
+                             //% "Signal should have called you with a a 6-digit "
+                             //% "verification code. Please wait a moment, or "
+                             //% "restart the process if you have not received a call."
+                             qsTrId("whisperfish-verify-instructions-voice") :
+                             //: verify registration instructions: text message
+                             //% "Signal should have sent you a 6-digit verification "
+                             //% "code via text message. Please wait a moment, or "
+                             //% "restart the process if you have not received a message."
+                             qsTrId("whisperfish-verify-instructions-sms")
     squashDetails: true
 
     property bool _inputIsValid: !codeField.errorHighlight
@@ -33,7 +41,9 @@ BlockingInfoPageBase {
     signal _retry
     on_Retry: {
         // TODO give haptic feedback
-        mainDescription = qsTr("Please retry with a valid code.")
+        //: verification: prompt to retry with a new code
+        //% "Please retry with a valid code."
+        mainDescription = qsTrId("whisperfish-verify-retry-prompt")
     }
 
     Connections {
@@ -76,8 +86,8 @@ BlockingInfoPageBase {
         running: false
         onTriggered: {
             /* mainWindow.showFatalError(
-                        qsTr("The registration may have failed, or "+
-                             "your Internet connection is slow.")) */
+                        xx("The registration may have failed, or "+
+                           "your Internet connection is slow.")) */
             showMainPage()
         }
     }
@@ -92,8 +102,12 @@ BlockingInfoPageBase {
             anchors.horizontalCenter: parent.horizontalCenter
             inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
             validator: RegExpValidator{ regExp: /[0-9]{6}/;}
-            label: qsTr("Verification code")
-            placeholderText: qsTr("Code")
+            //: verification code input label
+            //% "Verification code"
+            label: qsTrId("whisperfish-verify-code-input-label")
+            //: verification code input placeholder
+            //% "Code"
+            placeholderText: qsTrId("whisperfish-verify-code-input-placeholder")
             placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignHCenter
             font.pixelSize: Theme.fontSizeLarge
@@ -108,7 +122,9 @@ BlockingInfoPageBase {
             height: childrenRect.height
 
             Button {
-                text: qsTr("Continue")
+                //: continue button label
+                //% "Continue"
+                text: qsTrId("whisperfish-continue-button-label")
                 enabled: _inputIsValid
                 onClicked: accept()
                 anchors.horizontalCenter: parent.horizontalCenter

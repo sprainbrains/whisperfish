@@ -5,10 +5,13 @@ import "../js/countries.js" as CallingCodes
 
 BlockingInfoPageBase {
     id: root
-    pageTitle: "" // qsTr("Step 2")
-    mainTitle: qsTr("Register")
+    pageTitle: "" // xx("Step 2")
 
-    //: Registration message
+    //: registration page title
+    //% "Register"
+    mainTitle: qsTrId("whisperfish-registration-title")
+
+    //: registration prompt text
     //% "Enter the phone number you want to register with Signal."
     mainDescription: qsTrId("whisperfish-registration-message")
 
@@ -29,7 +32,10 @@ BlockingInfoPageBase {
     signal _retry
     on_Retry: {
         // TODO give haptic feedback
-        mainDescription = qsTr("Please retry with a valid phone number.")
+
+        //: new registration prompt text asking to retry
+        //% "Please retry with a valid phone number."
+        mainDescription = qsTrId("whisperfish-registration-retry-message")
         busy = false
     }
 
@@ -62,7 +68,12 @@ BlockingInfoPageBase {
                 width: Math.max(metrics.width+2*Theme.horizontalPageMargin+Theme.paddingSmall,
                                 Theme.itemSizeExtraLarge)
                 label: ""
-                description: qsTr("Prefix")  // translate as short as possible
+
+                //: label for combo box for selecting calling code (phone number prefix)
+                //: important: translate as short as possible
+                //% "Prefix"
+                description: qsTrId("whisperfish-registration-phone-number-prefix")
+
                 currentIndex: -1
                 value: currentIndex < 0 ?
                            '+xx' : currentItem.prefix
@@ -94,8 +105,15 @@ BlockingInfoPageBase {
                 }
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly
                 validator: RegExpValidator{ regExp: /[- 0-9]{4,}/ }
-                label: qsTr("Phone number")
-                placeholderText: qsTr("Phone number")
+
+                //: phone number input label
+                //% "Phone number"
+                label: qsTrId("whisperfish-registration-number-input-label")
+
+                //: phone number input placeholder
+                //% "Phone number"
+                placeholderText: qsTrId("whisperfish-registration-number-input-placeholder")
+
                 placeholderColor: color
                 color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
                 focus: true
@@ -115,7 +133,7 @@ BlockingInfoPageBase {
 
             //: Registration directions
             description: SetupWorker.useVoice
-                //% "Signal will call you with a 6-digit verification code. Please be ready to write this down."
+                //% "Signal will call you with a 6-digit verification code. Please be ready to write it down."
                 ? qsTrId("whisperfish-voice-registration-directions")
                 //% "Signal will text you a 6-digit verification code."
                 : qsTrId("whisperfish-text-registration-directions")
@@ -156,7 +174,9 @@ BlockingInfoPageBase {
         }
 
         Button {
-            text: qsTr("Continue")
+            //: continue button label
+            //% "Continue"
+            text: qsTrId("whisperfish-continue-button-label")
             enabled: _inputIsValid && !busy
             onClicked: accept()
             anchors.horizontalCenter: parent.horizontalCenter
