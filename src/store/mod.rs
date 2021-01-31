@@ -1330,69 +1330,17 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn create_and_open_storage() -> Result<(), Error> {
-        use rand::distributions::Alphanumeric;
-        use rand::{Rng, RngCore};
-
-        env_logger::try_init().ok();
-
-        let location = super::temp();
-        let rng = rand::thread_rng();
-
-        // Storage passphrase of the user
-        let storage_password = "Hello, world! I'm the passphrase";
-
-        // Signaling password for REST API
-        let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
-        let password = std::str::from_utf8(&password)?;
-
-        // Signaling key that decrypts the incoming Signal messages
-        let mut rng = rand::thread_rng();
-        let mut signaling_key = [0u8; 52];
-        rng.fill_bytes(&mut signaling_key);
-        let signaling_key = signaling_key;
-
-        // Registration ID
-        let regid = 12345;
-
-        let storage = Storage::new_with_password(
-            &location,
-            storage_password,
-            regid,
-            &password,
-            signaling_key,
-        )
-        .await?;
-
-        macro_rules! tests {
-            ($storage:ident) => {{
-                use libsignal_protocol::stores::IdentityKeyStore;
-                // TODO: assert that tables exist
-                assert_eq!(password, $storage.signal_password().await?);
-                assert_eq!(signaling_key, $storage.signaling_key().await?);
-                assert_eq!(regid, $storage.local_registration_id()?);
-
-                let (signed, unsigned) = $storage.next_pre_key_ids();
-                // Unstarted client will have no pre-keys.
-                assert_eq!(0, signed);
-                assert_eq!(0, unsigned);
-
-                Result::<_, Error>::Ok(())
-            }};
-        };
-
-        tests!(storage)?;
-        drop(storage);
-
-        let storage = Storage::open_with_password(&location, storage_password.to_string()).await?;
-
-        tests!(storage)?;
-
-        Ok(())
+    async fn create_and_open_encrypted_storage() -> Result<(), Error> {
+        let pass = "Hello, world! I'm the passphrase";
+        test_create_and_open_storage(Some(pass.to_string())).await
     }
 
     #[actix_rt::test]
     async fn create_and_open_unencrypted_storage() -> Result<(), Error> {
+        test_create_and_open_storage(None).await
+    }
+
+    async fn test_create_and_open_storage(storage_password: Option<String>) -> Result<(), Error> {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
 
@@ -1414,8 +1362,9 @@ mod tests {
         // Registration ID
         let regid = 12345;
 
-        let storage = Storage::new_without_password(
+        let storage = Storage::new(
             &location,
+            storage_password.as_deref(),
             regid,
             &password,
             signaling_key,
@@ -1442,7 +1391,11 @@ mod tests {
         tests!(storage)?;
         drop(storage);
 
-        let storage = Storage::open_without_password(&location).await?;
+        if storage_password.is_some() {
+            assert!(Storage::open(&location, None).await.is_err(), "Storage was not encrypted");
+        }
+
+        let storage = Storage::open(&location, storage_password).await?;
 
         tests!(storage)?;
 
