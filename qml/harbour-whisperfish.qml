@@ -117,13 +117,13 @@ ApplicationWindow
         onClientFailed: {
             console.log("[FATAL] client failed")
             //: Failed to setup signal client error message
-            //% "ERROR - Failed to setup Signal client"
-            showFatalError(qsTrId("whisperfish-error-setup-client"))
+            //% "Failed to setup Signal client"
+            showFatalError(qsTrId("whisperfish-fatal-error-setup-client"))
         }
         onInvalidDatastore: {
             //: Failed to setup datastore error message
-            //% "ERROR - Failed to setup datastore"
-            showFatalError(qsTrId("whisperfish-error-invalid-datastore"))
+            //% "Failed to setup datastore"
+            showFatalError(qsTrId("whisperfish-fatal-error-invalid-datastore"))
         }
     }
 
