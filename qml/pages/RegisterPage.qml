@@ -15,13 +15,13 @@ BlockingInfoPageBase {
     //% "Enter the phone number you want to register with Signal."
     mainDescription: qsTrId("whisperfish-registration-message")
 
-    property bool _inputIsValid: !numberField.errorHighlight &&
-                                 prefixCombo.currentIndex >= 0 &&
-                                 numberField.text.replace(/[- ]*/, '').trim() !== ''
+    property bool _canAccept: !numberField.errorHighlight &&
+                              prefixCombo.currentIndex >= 0 &&
+                              numberField.text.replace(/[- ]*/, '').trim() !== ''
 
     signal accept
     onAccept: {
-        if (!_inputIsValid) return
+        if (!_canAccept) return
         busy = true // we have to wait for the backend to prompt the next step
         var iso = prefixCombo.currentItem.iso
         SettingsBridge.stringSet("country_code", iso)
@@ -104,7 +104,7 @@ BlockingInfoPageBase {
                     verticalCenter: prefixCombo.verticalCenter
                 }
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly
-                validator: RegExpValidator{ regExp: /[- 0-9]{4,}/ }
+                validator: RegExpValidator{ regExp: /|[- 0-9]{4,}/ }
 
                 //: phone number input label
                 //% "Phone number"
@@ -113,10 +113,7 @@ BlockingInfoPageBase {
                 //: phone number input placeholder
                 //% "Phone number"
                 placeholderText: qsTrId("whisperfish-registration-number-input-placeholder")
-
-                placeholderColor: color
-                color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
-                EnterKey.iconSource: _inputIsValid ?
+                EnterKey.iconSource: _canAccept ?
                                          "image://theme/icon-m-enter-next" :
                                          "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: parent.forceActiveFocus()
@@ -176,7 +173,7 @@ BlockingInfoPageBase {
             //: continue button label
             //% "Continue"
             text: qsTrId("whisperfish-continue-button-label")
-            enabled: _inputIsValid && !busy
+            enabled: _canAccept && !busy
             onClicked: accept()
             anchors.horizontalCenter: parent.horizontalCenter
         }
