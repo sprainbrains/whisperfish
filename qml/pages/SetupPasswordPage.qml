@@ -24,13 +24,15 @@ BlockingInfoPageBase {
     detailedDescription: qsTrId("whisperfish-password-info")
     squashDetails: true
 
-    property bool _inputIsValid: (!password1Field.errorHighlight &&
-                                !password2Field.errorHighlight &&
-                                password1Field.text === password2Field.text)
+    property bool _canAccept: (!password1Field.errorHighlight &&
+                               !password2Field.errorHighlight &&
+                               password1Field.text === password2Field.text &&
+                               password1Field.text !== '' &&
+                               password2Field.text !== '')
 
     signal accept
     onAccept: {
-        if (!_inputIsValid) return
+        if (!_canAccept) return
         Prompt.password(password1Field.text)
         busy = true // wait for the backend to prompt the next step
     }
@@ -54,7 +56,7 @@ BlockingInfoPageBase {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2*Theme.horizontalPageMargin
             inputMethodHints: Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /.{6,}/ }
+            validator: RegExpValidator{ regExp: /|.{6,}/ }
             label: errorHighlight /* = validator complained */ ?
                        //: Password label when too short
                        //% "Password is too short"
@@ -65,8 +67,10 @@ BlockingInfoPageBase {
             //: New password input placeholder
             //% "Your new password"
             placeholderText: qsTrId("whisperfish-new-password-placeholder")
-            placeholderColor: Theme.highlightColor
-            color: errorHighlight ? Theme.highlightColor : Theme.primaryColor
+            placeholderColor: color
+            color: errorHighlight || (password1Field.text !== password2Field.text) ?
+                       Theme.errorColor : (focus ? Theme.highlightColor :
+                                                   Theme.secondaryColor)
             EnterKey.iconSource: "image://theme/icon-m-enter-next"
             EnterKey.onClicked: password2Field.forceActiveFocus()
         }
@@ -76,8 +80,8 @@ BlockingInfoPageBase {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2*Theme.horizontalPageMargin
             inputMethodHints: Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /.{6,}/ }
-            label: (text === '' || _inputIsValid) ?
+            validator: RegExpValidator { regExp: /|.{6,}/ }
+            label: (text === '' || _canAccept) ?
                        //: repeated password input label
                        //% "Repeated password"
                        qsTrId("whisperfish-password-repeated-label") :
@@ -93,9 +97,11 @@ BlockingInfoPageBase {
             //: Repeated new password input placeholder
             //% "Repeat your new password"
             placeholderText: qsTrId("whisperfish-new-password-repeat-placeholder")
-            placeholderColor: Theme.highlightColor
-            color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
-            EnterKey.iconSource: _inputIsValid ?
+            placeholderColor: color
+            color: errorHighlight || (password1Field.text !== password2Field.text) ?
+                       Theme.errorColor : (focus ? Theme.highlightColor :
+                                                   Theme.secondaryColor)
+            EnterKey.iconSource: _canAccept ?
                                      "image://theme/icon-m-enter-accept" :
                                      "image://theme/icon-m-enter-close"
             EnterKey.onClicked: accept()
@@ -105,9 +111,9 @@ BlockingInfoPageBase {
             //: continue button label
             //% "Continue"
             text: qsTrId("whisperfish-continue-button-label")
-            enabled: _inputIsValid && !busy
             onClicked: accept()
             anchors.horizontalCenter: parent.horizontalCenter
+                enabled: _canAccept && !busy
         }
     }
 }
