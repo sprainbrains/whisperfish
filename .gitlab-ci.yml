@@ -47,6 +47,8 @@ build:armv7hl:
     CC_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
     CXX_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
   <<: *build-target
+  except:
+    - schedules
 
 build:i486:
   variables:
@@ -56,6 +58,8 @@ build:i486:
     CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build-target
+  except:
+    - schedules
 
 build:aarch64:
   variables:
@@ -65,6 +69,8 @@ build:aarch64:
     CC_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-gcc
     CXX_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-g++
   <<: *build-target
+  except:
+    - schedules
 
 .rust: &rust
   cache: &rust-cache
@@ -108,6 +114,8 @@ build:host:stable:
   script:
     - cargo build
     - cargo build --release
+  except:
+    - schedules
 
 build:host:nightly:
   <<: *rust-nightly
@@ -116,6 +124,8 @@ build:host:nightly:
   script:
     - cargo build
     - cargo build --release
+  except:
+    - schedules
 
 build:host:nightly:docs:
   <<: *rust-nightly
@@ -126,6 +136,8 @@ build:host:nightly:docs:
   artifacts:
     paths:
       - target/doc
+  except:
+    - schedules
 
 qmllint:
   <<: *rust
@@ -134,6 +146,8 @@ qmllint:
   cache: {}
   script:
     - "qmllint qml/**/*.qml"
+  except:
+    - schedules
 
 test:stable:
   <<: *rust-stable
@@ -142,6 +156,8 @@ test:stable:
   script:
     - cargo test
     - cargo test --release
+  except:
+    - schedules
 
 test:nightly:
   <<: *rust-nightly
@@ -150,6 +166,8 @@ test:nightly:
   script:
     - cargo test
     - cargo test --release
+  except:
+    - schedules
 
 fmt:nightly:
   <<: *rust-nightly
@@ -157,6 +175,8 @@ fmt:nightly:
   needs: []
   script:
     - cargo fmt -- --check
+  except:
+    - schedules
 
 coverage:nightly:
   <<: *rust-nightly
@@ -166,6 +186,8 @@ coverage:nightly:
   script:
     - export PATH="$CARGO_HOME/bin:$PATH"
     - cargo tarpaulin -v --exclude-files cargo/*
+  except:
+    - schedules
 
 clippy:
   <<: *rust-nightly
@@ -175,6 +197,8 @@ clippy:
   script:
     - rustup component add clippy
     - cargo clippy
+  except:
+    - schedules
 
 translations:
   image: debian
@@ -186,6 +210,8 @@ translations:
   script:
     - lupdate qml/ -ts translations/*.ts
     - git diff --exit-code
+  except:
+    - schedules
 
 pages:
   dependencies:
@@ -201,6 +227,8 @@ pages:
   artifacts:
     paths:
       - public
+  except:
+    - schedules
 
 # Awesome OpenRepos script by @nobodyinperson/Yann Büchau
 include:
