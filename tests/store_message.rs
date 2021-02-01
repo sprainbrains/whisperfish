@@ -1,21 +1,20 @@
-use rstest::rstest;
-
 use harbour_whisperfish::store::{NewGroup, NewMessage, NewSession};
 
 mod common;
 use common::*;
 
-#[rstest]
-fn test_fetch_session_none(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_fetch_session_none() {
+    let in_memory_db = get_in_memory_db().await;
     let in_memory_db = in_memory_db.0;
-    setup_db(&in_memory_db);
 
     let session = in_memory_db.fetch_session(1);
     assert!(session.is_none());
 }
 
-#[rstest]
-fn test_fetch_group_session(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_fetch_group_session() {
+    let in_memory_db = get_in_memory_db().await;
     let in_memory_db = in_memory_db.0;
     let session_config = NewSession {
         source: String::from("+358501234567"),
@@ -31,7 +30,6 @@ fn test_fetch_group_session(in_memory_db: InMemoryDb) {
         has_attachment: false,
     };
 
-    setup_db(&in_memory_db);
     setup_session(&in_memory_db, &session_config);
 
     let res = in_memory_db.fetch_session(1);
@@ -47,8 +45,9 @@ fn test_fetch_group_session(in_memory_db: InMemoryDb) {
     );
 }
 
-#[rstest]
-fn test_fetch_session_with_other(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_fetch_session_with_other() {
+    let in_memory_db = get_in_memory_db().await;
     let in_memory_db = in_memory_db.0;
     let session_config_1 = NewSession {
         source: String::from("foo"),
@@ -78,7 +77,6 @@ fn test_fetch_session_with_other(in_memory_db: InMemoryDb) {
         has_attachment: false,
     };
 
-    setup_db(&in_memory_db);
     setup_session(&in_memory_db, &session_config_1);
     setup_session(&in_memory_db, &session_config_2);
 
@@ -103,19 +101,19 @@ fn test_fetch_session_with_other(in_memory_db: InMemoryDb) {
     assert_eq!(session.group_name, Some(String::from("")));
 }
 
-#[rstest]
-fn test_fetch_all_messages_none(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_fetch_all_messages_none() {
+    let in_memory_db = get_in_memory_db().await;
     let in_memory_db = in_memory_db.0;
-    setup_db(&in_memory_db);
 
     let messages = in_memory_db.fetch_all_messages(1).unwrap();
     assert_eq!(messages.len(), 0);
 }
 
-#[rstest]
-fn test_receive_messages_no_session(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_receive_messages_no_session() {
+    let in_memory_db = get_in_memory_db().await;
     let in_memory_db = in_memory_db.0;
-    setup_db(&in_memory_db);
 
     let mut new_messages: Vec<NewMessage> = Vec::new();
 
@@ -143,10 +141,10 @@ fn test_receive_messages_no_session(in_memory_db: InMemoryDb) {
     assert!(res.is_none());
 }
 
-#[rstest]
-fn test_process_message_no_session_source(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_process_message_no_session_source() {
+    let in_memory_db = get_in_memory_db().await;
     let mut in_memory_db = in_memory_db.0;
-    setup_db(&in_memory_db);
 
     let res = in_memory_db.fetch_session(1);
     assert!(res.is_none());
@@ -176,10 +174,10 @@ fn test_process_message_no_session_source(in_memory_db: InMemoryDb) {
     assert!(res.is_some());
 }
 
-#[rstest]
-fn test_process_message_unresolved_session_source_resolved(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_process_message_unresolved_session_source_resolved() {
+    let in_memory_db = get_in_memory_db().await;
     let mut in_memory_db = in_memory_db.0;
-    setup_db(&in_memory_db);
 
     let new_message = NewMessage {
         session_id: None,
@@ -207,8 +205,9 @@ fn test_process_message_unresolved_session_source_resolved(in_memory_db: InMemor
     assert_eq!(msg.sid, 1);
 }
 
-#[rstest]
-fn test_process_message_exists_session_source(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_process_message_exists_session_source() {
+    let in_memory_db = get_in_memory_db().await;
     let mut in_memory_db = in_memory_db.0;
     let session_config = NewSession {
         source: String::from("+358501234567"),
@@ -224,7 +223,6 @@ fn test_process_message_exists_session_source(in_memory_db: InMemoryDb) {
         has_attachment: false,
     };
 
-    setup_db(&in_memory_db);
     setup_session(&in_memory_db, &session_config);
 
     let sess1_res = in_memory_db.fetch_session(1);
@@ -268,8 +266,9 @@ fn test_process_message_exists_session_source(in_memory_db: InMemoryDb) {
 
 /// This tests code that may potentially be removed after release
 /// but it's important as long as we receive messages without ACK
-#[rstest]
-fn test_dev_message_update(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_dev_message_update() {
+    let in_memory_db = get_in_memory_db().await;
     let mut in_memory_db = in_memory_db.0;
     let session_config = NewSession {
         source: String::from("+358501234567"),
@@ -285,7 +284,6 @@ fn test_dev_message_update(in_memory_db: InMemoryDb) {
         has_attachment: false,
     };
 
-    setup_db(&in_memory_db);
     setup_session(&in_memory_db, &session_config);
 
     // Receive basic message
@@ -334,10 +332,10 @@ fn test_dev_message_update(in_memory_db: InMemoryDb) {
     assert_eq!(db_messages.len(), 1);
 }
 
-#[rstest]
-fn test_process_message_with_group(in_memory_db: InMemoryDb) {
+#[actix_rt::test]
+async fn test_process_message_with_group() {
+    let in_memory_db = get_in_memory_db().await;
     let mut in_memory_db = in_memory_db.0;
-    setup_db(&in_memory_db);
 
     let res = in_memory_db.fetch_session(1);
     assert!(res.is_none());

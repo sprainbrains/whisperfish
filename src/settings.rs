@@ -19,8 +19,6 @@ pub struct SignalConfig {
     pub verification_type: String,
     /// Directory for the persistent storage
     pub storage_dir: String,
-    /// Whether to store plaintext keys and session state (only for development)
-    pub unencrypted_storage: bool,
     /// Password to the storage
     pub storage_password: String,
     #[serde(rename = "loglevel")]
@@ -165,7 +163,6 @@ impl Settings {
         self.set_bool("incognito", false);
         self.set_bool("enable_notify", true);
         self.set_bool("show_notify_message", false);
-        self.set_bool("encrypt_database", true);
         self.set_bool("save_attachments", true);
         self.set_bool("share_contacts", true);
         self.set_bool("enable_enter_send", false);

@@ -1,30 +1,16 @@
 use diesel::prelude::*;
-use diesel_migrations;
 use harbour_whisperfish::store::temp;
 use harbour_whisperfish::store::{NewMessage, NewSession};
 use harbour_whisperfish::store::{Storage, StorageLocation};
-use rstest::fixture;
 
 pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
 
 /// We do not want to test on a live db, use temporary dir
-#[fixture]
-pub fn in_memory_db() -> InMemoryDb {
-    || -> Result<InMemoryDb, failure::Error> {
-        let temp = temp();
-        std::fs::create_dir(temp.join("db"))?;
-        std::fs::create_dir(temp.join("storage"))?;
-        Ok((Storage::open(&temp)?, temp))
-    }()
-    .expect("initialized storage")
-}
-
-/// Setup helper for basic, empty database
-pub fn setup_db(in_memory_db: &Storage) {
-    let db = in_memory_db.db.lock();
-    let conn = db.unwrap();
-
-    diesel_migrations::run_pending_migrations(&*conn).unwrap()
+pub async fn get_in_memory_db() -> InMemoryDb {
+    let temp = temp();
+    (Storage::new(&temp, None, 12345, "Some Password", [0; 52])
+        .await.expect("Failed to initalize storage"),
+     temp)
 }
 
 /// Setup helper for creating a session

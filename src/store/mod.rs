@@ -253,8 +253,18 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
     })
 }
 
-fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Result<(), Error> {
-    log::trace!("Writing file {:?}", path);
+fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+    log::trace!("Writing unencrypted file {:?}", path);
+
+    use std::io::Write;
+    let mut file = std::fs::File::create(&path)?;
+    file.write_all(&contents)?;
+
+    Ok(())
+}
+
+fn write_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+    log::trace!("Writing encrypted file {:?}", path);
 
     // Generate random IV
     use rand::RngCore;
@@ -292,16 +302,31 @@ fn write_file_sync(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Resul
     Ok(())
 }
 
-async fn write_file(keys: [u8; 16 + 20], path: PathBuf, contents: Vec<u8>) -> Result<(), Error> {
+fn write_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+    match keys {
+        Some(keys) => write_file_sync_encrypted(keys, path, &contents),
+        None => write_file_sync_unencrypted(path, &contents)
+    }
+}
+
+async fn write_file(keys: Option<[u8; 16 + 20]>, path: PathBuf, contents: Vec<u8>) -> Result<(), Error> {
     actix_threadpool::run(move || write_file_sync(keys, path, &contents)).await?;
     Ok(())
 }
 
-fn load_file_sync(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+fn load_file_sync_unencrypted(path: PathBuf) -> Result<Vec<u8>, Error> {
+    log::trace!("Opening unencrypted file {:?}", path);
+    let contents = std::fs::read(&path)?;
+    let count = contents.len();
+    log::trace!("Read {:?}, {} bytes", path, count);
+    Ok(contents)
+}
+
+fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
     // XXX This is *full* of bad practices.
     // Let's try to migrate to nacl or something alike in the future.
 
-    log::trace!("Opening file {:?}", path);
+    log::trace!("Opening encrypted file {:?}", path);
     let mut contents = std::fs::read(&path)?;
     let count = contents.len();
 
@@ -337,26 +362,20 @@ fn load_file_sync(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> 
         .to_owned())
 }
 
-async fn load_file(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+fn load_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, Error> {
+    match keys {
+        Some(keys) => load_file_sync_encrypted(keys, path),
+        None => load_file_sync_unencrypted(path)
+    }
+}
+
+async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, Error> {
     let contents = actix_threadpool::run(move || load_file_sync(keys, path)).await?;
 
     Ok(contents)
 }
 
 impl Storage {
-    pub fn open<T: AsRef<Path>>(db_path: &StorageLocation<T>) -> Result<Storage, Error> {
-        let db = db_path.open_db()?;
-
-        // XXX
-        let protocol_store = ProtocolStore::invalid();
-
-        Ok(Storage {
-            db: Arc::new(Mutex::new(db)),
-            keys: None,
-            protocol_store: Arc::new(Mutex::new(protocol_store)),
-            path: db_path.to_path_buf(),
-        })
-    }
 
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
@@ -408,9 +427,9 @@ impl Storage {
     }
 
     /// Writes (*overwrites*) a new Storage object to the provided path.
-    pub async fn new_with_password<T: AsRef<Path>>(
+    pub async fn new<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
-        password: &str,
+        password: Option<&str>,
         regid: u32,
         http_password: &str,
         signaling_key: [u8; 52],
@@ -420,11 +439,11 @@ impl Storage {
         log::info!("Creating directory structure");
         Self::scaffold_directories(path)?;
 
-        let db_salt_path = path.join("db").join("salt");
+        // 1. Generate both salts if needed
         let storage_salt_path = path.join("storage").join("salt");
+        if password != None {
+            let db_salt_path = path.join("db").join("salt");
 
-        // Generate both salts
-        {
             use rand::RngCore;
             log::info!("Generating salts");
             let mut db_salt = [0u8; 8];
@@ -437,39 +456,22 @@ impl Storage {
             std::fs::write(&storage_salt_path, storage_salt)?;
         }
 
-        log::info!("Deriving keys");
-        let db_key = derive_db_key(password.to_string(), db_salt_path);
-        let storage_key = derive_storage_key(password.to_string(), storage_salt_path);
+        // 2. Open DB
+        let db = Self::open_db(&db_path, &path, password).await?;
 
-        log::info!("Opening DB");
-        // 1. decrypt DB
-        let db = db_path.open_db()?;
-        db.execute(&format!(
-            "PRAGMA key = \"x'{}'\";",
-            hex::encode(db_key.await?)
-        ))?;
-        db.execute("PRAGMA cipher_page_size = 4096;")?;
+        // 3. initialize protocol store
+        let keys = match password {
+            None => None,
+            Some(pass) => Some(derive_storage_key(pass.to_string(), storage_salt_path).await?)
+        };
 
-        // From the sqlcipher manual:
-        // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
-        db.execute("SELECT count(*) FROM sqlite_master;")?;
-        // XXX: Do we have to signal somehow that the password was wrong?
-        //      Offer retries?
-
-        // Run migrations
-        embedded_migrations::run(&db)?;
-
-        // 2. decrypt storage
-        let keys = storage_key.await?;
-
-        // 3. encrypt and decrypt protocol store
         let context = libsignal_protocol::Context::default();
         let identity_key_pair = libsignal_protocol::generate_identity_key_pair(&context).unwrap();
 
         let protocol_store =
             ProtocolStore::store_with_key(keys, path, regid, identity_key_pair).await?;
 
-        // 4. Encrypt http password and signaling key
+        // 4. save http password and signaling key
         let identity_path = path.join("storage").join("identity");
         write_file(
             keys,
@@ -486,31 +488,58 @@ impl Storage {
 
         Ok(Storage {
             db: Arc::new(Mutex::new(db)),
-            keys: Some(keys),
+            keys,
             protocol_store: Arc::new(Mutex::new(protocol_store)),
             path: path.to_path_buf(),
         })
     }
 
-    pub async fn open_with_password<T: AsRef<Path>>(
+    pub async fn open<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
-        password: String,
+        password: Option<String>,
     ) -> Result<Storage, Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
-        let db_salt_path = path.join("db").join("salt");
-        let storage_salt_path = path.join("storage").join("salt");
-        // XXX: The storage_key could already be polled while we're querying the database,
-        // but we don't want to wait for it either.
-        let db_key = derive_db_key(password.clone(), db_salt_path);
-        let storage_key = derive_storage_key(password, storage_salt_path);
 
-        // 1. decrypt DB
+        let db = Self::open_db(&db_path, &path, password.as_deref()).await?;
+
+        let keys = match password {
+            None => None,
+            Some(pass) => {
+                let salt_path = path.join("storage").join("salt");
+                Some(derive_storage_key(pass, salt_path).await?)
+            }
+        };
+
+        let protocol_store = ProtocolStore::open_with_key(keys, path).await?;
+
+        Ok(Storage {
+            db: Arc::new(Mutex::new(db)),
+            keys,
+            protocol_store: Arc::new(Mutex::new(protocol_store)),
+            path: path.to_path_buf(),
+        })
+    }
+
+    async fn open_db<T: AsRef<Path>>(
+        db_path: &StorageLocation<T>,
+        path: &Path,
+        password: Option<&str>,
+    ) -> Result<SqliteConnection, Error> {
+        log::info!("Opening DB");
         let db = db_path.open_db()?;
-        db.execute(&format!(
-            "PRAGMA key = \"x'{}'\";",
-            hex::encode(db_key.await?)
-        ))?;
-        db.execute("PRAGMA cipher_page_size = 4096;")?;
+
+        if password != None {
+            log::info!("Setting DB encryption");
+
+            let db_salt_path = path.join("db").join("salt");
+            let db_key = derive_db_key(password.unwrap().to_string(), db_salt_path);
+
+            db.execute(&format!(
+                "PRAGMA key = \"x'{}'\";",
+                hex::encode(db_key.await?)
+            ))?;
+            db.execute("PRAGMA cipher_page_size = 4096;")?;
+        }
 
         // From the sqlcipher manual:
         // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
@@ -521,19 +550,9 @@ impl Storage {
         // Run migrations
         embedded_migrations::run(&db)?;
 
-        // 2. decrypt storage
-        let keys = Some(storage_key.await?);
-
-        // 3. decrypt protocol store
-        let protocol_store = ProtocolStore::open_with_key(keys.unwrap(), path).await?;
-
-        Ok(Storage {
-            db: Arc::new(Mutex::new(db)),
-            keys,
-            protocol_store: Arc::new(Mutex::new(protocol_store)),
-            path: path.to_path_buf(),
-        })
+        Ok(db)
     }
+
 
     /// Asynchronously loads the signal HTTP password from storage and decrypts it.
     pub async fn signal_password(&self) -> Result<String, Error> {
@@ -565,8 +584,7 @@ impl Storage {
     }
 
     async fn load_file(&self, path: PathBuf) -> Result<Vec<u8>, Error> {
-        // XXX: unencrypted storage.
-        load_file(self.keys.unwrap(), path).await
+        load_file(self.keys, path).await
     }
 
     /// Process message and store in database and update or create a session
@@ -1211,16 +1229,6 @@ mod tests {
     use super::*;
     use rstest::rstest;
 
-    #[test]
-    fn open_temp_db() -> Result<(), Error> {
-        let temp = temp();
-        std::fs::create_dir(temp.join("db"))?;
-        std::fs::create_dir(temp.join("storage"))?;
-        let _storage = Storage::open(&temp)?;
-
-        Ok(())
-    }
-
     #[rstest(
         mime_type,
         ext,
@@ -1266,19 +1274,29 @@ mod tests {
         let key = [1u8; 16 + 20];
         let dir = temp();
 
-        write_file_sync(
+        write_file_sync_encrypted(
             key,
             dir.join("encrypt-and-decrypt.temp"),
             contents.as_bytes(),
         )?;
-        let res = load_file_sync(key, dir.join("encrypt-and-decrypt.temp"))?;
+        let res = load_file_sync_encrypted(key, dir.join("encrypt-and-decrypt.temp"))?;
         assert_eq!(std::str::from_utf8(&res).expect("utf8"), contents);
 
         Ok(())
     }
 
     #[actix_rt::test]
-    async fn create_and_open_storage() -> Result<(), Error> {
+    async fn create_and_open_encrypted_storage() -> Result<(), Error> {
+        let pass = "Hello, world! I'm the passphrase";
+        test_create_and_open_storage(Some(pass.to_string())).await
+    }
+
+    #[actix_rt::test]
+    async fn create_and_open_unencrypted_storage() -> Result<(), Error> {
+        test_create_and_open_storage(None).await
+    }
+
+    async fn test_create_and_open_storage(storage_password: Option<String>) -> Result<(), Error> {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
 
@@ -1286,9 +1304,6 @@ mod tests {
 
         let location = super::temp();
         let rng = rand::thread_rng();
-
-        // Storage passphrase of the user
-        let storage_password = "Hello, world! I'm the passphrase";
 
         // Signaling password for REST API
         let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
@@ -1303,9 +1318,9 @@ mod tests {
         // Registration ID
         let regid = 12345;
 
-        let storage = Storage::new_with_password(
+        let storage = Storage::new(
             &location,
-            storage_password,
+            storage_password.as_deref(),
             regid,
             &password,
             signaling_key,
@@ -1332,7 +1347,11 @@ mod tests {
         tests!(storage)?;
         drop(storage);
 
-        let storage = Storage::open_with_password(&location, storage_password.to_string()).await?;
+        if storage_password.is_some() {
+            assert!(Storage::open(&location, None).await.is_err(), "Storage was not encrypted");
+        }
+
+        let storage = Storage::open(&location, storage_password).await?;
 
         tests!(storage)?;
 
