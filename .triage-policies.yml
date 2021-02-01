@@ -102,3 +102,21 @@ resource_rules:
         actions:
           labels:
             - translations
+      - name: "Merge requests with pending tasks but no pending threads"
+        conditions:
+          state: opened
+          ruby: "resource['task_completion_status']['count'] > resource['task_completion_status']['completed_count']"
+        limits:
+          most_recent: 50
+        actions:
+          labels:
+            - MR status::pending tasks
+      - name: "Merge requests without pending tasks and no pending threads"
+        conditions:
+          state: opened
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count']"
+        limits:
+          most_recent: 50
+        actions:
+          labels:
+            - MR status::ready
