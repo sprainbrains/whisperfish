@@ -102,7 +102,7 @@ BlockingInfoPageBase {
             width: parent.width - 4*Theme.horizontalPageMargin
             anchors.horizontalCenter: parent.horizontalCenter
             inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /|[0-9]{6}/;}
+            validator: RegExpValidator{ regExp: /|[0-9]{3}-[0-9]{3}/;}
             //: verification code input label
             //% "Verification code"
             label: qsTrId("whisperfish-verify-code-input-label")
@@ -112,6 +112,18 @@ BlockingInfoPageBase {
             horizontalAlignment: TextInput.AlignHCenter
             font.pixelSize: Theme.fontSizeLarge
             EnterKey.onClicked: parent.forceActiveFocus() // CONTINUE?
+
+            property int oldLength: 0
+            onTextChanged: {
+                // insert/remove a dash after the first 3 digits
+                if (text.length != 3) return
+                if (text.length > oldLength) { // getting entered
+                    text += '-'
+                } else if (text.length < oldLength) { // getting deleted
+                    text = text.slice(0, 2)
+                }
+                oldLength = text.length
+            }
         }
 
         Row {
