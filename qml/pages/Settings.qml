@@ -146,11 +146,6 @@ Page {
             }
             ComboBox {
                 id: countryCombo
-                // TODO Change the backend to use a real prefix instead of
-                // a country code. Then update this to use countries.js and save
-                // the prefix. Update RegisterPage.qml to save the prefix.
-                // Remove countries_iso_only.js.
-
                 property string _setting: SettingsBridge.stringValue("country_code")
                 width: parent.width
                 //: Settings page country code
