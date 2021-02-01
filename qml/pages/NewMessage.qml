@@ -48,7 +48,10 @@ Page {
     }
 
     onRecipientNumberRawChanged: {
-        if (recipientNumberRaw === "") return
+        if (recipientNumberRaw === "") {
+            showError('') // reset error
+            return
+        }
         if (!numberFormat.test(recipientNumberRaw)) {
             //: invalid recipient phone number: invalid characters
             //% "This phone number contains invalid characters."
@@ -62,6 +65,8 @@ Page {
             //: invalid recipient phone number: failed to format
             //% "This phone number appears to be invalid."
             showError(qsTrId("whisperfish-recipient-number-invalid-unspecified"))
+        } else {
+            showError('')  // reset error
         }
     }
 
