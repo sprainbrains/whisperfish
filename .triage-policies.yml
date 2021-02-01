@@ -99,22 +99,53 @@ resource_rules:
         conditions:
           state: opened
           ruby: "resource['created_at'] > (Time.now - 24.hours).utc && author == 'weblate'"
+          forbidden_labels:
+            - translations
         actions:
           labels:
             - translations
+
       - name: "Merge requests with pending tasks but no pending threads"
         conditions:
           state: opened
           ruby: "resource['task_completion_status']['count'] > resource['task_completion_status']['completed_count']"
+          forbidden_labels:
+            - MR status::pending_tasks
         limits:
           most_recent: 50
         actions:
           labels:
             - MR status::pending tasks
-      - name: "Merge requests without pending tasks and no pending threads"
+
+      # In the category of "finished" MRs (no pending threads, no pending tasks), we still have draft status, merge_conflicts, and ready
+      - name: "Draft merge requests without pending tasks and no pending threads"
         conditions:
           state: opened
-          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count']"
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && resource['work_in_progress']"
+          forbidden_labels:
+            - MR status::draft
+        limits:
+          most_recent: 50
+        actions:
+          labels:
+            - MR status::draft
+      - name: "Done merge requests without pending tasks and no pending threads with merge conflicts"
+        conditions:
+          state: opened
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && resource['merge_status'] != 'can_be_merged'"
+          forbidden_labels:
+            - MR status::merge conflict
+        limits:
+          most_recent: 50
+        actions:
+          labels:
+            - MR status::merge conflict
+      - name: "Done merge requests without pending tasks and no pending threads"
+        conditions:
+          state: opened
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && resource['merge_status'] == 'can_be_merged'"
+          forbidden_labels:
+            - MR status::ready
         limits:
           most_recent: 50
         actions:
