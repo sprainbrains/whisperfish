@@ -42,9 +42,9 @@ Page {
     _clickablePageIndicators: !(isLandscape && recipientField.activeFocus)
 
     function showError(message) {
-        errorLabel.opacity = 0.0
+        errorLabel.hidden = true
         errorLabel.text = message
-        errorLabel.opacity = 1.0
+        errorLabel.hidden = false
     }
 
     onRecipientNumberRawChanged: {
@@ -120,11 +120,16 @@ Page {
                             console.log("Selected recipient name: " + recipientName);
                             console.log("Selected recipient number: " + recipientNumber);
                         }
-                        onHasFocusChanged: if (!hasFocus) textInput.forceActiveFocus()
+                        onHasFocusChanged: {
+                            if (!hasFocus) textInput.forceActiveFocus()
+                            errorLabel.hidden = hasFocus // hide errors while selecting
+                        }
                     }
                 }
                 Label {
                     id: errorLabel
+                    property bool hidden: false
+                    opacity: hidden ? 0.0 : 1.0
                     width: parent.width - 4*Theme.horizontalPageMargin
                     wrapMode: Text.Wrap
                     textFormat: Text.AutoText
