@@ -59,10 +59,15 @@ resource_rules:
       - name: Post CI build links
         conditions:
           state: opened
-          ruby: "resource['created_at'] > (Time.now - 24.hours).utc && resource['description'].include?('/post_ci_links') && resource['source_project_id'] == resource['target_project_id']"
+          ruby: "resource['description'].include?('/post_ci_links') && resource['source_project_id'] == resource['target_project_id']"
+          forbidden_labels:
+            - CI::has builds
+            - CI::has no builds
         limits:
           most_recent: 50
         actions:
+          labels:
+            - CI::has builds
           comment: |
             🤖 Bleep bloop, I'm a bot 🤖
             I was instructed to provide links to CI builds, so here they are for
@@ -78,10 +83,15 @@ resource_rules:
       - name: "Warn about CI build links when source != target"
         conditions:
           state: opened
-          ruby: "resource['created_at'] > (Time.now - 24.hours).utc && resource['description'].include?('/post_ci_links') && resource['source_project_id'] != resource['target_project_id']"
+          ruby: "resource['description'].include?('/post_ci_links') && resource['source_project_id'] != resource['target_project_id']"
+          forbidden_labels:
+            - CI::has builds
+            - CI::has no builds
         limits:
           most_recent: 50
         actions:
+          labels:
+            - CI::has no builds
           comment: |
             🤖 Bleep bloop, I'm a bot 🤖
             I was instructed to provide links to CI builds, but I currenty do not have the ability to do this when the source project doesn't equal the target project. Panda is truly sorry! ☹️ 🐼
