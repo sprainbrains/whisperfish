@@ -14,8 +14,9 @@ BlockingInfoPageBase {
     //% "Please enter your password to unlock your conversations."
     mainDescription: qsTrId("whisperfish-unlock-password-prompt")
 
-    property bool _inputIsValid: !passwordField.errorHighlight &&
-                                 SetupWorker.registered
+    property bool _canAccept: !passwordField.errorHighlight &&
+                              passwordField.text.length > 0 &&
+                              SetupWorker.registered
 
     signal accept
     onAccept: {
@@ -25,7 +26,7 @@ BlockingInfoPageBase {
             //% "You are not registered."
             showFatalError(qsTrId("whisperfish-fatal-error-msg-not-registered"))
             return
-        } else if (!_inputIsValid) {
+        } else if (!_canAccept) {
             return
         }
 
@@ -74,15 +75,13 @@ BlockingInfoPageBase {
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2*Theme.horizontalPageMargin
             inputMethodHints: Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /.{6,}/ }
+            validator: RegExpValidator{ regExp: /|.{6,}/ }
             //: Password label
             //% "Password"
             label: qsTrId("whisperfish-password-label")
             //: password placeholder
             //% "Your password"
             placeholderText: qsTrId("whisperfish-password-placeholder")
-            placeholderColor: Theme.highlightColor
-            color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
             focus: true
             EnterKey.iconSource: "image://theme/icon-m-enter-accept"
             EnterKey.onClicked: accept()
@@ -92,7 +91,7 @@ BlockingInfoPageBase {
             //: unlock button label
             //% "Unlock"
             text: qsTrId("whisperfish-unlock-button-label")
-            enabled: _inputIsValid && !busy
+            enabled: _canAccept && !busy
             onClicked: accept()
             anchors.horizontalCenter: parent.horizontalCenter
         }

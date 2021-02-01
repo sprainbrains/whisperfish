@@ -25,12 +25,13 @@ BlockingInfoPageBase {
                              qsTrId("whisperfish-verify-instructions-sms")
     squashDetails: true
 
-    property bool _inputIsValid: !codeField.errorHighlight
+    property bool _canAccept: !codeField.errorHighlight &&
+                              codeField.text.length !== 0
 
     signal accept
     onAccept: {
-        if (!_inputIsValid) return
-        Prompt.verificationCode(codeField.text)
+        if (!_canAccept) return
+        Prompt.verificationCode(codeField.text.replace('-', ''))
         busy = true // wait for the backend to prompt the next step
 
         // TODO We should receive a success/failure signal instead of
@@ -101,17 +102,15 @@ BlockingInfoPageBase {
             width: parent.width - 4*Theme.horizontalPageMargin
             anchors.horizontalCenter: parent.horizontalCenter
             inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /[0-9]{6}/;}
+            validator: RegExpValidator{ regExp: /|[0-9]{6}/;}
             //: verification code input label
             //% "Verification code"
             label: qsTrId("whisperfish-verify-code-input-label")
             //: verification code input placeholder
             //% "Code"
             placeholderText: qsTrId("whisperfish-verify-code-input-placeholder")
-            placeholderColor: Theme.highlightColor
             horizontalAlignment: TextInput.AlignHCenter
             font.pixelSize: Theme.fontSizeLarge
-            color: _inputIsValid ? Theme.primaryColor : Theme.highlightColor
             EnterKey.onClicked: parent.forceActiveFocus() // CONTINUE?
         }
 
@@ -125,7 +124,7 @@ BlockingInfoPageBase {
                 //: continue button label
                 //% "Continue"
                 text: qsTrId("whisperfish-continue-button-label")
-                enabled: _inputIsValid
+                enabled: _canAccept
                 onClicked: accept()
                 anchors.horizontalCenter: parent.horizontalCenter
             }
