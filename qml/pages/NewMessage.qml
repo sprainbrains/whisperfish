@@ -36,6 +36,8 @@ Page {
     property string recipientNumberRaw: recipientSelected && selectedContact.propertyType === "phoneNumber" ? selectedContact.property.number : ""
     property string recipientNumber: ContactModel.format(recipientNumberRaw)
     property string recipientName: recipientSelected ? selectedContact.formattedNameText : ""
+    property var numberFormat:        /^\+?[- 0-9]{4,}$/
+    property var numberFormatNoLocal: /^\+[- 0-9]{4,}$/
 
     _clickablePageIndicators: !(isLandscape && recipientField.activeFocus)
 
@@ -47,11 +49,11 @@ Page {
 
     onRecipientNumberRawChanged: {
         if (recipientNumberRaw === "") return
-        if (!/^\+?[- 0-9]{4,}$/.test(recipientNumberRaw)) {
+        if (!numberFormat.test(recipientNumberRaw)) {
             //: invalid recipient phone number: invalid characters
             //% "This phone number contains invalid characters."
             showError(qsTrId("whisperfish-recipient-number-invalid-chars"))
-        } else if (!localAllowed && !/^\+[- 0-9]{4,}$/.test(recipientNumberRaw)) {
+        } else if (!localAllowed && !numberFormatNoLocal.test(recipientNumberRaw)) {
             //: invalid recipient phone number: local numbers are not allowed
             //% "Please set a country code in the settings, "
             //% "or use the international format."
