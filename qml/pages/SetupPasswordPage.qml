@@ -29,11 +29,19 @@ BlockingInfoPageBase {
                                password1Field.text === password2Field.text &&
                                password1Field.text !== '' &&
                                password2Field.text !== '')
+    property bool _canSkip: true // ignoring is always possible
 
     signal accept
     onAccept: {
         if (!_canAccept) return
         Prompt.password(password1Field.text)
+        busy = true // wait for the backend to prompt the next step
+    }
+
+    signal skip
+    onSkip: {
+        if (!_canSkip) return
+        Prompt.password('') // create an unencrypted database
         busy = true // wait for the backend to prompt the next step
     }
 
@@ -107,13 +115,23 @@ BlockingInfoPageBase {
             EnterKey.onClicked: accept()
         }
 
-        Button {
-            //: continue button label
-            //% "Continue"
-            text: qsTrId("whisperfish-continue-button-label")
-            onClicked: accept()
+        Row {
             anchors.horizontalCenter: parent.horizontalCenter
+            spacing: Theme.paddingMedium
+            Button {
+                //: continue button label
+                //% "Continue"
+                text: qsTrId("whisperfish-continue-button-label")
                 enabled: _canAccept && !busy
+                onClicked: accept()
+            }
+            Button {
+                //: skip button label
+                //% "Skip"
+                text: qsTrId("whisperfish-skip-button-label")
+                enabled: _canSkip && !busy
+                onClicked: skip()
+            }
         }
     }
 }
