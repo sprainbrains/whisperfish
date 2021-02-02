@@ -33,10 +33,6 @@ BlockingInfoPageBase {
         if (!_canAccept) return
         Prompt.verificationCode(codeField.text.replace('-', ''))
         busy = true // wait for the backend to prompt the next step
-
-        // TODO We should receive a success/failure signal instead of
-        // using this timer.
-        waitThenUnlock.restart()
     }
 
     signal _retry
@@ -57,39 +53,19 @@ BlockingInfoPageBase {
     Connections {
         target: SetupWorker
         onRegistrationSuccess: {
-            console.log("registration complete")
             // TODO actually send this signal from the backend
-            showMainPage(PageStackAction.Animated)
+            console.log("WARNING handling SetupWorker.registrationSuccess is not implemented yet")
+            // showMainPage(PageStackAction.Animated)
         }
-        /* onSetupChanged: {
-            // We assume the process has been successfully completed.
+        onSetupComplete: {
             if (SetupWorker.registered) {
-                showMainPage(PageStackAction.Animated)
+                showMainPage()
+            } else {
+                // this should never be reached when not registered
+                //: fatal error when trying to unlock the db when not registered
+                //% "You are not registered."
+                showFatalError(qsTrId("whisperfish-fatal-error-msg-not-registered"))
             }
-        } */
-    }
-
-    Timer {  // TO BE REMOVED
-        id: waitThenUnlock
-        // TODO get rid of this timer
-        // We give the backend some time to complete
-        // the registration and setup the database.
-        //
-        // Intended behaviour: if we do not receive a
-        // SetupWorker.setupChanged signal in the
-        // meantime, we abort forcefully.
-        // Problem: the signal is sent correctly but
-        // WF ends up showing three pages on top of
-        // eachother (this, FatalErrorPage, Main).
-        // Current solution: wait some time, then show
-        // the main page. Pray everything works out.
-        interval: 250 /* 3000 */
-        running: false
-        onTriggered: {
-            /* mainWindow.showFatalError(
-                        xx("The registration may have failed, or "+
-                           "your Internet connection is slow.")) */
-            showMainPage()
         }
     }
 
