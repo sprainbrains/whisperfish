@@ -255,7 +255,7 @@ impl ClientActor {
             .borrow_mut()
             .messageReceived(session.id, message.id);
         // XXX If from ourselves, skip
-        if !is_sync_sent {
+        if settings.get_bool("enable_notify") && !is_sync_sent {
             self.inner.pinned().borrow_mut().notifyMessage(
                 session.id,
                 session
