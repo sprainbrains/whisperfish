@@ -78,7 +78,7 @@ Page {
                 WFChatTextInput {
                     id: textInput
                     width: parent.width
-                    contactName: MessageModel.peerName
+                    contactName: MessageModel.group ? MessageModel.peerName : ContactModel.name(MessageModel.peerTel)
                     enabled: true
                     editorFocus: conversation.editorFocus
 
