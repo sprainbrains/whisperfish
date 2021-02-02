@@ -22,6 +22,8 @@ Page {
             pageStack.push(Qt.resolvedUrl("UnlockPage.qml"))
         } else if (action === "prepareRegistration") {
             pageStack.push(Qt.resolvedUrl("SetupPasswordPage.qml"))
+        } else if (action === "showMain") {
+            showMainPage(PageStackAction.Animated)
         }
     }
 
@@ -54,6 +56,11 @@ Page {
                 nextAction = "prepareRegistration"
             }
         }
+    }
+
+    Connections {
+        target: SetupWorker
+        onSetupComplete: nextAction = "showMain"
     }
 
     RemorsePopup { id: setupRemorse }

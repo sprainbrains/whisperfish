@@ -32,10 +32,10 @@ BlockingInfoPageBase {
 
         busy = true
         Prompt.password(passwordField.text)
-        // TODO Until we have a way of knowing if the entered
-        // password was correct, we use the timer to continue
-        // to the main page if no password prompt interrupts it.
-        waitThenUnlock.restart()
+
+        // We expect a SetupWorker.setupComplete signal
+        // when the database is ready. N (3) invalid attempts result
+        // in a fatal error, handled in mainWindow.
     }
 
     Connections {
@@ -44,7 +44,6 @@ BlockingInfoPageBase {
         target: Prompt
         onPromptPassword: {
             busy = false
-            waitThenUnlock.stop()
             passwordField.text = ''
             // TODO give haptic feedback
 
@@ -54,16 +53,9 @@ BlockingInfoPageBase {
         }
     }
 
-    Timer {  // TO BE REMOVED
-        id: waitThenUnlock
-        // If nothing happens in this time, we assume the
-        // password was correct. N (3) invalid attempts result
-        // in a fatal error, handled in mainWindow.
-        interval: 1000
-        running: false
-        onTriggered: {
-            mainWindow.showMainPage(PageStackAction.Animated)
-        }
+    Connections {
+        target: SetupWorker
+        onSetupComplete: mainWindow.showMainPage(PageStackAction.Animated)
     }
 
     Column {
