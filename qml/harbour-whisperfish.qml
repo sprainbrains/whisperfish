@@ -7,7 +7,7 @@ ApplicationWindow
 {
     id: mainWindow
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-    initialPage: Component { Main { } }
+    initialPage: Component { MainPage { } }
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
@@ -118,7 +118,7 @@ ApplicationWindow
 
     function showMainPage() {
         pageStack.clear()
-        pageStack.push(Qt.resolvedUrl("pages/Main.qml"), {}, PageStackAction.Immediate)
+        pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {}, PageStackAction.Immediate)
     }
 
     function newMessage(operationType) {
