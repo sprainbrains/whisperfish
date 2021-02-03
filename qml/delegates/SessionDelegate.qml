@@ -31,8 +31,8 @@ ListItem {
     property bool hasDraft: false // TODO implement in model
     property string draft: '' // TODO implement in model
     property string profilePicture: '' // TODO implement in model
-    property bool markReceived: model.received // TODO investigate: not updated for new message
-    property bool markSent: model.sent // TODO cf. markReceived
+    property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#55?)
+    property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property var _rawDate: new Date(model.timestamp)
@@ -152,8 +152,9 @@ ListItem {
             }
 
             HighlightImage {
-                source: markReceived ? "../../icons/icon-s-received.png" :
-                                       (markSent ? "../../icons/icon-s-sent.png" : "")
+                source: isPreviewReceived
+                        ? "../../icons/icon-s-received.png" :
+                          (isPreviewSent ? "../../icons/icon-s-sent.png" : "")
                 anchors.verticalCenter: parent.verticalCenter
                 highlighted: _labelsHighlighted
                 width: Theme.iconSizeSmall; height: width
