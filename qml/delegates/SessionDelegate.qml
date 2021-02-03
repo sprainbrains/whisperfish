@@ -25,6 +25,7 @@ ListItem {
     property int unreadCount: model.unread // TODO investigate: appears to be only 1 or 0
     property bool isGroup: model.isGroup
     property bool pinned: false // TODO implement in model
+    property bool archived: false // TODO implement in model
     property bool hasDraft: false // TODO implement in model
     property string draft: '' // TODO implement in model
     property string profilePicture: '' // TODO implement in model
@@ -59,6 +60,11 @@ ListItem {
         console.warn("setting pinned/unpinned is not implemented yet")
     }
 
+    function toggleArchivedState() {
+        // TODO implement in model
+        console.warn("setting archived/not archived is not implemented yet")
+    }
+
     Item {
         anchors { fill: parent; leftMargin: Theme.horizontalPageMargin }
 
@@ -71,6 +77,7 @@ ListItem {
             showInfoMark: pinned || archived || hasDraft
             infoMark.source: {
                 if (hasDraft) 'image://theme/icon-s-edit'
+                else if (archived) 'image://theme/icon-s-time'
                 else if (pinned) 'image://theme/icon-s-low-importance'
                 else ''
             }
@@ -203,6 +210,16 @@ ListItem {
                           //% "Pin to top"
                           qsTrId("whisperfish-session-unpin-view")
                 onClicked: togglePinState()
+            }
+            MenuItem {
+                text: archived ?
+                          //: Show hidden messages again
+                          //% "Un-archive conversation"
+                          qsTrId("whisperfish-session-unarchive") :
+                          //: Hide all messages from session menu
+                          //% "Archive conversation"
+                          qsTrId("whisperfish-session-archive")
+                onClicked: toggleArchivedState()
             } */
             MenuItem {
                 //: Delete all messages from session menu
