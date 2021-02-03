@@ -115,7 +115,12 @@ impl Stream for Timer {
 
 impl From<TimerSpec> for Timer {
     fn from(spec: TimerSpec) -> Timer {
-        let duration = std::time::Duration::from_millis(spec.interval as u64);
+        let duration = if spec.interval == 0 {
+            // QT Zero-Inverval timers should time out "as soon as possible"
+            std::time::Duration::from_nanos(1)
+        } else {
+            std::time::Duration::from_millis(spec.interval as u64)
+        };
         let start = std::time::Instant::now() + duration;
         Timer {
             spec,
