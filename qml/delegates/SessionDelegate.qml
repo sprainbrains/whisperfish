@@ -180,6 +180,7 @@ ListItem {
                 right: parent.right; rightMargin: Theme.horizontalPageMargin
                 verticalCenter: lowerLabel.verticalCenter
             }
+            visible: isUnread && unreadCount > 0
             width: isUnread ? unreadLabel.width+Theme.paddingSmall : 0
             height: width
             radius: 20
@@ -191,6 +192,7 @@ ListItem {
             id: unreadLabel
             anchors.centerIn: unreadBackground
             height: 1.2*Theme.fontSizeSmall; width: height
+            visible: isUnread && unreadCount > 0
             text: isUnread ? (unreadCount > 0 ? unreadCount : ' ') : ''
             font.pixelSize: Theme.fontSizeExtraSmall
             minimumPixelSize: Theme.fontSizeTiny
