@@ -41,7 +41,7 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("BookmarksPage.qml"))
             } */
             /* MenuItem {
-                // TODO implement in backend
+                // TODO implement in backend (#13)
                 //: Show search field menu item
                 //% "Search"
                 text: qsTrId("whisperfish-search-menu")

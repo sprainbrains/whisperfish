@@ -3,7 +3,7 @@ import Sailfish.Silica 1.0
 
 MouseArea {
     id: root
-    // TODO If performance is bad in large lists, we should consider
+    // NOTE If performance is bad in large lists, we should consider
     // wrapping most of the contents in a Loader and show a placeholder.
 
     property bool highlighted: pressed // if the whole image is highlighted

@@ -10,6 +10,7 @@ ListItem {
         if (model.message !== '') {
             return re+=model.message
         } else if (model.hasAttachment) {
+            // TODO we could show an icon in front
             //: Session contains an attachment label
             //% "Attachment"
             re+=qsTrId("whisperfish-session-has-attachment")
@@ -22,17 +23,17 @@ ListItem {
                               //: Time format including only hours and minutes, not seconds
                               //% "hh:mm"
                               Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
+    property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: model.unread // TODO investigate: is this really a bool?
-    property bool isGroup: model.isGroup
-    property bool isNoteToSelf: false // TODO implement in model, e.g. SettingsBridge.stringValue("tel") === model.source
+    property bool isNoteToSelf: false // TODO implement in model (#138), e.g. SettingsBridge.stringValue("tel") === model.source
     property bool pinned: false // TODO implement in model
     property bool archived: false // TODO implement in model
-    property bool hasDraft: false // TODO implement in model
-    property string draft: '' // TODO implement in model
+    property bool hasDraft: false // TODO implement in model (#178)
+    property string draft: '' // TODO implement in model (#178)
     property string profilePicture: '' // TODO implement in model
-    property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#55?)
-    property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived
+    property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property var _rawDate: new Date(model.timestamp)
