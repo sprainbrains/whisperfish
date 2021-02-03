@@ -156,6 +156,7 @@ ListItem {
                 source: isPreviewReceived
                         ? "../../icons/icon-s-received.png" :
                           (isPreviewSent ? "../../icons/icon-s-sent.png" : "")
+                color: Theme.primaryColor
                 anchors.verticalCenter: parent.verticalCenter
                 highlighted: _labelsHighlighted
                 width: Theme.iconSizeSmall; height: width
@@ -184,8 +185,7 @@ ListItem {
             width: isUnread ? unreadLabel.width+Theme.paddingSmall : 0
             height: width
             radius: 20
-            color: Theme.highlightBackgroundColor
-            opacity: Theme.opacityFaint
+            color: profilePicContainer.profileBackgroundColor
         }
 
         Label {

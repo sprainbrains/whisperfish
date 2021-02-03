@@ -15,6 +15,12 @@ MouseArea {
     property alias infoMark: infoMarkIcon
     property real infoMarkSize: Theme.iconSizeSmall // set this, don't change infoMark.{width,height}
 
+    property color profileBackgroundColor: Theme.colorScheme === Theme.LightOnDark ?
+                                               Qt.darker(Theme.secondaryHighlightColor) :
+                                               (Theme.rgba(Theme.secondaryHighlightColor,
+                                                           _highlighted ? Theme.opacityFaint :
+                                                                          Theme.opacityLow))
+
     // internally used to keep bindings even when changed from outside
     property bool _hasImage: imageSource !== ''
     property bool _highlighted: highlighted || pressed
@@ -27,10 +33,7 @@ MouseArea {
         id: profileBackground
         anchors.fill: parent
         radius: 180
-        opacity: Theme.opacityLow
-        color: _highlighted ? Qt.tint(Theme.overlayBackgroundColor,
-                                      Theme.highlightDimmerColor) :
-                              Theme.overlayBackgroundColor
+        color: profileBackgroundColor
     }
 
     HighlightImage {
@@ -39,10 +42,11 @@ MouseArea {
         anchors.centerIn: parent
         highlighted: _labelsHighlighted
         opacity: !_hasImage || image.status !== Image.Ready ?
-                     Theme.opacityLow : 0.0
+                     (Theme.colorScheme === Theme.LightOnDark ?
+                          Theme.opacityHigh : 1.0) : 0.0
         visible: opacity > 0.0
         color: Theme.secondaryColor
-        highlightColor: Theme.secondaryHighlightColor
+        highlightColor: Theme.highlightColor
         Behavior on opacity { FadeAnimator { } }
     }
 
@@ -114,6 +118,7 @@ MouseArea {
             // source: 'image://theme/icon-s-checkmark' // outline looks too busy
             source: 'image://theme/icon-s-installed'
             anchors.centerIn: parent
+            color: Theme.primaryColor
             highlighted: _labelsHighlighted
             highlightColor: Theme.secondaryHighlightColor
         }
