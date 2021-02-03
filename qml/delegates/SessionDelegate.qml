@@ -16,11 +16,12 @@ ListItem {
         }
         return re
     }
-
-    // NOTE Qt.DefaultLocaleShortDate includes seconds and takes too much space
-    //: Time format including only hours and minutes, not seconds
-    //% "hh:mm"
-    property string date: Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
+    property string date: model.section === 'older' ?
+                              Qt.formatDate(_rawDate) :
+                              // NOTE Qt.DefaultLocaleShortDate includes seconds and takes too much space
+                              //: Time format including only hours and minutes, not seconds
+                              //% "hh:mm"
+                              Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
     property int unreadCount: model.unread // TODO investigate: appears to be only 1 or 0
     property bool isGroup: model.isGroup
     property bool pinned: false // TODO implement in model
