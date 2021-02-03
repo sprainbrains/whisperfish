@@ -14,6 +14,11 @@ Page {
         footer: Item { width: parent.width; height: Theme.paddingMedium }
 
         PullDownMenu {
+            // NOTE Make sure the pulley menu doesn't have more
+            // than four entries. 'New group' and 'New message'
+            // can be merged; 'About' and 'Settings' maybe too.
+            // This makes room for 'Search' and 'Bookmarks'.
+
             MenuItem {
                 //: About whisperfish menu item
                 //% "About Whisperfish"
@@ -28,6 +33,15 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             /* MenuItem {
+                // TODO implement in backend
+                //: Show list of bookmarked messages, menu item
+                //% "Bookmarks"
+                text: qsTrId("whisperfish-bookmarks-menu")
+                visible: SessionModel.hasBookmarks
+                onClicked: pageStack.push(Qt.resolvedUrl("BookmarksPage.qml"))
+            } */
+            /* MenuItem {
+                // TODO implement in backend
                 //: Show search field menu item
                 //% "Search"
                 text: qsTrId("whisperfish-search-menu")
