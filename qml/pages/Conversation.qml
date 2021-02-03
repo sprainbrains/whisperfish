@@ -21,7 +21,7 @@ Page {
 
         PageHeader {
             id: pageHeader
-            title: MessageModel.group ? MessageModel.peerName : ContactModel.name(MessageModel.peerTel)
+            title:  MessageModel.peerName
             description:{
                 // Attempt to display group member names
                 if (MessageModel.group) {
@@ -78,7 +78,7 @@ Page {
                 WFChatTextInput {
                     id: textInput
                     width: parent.width
-                    contactName: MessageModel.group ? MessageModel.peerName : ContactModel.name(MessageModel.peerTel)
+                    contactName: MessageModel.peerName
                     enabled: true
                     editorFocus: conversation.editorFocus
 
