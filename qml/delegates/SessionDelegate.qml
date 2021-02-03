@@ -191,6 +191,15 @@ ListItem {
             verticalAlignment: Text.AlignVCenter
             color: Theme.highlightColor
             highlighted: _labelsHighlighted
+
+            HighlightImage {
+                anchors.centerIn: parent
+                width: Theme.iconSizeSmall; height: width
+                // or use "image://theme/icon-s-new"
+                source: visible ? "image://theme/icon-m-favorite" : ''
+                visible: isUnread && unreadCount === 0
+                highlighted: _labelsHighlighted
+            }
         }
     }
 
