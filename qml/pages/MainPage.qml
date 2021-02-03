@@ -24,13 +24,14 @@ Page {
                 //: Whisperfish settings menu item
                 //% "Settings"
                 text: qsTrId("whisperfish-settings-menu")
-                enabled: !SetupWorker.locked
+                visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             /* MenuItem {
                 //: Show search field menu item
                 //% "Search"
                 text: qsTrId("whisperfish-search-menu")
+                visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("SearchPage.qml"))
             } */
             MenuItem {
@@ -38,14 +39,14 @@ Page {
                 //: Whisperfish new group menu item
                 //% "New Group"
                 text: qsTrId("whisperfish-new-group-menu")
-                enabled: !SetupWorker.locked
+                visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewGroup.qml"))
             }
             MenuItem {
                 //: Whisperfish new message menu item
                 //% "New Message"
                 text: qsTrId("whisperfish-new-message-menu")
-                enabled: !SetupWorker.locked
+                visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
         }
