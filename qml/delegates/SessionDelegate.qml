@@ -6,40 +6,36 @@ import "../components"
 
 ListItem {
     id: delegate
-    // property var date: new Date(model.timestamp)
+    property string name: model.isGroup ? model.groupName : ContactModel.name(model.source)
+    property string message: {
+        var re = (_debugMode ? "[" + model.id + "] " : "")
+        if (model.message !== '') {
+            return re+=model.message
+        } else if (model.hasAttachment) {
+            //: Session contains an attachment label
+            //% "Attachment"
+            re+=qsTrId("whisperfish-session-has-attachment")
+        }
+        return re
+    }
 
-    readonly property var names: [
-        'Jane Doe', 'Erika Mustermann-Gabler', 'John Doe',
-        'Cleopâtre Mustermann-Sodoge', 'Les Schtroumpfs',
-        'Alice', 'Bob']
-    readonly property var unread: [
-        0, 2, 0, 15, 0, 1, 0]
-    readonly property var group: [
-        false, false, false, false, true, false, false]
-    // readonly property var dates: ['11:32', '8:15', 'yesterday',
-    //    'yesterday', '30.01.21', '28.12.20', '01.01.95']
-    readonly property var dates: [
-        '21:32', '10:15', '8:11',
-        '10:00', '11:01', '7:34', '7:40']
-    readonly property var texts: [
-        'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean',
-        "tomorrow's fine, yup", "okay",
-        'Asset csystems BATF Blowpipe Soviet South Africa wire transfer. NSA event security Compsec spies Benelux',
-        'Alice: but what if...?', 'no'
-    ]
-    readonly property var avatars: ['pic1.png', 'pic2.png', 'pic3.png',
-        '', '', '', ''
-    ]
+    // TODO is Format/Formatter public API?
+    // property string date: Format.formatDate(_rawDate, Formatter.TimepointRelative)
 
-    property string name: names[index]
-    property string message: texts[index]
-    property int unreadCount: unread[index]
-    property bool isGroup: group[index]
-    property string date: dates[index]
-    property bool pinned: index === 0
-    property string profilePicture: avatars[index]
+    // NOTE Qt.DefaultLocaleShortDate includes seconds and takes too much space
+    //: Time format including only hours and minutes, not seconds
+    //% "hh:mm"
+    property string date: Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
+    property int unreadCount: model.unread // TODO appears to be only 1 or 0
+    property bool isGroup: model.isGroup
+    property bool pinned: false // TODO implement in model
+    property string profilePicture: '' // TODO implement in model
+    property bool markReceived: model.received
+    property bool markSent: model.sent
 
-    property bool labelsHighlighted: highlighted || unreadCount > 0
+    property bool _debugMode: SettingsBridge.boolValue("debug_mode")
+    property var _rawDate: new Date(model.timestamp)
+    property bool _labelsHighlighted: highlighted || unreadCount > 0
 
     contentHeight: 3*Theme.fontSizeMedium+2*Theme.paddingMedium+2*Theme.paddingSmall
     menu: contextMenuComponent
@@ -61,7 +57,7 @@ ListItem {
         ProfilePicture {
             id: profilePicContainer
             highlighted: delegate.highlighted
-            labelsHighlighted: delegate.labelsHighlighted
+            labelsHighlighted: delegate._labelsHighlighted
             imageSource: profilePicture
             isGroup: delegate.isGroup
             showInfoMark: pinned
@@ -71,6 +67,8 @@ ListItem {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
             }
+            onClicked: console.log("profile picture clicked: "+name)
+            onPressAndHold: delegate.openMenu()
         }
 
         Label {
@@ -80,7 +78,7 @@ ListItem {
                 left: profilePicContainer.right; leftMargin: Theme.paddingLarge
                 right: timeLabel.left; rightMargin: Theme.paddingMedium
             }
-            highlighted: labelsHighlighted
+            highlighted: _labelsHighlighted
             maximumLineCount: 1
             truncationMode: TruncationMode.Fade
             text: name
@@ -98,25 +96,38 @@ ListItem {
                                  Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
             text: message
-            highlighted: labelsHighlighted
+            highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
             elide: Text.ElideRight
         }
 
-        Label {
+        Row {
             id: timeLabel
+            spacing: Theme.paddingSmall
             anchors {
                 leftMargin: Theme.paddingSmall
                 right: parent.right; rightMargin: Theme.horizontalPageMargin
                 verticalCenter: upperLabel.verticalCenter
             }
-            text: date
-            highlighted: labelsHighlighted
-            font.pixelSize: Theme.fontSizeExtraSmall
-            color: highlighted ? (unreadCount > 0 ? Theme.highlightColor :
-                                                    Theme.secondaryHighlightColor) :
-                                 (unreadCount > 0 ? Theme.highlightColor :
-                                                    Theme.secondaryColor)
+
+            HighlightImage {
+                source: markReceived ? "../../icons/icon-s-received.png" :
+                                       (markSent ? "../../icons/icon-s-sent.png" : "")
+                anchors.verticalCenter: parent.verticalCenter
+                highlighted: _labelsHighlighted
+                width: Theme.iconSizeSmall; height: width
+            }
+
+            Label {
+                anchors.verticalCenter: parent.verticalCenter
+                text: date
+                highlighted: _labelsHighlighted
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: highlighted ? (unreadCount > 0 ? Theme.highlightColor :
+                                                        Theme.secondaryHighlightColor) :
+                                     (unreadCount > 0 ? Theme.highlightColor :
+                                                        Theme.secondaryColor)
+            }
         }
 
         Rectangle {
@@ -144,7 +155,7 @@ ListItem {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             color: Theme.highlightColor
-            highlighted: labelsHighlighted
+            highlighted: _labelsHighlighted
         }
     }
 
