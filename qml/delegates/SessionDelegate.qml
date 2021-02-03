@@ -4,19 +4,6 @@ import "../components"
 
 ListItem {
     id: delegate
-    property string name: model.isGroup ? model.groupName : ContactModel.name(model.source)
-    property string message: {
-        var re = (_debugMode ? "[" + model.id + "] " : "")
-        if (model.message !== '') {
-            return re+=model.message
-        } else if (model.hasAttachment) {
-            // TODO we could show an icon in front
-            //: Session contains an attachment label
-            //% "Attachment"
-            re+=qsTrId("whisperfish-session-has-attachment")
-        }
-        return re
-    }
     property string date: model.section === 'older' ?
                               Qt.formatDate(_rawDate) :
                               // NOTE Qt.DefaultLocaleShortDate includes seconds and takes too much space
@@ -31,9 +18,22 @@ ListItem {
     property bool archived: false // TODO implement in model
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
-    property string profilePicture: '' // TODO implement in model
+    property string profilePicture: '' // TODO implement in model (#192)
     property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
+    property string name: model.isGroup ? model.groupName : ContactModel.name(model.source)
+    property string message: {
+        var re = (_debugMode ? "[" + model.id + "] " : "")
+        if (model.message !== '') {
+            return re+=model.message
+        } else if (model.hasAttachment) {
+            // TODO we could show an icon in front
+            //: Session contains an attachment label
+            //% "Attachment"
+            re+=qsTrId("whisperfish-session-has-attachment")
+        }
+        return re
+    }
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property var _rawDate: new Date(model.timestamp)
