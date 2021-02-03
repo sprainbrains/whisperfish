@@ -13,6 +13,7 @@ ApplicationWindow
     _defaultLabelFormat: Text.PlainText
 
     property var notificationMap: new Object()
+    readonly property string mainPageName: "mainPage"
 
     Component {
         id: messageNotification
@@ -27,7 +28,7 @@ ApplicationWindow
 
     function newMessageNotification(sid, name, source, message, isGroup) {
         if(Qt.application.state == Qt.ApplicationActive &&
-           (pageStack.currentPage.objectName == "main" ||
+           (pageStack.currentPage.objectName == mainPageName ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
            return
         }

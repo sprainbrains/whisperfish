@@ -4,7 +4,7 @@ import "../delegates"
 
 Page {
     id: main
-    objectName: "main"
+    objectName: mainPageName
 
     Connections {
         target: Prompt
