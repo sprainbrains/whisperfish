@@ -22,7 +22,6 @@ MouseArea {
 
     height: parent.height-3*Theme.paddingSmall
     width: height
-    onClicked: showInfoMark = !showInfoMark
 
     Rectangle {
         id: profileBackground
