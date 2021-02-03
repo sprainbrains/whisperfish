@@ -50,6 +50,16 @@ Page {
             }
         }
 
+        /* PushUpMenu {
+            MenuItem {
+                visible: SessionModel.hasArchived // TODO implement in backend
+                //: Menu item for showing archived conversations
+                //% "Show archived conversations"
+                text: qsTrId("whisperfish-show-archived-menu")
+                onClicked: pageStack.push(Qt.resolvedUrl("ArchivePage.qml"))
+            }
+        } */
+
         VerticalScrollDecorator {}
 
         ViewPlaceholder {
