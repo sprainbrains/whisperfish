@@ -22,7 +22,8 @@ ListItem {
                               //: Time format including only hours and minutes, not seconds
                               //% "hh:mm"
                               Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
-    property int unreadCount: model.unread // TODO investigate: appears to be only 1 or 0
+    property int unreadCount: 0 // TODO implement in model
+    property bool isUnread: model.unread // TODO investigate: is this really a bool?
     property bool isGroup: model.isGroup
     property bool pinned: false // TODO implement in model
     property bool archived: false // TODO implement in model
@@ -34,7 +35,7 @@ ListItem {
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property var _rawDate: new Date(model.timestamp)
-    property bool _labelsHighlighted: highlighted || unreadCount > 0
+    property bool _labelsHighlighted: highlighted || isUnread
 
     contentHeight: 3*Theme.fontSizeMedium+2*Theme.paddingMedium+2*Theme.paddingSmall
     menu: contextMenuComponent
@@ -157,10 +158,10 @@ ListItem {
                 text: date
                 highlighted: _labelsHighlighted
                 font.pixelSize: Theme.fontSizeExtraSmall
-                color: highlighted ? (unreadCount > 0 ? Theme.highlightColor :
-                                                        Theme.secondaryHighlightColor) :
-                                     (unreadCount > 0 ? Theme.highlightColor :
-                                                        Theme.secondaryColor)
+                color: highlighted ? (isUnread ? Theme.highlightColor :
+                                                 Theme.secondaryHighlightColor) :
+                                     (isUnread ? Theme.highlightColor :
+                                                 Theme.secondaryColor)
             }
         }
 
@@ -171,18 +172,18 @@ ListItem {
                 right: parent.right; rightMargin: Theme.horizontalPageMargin
                 verticalCenter: lowerLabel.verticalCenter
             }
-            width: unreadCount === 0 ? 0 : unreadLabel.width+Theme.paddingSmall
+            width: isUnread ? unreadLabel.width+Theme.paddingSmall : 0
             height: width
             radius: 20
-            color: Theme.highlightDimmerColor
-            opacity: Theme.opacityLow
+            color: Theme.highlightBackgroundColor
+            opacity: Theme.opacityFaint
         }
 
         Label {
             id: unreadLabel
             anchors.centerIn: unreadBackground
             height: 1.2*Theme.fontSizeSmall; width: height
-            text: unreadCount > 0 ? unreadCount : ''
+            text: isUnread ? (unreadCount > 0 ? unreadCount : ' ') : ''
             font.pixelSize: Theme.fontSizeExtraSmall
             minimumPixelSize: Theme.fontSizeTiny
             fontSizeMode: Text.Fit
@@ -199,13 +200,13 @@ ListItem {
         ContextMenu {
             id: menu
             /* MenuItem {
-                text: unreadCount === 0 ?
-                          //: Mark conversation as 'unread', even though it isn't
-                          //% "Mark as unread"
-                          qsTrId("whisperfish-session-mark-unread") :
+                text: isUnread ?
                           //: Mark conversation as 'read', even though it isn't
                           //% "Mark as read"
-                          qsTrId("whisperfish-session-mark-read")
+                          qsTrId("whisperfish-session-mark-read") :
+                          //: Mark conversation as 'unread', even though it isn't
+                          //% "Mark as unread"
+                          qsTrId("whisperfish-session-mark-unread")
                 onClicked: toggleReadState()
             }
             MenuItem {
