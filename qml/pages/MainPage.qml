@@ -95,7 +95,7 @@ Page {
             }
         }
 
-        delegate: Session{
+        delegate: SessionDelegate {
             onClicked: {
                 console.log("Activating session: "+model.id)
                 mainWindow.clearNotifications(model.id)
