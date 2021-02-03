@@ -19,9 +19,6 @@ ListItem {
         return re
     }
 
-    // TODO is Format/Formatter public API?
-    // property string date: Format.formatDate(_rawDate, Formatter.TimepointRelative)
-
     // NOTE Qt.DefaultLocaleShortDate includes seconds and takes too much space
     //: Time format including only hours and minutes, not seconds
     //% "hh:mm"
@@ -30,8 +27,8 @@ ListItem {
     property bool isGroup: model.isGroup
     property bool pinned: false // TODO implement in model
     property string profilePicture: '' // TODO implement in model
-    property bool markReceived: model.received
-    property bool markSent: model.sent
+    property bool markReceived: model.received // TODO investigate: not updated for new message
+    property bool markSent: model.sent // TODO cf. markReceived
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property var _rawDate: new Date(model.timestamp)
