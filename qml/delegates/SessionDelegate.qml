@@ -1,7 +1,5 @@
-import QtQuick 2.4
-//import QtQuick.Layouts 1.1
+import QtQuick 2.2
 import Sailfish.Silica 1.0
-import QtGraphicalEffects 1.0
 import "../components"
 
 ListItem {
