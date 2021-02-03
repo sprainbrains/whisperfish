@@ -200,19 +200,30 @@ clippy:
   except:
     - schedules
 
-translations:
+.translations: &translations
   image: debian
-  stage: test
   needs: []
-  only:
-    - master
   before_script:
     - apt-get update
     - apt-get install --no-install-recommends -y git qttools5-dev-tools qt5-default python3 python3-requests
-  script:
-    - .ci/master-update-translations.sh
   except:
     - schedules
+
+translations:check:
+  <<: *translations
+  stage: test
+  except:
+    - master
+  script:
+    - .ci/check-translations.sh
+
+translations:update:
+  <<: *translations
+  stage: deploy
+  only:
+    - master
+  script:
+    - .ci/master-update-translations.sh
 
 pages:
   dependencies:
