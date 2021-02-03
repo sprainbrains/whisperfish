@@ -25,6 +25,7 @@ ListItem {
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: model.unread // TODO investigate: is this really a bool?
     property bool isGroup: model.isGroup
+    property bool isNoteToSelf: false // TODO implement in model, e.g. SettingsBridge.stringValue("tel") === model.source
     property bool pinned: false // TODO implement in model
     property bool archived: false // TODO implement in model
     property bool hasDraft: false // TODO implement in model
@@ -75,9 +76,10 @@ ListItem {
             labelsHighlighted: delegate._labelsHighlighted
             imageSource: profilePicture
             isGroup: delegate.isGroup
-            showInfoMark: pinned || archived || hasDraft
+            showInfoMark: pinned || archived || hasDraft || isNoteToSelf
             infoMark.source: {
                 if (hasDraft) 'image://theme/icon-s-edit'
+                else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (archived) 'image://theme/icon-s-time'
                 else if (pinned) 'image://theme/icon-s-low-importance'
                 else ''
@@ -112,7 +114,11 @@ ListItem {
             highlighted: _labelsHighlighted
             maximumLineCount: 1
             truncationMode: TruncationMode.Fade
-            text: name
+            text: isNoteToSelf ?
+                      //: Name of the conversation with one's own number
+                      //% "Note to self"
+                      qsTrId("whisperfish-session-note-to-self") :
+                      name
         }
 
         Label {
