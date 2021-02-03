@@ -25,6 +25,8 @@ ListItem {
     property int unreadCount: model.unread // TODO investigate: appears to be only 1 or 0
     property bool isGroup: model.isGroup
     property bool pinned: false // TODO implement in model
+    property bool hasDraft: false // TODO implement in model
+    property string draft: '' // TODO implement in model
     property string profilePicture: '' // TODO implement in model
     property bool markReceived: model.received // TODO investigate: not updated for new message
     property bool markSent: model.sent // TODO cf. markReceived
@@ -66,9 +68,17 @@ ListItem {
             labelsHighlighted: delegate._labelsHighlighted
             imageSource: profilePicture
             isGroup: delegate.isGroup
-            showInfoMark: pinned
-            infoMark.source: 'image://theme/icon-s-low-importance'
-            infoMark.rotation: 30
+            showInfoMark: pinned || archived || hasDraft
+            infoMark.source: {
+                if (hasDraft) 'image://theme/icon-s-edit'
+                else if (pinned) 'image://theme/icon-s-low-importance'
+                else ''
+            }
+            infoMark.rotation: {
+                if (pinned) 30
+                else if (hasDraft) -90
+                else 0
+            }
             anchors {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
@@ -101,7 +111,11 @@ ListItem {
             color: highlighted ? Theme.secondaryHighlightColor :
                                  Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
-            text: message
+            text: hasDraft ?
+                      //: Message preview for a saved, unsent message
+                      //% "Draft: %1"
+                      qsTrId("whisperfish-message-preview-draft").arg(draft) :
+                      message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
             elide: Text.ElideRight
