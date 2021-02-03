@@ -26,7 +26,7 @@ ListItem {
     //: Time format including only hours and minutes, not seconds
     //% "hh:mm"
     property string date: Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
-    property int unreadCount: model.unread // TODO appears to be only 1 or 0
+    property int unreadCount: model.unread // TODO investigate: appears to be only 1 or 0
     property bool isGroup: model.isGroup
     property bool pinned: false // TODO implement in model
     property string profilePicture: '' // TODO implement in model
@@ -49,6 +49,16 @@ ListItem {
                 console.log("Deleting all messages for session: "+model.id)
                 SessionModel.remove(model.index)
             })
+    }
+
+    function toggleReadState() {
+        // TODO implement in model
+        console.warn("setting read/unread is not implemented yet")
+    }
+
+    function togglePinState() {
+        // TODO implement in model
+        console.warn("setting pinned/unpinned is not implemented yet")
     }
 
     Item {
@@ -164,7 +174,7 @@ ListItem {
 
         ContextMenu {
             id: menu
-            MenuItem {
+            /* MenuItem {
                 text: unreadCount === 0 ?
                           //: Mark conversation as 'unread', even though it isn't
                           //% "Mark as unread"
@@ -172,6 +182,7 @@ ListItem {
                           //: Mark conversation as 'read', even though it isn't
                           //% "Mark as read"
                           qsTrId("whisperfish-session-mark-read")
+                onClicked: toggleReadState()
             }
             MenuItem {
                 text: pinned ?
@@ -181,7 +192,8 @@ ListItem {
                           //: 'Pin' conversation to the top of the view
                           //% "Pin to top"
                           qsTrId("whisperfish-session-unpin-view")
-            }
+                onClicked: togglePinState()
+            } */
             MenuItem {
                 //: Delete all messages from session menu
                 //% "Delete conversation"
