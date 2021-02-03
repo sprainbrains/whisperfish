@@ -90,8 +90,15 @@ ListItem {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
             }
-            onClicked: console.log("profile picture clicked: "+name)
             onPressAndHold: delegate.openMenu()
+            onClicked: {
+                MessageModel.load(model.id, ContactModel.name(model.source))
+                if (isGroup) {
+                    pageStack.push(Qt.resolvedUrl("../pages/Group.qml"))
+                } else {
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
+                }
+            }
         }
 
         Label {
