@@ -27,7 +27,14 @@ Page {
                 enabled: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
+            /* MenuItem {
+                //: Show search field menu item
+                //% "Search"
+                text: qsTrId("whisperfish-search-menu")
+                onClicked: pageStack.push(Qt.resolvedUrl("SearchPage.qml"))
+            } */
             MenuItem {
+                // TODO merge "new group" and "new message" as "new conversation"
                 //: Whisperfish new group menu item
                 //% "New Group"
                 text: qsTrId("whisperfish-new-group-menu")
