@@ -18,7 +18,7 @@ MouseArea {
     // internally used to keep bindings even when changed from outside
     property bool _hasImage: imageSource !== ''
     property bool _highlighted: highlighted || pressed
-    property bool _labelsHighlighted: labelsHighlighted || highlighted
+    property bool _labelsHighlighted: labelsHighlighted || _highlighted
 
     height: parent.height-3*Theme.paddingSmall
     width: height
