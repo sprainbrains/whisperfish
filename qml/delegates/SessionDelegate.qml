@@ -199,14 +199,17 @@ ListItem {
             verticalAlignment: Text.AlignVCenter
             color: Theme.highlightColor
             highlighted: _labelsHighlighted
+        }
 
-            HighlightImage {
-                anchors.centerIn: parent
-                width: Theme.iconSizeSmall; height: width
-                // or use "image://theme/icon-s-new"
-                source: visible ? "image://theme/icon-m-favorite" : ''
-                visible: isUnread && unreadCount === 0
-                highlighted: _labelsHighlighted
+        GlassItem {
+            visible: isUnread
+            color: Theme.highlightColor
+            falloffRadius: 0.16
+            radius: 0.15
+            anchors {
+                left: parent.left
+                leftMargin: (width / -2) - Theme.horizontalPageMargin
+                verticalCenter: parent.verticalCenter
             }
         }
     }
