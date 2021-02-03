@@ -46,22 +46,22 @@ Page {
 
         ViewPlaceholder {
             enabled: sessionView.count == 0
-            text: SetupWorker.locked ?
-                "Whisperfish" :
-                //: Whisperfish no messages found message
-                //% "No messages"
-                qsTrId("whisperfish-no-messages-found")
+            // always show app name as placeholder, as the page
+            // has not title which might be confusing
+            text: "Whisperfish"
             hintText: {
-                if(!SetupWorker.registered) {
+                if (!SetupWorker.registered) {
                     //: Whisperfish registration required message
                     //% "Registration required"
                     qsTrId("whisperfish-registration-required-message")
-                } else if(SetupWorker.locked) {
+                } else if (SetupWorker.locked) {
                     //: Whisperfish locked message
                     //% "Locked"
                     qsTrId("whisperfish-locked-message")
                 } else {
-                    ""
+                    //: No messages found, hint on what to do
+                    //% "Pull down to start a new conversation."
+                    qsTrId("whisperfish-no-messages-hint-text")
                 }
             }
         }
@@ -100,7 +100,7 @@ Page {
                 console.log("Activating session: "+model.id)
                 mainWindow.clearNotifications(model.id)
                 pageStack.push(Qt.resolvedUrl("Conversation.qml"));
-                if(model.unread) {
+                if (model.unread) {
                     SessionModel.markRead(model.id)
                 }
                 MessageModel.load(model.id, ContactModel.name(model.source))
