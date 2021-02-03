@@ -423,32 +423,32 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Nommer le groupe</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
-        <location filename="../qml/pages/NewMessage.qml" line="53"/>
+        <location filename="../qml/pages/NewMessage.qml" line="58"/>
         <source>This phone number contains invalid characters.</source>
         <extracomment>invalid recipient phone number: invalid characters</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-recipient-local-number-not-allowed">
-        <location filename="../qml/pages/NewMessage.qml" line="58"/>
+        <location filename="../qml/pages/NewMessage.qml" line="63"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
-        <location filename="../qml/pages/NewMessage.qml" line="62"/>
+        <location filename="../qml/pages/NewMessage.qml" line="67"/>
         <source>This phone number appears to be invalid.</source>
         <extracomment>invalid recipient phone number: failed to format</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-new-message-title">
-        <location filename="../qml/pages/NewMessage.qml" line="88"/>
+        <location filename="../qml/pages/NewMessage.qml" line="95"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
         <translation>Nouveau message</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="106"/>
-        <location filename="../qml/pages/NewMessage.qml" line="110"/>
+        <location filename="../qml/pages/NewMessage.qml" line="113"/>
+        <location filename="../qml/pages/NewMessage.qml" line="117"/>
         <source>Recipient</source>
         <extracomment>New message recipient label
 ----------
@@ -456,49 +456,49 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Destinataire</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="152"/>
+        <location filename="../qml/pages/NewMessage.qml" line="164"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Destinataire invalide</translation>
     </message>
     <message id="whisperfish-enter-password">
-        <location filename="../qml/pages/Password.qml" line="45"/>
+        <location filename="../qml/pages/Password.qml" line="49"/>
         <source>Enter your password</source>
         <extracomment>Enter password prompt</extracomment>
         <translation>Entrez votre mot de passe</translation>
     </message>
     <message id="whisperfish-set-password">
-        <location filename="../qml/pages/Password.qml" line="48"/>
+        <location filename="../qml/pages/Password.qml" line="52"/>
         <source>Set your password</source>
         <extracomment>Set password prompt</extracomment>
         <translation>Définissez votre mot de passe</translation>
     </message>
     <message id="whisperfish-password-label">
-        <location filename="../qml/pages/Password.qml" line="58"/>
+        <location filename="../qml/pages/Password.qml" line="62"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
         <translation>Mot de passe</translation>
     </message>
     <message id="whisperfish-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="61"/>
+        <location filename="../qml/pages/Password.qml" line="65"/>
         <source>Password</source>
         <extracomment>Password placeholder</extracomment>
         <translation>Mot de passe</translation>
     </message>
     <message id="whisperfish-verify-password-label">
-        <location filename="../qml/pages/Password.qml" line="83"/>
+        <location filename="../qml/pages/Password.qml" line="87"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Vérifier le mot de passe</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="86"/>
+        <location filename="../qml/pages/Password.qml" line="90"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Vérifier le mot de passe</translation>
     </message>
     <message id="whisperfish-password-info">
-        <location filename="../qml/pages/Password.qml" line="104"/>
+        <location filename="../qml/pages/Password.qml" line="108"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
         <translation>Whisperfish stocke les clés d&apos;identité, l&apos;état de la session et les données de message local chiffrées sur disque. Le mot de passe que vous avez défini n&apos;est stocké nulle part et vous ne pourrez pas restaurer vos données si vous perdez votre mot de passe. Remarque&#xa0;: les pièces jointes sont actuellement stockées non chiffrées. Vous pouvez désactiver le stockage des pièces jointes dans la page Paramètres.</translation>

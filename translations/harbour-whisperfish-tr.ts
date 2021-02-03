@@ -360,25 +360,25 @@
         <translation>%1 ile uçtan uca şifrelemenizin güvenliğini doğrulamak istiyorsanız, yukarıdaki sayıları aygıtlarındaki sayılarla karşılaştırın.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
-        <location filename="../qml/pages/NewMessage.qml" line="53"/>
+        <location filename="../qml/pages/NewMessage.qml" line="58"/>
         <source>This phone number contains invalid characters.</source>
         <extracomment>invalid recipient phone number: invalid characters</extracomment>
         <translation>Bu telefon numarası geçersiz karakterler içeriyor.</translation>
     </message>
     <message id="whisperfish-recipient-local-number-not-allowed">
-        <location filename="../qml/pages/NewMessage.qml" line="58"/>
+        <location filename="../qml/pages/NewMessage.qml" line="63"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
         <translation>Lütfen ayarlarda bir ülke kodu belirleyin veya uluslararası biçimi kullanın.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
-        <location filename="../qml/pages/NewMessage.qml" line="62"/>
+        <location filename="../qml/pages/NewMessage.qml" line="67"/>
         <source>This phone number appears to be invalid.</source>
         <extracomment>invalid recipient phone number: failed to format</extracomment>
         <translation>Bu telefon numarası geçersiz görünüyor.</translation>
     </message>
     <message id="whisperfish-new-message-title">
-        <location filename="../qml/pages/NewMessage.qml" line="88"/>
+        <location filename="../qml/pages/NewMessage.qml" line="95"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
         <translation>Yeni mesaj</translation>
@@ -411,8 +411,8 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Üyeler</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="106"/>
-        <location filename="../qml/pages/NewMessage.qml" line="110"/>
+        <location filename="../qml/pages/NewMessage.qml" line="113"/>
+        <location filename="../qml/pages/NewMessage.qml" line="117"/>
         <source>Recipient</source>
         <extracomment>New message recipient label
 ----------
@@ -432,49 +432,49 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Lütfen grup üyelerini seçin</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="152"/>
+        <location filename="../qml/pages/NewMessage.qml" line="164"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Geçersiz alıcı</translation>
     </message>
     <message id="whisperfish-enter-password">
-        <location filename="../qml/pages/Password.qml" line="45"/>
+        <location filename="../qml/pages/Password.qml" line="49"/>
         <source>Enter your password</source>
         <extracomment>Enter password prompt</extracomment>
         <translation>Parolanızı girin</translation>
     </message>
     <message id="whisperfish-set-password">
-        <location filename="../qml/pages/Password.qml" line="48"/>
+        <location filename="../qml/pages/Password.qml" line="52"/>
         <source>Set your password</source>
         <extracomment>Set password prompt</extracomment>
         <translation>Parolanızı ayarlayın</translation>
     </message>
     <message id="whisperfish-password-label">
-        <location filename="../qml/pages/Password.qml" line="58"/>
+        <location filename="../qml/pages/Password.qml" line="62"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
         <translation>Parola</translation>
     </message>
     <message id="whisperfish-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="61"/>
+        <location filename="../qml/pages/Password.qml" line="65"/>
         <source>Password</source>
         <extracomment>Password placeholder</extracomment>
         <translation>Parola</translation>
     </message>
     <message id="whisperfish-verify-password-label">
-        <location filename="../qml/pages/Password.qml" line="83"/>
+        <location filename="../qml/pages/Password.qml" line="87"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Parolayı Doğrula</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="86"/>
+        <location filename="../qml/pages/Password.qml" line="90"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Parolayı Doğrula</translation>
     </message>
     <message id="whisperfish-password-info">
-        <location filename="../qml/pages/Password.qml" line="104"/>
+        <location filename="../qml/pages/Password.qml" line="108"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
         <translation>Whisperfish kimlik anahtarlarını, oturum durumunu ve yerel mesaj verilerini diskte şifrelenmiş olarak saklar. Belirlediğiniz parola hiçbir yerde saklanmaz ve parolanızı kaybederseniz verilerinizi geri getiremezsiniz. Not: Ekler şu anda şifrelenmemiş olarak saklanmaktadır. Eklerin saklanmasını Ayarlar sayfasında devre dışı bırakabilirsiniz.</translation>

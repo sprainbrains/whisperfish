@@ -360,25 +360,25 @@
         <translation>Vergelijkt de cijferkes hierboven me’ de die op ’t toestel van %1 voôr de veiligheid van u eind-tot-eind-versleuteling te verifiëren.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
-        <location filename="../qml/pages/NewMessage.qml" line="53"/>
+        <location filename="../qml/pages/NewMessage.qml" line="58"/>
         <source>This phone number contains invalid characters.</source>
         <extracomment>invalid recipient phone number: invalid characters</extracomment>
         <translation>Dezen telefonnumero bevat ongeldige têkens.</translation>
     </message>
     <message id="whisperfish-recipient-local-number-not-allowed">
-        <location filename="../qml/pages/NewMessage.qml" line="58"/>
+        <location filename="../qml/pages/NewMessage.qml" line="63"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
         <translation>Stelt een landcode in in d’instellingen, of gebruikt d’internationale formattering.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
-        <location filename="../qml/pages/NewMessage.qml" line="62"/>
+        <location filename="../qml/pages/NewMessage.qml" line="67"/>
         <source>This phone number appears to be invalid.</source>
         <extracomment>invalid recipient phone number: failed to format</extracomment>
         <translation>Dezen telefonnumero is precies ongeldig.</translation>
     </message>
     <message id="whisperfish-new-message-title">
-        <location filename="../qml/pages/NewMessage.qml" line="88"/>
+        <location filename="../qml/pages/NewMessage.qml" line="95"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
         <translation>Nief bericht</translation>
@@ -402,8 +402,8 @@
         <translation>Nieve groep</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="106"/>
-        <location filename="../qml/pages/NewMessage.qml" line="110"/>
+        <location filename="../qml/pages/NewMessage.qml" line="113"/>
+        <location filename="../qml/pages/NewMessage.qml" line="117"/>
         <source>Recipient</source>
         <extracomment>New message recipient label
 ----------
@@ -432,49 +432,49 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Selecteert de groepsleden</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="152"/>
+        <location filename="../qml/pages/NewMessage.qml" line="164"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Ongeldigen ontvanger</translation>
     </message>
     <message id="whisperfish-enter-password">
-        <location filename="../qml/pages/Password.qml" line="45"/>
+        <location filename="../qml/pages/Password.qml" line="49"/>
         <source>Enter your password</source>
         <extracomment>Enter password prompt</extracomment>
         <translation>Geeft u paswoord in</translation>
     </message>
     <message id="whisperfish-set-password">
-        <location filename="../qml/pages/Password.qml" line="48"/>
+        <location filename="../qml/pages/Password.qml" line="52"/>
         <source>Set your password</source>
         <extracomment>Set password prompt</extracomment>
         <translation>Stelt u paswoord in</translation>
     </message>
     <message id="whisperfish-password-label">
-        <location filename="../qml/pages/Password.qml" line="58"/>
+        <location filename="../qml/pages/Password.qml" line="62"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
         <translation>Paswoord</translation>
     </message>
     <message id="whisperfish-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="61"/>
+        <location filename="../qml/pages/Password.qml" line="65"/>
         <source>Password</source>
         <extracomment>Password placeholder</extracomment>
         <translation>Paswoord</translation>
     </message>
     <message id="whisperfish-verify-password-label">
-        <location filename="../qml/pages/Password.qml" line="83"/>
+        <location filename="../qml/pages/Password.qml" line="87"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Bevestigt u paswoord</translation>
     </message>
     <message id="whisperfish-verify-password-placeholder">
-        <location filename="../qml/pages/Password.qml" line="86"/>
+        <location filename="../qml/pages/Password.qml" line="90"/>
         <source>Verify Password</source>
         <extracomment>Verify Password label</extracomment>
         <translation>Bevestigt u paswoord</translation>
     </message>
     <message id="whisperfish-password-info">
-        <location filename="../qml/pages/Password.qml" line="104"/>
+        <location filename="../qml/pages/Password.qml" line="108"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
         <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Let op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’Instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
