@@ -11,6 +11,7 @@ Page {
         model: SessionModel
         anchors.fill: parent
         spacing: Theme.paddingMedium
+        footer: Item { width: parent.width; height: Theme.paddingMedium }
 
         PullDownMenu {
             MenuItem {
