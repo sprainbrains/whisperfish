@@ -68,8 +68,8 @@ Page {
 
         section {
             property: 'section'
-
             delegate: SectionHeader {
+                height: Theme.itemSizeExtraSmall
                 text: {
                     switch(section) {
                     case "today":
@@ -88,10 +88,10 @@ Page {
                         qsTrId("whisperfish-session-section-older")
                         break;
                     default:
+                        // two days to one week ago
                         Qt.locale().standaloneDayName(parseInt(section), Locale.LongFormat)
                     }
                 }
-                height: Theme.itemSizeExtraSmall
             }
         }
 
