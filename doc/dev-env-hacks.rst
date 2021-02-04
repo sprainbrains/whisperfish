@@ -112,7 +112,7 @@ Select "project" in the sidebar, choose "build" and click the tiny crossed
 circles for all build steps to disable them. This makes sure you don't
 accidentally start the build engine (which you don't need).
 
-All QML and JS file will be picked up automatically. Rust files etc. won't show
+All QML and JS files will be picked up automatically. Rust files etc. won't show
 up, but there are better tools for that anyways.
 
 Then select the "execution" configuration. Disable the "Rsync: Deploys with rsync."
