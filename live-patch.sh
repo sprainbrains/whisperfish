@@ -26,7 +26,7 @@ if ! type watchit >/dev/null 2>&1; then
 fi
 
 [[ -f ".env" ]] && source ./.env  # source .env for SSH_TARGET
-cSSH_TARGET=${SSH_TARGET:-"nemo@phone"}
+cSSH_TARGET="${SSH_TARGET:-"nemo@phone"}"
 
 # base path of files on the target device
 cSHADOW="/opt/sdk/harbour-whisperfish"
