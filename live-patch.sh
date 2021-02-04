@@ -24,8 +24,22 @@
 set -eu
 cd "$(dirname -- "$(type greadlink >/dev/null 2>&1 && greadlink -f -- "$0" || readlink -f -- "$0")")"
 
-if ! type watchit >/dev/null 2>&1; then
-    echo "error: this script requires 'watchit' (https://github.com/ichthyosaurus/watchit)"
+if printf -- "%s\n" "$@" | grep -qoExe "--help|-h"; then
+    printf "usage: %s\n" "$0"
+    echo "Please refer to the comments at the top of the script."
+    exit 0
+fi
+
+# Enable the watcher if --watcher is given or WATCHER is set in the environment.
+cWATCHER="${WATCHER:+yes}"
+cWATCHER="${cWATCHER:-no}"
+if printf -- "%s\n" "$@" | grep -qoExe "--watcher|-w"; then
+    cWATCHER='yes'
+    if ! type watchit >/dev/null 2>&1; then
+        echo "error: this script requires 'watchit' (https://github.com/ichthyosaurus/watchit)"
+    fi
+elif printf -- "%s\n" "$@" | grep -qoExe "--no-watcher|-W"; then
+    cWATCHER='no'
 fi
 
 [[ -f ".env" ]] && source ./.env  # source .env for SSH_TARGET
@@ -34,17 +48,21 @@ cSSH_TARGET="${SSH_TARGET:-"nemo@phone"}"
 # base path of files on the target device
 cSHADOW="/opt/sdk/harbour-whisperfish"
 
-# Set this to non-null to disable building. Can be specified as environment
-# variable or as command line argument (NO_BUILD=1 live-patch.sh)
-# The executable is expected in build/harbour-whisperfish. Extract it from the
-# latest RPM.
-cNO_BUILDING="${NO_BUILD:+no-building}"
-[[ "$1" == NO_BUILD* ]] && cNO_BUILDING=no-building
+# Enable building if --build is given or BUILDING is set in the environment.
+# If building is disabled, the executable is expected in build/harbour-whisperfish.
+# Extract it from the latest RPM.
+cBUILDING="${BUILDING:+yes}"
+cBUILDING="${cBUILDING:-no}"
+if printf -- "%s\n" "$@" | grep -qoExe "--build|-b"; then
+    cBUILDING='yes'
+elif printf -- "%s\n" "$@" | grep -qoExe "--no-build|-B"; then
+    cBUILDING='no'
+fi
 
 cLUPDATE_TOOL="${LUPDATE_TOOL:-lupdate}"
 cLRELEASE_TOOL="${LRELEASE_TOOL:-lrelease}"
 
-if [[ -z "$cNO_BUILDING" ]]; then
+if [[ "$cBUILDING" == 'yes' ]]; then
     # query the effective Cargo target directory
     cTARGET_DIR="$(cargo metadata --format-version=1 | jq -r ".target_directory")"
     cTARGET_ARCH="${TARGET_ARCH:-"armv7hl"}"
@@ -112,7 +130,7 @@ function refresh_files() { # 1: 'with-mkdir'?
 }
 
 function main() {
-    if [[ -z "$cNO_BUILDING" ]]; then
+    if [[ "$cBUILDING" == 'yes' ]]; then
         # make sure the build is up-to-date
         cargo build --target="${TARGET_ARCH}"
     fi
@@ -122,9 +140,13 @@ function main() {
     refresh_files with-mkdir
     restart_app
 
+    if [[ "$cWATCHER" == 'no' ]]; then
+        return $?
+    fi
+
     while event="$(watchit . -wsg "$cLOCAL_EXE" '*.qml' '*.qm' '*.js' '*.conf' '*.desktop' '*.png' '*.rs')"; do
         printf "%s\n" "$event"
-        if [[ "$event" =~ \.rs$ ]] && [[ -z "$cNO_BUILDING" ]]; then
+        if [[ "$event" =~ \.rs$ ]] && [[ "$cBUILDING" == 'yes' ]]; then
             cargo build --target="${TARGET_ARCH}"
             refresh_files
         elif [[ "$event" =~ \.qml$ || "$event" =~ \.js$ ]]; then
@@ -135,5 +157,8 @@ function main() {
         restart_app
     done
 }
+
+[[ "$cWATCHER" == 'yes' ]] && echo "note: watcher enabled"
+[[ "$cBUILDING" == 'yes' ]] && echo "note: building enabled"
 
 main
