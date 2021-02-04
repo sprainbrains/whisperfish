@@ -122,7 +122,7 @@ function main() {
     refresh_files with-mkdir
     restart_app
 
-    while event="$(watchit . -wsg "$cLOCAL_EXE" '*.qml' '*.qm' '*.ts' '*.js' '*.conf' '*.desktop' '*.png' '*.rs')"; do
+    while event="$(watchit . -wsg "$cLOCAL_EXE" '*.qml' '*.qm' '*.js' '*.conf' '*.desktop' '*.png' '*.rs')"; do
         printf "%s\n" "$event"
         if [[ "$event" =~ \.rs$ ]] && [[ -z "$cNO_BUILDING" ]]; then
             cargo build --target="${TARGET_ARCH}"
