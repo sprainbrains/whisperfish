@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eu -o pipefail
 #
 # Configuration:
 # Change $cSHADOW to a user-writable path on your device. The default is
@@ -35,7 +36,6 @@
 # and pyinotify (https://github.com/seb-m/pyinotify).
 #
 
-set -eu
 cd "$(dirname -- "$(type greadlink >/dev/null 2>&1 && greadlink -f -- "$0" || readlink -f -- "$0")")"
 
 if printf -- "%s\n" "$@" | grep -qoExe "--help|-h"; then
