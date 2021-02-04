@@ -1,25 +1,39 @@
 #!/bin/bash
 #
-# Requires watchit (https://github.com/ichthyosaurus/watchit) and pyinotify
-# (https://github.com/seb-m/pyinotify).
-#
-# Environment:
-# SSH_TARGET=nemo@phone     how to connect to the target device
-# NO_BUILD=1                if building is disabled (building is enabled by default)
-#                           This can be specified as environment variable or as
-#                           command line argument. If building is disabled, the
-#                           executable is expected in build/harbour-whisperfish.
-#                           Manually extract it from the latest RPM.
-# TARGET_ARCH=armv7hl       Change to build for a different architecture
-# LUPDATE_TOOL=lupdate      Change this if your system packages e.g. lupdate-qt5
-# LRELEASE_TOOL=lrelease    Change this if your system packages e.g. lrelease-qt5
-#
 # Configuration:
 # Change $cSHADOW to a user-writable path on your device. The default is
 # /opt/sdk/harbour-whisperfish.
 #
-# The script will run from Whisperfish's root directory. It watches for changed
-# (modified, added, removed) files, then rebuilds and deploys them as needed.
+# The script will run from Whisperfish's root directory. It can watch for changed
+# (modified, added, removed) files, build and deploy Whisperfish, and restart
+# the app on the target device.
+#
+# By default, it will deploy and restart the app once, then quit.
+#
+# Arguments:
+# -h, --help                just a hint to this comment
+# -b, --build               enable building, cf. BUILDING below
+# -w, --watcher             enable watching the file system, cf. WATCHER below
+# -B, --no-build            disable building, overrides environment (default)
+# -W, --no-watcher          disable watching the file system, overrides env. (default)
+#
+# Environment:
+# SSH_TARGET=nemo@phone     How to connect to the target device
+#                           (defaults to 'nemo@phone')
+# BUILDING=foo              Set to anything to enable building (building is disabled
+#                           by default). This can be specified as environment variable
+#                           or as command line argument (-b). If building is disabled, the
+#                           executable is expected in build/harbour-whisperfish.
+#                           Manually extract it from the latest RPM.
+# WATCHER=foo               Set to anything to enable the file system watcher
+#                           (disabled by default).
+# TARGET_ARCH=armv7hl       Change to build for a different architecture
+# LUPDATE_TOOL=lupdate      Change this if your system packages e.g. lupdate-qt5
+# LRELEASE_TOOL=lrelease    Change this if your system packages e.g. lrelease-qt5
+#
+# Note: watching (-w) requires watchit (https://github.com/ichthyosaurus/watchit)
+# and pyinotify (https://github.com/seb-m/pyinotify).
+#
 
 set -eu
 cd "$(dirname -- "$(type greadlink >/dev/null 2>&1 && greadlink -f -- "$0" || readlink -f -- "$0")")"

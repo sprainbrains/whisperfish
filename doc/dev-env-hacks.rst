@@ -122,7 +122,10 @@ choose "custom executable". Enter in the "executable" field:
 .. code::
     path/to/whisperfish/live-patch.sh
 
-Put "NO_BUILD" as command line arguments if you don't want to enable
-automatically rebuilding the app when rust files change.
+Set `-w -B` as command line arguments. This enables watching for changes
+(deploying and restarting as needed) and disables automatically rebuilding the
+app. (Use `-b` to enable building.)
 
-Now you can click on "run" (or press Ctrl+R) to start the live runner.
+Now you can click on "run" (or press Ctrl+R) to start the live runner. All log
+output will be in the "program output" pane (Alt+3). QML errors will become
+clickable links to the respective files.
