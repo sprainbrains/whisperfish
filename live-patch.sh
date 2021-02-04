@@ -108,7 +108,7 @@ function refresh_files() { # 1: 'with-mkdir'?
     push harbour-whisperfish-message.conf    "usr/share/lipstick/notificationcategories/harbour-whisperfish-message.conf" "$make_dirs"
     push icons/86x86/harbour-whisperfish.png "usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png" "$make_dirs"
     push icons                               "usr/share/harbour-whisperfish/" # "$make_dirs"
-    refresh_qml "$make_dirs"
+    refresh_qml # "$make_dirs" (shared path already prepared for icons)
 }
 
 function main() {
@@ -117,6 +117,8 @@ function main() {
         cargo build --target="${TARGET_ARCH}"
     fi
 
+    # We omit mkdir in the loop because preparing directories once should be
+    # safe enough (tm), and it is very slow.
     refresh_files with-mkdir
     restart_app
 
