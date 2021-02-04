@@ -10,6 +10,9 @@
 #                           command line argument. If building is disabled, the
 #                           executable is expected in build/harbour-whisperfish.
 #                           Manually extract it from the latest RPM.
+# TARGET_ARCH=armv7hl       Change to build for a different architecture
+# LUPDATE_TOOL=lupdate      Change this if your system packages e.g. lupdate-qt5
+# LRELEASE_TOOL=lrelease    Change this if your system packages e.g. lrelease-qt5
 #
 # Configuration:
 # Change $cSHADOW to a user-writable path on your device. The default is
@@ -38,10 +41,13 @@ cSHADOW="/opt/sdk/harbour-whisperfish"
 cNO_BUILDING="${NO_BUILD:+no-building}"
 [[ "$1" == NO_BUILD* ]] && cNO_BUILDING=no-building
 
+cLUPDATE_TOOL="${LUPDATE_TOOL:-lupdate}"
+cLRELEASE_TOOL="${LRELEASE_TOOL:-lrelease}"
+
 if [[ -z "$cNO_BUILDING" ]]; then
     # query the effective Cargo target directory
     cTARGET_DIR="$(cargo metadata --format-version=1 | jq -r ".target_directory")"
-    cTARGET_ARCH='armv7hl'
+    cTARGET_ARCH="${TARGET_ARCH:-"armv7hl"}"
     cLOCAL_EXE="${cTARGET_DIR}/${cTARGET_ARCH}/debug/harbour-whisperfish"
 else
     cLOCAL_EXE=build/harbour-whisperfish  # extract from latest RPM
@@ -77,10 +83,10 @@ function push() { # 1: source, 2: dest, 3: 'with-mkdir'?
 function update_translations() {
     echo && echo "••••• updating translations"
     mkdir -p build/translations
-    lupdate-qt5 qml/ -noobsolete -ts translations/*.ts
+    "$cLUPDATE_TOOL" qml/ -noobsolete -ts translations/*.ts
 
     for filepath in translations/*.ts; do
-        lrelease-qt5 -idbased "${filepath}" -qm "build/${filepath%.*}.qm";
+        "$cLRELEASE_TOOL" -idbased "${filepath}" -qm "build/${filepath%.*}.qm";
     done
 }
 
