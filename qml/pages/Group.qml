@@ -20,7 +20,7 @@ Page {
                 var name = ContactModel.name(lst[i])
                 if (name==lst[i]) {
                     // Unknown contact
-                    //: Unknown Contact
+                    //: Unknown contact in group member list
                     //% "Unknown"
                     name = qsTrId("whisperfish-unknown-contact")
                 }
