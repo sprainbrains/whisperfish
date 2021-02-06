@@ -15,6 +15,9 @@ harbour-whisperfish.o
 translations/*.qm
 libsignal-build/
 
+sqlcipher/*.c
+sqlcipher/*.h
+sqlcipher/LICENSE
 
 # cargo
 /target

@@ -22,7 +22,7 @@ export MER_ARCH=armv7hl
 # For now, this is also put in the environment.
 # After https://github.com/rust-lang/cargo/pull/7811 is in nightly,
 # we can generate these flags in build.rs
-export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
+export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
 
 # If you want to use the included ./run.sh script,
 # set this variable to your hostname or IP address of your SailfishOS device.
