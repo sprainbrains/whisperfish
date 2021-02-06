@@ -7,6 +7,10 @@ WebViewPage {
 
 	allowedOrientations: Orientation.PortraitMask
 
+	backNavigation: false
+	forwardNavigation: false
+	showNavigationIndicator: false
+
 	WebView {
 		id: webView
 
@@ -33,10 +37,17 @@ WebViewPage {
 			var codeMatch = /^signalcaptcha:\/\/(.*)$/.exec(uri);
 			if (codeMatch !== null && codeMatch[1] != '') {
 				console.log("Captcha Code Received", codeMatch[1]);
-				SetupWorker.captchaFiled(codeMatch[1]);
+				complete(codeMatch[1]);
 				return true;
 			}
 			return false;
+		}
+
+		function complete(code) {
+			Prompt.captcha(code);
+			if (!pageStack.busy) {
+				pageStack.pop();
+			}
 		}
 
 		onUrlChanged: {
@@ -49,12 +60,11 @@ WebViewPage {
 			console.log(message);
 			if (message == "Whisperfish:CaptchaDone") {
 				console.log("Captcha Code Received:", data.code);
-				SetupWorker.captchaFiled(data.code);
+				complete(data.code);
 			} else if (message == "Whisperfish:CaptchaUnload") {
 				console.log("Captcha Page Unloading: ", data.url);
 				filterUrl(data.url);
 			}
-			SetupWorker.captchaFiled("asdf");
 		}
 	}
 }
