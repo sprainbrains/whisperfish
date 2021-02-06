@@ -236,19 +236,34 @@ impl SetupWorker {
         let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
         let password = std::str::from_utf8(&password)?.to_string();
 
-        let res = app
+        let mut res = app
             .client_actor
             .send(super::client::Register {
                 e164: e164.clone(),
                 password: password.clone(),
                 use_voice: this.borrow().useVoice,
+                captcha: None,
             })
             .await??;
 
-        if res == super::client::RegistrationResponse::CaptchaRequired {
-            return Err(format_err!(
-                "Signal wants you to complete a captcha. Please file a bug report against Whisperfish."
-            ));
+        while res == super::client::RegistrationResponse::CaptchaRequired {
+            let captcha: String = app
+                .prompt
+                .pinned()
+                .borrow_mut()
+                .ask_captcha()
+                .await
+                .ok_or(format_err!("No captcha result provided"))?
+                .into();
+            res = app
+                .client_actor
+                .send(super::client::Register {
+                    e164: e164.clone(),
+                    password: password.clone(),
+                    use_voice: this.borrow().useVoice,
+                    captcha: Some(captcha),
+                })
+            .await??;
         }
 
         let code: String = app
