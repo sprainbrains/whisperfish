@@ -37,7 +37,7 @@ MouseArea {
     }
 
     HighlightImage {
-        source: isGroup ? "../../icons/icon-m-group.png" :
+        source: isGroup ? "image://theme/icon-m-users" :
                           "image://theme/icon-m-contact"
         anchors.centerIn: parent
         highlighted: _labelsHighlighted
