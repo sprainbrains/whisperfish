@@ -26,7 +26,7 @@ MouseArea {
     property bool _highlighted: highlighted || pressed
     property bool _labelsHighlighted: labelsHighlighted || _highlighted
 
-    height: parent.height-3*Theme.paddingSmall
+    height: parent.height-4*Theme.paddingSmall
     width: height
 
     Rectangle {
