@@ -909,6 +909,7 @@ pub struct Register {
     pub e164: String,
     pub password: String,
     pub use_voice: bool,
+    pub captcha: Option<String>,
 }
 
 impl Handler<Register> for ClientActor {
@@ -919,6 +920,7 @@ impl Handler<Register> for ClientActor {
             e164,
             password,
             use_voice,
+            captcha,
         } = reg;
 
         let (_credentials, push_service) =
@@ -927,12 +929,12 @@ impl Handler<Register> for ClientActor {
         let registration_procedure = async move {
             if use_voice {
                 account_manager
-                    .request_voice_verification_code(&e164)
+                    .request_voice_verification_code(&e164, captcha.as_deref(), None)
                     .await
                     .map(Into::into)
             } else {
                 account_manager
-                    .request_sms_verification_code(&e164)
+                    .request_sms_verification_code(&e164, captcha.as_deref(), None)
                     .await
                     .map(Into::into)
             }
