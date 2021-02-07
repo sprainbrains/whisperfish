@@ -5,7 +5,7 @@ import "../components"
 ListItem {
     id: delegate
     property string date: model.section === 'older' ?
-                              Format.formatDate(model.timestamp, Formatter.Timepoint) :
+                              Format.formatDate(model.timestamp, Formatter.DateMedium) :
                               Format.formatDate(model.timestamp, Formatter.TimeValue)
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
