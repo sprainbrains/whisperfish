@@ -6,13 +6,6 @@ Page {
     id: main
     objectName: mainPageName
 
-    Connections {
-        target: Prompt
-        onPromptCaptcha: {
-            captchaTimer.start()
-        }
-    }
-
     SilicaListView {
         id: sessionView
         model: SessionModel
@@ -144,20 +137,6 @@ Page {
                     SessionModel.markRead(model.id)
                 }
                 MessageModel.load(model.id, ContactModel.name(model.source))
-            }
-        }
-    }
-
-    Timer {
-        id: captchaTimer
-        interval: 500
-        running: false
-        repeat: false
-        onTriggered: {
-            console.log("Page status: "+main.status)
-            if(main.status == PageStatus.Active) {
-                pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"))
-                CaptchaTimer.stop()
             }
         }
     }

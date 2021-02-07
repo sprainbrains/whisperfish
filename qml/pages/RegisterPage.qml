@@ -43,6 +43,7 @@ BlockingInfoPageBase {
         // We wait till the backend calls to continue.
         target: Prompt
         onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
+        onPromptCaptcha: pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"))
         onPromptPhoneNumber: _retry()
     }
 
