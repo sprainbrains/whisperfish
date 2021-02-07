@@ -55,7 +55,7 @@ Page {
             width: parent.width
             PageHeader {
                 //: Settings page title
-                //% "Whisperfish Settings"
+                //% "Settings"
                 title: qsTrId("whisperfish-settings-title")
             }
 
