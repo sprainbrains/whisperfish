@@ -26,18 +26,7 @@ stages:
         - Cargo.lock
       prefix: target-$MER_ARCH
   script:
-    - mkdir -p $CARGO_HOME
-    - cp .ci/cargo.toml $CARGO_HOME/config
-    - echo "Building for $SFOS_VERSION"
-    - echo "Configuring cargo-rpm (cfr https://gitlab.com/rubdos/whisperfish/-/issues/24)"
-    - sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
-    - cat Cargo.toml
-    - export MER_TARGET="SailfishOS-$SFOS_VERSION"
-    - export RUSTFLAGS="-C link-args=-Wl,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
-    - rustc --version
-    - cargo --version
-    - cargo-rpm --help
-    - cargo rpm build --verbose --target $RUST_ARCH
+    - .ci/build-for-target.sh
 
 build:armv7hl:
   variables:
