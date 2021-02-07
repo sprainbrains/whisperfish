@@ -5,11 +5,8 @@ import "../components"
 ListItem {
     id: delegate
     property string date: model.section === 'older' ?
-                              Qt.formatDate(_rawDate) :
-                              // NOTE Qt.DefaultLocaleShortDate includes seconds and takes too much space
-                              //: Time format including only hours and minutes, not seconds
-                              //% "hh:mm"
-                              Qt.formatTime(_rawDate, qsTrId("whisperfish-time-format-hours-minutes"))
+                              Format.formatDate(model.timestamp, Formatter.Timepoint) :
+                              Format.formatDate(model.timestamp, Formatter.TimeValue)
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: model.unread // TODO investigate: is this really a bool?
