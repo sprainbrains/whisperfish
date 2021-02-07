@@ -22,11 +22,13 @@ Page {
     Column {
         anchors.fill: parent
 
-        PageHeader {
+        ConversationPageHeader {
             id: pageHeader
             title:  MessageModel.peerName
-            description:{
+            isGroup: MessageModel.group
+            description: {
                 // Attempt to display group member names
+                // TODO This should be rewritten once the backend supports it (#223).
                 if (MessageModel.group) {
                     var members = []
                     var lst = MessageModel.groupMembers.split(",")
@@ -37,19 +39,9 @@ Page {
                     }
                     return members.join(", ")
                 }
-                else return (pageHeader.title == MessageModel.peerTel ? "" : MessageModel.peerTel)
+                else return (MessageModel.peerName === MessageModel.peerTel ?
+                                 "" : MessageModel.peerTel)
             }
-        }
-
-        // https://together.jolla.com/question/196054/dialogheaderextracontent-read-only/
-        HighlightImage {
-            // There's currenty no option to move the icon to the right of the header.
-            // It does exist in the ConversationHeader of jolla-messages,
-            // but that's a very far stretch to import here.
-            parent: pageHeader.extraContent
-            id: pageHeaderImageIcon
-            anchors.verticalCenter: parent.verticalCenter
-            source: MessageModel.group ? "image://theme/icon-m-chat" : "image://theme/icon-m-contact"
         }
 
         MessagesView {
