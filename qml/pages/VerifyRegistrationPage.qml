@@ -114,7 +114,6 @@ BlockingInfoPageBase {
                 text: qsTrId("whisperfish-continue-button-label")
                 enabled: _canAccept
                 onClicked: accept()
-                anchors.horizontalCenter: parent.horizontalCenter
             }
 
             // TODO add second button to resend verification code
