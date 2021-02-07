@@ -160,30 +160,33 @@ impl SetupWorker {
     }
 
     async fn open_storage(app: Rc<WhisperfishApp>) -> Result<Storage, Error> {
+        let res = Storage::open(&store::default_location()?, None).await;
+        if let Ok(storage) = res {
+            return Ok(storage);
+        }
 
-            let res = Storage::open(&store::default_location()?, None).await;
-            if let Ok(storage) = res {
-                return Ok(storage);
+        for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
+            let password: String = app
+                .prompt
+                .pinned()
+                .borrow_mut()
+                .ask_password()
+                .await
+                .ok_or_else(|| format_err!("No password provided"))?
+                .into();
+
+            match Storage::open(&store::default_location()?, Some(password)).await {
+                Ok(storage) => return Ok(storage),
+                Err(error) => log::error!(
+                    "Attempt {} of opening encrypted storage failed: {}",
+                    i,
+                    error
+                ),
             }
+        }
 
-            for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
-                let password: String = app
-                    .prompt
-                    .pinned()
-                    .borrow_mut()
-                    .ask_password()
-                    .await
-                    .ok_or_else(|| format_err!("No password provided"))?
-                    .into();
-
-                match Storage::open(&store::default_location()?, Some(password)).await {
-                    Ok(storage) => return Ok(storage),
-                    Err(error) => log::error!("Attempt {} of opening encrypted storage failed: {}", i, error)
-                }
-            }
-
-            log::error!("Error setting up storage: too many bad password attempts");
-            res
+        log::error!("Error setting up storage: too many bad password attempts");
+        res
     }
 
     async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
@@ -263,7 +266,7 @@ impl SetupWorker {
                     use_voice: this.borrow().useVoice,
                     captcha: Some(captcha),
                 })
-            .await??;
+                .await??;
         }
 
         let code: String = app
