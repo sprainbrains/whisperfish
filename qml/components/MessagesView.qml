@@ -16,6 +16,13 @@
  * You can visit <https://sailfishos.org/legal/> for more information
  */
 
+/*
+ * Modifications for Whisperfish:
+ * SPDX-FileCopyrightText: 2021 Mirian Margiani
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ */
+
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import "../delegates"
@@ -61,7 +68,7 @@ SilicaListView {
         Component {
             id: messageDelegate
 
-            Message { 
+            MessageDelegate {
                 modelData: model
             }
         }
