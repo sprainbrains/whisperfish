@@ -33,17 +33,19 @@ rm target/*/release/rpmbuild/RPMS/*/*.rpm
 cargo-rpm --help
 cargo rpm build --verbose --target $RUST_ARCH
 
-RPM_PATH=(target/*/release/rpmbuild/RPMS/*/*.rpm)
-RPM_PATH="${RPM_PATH[0]}"
-RPM=$(basename $RPM_PATH)
+# Only upload on tags or master
+if [ -z "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+    RPM_PATH=(target/*/release/rpmbuild/RPMS/*/*.rpm)
+    RPM_PATH="${RPM_PATH[0]}"
+    RPM=$(basename $RPM_PATH)
 
-BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
+    BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 
-URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
+    URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
+    echo Posting to $URL
 
-echo Posting to $URL
-
-# Upload to Gitlab
-curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
-     --upload-file "$RPM_PATH" \
-     $URL
+    # Upload to Gitlab
+    curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
+         --upload-file "$RPM_PATH" \
+         $URL
+fi
