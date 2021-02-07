@@ -2,6 +2,7 @@
  * Copyright (C) 2012-2015 Jolla Ltd.
  *                    2020 Nicolas Werner
  *                    2020 Ruben De Smet
+ *                    2021 Mirian Margiani
  *
  * The code in this file is distributed under multiple licenses, and as such,
  * may be used under any one of the following licenses:
@@ -23,9 +24,8 @@ import QtQuick.Layouts 1.0
 import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import Nemo.Thumbnailer 1.0
+import "../components"
 
-// BubbleBackground inspired on Konheko, GPLv3+
-// https://nheko.im/nheko-reborn/konheko/-/blob/master/qml/pages/ChatPage.qml#L101
 ListItem {
     id: messageItem
     contentHeight: content.height + 2 * Theme.paddingMedium
@@ -36,7 +36,7 @@ ListItem {
     property bool inbound: modelData.outgoing ? false : true
     property bool hasText
 
-    BubbleBackground {
+    RoundedRect {
         id: bubble
 
         property int maximumMessageWidth: parent.width - 2 * Theme.paddingLarge
@@ -46,15 +46,10 @@ ListItem {
         opacity: modelData.outgoing ? Theme.opacityFaint : Theme.opacityHigh
         width: content.width
         height: content.height
-
         radius: Theme.paddingLarge
-        roundedCorners: {
-            if (modelData.outgoing) {
-                BubbleBackground.BottomLeft | BubbleBackground.TopRight
-            } else {
-                BubbleBackground.BottomRight | BubbleBackground.TopLeft
-            }
-        }
+        roundedCorners: modelData.outgoing ?
+                            bottomLeft | topRight :
+                            bottomRight | topLeft
 
         anchors {
             topMargin: Theme.paddingSmall
