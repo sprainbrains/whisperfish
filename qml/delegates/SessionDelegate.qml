@@ -79,8 +79,8 @@ ListItem {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (pinned) 'image://theme/icon-s-low-importance'
-                else if (hasAttachment) 'image://theme/icon-s-attach'
                 else if (archived) 'image://theme/icon-s-time'
+                else if (hasAttachment) 'image://theme/icon-s-attach'
                 else ''
             }
             infoMark.rotation: {
