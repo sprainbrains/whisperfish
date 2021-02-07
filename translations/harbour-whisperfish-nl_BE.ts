@@ -477,7 +477,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/Password.qml" line="108"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Let op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’Instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
+        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Let op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <location filename="../qml/pages/Register.qml" line="25"/>
