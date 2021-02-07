@@ -33,7 +33,6 @@ ListItem {
     }
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
-    property var _rawDate: new Date(model.timestamp)
     property bool _labelsHighlighted: highlighted || isUnread
 
     contentHeight: 3*Theme.fontSizeMedium+2*Theme.paddingMedium+2*Theme.paddingSmall
