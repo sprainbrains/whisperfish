@@ -13,6 +13,7 @@ ApplicationWindow
     _defaultLabelFormat: Text.PlainText
 
     readonly property string mainPageName: "mainPage"
+    readonly property string conversationPageName: "conversationPage"
     property var notificationMap: ({})
 
     // setting this to "true" will block global navigation
@@ -33,7 +34,7 @@ ApplicationWindow
     function newMessageNotification(sid, name, source, message, isGroup) {
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
-           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
+           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName))) {
            return
         }
 
@@ -79,7 +80,7 @@ ApplicationWindow
     Connections {
         target: ClientWorker
         onMessageReceived: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 SessionModel.add(sid, true)
                 MessageModel.add(mid)
             } else {
@@ -87,7 +88,7 @@ ApplicationWindow
             }
         }
         onMessageReceipt: {
-            if(mid > 0 && pageStack.currentPage.objectName == "conversation") {
+            if(mid > 0 && pageStack.currentPage.objectName == conversationPageName) {
                 MessageModel.markReceived(mid)
             }
 
@@ -99,7 +100,7 @@ ApplicationWindow
             newMessageNotification(sid, ContactModel.name(source), source, message, isGroup)
         }
         onMessageSent: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 SessionModel.markSent(sid, message)
                 MessageModel.markSent(mid)
             } else {

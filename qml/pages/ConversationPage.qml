@@ -3,8 +3,9 @@ import Sailfish.Silica 1.0
 import "../delegates"
 
 Page {
-    id: conversation
-    objectName: "conversation"
+    id: root
+    objectName: conversationPageName
+
     property bool editorFocus
     onStatusChanged: {
         if(status == PageStatus.Active) {
@@ -80,7 +81,7 @@ Page {
                     width: parent.width
                     contactName: MessageModel.peerName
                     enabled: true
-                    editorFocus: conversation.editorFocus
+                    editorFocus: root.editorFocus
 
                     onSendMessage: {
                         var sid = MessageModel.createMessage(MessageModel.peerTel, text, "", attachmentPath, true)
