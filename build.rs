@@ -300,40 +300,40 @@ fn main() {
         if !Path::new("sqlcipher/sqlite3.c").is_file() {
             // Download and prepare sqlcipher source
             let stat = Command::new("sqlcipher/get-sqlcipher.sh")
-            .status()
-            .expect("Failed to download sqlcipher");
+                .status()
+                .expect("Failed to download sqlcipher");
             assert!(stat.success());
         }
 
         // Build static sqlcipher
         cc::Build::new()
-        .include(format!("{}/usr/include/", mer_target_root))
-        .include(format!("{}/usr/include/openssl", mer_target_root))
-        .file("sqlcipher/sqlite3.c")
-        .warnings(false)
-        .flag("-DSQLITE_CORE")
-        .flag("-DSQLITE_DEFAULT_FOREIGN_KEYS=1")
-        .flag("-DSQLITE_ENABLE_API_ARMOR")
-        .flag("-DSQLITE_HAS_CODEC")
-        .flag("-DSQLITE_TEMP_STORE=2")
-        .flag("-DHAVE_ISNAN")
-        .flag("-DHAVE_LOCALTIME_R")
-        .flag("-DSQLITE_ENABLE_COLUMN_METADATA")
-        .flag("-DSQLITE_ENABLE_DBSTAT_VTAB")
-        .flag("-DSQLITE_ENABLE_FTS3")
-        .flag("-DSQLITE_ENABLE_FTS3_PARENTHESIS")
-        .flag("-DSQLITE_ENABLE_FTS5")
-        .flag("-DSQLITE_ENABLE_JSON1")
-        .flag("-DSQLITE_ENABLE_LOAD_EXTENSION=1")
-        .flag("-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
-        .flag("-DSQLITE_ENABLE_RTREE")
-        .flag("-DSQLITE_ENABLE_STAT2")
-        .flag("-DSQLITE_ENABLE_STAT4")
-        .flag("-DSQLITE_SOUNDEX")
-        .flag("-DSQLITE_THREADSAFE=1")
-        .flag("-DSQLITE_USE_URI")
-        .flag("-DHAVE_USLEEP=1")
-        .compile("sqlcipher");
+            .include(format!("{}/usr/include/", mer_target_root))
+            .include(format!("{}/usr/include/openssl", mer_target_root))
+            .file("sqlcipher/sqlite3.c")
+            .warnings(false)
+            .flag("-DSQLITE_CORE")
+            .flag("-DSQLITE_DEFAULT_FOREIGN_KEYS=1")
+            .flag("-DSQLITE_ENABLE_API_ARMOR")
+            .flag("-DSQLITE_HAS_CODEC")
+            .flag("-DSQLITE_TEMP_STORE=2")
+            .flag("-DHAVE_ISNAN")
+            .flag("-DHAVE_LOCALTIME_R")
+            .flag("-DSQLITE_ENABLE_COLUMN_METADATA")
+            .flag("-DSQLITE_ENABLE_DBSTAT_VTAB")
+            .flag("-DSQLITE_ENABLE_FTS3")
+            .flag("-DSQLITE_ENABLE_FTS3_PARENTHESIS")
+            .flag("-DSQLITE_ENABLE_FTS5")
+            .flag("-DSQLITE_ENABLE_JSON1")
+            .flag("-DSQLITE_ENABLE_LOAD_EXTENSION=1")
+            .flag("-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
+            .flag("-DSQLITE_ENABLE_RTREE")
+            .flag("-DSQLITE_ENABLE_STAT2")
+            .flag("-DSQLITE_ENABLE_STAT4")
+            .flag("-DSQLITE_SOUNDEX")
+            .flag("-DSQLITE_THREADSAFE=1")
+            .flag("-DSQLITE_USE_URI")
+            .flag("-DHAVE_USLEEP=1")
+            .compile("sqlcipher");
 
         println!("cargo:lib_dir={}", env::var("OUT_DIR").unwrap());
         println!("cargo:rustc-link-lib=static=sqlcipher");
