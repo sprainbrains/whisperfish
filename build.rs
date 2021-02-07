@@ -297,6 +297,11 @@ fn main() {
     }
 
     if cross_compile {
+        // static sqlcipher handling. Needed for compatibility with
+        // sailfish-components-webview.
+        // This may become obsolete with an sqlcipher upgrade from jolla or when
+        // https://gitlab.com/rubdos/whisperfish/-/issues/227 is implemented.
+
         if !Path::new("sqlcipher/sqlite3.c").is_file() {
             // Download and prepare sqlcipher source
             let stat = Command::new("sqlcipher/get-sqlcipher.sh")
@@ -311,6 +316,8 @@ fn main() {
             .include(format!("{}/usr/include/openssl", mer_target_root))
             .file("sqlcipher/sqlite3.c")
             .warnings(false)
+            .flag("-Wno-stringop-overflow")
+            .flag("-Wno-return-local-addr")
             .flag("-DSQLITE_CORE")
             .flag("-DSQLITE_DEFAULT_FOREIGN_KEYS=1")
             .flag("-DSQLITE_ENABLE_API_ARMOR")
