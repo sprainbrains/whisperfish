@@ -7,6 +7,9 @@ import QtQuick 2.2
 
   Set the \c roundedCorners property to an OR-combination of
   the four corners: \c topLeft, \c topRight, \c bottomLeft, \c bottomRight.
+
+  This has better performance than using a Rectangle with
+  layering and a RoundedMask.
 */
 Item {
     id: root
