@@ -533,6 +533,7 @@ dependencies = [
  "libc",
  "num-integer",
  "num-traits",
+ "serde",
  "time 0.1.43",
  "winapi 0.3.9",
 ]
@@ -1374,7 +1375,7 @@ checksum = "89203f3fba0a3795506acaad8ebce3c80c0af93f994d5a1d7a0b1eeb23271929"
 [[package]]
 name = "libsignal-protocol"
 version = "0.1.1-alpha.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-protocol-rs#2d00a19f02db63628be82ace6b0f6e4df204529f"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-protocol-rs#0fdf7c30ff0e1f207ac219252e7e961b5e14b937"
 dependencies = [
  "aes",
  "aes-ctr",
@@ -1394,7 +1395,7 @@ dependencies = [
 [[package]]
 name = "libsignal-protocol-sys"
 version = "0.1.1-alpha.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-protocol-rs#2d00a19f02db63628be82ace6b0f6e4df204529f"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-protocol-rs#0fdf7c30ff0e1f207ac219252e7e961b5e14b937"
 dependencies = [
  "cmake",
 ]
@@ -1402,7 +1403,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#db8700ff2c2070060df7b50cd6ebafba12fddc5f"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=tokio-0.3-captcha#8d030ed1dd0537ff05d9bebb99e1b37baf638d27"
 dependencies = [
  "aes",
  "aes-ctr",
@@ -1411,6 +1412,7 @@ dependencies = [
  "base64 0.13.0",
  "block-modes",
  "bytes 0.5.6",
+ "chrono",
  "futures",
  "hmac",
  "http",
@@ -1429,7 +1431,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#db8700ff2c2070060df7b50cd6ebafba12fddc5f"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=tokio-0.3-captcha#8d030ed1dd0537ff05d9bebb99e1b37baf638d27"
 dependencies = [
  "actix",
  "actix-http",
