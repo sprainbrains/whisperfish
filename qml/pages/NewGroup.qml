@@ -5,6 +5,7 @@ import Sailfish.Contacts 1.0
 import Sailfish.Telephony 1.0
 import org.nemomobile.contacts 1.0
 import org.nemomobile.commhistory 1.0
+import "../components"
 
 Page {
     id: newGroupPage
