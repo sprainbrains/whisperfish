@@ -53,10 +53,11 @@ Page {
             model: MessageModel
 
             // Use a placeholder for the ChatTextInput to avoid re-creating the input
-            // after it has been scrolled away.
+            // after it has been scrolled away. The input component is in the
+            // header because the view is upside down.
             header: Item {
                 width: messages.width
-                height: textInput.height
+                height: headerArea.height
             }
 
             Column {
@@ -64,6 +65,7 @@ Page {
                 y: messages.headerItem.y
                 parent: messages.contentItem
                 width: parent.width
+                height: childrenRect.height
 
                 WFChatTextInput {
                     id: textInput
@@ -73,7 +75,9 @@ Page {
                     editorFocus: root.editorFocus
 
                     onSendMessage: {
-                        var sid = MessageModel.createMessage(MessageModel.peerTel, text, "", attachmentPath, true)
+                        // TODO This should be handled completely in the backend.
+                        var sid = MessageModel.createMessage(MessageModel.peerTel,
+                                                             text, "", attachmentPath, true)
                         if(sid > 0) {
                             // Update session model
                             SessionModel.add(sid, true)
