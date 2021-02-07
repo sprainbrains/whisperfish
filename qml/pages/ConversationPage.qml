@@ -53,6 +53,7 @@ Page {
             model: MessageModel
 
             // Use a placeholder for the ChatTextInput to avoid re-creating the input
+            // after it has been scrolled away.
             header: Item {
                 width: messages.width
                 height: textInput.height
