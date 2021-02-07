@@ -18,12 +18,13 @@ ListItem {
     property string profilePicture: '' // TODO implement in model (#192)
     property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
+    property bool hasAttachment: model.hasAttachment
     property string name: model.isGroup ? model.groupName : ContactModel.name(model.source)
     property string message: {
         var re = (_debugMode ? "[" + model.id + "] " : "")
         if (model.message !== '') {
             return re+=model.message
-        } else if (model.hasAttachment) {
+        } else if (hasAttachment) {
             // TODO we could show an icon in front
             //: Session contains an attachment label
             //% "Attachment"
@@ -73,12 +74,13 @@ ListItem {
             labelsHighlighted: delegate._labelsHighlighted
             imageSource: profilePicture
             isGroup: delegate.isGroup
-            showInfoMark: pinned || archived || hasDraft || isNoteToSelf
+            showInfoMark: pinned || archived || hasDraft || isNoteToSelf || hasAttachment
             infoMark.source: {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
-                else if (archived) 'image://theme/icon-s-time'
                 else if (pinned) 'image://theme/icon-s-low-importance'
+                else if (hasAttachment) 'image://theme/icon-s-attach'
+                else if (archived) 'image://theme/icon-s-time'
                 else ''
             }
             infoMark.rotation: {
