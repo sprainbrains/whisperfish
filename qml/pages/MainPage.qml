@@ -132,7 +132,7 @@ Page {
             onClicked: {
                 console.log("Activating session: "+model.id)
                 mainWindow.clearNotifications(model.id)
-                pageStack.push(Qt.resolvedUrl("Conversation.qml"));
+                pageStack.push(Qt.resolvedUrl("ConversationPage.qml"));
                 if (model.unread) {
                     SessionModel.markRead(model.id)
                 }
