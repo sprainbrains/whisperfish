@@ -263,7 +263,11 @@ fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), Err
     Ok(())
 }
 
-fn write_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+fn write_file_sync_encrypted(
+    keys: [u8; 16 + 20],
+    path: PathBuf,
+    contents: &[u8],
+) -> Result<(), Error> {
     log::trace!("Writing encrypted file {:?}", path);
 
     // Generate random IV
@@ -302,14 +306,22 @@ fn write_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf, contents: &[u8]
     Ok(())
 }
 
-fn write_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+fn write_file_sync(
+    keys: Option<[u8; 16 + 20]>,
+    path: PathBuf,
+    contents: &[u8],
+) -> Result<(), Error> {
     match keys {
         Some(keys) => write_file_sync_encrypted(keys, path, &contents),
-        None => write_file_sync_unencrypted(path, &contents)
+        None => write_file_sync_unencrypted(path, &contents),
     }
 }
 
-async fn write_file(keys: Option<[u8; 16 + 20]>, path: PathBuf, contents: Vec<u8>) -> Result<(), Error> {
+async fn write_file(
+    keys: Option<[u8; 16 + 20]>,
+    path: PathBuf,
+    contents: Vec<u8>,
+) -> Result<(), Error> {
     actix_threadpool::run(move || write_file_sync(keys, path, &contents)).await?;
     Ok(())
 }
@@ -365,7 +377,7 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
 fn load_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, Error> {
     match keys {
         Some(keys) => load_file_sync_encrypted(keys, path),
-        None => load_file_sync_unencrypted(path)
+        None => load_file_sync_unencrypted(path),
     }
 }
 
@@ -376,7 +388,6 @@ async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>
 }
 
 impl Storage {
-
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
         &self.path
@@ -462,7 +473,7 @@ impl Storage {
         // 3. initialize protocol store
         let keys = match password {
             None => None,
-            Some(pass) => Some(derive_storage_key(pass.to_string(), storage_salt_path).await?)
+            Some(pass) => Some(derive_storage_key(pass.to_string(), storage_salt_path).await?),
         };
 
         let context = libsignal_protocol::Context::default();
@@ -552,7 +563,6 @@ impl Storage {
 
         Ok(db)
     }
-
 
     /// Asynchronously loads the signal HTTP password from storage and decrypts it.
     pub async fn signal_password(&self) -> Result<String, Error> {
@@ -1348,7 +1358,10 @@ mod tests {
         drop(storage);
 
         if storage_password.is_some() {
-            assert!(Storage::open(&location, None).await.is_err(), "Storage was not encrypted");
+            assert!(
+                Storage::open(&location, None).await.is_err(),
+                "Storage was not encrypted"
+            );
         }
 
         let storage = Storage::open(&location, storage_password).await?;
