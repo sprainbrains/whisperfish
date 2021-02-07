@@ -320,8 +320,8 @@ impl MessageModel {
             self.peerName = QString::from(group_name);
         } else {
             self.peerName = contact::name_from_phone_number(&sess.source.clone())
-            .map(QString::from)
-            .unwrap_or(QString::from(sess.source.clone()));
+                .map(QString::from)
+                .unwrap_or(QString::from(sess.source.clone()));
         }
         self.peerNameChanged();
 

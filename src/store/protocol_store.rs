@@ -24,7 +24,6 @@ fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a
 }
 
 impl ProtocolStore {
-
     pub async fn store_with_key(
         keys: Option<[u8; 16 + 20]>,
         path: &Path,
@@ -65,7 +64,10 @@ impl ProtocolStore {
         })
     }
 
-    pub async fn open_with_key(keys: Option<[u8; 16 + 20]>, path: &Path) -> Result<Self, failure::Error> {
+    pub async fn open_with_key(
+        keys: Option<[u8; 16 + 20]>,
+        path: &Path,
+    ) -> Result<Self, failure::Error> {
         // Identity
         let identity_path = path.join("storage").join("identity");
 

@@ -8,9 +8,12 @@ pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
 /// We do not want to test on a live db, use temporary dir
 pub async fn get_in_memory_db() -> InMemoryDb {
     let temp = temp();
-    (Storage::new(&temp, None, 12345, "Some Password", [0; 52])
-        .await.expect("Failed to initalize storage"),
-     temp)
+    (
+        Storage::new(&temp, None, 12345, "Some Password", [0; 52])
+            .await
+            .expect("Failed to initalize storage"),
+        temp,
+    )
 }
 
 /// Setup helper for creating a session

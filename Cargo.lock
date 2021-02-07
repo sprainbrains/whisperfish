@@ -1108,6 +1108,7 @@ dependencies = [
  "actix_derive",
  "aes",
  "block-modes",
+ "cc",
  "chrono",
  "cpp",
  "cpp_build",
@@ -1363,7 +1364,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#b940d05a2e81b47aae73d3eb0f01da418038243e"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#5b4ea2c82179bde9baee6d7cd1fccc11ca8e5591"
 dependencies = [
  "aes",
  "aes-ctr",
@@ -1391,7 +1392,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#b940d05a2e81b47aae73d3eb0f01da418038243e"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#5b4ea2c82179bde9baee6d7cd1fccc11ca8e5591"
 dependencies = [
  "actix",
  "actix-http",

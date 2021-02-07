@@ -17,6 +17,9 @@ Page {
         onPromptPassword: {
             passwordTimer.start()
         }
+        onPromptCaptcha: {
+            captchaTimer.start()
+        }
     }
 
     Connections {
@@ -185,6 +188,20 @@ Page {
             if(main.status == PageStatus.Active) {
                 pageStack.push(Qt.resolvedUrl("Password.qml"))
                 passwordTimer.stop()
+            }
+        }
+    }
+
+    Timer {
+        id: captchaTimer
+        interval: 500
+        running: false
+        repeat: false
+        onTriggered: {
+            console.log("Page status: "+main.status)
+            if(main.status == PageStatus.Active) {
+                pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"))
+                CaptchaTimer.stop()
             }
         }
     }
