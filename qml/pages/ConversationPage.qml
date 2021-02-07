@@ -8,9 +8,10 @@ Page {
     objectName: conversationPageName
 
     property bool editorFocus
+
     onStatusChanged: {
-        if(status == PageStatus.Active) {
-            if(MessageModel.group) {
+        if (status == PageStatus.Active) {
+            if (MessageModel.group) {
                 pageStack.pushAttached(Qt.resolvedUrl("Group.qml"))
             } else {
                 pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
@@ -29,8 +30,8 @@ Page {
                 if (MessageModel.group) {
                     var members = []
                     var lst = MessageModel.groupMembers.split(",")
-                    for(var i = 0; i < lst.length; i++) {
-                        if(lst[i] != SetupWorker.localId) {
+                    for (var i = 0; i < lst.length; i++) {
+                        if (lst[i] !== SetupWorker.localId) {
                             members.push(ContactModel.name(lst[i]))
                         }
                     }
@@ -54,15 +55,9 @@ Page {
         MessagesView {
             id: messages
             focus: true
-
             height: parent.height - pageHeader.height
             contentHeight: height
-
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
-
+            anchors { left: parent.left; right: parent.right }
             model: MessageModel
 
             // Use a placeholder for the ChatTextInput to avoid re-creating the input
