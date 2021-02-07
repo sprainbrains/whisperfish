@@ -32,3 +32,18 @@ rm target/*/release/rpmbuild/RPMS/*/*.rpm
 
 cargo-rpm --help
 cargo rpm build --verbose --target $RUST_ARCH
+
+RPM_PATH=(target/*/release/rpmbuild/RPMS/*/*.rpm)
+RPM_PATH="${RPM_PATH[0]}"
+RPM=$(basename $RPM_PATH)
+
+BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
+
+URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
+
+echo Posting to $URL
+
+# Upload to Gitlab
+curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
+     --upload-file "$RPM_PATH" \
+     $URL
