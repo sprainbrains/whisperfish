@@ -201,7 +201,7 @@ Page {
             console.log("Page status: "+main.status)
             if(main.status == PageStatus.Active) {
                 pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"))
-                CaptchaTimer.stop()
+                captchaTimer.stop()
             }
         }
     }

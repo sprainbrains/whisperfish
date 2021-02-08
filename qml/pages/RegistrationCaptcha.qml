@@ -52,8 +52,9 @@ WebViewPage {
 
 		onUrlChanged: {
 			console.log("Url changed to: " + webView.url);
-			filterUrl(uri);
-			webView.loadHtml("<html><head></head><body></body></html>");
+			if (filterUrl(url)) {
+				webView.loadHtml("<html><head></head><body></body></html>");
+			}
 		}
 
 		onRecvAsyncMessage: {
