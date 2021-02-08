@@ -34,19 +34,19 @@
         <translation>Új üzenet</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/Main.qml" line="117"/>
+        <location filename="../qml/pages/Main.qml" line="120"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Ma</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/Main.qml" line="122"/>
+        <location filename="../qml/pages/Main.qml" line="125"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Tegnap</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/Main.qml" line="127"/>
+        <location filename="../qml/pages/Main.qml" line="130"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Régebbi</translation>
@@ -234,67 +234,67 @@
         <translation>Szétkapcsolás</translation>
     </message>
     <message id="whisperfish-registration-complete">
-        <location filename="../qml/pages/Main.qml" line="27"/>
+        <location filename="../qml/pages/Main.qml" line="30"/>
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
         <translation>A regisztráció kész!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
-        <location filename="../qml/pages/Main.qml" line="32"/>
+        <location filename="../qml/pages/Main.qml" line="35"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>HIBA - Nem sikerült beállítani az adattárat</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
-        <location filename="../qml/pages/Main.qml" line="37"/>
+        <location filename="../qml/pages/Main.qml" line="40"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
         <translation>HIBA - Érvénytelen telefonszám regisztrálva a Signallal</translation>
     </message>
     <message id="whisperfish-error-setup-client">
-        <location filename="../qml/pages/Main.qml" line="42"/>
+        <location filename="../qml/pages/Main.qml" line="45"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>HIBA - Nem sikerült beállítani a Signal klienst</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/Main.qml" line="58"/>
+        <location filename="../qml/pages/Main.qml" line="61"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>A Whisperfish névjegye</translation>
     </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/Main.qml" line="64"/>
+        <location filename="../qml/pages/Main.qml" line="67"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Beállítások</translation>
     </message>
     <message id="whisperfish-new-group-menu">
-        <location filename="../qml/pages/Main.qml" line="71"/>
+        <location filename="../qml/pages/Main.qml" line="74"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
         <translation>Új csoport</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/Main.qml" line="78"/>
+        <location filename="../qml/pages/Main.qml" line="81"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Új üzenet</translation>
     </message>
     <message id="whisperfish-no-messages-found">
-        <location filename="../qml/pages/Main.qml" line="92"/>
+        <location filename="../qml/pages/Main.qml" line="95"/>
         <source>No messages</source>
         <extracomment>Whisperfish no messages found message</extracomment>
         <translation>Nincsenek üzenetek</translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/Main.qml" line="97"/>
+        <location filename="../qml/pages/Main.qml" line="100"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Regisztráció szükséges</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/Main.qml" line="101"/>
+        <location filename="../qml/pages/Main.qml" line="104"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Zárolva</translation>
@@ -592,9 +592,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="59"/>
-        <source>Whisperfish Settings</source>
+        <source>Settings</source>
+        <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation>Whisperfish beállítások</translation>
+        <translation type="unfinished">Whisperfish beállítások</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="66"/>

@@ -228,85 +228,85 @@
         <translation>Desassociar</translation>
     </message>
     <message id="whisperfish-registration-complete">
-        <location filename="../qml/pages/Main.qml" line="27"/>
+        <location filename="../qml/pages/Main.qml" line="30"/>
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
         <translation>Registo concluído!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
-        <location filename="../qml/pages/Main.qml" line="32"/>
+        <location filename="../qml/pages/Main.qml" line="35"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>ERRO - Problema ao configurar o repositório de dados</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
-        <location filename="../qml/pages/Main.qml" line="37"/>
+        <location filename="../qml/pages/Main.qml" line="40"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
         <translation>ERRO - Número de telefone registado no Signal inválido</translation>
     </message>
     <message id="whisperfish-error-setup-client">
-        <location filename="../qml/pages/Main.qml" line="42"/>
+        <location filename="../qml/pages/Main.qml" line="45"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>ERRO - Problema ao configurar o cliente do Signal</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/Main.qml" line="58"/>
+        <location filename="../qml/pages/Main.qml" line="61"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>Acerca do Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/Main.qml" line="64"/>
+        <location filename="../qml/pages/Main.qml" line="67"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Definições</translation>
     </message>
     <message id="whisperfish-new-group-menu">
-        <location filename="../qml/pages/Main.qml" line="71"/>
+        <location filename="../qml/pages/Main.qml" line="74"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
         <translation>Novo grupo</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/Main.qml" line="78"/>
+        <location filename="../qml/pages/Main.qml" line="81"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Nova mensagem</translation>
     </message>
     <message id="whisperfish-no-messages-found">
-        <location filename="../qml/pages/Main.qml" line="92"/>
+        <location filename="../qml/pages/Main.qml" line="95"/>
         <source>No messages</source>
         <extracomment>Whisperfish no messages found message</extracomment>
         <translation>Sem mensagens</translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/Main.qml" line="97"/>
+        <location filename="../qml/pages/Main.qml" line="100"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Registo necessário</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/Main.qml" line="101"/>
+        <location filename="../qml/pages/Main.qml" line="104"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Bloqueado</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/Main.qml" line="117"/>
+        <location filename="../qml/pages/Main.qml" line="120"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Hoje</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/Main.qml" line="122"/>
+        <location filename="../qml/pages/Main.qml" line="125"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Ontem</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/Main.qml" line="127"/>
+        <location filename="../qml/pages/Main.qml" line="130"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Mais antigas</translation>
@@ -583,9 +583,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="59"/>
-        <source>Whisperfish Settings</source>
+        <source>Settings</source>
+        <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation>Definições do Whisperfish</translation>
+        <translation type="unfinished">Definições do Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="66"/>
