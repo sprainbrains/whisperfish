@@ -23,81 +23,114 @@
  *
  */
 
-import QtQuick 2.2
+import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "../delegates"
 
 SilicaListView {
     id: messagesView
-
     verticalLayoutDirection: ListView.BottomToTop
-    // Necessary to avoid resetting focus every time a row is added, which breaks text input
+    quickScroll: true  // TODO how to only allow downwards?
+
+    // TODO verify:
+    // avoids resetting focus every time a row is added, which breaks text input
     currentIndex: -1
-    quickScroll: true
-    clip: true
+
+    // TODO verify: date->string is always ISO formatted?
+    // TODO Use a custom property for sections. It should contain
+    // at least 1) date, 2) unread boundary, 3) ...
+    section.property: "timestamp"
 
     delegate: Item {
         id: wrapper
-
-        // This would normally be previousSection, but our model's order is inverted.
-        property bool sectionBoundary: (ListView.nextSection != "" && ListView.nextSection !== ListView.section)
-                                        || model.index === messagesView.count - 1
-        property Item section
+        property string newerSection: ListView.previousSection
+        property string olderSection: ListView.nextSection
+        property bool atSectionBoundary: {
+            // Section strings are ISO formatted timestamps.
+            // E.g. '2021-02-07T22:00:01'
+            ((olderSection.substr(0, 10) !== "" &&
+             olderSection.substr(0, 10) !== ListView.section.substr(0, 10))
+                    || model.index === ListView.view.count - 1) ?
+                        true : false
+        }
+        property Item section // overrides the default section item
 
         height: loader.y + loader.height
         width: parent.width
 
         ListView.onRemove: loader.item.animateRemoval(wrapper)
-
-        Loader {
-            id: loader
-            y: section ? section.y + section.height : 0
-            width: parent.width
-            sourceComponent: messageDelegate
-        }
-
-        onSectionBoundaryChanged: {
-            if (sectionBoundary) {
-                section = sectionHeader.createObject(wrapper, { 'modelData': model })
+        onAtSectionBoundaryChanged: {
+            if (atSectionBoundary) {
+                section = sectionHeaderComponent.createObject(wrapper, {
+                    'title': ListView.section.substr(0, 10) === '' ?
+                                 (newerSection.substr(0, 10) === '' ?
+                                      MessageModel.peerName : newerSection) :
+                                 Format.formatDate(ListView.section, Formatter.DateFull)
+                })
             } else {
+                // We manually remove the section item if it does not
+                // match our criteria. ListView.sections.criteria is not
+                // versatile enough. Using a Loader as section.delegate is
+                // not possible because we wouldn't have access to section data.
                 section.destroy()
                 section = null
             }
         }
 
+        Loader {
+            id: loader
+            y: section ? section.y + section.height : 0
+            width: parent.width
+
+            // TODO We can choose the delegate based on message contents,
+            // e.g. a different delegate for stickers. This will improve
+            // performance. (Once we have multiple delegates...)
+            sourceComponent: defaultMessageDelegate
+        }
+
         Component {
-            id: messageDelegate
+            id: defaultMessageDelegate
 
             MessageDelegate {
-                modelData: model
+                modelData: model // TODO why?
+                menu: messageContextMenu
             }
         }
     }
-
-    section.property: "localUid"
 
     Component {
-        id: sectionHeader
-
-        Row {
-            id: header
-            y: Theme.paddingMedium
-            x: parent ? (parent.width - width) / 2 : 0
-            height: text.implicitHeight + Theme.paddingSmall
-            spacing: Theme.paddingMedium
+        id: sectionHeaderComponent
+        Item {
+            id: sectionHeader
+            property string title: ""
+            width: parent.width
+            height: childrenRect.height + Theme.paddingLarge + Theme.paddingMedium
 
             Label {
-                id: text
+                id: label
+                width: parent.width - 4*Theme.horizontalPageMargin
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    bottom: parent.bottom; bottomMargin: Theme.paddingMedium
+                }
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 color: Theme.highlightColor
-                font.pixelSize: Theme.fontSizeExtraSmall
-                text: MessageModel.group ? 
-                    //: Group message label
-                    //% "Group: %1"
-                    qsTrId("whisperfish-group-label").arg(MessageModel.peerName) : 
-                    MessageModel.peerName
+                text: parent.title
+            }
+            Separator {
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    top: label.baseline; topMargin: 8
+                }
+                width: parent.width-2*Theme.horizontalPageMargin
+                horizontalAlignment: Qt.AlignHCenter
+                color: Theme.highlightColor
             }
         }
     }
+
+    VerticalScrollDecorator { flickable: messagesView }
 
     function openAttachment(contentItem) {
         MessageModel.openAttachment(contentItem.modelData.index)
@@ -124,22 +157,24 @@ SilicaListView {
     }
 
     function copy(contentItem) {
-        Clipboard.text=contentItem.modelData.message
+        Clipboard.text = contentItem.modelData.message
     }
 
     Component {
+        // Having context menu and worker functions are defined outside
+        // the delegate means less code in the delegate. This could help
+        // performance...?
         id: messageContextMenu
 
         ContextMenu {
             id: menu
-
             width: parent ? parent.width : Screen.width
 
             MenuItem {
-                visible: menu.parent && menu.parent.hasText
                 //: Copy message menu item
                 //% "Copy"
                 text: qsTrId("whisperfish-copy-message-menu")
+                visible: menu.parent && menu.parent.hasText
                 onClicked: copy(menu.parent)
             }
             MenuItem {
@@ -153,6 +188,7 @@ SilicaListView {
                 //: Delete message menu item
                 //% "Delete"
                 text: qsTrId("whisperfish-delete-message-menu")
+                visible: true
                 onClicked: remove(menu.parent)
             }
             MenuItem {
@@ -164,10 +200,4 @@ SilicaListView {
             }
         }
     }
-
-
-    RemorsePopup { id: remorse }
-
-    VerticalScrollDecorator {}
 }
-
