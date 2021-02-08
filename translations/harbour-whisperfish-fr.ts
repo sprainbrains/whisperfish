@@ -10,43 +10,60 @@
         <translation>Nouveau</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/Session.qml" line="69"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="31"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Pièce jointe</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/Session.qml" line="117"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="46"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
         <translation>Suppression de tous les messages</translation>
     </message>
+    <message id="whisperfish-session-note-to-self">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="119"/>
+        <source>Note to self</source>
+        <extracomment>Name of the conversation with one&apos;s own number</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-message-preview-draft">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="137"/>
+        <source>Draft: %1</source>
+        <extracomment>Message preview for a saved, unsent message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-session-delete">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="255"/>
+        <source>Delete conversation</source>
+        <extracomment>Delete all messages from session menu</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-delete-session">
-        <location filename="../qml/delegates/Session.qml" line="132"/>
         <source>Delete Conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation>Supprimer la conversation</translation>
+        <translation type="vanished">Supprimer la conversation</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="41"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="42"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nouveau message</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/Main.qml" line="120"/>
+        <location filename="../qml/pages/MainPage.qml" line="111"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Aujourd&apos;hui</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/Main.qml" line="125"/>
+        <location filename="../qml/pages/MainPage.qml" line="116"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Hier</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/Main.qml" line="130"/>
+        <location filename="../qml/pages/MainPage.qml" line="121"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Plus ancien</translation>
@@ -275,68 +292,73 @@
         <extracomment>Device unlink menu option</extracomment>
         <translation>Supprimer le lien</translation>
     </message>
+    <message id="whisperfish-no-messages-hint-text">
+        <location filename="../qml/pages/MainPage.qml" line="97"/>
+        <source>Pull down to start a new conversation.</source>
+        <extracomment>No messages found, hint on what to do</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-registration-complete">
-        <location filename="../qml/pages/Main.qml" line="30"/>
+        <location filename="../qml/pages/MainPage.qml" line="166"/>
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
         <translation>Enregistrement terminé&#xa0;!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
-        <location filename="../qml/pages/Main.qml" line="35"/>
+        <location filename="../qml/pages/MainPage.qml" line="171"/>
         <source>ERROR - Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>ERREUR – Échec de la configuration de la base de données</translation>
     </message>
     <message id="whisperfish-error-invalid-number">
-        <location filename="../qml/pages/Main.qml" line="40"/>
+        <location filename="../qml/pages/MainPage.qml" line="176"/>
         <source>ERROR - Invalid phone number registered with Signal</source>
         <extracomment>Invalid phone number error message</extracomment>
         <translation>ERREUR – Numéro de téléphone enregistré avec Signal invalide</translation>
     </message>
     <message id="whisperfish-error-setup-client">
-        <location filename="../qml/pages/Main.qml" line="45"/>
+        <location filename="../qml/pages/MainPage.qml" line="181"/>
         <source>ERROR - Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>ERREUR – Échec de la configuration du client Signal</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/Main.qml" line="61"/>
+        <location filename="../qml/pages/MainPage.qml" line="25"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>À propos de Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/Main.qml" line="67"/>
+        <location filename="../qml/pages/MainPage.qml" line="31"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Paramètres</translation>
     </message>
     <message id="whisperfish-new-group-menu">
-        <location filename="../qml/pages/Main.qml" line="74"/>
+        <location filename="../qml/pages/MainPage.qml" line="55"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
         <translation>Nouveau groupe</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/Main.qml" line="81"/>
+        <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Nouveau message</translation>
     </message>
     <message id="whisperfish-no-messages-found">
-        <location filename="../qml/pages/Main.qml" line="95"/>
         <source>No messages</source>
         <extracomment>Whisperfish no messages found message</extracomment>
-        <translation>Aucun message</translation>
+        <translation type="vanished">Aucun message</translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/Main.qml" line="100"/>
+        <location filename="../qml/pages/MainPage.qml" line="89"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Enregistrement requis</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/Main.qml" line="104"/>
+        <location filename="../qml/pages/MainPage.qml" line="93"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Verrouillé</translation>
