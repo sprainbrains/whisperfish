@@ -7,12 +7,13 @@ ApplicationWindow
 {
     id: mainWindow
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-    initialPage: Component { Main { } }
+    initialPage: Component { MainPage { } }
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
     property var notificationMap: new Object()
+    readonly property string mainPageName: "mainPage"
 
     Component {
         id: messageNotification
@@ -27,7 +28,7 @@ ApplicationWindow
 
     function newMessageNotification(sid, name, source, message, isGroup) {
         if(Qt.application.state == Qt.ApplicationActive &&
-           (pageStack.currentPage.objectName == "main" ||
+           (pageStack.currentPage.objectName == mainPageName ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
            return
         }
@@ -118,7 +119,7 @@ ApplicationWindow
 
     function showMainPage() {
         pageStack.clear()
-        pageStack.push(Qt.resolvedUrl("pages/Main.qml"), {}, PageStackAction.Immediate)
+        pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {}, PageStackAction.Immediate)
     }
 
     function newMessage(operationType) {
