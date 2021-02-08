@@ -32,12 +32,14 @@
 **
 ****************************************************************************************/
 
-// Adapted for Whisperfish by Mirian Margiani, 2021.
+// Adapted for Whisperfish:
+// SPDX-FileCopyrightText: 2021 Mirian Margiani
+// SPDX-License-Identifier: AGPL-3.0-or-later
 //
 // We use our own page header to fix a bug in the original
 // PageHeader which let long page titles extend over the extra content.
 // Once the backend supports it, we can include profile pictures
-// and other eye candy there.
+// and other eye candy here.
 // TODO Update extra content when !103 is merged.
 
 import QtQuick 2.6
@@ -47,6 +49,7 @@ import Sailfish.Silica 1.0
 SilicaItem {
     id: pageHeader
 
+    property bool isGroup: false
     property alias title: headerText.text
     property alias _titleItem: headerText
     property alias wrapMode: headerText.wrapMode
@@ -56,22 +59,7 @@ SilicaItem {
     property alias titleColor: headerText.color
     property real leftMargin: Theme.horizontalPageMargin
     property real rightMargin: Theme.horizontalPageMargin
-    property Item _descriptionLabel
     property real _preferredHeight: page && page.isLandscape ? Theme.itemSizeSmall : Theme.itemSizeLarge
-
-    property bool isGroup: false
-
-    onDescriptionChanged: {
-        if (description.length > 0 && !_descriptionLabel) {
-            var component = Qt.createComponent(Qt.resolvedUrl("private/PageHeaderDescription.qml"))
-            if (component.status === Component.Ready) {
-                _descriptionLabel = component.createObject(pageHeader,
-                    { "wrapMode": Qt.binding(function() { return pageHeader.descriptionWrapMode }) })
-            } else {
-                console.warn("PageHeaderDescription.qml instantiation failed " + component.errorString())
-            }
-        }
-    }
 
     Component.onCompleted: {
         if (!page) {
@@ -105,6 +93,23 @@ SilicaItem {
             font: headerText.font
             text: "X"
         }
+    }
+
+    Label {
+        id: _descriptionLabel
+        width: parent.width - parent.leftMargin - parent.rightMargin
+        anchors {
+            top: parent._titleItem.bottom
+            right: parent.right
+            rightMargin: parent.rightMargin
+        }
+        font.pixelSize: Theme.fontSizeSmall
+        color: highlighted ? palette.secondaryColor : palette.secondaryHighlightColor
+        horizontalAlignment: wrapMode === Text.NoWrap && implicitWidth > width ? Text.AlignLeft : Text.AlignRight
+        truncationMode: TruncationMode.Fade
+        text: pageHeader.description
+        wrapMode: pageHeader.wrapMode
+        visible: pageHeader.description.length > 0
     }
 
     Item {
