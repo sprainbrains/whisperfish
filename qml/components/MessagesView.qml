@@ -58,6 +58,7 @@ SilicaListView {
                         true : false
         }
         property Item section // overrides the default section item
+        property bool isServiceMessage: false // TODO implement in backend
 
         height: loader.y + loader.height
         width: parent.width
@@ -89,15 +90,25 @@ SilicaListView {
             // TODO We can choose the delegate based on message contents,
             // e.g. a different delegate for stickers. This will improve
             // performance. (Once we have multiple delegates...)
-            sourceComponent: defaultMessageDelegate
+            sourceComponent: wrapper.isServiceMessage ?
+                                 serviceMessageDelegate :
+                                 defaultMessageDelegate
         }
 
         Component {
             id: defaultMessageDelegate
-
             MessageDelegate {
-                modelData: model // TODO why?
+                // necessary to make implicit properties available
+                modelData: model
                 menu: messageContextMenu
+            }
+        }
+
+        Component {
+            id: serviceMessageDelegate
+            ServiceMessageDelegate {
+                // necessary to make implicit properties available
+                modelData: model
             }
         }
     }
