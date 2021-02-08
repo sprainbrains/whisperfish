@@ -39,6 +39,10 @@ SilicaListView {
     // TODO verify: date->string is always ISO formatted?
     // TODO Use a custom property for sections. It should contain
     // at least 1) date, 2) unread boundary, 3) ...
+    // This would allow us to show sticky sections.
+    //     section.labelPositioning: ViewSection.InlineLabels
+    //     -> change to ViewSection.CurrentLabelAtStart if
+    //        messageList.moving for a certain time
     section.property: "timestamp"
 
     delegate: Item {
