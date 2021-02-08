@@ -2,7 +2,6 @@
  * Copyright (C) 2012-2015 Jolla Ltd.
  *                    2020 Nicolas Werner
  *                    2020 Ruben De Smet
- *                    2021 Mirian Margiani
  *
  * The code in this file is distributed under multiple licenses, and as such,
  * may be used under any one of the following licenses:
@@ -19,6 +18,13 @@
  * You can visit <https://sailfishos.org/legal/> for more information
  */
 
+/*
+ * Modifications for Whisperfish:
+ * SPDX-FileCopyrightText: 2021 Mirian Margiani
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ */
+
 import QtQuick 2.6
 import QtQuick.Layouts 1.0
 import Sailfish.Silica 1.0
@@ -29,8 +35,8 @@ import "../components"
 ListItem {
     id: messageItem
     contentHeight: content.height + 2 * Theme.paddingMedium
-    menu: messageContextMenu
-    width: conversation.width
+    width: parent.width
+    // menu: set in MessagesView
 
     property QtObject modelData
     property bool inbound: modelData.outgoing ? false : true
@@ -61,21 +67,8 @@ ListItem {
             top: parent.top
         }
 
-        Behavior on width {
-            NumberAnimation {
-                duration: 100
-                easing.type: Easing.InOutQuad
-            }
-        }
-
-        Behavior on height {
-            NumberAnimation {
-                id: contentHeightAnimation
-
-                duration: 100
-                easing.type: Easing.InOutQuad
-            }
-        }
+        Behavior on width { SmoothedAnimation { duration: 100 } }
+        Behavior on height { SmoothedAnimation { duration: 100 } }
     }
 
     Row {
