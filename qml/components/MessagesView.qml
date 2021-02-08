@@ -100,33 +100,34 @@ SilicaListView {
 
     Component {
         id: sectionHeaderComponent
-        Item {
+        Column {
             id: sectionHeader
             property string title: ""
+            spacing: 0
             width: parent.width
-            height: childrenRect.height + Theme.paddingLarge + Theme.paddingMedium
+
+            Item { width: 1; height: Theme.paddingLarge }
 
             Label {
-                id: label
                 width: parent.width - 4*Theme.horizontalPageMargin
-                anchors {
-                    horizontalCenter: parent.horizontalCenter
-                    bottom: parent.bottom; bottomMargin: Theme.paddingMedium
-                }
+                anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 color: Theme.highlightColor
                 text: parent.title
-            }
-            Separator {
-                anchors {
-                    horizontalCenter: parent.horizontalCenter
-                    top: label.baseline; topMargin: 8
+
+                Separator {
+                    anchors {
+                        horizontalCenter: parent.horizontalCenter
+                        top: parent.baseline; topMargin: 8
+                    }
+                    width: parent.width-2*Theme.horizontalPageMargin
+                    horizontalAlignment: Qt.AlignHCenter
+                    color: Theme.highlightColor
                 }
-                width: parent.width-2*Theme.horizontalPageMargin
-                horizontalAlignment: Qt.AlignHCenter
-                color: Theme.highlightColor
             }
+
+            Item { width: 1; height: Theme.paddingLarge }
         }
     }
 
