@@ -25,13 +25,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="119"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Notitie aan mezelf</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="137"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Concept: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="255"/>
@@ -254,7 +254,7 @@
         <location filename="../qml/pages/MainPage.qml" line="97"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sleep naar beneden om een nieuwe conversatie te starten.</translation>
     </message>
     <message id="whisperfish-registration-complete">
         <location filename="../qml/pages/MainPage.qml" line="166"/>
