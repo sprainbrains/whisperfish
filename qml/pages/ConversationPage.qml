@@ -51,6 +51,7 @@ Page {
             contentHeight: height
             anchors { left: parent.left; right: parent.right }
             model: MessageModel
+            clip: true // to prevent the view from flowing through the page header
 
             // Use a placeholder for the ChatTextInput to avoid re-creating the input
             // after it has been scrolled away. The input component is in the
