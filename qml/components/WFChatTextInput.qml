@@ -18,9 +18,17 @@
  * You can visit <https://sailfishos.org/legal/> for more information
  */
 
+/*
+ * Modifications for Whisperfish:
+ * SPDX-FileCopyrightText: 2021 Mirian Margiani
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ */
+
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
+import org.nemomobile.time 1.0
 
 InverseMouseArea {
     id: chatInputArea
@@ -163,21 +171,14 @@ InverseMouseArea {
             right: textField.right
         }
 
-        color: Theme.highlightColor
+        color: Theme.secondaryHighlightColor
         font.pixelSize: Theme.fontSizeTiny
+        text: Format.formatDate(wallClock.time, Formatter.TimeValue)
 
-        function updateTimestamp() {
-            var date = new Date()
-            text = Format.formatDate(date, Formatter.TimepointRelative)
-            updater.interval = (60 - date.getSeconds() + 1) * 1000
-        }
-
-        Timer {
-            id: updater
-            repeat: true
-            triggeredOnStart: true
-            running: Qt.application.active && timestamp.visible
-            onTriggered: timestamp.updateTimestamp()
+        WallClock {
+            id: wallClock
+            enabled: Qt.application.active
+            updateFrequency: WallClock.Minute
         }
     }
 
