@@ -132,7 +132,7 @@ resource_rules:
       - name: "Done merge requests without pending tasks and no pending threads with merge conflicts"
         conditions:
           state: opened
-          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && resource['has_conflicts']"
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && ! resource['with_merge_status_recheck'] && resource['has_conflicts']"
           forbidden_labels:
             - MR status::merge conflict
         limits:
@@ -143,7 +143,7 @@ resource_rules:
       - name: "Done merge requests without pending tasks and no pending threads and no merge conflicts"
         conditions:
           state: opened
-          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && ! resource['has_conflicts']"
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && ! resource['with_merge_status_recheck'] && ! resource['has_conflicts']"
           forbidden_labels:
             - MR status::ready
         limits:
