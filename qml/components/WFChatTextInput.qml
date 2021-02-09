@@ -44,6 +44,8 @@ InverseMouseArea {
     property bool enabled: true
     property bool clearAfterSend: true
 
+    property bool canSend: text.trim().length > 0 || attachmentPath.trim().length > 0
+
     signal sendMessage(string text, string path)
 
     function setAttachmentPath(path) {
@@ -107,7 +109,7 @@ InverseMouseArea {
         font.pixelSize: Theme.fontSizeSmall
 
         EnterKey.onClicked: {
-            if(SettingsBridge.boolValue("enable_enter_send")) {
+            if (canSend && SettingsBridge.boolValue("enable_enter_send")) {
                 chatInputArea.send()
             }
         }
@@ -149,6 +151,7 @@ InverseMouseArea {
             width: Theme.iconSizeMedium + 2*Theme.paddingSmall
             height: width
             onClicked: chatInputArea.send()
+            enabled: canSend
             Icon {
                 width: Theme.iconSizeMedium
                 height: width
