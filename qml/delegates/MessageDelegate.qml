@@ -24,6 +24,9 @@ MessageDelegateBase {
     property bool isEmpty: !hasText || modelData.message.trim() === ""
     property bool canExpand: !isEmpty && modelData.message.length > maxMessageLength
 
+    // TODO Implement a separate page for showing extremely long
+    // messages. Showing a context menu fails if list delegates are too high
+    // (list view goes black).
     property bool _expanded: false
 
     onClicked: {
