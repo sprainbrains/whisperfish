@@ -123,6 +123,12 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
 
+    if cfg!(feature = "harbour") {
+        app.set_quit_on_last_window_closed(true);
+    } else {
+        app.set_quit_on_last_window_closed(whisperfish.settings.pinned().borrow().get_bool("quit_on_ui_close"));
+    }
+
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
     app.show_full_screen();

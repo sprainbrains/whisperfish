@@ -168,6 +168,7 @@ impl Settings {
         self.set_bool("enable_enter_send", false);
         self.set_bool("scale_image_attachments", false);
         self.set_bool("attachment_log", false);
+        self.set_bool("quit_on_ui_close", true);
 
         self.set_string(
             "attachment_dir",

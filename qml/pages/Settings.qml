@@ -233,6 +233,24 @@ Page {
                     }
                 }
             }
+            IconTextSwitch {
+                id: enableQuitOnUiClose
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page enable background mode
+                //% "Background mode"
+                text: qsTrId("whisperfish-settings-enable-background-mode")
+                //: Settings page enable background mode description
+                //% "When enabled, the app stays open in the background and can
+                //trigger notifications after the window is closed."
+                description: qsTrId("whisperfish-settings-enable-background-mode-description")
+                checked: !SettingsBridge.boolValue("quit_on_ui_close")
+                icon.source: "image://theme/icon-m-toy"
+                onCheckedChanged: {
+                    if(checked == SettingsBridge.boolValue("quit_on_ui_close")) {
+                        SettingsBridge.boolSet("quit_on_ui_close", !checked);
+                    }
+                }
+            }
             // ------ END GENERAL SETTINGS ------
 
             // ------ BEGIN ADVANCED SETTINGS ------
