@@ -118,7 +118,7 @@ SilicaItem {
         TextMetrics {
             id: descrMetrics
             text: "X"
-            font: parent.font
+            font: _descriptionLabel.font
         }
     }
 
