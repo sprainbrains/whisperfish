@@ -132,7 +132,7 @@ resource_rules:
       - name: "Done merge requests without pending tasks and no pending threads with merge conflicts"
         conditions:
           state: opened
-          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && resource['merge_status'] != 'can_be_merged'"
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && resource['has_conflicts']"
           forbidden_labels:
             - MR status::merge conflict
         limits:
@@ -140,10 +140,10 @@ resource_rules:
         actions:
           labels:
             - MR status::merge conflict
-      - name: "Done merge requests without pending tasks and no pending threads"
+      - name: "Done merge requests without pending tasks and no pending threads and no merge conflicts"
         conditions:
           state: opened
-          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && resource['merge_status'] == 'can_be_merged'"
+          ruby: "resource['task_completion_status']['count'] == resource['task_completion_status']['completed_count'] && ! resource['work_in_progress'] && ! resource['has_conflicts']"
           forbidden_labels:
             - MR status::ready
         limits:
@@ -151,3 +151,4 @@ resource_rules:
         actions:
           labels:
             - MR status::ready
+      # TODO: it should be possible to do more intelligent things with `merge_status` (cannot_be_merged/can_be_merged/unchecked) and `with_merge_status_recheck`
