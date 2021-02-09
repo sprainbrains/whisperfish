@@ -17,11 +17,11 @@ MessageDelegateBase {
         LinkedLabel {
             id: messageLabel
             width: Math.min(implicitWidth, maxMessageWidth)
-            text: hasText ? // TODO Also check for attachments (then no text is ok).
-                      modelData.message :
-                      //: Placeholder note if an empty message is encountered.
-                      //% "this message is empty"
-                      qsTrId("whisperfish-message-empty-note")
+            plainText: hasText ? // TODO Also check for attachments (then no text is ok).
+                           modelData.message :
+                           //: Placeholder note if an empty message is encountered.
+                           //% "this message is empty"
+                           qsTrId("whisperfish-message-empty-note")
             wrapMode: Text.Wrap
             horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
             color: hasText ?
