@@ -40,7 +40,6 @@
 // PageHeader which let long page titles extend over the extra content.
 // Once the backend supports it, we can include profile pictures
 // and other eye candy here.
-// TODO Update extra content when !103 is merged.
 
 import QtQuick 2.6
 import Sailfish.Silica 1.0
@@ -50,14 +49,17 @@ SilicaItem {
     id: pageHeader
 
     property bool isGroup: false
+    property string profilePicture: '' // TODO implement in model (#192, #154, #204)
+
     property alias title: headerText.text
-    property alias _titleItem: headerText
-    property alias wrapMode: headerText.wrapMode
     property string description
     property int descriptionWrapMode: Text.NoWrap
+
+    property alias _titleItem: headerText
+    property alias wrapMode: headerText.wrapMode
     property Item page
     property alias titleColor: headerText.color
-    property real leftMargin: Theme.horizontalPageMargin
+    property real leftMargin: 1.5*Theme.horizontalPageMargin
     property real rightMargin: Theme.horizontalPageMargin
     property real _preferredHeight: page && page.isLandscape ? Theme.itemSizeSmall : Theme.itemSizeLarge
 
@@ -112,19 +114,21 @@ SilicaItem {
         visible: pageHeader.description.length > 0
     }
 
-    Item {
+    ProfilePicture {
         id: extraContent
-        width: childrenRect.width
+        highlighted: false
+        labelsHighlighted: false
+        imageSource: profilePicture
+        isGroup: isGroup
+        showInfoMark: false
         anchors {
+            // NOTE This should feel like it is vertically centered in the
+            // header (not just in "parent").
+            bottom: _descriptionLabel.bottom; bottomMargin: Theme.paddingSmall
+            top: headerText.top; topMargin: -Theme.paddingMedium
             left: parent.left; leftMargin: pageHeader.leftMargin
-            verticalCenter: parent.verticalCenter
         }
-
-        HighlightImage {
-            id: pageHeaderImageIcon
-            anchors.verticalCenter: parent.verticalCenter
-            source: isGroup ? "image://theme/icon-m-users" :
-                              "image://theme/icon-m-contact"
-        }
+        onPressAndHold: delegate.openMenu()
+        onClicked: pageStack.navigateForward(PageStackAction.Animated)
     }
 }
