@@ -52,7 +52,7 @@ SilicaItem {
     property string profilePicture: '' // TODO implement in model (#192, #154, #204)
 
     property alias title: headerText.text
-    property string description
+    property string description: ''
     property int descriptionWrapMode: Text.NoWrap
 
     property alias _titleItem: headerText
@@ -100,6 +100,7 @@ SilicaItem {
     Label {
         id: _descriptionLabel
         width: parent.width - parent.leftMargin - parent.rightMargin
+        height: descrMetrics.height // force non-null height
         anchors {
             top: parent._titleItem.bottom
             right: parent.right
@@ -107,11 +108,18 @@ SilicaItem {
         }
         font.pixelSize: Theme.fontSizeSmall
         color: highlighted ? palette.secondaryColor : palette.secondaryHighlightColor
-        horizontalAlignment: wrapMode === Text.NoWrap && implicitWidth > width ? Text.AlignLeft : Text.AlignRight
+        horizontalAlignment: wrapMode === Text.NoWrap && implicitWidth > width ?
+                                 Text.AlignLeft : Text.AlignRight
         truncationMode: TruncationMode.Fade
         text: pageHeader.description
         wrapMode: pageHeader.wrapMode
         visible: pageHeader.description.length > 0
+
+        TextMetrics {
+            id: descrMetrics
+            text: "X"
+            font: parent.font
+        }
     }
 
     ProfilePicture {
