@@ -9,32 +9,47 @@ MessageDelegateBase {
     width: parent.width
     enableDebugLayer: false
 
+    property real labelWidth: Math.min(Math.max(infoLabel.implicitWidth, metrics.width) +
+                                      Theme.paddingMedium, maxMessageWidth)
+    property string messageText: hasText && typeof modelData.message !== 'undefined' &&
+                                 modelData.message.trim() !== "" ?
+                                     modelData.message :
+                                     //: Placeholder note if an empty message is encountered.
+                                     //% "this message is empty"
+                                     qsTrId("whisperfish-message-empty-note")
+    property bool isEmpty: !hasText || modelData.message.trim() === ""
+    property bool canShowMore: !isEmpty && modelData.message.length > maxMessageLength
+
+    TextMetrics {
+        id: metrics
+        text: messageText
+        font: messageLabel.font
+    }
+
     Column {
-        width: childrenRect.width
+        width: labelWidth
         height: childrenRect.height
         spacing: Theme.paddingMedium
 
         LinkedLabel {
             id: messageLabel
-            width: Math.min(implicitWidth, maxMessageWidth)
-            plainText: hasText ? // TODO Also check for attachments (then no text is ok).
-                           modelData.message :
-                           //: Placeholder note if an empty message is encountered.
-                           //% "this message is empty"
-                           qsTrId("whisperfish-message-empty-note")
+            width: labelWidth
+            plainText: messageText
             wrapMode: Text.Wrap
             horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
-            color: hasText ?
+            color: isEmpty ?
+                       (highlighted ? Theme.secondaryHighlightColor :
+                                      (outgoing ? Theme.secondaryHighlightColor :
+                                                  Theme.secondaryColor)) :
                        (highlighted ? Theme.highlightColor :
                                       (outgoing ? Theme.highlightColor :
-                                                  Theme.primaryColor)) :
-                       (highlighted ? Theme.secondaryHighlightColor :
-                                      Theme.secondaryColor)
+                                                  Theme.primaryColor))
             font.pixelSize: Theme.fontSizeSmall // TODO make configurable
         }
 
         Label {
-            width: Math.max(implicitWidth+Theme.paddingMedium, messageLabel.width)
+            id: infoLabel
+            width: labelWidth
             text: modelData.timestamp ?
                       Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
                       //: Placeholder note if a message doesn't have a timestamp (which must not happen).
@@ -49,4 +64,17 @@ MessageDelegateBase {
                                       Theme.secondaryColor)
         }
     }
+
+    states: [
+        State {
+            name: "outgoing"; when: outgoing
+            AnchorChanges { target: messageLabel; anchors.right: parent.right }
+            AnchorChanges { target: infoLabel; anchors.right: parent.right }
+        },
+        State {
+            name: "incoming"; when: !outgoing
+            AnchorChanges { target: messageLabel; anchors.left: parent.left }
+            AnchorChanges { target: infoLabel; anchors.left: parent.left }
+        }
+    ]
 }
