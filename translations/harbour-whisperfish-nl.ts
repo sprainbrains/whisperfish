@@ -37,7 +37,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="255"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gesprek verwijderen</translation>
     </message>
     <message id="whisperfish-delete-session">
         <source>Delete Conversation</source>
@@ -741,7 +741,7 @@ Settings page share contacts</extracomment>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished">Instellingen</translation>
+        <translation>Instellingen</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="65"/>
