@@ -9,7 +9,7 @@ MessageDelegateBase {
     id: root
     delegateContentWidth: column.width
     enableDebugLayer: false
-    readonly property int maxMessageLength: 300 // in characters; TODO make configurable
+    readonly property int maxMessageLength: 600 // in characters; TODO make configurable
 
     property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
                                                 metrics.width) + Theme.paddingMedium,
