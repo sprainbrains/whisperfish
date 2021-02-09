@@ -8,9 +8,8 @@ echo "Configuring cargo-rpm (cfr https://gitlab.com/rubdos/whisperfish/-/issues/
 
 if [ -z "$CI_COMMIT_TAG" ]; then
     CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*\)"/\1/')"
-    GIT_REV="$(git rev-list --count HEAD)"
     GIT_REF="$(git rev-parse --short HEAD)"
-    VERSION="$CARGO_VERSION.r$GIT_REV.$GIT_REF"
+    VERSION="$CARGO_VERSION.b$CI_PIPELINE_IID.$GIT_REF"
 else
     # Strip leading v in v0.6.0- ...
     VERSION=$(echo "$CI_COMMIT_TAG" | sed -e 's/^v//g')
