@@ -48,7 +48,7 @@ MessageDelegateBase {
         // is inverted. Without the timer, the view would jump around.
         // (There is a slight flickering which can't be avoided this way.)
         id: expansionTimer
-        interval: 50
+        interval: 100
         onTriggered: {
             listView.positionViewAtIndex(index, ListView.End)
         }
