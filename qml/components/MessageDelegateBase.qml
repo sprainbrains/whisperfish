@@ -44,9 +44,14 @@ ListItem {
         bottomPadding: contentPadding
 
         anchors {
+            // The text should be aligned with other page elements
+            // by having the default side margins. The bubble should
+            // extend a little bit over the margins.
             top: parent.top
-            right: outgoing ? parent.right : undefined//; rightMargin: Theme.paddingMedium
-            left: outgoing ? undefined : parent.left//; leftMargin: Theme.paddingMedium
+            right: outgoing ? parent.right : undefined
+            rightMargin: Theme.horizontalPageMargin - contentPadding
+            left: outgoing ? undefined : parent.left
+            leftMargin: Theme.horizontalPageMargin - contentPadding
         }
 
         Item {
