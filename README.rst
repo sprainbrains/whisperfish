@@ -15,7 +15,8 @@ Whisperfish would work for you.
 To install, you have two options:
 
 - Releases `from OpenRepos <https://openrepos.net/content/rubdos/whisperfish>`_
-- "Nightly" builds from the master branch (see below).
+- "Nightly" builds from the master branch.
+  The most recent builds can be found in `the Gitlab Package Registry <https://gitlab.com/rubdos/whisperfish/-/packages>`_.
 
 There's no particular reason to install from the master branch directly.  We
 push regular updates to OpenRepos.
@@ -64,17 +65,6 @@ Please search the `issue tracker <https://gitlab.com/rubdos/whisperfish/-/issues
 before filing any bug report or feature request.
 Please upvote issues that are important to you.  We use the vote counter for
 determining a feature's priority.
-
--------------------------------------------------------------------------------
-Nightly builds
--------------------------------------------------------------------------------
-
-The most recent builds can be found here:
-
-- armv7hl: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build:armv7hl
-- aarch64: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build:aarch64
-- i486: https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/master/browse?job=build:i486
-
 
 -------------------------------------------------------------------------------
 Performance Tips

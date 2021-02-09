@@ -66,10 +66,12 @@ fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
     let commit = env!("VERGEN_SHA_SHORT");
 
-    if let (Some(ref_name), Some(job_id)) =
+    // if not CI, append [commit]-dirty
+    // CI changes the version name, because of RPM, so we can just use that.
+    if let (Some(_ref_name), Some(_job_id)) =
         (option_env!("CI_COMMIT_REF_NAME"), option_env!("CI_JOB_ID"))
     {
-        format!("{}-{}-{}", ref_name, commit, job_id)
+        format!("v{}", pkg)
     } else {
         format!("v{}-{}-dirty", pkg, commit)
     }
