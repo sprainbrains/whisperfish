@@ -20,7 +20,17 @@ MessageDelegateBase {
                                      //% "this message is empty"
                                      qsTrId("whisperfish-message-empty-note")
     property bool isEmpty: !hasText || modelData.message.trim() === ""
-    property bool canShowMore: !isEmpty && modelData.message.length > maxMessageLength
+    property bool canExpand: !isEmpty && modelData.message.length > maxMessageLength
+
+    property bool _expanded: false
+
+    onClicked: {
+        if (canExpand) {
+            _expanded = !_expanded
+        } else {
+            showMenu()
+        }
+    }
 
     TextMetrics {
         id: metrics
@@ -41,7 +51,7 @@ MessageDelegateBase {
             // implementation to be able to use custom icons for emojis.
             id: messageLabel
             width: labelWidth
-            plainText: messageText.substr(0, maxMessageLength)
+            plainText: messageText.substr(0, maxMessageLength) + (canExpand ? ' ...' : '')
             wrapMode: Text.Wrap
             horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
             color: isEmpty ?
@@ -108,7 +118,7 @@ MessageDelegateBase {
 
             Row {
                 id: showMoreRow
-                visible: canShowMore
+                visible: canExpand
                 spacing: Theme.paddingSmall
                 layoutDirection: outgoing ? Qt.LeftToRight : Qt.RightToLeft
                 width: parent.width - infoLabel.width - statusIcon.width
