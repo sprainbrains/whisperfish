@@ -28,5 +28,7 @@ export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TAR
 rustc --version
 cargo --version
 
+rm target/*/release/rpmbuild/RPMS/*/*.rpm
+
 cargo-rpm --help
 cargo rpm build --verbose --target $RUST_ARCH
