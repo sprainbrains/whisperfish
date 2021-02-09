@@ -34,7 +34,7 @@ MessageDelegateBase {
         }
 
         Label {
-            width: messageLabel.width
+            width: Math.max(implicitWidth+Theme.paddingMedium, messageLabel.width)
             text: modelData.timestamp ?
                       Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
                       //: Placeholder note if a message doesn't have a timestamp (which must not happen).
