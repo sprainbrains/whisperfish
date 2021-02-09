@@ -7,13 +7,17 @@ ApplicationWindow
 {
     id: mainWindow
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-    initialPage: Component { MainPage { } }
+    initialPage: Component { LandingPage { } }
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
-    property var notificationMap: new Object()
     readonly property string mainPageName: "mainPage"
+    property var notificationMap: ({})
+
+    // setting this to "true" will block global navigation
+    // methods (showMainPage() etc.)
+    property bool fatalOccurred: false
 
     Component {
         id: messageNotification
@@ -103,7 +107,23 @@ ApplicationWindow
             }
         }
         onPromptResetPeerIdentity: {
+            if (fatalOccurred) return
             pageStack.push(Qt.resolvedUrl("pages/PeerIdentityChanged.qml"), { source: source })
+        }
+    }
+
+    Connections {
+        target: SetupWorker
+        onClientFailed: {
+            console.log("[FATAL] client failed")
+            //: Failed to setup signal client error message
+            //% "Failed to setup Signal client"
+            showFatalError(qsTrId("whisperfish-fatal-error-setup-client"))
+        }
+        onInvalidDatastore: {
+            //: Failed to setup datastore error message
+            //% "Failed to setup datastore"
+            showFatalError(qsTrId("whisperfish-fatal-error-invalid-datastore"))
         }
     }
 
@@ -117,12 +137,24 @@ ApplicationWindow
         }
     }
 
-    function showMainPage() {
-        pageStack.clear()
-        pageStack.push(Qt.resolvedUrl("pages/MainPage.qml"), {}, PageStackAction.Immediate)
+    function showFatalError(message) {
+        fatalOccurred = true
+        // We don't clear the stack to keep transition animations
+        // clean. FatalErrorPage will block any further navigation.
+        pageStack.push(Qt.resolvedUrl("pages/FatalErrorPage.qml"), {
+                           errorMessage: message
+                       })
+    }
+
+    function showMainPage(operationType) {
+        if (fatalOccurred) return
+        pageStack.replaceAbove(null, Qt.resolvedUrl("pages/MainPage.qml"), {},
+                               operationType !== undefined ? operationType :
+                                                             PageStackAction.Immediate)
     }
 
     function newMessage(operationType) {
+        if (fatalOccurred) return
         showMainPage()
         pageStack.push(Qt.resolvedUrl("pages/NewMessage.qml"), { }, operationType)
     }

@@ -1,10 +1,9 @@
-
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import "../js/countries_iso_only.js" as Countries
 
 Page {
     id: settingsPage
-    property QtObject countryCodeCombo : countryCode
 
     RemorsePopup {
         id: remorse
@@ -145,22 +144,40 @@ Page {
                 //% "General"
                 text: qsTrId("whisperfish-settings-general-section")
             }
-            ValueButton {
-                id: countryCode
-                anchors.horizontalCenter: parent.horizontalCenter
+            ComboBox {
+                id: countryCombo
+                property string _setting: SettingsBridge.stringValue("country_code")
+                width: parent.width
                 //: Settings page country code
                 //% "Country Code"
                 label: qsTrId("whisperfish-settings-country-code")
                 //: Settings page country code description
                 //% "The selected country code determines what happens when a local phone number is entered."
                 description: qsTrId("whisperfish-settings-country-code-description")
-                value: SettingsBridge.stringValue("country_code")
-                onClicked: {
-                    var cd = pageStack.push(Qt.resolvedUrl("CountryCodeDialog.qml"))
-                    cd.setCountryCode.connect(function(code) {
-                        value = code
-                        SettingsBridge.stringSet("country_code", code)
-                    })
+                //: settings page country code selection: nothing selected
+                //% "none"
+                value: currentIndex < 0 ?
+                           qsTrId("whisperfish-settings-country-code-empty") :
+                           currentItem.iso
+                currentIndex: -1
+                menu: ContextMenu {
+                    Repeater {
+                        model: Countries.c
+                        MenuItem {
+                            property string names: Countries.c[index].n
+                            property string iso: Countries.c[index].i
+                            text: iso + " - " + names
+                            Component.onCompleted: {
+                                if (iso === countryCombo._setting) {
+                                    countryCombo.currentIndex = index
+                                }
+                                console.log(iso, countryCombo._setting)
+                            }
+                        }
+                    }
+                }
+                onCurrentIndexChanged: {
+                    SettingsBridge.stringSet("country_code", currentItem.iso)
                 }
             }
             IconTextSwitch {
