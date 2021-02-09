@@ -9,17 +9,33 @@ ListItem {
 
     // TODO Uncomment this line only for development!
     down: pressed || (enableDebugLayer && (index % 2 == 0))
+    property bool enableDebugLayer: true
 
     property QtObject modelData
     property bool outgoing: modelData.outgoing ? true : false
     property bool hasText: modelData.message ? true : false
     property int index: modelData.index
-    property real maxMessageWidth: parent.width -
-                                   6*Theme.horizontalPageMargin
+    property ListView listView: ListView.view
+
+    // All children are placed inside a bubble, positioned
+    // left or right for incoming/outgoing messages. The bubble
+    // extends slightly over the contents, the list item extends
+    // over the bubble.
+    property real contentPadding: 2*Theme.paddingMedium
     default property alias delegateContents: delegateContentItem.data
 
-    property real contentPadding: 2*Theme.paddingMedium
-    property bool enableDebugLayer: true
+    // Derived types have to set \c delegateContentWidth, which
+    // should (read: must) stay between \c minMessageWidth and
+    // \c maxMessageWidth.
+    property real delegateContentWidth: -1
+    property real maxMessageWidth: parent.width -
+                                   6*Theme.horizontalPageMargin
+
+    Component.onCompleted: {
+        if (delegateContentWidth <= 0) {
+            console.error("No delegateContentWidth specified. List item will not function.")
+        }
+    }
 
     RoundedRect {
         id: background
@@ -30,41 +46,42 @@ ListItem {
         roundedCorners: outgoing ?
                             bottomLeft | topRight :
                             bottomRight | topLeft
-        Behavior on width { SmoothedAnimation { duration: 100 } }
-        Behavior on height { SmoothedAnimation { duration: 100 } }
+    }
+
+    Rectangle {
+        visible: enableDebugLayer
+        anchors.fill: contentContainer
+        color: Theme.highlightDimmerColor
+        opacity: 0.4
     }
 
     Column {
         id: contentContainer
-        width: childrenRect.width + 2*contentPadding
-        height: childrenRect.height + 2*contentPadding
-        leftPadding: contentPadding
-        rightPadding: contentPadding
-        topPadding: contentPadding
-        bottomPadding: contentPadding
-
+        padding: contentPadding
         anchors {
             // The text should be aligned with other page elements
             // by having the default side margins. The bubble should
             // extend a little bit over the margins.
             top: parent.top
-            right: outgoing ? parent.right : undefined
             rightMargin: Theme.horizontalPageMargin - contentPadding
-            left: outgoing ? undefined : parent.left
             leftMargin: Theme.horizontalPageMargin - contentPadding
         }
 
         Item {
             id: delegateContentItem
-            width: childrenRect.width
+            width: delegateContentWidth
             height: childrenRect.height
-
-            Rectangle {
-                visible: enableDebugLayer
-                anchors.fill: parent
-                color: Theme.highlightDimmerColor
-                opacity: 0.4
-            }
         }
+
+        states: [
+            State {
+                name: "outgoing"; when: outgoing
+                AnchorChanges { target: contentContainer; anchors.right: parent.right }
+            },
+            State {
+                name: "incoming"; when: !outgoing
+                AnchorChanges { target: contentContainer; anchors.left: parent.left }
+            }
+        ]
     }
 }

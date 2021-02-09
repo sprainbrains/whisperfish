@@ -6,13 +6,15 @@ import Sailfish.Silica 1.0
 import "../components"
 
 MessageDelegateBase {
-    width: parent.width
+    id: root
+    delegateContentWidth: column.width
     enableDebugLayer: false
     readonly property int maxMessageLength: 300 // in characters; TODO make configurable
 
-    property real labelWidth: Math.min(Math.max(infoLabel.implicitWidth+statusIcon.width,
+    property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
                                                 metrics.width) + Theme.paddingMedium,
                                        maxMessageWidth)
+    property real expandedWidth: root.width - 2*Theme.horizontalPageMargin
     property string messageText: hasText && typeof modelData.message !== 'undefined' &&
                                  modelData.message.trim() !== "" ?
                                      modelData.message :
@@ -27,8 +29,28 @@ MessageDelegateBase {
     onClicked: {
         if (canExpand) {
             _expanded = !_expanded
+            // We make sure the list item is visible immediately
+            // after changing the state. If omitted, closing a very
+            // long delegate would leave the view to be positionend
+            // somewhere off - possibly destroyed, and expansionTimer
+            // would not trigger.
+            listView.positionViewAtIndex(index, ListView.Contain)
+            expansionTimer.start()
         } else {
             showMenu()
+        }
+    }
+
+    Timer {
+        // This timer waits a moment until we can be mostly certain
+        // that the expansion is finished. It then positions the delegate
+        // at the top of the page, i.e. ListView.End because the view
+        // is inverted. Without the timer, the view would jump around.
+        // (There is a slight flickering which can't be avoided this way.)
+        id: expansionTimer
+        interval: 50
+        onTriggered: {
+            listView.positionViewAtIndex(index, ListView.End)
         }
     }
 
@@ -39,7 +61,8 @@ MessageDelegateBase {
     }
 
     Column {
-        width: labelWidth
+        id: column
+        width: _expanded ? expandedWidth : labelWidth
         height: childrenRect.height
         spacing: Theme.paddingMedium
 
@@ -50,9 +73,8 @@ MessageDelegateBase {
             // TODO We may have to replace LinkedLabel with a custom
             // implementation to be able to use custom icons for emojis.
             id: messageLabel
-            width: labelWidth
-            plainText: messageText.substr(0, maxMessageLength) + (canExpand ? ' ...' : '')
             wrapMode: Text.Wrap
+            anchors { left: parent.left; right: parent.right }
             horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
             color: isEmpty ?
                        (highlighted ? Theme.secondaryHighlightColor :
@@ -66,6 +88,26 @@ MessageDelegateBase {
             onLinkActivated: {
                 Qt.openUrlExternally(link)
             }
+            /*onTextChanged: {
+                if (_expanded) listView.positionViewAtIndex(index, ListView.End)
+            }*/
+
+            states: [
+                State {
+                    name: "default"; when: !_expanded
+                    PropertyChanges {
+                        target: messageLabel
+                        plainText: messageText.substr(0, maxMessageLength) + (canExpand ? ' ...' : '')
+                    }
+                },
+                State {
+                    name: "expanded"; when: _expanded
+                    PropertyChanges {
+                        target: messageLabel
+                        plainText: messageText
+                    }
+                }
+            ]
         }
 
         Row {
@@ -123,28 +165,36 @@ MessageDelegateBase {
                 layoutDirection: outgoing ? Qt.LeftToRight : Qt.RightToLeft
                 width: parent.width - infoLabel.width - statusIcon.width
 
-                Item { width: Theme.paddingMedium; height: 1 }
+                Item {
+                    width: (outgoing ? 0.5 : -1.5) * Theme.paddingMedium
+                    height: 1
+                }
                 Label {
                     font.pixelSize: Theme.fontSizeExtraSmall
                     text: "\u2022 \u2022 \u2022" // three dots
                 }
                 Label {
-                    //% "show more"
-                    text: qsTrId("whisperfish-message-show-more")
+                    text: _expanded ?
+                              //: Hint for very long messages, while expanded
+                              //% "show less"
+                              qsTrId("whisperfish-message-show-less") :
+                              //: Hint for very long messages, while not expanded
+                              //% "show more"
+                              qsTrId("whisperfish-message-show-more")
                     font.pixelSize: Theme.fontSizeExtraSmall
                 }
             }
         }
-    }
 
-    states: [
-        State {
-            name: "outgoing"; when: outgoing
-            AnchorChanges { target: messageLabel; anchors.right: parent.right }
-        },
-        State {
-            name: "incoming"; when: !outgoing
-            AnchorChanges { target: messageLabel; anchors.left: parent.left }
-        }
-    ]
+        states: [
+            State {
+                name: "outgoing"; when: outgoing
+                AnchorChanges { target: column; anchors.right: parent.right }
+            },
+            State {
+                name: "incoming"; when: !outgoing
+                AnchorChanges { target: column; anchors.left: parent.left }
+            }
+        ]
+    }
 }

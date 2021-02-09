@@ -101,6 +101,9 @@ SilicaListView {
                 // necessary to make implicit properties available
                 modelData: model
                 menu: messageContextMenu
+                // set explicitly because attached properties are not available
+                // inside the loaded component
+                listView: messagesView
             }
         }
 
