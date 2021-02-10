@@ -32,7 +32,7 @@ Page {
                                  //: TODO
                                  //% "from %1 at %2 o'clock"
                                  qsTrId("whisperfish-expanded-message-info-incoming")).
-                                    arg(MessageModel.peerName).arg(modelData.timestamp ?
+                                    arg(ContactModel.name(modelData.source)).arg(modelData.timestamp ?
                                         Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
                                         //: Placeholder note if a message doesn't have a timestamp (which must not happen).
                                         //% "no time"
