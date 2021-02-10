@@ -241,6 +241,14 @@ fn main() {
 
     let mut cfg = cpp_build::Config::new();
 
+    cfg.flag(&format!("--sysroot={}", mer_target_root));
+    cfg.flag("-isysroot");
+    cfg.flag(&mer_target_root);
+
+    // https://github.com/rust-lang/cargo/pull/8441/files
+    // currently requires -Zextra-link-arg, so we're duplicating this in dotenv
+    println!("cargo:rustc-link-arg=--sysroot={}", mer_target_root);
+
     cfg.include(format!(
         "{}/QtGui/{}",
         qt_include_path,
@@ -251,8 +259,7 @@ fn main() {
     if cross_compile {
         std::env::set_var("CARGO_FEATURE_SAILFISH", "");
     }
-    cfg.include(format!("{}/usr/include/", mer_target_root))
-        .include(format!("{}/usr/include/sailfishapp/", mer_target_root))
+    cfg.include(format!("{}/usr/include/sailfishapp/", mer_target_root))
         .include(&qt_include_path)
         .include(format!("{}/QtCore", qt_include_path))
         // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
@@ -312,6 +319,9 @@ fn main() {
 
         // Build static sqlcipher
         cc::Build::new()
+            .flag(&format!("--sysroot={}", mer_target_root))
+            .flag("-isysroot")
+            .flag(&mer_target_root)
             .include(format!("{}/usr/include/", mer_target_root))
             .include(format!("{}/usr/include/openssl", mer_target_root))
             .file("sqlcipher/sqlite3.c")

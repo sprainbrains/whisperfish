@@ -24,7 +24,7 @@ export MER_ARCH=armv7hl
 # we can generate these flags in build.rs
 # We also need RUSTFLAGS for the bundled sqlcipher build:
 #   https://gitlab.com/rubdos/whisperfish/-/issues/227
-export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
+export RUSTFLAGS="-C link-args=-Wl,--sysroot=$MERSDK/targets/$MER_TARGET-$MER_ARCH,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
 
 # If you want to use the included ./run.sh script,
 # set this variable to your hostname or IP address of your SailfishOS device.
