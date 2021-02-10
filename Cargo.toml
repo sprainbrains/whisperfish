@@ -109,6 +109,7 @@ harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
 "../harbour-whisperfish.desktop" = { path = "/usr/share/applications/harbour-whisperfish.desktop" }
 "../harbour-whisperfish-message.conf" = { path = "/usr/share/lipstick/notificationcategories/harbour-whisperfish-message.conf" }
 "../icons/86x86/harbour-whisperfish.png" = { path = "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png" }
+"../harbour-whisperfish.service" = { path = "/usr/lib/systemd/user/harbour-whisperfish.service" }
 
 "../qml/" = { path = "/usr/share/harbour-whisperfish/qml/" }
 "../icons/" = { path = "/usr/share/harbour-whisperfish/icons/" }
