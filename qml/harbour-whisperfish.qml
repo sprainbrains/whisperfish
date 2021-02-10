@@ -137,6 +137,11 @@ ApplicationWindow
         }
     }
 
+    Connections {
+        target: AppState
+        onActivate: mainWindow.activate()
+    }
+
     DBusAdaptor {
         service: "be.rubdos.whisperfish.app"
         path: "/be/rubdos/whisperfish"

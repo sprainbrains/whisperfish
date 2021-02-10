@@ -104,12 +104,11 @@ impl Future for SfosApplicationFuture<'_> {
         };
 
         if has_closed {
-            // Used by QML to distinguish beween cover or closed winow
-            // Reset to false in QML when the window reopens.
-            self.app_state.borrow_mut().closed = true;
+            // Reset in QML when the window reopens.
+            self.app_state.borrow_mut().set_closed();
         }
 
-        if self.app_state.borrow().closed && self.app_state.borrow().may_exit {
+        if self.app_state.borrow().is_closed() && self.app_state.borrow().may_exit {
             Poll::Ready(())
         } else {
             Poll::Pending

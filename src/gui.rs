@@ -23,7 +23,8 @@ pub struct StorageReady(pub Storage, pub SignalConfig);
 pub struct AppState {
     base: qt_base_class!(trait QObject),
 
-    pub closed: bool,
+    closed: bool,
+
     pub may_exit: bool,
 
     setActive: qt_method!(fn(&self)),
@@ -31,6 +32,8 @@ pub struct AppState {
     isClosed: qt_method!(fn(&self) -> bool),
 
     isHarbour: qt_method!(fn(&self) -> bool),
+
+    activate: qt_signal!(),
 }
 
 impl AppState {
@@ -59,6 +62,23 @@ impl AppState {
         cfg!(feature = "harbour")
     }
 
+    pub fn is_closed(&self) -> bool {
+        self.closed
+    }
+
+    pub fn set_closed(&mut self) {
+        self.closed = true;
+    }
+
+    pub fn activate_hidden_window(&mut self, may_exit: bool) {
+        if self.closed {
+            self.activate();
+            // if may_exit = true, we may already be dead when QML sets this, so we set it now.
+            self.closed = false;
+            self.may_exit = may_exit;
+        }
+    }
+
     fn new() -> Self {
         Self {
             base: Default::default(),
@@ -68,6 +88,7 @@ impl AppState {
             setMayExit: Default::default(),
             isClosed: Default::default(),
             isHarbour: Default::default(),
+            activate: Default::default(),
         }
     }
 }
@@ -133,7 +154,7 @@ fn long_version() -> String {
 }
 
 #[cfg(feature = "sailfish")]
-pub async fn run() -> Result<(), failure::Error> {
+pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
     let long_version: QString = long_version().into();
     log::info!("SailfishApp::application loaded - version {}", long_version);
@@ -182,7 +203,21 @@ pub async fn run() -> Result<(), failure::Error> {
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
-    app.show_full_screen();
+    if is_autostart
+        && !whisperfish
+            .settings
+            .pinned()
+            .borrow()
+            .get_bool("quit_on_ui_close")
+        && cfg!(not(feature = "harbour"))
+    {
+        // keep the ui closed until needed on auto-start
+        whisperfish.app_state.pinned().borrow_mut().may_exit = false;
+        whisperfish.app_state.pinned().borrow_mut().set_closed();
+    } else {
+        app.show_full_screen();
+    }
+
     app.exec_async(whisperfish.app_state.pinned()).await;
 
     Ok(())
