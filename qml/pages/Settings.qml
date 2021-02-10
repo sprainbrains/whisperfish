@@ -171,7 +171,6 @@ Page {
                                 if (iso === countryCombo._setting) {
                                     countryCombo.currentIndex = index
                                 }
-                                console.log(iso, countryCombo._setting)
                             }
                         }
                     }
