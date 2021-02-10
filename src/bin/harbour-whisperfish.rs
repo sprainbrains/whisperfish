@@ -23,6 +23,19 @@ fn main() -> Result<(), failure::Error> {
 
     let sys = System::new();
 
+    use dbus::blocking::Connection;
+    use std::time::Duration;
+
+    let c = Connection::new_session()?;
+    let proxy = c.with_proxy(
+        "be.rubdos.whisperfish.app",
+        "/be/rubdos/whisperfish",
+        Duration::from_millis(1000),
+    );
+    if let Ok(()) = proxy.method_call("be.rubdos.whisperfish.app", "show", ()) {
+        return Ok(());
+    }
+
     sfos::TokioQEventDispatcher::install();
 
     sys.block_on(async {

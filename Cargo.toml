@@ -116,6 +116,7 @@ harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
 
 [features]
 sailfish = []
+harbour = []
 #
 # [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
 # libsignal-service = { path = "/var/run/user/1000/gvfs/sftp:host=nas.rubdos.be/home/rsmet/src/libsignal-service-rs/libsignal-service" }

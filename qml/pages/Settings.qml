@@ -234,20 +234,21 @@ Page {
                 }
             }
             IconTextSwitch {
+                visible: !AppState.isHarbour()
                 id: enableQuitOnUiClose
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page enable background mode
                 //% "Background mode"
                 text: qsTrId("whisperfish-settings-enable-background-mode")
                 //: Settings page enable background mode description
-                //% "When enabled, the app stays open in the background and can
-                //trigger notifications after the window is closed."
+                //% "When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed."
                 description: qsTrId("whisperfish-settings-enable-background-mode-description")
                 checked: !SettingsBridge.boolValue("quit_on_ui_close")
                 icon.source: "image://theme/icon-m-toy"
                 onCheckedChanged: {
                     if(checked == SettingsBridge.boolValue("quit_on_ui_close")) {
-                        SettingsBridge.boolSet("quit_on_ui_close", !checked);
+                        SettingsBridge.boolSet("quit_on_ui_close", !checked)
+                        AppState.setMayExit(!checked)
                     }
                 }
             }

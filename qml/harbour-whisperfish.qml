@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
+import Nemo.DBus 2.0
 import "pages"
 
 ApplicationWindow
@@ -124,6 +125,33 @@ ApplicationWindow
             //: Failed to setup datastore error message
             //% "Failed to setup datastore"
             showFatalError(qsTrId("whisperfish-fatal-error-invalid-datastore"))
+        }
+    }
+
+    Connections {
+        target: Qt.application
+        onStateChanged: {
+            if(Qt.application.state == Qt.ApplicationActive) {
+                AppState.setActive()
+            }
+        }
+    }
+
+    DBusAdaptor {
+        service: "be.rubdos.whisperfish.app"
+        path: "/be/rubdos/whisperfish"
+        iface: "be.rubdos.whisperfish.app"
+
+        function show() {
+            console.log("DBus app.show() call received")
+            if(Qt.application.state == Qt.ApplicationActive) {
+                return
+            }
+
+            mainWindow.activate()
+            if (AppState.isClosed()) {
+                showMainPage()
+            }
         }
     }
 

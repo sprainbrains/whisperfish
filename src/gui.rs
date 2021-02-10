@@ -18,7 +18,62 @@ use qmetaobject::*;
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage, pub SignalConfig);
 
+#[derive(QObject)]
+#[allow(non_snake_case)]
+pub struct AppState {
+    base: qt_base_class!(trait QObject),
+
+    pub closed: bool,
+    pub may_exit: bool,
+
+    setActive: qt_method!(fn(&self)),
+    setMayExit: qt_method!(fn(&self, value: bool)),
+    isClosed: qt_method!(fn(&self) -> bool),
+
+    isHarbour: qt_method!(fn(&self) -> bool),
+}
+
+impl AppState {
+    #[allow(non_snake_case)]
+    fn setActive(&mut self) {
+        self.closed = false;
+    }
+
+    #[cfg(feature = "harbour")]
+    #[allow(non_snake_case)]
+    fn setMayExit(&mut self, _: bool) {}
+
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn setMayExit(&mut self, value: bool) {
+        self.may_exit = value;
+    }
+
+    #[allow(non_snake_case)]
+    fn isClosed(&mut self) -> bool {
+        self.closed
+    }
+
+    #[allow(non_snake_case)]
+    fn isHarbour(&mut self) -> bool {
+        cfg!(feature = "harbour")
+    }
+
+    fn new() -> Self {
+        Self {
+            base: Default::default(),
+            closed: false,
+            may_exit: true,
+            setActive: Default::default(),
+            setMayExit: Default::default(),
+            isClosed: Default::default(),
+            isHarbour: Default::default(),
+        }
+    }
+}
+
 pub struct WhisperfishApp {
+    pub app_state: QObjectBox<AppState>,
     pub session_actor: Addr<actor::SessionActor>,
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
@@ -93,6 +148,7 @@ pub async fn run() -> Result<(), failure::Error> {
     let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
     let whisperfish = Rc::new(WhisperfishApp {
+        app_state: QObjectBox::new(AppState::new()),
         session_actor,
         message_actor,
         client_actor,
@@ -122,17 +178,12 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
     app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
-
-    if cfg!(feature = "harbour") {
-        app.set_quit_on_last_window_closed(true);
-    } else {
-        app.set_quit_on_last_window_closed(whisperfish.settings.pinned().borrow().get_bool("quit_on_ui_close"));
-    }
+    app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
     app.show_full_screen();
-    app.exec_async().await;
+    app.exec_async(whisperfish.app_state.pinned()).await;
 
     Ok(())
 }
