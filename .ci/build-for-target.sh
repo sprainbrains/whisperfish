@@ -22,7 +22,7 @@ cat Cargo.toml
 
 # Set env
 export MER_TARGET="SailfishOS-$SFOS_VERSION"
-export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
+export RUSTFLAGS="-C lto=fat -C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
 
 rustc --version
 cargo --version
@@ -33,7 +33,7 @@ cargo-rpm --help
 cargo rpm build --verbose --target $RUST_ARCH
 
 # Only upload on tags or master
-if [ -z "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
     RPM_PATH=(target/*/release/rpmbuild/RPMS/*/*.rpm)
     RPM_PATH="${RPM_PATH[0]}"
     RPM=$(basename $RPM_PATH)
