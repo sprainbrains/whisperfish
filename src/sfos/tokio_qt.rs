@@ -228,7 +228,13 @@ impl TokioQEventDispatcherPriv {
             let notifier: *mut QSocketNotifier = *notifier;
 
             let read = match registration.poll_read_ready(ctx) {
-                Poll::Ready(Ok(_readiness)) => true,
+                Poll::Ready(Ok(mut readiness)) => {
+                    // This assumes that Qt depletes the socket.
+                    // We don't really get feedback from Qt for this,
+                    // so this is more a hope than a fact.
+                    readiness.clear_ready();
+                    true
+                }
                 Poll::Ready(Err(e)) => {
                     log::error!(
                         "Something wrong with registration {:?}: {:?}",
@@ -241,7 +247,13 @@ impl TokioQEventDispatcherPriv {
             };
 
             let write = match registration.poll_write_ready(ctx) {
-                Poll::Ready(Ok(_readiness)) => true,
+                Poll::Ready(Ok(mut readiness)) => {
+                    // This assumes that Qt depletes the socket.
+                    // We don't really get feedback from Qt for this,
+                    // so this is more a hope than a fact.
+                    readiness.clear_ready();
+                    true
+                }
                 Poll::Ready(Err(e)) => {
                     log::error!(
                         "Something wrong with registration {:?}: {:?}",
