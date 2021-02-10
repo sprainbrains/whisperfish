@@ -67,6 +67,11 @@ pub use prompt::*;
 use chrono::prelude::*;
 use qmetaobject::*;
 
+fn qdate_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDate {
+    let dt = dt.with_timezone(&Local).naive_local();
+    QDate::from_y_m_d(dt.year(), dt.month() as i32, dt.day() as i32)
+}
+
 fn qdatetime_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDateTime {
     let dt = dt.with_timezone(&Local).naive_local();
     let date = QDate::from_y_m_d(dt.year(), dt.month() as i32, dt.day() as i32);
