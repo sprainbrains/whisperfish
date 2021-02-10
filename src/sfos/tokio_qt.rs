@@ -270,11 +270,6 @@ impl TokioQEventDispatcherPriv {
             }
         }
 
-        // Execute the events that we are about to generate.
-        if events.len() > 0 {
-            self.as_mut().wake_up();
-        }
-
         // Drop the &mut reference to self,
         // since Qt may obtain one from now on.
         // Not sure how this *should* be handled, however.
@@ -459,12 +454,6 @@ cpp_class! (
 
 impl TokioQEventDispatcher {
     pub fn poll(&mut self, ctx: &mut Context<'_>) -> Poll<()> {
-        unsafe {
-            cpp!([self as "TokioQEventDispatcher*"] {
-                self->processEvents(QEventLoop::AllEvents);
-            })
-        }
-
         self.m_priv_mut().set_waker(ctx.waker());
 
         if let Poll::Ready(_) = self.m_priv_mut().poll_sockets(ctx) {
@@ -473,6 +462,12 @@ impl TokioQEventDispatcher {
 
         if let Poll::Ready(_) = self.m_priv_mut().poll_timers(ctx) {
             return Poll::Ready(());
+        }
+
+        unsafe {
+            cpp!([self as "TokioQEventDispatcher*"] {
+                self->processEvents(QEventLoop::AllEvents);
+            })
         }
 
         Poll::Pending
