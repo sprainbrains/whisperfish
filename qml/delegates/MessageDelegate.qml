@@ -57,7 +57,7 @@ MessageDelegateBase {
                 expansionTimer.start()
             }
         } else {
-            showMenu()
+            openMenu()
         }
     }
 
@@ -66,10 +66,11 @@ MessageDelegateBase {
         // that the expansion is finished. It then positions the delegate
         // at the top of the page, i.e. ListView.End because the view
         // is inverted. Without the timer, the view would jump around.
-        // TODO There is a slight flickering which can't be avoided this way.
+        // TODO There is a some flickering which can't be avoided this way.
+        //      (We need a better solution.)
         // TODO Sometimes jumping back fails...
         id: expansionTimer
-        interval: 100
+        interval: isEmpty ? 0 : 5*modelData.message.length/shortenThreshold
         onTriggered: {
             listView.positionViewAtIndex(index, ListView.End)
         }
@@ -126,14 +127,6 @@ MessageDelegateBase {
                                       (outgoing ? Theme.highlightColor :
                                                   Theme.primaryColor))
             font.pixelSize: Theme.fontSizeSmall // TODO make configurable
-            defaultLinkActions: false
-            onLinkActivated: {
-                Qt.openUrlExternally(link)
-            }
-            /*onTextChanged: {
-                if (_expanded) listView.positionViewAtIndex(index, ListView.End)
-            }*/
-
             states: [
                 State {
                     name: "default"; when: !_expanded
@@ -159,7 +152,6 @@ MessageDelegateBase {
             anchors { left: parent.left; right: parent.right }
 
             // TODO Add debug info
-            // TODO Fix right margin for incoming messages
 
             HighlightImage {
                 id: statusIcon
