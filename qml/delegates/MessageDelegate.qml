@@ -9,7 +9,8 @@ MessageDelegateBase {
     id: root
     delegateContentWidth: column.width
     enableDebugLayer: false
-    readonly property int maxMessageLength: 600 // in characters; TODO make configurable
+    readonly property int shortenThreshold: 600 // in characters
+    readonly property int extraPageTreshold: 1500 // in characters
 
     property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
                                                 metrics.width) + Theme.paddingMedium,
@@ -22,7 +23,11 @@ MessageDelegateBase {
                                      //% "this message is empty"
                                      qsTrId("whisperfish-message-empty-note")
     property bool isEmpty: !hasText || modelData.message.trim() === ""
-    property bool canExpand: !isEmpty && modelData.message.length > maxMessageLength
+    property bool canExpand: !isEmpty && modelData.message.length > shortenThreshold
+    property bool expandExtraPage: canExpand && modelData.message.length > extraPageTreshold
+
+    // TODO Attachments with mimetype text/x-signal-plain have to be
+    // treated as extra long messages.
 
     // TODO Implement a separate page for showing extremely long
     // messages. Showing a context menu fails if list delegates are too high
@@ -31,14 +36,21 @@ MessageDelegateBase {
 
     onClicked: {
         if (canExpand) {
-            _expanded = !_expanded
-            // We make sure the list item is visible immediately
-            // after changing the state. If omitted, closing a very
-            // long delegate would leave the view to be positionend
-            // somewhere off - possibly destroyed, and expansionTimer
-            // would not trigger.
-            listView.positionViewAtIndex(index, ListView.Contain)
-            expansionTimer.start()
+            if (expandExtraPage) {
+                pageStack.push("../pages/ExpandedMessagePage.qml", {
+                                   'modelData': modelData,
+                                   'outgoing': outgoing
+                               })
+            } else {
+                _expanded = !_expanded
+                // We make sure the list item is visible immediately
+                // after changing the state. If omitted, closing a very
+                // long delegate would leave the view to be positionend
+                // somewhere off - possibly destroyed, and expansionTimer
+                // would not trigger.
+                listView.positionViewAtIndex(index, ListView.Contain)
+                expansionTimer.start()
+            }
         } else {
             showMenu()
         }
@@ -49,7 +61,8 @@ MessageDelegateBase {
         // that the expansion is finished. It then positions the delegate
         // at the top of the page, i.e. ListView.End because the view
         // is inverted. Without the timer, the view would jump around.
-        // (There is a slight flickering which can't be avoided this way.)
+        // TODO There is a slight flickering which can't be avoided this way.
+        // TODO Sometimes jumping back fails...
         id: expansionTimer
         interval: 100
         onTriggered: {
@@ -100,7 +113,7 @@ MessageDelegateBase {
                     name: "default"; when: !_expanded
                     PropertyChanges {
                         target: messageLabel
-                        plainText: messageText.substr(0, maxMessageLength) + (canExpand ? ' ...' : '')
+                        plainText: messageText.substr(0, shortenThreshold) + (canExpand ? ' ...' : '')
                     }
                 },
                 State {
