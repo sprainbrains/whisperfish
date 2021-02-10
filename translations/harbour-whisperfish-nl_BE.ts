@@ -54,13 +54,13 @@
         <location filename="../qml/harbour-whisperfish.qml" line="121"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>’t Instellen van de Signal-cliënt is mislukt</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="126"/>
         <source>Failed to setup datastore</source>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>’t Instellen van de gegevensopslag is mislukt</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -480,20 +480,20 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="16"/>
         <source>Welcome to Whisperfish</source>
         <extracomment>welcome screen title when creating a new database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Welkom bij Whisperfish</translation>
     </message>
     <message id="whisperfish-setup-password-prompt">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="20"/>
         <source>Set a new password to secure your conversations.</source>
         <extracomment>new password setup prompt</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Stelt e nief paswoord in voôr u gesprekken te beveiligen.</translation>
     </message>
     <message id="whisperfish-password-label-too-short">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="71"/>
         <location filename="../qml/pages/SetupPasswordPage.qml" line="100"/>
         <source>Password is too short</source>
         <extracomment>Password label when too short</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Da paswoord is te kort</translation>
     </message>
     <message id="whisperfish-password-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="74"/>
@@ -506,75 +506,75 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="77"/>
         <source>Your new password</source>
         <extracomment>New password input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>U nief paswoord</translation>
     </message>
     <message id="whisperfish-password-repeated-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="95"/>
         <source>Repeated password</source>
         <extracomment>repeated password input label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Herhaal et paswoord</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>
         <source>Passwords do not match</source>
         <extracomment>repeated password input label if passwords don&apos;t match</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>De paswoorden komen ni overeên</translation>
     </message>
     <message id="whisperfish-new-password-repeat-placeholder">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="107"/>
         <source>Repeat your new password</source>
         <extracomment>Repeated new password input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Herhaalt u nief paswoord</translation>
     </message>
     <message id="whisperfish-skip-button-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="131"/>
         <source>Skip</source>
         <extracomment>skip button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Overslaan</translation>
     </message>
     <message id="whisperfish-unlock-page-title">
         <location filename="../qml/pages/UnlockPage.qml" line="9"/>
         <source>Unlock</source>
         <extracomment>unlock page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ontgrendelen</translation>
     </message>
     <message id="whisperfish-unlock-welcome-title">
         <location filename="../qml/pages/UnlockPage.qml" line="12"/>
         <source>Whisperfish</source>
         <extracomment>unlock page welcome title, centered on screen</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish</translation>
     </message>
     <message id="whisperfish-unlock-password-prompt">
         <location filename="../qml/pages/UnlockPage.qml" line="15"/>
         <source>Please enter your password to unlock your conversations.</source>
         <extracomment>unlock page password prompt</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Voert u paswoord in voôr u gesprekken t’ontgrendelen.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/UnlockPage.qml" line="27"/>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="67"/>
         <source>You are not registered.</source>
         <extracomment>fatal error when trying to unlock the db when not registered</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ge zij ni’ geregistreerd.</translation>
     </message>
     <message id="whisperfish-unlock-try-again">
         <location filename="../qml/pages/UnlockPage.qml" line="52"/>
         <source>Please try again</source>
         <extracomment>input field placeholder after failed attempt to unlock (keep it short)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Herprobeer et</translation>
     </message>
     <message id="whisperfish-password-placeholder">
         <location filename="../qml/pages/UnlockPage.qml" line="76"/>
         <source>Your password</source>
         <oldsource>Password</oldsource>
         <extracomment>password placeholder</extracomment>
-        <translation type="unfinished">Paswoord</translation>
+        <translation>U paswoord</translation>
     </message>
     <message id="whisperfish-unlock-button-label">
         <location filename="../qml/pages/UnlockPage.qml" line="85"/>
         <source>Unlock</source>
         <extracomment>unlock button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ontgrendelen</translation>
     </message>
     <message id="whisperfish-verify-password-label">
         <source>Verify Password</source>
@@ -651,38 +651,38 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="12"/>
         <source>Register</source>
         <extracomment>registration page title</extracomment>
-        <translation type="unfinished">Registreren</translation>
+        <translation>Registreren</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
         <location filename="../qml/pages/RegisterPage.qml" line="38"/>
         <source>Please retry with a valid phone number.</source>
         <extracomment>new registration prompt text asking to retry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Herprobeer et me ne geldigen telefonnumero.</translation>
     </message>
     <message id="whisperfish-registration-phone-number-prefix">
         <location filename="../qml/pages/RegisterPage.qml" line="76"/>
         <source>Prefix</source>
         <extracomment>label for combo box for selecting calling code (phone number prefix) important: translate as short as possible</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Voôrvoegsel</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
         <location filename="../qml/pages/RegisterPage.qml" line="112"/>
         <source>Phone number</source>
         <extracomment>phone number input label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Telefonnumero</translation>
     </message>
     <message id="whisperfish-registration-number-input-placeholder">
         <location filename="../qml/pages/RegisterPage.qml" line="116"/>
         <source>Phone number</source>
         <extracomment>phone number input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Telefonnumero</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="134"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
-        <translation type="unfinished">Signal gaat u bellen me een 6-cijferige verificatiecode. Zorgt da’ ge z’ievers kunt noteren.</translation>
+        <translation>Signal gaat u bellen me een 6-cijferige verificatiecode. Zorgt da’ ge z’ievers kunt noteren.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="136"/>
@@ -695,7 +695,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vèrder</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -819,7 +819,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="160"/>
         <source>none</source>
         <extracomment>settings page country code selection: nothing selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>geên</translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
         <location filename="../qml/pages/Settings.qml" line="187"/>
@@ -1052,37 +1052,37 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
         <source>Whisperfish</source>
         <extracomment>default title of full-screen info pages (below the icon)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish</translation>
     </message>
     <message id="whisperfish-fatal-error-title">
         <location filename="../qml/pages/FatalErrorPage.qml" line="11"/>
         <source>Error</source>
         <extracomment>fatal error page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fout</translation>
     </message>
     <message id="whisperfish-fatal-error-hint">
         <location filename="../qml/pages/FatalErrorPage.qml" line="18"/>
         <source>Please restart Whisperfish. If the problem persists and appears to be an issue with Whisperfish, please report the issue.</source>
         <extracomment>generic hint on what to do after a fatal error occurred (error message will be shown separately)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Herstart Whisperfish. As ’t probleem u blijft ambeteren en aan Whisperfish lijkt te liggen, meld et dan.</translation>
     </message>
     <message id="whisperfish-startup-placeholder-title">
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
         <source>Welcome</source>
         <extracomment>welcome text shown when startup takes a long time</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Welkom</translation>
     </message>
     <message id="whisperfish-verify-page-title">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="10"/>
         <source>Verify</source>
         <extracomment>verify registration page title</extracomment>
-        <translation type="unfinished">Verifiëren</translation>
+        <translation>Verifiëren</translation>
     </message>
     <message id="whisperfish-verify-code-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
         <source>Please enter the code you received from Signal.</source>
         <extracomment>verify registration prompt</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Geeft de code in da’ ge van Signal hed ontvangen.</translation>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
