@@ -9,7 +9,7 @@ ListItem {
 
     // TODO Uncomment this line only for development!
     down: pressed || (enableDebugLayer && (index % 2 == 0))
-    property bool enableDebugLayer: true
+    property bool enableDebugLayer: false
 
     property QtObject modelData
     property bool outgoing: modelData.outgoing ? true : false
