@@ -13,7 +13,8 @@ MessageDelegateBase {
     readonly property int extraPageTreshold: 1500 // in characters
 
     property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
-                                                metrics.width) + Theme.paddingMedium,
+                                                metrics.width, senderNameLabel.implicitWidth) +
+                                       Theme.paddingMedium,
                                        maxMessageWidth)
     property real expandedWidth: root.width - 2*Theme.horizontalPageMargin
     property string messageText: hasText && typeof modelData.message !== 'undefined' &&
@@ -22,6 +23,10 @@ MessageDelegateBase {
                                      //: Placeholder note if an empty message is encountered.
                                      //% "this message is empty"
                                      qsTrId("whisperfish-message-empty-note")
+    property bool showSender: MessageModel.group &&
+                              !outgoing &&
+                              typeof modelData.source !== 'undefined' &&
+                              modelData.source.trim() !== ''
     property bool isEmpty: !hasText || modelData.message.trim() === ""
     property bool canExpand: !isEmpty && modelData.message.length > shortenThreshold
     property bool expandExtraPage: canExpand && modelData.message.length > extraPageTreshold
@@ -82,8 +87,29 @@ MessageDelegateBase {
         height: childrenRect.height
         spacing: Theme.paddingMedium
 
-        // TODO Sender name for groups
-        // Number and nickname, or saved contact name
+        Label {
+            id: senderNameLabel
+            visible: showSender
+            height: showSender ? implicitHeight : 0
+            text: ContactModel.name(modelData.source)
+            horizontalAlignment: Text.AlignLeft
+            font.pixelSize: Theme.fontSizeExtraSmall
+            font.bold: true
+            color: Qt.tint(Theme.primaryColor,
+                           '#'+Qt.md5(modelData.source).substr(0, 6)+'0F')
+            width: parent.width
+            truncationMode: TruncationMode.Fade
+
+            BackgroundItem {
+                anchors {
+                    fill: parent
+                    margins: -Theme.paddingMedium
+                }
+                enabled: visible
+                // TODO open contact page
+                onClicked: console.log("[unimplemented] sender name clicked")
+            }
+        }
 
         LinkedLabel {
             // TODO We may have to replace LinkedLabel with a custom
