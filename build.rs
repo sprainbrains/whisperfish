@@ -143,11 +143,11 @@ fn install_mer_hacks() -> (String, bool) {
     );
 
     println!(
-        "cargo:rustc-bin-link-arg=-rpath-link,{}/usr/{}",
+        "cargo:rustc-link-arg-bins=-rpath-link,{}/usr/{}",
         mer_target_root, lib_dir
     );
     println!(
-        "cargo:rustc-bin-link-arg=-rpath-link,{}/{}",
+        "cargo:rustc-link-arg-bins=-rpath-link,{}/{}",
         mer_target_root, lib_dir
     );
 
