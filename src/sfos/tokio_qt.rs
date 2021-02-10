@@ -270,6 +270,7 @@ impl TokioQEventDispatcherPriv {
             }
         }
 
+        // Execute the events that we are about to generate.
         if events.len() > 0 {
             self.as_mut().wake_up();
         }
