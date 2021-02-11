@@ -44,7 +44,8 @@ ListItem {
         opacity: down ?
                      (outgoing ? Theme.opacityHigh : 1.3*Theme.opacityHigh) :
                      (outgoing ? Theme.opacityFaint : Theme.opacityHigh)
-        color: Theme.rgba(Theme.primaryColor, Theme.opacityFaint)
+        color: Theme.rgba(down ? Theme.highlightColor :
+                                 Theme.primaryColor, Theme.opacityFaint)
         radius: Theme.paddingLarge
         anchors { fill: contentContainer; margins: contentPadding/3 }
         roundedCorners: outgoing ?
