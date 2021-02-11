@@ -1,7 +1,6 @@
 use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel::*;
-use diesel_migrations;
 use harbour_whisperfish::store::temp;
 use harbour_whisperfish::store::{NewMessage, NewSession};
 use harbour_whisperfish::store::{Storage, StorageLocation};

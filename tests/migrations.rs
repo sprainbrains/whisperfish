@@ -1,13 +1,21 @@
 #[macro_use]
+extern crate diesel;
+#[macro_use]
 extern crate diesel_migrations;
 
 use diesel_migrations::Migration;
 
+use chrono::prelude::*;
 use diesel::prelude::*;
 use rstest::*;
 use rstest_reuse::{self, *};
 
 type MigrationList = Vec<(String, Box<dyn Migration + 'static>)>;
+
+#[path = "migrations/orm.rs"]
+pub mod orm;
+#[path = "migrations/schemas/mod.rs"]
+pub mod schemas;
 
 #[fixture]
 fn empty_db() -> SqliteConnection {
@@ -99,4 +107,66 @@ fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
     }
 
     assert!(!diesel_migrations::any_pending_migrations(&db).unwrap());
+}
+
+// As of here, we inject data in an old database, and test whether the data is still intact after
+// running all the migrations.
+// Insertion of the data can be done through the old models (found in `old_schemes`), and
+// assertions should be done against `harbour_whisperfish::schema`.
+//
+// Tests usually use the following pattern:
+// - a method assert_FOO(db) that puts assertions on the db
+// - a bunch of `rstest`s that take different kinds of initial dbs, puts in the data and then calls
+//   the migrations and the assert function.
+
+fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
+    use orm::current::*;
+    use schemas::current::session::dsl::*;
+
+    assert_eq!(1, session.count().first::<i64>(&db).unwrap());
+
+    let sessions: Vec<Session> = session.load(&db).unwrap();
+    assert_eq!(
+        sessions[0].timestamp,
+        NaiveDate::from_ymd(2016, 7, 8).and_hms_milli(9, 10, 11, 325)
+    );
+}
+
+#[rstest]
+fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
+    use orm::original::*;
+    use schemas::original::session::dsl::*;
+
+    let db = original_go_db;
+
+    let sessions = vec![
+        // A group with three members
+        NewSession {
+            source: "+32474".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+32475,+32476,+3277".into()),
+            group_id: Some("AF88".into()),
+            group_name: Some("The first group".into()),
+            has_attachment: false,
+        },
+    ];
+
+    let count = sessions.len();
+    assert_eq!(
+        diesel::insert_into(session)
+            .values(sessions)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    embedded_migrations::run(&db).unwrap();
+    assert_bunch_of_empty_sessions(db);
 }
