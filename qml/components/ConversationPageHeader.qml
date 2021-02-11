@@ -72,7 +72,8 @@ SilicaItem {
 
     width: parent ? parent.width : Screen.width
     // set height that keeps the first line of text aligned with the page indicator
-    height: Math.max(_preferredHeight, headerText.y + headerText.height + ((_descriptionLabel && description.length > 0) ? _descriptionLabel.height : 0) + Theme.paddingMedium)
+    height: Math.max(headerText.y + headerText.height + _descriptionLabel.height + Theme.paddingMedium,
+                     _preferredHeight)
 
     Label {
         id: headerText
@@ -118,7 +119,7 @@ SilicaItem {
         TextMetrics {
             id: descrMetrics
             text: "X"
-            font: _descriptionLabel.font
+            font.pixelSize: Theme.fontSizeSmall
         }
     }
 
@@ -132,8 +133,8 @@ SilicaItem {
         anchors {
             // NOTE This should feel like it is vertically centered in the
             // header (not just in "parent").
-            bottom: _descriptionLabel.bottom; bottomMargin: Theme.paddingSmall
             top: headerText.top; topMargin: -Theme.paddingMedium
+            bottom: _descriptionLabel.bottom; bottomMargin: Theme.paddingSmall
             left: parent.left; leftMargin: pageHeader.leftMargin
         }
         onPressAndHold: delegate.openMenu()
