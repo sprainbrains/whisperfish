@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "../delegates"
 import "../components"
@@ -61,12 +61,13 @@ Page {
                 height: headerArea.height
             }
 
-            Column {
+            Item {
                 id: headerArea
                 y: messages.headerItem.y
                 parent: messages.contentItem
                 width: parent.width
-                height: childrenRect.height
+                height: textInput.height + Theme.paddingMedium
+                z: 1000 // always stay on top
 
                 WFChatTextInput {
                     id: textInput
@@ -74,6 +75,7 @@ Page {
                     contactName: MessageModel.peerName
                     enabled: true
                     editorFocus: root.editorFocus
+                    anchors.bottom: parent.bottom
 
                     onSendMessage: {
                         // TODO This should be handled completely in the backend.
