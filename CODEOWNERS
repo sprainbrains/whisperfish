@@ -1,25 +1,31 @@
 # Dependencies and building
+[Dependencies]
 Cargo.toml @rubdos
 Cargo.lock @rubdos
 build.rs @rubdos
 protobuf/ @rubdos
 
 # Markus-docs
+[Documentation]
 doc/ @mjtorn
 
 # Database schema
+[Database]
 migrations/ @mjtorn @rubdos
 diesel.toml @rubdos
 
 # UI
+[UI]
 qml/ @ichthyosaurus @rubdos
 icons/ @ichthyosaurus
 icons-src/ @ichthyosaurus
 
 # Backend
+[Rust]
 src/ @rubdos
 
 # Translations
+[I18n]
 translations/ @rubdos
 translations/harbour-whisperfish-pt_PT.ts @iled
 translations/harbour-whisperfish-fi.ts @mjtorn
