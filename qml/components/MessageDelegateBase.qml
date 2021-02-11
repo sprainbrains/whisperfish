@@ -8,7 +8,7 @@ ListItem {
     contentHeight: contentContainer.height
 
     // TODO Uncomment this line only for development!
-    down: pressed || (enableDebugLayer && (index % 2 == 0))
+    // down: pressed || (enableDebugLayer && (index % 2 == 0))
     property bool enableDebugLayer: false
 
     property QtObject modelData
