@@ -8,6 +8,7 @@ ListItem {
     width: parent.width
     contentHeight: contentContainer.height
     _backgroundColor: "transparent"
+    highlighted: down || menuOpen || replyArea.down
 
     // TODO Uncomment this line only for development!
     // down: pressed || (enableDebugLayer && (index % 2 == 0))
@@ -46,7 +47,7 @@ ListItem {
 
     RoundedRect {
         id: background
-        opacity: down ?
+        opacity: (down || replyArea.down) ?
                      (outgoing ? Theme.opacityHigh : 1.3*Theme.opacityHigh) :
                      (outgoing ? Theme.opacityFaint : Theme.opacityHigh)
         color: Theme.rgba(down ? Theme.highlightColor :
@@ -67,6 +68,8 @@ ListItem {
 
     MouseArea {
         id: replyArea
+        property bool down: pressed && containsPress
+
         anchors { top: parent.top; bottom: parent.bottom }
         width: parent.width/2
         onPressAndHold: root.openMenu()
@@ -76,46 +79,45 @@ ListItem {
         }
 
         HighlightImage {
-            id: button
-            // alternative icons: icon-m-outline-chat icon-m-bubble-universal
+            id: replyHintIcon
+            // alternative icons: outline-chat, bubble-universal, notifications
             source: 'image://theme/icon-m-message-reply'
             asynchronous: true
             anchors.verticalCenter: parent.verticalCenter
-            opacity: parent.pressed ? 1.0 : 0.0
-            Behavior on opacity { FadeAnimator { duration: 100 } }
+            opacity: replyHintBackground.opacity
             enabled: false
             color: Theme.secondaryColor
             anchors.margins: Theme.horizontalPageMargin
         }
 
         Rectangle {
-            id: bg
+            id: replyHintBackground
             width: parent.height
-            height: parent.width
+            height: Math.max(parent.width, root.width-delegateContentWidth)
             rotation: outgoing ? -90 : 90
             transformOrigin: outgoing ? Item.TopLeft : Item.TopRight
             y: parent.height
-            opacity: parent.pressed ? 1.0 : 0.0
+            opacity: parent.down ? 1.0 : 0.0
             gradient: Gradient {
                 GradientStop { position: 0.2; color: Theme.rgba(Theme.highlightBackgroundColor,
                                                                 Theme.highlightBackgroundOpacity) }
                 GradientStop { position: 1.0; color: "transparent" }
             }
-            Behavior on opacity { FadeAnimator { duration: 200 } }
+            Behavior on opacity { FadeAnimation { duration: 200 } }
         }
 
         states: [
             State {
                 name: "outgoing"; when: outgoing
                 AnchorChanges { target: replyArea; anchors.left: parent.left }
-                AnchorChanges { target: button; anchors.left: parent.left }
-                AnchorChanges { target: bg; anchors.left: parent.left }
+                AnchorChanges { target: replyHintIcon; anchors.left: parent.left }
+                AnchorChanges { target: replyHintBackground; anchors.left: parent.left }
             },
             State {
                 name: "incoming"; when: !outgoing
                 AnchorChanges { target: replyArea; anchors.right: parent.right }
-                AnchorChanges { target: button; anchors.right: parent.right }
-                AnchorChanges { target: bg; anchors.right: parent.right }
+                AnchorChanges { target: replyHintIcon; anchors.right: parent.right }
+                AnchorChanges { target: replyHintBackground; anchors.right: parent.right }
             }
         ]
     }
