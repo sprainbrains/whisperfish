@@ -1148,6 +1148,7 @@ dependencies = [
  "tokio",
  "uuid",
  "vergen",
+ "version_check",
 ]
 
 [[package]]

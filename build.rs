@@ -231,6 +231,20 @@ fn protobuf() -> Result<(), Error> {
 fn main() {
     protobuf().unwrap();
 
+    // Print a warning when rustc is too old.
+    if !version_check::is_min_version("1.48.0").unwrap_or(false) {
+        if let Some(version) = version_check::Version::read() {
+            panic!(
+                "Whisperfish requires Rust 1.48.0 or later.  You are using rustc {}",
+                version
+            );
+        } else {
+            panic!(
+                "Whisperfish requires Rust 1.48.0 or later, but could not determine Rust version.",
+            );
+        }
+    }
+
     let (mer_target_root, cross_compile) = install_mer_hacks();
     let qt_include_path = if cross_compile {
         format!("{}/usr/include/qt5/", mer_target_root)
