@@ -36,6 +36,8 @@ InverseMouseArea {
     // Can't use textField height due to excessive implicit padding
     height: timestamp.y + timestamp.height + Theme.paddingMedium
 
+    readonly property bool inputFieldFocused: textField.focus
+
     property string contactName: ""
     property string attachmentPath: ""
     property alias text: textField.text
