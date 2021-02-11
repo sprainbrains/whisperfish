@@ -91,7 +91,7 @@ ListItem {
             y: parent.height
             opacity: parent.pressed ? 1.0 : 0.0
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Theme.rgba(Theme.highlightBackgroundColor,
+                GradientStop { position: 0.2; color: Theme.rgba(Theme.highlightBackgroundColor,
                                                                 Theme.highlightBackgroundOpacity) }
                 GradientStop { position: 1.0; color: "transparent" }
             }
