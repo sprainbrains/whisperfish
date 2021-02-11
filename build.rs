@@ -228,6 +228,73 @@ fn protobuf() -> Result<(), Error> {
     Ok(())
 }
 
+fn prepare_rpm_build() {
+    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_HARBOUR");
+
+    // create tmp folders where feature-dependend files are copied to if they should be included.
+    // Define the whole folder in Cargo.toml for inlusion in the rpm
+    let rpm_extra_dir = std::path::PathBuf::from(".rpm/tmp_feature_files");
+    if rpm_extra_dir.exists() {
+        std::fs::remove_dir_all(&rpm_extra_dir)
+            .expect(&format!("Could not remove {:?} for cleanup", rpm_extra_dir));
+    }
+    let cond_folder: &[&str] = &["systemd"];
+    for d in cond_folder.iter() {
+        let nd = rpm_extra_dir.join(d);
+        std::fs::create_dir_all(&nd).expect(&format!("Could not create {:?}", &nd));
+    }
+    let cond_files: &[(&str, &str)] = if env::var("CARGO_FEATURE_HARBOUR").is_err() {
+        &[("harbour-whisperfish.service", "systemd")]
+    } else {
+        &[]
+    };
+    for (file, dest) in cond_files.iter() {
+        let dest_dir = rpm_extra_dir.join(dest);
+        if !dest_dir.exists() {
+            std::fs::create_dir_all(&dest_dir).expect(&format!("Could not create {:?}", dest_dir));
+        }
+        let dest_file = dest_dir.join(file);
+        std::fs::copy(Path::new(file), &dest_file)
+            .expect(&format!("failed to copy {} to {:?}", file, dest_file));
+        println!("cargo:rerun-if-changed={}", file);
+    }
+
+    // Build RPM Spec
+    // Lines between `#[{{ NOT FEATURE_FLAG` and `#}}]` are only copied if the feature is disabled
+    // (or enabled without NOT).
+    println!("cargo:rerun-if-changed=rpm/harbour-whisperfish.spec");
+    let src = std::fs::File::open("rpm/harbour-whisperfish.spec")
+        .expect("Failed to read rpm spec at rpm/harbour-whisperfish.spec");
+    let mut spec = std::fs::File::create(".rpm/harbour-whisperfish.spec")
+        .expect("Failed to write rpm spec to .rpm/harbour-whisperfish.spec");
+    writeln!(spec, "### WARNING: auto-generated file - please only edit the original source file: ../rpm/harbour-whisperfish.spec")
+        .expect("Failed to write to spec file");
+
+    let mut ignore = 0;
+    let feature_re = regex::Regex::new(r"^\s*#\[\{\{\s+(NOT)?\s+([A-Z_0-9]+)").unwrap();
+
+    for line in BufReader::new(src).lines() {
+        let line = line.unwrap();
+        if let Some(cap) = feature_re.captures(&line) {
+            if ignore > 0
+                || (cap.get(1) == None
+                    && env::var(format!("CARGO_FEATURE_{}", cap.get(2).unwrap().as_str())).is_err())
+                || (cap.get(1) != None
+                    && env::var(format!("CARGO_FEATURE_{}", cap.get(2).unwrap().as_str())).is_ok())
+            {
+                ignore += 1;
+            }
+            println!("reg {:?}", cap);
+        } else if line.trim_start().starts_with("#}}]") {
+            if ignore > 0 {
+                ignore -= 1;
+            }
+        } else if ignore == 0 {
+            writeln!(spec, "{}", line).expect("Failed to write to spec file");
+        }
+    }
+}
+
 fn main() {
     protobuf().unwrap();
 
@@ -330,6 +397,8 @@ fn main() {
                 .expect("Failed to download sqlcipher");
             assert!(stat.success());
         }
+
+        prepare_rpm_build();
 
         // Build static sqlcipher
         cc::Build::new()
