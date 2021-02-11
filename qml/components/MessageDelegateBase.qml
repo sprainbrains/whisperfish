@@ -6,6 +6,7 @@ import Sailfish.Silica 1.0
 ListItem {
     width: parent.width
     contentHeight: contentContainer.height
+    _backgroundColor: "transparent"
 
     // TODO Uncomment this line only for development!
     // down: pressed || (enableDebugLayer && (index % 2 == 0))
@@ -39,7 +40,9 @@ ListItem {
 
     RoundedRect {
         id: background
-        opacity: outgoing ? Theme.opacityFaint : Theme.opacityHigh
+        opacity: down ?
+                     (outgoing ? Theme.opacityHigh : 1.3*Theme.opacityHigh) :
+                     (outgoing ? Theme.opacityFaint : Theme.opacityHigh)
         color: Theme.rgba(Theme.primaryColor, Theme.opacityFaint)
         radius: Theme.paddingLarge
         anchors { fill: contentContainer; margins: contentPadding/3 }
