@@ -151,8 +151,6 @@ MessageDelegateBase {
             layoutDirection: outgoing ? Qt.RightToLeft : Qt.LeftToRight
             anchors { left: parent.left; right: parent.right }
 
-            // TODO Add debug info
-
             HighlightImage {
                 id: statusIcon
                 visible: outgoing
@@ -192,12 +190,22 @@ MessageDelegateBase {
                                           Theme.secondaryColor)
             }
 
+            Label {
+                id: debugLabel
+                visible: SettingsBridge.boolValue("debug_mode")
+                width: visible ? implicitWidth : 0
+                text: visible ? " [%1] ".arg(modelData.id) : ""
+                color: infoLabel.color
+                font.pixelSize: Theme.fontSizeExtraSmall
+            }
+
             Row {
                 id: showMoreRow
                 visible: canExpand
                 spacing: Theme.paddingSmall
                 layoutDirection: outgoing ? Qt.LeftToRight : Qt.RightToLeft
-                width: parent.width - infoLabel.width - statusIcon.width
+                width: !visible ? 0 : parent.width - infoLabel.width -
+                                      statusIcon.width - debugLabel.width
 
                 Item {
                     width: (outgoing ? 0.5 : -1.5) * Theme.paddingMedium
