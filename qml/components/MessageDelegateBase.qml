@@ -48,10 +48,11 @@ ListItem {
     RoundedRect {
         id: background
         opacity: (down || replyArea.down) ?
-                     (outgoing ? Theme.opacityHigh : 1.3*Theme.opacityHigh) :
-                     (outgoing ? Theme.opacityFaint : Theme.opacityHigh)
-        color: Theme.rgba(down ? Theme.highlightColor :
-                                 Theme.primaryColor, Theme.opacityFaint)
+                     (outgoing ? 0.7*Theme.opacityFaint : 1.0*Theme.opacityFaint) :
+                     (outgoing ? 0.4*Theme.opacityFaint : 0.8*Theme.opacityFaint)
+        color: (down || replyArea.down) ?
+                   Theme.highlightBackgroundColor :
+                   Theme.secondaryColor
         radius: Theme.paddingLarge
         anchors { fill: contentContainer; margins: contentPadding/3 }
         roundedCorners: outgoing ?
@@ -104,7 +105,7 @@ ListItem {
                                                                 Theme.highlightBackgroundOpacity) }
                 GradientStop { position: 1.0; color: "transparent" }
             }
-            Behavior on opacity { FadeAnimation { duration: 200 } }
+            Behavior on opacity { FadeAnimation { duration: 50 } }
         }
 
         states: [
