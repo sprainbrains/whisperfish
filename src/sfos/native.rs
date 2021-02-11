@@ -46,7 +46,15 @@ cpp! {{
 
         SfosApplicationHolder(int &argc, char **argv)
             : app(SailfishApp::application(argc, argv))
-            , view(SailfishApp::createView()) { }
+            , view(SailfishApp::createView()) {
+                QObject::connect(
+                    view->engine(),
+                    &QQmlEngine::quit,
+                    view.get(),
+                    &QWindow::close,
+                    Qt::QueuedConnection
+                );
+            }
     };
 
     struct CloseEventFilter : public QObject {

@@ -252,6 +252,19 @@ Page {
                     }
                 }
             }
+            Button {
+                visible: !AppState.isHarbour()
+                id: quitAppButton
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 2*Theme.horizontalPageMargin
+                //: Settings page quit app button
+                //% "Quit Whisperfish"
+                text: qsTrId("whisperfish-settings-quit-button")
+                onClicked: {
+                    AppState.setMayExit(true)
+                    Qt.quit()
+                }
+            }
             // ------ END GENERAL SETTINGS ------
 
             // ------ BEGIN ADVANCED SETTINGS ------
