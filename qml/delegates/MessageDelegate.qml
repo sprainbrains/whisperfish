@@ -92,7 +92,7 @@ MessageDelegateBase {
             id: senderNameLabel
             visible: showSender
             height: showSender ? implicitHeight : 0
-            text: ContactModel.name(modelData.source)
+            text: showSender ? ContactModel.name(modelData.source) : ""
             horizontalAlignment: Text.AlignLeft
             font.pixelSize: Theme.fontSizeExtraSmall
             font.bold: true
@@ -102,6 +102,8 @@ MessageDelegateBase {
             truncationMode: TruncationMode.Fade
 
             BackgroundItem {
+                // TODO improve spacing - it should exactly include the
+                // bubble padding
                 anchors {
                     fill: parent
                     margins: -Theme.paddingMedium
@@ -154,7 +156,7 @@ MessageDelegateBase {
             HighlightImage {
                 id: statusIcon
                 visible: outgoing
-                width: Theme.iconSizeSmall
+                width: visible ? Theme.iconSizeSmall : 0
                 height: width
                 color: infoLabel.color
                 source: {
@@ -207,10 +209,7 @@ MessageDelegateBase {
                 width: !visible ? 0 : parent.width - infoLabel.width -
                                       statusIcon.width - debugLabel.width
 
-                Item {
-                    width: (outgoing ? 0.5 : -1.5) * Theme.paddingMedium
-                    height: 1
-                }
+                Item { width: Theme.paddingSmall; height: 1 }
                 Label {
                     font.pixelSize: Theme.fontSizeExtraSmall
                     text: "\u2022 \u2022 \u2022" // three dots
