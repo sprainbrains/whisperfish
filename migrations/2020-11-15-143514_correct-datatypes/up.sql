@@ -31,7 +31,7 @@ CREATE TABLE new_session (
 );
 
 INSERT INTO new_session(id, source, message, timestamp, sent, received, unread, is_group, group_members, group_id, group_name, has_attachment)
-SELECT id, source, message, timestamp, sent, received, unread, is_group, group_members, group_id, group_name, has_attachment
+SELECT id, source, message, strftime('%Y-%m-%dT%H:%M:%f', timestamp/1000., 'unixepoch'), sent, received, unread, is_group, group_members, group_id, group_name, has_attachment
 FROM session;
 
 DROP TABLE session;
@@ -61,7 +61,7 @@ CREATE TABLE new_message (
 
 INSERT INTO new_message(
     id, session_id, source, message, timestamp, sent, received, flags, attachment, mime_type, has_attachment, outgoing
-) SELECT id, session_id, source, message, timestamp, sent, received, flags, attachment, mime_type, has_attachment, outgoing
+) SELECT id, session_id, source, message, strftime('%Y-%m-%dT%H:%M:%f', timestamp/1000., 'unixepoch'), sent, received, flags, attachment, mime_type, has_attachment, outgoing
 FROM message;
 
 DROP TABLE message;
