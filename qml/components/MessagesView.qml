@@ -45,6 +45,8 @@ SilicaListView {
     //        messageList.moving for a certain time
     section.property: "timestamp"
 
+    signal replyTriggered(var index, var modelData)
+
     delegate: Item {
         id: wrapper
         property string newerSection: ListView.previousSection
@@ -104,6 +106,7 @@ SilicaListView {
                 // set explicitly because attached properties are not available
                 // inside the loaded component
                 listView: messagesView
+                replySignal: replyTriggered
             }
         }
 

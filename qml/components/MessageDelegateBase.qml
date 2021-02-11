@@ -33,6 +33,11 @@ ListItem {
     property real maxMessageWidth: parent.width -
                                    6*Theme.horizontalPageMargin
 
+    // The parent view can specify a signal to be emitted when
+    // the user wants to reply to the delegate's message.
+    // Signal signature: \c{replySignal(var index, var modelData)}.
+    property var replySignal
+
     Component.onCompleted: {
         if (delegateContentWidth <= 0) {
             console.error("No delegateContentWidth specified. List item will not function.")
@@ -66,7 +71,8 @@ ListItem {
         width: parent.width/2
         onPressAndHold: root.openMenu()
         onClicked: {
-            console.log("replying is not implemented yet")
+            if (replySignal) replySignal(index, modelData)
+            else console.error("reply requested but not signal specified")
         }
 
         HighlightImage {

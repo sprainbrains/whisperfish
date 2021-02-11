@@ -81,10 +81,15 @@ Page {
         model: MessageModel
         clip: true // to prevent the view from flowing through the page header
         headerPositioning: ListView.PullBackHeader
-
         header: Item {
             width: messages.width
             height: headerArea.height
+        }
+
+        onReplyTriggered: {
+            // TODO textInput.replyToMessage(index, modelData)
+            textInput.text = '> '+modelData.message.replace(/\n/g, '\n> ')+'\n'
+            textInput.focusEditorEnd()
         }
     }
 

@@ -50,6 +50,12 @@ InverseMouseArea {
 
     signal sendMessage(string text, string path)
 
+    signal focusEditorEnd()
+    onFocusEditorEnd: {
+        textField.cursorPosition = textField.text.length
+        textField.forceActiveFocus()
+    }
+
     function setAttachmentPath(path) {
         attachmentPath = path
     }
