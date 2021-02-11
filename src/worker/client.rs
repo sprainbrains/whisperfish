@@ -281,7 +281,7 @@ impl ClientActor {
             DEFAULT_DEVICE_ID,
         );
 
-        Arbiter::spawn(async move {
+        actix::spawn(async move {
             match req.r#type() {
                 Type::Unknown => {
                     log::warn!("Unknown sync request from {:?}:{}. Please upgrade Whisperfish or file an issue.", meta.sender, meta.sender_device);
@@ -770,7 +770,7 @@ impl Handler<SendMessage> for ClientActor {
                         .borrow()
                         .messageSent(sid, mid, message.into());
 
-                    Arbiter::spawn(
+                    actix::spawn(
                         act.inner
                             .pinned()
                             .borrow()
@@ -909,7 +909,7 @@ impl Handler<Restart> for ClientActor {
                     log::error!("Error starting stream: {}", e);
                     log::info!("Retrying in 10");
                     let addr = ctx.address();
-                    Arbiter::spawn(async move {
+                    actix::spawn(async move {
                         actix::clock::sleep(Duration::from_secs(10)).await;
                         addr.send(Restart).await.expect("retry restart");
                     });

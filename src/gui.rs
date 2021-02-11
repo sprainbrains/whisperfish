@@ -107,7 +107,7 @@ pub async fn run() -> Result<(), failure::Error> {
         storage: RefCell::new(None),
     });
 
-    Arbiter::spawn(worker::SetupWorker::run(whisperfish.clone()));
+    actix::spawn(worker::SetupWorker::run(whisperfish.clone()));
 
     app.set_property("AppVersion".into(), version.into());
     app.set_property("LongAppVersion".into(), long_version.into());

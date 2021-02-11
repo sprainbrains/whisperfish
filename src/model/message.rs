@@ -119,7 +119,7 @@ impl MessageModel {
         let group = groupName.to_string();
         let attachment = attachment.to_string();
 
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -139,7 +139,7 @@ impl MessageModel {
     #[allow(non_snake_case)]
     /// Called when a message should be queued to be sent to OWS
     fn sendMessage(&mut self, mid: i32) {
-        Arbiter::spawn(
+        actix::spawn(
             self.client_actor
                 .as_mut()
                 .unwrap()
@@ -151,7 +151,7 @@ impl MessageModel {
     #[allow(non_snake_case)]
     /// Called when a message should be queued to be sent to OWS
     fn endSession(&mut self, e164: QString) {
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_mut()
                 .unwrap()
@@ -179,7 +179,7 @@ impl MessageModel {
 
         (self as &mut dyn QAbstractListModel).end_reset_model();
 
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -198,7 +198,7 @@ impl MessageModel {
     ///
     /// Note that the id argument was i64 in Go.
     fn add(&mut self, id: i32) {
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -221,7 +221,7 @@ impl MessageModel {
             return;
         };
 
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -335,7 +335,7 @@ impl MessageModel {
         self.peerIdentityChanged();
 
         // TODO: contact identity key
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()

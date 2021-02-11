@@ -143,7 +143,7 @@ impl Handler<LoadAllSessions> for SessionActor {
         let session_actor = ctx.address();
         let db = self.storage.clone().unwrap().db;
 
-        Arbiter::spawn(async move {
+        actix::spawn(async move {
             let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
                 let db = db
                     .lock()
@@ -157,6 +157,6 @@ impl Handler<LoadAllSessions> for SessionActor {
 
             session_actor.send(SessionsLoaded(sessions)).await.unwrap();
             // XXX handle error
-        })
+        });
     }
 }

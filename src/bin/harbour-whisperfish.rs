@@ -21,7 +21,7 @@ fn main() -> Result<(), failure::Error> {
             .init()
     }
 
-    let sys = System::new("whisperfish");
+    let sys = System::new();
 
     sfos::TokioQEventDispatcher::install();
 

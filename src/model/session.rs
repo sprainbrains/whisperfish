@@ -35,7 +35,7 @@ impl SessionModel {
 
     /// Add or replace a Session in the model.
     fn add(&self, id: i64, mark_read: bool) {
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -55,7 +55,7 @@ impl SessionModel {
 
         let sid = self.content[idx].id;
 
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -74,7 +74,7 @@ impl SessionModel {
             .position(|x| x.id == id)
             .expect("Session ID not found in session model");
 
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -85,7 +85,7 @@ impl SessionModel {
     }
 
     fn reload(&self) {
-        Arbiter::spawn(
+        actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
@@ -101,7 +101,7 @@ impl SessionModel {
             .enumerate()
             .find(|(_, s)| s.id == id as i64)
         {
-            Arbiter::spawn(
+            actix::spawn(
                 self.actor
                     .as_ref()
                     .unwrap()
@@ -171,7 +171,7 @@ impl SessionModel {
         };
 
         if sess.unread && mark_read {
-            Arbiter::spawn(
+            actix::spawn(
                 self.actor
                     .as_ref()
                     .unwrap()

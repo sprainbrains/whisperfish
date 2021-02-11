@@ -20,28 +20,28 @@ pub struct UnlinkDevice {
 impl ClientWorker {
     pub fn link_device(&self, tsurl: String) {
         let actor = self.actor.clone().unwrap();
-        Arbiter::spawn(async move {
+        actix::spawn(async move {
             if let Err(e) = actor.send(LinkDevice { tsurl }).await {
                 log::error!("{:?}", e);
             }
-        })
+        });
     }
 
     pub fn unlink_device(&self, id: i64) {
         let actor = self.actor.clone().unwrap();
-        Arbiter::spawn(async move {
+        actix::spawn(async move {
             if let Err(e) = actor.send(UnlinkDevice { id }).await {
                 log::error!("{:?}", e);
             }
-        })
+        });
     }
     pub fn reload_linked_devices(&self) {
         let actor = self.actor.clone().unwrap();
-        Arbiter::spawn(async move {
+        actix::spawn(async move {
             if let Err(e) = actor.send(ReloadLinkedDevices).await {
                 log::error!("{:?}", e);
             }
-        })
+        });
     }
 }
 
