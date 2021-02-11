@@ -2,6 +2,13 @@ use std::cell::RefCell;
 #[cfg(feature = "sailfish")]
 use std::rc::Rc;
 
+#[cfg(not(feature = "harbour"))]
+use std::{
+    fs::{create_dir_all, remove_file},
+    os::unix::fs::symlink,
+    path::{Path, PathBuf},
+};
+
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
 use crate::{
@@ -24,16 +31,19 @@ pub struct AppState {
     base: qt_base_class!(trait QObject),
 
     closed: bool,
+    setActive: qt_method!(fn(&self)),
+    isClosed: qt_method!(fn(&self) -> bool),
+    activate: qt_signal!(),
 
     pub may_exit: bool,
-
-    setActive: qt_method!(fn(&self)),
+    #[cfg(not(feature = "harbour"))]
     setMayExit: qt_method!(fn(&self, value: bool)),
-    isClosed: qt_method!(fn(&self) -> bool),
+
+    isAutostartEnabled: qt_method!(fn(&self) -> bool),
+    #[cfg(not(feature = "harbour"))]
+    setAutostartEnabled: qt_method!(fn(&self, value: bool)),
 
     isHarbour: qt_method!(fn(&self) -> bool),
-
-    activate: qt_signal!(),
 }
 
 impl AppState {
@@ -42,24 +52,9 @@ impl AppState {
         self.closed = false;
     }
 
-    #[cfg(feature = "harbour")]
-    #[allow(non_snake_case)]
-    fn setMayExit(&mut self, _: bool) {}
-
-    #[cfg(not(feature = "harbour"))]
-    #[allow(non_snake_case)]
-    fn setMayExit(&mut self, value: bool) {
-        self.may_exit = value;
-    }
-
     #[allow(non_snake_case)]
     fn isClosed(&mut self) -> bool {
         self.closed
-    }
-
-    #[allow(non_snake_case)]
-    fn isHarbour(&mut self) -> bool {
-        cfg!(feature = "harbour")
     }
 
     pub fn is_closed(&self) -> bool {
@@ -79,16 +74,69 @@ impl AppState {
         }
     }
 
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn setMayExit(&mut self, value: bool) {
+        self.may_exit = value;
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    fn systemd_dir() -> PathBuf {
+        let sdir = dirs::config_dir()
+            .expect("config directory")
+            .join("systemd/user/post-user-session.target.wants/");
+        if !sdir.exists() {
+            create_dir_all(&sdir).unwrap();
+        }
+        sdir
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn setAutostartEnabled(&self, enabled: bool) {
+        if enabled {
+            let _ = symlink(
+                Path::new("/usr/lib/systemd/user/harbour-whisperfish.service"),
+                Self::systemd_dir().join("harbour-whisperfish.service"),
+            );
+        } else {
+            let _ = remove_file(Self::systemd_dir().join("harbour-whisperfish.service"));
+        }
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn isAutostartEnabled(&self) -> bool {
+        Self::systemd_dir()
+            .join("harbour-whisperfish.service")
+            .exists()
+    }
+
+    #[cfg(feature = "harbour")]
+    #[allow(non_snake_case)]
+    fn isAutostartEnabled(&self) -> bool {
+        false
+    }
+
+    #[allow(non_snake_case)]
+    fn isHarbour(&mut self) -> bool {
+        cfg!(feature = "harbour")
+    }
+
     fn new() -> Self {
         Self {
             base: Default::default(),
             closed: false,
             may_exit: true,
             setActive: Default::default(),
-            setMayExit: Default::default(),
             isClosed: Default::default(),
             isHarbour: Default::default(),
             activate: Default::default(),
+            #[cfg(not(feature = "harbour"))]
+            setMayExit: Default::default(),
+            isAutostartEnabled: Default::default(),
+            #[cfg(not(feature = "harbour"))]
+            setAutostartEnabled: Default::default(),
         }
     }
 }

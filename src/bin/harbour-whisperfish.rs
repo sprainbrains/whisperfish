@@ -7,8 +7,6 @@ use dbus::blocking::Connection;
 use std::time::Duration;
 
 fn main() -> Result<(), failure::Error> {
-    env_logger::init();
-
     let mut autostart = false;
     let mut verbose = false;
     let mut ignored = 0;
