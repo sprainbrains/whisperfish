@@ -33,13 +33,31 @@ ListItem {
         } else if (_type === "fingerprintChanged") {
             "image://theme/icon-s-outline-secure"
         } else if (_type === "sessionReset") {
-            "image://theme/icon-s-certificates"
+            "image://theme/icon-s-checkmark"
+        } else if (_type === "joinedGroup" || _type === "leftGroup") {
+            "image://theme/icon-m-outline-chat" // TODO we need a small outline icon here
         } else {
             ""
         }
     }
     property string _message: {
-        if (_type === "missedCallVoice") {
+        if (_type === "joinedGroup" && _origin === "self") {
+            //: TODO
+            //% "You joined the group “%1”."
+            qsTrId("whisperfish-service-message-joined-group-self").arg(_originName)
+        } else if (_type === "leftGroup" && _origin === "self") {
+            //: TODO
+            //% "You left the group."
+            qsTrId("whisperfish-service-message-left-group-self")
+        } else if (_type === "joinedGroup" && _origin === "peer") {
+            //: TODO
+            //% "%1 joined the group."
+            qsTrId("whisperfish-service-message-joined-group-peer").arg(_originName)
+        } else if (_type === "leftGroup" && _origin === "peer") {
+            //: TODO
+            //% "%1 left the group."
+            qsTrId("whisperfish-service-message-left-group-peer").arg(_originName)
+        } else if (_type === "missedCallVoice") {
             //: TODO
             //% "You missed a call from %1."
             qsTrId("whisperfish-service-message-missed-call-voice").arg(_originName)
