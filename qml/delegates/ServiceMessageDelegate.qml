@@ -41,7 +41,7 @@ ListItem {
     property string _message: {
         if (_type === "missedCallVoice") {
             //: TODO
-            //% "You missed a voice call from %1."
+            //% "You missed a call from %1."
             qsTrId("whisperfish-service-message-missed-call-voice").arg(_originName)
         } else if (_type === "missedCallVideo") {
             //: TODO
@@ -49,7 +49,7 @@ ListItem {
             qsTrId("whisperfish-service-message-missed-call-video").arg(_originName)
         } else if (_type === "callVoice" && _origin === "self") {
             //: TODO
-            //% "You started a voice call with %1."
+            //% "You called %1."
             qsTrId("whisperfish-service-message-call-voice-self").arg(_originName)
         } else if (_type === "callVideo" && _origin === "self") {
             //: TODO
@@ -57,7 +57,7 @@ ListItem {
             qsTrId("whisperfish-service-message-call-video-self").arg(_originName)
         } else if (_type === "callVoice" && _origin === "peer") {
             //: TODO
-            //% "%1 started a voice call with you."
+            //% "%1 called you."
             qsTrId("whisperfish-service-message-call-voice-peer").arg(_originName)
         } else if (_type === "callVideo" && _origin === "peer") {
             //: TODO
