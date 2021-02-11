@@ -4,6 +4,7 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 
 ListItem {
+    id: root
     width: parent.width
     contentHeight: contentContainer.height
     _backgroundColor: "transparent"
@@ -62,7 +63,7 @@ ListItem {
         id: replyArea
         anchors { top: parent.top; bottom: parent.bottom }
         width: parent.width/2
-        onPressAndHold: parent.openMenu()
+        onPressAndHold: root.openMenu()
         onClicked: {
             console.log("replying is not implemented yet")
         }
