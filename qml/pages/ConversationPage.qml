@@ -42,6 +42,33 @@ Page {
         }
     }
 
+    // Desired design:
+    // - message view: full screen, below custom page header
+    // - input field: anchored at the bottom, transparent background,
+    //   visible when the view is at the bottom (latest message) and
+    //   hidden while scrolling, becomes visible when scrolling down a
+    //   little bit, always visible while the keyboard is open, not
+    //   visible during the quick scroll animation
+    //
+    // Implementation:
+    // The message view is anchored below the page header and extends
+    // to the bottom of the page. It has an empty header at the bottom
+    // (because it is inverted). A OpacityRampEffect hides the message
+    // view's contents below the header when it is shown. This is
+    // necessary because \c{clip: true} does not clip the view below
+    // the header.
+    // The real input field is defined outside the view, thus it is not
+    // affected by the transparency effect. It is anchored at the bottom
+    // of the page, with its bottom margin bound to the list view header's
+    // position.
+    //
+    // Note: to make the input field always visible (sticky), simply
+    // set \c{messageView.anchors.bottom = inputField.anchors.top}.
+    // Then remove the fake header item and the opacity ramp effect.
+    //
+    // TODO FIXME Bug: everything will become almost transparent if
+    // a context menu is opened while the input field is visible.
+
     MessagesView {
         id: messages
         focus: true
