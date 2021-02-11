@@ -55,6 +55,60 @@ ListItem {
         opacity: 0.4
     }
 
+    MouseArea {
+        id: replyArea
+        anchors { top: parent.top; bottom: parent.bottom }
+        width: parent.width/2
+        onPressAndHold: parent.openMenu()
+        onClicked: {
+            console.log("replying is not implemented yet")
+        }
+
+        HighlightImage {
+            id: button
+            // alternative icons: icon-m-outline-chat icon-m-bubble-universal
+            source: 'image://theme/icon-m-message-reply'
+            asynchronous: true
+            anchors.verticalCenter: parent.verticalCenter
+            opacity: parent.pressed ? 1.0 : 0.0
+            Behavior on opacity { FadeAnimator { duration: 100 } }
+            enabled: false
+            color: Theme.secondaryColor
+            anchors.margins: Theme.horizontalPageMargin
+        }
+
+        Rectangle {
+            id: bg
+            width: parent.height
+            height: parent.width
+            rotation: outgoing ? -90 : 90
+            transformOrigin: outgoing ? Item.TopLeft : Item.TopRight
+            y: parent.height
+            opacity: parent.pressed ? 1.0 : 0.0
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Theme.rgba(Theme.highlightBackgroundColor,
+                                                                Theme.highlightBackgroundOpacity) }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+            Behavior on opacity { FadeAnimator { duration: 200 } }
+        }
+
+        states: [
+            State {
+                name: "outgoing"; when: outgoing
+                AnchorChanges { target: replyArea; anchors.left: parent.left }
+                AnchorChanges { target: button; anchors.left: parent.left }
+                AnchorChanges { target: bg; anchors.left: parent.left }
+            },
+            State {
+                name: "incoming"; when: !outgoing
+                AnchorChanges { target: replyArea; anchors.right: parent.right }
+                AnchorChanges { target: button; anchors.right: parent.right }
+                AnchorChanges { target: bg; anchors.right: parent.right }
+            }
+        ]
+    }
+
     Column {
         id: contentContainer
         padding: contentPadding
