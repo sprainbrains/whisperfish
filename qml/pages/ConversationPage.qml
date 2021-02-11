@@ -65,9 +65,6 @@ Page {
     // Note: to make the input field always visible (sticky), simply
     // set \c{messageView.anchors.bottom = inputField.anchors.top}.
     // Then remove the fake header item and the opacity ramp effect.
-    //
-    // TODO FIXME Bug: everything will become almost transparent if
-    // a context menu is opened while the input field is visible.
 
     MessagesView {
         id: messages
@@ -98,13 +95,16 @@ Page {
         direction: OpacityRamp.TopToBottom
         slope: messages.height
         offset: 1-((root.height-headerArea.y)/messages.height)
-        enabled: headerArea.y < root.height && !messages.quickScrollAnimating
+        enabled: headerArea.y < root.height &&
+                 !messages.quickScrollAnimating &&
+                 !messages.menuOpen
     }
 
     Item {
         id: headerArea
         width: parent.width
         height: textInput.height + 2*Theme.paddingMedium
+        opacity: messages.menuOpen ? 0.0 : 1.0
         anchors {
             bottom: parent.bottom
             bottomMargin: messages.quickScrollAnimating ?
@@ -116,6 +116,8 @@ Page {
                                    messages.headerItem.y -
                                    pageHeader.height)
         }
+
+        Behavior on opacity { FadeAnimator { duration: 100 } }
 
         WFChatTextInput {
             id: textInput

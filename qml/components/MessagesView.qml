@@ -45,6 +45,8 @@ SilicaListView {
     //        messageList.moving for a certain time
     section.property: "timestamp"
 
+    property bool menuOpen: false
+
     signal replyTriggered(var index, var modelData)
 
     delegate: Item {
@@ -191,6 +193,14 @@ SilicaListView {
         ContextMenu {
             id: menu
             width: parent ? parent.width : Screen.width
+
+            onActiveChanged: {
+                // We can safely assume only one context menu is open at a time.
+                // We assume less safely that this is the only menu component that will
+                // ever be available in a message view.
+                if (active) messagesView.menuOpen = true
+                else messagesView.menuOpen = false
+            }
 
             MenuItem {
                 //: Copy message menu item
