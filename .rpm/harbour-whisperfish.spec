@@ -8,16 +8,15 @@ Summary: Private messaging using Signal for SailfishOS.
 Version: @@VERSION@@
 Release: @@RELEASE@@
 License: GPLv3+
-Group: Applications/System
 Group: Qt/Qt
-URL: https://github.com/rubdos/whisperfish/
+URL: https://gitlab.com/rubdos/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   sailfish-components-contacts-qt5
 Requires:   nemo-qml-plugin-contacts-qt5
 Requires:   nemo-qml-plugin-configuration-qt5
 Requires:   nemo-qml-plugin-notifications-qt5
-Requires:   sqlcipher
+Requires:   sailfish-components-webview-qt5
 
 # This comment lists SailfishOS-version specific code,
 # for future reference, to track the reasoning behind the minimum SailfishOS version.
@@ -53,6 +52,13 @@ desktop-file-install --delete-original       \
 %clean
 rm -rf %{buildroot}
 
+%post
+systemctl-user daemon-reload
+
+%preun
+systemctl-user stop harbour-whisperfish.service || true
+killall harbour-whisperfish || true
+
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
@@ -60,3 +66,4 @@ rm -rf %{buildroot}
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/lipstick/notificationcategories/%{name}-message.conf
+%{_libdir}/systemd/user/%{name}.service
