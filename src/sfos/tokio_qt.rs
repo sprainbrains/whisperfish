@@ -221,7 +221,7 @@ impl TokioQEventDispatcherPriv {
         drop(self.waker.lock().unwrap().replace(Some(w.clone())));
     }
 
-    fn poll_sockets(mut self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
+    fn poll_sockets(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
         let mut events = Vec::new();
 
         for (notifier, registration) in &self.socket_registrations {
