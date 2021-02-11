@@ -42,6 +42,9 @@ MessageDelegateBase {
     onClicked: {
         if (canExpand) {
             if (expandExtraPage) {
+                // TODO Cache the page object, so we can return to the
+                // same scroll position where the user left the page.
+                // It is not possible to re-use the returned object from pageStack.push().
                 pageStack.push("../pages/ExpandedMessagePage.qml", {
                                    'modelData': modelData,
                                    'outgoing': outgoing
