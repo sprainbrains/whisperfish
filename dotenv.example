@@ -29,6 +29,9 @@ export RUSTFLAGS="-C link-args=-Wl,--sysroot=$MERSDK/targets/$MER_TARGET-$MER_AR
 # https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md
 export PKG_CONFIG_SYSROOT_DIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/"
 
+# If you get compiler errors within C++ standard headers, adding this line may help
+#export CXXFLAGS="--sysroot $MERSDK/targets/$MER_TARGET-$MER_ARCH"
+
 # If you want to use the included ./run.sh script,
 # set this variable to your hostname or IP address of your SailfishOS device.
 export SSH_TARGET=xperia.rubdos.be
