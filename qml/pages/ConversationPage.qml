@@ -7,7 +7,9 @@ Page {
     id: root
     objectName: conversationPageName
 
-    property bool editorFocus
+    // Enable to focus the editor when the page is opened.
+    // E.g. when starting a new chat.
+    property bool editorFocus: false
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
@@ -86,7 +88,7 @@ Page {
         onReplyTriggered: {
             // TODO textInput.replyToMessage(index, modelData)
             textInput.text = '> '+modelData.message.replace(/\n/g, '\n> ')+'\n'
-            textInput.focusEditorEnd()
+            textInput.forceEditorFocus(true)
         }
     }
 
@@ -103,7 +105,7 @@ Page {
     Item {
         id: headerArea
         width: parent.width
-        height: textInput.height + 2*Theme.paddingMedium
+        height: textInput.height
         opacity: messages.menuOpen ? 0.0 : 1.0
         anchors {
             bottom: parent.bottom
@@ -119,22 +121,29 @@ Page {
 
         Behavior on opacity { FadeAnimator { duration: 100 } }
 
-        WFChatTextInput {
+        ChatTextInput {
             id: textInput
             width: parent.width
-            contactName: MessageModel.peerName
-            enabled: true
-            editorFocus: root.editorFocus
             anchors.bottom: parent.bottom
+            enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
+            placeholderContactName: MessageModel.peerName
+            editor.focus: root.editorFocus
+            showSeparator: !messages.atYEnd
 
             onSendMessage: {
                 // TODO This should be handled completely in the backend.
-                var sid = MessageModel.createMessage(MessageModel.peerTel,
-                                                     text, "", attachmentPath, true)
-                if(sid > 0) {
-                    // Update session model
-                    SessionModel.add(sid, true)
+                // TODO Support multiple attachments in the backend.
+                var sid = 0
+                if (attachments.length > 0) {
+                    sid = MessageModel.createMessage(MessageModel.peerTel, text, '',
+                                                     attachments[0], true)
+                } else {
+                    sid = MessageModel.createMessage(MessageModel.peerTel, text,
+                                                     '', '', true)
                 }
+
+                // update session model
+                if(sid > 0) SessionModel.add(sid, true)
             }
         }
     }

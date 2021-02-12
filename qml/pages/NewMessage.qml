@@ -145,14 +145,19 @@ Page {
                 }
             }
 
-            // XXX consider using Sailfish's ChatTextInput
-            WFChatTextInput {
+            ChatTextInput {
                 id: textInput
                 width: parent.width
-                enabled: recipientNumber.length != 0
-                clearAfterSend: recipientNumber.length != 0
+                // anchors.bottom: parent.bottom
+                enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
+                placeholderContactName: MessageModel.peerName
+                showSeparator: false
+                enableSending: recipientNumber.length > 0
+                clearAfterSend: recipientNumber.length > 0
 
                 onSendMessage: {
+                    // TODO rewrite
+                    // TODO support attachments
                     if (recipientNumber.length != 0) {
                         var source = recipientNumber
                         // Errors should be handled asynchronously

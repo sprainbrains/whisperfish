@@ -88,14 +88,20 @@ Page {
                 }
             }
 
-            WFChatTextInput {
+            ChatTextInput {
                 id: textInput
                 width: parent.width
-                enabled: selectedContacts.count > 0 && groupName.text != ""
+                // anchors.bottom: parent.bottom
+                enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
+                placeholderContactName: MessageModel.peerName
+                showSeparator: false
+                enableSending: selectedContacts.count > 0 && groupName.text != ""
                 clearAfterSend: selectedContacts.count > 0 && groupName.text != ""
 
                 onSendMessage: {
-                    if (selectedContacts.count == 0) {
+                    // TODO rewrite
+                    // TODO support attachments
+                    if (selectedContacts.count === 0) {
                         //: Invalid recipient error
                         //% "Please select group members"
                         errorLabel.text = qsTrId("whisperfish-error-invalid-group-members")
@@ -108,7 +114,7 @@ Page {
                         for (var i = 0; i < selectedContacts.count; ++i) {
                             var contact = selectedContacts.get(i);
                             var phone = ContactModel.format(contact.property.number);
-                            if (phone == "") {
+                            if (phone === "") {
                                 console.log("Skipping invalid number" + contact.formattedNameText + " (" + contact.property.number + ")");
                                 continue;
                             }
