@@ -27,6 +27,9 @@ cat Cargo.toml
 export MER_TARGET="SailfishOS-$SFOS_VERSION"
 export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
 
+# https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md
+export PKG_CONFIG_SYSROOT_DIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/"
+
 rustc --version
 cargo --version
 

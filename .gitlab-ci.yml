@@ -71,7 +71,7 @@ build:aarch64:
       - $CARGO_HOME/git/db/
   before_script:
     - apt-get update
-    - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler
+    - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler libdbus-1-dev
     - cargo --version
     - rustc --version
 
