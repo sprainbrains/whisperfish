@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p $CARGO_HOME
 cp .ci/cargo.toml $CARGO_HOME/config
 
