@@ -40,27 +40,25 @@ MessageDelegateBase {
     property bool _expanded: false
 
     onClicked: {
-        if (canExpand) {
-            if (expandExtraPage) {
-                // TODO Cache the page object, so we can return to the
-                // same scroll position where the user left the page.
-                // It is not possible to re-use the returned object from pageStack.push().
-                pageStack.push("../pages/ExpandedMessagePage.qml", {
-                                   'modelData': modelData,
-                                   'outgoing': outgoing
-                               })
-            } else {
-                _expanded = !_expanded
-                // We make sure the list item is visible immediately
-                // after changing the state. If omitted, closing a very
-                // long delegate would leave the view to be positionend
-                // somewhere off - possibly destroyed, and expansionTimer
-                // would not trigger.
-                listView.positionViewAtIndex(index, ListView.Contain)
-                expansionTimer.start()
-            }
+        if (!canExpand) return
+
+        if (expandExtraPage) {
+            // TODO Cache the page object, so we can return to the
+            // same scroll position where the user left the page.
+            // It is not possible to re-use the returned object from pageStack.push().
+            pageStack.push("../pages/ExpandedMessagePage.qml", {
+                               'modelData': modelData,
+                               'outgoing': outgoing
+                           })
         } else {
-            openMenu()
+            _expanded = !_expanded
+            // We make sure the list item is visible immediately
+            // after changing the state. If omitted, closing a very
+            // long delegate would leave the view to be positionend
+            // somewhere off - possibly destroyed, and expansionTimer
+            // would not trigger.
+            listView.positionViewAtIndex(index, ListView.Contain)
+            expansionTimer.start()
         }
     }
 
