@@ -12,3 +12,8 @@ X-Desktop-File-Install-Version=0.20
 [X-HarbourBackup]
 BackupPathList=.config/harbour-whisperfish/:.local/share/harbour-whisperfish/
 #BackupConfigList=/apps/harbour-whisperfish/
+
+[X-Sailjail]
+Permissions=Internet;Pictures;Contacts;Notifications;Phone;Privileged;Mozilla;MediaIndexing
+OrganizationName=be.rubdos
+ApplicationName=harbour-whisperfish
