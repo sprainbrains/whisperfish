@@ -93,3 +93,39 @@ Note that you may get a ton of `rustc` processes from this approach.
 should prevent that from happening. You may see a ton of compilation
 happen when starting to edit and running the first `cargo test`, but
 after that it should cool down.
+
+-------------------------------------------------------------------------------
+Sailfish IDE (QtCreator)
+-------------------------------------------------------------------------------
+
+You can setup the Sailfish IDE for working on the UI part. Create a basic `pro`
+file and open it as new project in QtCreator:
+
+.. code::
+    harbour-whisperfish.pro:
+    TARGET = harbour-whisperfish
+    CONFIG += sailfishapp_qml
+
+You will be asked to configure "kits". Select only the ARM one and deselect all
+build configs except for "debug". (It doesn't matter which, just keep only one.)
+Select "project" in the sidebar, choose "build" and click the tiny crossed
+circles for all build steps to disable them. This makes sure you don't
+accidentally start the build engine (which you don't need).
+
+All QML and JS files will be picked up automatically. Rust files etc. won't show
+up, but there are better tools for that anyways.
+
+Then select the "execution" configuration. Disable the "Rsync: Deploys with rsync."
+step but keep the "Prepare Target" step. Click "add" below "execution" and
+choose "custom executable". Enter in the "executable" field:
+
+.. code::
+    path/to/whisperfish/live-patch.sh
+
+Set `-w -B` as command line arguments. This enables watching for changes
+(deploying and restarting as needed) and disables automatically rebuilding the
+app. (Use `-b` to enable building.)
+
+Now you can click on "run" (or press Ctrl+R) to start the live runner. All log
+output will be in the "program output" pane (Alt+3). QML errors will become
+clickable links to the respective files.
