@@ -199,7 +199,7 @@
     <message id="whisperfish-choose-country-code">
         <source>Choose Country Code</source>
         <extracomment>Directions for choosing country code</extracomment>
-        <translation>选择国家代码</translation>
+        <translation type="vanished">选择国家代码</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
