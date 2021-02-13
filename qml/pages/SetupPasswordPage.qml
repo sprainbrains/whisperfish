@@ -91,7 +91,7 @@ BlockingInfoPageBase {
             validator: RegExpValidator { regExp: /|.{6,}/ }
             label: (text === '' || _canAccept) ?
                        //: repeated password input label
-                       //% "Repeated password"
+                       //% "Repeat the password"
                        qsTrId("whisperfish-password-repeated-label") :
                        ((password1Field.text === password2Field.text && errorHighlight) ?
                             /* = passwords match but validator complained */
