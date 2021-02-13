@@ -3,7 +3,6 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 //import Nemo.Thumbnailer 1.0
-import "../js/emoji.js" as Emoji
 import "../components"
 
 MessageDelegateBase {
@@ -80,29 +79,8 @@ MessageDelegateBase {
 
     TextMetrics {
         id: metrics
-        text: linkedTextProxy.plainText
+        text: messageLabel.plainText
         font: messageLabel.font
-    }
-
-    LinkedLabel {
-        id: linkedTextProxy
-        visible: false
-        states: [
-            State {
-                name: "default"; when: !_expanded
-                PropertyChanges {
-                    target: linkedTextProxy
-                    plainText: messageText.substr(0, shortenThreshold) + (canExpand ? ' ...' : '')
-                }
-            },
-            State {
-                name: "expanded"; when: _expanded
-                PropertyChanges {
-                    target: linkedTextProxy
-                    plainText: messageText
-                }
-            }
-        ]
     }
 
     Column {
@@ -137,13 +115,8 @@ MessageDelegateBase {
             }
         }
 
-        Label {
-            // TODO We may have to replace LinkedLabel with a custom
-            // implementation to be able to use custom icons for emojis.
+        LinkedEmojiLabel {
             id: messageLabel
-            textFormat: Text.StyledText
-            text: Emoji.parse(linkedTextProxy.text, 1.5*font.pixelSize, Emoji.Openmoji)
-            // text: Emoji.parse(linkedTextProxy.text, 1.5*font.pixelSize, Emoji.Openmoji)
             wrapMode: Text.Wrap
             anchors { left: parent.left; right: parent.right }
             horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
@@ -157,6 +130,22 @@ MessageDelegateBase {
             linkColor: highlighted ? Theme.secondaryHighlightColor :
                                      Theme.secondaryColor
             font.pixelSize: Theme.fontSizeSmall // TODO make configurable
+            states: [
+                State {
+                    name: "default"; when: !_expanded
+                    PropertyChanges {
+                        target: messageLabel
+                        plainText: messageText.substr(0, shortenThreshold) + (canExpand ? ' ...' : '')
+                    }
+                },
+                State {
+                    name: "expanded"; when: _expanded
+                    PropertyChanges {
+                        target: messageLabel
+                        plainText: messageText
+                    }
+                }
+            ]
         }
 
         Row {

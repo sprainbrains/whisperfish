@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "../components"
 
@@ -120,25 +120,24 @@ ListItem {
                       name
         }
 
-        Label {
+        LinkedEmojiLabel {
             id: lowerLabel
             anchors {
                 left: upperLabel.left; right: unreadBackground.left
                 top: upperLabel.bottom; bottom: parent.bottom
             }
-            maximumLineCount: 2
-            wrapMode: Text.Wrap
+            wrapMode: Text.WrapAnywhere
+            enableElide: Text.ElideRight
             color: highlighted ? Theme.secondaryHighlightColor :
                                  Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
-            text: hasDraft ?
+            plainText: hasDraft ?
                       //: Message preview for a saved, unsent message
                       //% "Draft: %1"
                       qsTrId("whisperfish-message-preview-draft").arg(draft) :
                       message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
-            elide: Text.ElideRight
         }
 
         Row {
