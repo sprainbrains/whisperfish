@@ -72,5 +72,5 @@ systemctl-user disable harbour-whisperfish.service || true
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 #[{{ NOT HARBOUR
-%{_libdir}/systemd/user/%{name}.service
+%{_exec_prefix}/lib/systemd/user/%{name}.service
 #}}]
