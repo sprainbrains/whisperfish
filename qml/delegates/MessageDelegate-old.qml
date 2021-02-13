@@ -40,6 +40,9 @@ ListItem {
 
     property QtObject modelData
     property bool inbound: modelData.outgoing ? false : true
+    property bool outbound: !inbound
+    property var contact: inbound ? resolvePeopleModel.personByPhoneNumber(modelData.source) : null
+    property var contactName: contact ? contact.displayLabel : modelData.source
     property bool hasText: modelData.message != null
 
     RoundedRect {
@@ -176,7 +179,7 @@ ListItem {
                        re += "  x"
                    }
                    if(inbound && MessageModel.group) {
-                       re += " | " + ContactModel.name(modelData.source)
+                       re += " | " + contactName
                    }
                    if (SettingsBridge.boolValue("debug_mode")) {
                        re += "\n[" + modelData.id + "]"
