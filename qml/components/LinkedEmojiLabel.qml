@@ -35,7 +35,8 @@ Label {
     id: root
     property string plainText
     property real emojiSizeMult: 1.5
-    property bool enableEmojis: true
+    property bool enableEmojis: false // TODO enable once a fallback mechanism for
+                                      // missing emojis is implemented
     property alias enableElide: elideFixProxy.elide // cf. comments above
     property bool defaultLinkActions: true
     property alias shortenUrl: linkedTextProxy.shortenUrl
