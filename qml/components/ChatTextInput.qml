@@ -101,7 +101,8 @@ Item {
             placeholderText: enablePersonalizedPlaceholder && placeholderContactName.length ?
                                  //: Personalized placeholder for chat input, e.g. "Hi John"
                                  //% "Hi %1"
-                                 qsTrId("whisperfish-chat-input-placeholder-personal").arg(contactName) :
+                                 qsTrId("whisperfish-chat-input-placeholder-personal").arg(
+                                     placeholderContactName) :
                                  //: Generic placeholder for chat input
                                  //% "Message"
                                  qsTrId("whisperfish-chat-input-placeholder-default")
