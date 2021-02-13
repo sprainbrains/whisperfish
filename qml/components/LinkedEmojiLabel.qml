@@ -41,7 +41,7 @@ Label {
     property alias shortenUrl: linkedTextProxy.shortenUrl
     property alias proxy: linkedTextProxy
 
-    readonly property var emojiStyle: Emoji.Whatsapp // TODO Make emoji style configurable
+    readonly property var emojiStyle: Emoji.Openmoji // TODO Make emoji style configurable
     readonly property real _effectiveEmojiSize: _elideEnabled ?
                                                     1.0*font.pixelSize :
                                                     emojiSizeMult*font.pixelSize
