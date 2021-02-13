@@ -92,7 +92,7 @@ Page {
                     width: parent.width
                     text: mainDescription
                     color: Theme.secondaryHighlightColor
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.Wrap
                     // font.pixelSize: Theme.fontSizeMedium
                     font {
                         pixelSize: Theme.fontSizeLarge
@@ -116,7 +116,7 @@ Page {
             Label {
                 width: parent.width - 2*Theme.horizontalPageMargin
                 anchors.horizontalCenter: parent.horizontalCenter
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 font.pixelSize: squashDetails ? Theme.fontSizeSmall :
                                                 Theme.fontSizeMedium
                 color: Theme.secondaryHighlightColor
