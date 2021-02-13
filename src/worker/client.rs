@@ -306,7 +306,8 @@ impl ClientActor {
                         } else {
                             Some(ContactDetails {
                                 number: Some(session.source.clone()),
-                                name: crate::model::contact::name_from_phone_number(&session.source),
+                                // XXX
+                                name: None,
                                 ..Default::default()
                             })
                         }
