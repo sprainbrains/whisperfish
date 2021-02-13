@@ -44,9 +44,12 @@
 // is limited, and we cannot ship copyrighted emoji sets e.g. from Emojipedia.
 // TODO: We need an entry in the settings page to configure the emoji style.
 // TODO: Raster images have to be available in different size, and we have to figure
-// out how to select the correct size. (Qt doesn't scale them.)
+// out how to select the correct size. (Qt doesn't scale them up.)
 // TODO: handle missing icons/characters instead of showing an empty space
 // TODO: Is there a way to include official Signal emojis?
+// TODO: check if selected emoji set is installed (implement in rust; until then
+// we could try to open a file through a HTTP request and cache the result)
+var emojiBaseDirectory = Qt.resolvedUrl('../../icons/emojis') // TODO move below $HOME
 var Openmoji = { 'dir': 'openmoji/13.0.0', 'ext': '.svg' } // CC-BY-SA 4.0
 var Twemoji = { 'dir': 'twemoji/13.0.1', 'ext': '.svg' }   // CC-BY-SA 4.0
 var Whatsapp = { 'dir': 'whatsapp/2.20.206.24', 'ext': '.png' } // proprietary
@@ -151,7 +154,7 @@ function toCodePoint(unicodeSurrogates, sep) {
 function parse(what, size, style) {
   return parseString(what, {
     callback:   function(icon, options){ return ''.concat(options.base, '/', options.dir, '/', icon, options.ext) },
-    base:       Qt.resolvedUrl('../../icons/emojis'),
+    base:       emojiBaseDirectory,
     size:       Math.round(1.15*size),
     dir:        style.dir,
     ext:        style.ext,
