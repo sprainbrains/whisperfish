@@ -9,7 +9,7 @@ ListItem {
                               Format.formatDate(model.timestamp, Formatter.DateMedium) :
                               Format.formatDate(model.timestamp, Formatter.TimeValue)
     property bool isGroup: model.isGroup
-    property var contact: isGroup ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
+    property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: model.unread // TODO investigate: is this really a bool?
     property bool isNoteToSelf: false // TODO implement in model (#138), e.g. SettingsBridge.stringValue("tel") === model.source

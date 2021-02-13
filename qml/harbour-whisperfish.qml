@@ -20,6 +20,8 @@ ApplicationWindow
     // methods (showMainPage() etc.)
     property bool fatalOccurred: false
 
+    property alias contactsReady: resolvePeopleModel.populated
+
     PeopleModel {
         id: resolvePeopleModel
 
