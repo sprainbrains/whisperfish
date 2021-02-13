@@ -127,7 +127,7 @@ ListItem {
                 top: upperLabel.bottom; bottom: parent.bottom
             }
             maximumLineCount: 2
-            wrapMode: Text.WordWrap
+            wrapMode: Text.Wrap
             color: highlighted ? Theme.secondaryHighlightColor :
                                  Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
