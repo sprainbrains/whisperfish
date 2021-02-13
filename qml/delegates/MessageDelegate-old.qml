@@ -40,7 +40,7 @@ ListItem {
 
     property QtObject modelData
     property bool inbound: modelData.outgoing ? false : true
-    property bool hasText
+    property bool hasText: modelData.message != null
 
     RoundedRect {
         id: bubble
@@ -121,13 +121,9 @@ ListItem {
                 wrapMode: Text.Wrap
 
                 plainText: {
-                    if (modelData.message != "") {
-                        hasText = true
-                        return modelData.message
-                    } else {
-                        hasText = false
-                        return ""
-                    }
+                    hasText ?
+                        modelData.message :
+                        ""
                 }
 
                 color: (messageItem.highlighted || !inbound) ? Theme.highlightColor : Theme.primaryColor
