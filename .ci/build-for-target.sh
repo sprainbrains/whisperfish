@@ -29,6 +29,7 @@ export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TAR
 
 # https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md
 export PKG_CONFIG_SYSROOT_DIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/"
+export PKG_CONFIG_PATH="$PKG_CONFIG_SYSROOT_DIR/usr/lib/pkgconfig"
 
 rustc --version
 cargo --version
