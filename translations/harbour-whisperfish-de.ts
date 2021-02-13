@@ -514,7 +514,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>Repeat the password</source>
         <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Passwort wiederholen</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>
