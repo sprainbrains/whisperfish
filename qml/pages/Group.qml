@@ -68,15 +68,21 @@ Page {
                 readOnly: true
                 width: parent.width
                 text: {
+                    // XXX code duplication with Conversation.qml
                     // Attempt to display group member names
-                    var members = []
-                    var lst = MessageModel.groupMembers.split(",")
+                    var members = [];
+                    var lst = MessageModel.groupMembers.split(",");
                     for(var i = 0; i < lst.length; i++) {
                         if(lst[i] != SetupWorker.localId) {
-                            members.push(ContactModel.name(lst[i]))
+                            var member = resolvePeopleModel.personByPhoneNumber(lst[i], true);
+                            if (!member) {
+                                members.push(lst[i]);
+                            } else {
+                                members.push(member.displayLabel);
+                            }
                         }
                     }
-                    return members.join(", ")
+                    return members.join(", ");
                 }
             }
         }

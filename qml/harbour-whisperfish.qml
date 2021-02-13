@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
+import org.nemomobile.contacts 1.0
 import "pages"
 
 ApplicationWindow
@@ -19,6 +20,17 @@ ApplicationWindow
     // methods (showMainPage() etc.)
     property bool fatalOccurred: false
 
+    PeopleModel {
+        id: resolvePeopleModel
+
+        // Specify the PhoneNumberRequired flag to ensure that all phone number
+        // data will be loaded before the model emits populated.
+        // This ensures that we resolve numbers to contacts appropriately, in
+        // the case where we attempt to message a newly-created contact via
+        // the action shortcut icon in the contact card.
+        requiredProperty: PeopleModel.PhoneNumberRequired
+    }
+
     Component {
         id: messageNotification
         Notification {}
@@ -30,7 +42,10 @@ ApplicationWindow
         MessageModel.load(sid, name)
     }
 
-    function newMessageNotification(sid, name, source, message, isGroup) {
+    function newMessageNotification(sid, source, message, isGroup) {
+        var contact = resolvePeopleModel.personByPhoneNumber(source);
+        var name = contact ? contact.displayLabel : source;
+
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
@@ -96,7 +111,7 @@ ApplicationWindow
             }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, ContactModel.name(source), source, message, isGroup)
+            newMessageNotification(sid, source, message, isGroup)
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {

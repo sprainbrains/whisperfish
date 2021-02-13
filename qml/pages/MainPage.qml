@@ -136,7 +136,8 @@ Page {
                 if (model.unread) {
                     SessionModel.markRead(model.id)
                 }
-                MessageModel.load(model.id, ContactModel.name(model.source))
+                var contact = resolvePeopleModel.personByPhoneNumber(model.source);
+                MessageModel.load(model.id, contact ? contact.displayLabel : model.source)
             }
         }
     }
