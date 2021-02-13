@@ -31,7 +31,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="137"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation>Koncept: %1</translation>
+        <translation>Návrh: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="255"/>
@@ -248,13 +248,13 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation>Propojeno: %1</translation>
+        <translation>Připojeno: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="98"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation>Poslední aktivní: %1</translation>
+        <translation>Naposledy aktivní: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="118"/>
@@ -321,13 +321,13 @@
         <location filename="../qml/pages/MainPage.qml" line="89"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
-        <translation>Žádné zprávy</translation>
+        <translation>Vyžadována registrace</translation>
     </message>
     <message id="whisperfish-locked-message">
         <location filename="../qml/pages/MainPage.qml" line="93"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
-        <translation>Zamčené</translation>
+        <translation>Uzamčeno</translation>
     </message>
     <message id="whisperfish-group-label">
         <location filename="../qml/pages/MessagesView.qml" line="89"/>
@@ -339,7 +339,7 @@
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Mazání</translation>
+        <translation>Probíhá mazání</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
@@ -363,13 +363,13 @@
         <location filename="../qml/pages/MessagesView.qml" line="148"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
-        <translation>Vymazat</translation>
+        <translation>Odstranit</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="154"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
-        <translation>Přeposlat</translation>
+        <translation>Znovu odeslat</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="18"/>
@@ -459,7 +459,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewGroup.qml" line="100"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation type="unfinished">Vyberte členy skupiny</translation>
+        <translation>Vyberte členy skupiny</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
         <location filename="../qml/pages/NewMessage.qml" line="164"/>
@@ -501,7 +501,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/UnlockPage.qml" line="73"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
-        <translation type="unfinished">Heslo</translation>
+        <translation>Heslo</translation>
     </message>
     <message id="whisperfish-new-password-placeholder">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="77"/>
@@ -514,7 +514,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>Repeat the password</source>
         <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
-        <translation type="unfinished">Opakované heslo</translation>
+        <translation>Zopakujte heslo</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>
@@ -570,7 +570,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>Your password</source>
         <oldsource>Password</oldsource>
         <extracomment>password placeholder</extracomment>
-        <translation type="unfinished">Heslo</translation>
+        <translation>Vaše heslo</translation>
     </message>
     <message id="whisperfish-unlock-button-label">
         <location filename="../qml/pages/UnlockPage.qml" line="85"/>
@@ -720,7 +720,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation type="unfinished">Upozornění: Identita %1 již není důvěryhodná. Klepnutím na Potvrdit obnovíte identitu partnera.</translation>
+        <translation>Upozornění: %1 identita již není důvěryhodná. Klepnutím na Potvrdit obnovíte identitu partnera.</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="24"/>
@@ -745,7 +745,7 @@ Settings page share contacts</extracomment>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished">Nastavení Whisperfish</translation>
+        <translation>Nastavení</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="65"/>
@@ -844,7 +844,7 @@ Settings page share contacts</extracomment>
         <source>Return key send</source>
         <oldsource>EnterKey Send</oldsource>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation type="unfinished">Odeslat na zpětný klíč</translation>
+        <translation>Odeslat na zpětný klíč</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send-description">
         <location filename="../qml/pages/Settings.qml" line="227"/>
@@ -1081,7 +1081,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="10"/>
         <source>Verify</source>
         <extracomment>verify registration page title</extracomment>
-        <translation type="unfinished">Ověřit</translation>
+        <translation>Ověřit</translation>
     </message>
     <message id="whisperfish-verify-code-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
@@ -1117,7 +1117,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="87"/>
         <source>Code</source>
         <extracomment>verification code input placeholder</extracomment>
-        <translation type="unfinished">Kód</translation>
+        <translation>Kód</translation>
     </message>
 </context>
 </TS>
