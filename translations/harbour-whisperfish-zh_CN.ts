@@ -58,9 +58,10 @@
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="126"/>
-        <source>Failed to setup datastore</source>
+        <source>Failed to setup data storage</source>
+        <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation>设置数据存储失败</translation>
+        <translation type="unfinished">设置数据存储失败</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -510,9 +511,10 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-password-repeated-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="95"/>
-        <source>Repeated password</source>
+        <source>Repeat the password</source>
+        <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
-        <translation>请重复输入密码</translation>
+        <translation type="unfinished">请重复输入密码</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>

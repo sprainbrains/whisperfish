@@ -58,7 +58,8 @@
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="126"/>
-        <source>Failed to setup datastore</source>
+        <source>Failed to setup data storage</source>
+        <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -532,7 +533,8 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-password-repeated-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="95"/>
-        <source>Repeated password</source>
+        <source>Repeat the password</source>
+        <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
         <translation type="unfinished"></translation>
     </message>
