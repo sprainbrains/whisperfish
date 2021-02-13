@@ -122,7 +122,7 @@ ApplicationWindow
         }
         onInvalidDatastore: {
             //: Failed to setup datastore error message
-            //% "Failed to setup datastore"
+            //% "Failed to setup data storage"
             showFatalError(qsTrId("whisperfish-fatal-error-invalid-datastore"))
         }
     }
