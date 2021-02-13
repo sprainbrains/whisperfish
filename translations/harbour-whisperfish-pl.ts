@@ -67,7 +67,7 @@
         <location filename="../qml/pages/MainPage.qml" line="111"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
-        <translation>Dziś</translation>
+        <translation>Dzisiaj</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../qml/pages/MainPage.qml" line="116"/>
@@ -103,7 +103,7 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>ID wersji: %1</translation>
+        <translation>ID kompilacji: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
@@ -375,7 +375,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="18"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation>Resetuj Bezpieczną Sesję</translation>
+        <translation>Resetuj bezpieczną sesję</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="23"/>
