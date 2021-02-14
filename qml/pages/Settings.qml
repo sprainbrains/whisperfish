@@ -246,7 +246,7 @@ Page {
                     text: qsTrId("whisperfish-settings-enable-autostart")
                     //: Settings page enable autostart description
                     //% "When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background."
-                    description: qsTrId("whisperfish-settings-enable-background-mode-description")
+                    description: qsTrId("whisperfish-settings-enable-autostart-description")
                     checked: AppState.isAutostartEnabled()
                     icon.source: "image://theme/icon-m-toy"
                     onCheckedChanged: {
