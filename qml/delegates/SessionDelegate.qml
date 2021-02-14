@@ -127,6 +127,7 @@ ListItem {
                 top: upperLabel.bottom; bottom: parent.bottom
             }
             wrapMode: Text.WrapAnywhere
+            maximumLineCount: 2
             enableElide: Text.ElideRight
             color: highlighted ? Theme.secondaryHighlightColor :
                                  Theme.secondaryColor

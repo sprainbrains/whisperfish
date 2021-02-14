@@ -17,8 +17,12 @@ import "../js/emoji.js" as Emoji
   Eliding rich text is not properly supported by Qt. Therefore, the \c elide
   and \c truncationMode properties are disabled. To enable a (costly)
   workaround, set \c enableElide to \c Text.Elide... Make sure both width and
-  height are specified either explicitly or through anchors. \c maximumLineCount
-  is supported but is not enough.
+  height are specified either explicitly or through anchors.
+
+  Sometimes eliding still fails to happen at the right position, especially
+  if many emojis are involved. Set \c maximumLineCount to make sure the text
+  is truncated and does not overflow the label, even though this may strip
+  the ellipsis ('...').
 
   If eliding is enabled, the wrap mode must be \c Text.WrapAnywhere.
 
