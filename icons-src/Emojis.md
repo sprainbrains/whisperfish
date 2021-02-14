@@ -1,10 +1,28 @@
 # Emojis
 
+## Tl;dr
+
+Whisperfish supports different emoji styles. Download a set and extract it to:
+
+    `~/.local/share/harbour-whisperfish/emojis`
+
+Sets supported by default:
+
+- OpenMoji:
+    - download https://github.com/hfg-gmuend/openmoji/releases/download/13.0.0/openmoji-svg-color.zip
+    - extract it to `~/.local/share/harbour-whisperfish/emojis/openmoji/13.0.0`
+    - run `for i in *.svg; do mv "$i" "${i,,}"; done` (in `bash`) to convert all names to lower case
+- Twemoji:
+    - download https://github.com/twitter/twemoji/archive/v13.0.1.tar.gz
+    - extract `assets/svg/` to `~/.local/share/harbour-whisperfish/emojis/twemoji/13.0.1`
+- Whatsapp: you have to fetch PNG files in multiple resolutions from Emojipedia
+  (see below for details)
+
+## Details
+
 Whisperfish supports different emoji styles. They have to be installed in:
 
-    <app data>/icons/emojis/<style>/<version>/
-
-Loading emojis from `~/.local/share/...` is not yet supported.
+    `~/.local/share/harbour-whisperfish/emojis`
 
 Currently, all styles have to be registered in `qml/js/emoji.js`. This can be
 simplified in the future.
@@ -18,7 +36,7 @@ version with and without the selector.
 Raster emojis must be available in the sizes 72x72px and 144x144px.
 
 
-## OpenMoji
+### OpenMoji
 
 - source: https://github.com/hfg-gmuend/openmoji/releases/tag/13.0.0
           https://github.com/hfg-gmuend/openmoji/releases/download/13.0.0/openmoji-svg-color.zip
@@ -35,7 +53,7 @@ all file names to lower case (requires `bash`):
     for i in *.svg; do mv "$i" "${i,,}"; done
 
 
-## Twitter
+### Twitter
 
 - source: https://github.com/twitter/twemoji/releases/tag/v13.0.1
           https://github.com/twitter/twemoji/archive/v13.0.1.tar.gz
@@ -46,7 +64,7 @@ all file names to lower case (requires `bash`):
 **Installation:** extract `assets/svg/` from the release ball to `twemoji/13.0.1`
 
 
-## Emojipedia
+### Emojipedia
 
 Emojipedia provides all emojis in many different proprietary styles. The
 example below uses "Whatsapp" but should work for all styles.
