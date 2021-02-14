@@ -240,8 +240,6 @@ pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
     let ci_job_url = ci_job_url.map(Into::into).unwrap_or(false.into());
     app.set_property("CiJobUrl".into(), ci_job_url);
 
-    whisperfish.contact_model.pinned().borrow_mut().refresh();
-
     app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
     app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
     app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());

@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import org.nemomobile.contacts 1.0
 import "../components"
 
 ListItem {
@@ -8,6 +9,7 @@ ListItem {
                               Format.formatDate(model.timestamp, Formatter.DateMedium) :
                               Format.formatDate(model.timestamp, Formatter.TimeValue)
     property bool isGroup: model.isGroup
+    property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: model.unread // TODO investigate: is this really a bool?
     property bool isNoteToSelf: false // TODO implement in model (#138), e.g. SettingsBridge.stringValue("tel") === model.source
@@ -19,7 +21,7 @@ ListItem {
     property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
-    property string name: model.isGroup ? model.groupName : ContactModel.name(model.source)
+    property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
     property string message: {
         var re = (_debugMode ? "[" + model.id + "] " : "")
         if (model.message !== '') {
@@ -94,7 +96,7 @@ ListItem {
             }
             onPressAndHold: delegate.openMenu()
             onClicked: {
-                MessageModel.load(model.id, ContactModel.name(model.source))
+                MessageModel.load(model.id, contact.displayName)
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/Group.qml"))
                 } else {

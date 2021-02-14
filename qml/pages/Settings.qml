@@ -35,15 +35,6 @@ Page {
                     ClientWorker.reconnect()
                 }
             }
-            MenuItem {
-                //: Refresh contacts menu
-                //% "Refresh Contacts"
-                text: qsTrId("whisperfish-settings-refresh-contacts-menu")
-                onClicked: {
-                    ContactModel.refresh()
-                    SessionModel.reload()
-                }
-            }
         }
 
         VerticalScrollDecorator {}
