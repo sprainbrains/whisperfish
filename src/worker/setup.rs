@@ -146,7 +146,6 @@ impl SetupWorker {
                 server: None,
                 root_ca: None,
                 proxy_server: None,
-                verification_type: "voice".into(),
                 storage_dir: "".into(),
                 storage_password: "".into(),
                 log_level: "debug".into(),

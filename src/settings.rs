@@ -15,8 +15,6 @@ pub struct SignalConfig {
     #[serde(rename = "proxy")]
     /// HTTP Proxy URL if one is being used
     pub proxy_server: Option<String>,
-    /// Code verification method during registration (SMS/VOICE/DEV)
-    pub verification_type: String,
     /// Directory for the persistent storage
     pub storage_dir: String,
     /// Password to the storage
