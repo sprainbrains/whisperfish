@@ -16,19 +16,22 @@ Item {
     property alias textPlaceholder: input.placeholderText
     property alias editor: input
 
-    property var quotedMessageData: null
-    property int quotedMessageIndex: -1
-
     // A personalized placeholder should only be shown when starting a new 1:1 chat.
     property bool enablePersonalizedPlaceholder: false
     property string placeholderContactName: ''
     property int maxHeight: 3*Theme.itemSizeLarge // TODO adapt based on screen size
     property bool showSeparator: false
     property bool clearAfterSend: true
+    property bool enableSending: true
+
+    readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
+    readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
     readonly property bool canSend: enableSending &&
                                     (text.trim().length > 0 ||
                                      attachments.length > 0)
-    property bool enableSending: true
+
+    property var _quotedMessageData: null
+    property int _quotedMessageIndex: -1
 
     signal sendMessage(var text, var attachments, var replyTo)
     signal quotedMessageClicked(var index, var modelData)
@@ -46,8 +49,8 @@ Item {
     }
 
     function setQuote(index, modelData) {
-        quotedMessageIndex = index
-        quotedMessageData = {
+        _quotedMessageIndex = index
+        _quotedMessageData = {
             message: modelData.message,
             source: modelData.source,
             outgoing: modelData.outgoing,
@@ -55,8 +58,8 @@ Item {
     }
 
     function resetQuote() {
-        quotedMessageIndex = -1
-        quotedMessageData = null
+        _quotedMessageIndex = -1
+        _quotedMessageData = null
     }
 
     function forceEditorFocus(/*bool*/ atEnd) {
