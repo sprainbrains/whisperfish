@@ -153,7 +153,7 @@ Item {
                         width: Theme.iconSizeSmall
                         height: width
                         source: "image://theme/icon-s-clear-opaque-cross"
-                        highlighted: closeButtonArea.pressed
+                        highlighted: closeButtonArea.pressed || quoteItem.down
 
                         MouseArea {
                             id: closeButtonArea
