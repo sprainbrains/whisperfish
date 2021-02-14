@@ -85,8 +85,8 @@ Page {
             else if (verticalVelocity > 0) panel.show()
         }
         onReplyTriggered: {
-            // TODO textInput.replyToMessage(index, modelData)
-            textInput.text = '> '+modelData.message.replace(/\n/g, '\n> ')+'\n'
+            panel.show()
+            textInput.setQuote(index, modelData)
             textInput.forceEditorFocus(true)
         }
     }
@@ -121,6 +121,9 @@ Page {
             showSeparator: !messages.atYEnd
             editor.onFocusChanged: if (editor.focus) panel.show()
 
+            onQuotedMessageClicked: {
+                messages.positionViewAtIndex(quotedMessageIndex, ListView.End)
+            }
             onSendMessage: {
                 // TODO This should be handled completely in the backend.
                 // TODO Support multiple attachments in the backend.
