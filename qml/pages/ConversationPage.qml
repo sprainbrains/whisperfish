@@ -118,7 +118,7 @@ Page {
             enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
             placeholderContactName: MessageModel.peerName
             editor.focus: root.editorFocus
-            showSeparator: !messages.atYEnd
+            showSeparator: !messages.atYEnd || quotedMessageShown
             editor.onFocusChanged: if (editor.focus) panel.show()
 
             onQuotedMessageClicked: {

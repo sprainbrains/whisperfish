@@ -26,6 +26,7 @@ Item {
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
+    readonly property bool quotedMessageShown: quotedMessageData !== null
     readonly property bool canSend: enableSending &&
                                     (text.trim().length > 0 ||
                                      attachments.length > 0)
