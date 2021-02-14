@@ -16,9 +16,7 @@ Item {
     property alias textPlaceholder: input.placeholderText
     property alias editor: input
 
-    // TODO The list model automatically unloads unused delegates. If we save a reference
-    // to the real list item's data, the reply info vanishes if the user scrolls too far.
-    property QtObject quotedMessageData: null
+    property var quotedMessageData: null
     property int quotedMessageIndex: -1
 
     // A personalized placeholder should only be shown when starting a new 1:1 chat.
@@ -49,7 +47,11 @@ Item {
 
     function setQuote(index, modelData) {
         quotedMessageIndex = index
-        quotedMessageData = modelData
+        quotedMessageData = {
+            message: modelData.message,
+            source: modelData.source,
+            outgoing: modelData.outgoing,
+        }
     }
 
     function resetQuote() {
