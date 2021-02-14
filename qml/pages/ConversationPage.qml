@@ -58,15 +58,10 @@ Page {
     // (because it is inverted). A OpacityRampEffect hides the message
     // view's contents below the header when it is shown. This is
     // necessary because \c{clip: true} does not clip the view below
-    // the header.
+    // the header, and a DockedPanel parented to the main window does not.
+    // follow the page orientation.
     // The real input field is defined outside the view, thus it is not
-    // affected by the transparency effect. It is anchored at the bottom
-    // of the page, with its bottom margin bound to the list view header's
-    // position.
-    //
-    // Note: to make the input field always visible (sticky), simply
-    // set \c{messageView.anchors.bottom = inputField.anchors.top}.
-    // Then remove the fake header item and the opacity ramp effect.
+    // affected by the transparency effect.
 
     MessagesView {
         id: messages
@@ -74,17 +69,21 @@ Page {
         height: parent.height - pageHeader.height
         contentHeight: height
         anchors {
-            top: pageHeader.bottom;
+            top: pageHeader.bottom; bottom: root.bottom
             left: parent.left; right: parent.right
         }
         model: MessageModel
         clip: true // to prevent the view from flowing through the page header
-        headerPositioning: ListView.PullBackHeader
-        header: Item {
-            width: messages.width
-            height: headerArea.height
-        }
+        headerPositioning: ListView.InlineHeader
+        header: Item { height: panel.height; width: messages.width }
 
+        onAtYEndChanged: panel.show()
+        onMenuOpenChanged: panel.open = !messages.menuOpen
+        onVerticalVelocityChanged: {
+            if (panel.moving) return
+            else if (verticalVelocity < 0) panel.hide()
+            else if (verticalVelocity > 0) panel.show()
+        }
         onReplyTriggered: {
             // TODO textInput.replyToMessage(index, modelData)
             textInput.text = '> '+modelData.message.replace(/\n/g, '\n> ')+'\n'
@@ -95,29 +94,20 @@ Page {
     OpacityRampEffect {
         sourceItem: messages
         direction: OpacityRamp.TopToBottom
-        slope: messages.height
-        offset: 1-((root.height-headerArea.y)/messages.height)
-        enabled: headerArea.y < root.height &&
-                 !messages.quickScrollAnimating &&
-                 !messages.menuOpen
+        slope: sourceItem.height
+        offset: 1-(panel.visibleSize/sourceItem.height)
+        enabled: !sourceItem.quickScrollAnimating &&
+                 !sourceItem.menuOpen
     }
 
-    Item {
-        id: headerArea
+    DockedPanel {
+        id: panel
+        background: null // transparent
+        opacity: (messages.menuOpen || messages.quickScrollAnimating) ? 0.0 : 1.0
         width: parent.width
         height: textInput.height
-        opacity: messages.menuOpen ? 0.0 : 1.0
-        anchors {
-            bottom: parent.bottom
-            bottomMargin: messages.quickScrollAnimating ?
-                              -height :
-                              (textInput.inputFieldFocused ?
-                                   0 :
-                                   parent.height - height -
-                                   messages.contentItem.y -
-                                   messages.headerItem.y -
-                                   pageHeader.height)
-        }
+        open: true
+        dock: Dock.Bottom
 
         Behavior on opacity { FadeAnimator { duration: 100 } }
 
