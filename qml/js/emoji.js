@@ -43,16 +43,16 @@
 // their preferred emoji sets to a directory below $HOME. Space in the root partition
 // is limited, and we cannot ship copyrighted emoji sets e.g. from Emojipedia.
 // TODO: We need an entry in the settings page to configure the emoji style.
-// TODO: Raster images have to be available in different size, and we have to figure
-// out how to select the correct size. (Qt doesn't scale them up.)
 // TODO: handle missing icons/characters instead of showing an empty space
 // TODO: Is there a way to include official Signal emojis?
 // TODO: check if selected emoji set is installed (implement in rust; until then
 // we could try to open a file through a HTTP request and cache the result)
+var Vector = 'V', Raster = 'R' // emoji source type
+var rasterSizes = [144, 72] // possible: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
 var emojiBaseDirectory = Qt.resolvedUrl('../../icons/emojis') // TODO move below $HOME
-var Openmoji = { 'dir': 'openmoji/13.0.0', 'ext': '.svg' } // CC-BY-SA 4.0
-var Twemoji = { 'dir': 'twemoji/13.0.1', 'ext': '.svg' }   // CC-BY-SA 4.0
-var Whatsapp = { 'dir': 'whatsapp/2.20.206.24', 'ext': '.png' } // proprietary
+var Openmoji = { dir: 'openmoji/13.0.0', ext: '.svg', type: Vector } // CC-BY-SA 4.0
+var Twemoji = { dir: 'twemoji/13.0.1', ext: '.svg', type: Vector }   // CC-BY-SA 4.0
+var Whatsapp = { dir: 'whatsapp/2.20.206.24', ext: '.png', type: Raster } // proprietary
 
 // +++ WF: added 'var', removed comma
 // RegExp based on emoji's official Unicode standards
@@ -157,10 +157,39 @@ function toCodePoint(unicodeSurrogates, sep) {
 
 // +++ WF: Adapted from the original parse(what, how) function.
 function parse(what, size, style) {
+  var effectiveSize = Math.round(1.15*size)
+  var sourceSize = -1
+
+  if (style.type === Raster) {
+    // We have to choose the best source resolution for raster emojis.
+    // Qt only supports downscaling of inline images, so we select the
+    // nearest resolution above the desired size.
+
+    // Reset the desired size to the largest available size.
+    if (effectiveSize > rasterSizes[0]) effectiveSize = rasterSizes[0]
+
+    for (var i in rasterSizes) {
+      // Select the new size if it is >= the desired size.
+      if (rasterSizes[i] >= effectiveSize) sourceSize = rasterSizes[i]
+    }
+
+    // Reset the source size to the smallest available size if none was found.
+    // Reset the effective size if the fallback resolution too small.
+    if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
+    if (effectiveSize > sourceSize) effectiveSize = sourceSize
+  }
+
   return parseString(what, {
-    callback:   function(icon, options){ return ''.concat(options.base, '/', options.dir, '/', icon, options.ext) },
+    callback: function(icon, options) {
+      if (style.type === Raster) {
+        // Raster emojis are saved by resolution.
+        return ''.concat(options.base, '/', options.dir, '/', sourceSize, '/', icon, options.ext)
+      } else {
+        return ''.concat(options.base, '/', options.dir, '/', icon, options.ext)
+      }
+    },
     base:       emojiBaseDirectory,
-    size:       Math.round(1.15*size),
+    size:       effectiveSize,
     dir:        style.dir,
     ext:        style.ext,
   });
