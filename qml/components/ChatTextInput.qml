@@ -143,16 +143,25 @@ Item {
                                        '#'+Qt.md5(quotedMessageData.source).substr(0, 6)+'0F') :
                                Theme.secondaryHighlightColor
 
-                    IconButton {
-                        id: closeReplyButton
+                    HighlightImage {
+                        // HighlightImage with separate MouseArea instead of IconButton
+                        // because the clickable area should be bigger and better placed.
                         anchors {
                             verticalCenter: parent.verticalCenter
                             right: parent.right
                         }
-                        width: 1.5*Theme.iconSizeSmall
+                        width: Theme.iconSizeSmall
                         height: width
-                        icon.source: "image://theme/icon-s-clear-opaque-cross"
-                        onClicked: resetQuote()
+                        source: "image://theme/icon-s-clear-opaque-cross"
+                        highlighted: closeButtonArea.pressed
+
+                        MouseArea {
+                            id: closeButtonArea
+                            anchors.centerIn: parent
+                            width: 3*Theme.iconSizeSmall
+                            height: width
+                            onClicked: resetQuote()
+                        }
                     }
                 }
 
