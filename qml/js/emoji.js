@@ -105,7 +105,8 @@ function grabTheRightIcon(rawText) {
  *
  */
 function parseString(str, options) {
-  return replace(str, function (rawText) {
+  var emojiCount = 0, plainCount = 0; // +++ WF: added
+  var ret = replace(str, function (rawText) { // +++ WF: don't return immediately
     var
       ret = rawText,
       iconId = grabTheRightIcon(rawText),
@@ -123,10 +124,13 @@ function parseString(str, options) {
         options.size,
         '"/>'
       );
+      emojiCount++; // +++ WF: added
       // +++ WF: Removed extra attributes handling
     }
+    plainCount++; // +++ WF: added
     return ret;
   });
+  return {'emojiCount': emojiCount, 'plainCount': plainCount, 'text': ret}; // +++ WF: added
 }
 
 // +++ WF: unchanged
