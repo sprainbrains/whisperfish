@@ -13,7 +13,9 @@ MessageDelegateBase {
     readonly property int extraPageTreshold: 1500 // in characters
 
     property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
-                                                metrics.width, senderNameLabel.implicitWidth) +
+                                                metrics.width+messageLabel.emojiCount *
+                                                messageLabel.font.pixelSize,
+                                                senderNameLabel.implicitWidth) +
                                        Theme.paddingMedium,
                                        maxMessageWidth)
     property real expandedWidth: root.width - 2*Theme.horizontalPageMargin
@@ -117,9 +119,12 @@ MessageDelegateBase {
 
         LinkedEmojiLabel {
             id: messageLabel
+            property bool emojiOnly: emojiCount > 0 && plainCharactersCount === 0 &&
+                                     plainText.length <= 20 // treat long messages as text
             wrapMode: Text.Wrap
             anchors { left: parent.left; right: parent.right }
-            horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
+            horizontalAlignment: emojiOnly ? Text.AlignHCenter :
+                                              (outgoing ? Text.AlignRight : Text.AlignLeft) // TODO make configurable
             color: isEmpty ?
                        (highlighted ? Theme.secondaryHighlightColor :
                                       (outgoing ? Theme.secondaryHighlightColor :
@@ -129,7 +134,12 @@ MessageDelegateBase {
                                                   Theme.primaryColor))
             linkColor: highlighted ? Theme.secondaryHighlightColor :
                                      Theme.secondaryColor
-            font.pixelSize: Theme.fontSizeSmall // TODO make configurable
+            enableCounts: true
+            font.pixelSize: emojiOnly ?
+                                (emojiCount <= 2 ? 1.5*Theme.fontSizeExtraLarge :
+                                                   1.0*Theme.fontSizeExtraLarge) :
+                                Theme.fontSizeSmall // TODO make configurable
+            onPlainCharactersCountChanged: console.log("PLAIN", plainCharactersCount, emojiCount)
             states: [
                 State {
                     name: "default"; when: !_expanded
