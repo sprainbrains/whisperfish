@@ -120,7 +120,7 @@ MessageDelegateBase {
         LinkedEmojiLabel {
             id: messageLabel
             property bool emojiOnly: emojiCount > 0 && plainCharactersCount === 0 &&
-                                     plainText.length <= 20 // treat long messages as text
+                                     emojiCount <= 5 // treat long messages as text
             wrapMode: Text.Wrap
             anchors { left: parent.left; right: parent.right }
             horizontalAlignment: emojiOnly ? Text.AlignHCenter :
