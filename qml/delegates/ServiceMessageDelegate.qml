@@ -83,7 +83,8 @@ ListItem {
             qsTrId("whisperfish-service-message-call-video-peer").arg(_originName)
         } else if (_type === "fingerprintChanged") {
             //: TODO
-            //% "Your safety number with %1 has changed."
+            //% "Your safety number with %1 has changed. "
+            //% "Swipe right to verify the new number."
             qsTrId("whisperfish-service-message-fingerprint-changed").arg(_originName)
         } else if (_type === "sessionReset" && _origin === "self") {
             //: TODO
