@@ -32,7 +32,7 @@ Item {
                                      attachments.length > 0)
 
     property var _quotedMessageData: null
-    property int _quotedMessageIndex: -1
+    property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
     signal sendMessage(var text, var attachments, var replyTo)
     signal quotedMessageClicked(var index, var modelData)
@@ -123,6 +123,7 @@ Item {
 
                 Item { height: 1; width: parent.width } // spacing
 
+                // TODO Preview quoted attachements.
                 Label {
                     width: parent.width
                     maximumLineCount: 1
