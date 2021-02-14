@@ -235,6 +235,69 @@ Page {
             }
             // ------ END GENERAL SETTINGS ------
 
+            // ------ BEGIN BACKGROUND&STARTUP SETTINGS ------
+            Column {
+                id: colStartup
+                spacing: Theme.paddingLarge
+                width: parent.width
+                visible: !AppState.isHarbour()
+
+                SectionHeader {
+                    //: Settings page startup and shutdown section
+                    //% "Autostart and Background"
+                    text: qsTrId("whisperfish-settings-startup-shutdown-section")
+                }
+                IconTextSwitch {
+                    id: enableAutostart
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    //: Settings page enable autostart
+                    //% "Autostart after boot"
+                    text: qsTrId("whisperfish-settings-enable-autostart")
+                    //: Settings page enable autostart description
+                    //% "When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background."
+                    description: qsTrId("whisperfish-settings-enable-background-mode-description")
+                    checked: AppState.isAutostartEnabled()
+                    icon.source: "image://theme/icon-m-toy"
+                    onCheckedChanged: {
+                        if(checked != AppState.isAutostartEnabled()) {
+                            AppState.setAutostartEnabled(checked)
+                        }
+                    }
+                }
+                IconTextSwitch {
+                    id: enableQuitOnUiClose
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    //: Settings page enable background mode
+                    //% "Background mode"
+                    text: qsTrId("whisperfish-settings-enable-background-mode")
+                    //: Settings page enable background mode description
+                    //% "When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed."
+                    description: qsTrId("whisperfish-settings-enable-background-mode-description")
+                    checked: !SettingsBridge.boolValue("quit_on_ui_close")
+                    icon.source: "image://theme/icon-m-levels"
+                    icon.rotation: 180
+                    onCheckedChanged: {
+                        if(checked == SettingsBridge.boolValue("quit_on_ui_close")) {
+                            SettingsBridge.boolSet("quit_on_ui_close", !checked)
+                            AppState.setMayExit(!checked)
+                        }
+                    }
+                }
+                Button {
+                    id: quitAppButton
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width - 2*Theme.horizontalPageMargin
+                    //: Settings page quit app button
+                    //% "Quit Whisperfish"
+                    text: qsTrId("whisperfish-settings-quit-button")
+                    onClicked: {
+                        AppState.setMayExit(true)
+                        Qt.quit()
+                    }
+                }
+            }
+            // ------ END BACKGROUND&STARTUP SETTINGS ------
+
             // ------ BEGIN ADVANCED SETTINGS ------
             SectionHeader {
                 //: Settings page advanced section

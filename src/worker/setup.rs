@@ -97,6 +97,12 @@ impl SetupWorker {
 
         app.storage_ready().await;
 
+        #[cfg(not(feature = "harbour"))]
+        {
+            app.app_state.pinned().borrow_mut().may_exit =
+                app.settings.pinned().borrow().get_bool("quit_on_ui_close");
+        }
+
         this.borrow().setupChanged();
         this.borrow().setupComplete();
     }
@@ -165,6 +171,11 @@ impl SetupWorker {
             return Ok(storage);
         }
 
+        app.app_state
+            .pinned()
+            .borrow_mut()
+            .activate_hidden_window(true);
+
         for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
             let password: String = app
                 .prompt
@@ -199,6 +210,11 @@ impl SetupWorker {
 
     async fn register(app: Rc<WhisperfishApp>) -> Result<(), Error> {
         let this = app.setup_worker.pinned();
+
+        app.app_state
+            .pinned()
+            .borrow_mut()
+            .activate_hidden_window(true);
 
         let storage_password: String = app
             .prompt

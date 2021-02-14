@@ -2,6 +2,13 @@ use std::cell::RefCell;
 #[cfg(feature = "sailfish")]
 use std::rc::Rc;
 
+#[cfg(not(feature = "harbour"))]
+use std::{
+    fs::{create_dir_all, remove_file},
+    os::unix::fs::symlink,
+    path::{Path, PathBuf},
+};
+
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
 use crate::{
@@ -18,7 +25,124 @@ use qmetaobject::*;
 #[rtype(result = "()")]
 pub struct StorageReady(pub Storage, pub SignalConfig);
 
+#[derive(QObject)]
+#[allow(non_snake_case)]
+pub struct AppState {
+    base: qt_base_class!(trait QObject),
+
+    closed: bool,
+    setActive: qt_method!(fn(&self)),
+    isClosed: qt_method!(fn(&self) -> bool),
+    activate: qt_signal!(),
+
+    pub may_exit: bool,
+    #[cfg(not(feature = "harbour"))]
+    setMayExit: qt_method!(fn(&self, value: bool)),
+
+    isAutostartEnabled: qt_method!(fn(&self) -> bool),
+    #[cfg(not(feature = "harbour"))]
+    setAutostartEnabled: qt_method!(fn(&self, value: bool)),
+
+    isHarbour: qt_method!(fn(&self) -> bool),
+}
+
+impl AppState {
+    #[allow(non_snake_case)]
+    fn setActive(&mut self) {
+        self.closed = false;
+    }
+
+    #[allow(non_snake_case)]
+    fn isClosed(&mut self) -> bool {
+        self.closed
+    }
+
+    pub fn is_closed(&self) -> bool {
+        self.closed
+    }
+
+    pub fn set_closed(&mut self) {
+        self.closed = true;
+    }
+
+    pub fn activate_hidden_window(&mut self, may_exit: bool) {
+        if self.closed {
+            self.activate();
+            // if may_exit = true, we may already be dead when QML sets this, so we set it now.
+            self.closed = false;
+            self.may_exit = may_exit;
+        }
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn setMayExit(&mut self, value: bool) {
+        self.may_exit = value;
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    fn systemd_dir() -> PathBuf {
+        let sdir = dirs::config_dir()
+            .expect("config directory")
+            .join("systemd/user/post-user-session.target.wants/");
+        if !sdir.exists() {
+            create_dir_all(&sdir).unwrap();
+        }
+        sdir
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn setAutostartEnabled(&self, enabled: bool) {
+        if enabled {
+            let _ = symlink(
+                Path::new("/usr/lib/systemd/user/harbour-whisperfish.service"),
+                Self::systemd_dir().join("harbour-whisperfish.service"),
+            );
+        } else {
+            let _ = remove_file(Self::systemd_dir().join("harbour-whisperfish.service"));
+        }
+    }
+
+    #[cfg(not(feature = "harbour"))]
+    #[allow(non_snake_case)]
+    fn isAutostartEnabled(&self) -> bool {
+        Self::systemd_dir()
+            .join("harbour-whisperfish.service")
+            .exists()
+    }
+
+    #[cfg(feature = "harbour")]
+    #[allow(non_snake_case)]
+    fn isAutostartEnabled(&self) -> bool {
+        false
+    }
+
+    #[allow(non_snake_case)]
+    fn isHarbour(&mut self) -> bool {
+        cfg!(feature = "harbour")
+    }
+
+    fn new() -> Self {
+        Self {
+            base: Default::default(),
+            closed: false,
+            may_exit: true,
+            setActive: Default::default(),
+            isClosed: Default::default(),
+            isHarbour: Default::default(),
+            activate: Default::default(),
+            #[cfg(not(feature = "harbour"))]
+            setMayExit: Default::default(),
+            isAutostartEnabled: Default::default(),
+            #[cfg(not(feature = "harbour"))]
+            setAutostartEnabled: Default::default(),
+        }
+    }
+}
+
 pub struct WhisperfishApp {
+    pub app_state: QObjectBox<AppState>,
     pub session_actor: Addr<actor::SessionActor>,
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
@@ -78,7 +202,7 @@ fn long_version() -> String {
 }
 
 #[cfg(feature = "sailfish")]
-pub async fn run() -> Result<(), failure::Error> {
+pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
     let mut app = SailfishApp::application("harbour-whisperfish".into());
     let long_version: QString = long_version().into();
     log::info!("SailfishApp::application loaded - version {}", long_version);
@@ -93,6 +217,7 @@ pub async fn run() -> Result<(), failure::Error> {
     let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
     let whisperfish = Rc::new(WhisperfishApp {
+        app_state: QObjectBox::new(AppState::new()),
         session_actor,
         message_actor,
         client_actor,
@@ -122,11 +247,26 @@ pub async fn run() -> Result<(), failure::Error> {
     app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
     app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
+    app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
-    app.show_full_screen();
-    app.exec_async().await;
+    if is_autostart
+        && !whisperfish
+            .settings
+            .pinned()
+            .borrow()
+            .get_bool("quit_on_ui_close")
+        && cfg!(not(feature = "harbour"))
+    {
+        // keep the ui closed until needed on auto-start
+        whisperfish.app_state.pinned().borrow_mut().may_exit = false;
+        whisperfish.app_state.pinned().borrow_mut().set_closed();
+    } else {
+        app.show_full_screen();
+    }
+
+    app.exec_async(whisperfish.app_state.pinned()).await;
 
     Ok(())
 }

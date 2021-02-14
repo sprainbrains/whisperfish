@@ -1,0 +1,12 @@
+[Unit]
+Description=Whisperfish - Private messaging using Signal for SailfishOS
+Requires=lipstick.service
+After=lipstick.service
+
+[Service]
+Type=dbus
+BusName=be.rubdos.whisperfish.app
+ExecStart=/usr/bin/harbour-whisperfish autostart
+
+[Install]
+WantedBy=post-user-session.target

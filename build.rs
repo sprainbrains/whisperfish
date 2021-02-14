@@ -228,6 +228,127 @@ fn protobuf() -> Result<(), Error> {
     Ok(())
 }
 
+fn prepare_rpm_build() {
+    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_HARBOUR");
+
+    // create tmp folders where feature-dependend files are copied to if they should be included.
+    // Define the whole folder in Cargo.toml for inlusion in the rpm
+    let rpm_extra_dir = std::path::PathBuf::from(".rpm/tmp_feature_files");
+    if rpm_extra_dir.exists() {
+        std::fs::remove_dir_all(&rpm_extra_dir)
+            .expect(&format!("Could not remove {:?} for cleanup", rpm_extra_dir));
+    }
+    let cond_folder: &[&str] = &["systemd"];
+    for d in cond_folder.iter() {
+        let nd = rpm_extra_dir.join(d);
+        std::fs::create_dir_all(&nd).expect(&format!("Could not create {:?}", &nd));
+    }
+    let cond_files: &[(&str, &str)] = if env::var("CARGO_FEATURE_HARBOUR").is_err() {
+        &[("harbour-whisperfish.service", "systemd")]
+    } else {
+        &[]
+    };
+    for (file, dest) in cond_files.iter() {
+        let dest_dir = rpm_extra_dir.join(dest);
+        if !dest_dir.exists() {
+            std::fs::create_dir_all(&dest_dir).expect(&format!("Could not create {:?}", dest_dir));
+        }
+        let dest_file = dest_dir.join(file);
+        std::fs::copy(Path::new(file), &dest_file)
+            .expect(&format!("failed to copy {} to {:?}", file, dest_file));
+        println!("cargo:rerun-if-changed={}", file);
+    }
+
+    // Build RPM Spec
+    // Lines between `#[{{ NOT FEATURE_FLAG` and `#}}]` are only copied if the feature is disabled
+    // (or enabled without NOT).
+    println!("cargo:rerun-if-changed=rpm/harbour-whisperfish.spec");
+    let src = std::fs::File::open("rpm/harbour-whisperfish.spec")
+        .expect("Failed to read rpm spec at rpm/harbour-whisperfish.spec");
+    let mut spec = std::fs::File::create(".rpm/harbour-whisperfish.spec")
+        .expect("Failed to write rpm spec to .rpm/harbour-whisperfish.spec");
+    writeln!(spec, "### WARNING: auto-generated file - please only edit the original source file: ../rpm/harbour-whisperfish.spec")
+        .expect("Failed to write to spec file");
+
+    let mut ignore = 0;
+    let feature_re = regex::Regex::new(r"^\s*#\[\{\{\s+(NOT)?\s+([A-Z_0-9]+)").unwrap();
+
+    for line in BufReader::new(src).lines() {
+        let line = line.unwrap();
+        if let Some(cap) = feature_re.captures(&line) {
+            if ignore > 0
+                || (cap.get(1) == None
+                    && env::var(format!("CARGO_FEATURE_{}", cap.get(2).unwrap().as_str())).is_err())
+                || (cap.get(1) != None
+                    && env::var(format!("CARGO_FEATURE_{}", cap.get(2).unwrap().as_str())).is_ok())
+            {
+                ignore += 1;
+            }
+            println!("reg {:?}", cap);
+        } else if line.trim_start().starts_with("#}}]") {
+            if ignore > 0 {
+                ignore -= 1;
+            }
+        } else if ignore == 0 {
+            writeln!(spec, "{}", line).expect("Failed to write to spec file");
+        }
+    }
+}
+
+fn build_sqlcipher(mer_target_root: &str) {
+    // static sqlcipher handling. Needed for compatibility with
+    // sailfish-components-webview.
+    // This may become obsolete with an sqlcipher upgrade from jolla or when
+    // https://gitlab.com/rubdos/whisperfish/-/issues/227 is implemented.
+
+    if !Path::new("sqlcipher/sqlite3.c").is_file() {
+        // Download and prepare sqlcipher source
+        let stat = Command::new("sqlcipher/get-sqlcipher.sh")
+            .status()
+            .expect("Failed to download sqlcipher");
+        assert!(stat.success());
+    }
+
+    // Build static sqlcipher
+    cc::Build::new()
+        .flag(&format!("--sysroot={}", mer_target_root))
+        .flag("-isysroot")
+        .flag(&mer_target_root)
+        .include(format!("{}/usr/include/", mer_target_root))
+        .include(format!("{}/usr/include/openssl", mer_target_root))
+        .file("sqlcipher/sqlite3.c")
+        .warnings(false)
+        .flag("-Wno-stringop-overflow")
+        .flag("-Wno-return-local-addr")
+        .flag("-DSQLITE_CORE")
+        .flag("-DSQLITE_DEFAULT_FOREIGN_KEYS=1")
+        .flag("-DSQLITE_ENABLE_API_ARMOR")
+        .flag("-DSQLITE_HAS_CODEC")
+        .flag("-DSQLITE_TEMP_STORE=2")
+        .flag("-DHAVE_ISNAN")
+        .flag("-DHAVE_LOCALTIME_R")
+        .flag("-DSQLITE_ENABLE_COLUMN_METADATA")
+        .flag("-DSQLITE_ENABLE_DBSTAT_VTAB")
+        .flag("-DSQLITE_ENABLE_FTS3")
+        .flag("-DSQLITE_ENABLE_FTS3_PARENTHESIS")
+        .flag("-DSQLITE_ENABLE_FTS5")
+        .flag("-DSQLITE_ENABLE_JSON1")
+        .flag("-DSQLITE_ENABLE_LOAD_EXTENSION=1")
+        .flag("-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
+        .flag("-DSQLITE_ENABLE_RTREE")
+        .flag("-DSQLITE_ENABLE_STAT2")
+        .flag("-DSQLITE_ENABLE_STAT4")
+        .flag("-DSQLITE_SOUNDEX")
+        .flag("-DSQLITE_THREADSAFE=1")
+        .flag("-DSQLITE_USE_URI")
+        .flag("-DHAVE_USLEEP=1")
+        .compile("sqlcipher");
+
+    println!("cargo:lib_dir={}", env::var("OUT_DIR").unwrap());
+    println!("cargo:rustc-link-lib=static=sqlcipher");
+    println!("cargo:rerun-if-changed={}", "sqlcipher/sqlite3.c");
+}
+
 fn main() {
     protobuf().unwrap();
 
@@ -312,63 +433,15 @@ fn main() {
     } else {
         &[]
     };
-    let libs = ["EGL"];
+    let libs = ["EGL", "dbus-1"];
     for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 
+    prepare_rpm_build();
+
     if cross_compile {
-        // static sqlcipher handling. Needed for compatibility with
-        // sailfish-components-webview.
-        // This may become obsolete with an sqlcipher upgrade from jolla or when
-        // https://gitlab.com/rubdos/whisperfish/-/issues/227 is implemented.
-
-        if !Path::new("sqlcipher/sqlite3.c").is_file() {
-            // Download and prepare sqlcipher source
-            let stat = Command::new("sqlcipher/get-sqlcipher.sh")
-                .status()
-                .expect("Failed to download sqlcipher");
-            assert!(stat.success());
-        }
-
-        // Build static sqlcipher
-        cc::Build::new()
-            .flag(&format!("--sysroot={}", mer_target_root))
-            .flag("-isysroot")
-            .flag(&mer_target_root)
-            .include(format!("{}/usr/include/", mer_target_root))
-            .include(format!("{}/usr/include/openssl", mer_target_root))
-            .file("sqlcipher/sqlite3.c")
-            .warnings(false)
-            .flag("-Wno-stringop-overflow")
-            .flag("-Wno-return-local-addr")
-            .flag("-DSQLITE_CORE")
-            .flag("-DSQLITE_DEFAULT_FOREIGN_KEYS=1")
-            .flag("-DSQLITE_ENABLE_API_ARMOR")
-            .flag("-DSQLITE_HAS_CODEC")
-            .flag("-DSQLITE_TEMP_STORE=2")
-            .flag("-DHAVE_ISNAN")
-            .flag("-DHAVE_LOCALTIME_R")
-            .flag("-DSQLITE_ENABLE_COLUMN_METADATA")
-            .flag("-DSQLITE_ENABLE_DBSTAT_VTAB")
-            .flag("-DSQLITE_ENABLE_FTS3")
-            .flag("-DSQLITE_ENABLE_FTS3_PARENTHESIS")
-            .flag("-DSQLITE_ENABLE_FTS5")
-            .flag("-DSQLITE_ENABLE_JSON1")
-            .flag("-DSQLITE_ENABLE_LOAD_EXTENSION=1")
-            .flag("-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
-            .flag("-DSQLITE_ENABLE_RTREE")
-            .flag("-DSQLITE_ENABLE_STAT2")
-            .flag("-DSQLITE_ENABLE_STAT4")
-            .flag("-DSQLITE_SOUNDEX")
-            .flag("-DSQLITE_THREADSAFE=1")
-            .flag("-DSQLITE_USE_URI")
-            .flag("-DHAVE_USLEEP=1")
-            .compile("sqlcipher");
-
-        println!("cargo:lib_dir={}", env::var("OUT_DIR").unwrap());
-        println!("cargo:rustc-link-lib=static=sqlcipher");
-        println!("cargo:rerun-if-changed={}", "sqlcipher/sqlite3.c");
+        build_sqlcipher(&mer_target_root);
     }
 
     // vergen

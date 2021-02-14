@@ -25,3 +25,4 @@ sqlcipher/LICENSE
 .env
 releases
 whisperfish.wiki
+.rpm
