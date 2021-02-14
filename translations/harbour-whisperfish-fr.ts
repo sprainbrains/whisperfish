@@ -874,15 +874,22 @@ Settings page share contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
-        <location filename="../qml/pages/Settings.qml" line="249"/>
-        <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
-        <extracomment>Settings page enable autostart description</extracomment>
+        <location filename="../qml/pages/Settings.qml" line="266"/>
+        <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
+        <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
+        <extracomment>Settings page enable background mode description</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Background mode</source>
         <extracomment>Settings page enable background mode</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-enable-autostart-description">
+        <location filename="../qml/pages/Settings.qml" line="249"/>
+        <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
+        <extracomment>Settings page enable autostart description</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-quit-button">
