@@ -15,6 +15,8 @@ combined codepoints are separated by `-`. Some emojis may include the "emoji
 style" selector (`uFE0F`); it is recommended to create symbolic links for the
 version with and without the selector.
 
+Raster emojis must be available in the sizes 72x72px and 144x144px.
+
 
 ## OpenMoji
 
@@ -70,13 +72,25 @@ example below uses "Whatsapp" but should work for all styles.
     # default size appears to be 72px
     grep -Pe 'src="https://emojipedia-us\..*?\.amazonaws\.com/thumbs/72/whatsapp/.*?/.*?.png"' wa.html -o | sed 's/^src="//g;s/"$//g' > links
 
-    # fetch files
+    sed 's@/thumbs/72/@/thumbs/144/@g' links > links_144
+
+    # fetch files in the required resolutions
     # use $(cat links) in curl or use xargs
-    xargs -a links -I{} curl -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0' \
+    mkdir 72 && cd 72
+    xargs -a ../links -I{} curl -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0' \
         -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' \
         -H 'Accept-Language: en-US;q=0.7,en;q=0.3' --compressed -H 'DNT: 1' -H 'Connection: keep-alive' \
         -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' \
-        --remote-name-all {}
+        --parallel --parallel-max 15 --remote-name-all {}
+    cd ..
+
+    mkdir 144 && cd 144
+    xargs -a links_144 -I{} curl -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0' \
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' \
+        -H 'Accept-Language: en-US;q=0.7,en;q=0.3' --compressed -H 'DNT: 1' -H 'Connection: keep-alive' \
+        -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' \
+        --parallel --parallel-max 15 --remote-name-all {}
+    cd ..
 
 2. Fix file names and alternatives
 
@@ -93,4 +107,4 @@ example below uses "Whatsapp" but should work for all styles.
         for i in *_1f3f*.png; do mv "$i" "${i%_1f3f*.png}.png"; done && \
         for i in *-fe0f.png; do ln -b -s "$i" "${i%-fe0f.png}.png"; done
 
-3. Move files to `whatsapp/2.20.206.24`
+3. Move files to `whatsapp/2.20.206.24/72` and `whatsapp/2.20.206.24/144`
