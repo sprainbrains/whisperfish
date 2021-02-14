@@ -47,16 +47,18 @@ Label {
     property alias proxy: linkedTextProxy
 
     readonly property var emojiStyle: Emoji.Openmoji // TODO Make emoji style configurable
+    readonly property int emojiCount: _parsedEmojiData !== null ? _parsedEmojiData.emojiCount : 0
+    readonly property int plainCharactersCount: _parsedEmojiData !== null ?
+                                                    _parsedEmojiData.plainCount :
+                                                    _effectiveText.length
+
+    readonly property bool _elideEnabled: enableElide !== Text.ElideNone
     readonly property real _effectiveEmojiSize: _elideEnabled ?
                                                     1.0*font.pixelSize :
                                                     emojiSizeMult*font.pixelSize
-    readonly property bool _elideEnabled: enableElide !== Text.ElideNone
     property var _parsedEmojiData: enableEmojis ? Emoji.parse(linkedTextProxy.text,
                                                               _effectiveEmojiSize,
                                                               emojiStyle) : null
-    property int _emojiCount: _parsedEmojiData !== null ? _parsedEmojiData.emojiCount : 0
-    property int _plainCount: _parsedEmojiData !== null ? _parsedEmojiData.plainCount :
-                                                          _effectiveText.length
     property string _effectiveText: (enableEmojis && _parsedEmojiData !== null) ?
                                         _parsedEmojiData.text :
                                         linkedTextProxy.text
