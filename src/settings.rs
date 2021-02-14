@@ -34,6 +34,16 @@ cpp! {{
 }}
 
 impl Settings {
+    fn contains(&self, key: &str) -> bool {
+        let key = QString::from(key);
+        let settings = self.inner;
+        unsafe {
+            cpp!([settings as "QSettings *", key as "QString"] -> bool as "bool" {
+                return settings->contains(key);
+            })
+        }
+    }
+
     fn value_bool(&self, key: &str) -> bool {
         let key = QString::from(key);
         let settings = self.inner;
@@ -52,6 +62,12 @@ impl Settings {
                 settings->setValue(key, value);
             })
         };
+    }
+
+    pub fn set_bool_if_unset(&mut self, key: &str, value: bool) {
+        if !self.contains(key) {
+            self.set_bool(key, value);
+        }
     }
 
     fn value_string(&self, key: &str) -> String {
@@ -74,6 +90,12 @@ impl Settings {
                 settings->setValue(key, value);
             })
         };
+    }
+
+    pub fn set_string_if_unset(&mut self, key: &str, value: &str) {
+        if !self.contains(key) {
+            self.set_string(key, value);
+        }
     }
 }
 
@@ -158,17 +180,17 @@ impl Settings {
     pub fn defaults(&mut self) {
         log::info!("Setting default settings.");
 
-        self.set_bool("incognito", false);
-        self.set_bool("enable_notify", true);
-        self.set_bool("show_notify_message", false);
-        self.set_bool("save_attachments", true);
-        self.set_bool("share_contacts", true);
-        self.set_bool("enable_enter_send", false);
-        self.set_bool("scale_image_attachments", false);
-        self.set_bool("attachment_log", false);
-        self.set_bool("quit_on_ui_close", true);
+        self.set_bool_if_unset("incognito", false);
+        self.set_bool_if_unset("enable_notify", true);
+        self.set_bool_if_unset("show_notify_message", false);
+        self.set_bool_if_unset("save_attachments", true);
+        self.set_bool_if_unset("share_contacts", true);
+        self.set_bool_if_unset("enable_enter_send", false);
+        self.set_bool_if_unset("scale_image_attachments", false);
+        self.set_bool_if_unset("attachment_log", false);
+        self.set_bool_if_unset("quit_on_ui_close", true);
 
-        self.set_string(
+        self.set_string_if_unset(
             "attachment_dir",
             crate::store::default_location()
                 .expect("default location")

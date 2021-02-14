@@ -67,10 +67,8 @@ impl SetupWorker {
             }
         };
 
-        let whisperfish_config_file = crate::conf_dir().join("harbour-whisperfish.conf");
-        if !whisperfish_config_file.exists() {
-            app.settings.pinned().borrow_mut().defaults();
-        }
+        // Defaults does not override unset settings
+        app.settings.pinned().borrow_mut().defaults();
 
         let config = this.borrow().config.as_ref().unwrap().clone();
 
