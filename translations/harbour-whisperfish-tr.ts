@@ -855,38 +855,38 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="239"/>
         <source>Autostart and Background</source>
         <extracomment>Settings page startup and shutdown section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Otomatik Başlatma ve Arka Plan</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart">
         <location filename="../qml/pages/Settings.qml" line="246"/>
         <source>Autostart after boot</source>
         <extracomment>Settings page enable autostart</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Önyüklemeden sonra otomatik başlat</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Etkinleştirildiğinde, Whisperfish arka planda çalışmaya devam eder ve uygulama penceresi kapatıldıktan sonra bildirim gönderebilir.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Background mode</source>
         <extracomment>Settings page enable background mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arka plan modu</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="249"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Etkinleştirildiğinde, Whisperfish her önyüklemeden sonra otomatik olarak başlar. Depolama şifrelemesi etkinse veya arka plan modu kapalıysa, kullanıcı arayüzü gösterilecektir, aksi takdirde uygulama arka planda başlar.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="283"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish&apos;ten Çık</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="296"/>
