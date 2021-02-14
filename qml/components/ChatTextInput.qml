@@ -34,7 +34,7 @@ Item {
     property var _quotedMessageData: null
     property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
-    signal sendMessage(var text, var attachments, var replyTo)
+    signal sendMessage(var text, var attachments, var replyTo /* message id */)
     signal quotedMessageClicked(var index, var modelData)
 
     function reset() {
@@ -55,6 +55,7 @@ Item {
             message: modelData.message,
             source: modelData.source,
             outgoing: modelData.outgoing,
+            id: modelData.id,
         }
     }
 
@@ -74,7 +75,9 @@ Item {
         if(SettingsBridge.boolValue("enable_enter_send")) {
             text = text.replace(/(\r\n\t|\n|\r\t)/gm, '')
         }
-        sendMessage(text, attachments)
+        // TODO implement replies in the model
+        sendMessage(text, attachments, _quotedMessageData === null ?
+                        -1 : _quotedMessageData.id)
         if (clearAfterSend) reset()
     }
 
