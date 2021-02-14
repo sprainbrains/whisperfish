@@ -119,6 +119,7 @@ Page {
             placeholderContactName: MessageModel.peerName
             editor.focus: root.editorFocus
             showSeparator: !messages.atYEnd
+            editor.onFocusChanged: if (editor.focus) panel.show()
 
             onSendMessage: {
                 // TODO This should be handled completely in the backend.
