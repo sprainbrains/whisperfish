@@ -139,7 +139,6 @@ MessageDelegateBase {
                                 (emojiCount <= 2 ? 1.5*Theme.fontSizeExtraLarge :
                                                    1.0*Theme.fontSizeExtraLarge) :
                                 Theme.fontSizeSmall // TODO make configurable
-            onPlainCharactersCountChanged: console.log("PLAIN", plainCharactersCount, emojiCount)
             states: [
                 State {
                     name: "default"; when: !_expanded
