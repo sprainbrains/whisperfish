@@ -41,16 +41,17 @@ Label {
     property real emojiSizeMult: 1.5
     property bool enableEmojis: false // TODO enable once a fallback mechanism for
                                       // missing emojis is implemented
+    property bool enableCounts: false // enable only if necessary; performance
     property alias enableElide: elideFixProxy.elide // cf. comments above
     property bool defaultLinkActions: true
     property alias shortenUrl: linkedTextProxy.shortenUrl
     property alias proxy: linkedTextProxy
 
     readonly property var emojiStyle: Emoji.Openmoji // TODO Make emoji style configurable
-    readonly property int emojiCount: _parsedEmojiData !== null ? _parsedEmojiData.emojiCount : 0
-    readonly property int plainCharactersCount: _parsedEmojiData !== null ?
-                                                    _parsedEmojiData.plainCount :
-                                                    _effectiveText.length
+    readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
+    readonly property int plainCharactersCount: _parsedCountData !== null ?
+                                                    _parsedCountData.plainCount :
+                                                    plainText.length
 
     readonly property bool _elideEnabled: enableElide !== Text.ElideNone
     readonly property real _effectiveEmojiSize: _elideEnabled ?
@@ -62,6 +63,12 @@ Label {
     property string _effectiveText: (enableEmojis && _parsedEmojiData !== null) ?
                                         _parsedEmojiData.text :
                                         linkedTextProxy.text
+
+    // We parse the data a second time without being dependent on the
+    // _effectiveEmojiSize property. This allows the emoji count to be used to
+    // decide the font size. (Otherwise there's a binding loop on _parsedEmojiData.)
+    property var _parsedCountData: (enableEmojis && enableCounts) ?
+                                       Emoji.parse(linkedTextProxy.text, 0, emojiStyle) : null
 
     // shadow elide settings; there is no way to ensure they are set to ...None
     readonly property int truncationMode: 0
