@@ -108,6 +108,7 @@ Page {
         height: textInput.height
         open: true
         dock: Dock.Bottom
+        onHeightChanged: if (open) show()
 
         Behavior on opacity { FadeAnimator { duration: 80 } }
 
