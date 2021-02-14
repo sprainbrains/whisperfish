@@ -158,9 +158,14 @@ impl TokioQEventDispatcherPriv {
             std::thread::current().id()
         );
 
-        let reg = AsyncFd::with_interest(fd, notifier.notifier_type().into()).unwrap(); // XXX unwrap
-
-        self.socket_registrations().push((raw_notifier, reg));
+        match AsyncFd::with_interest(fd, notifier.notifier_type().into()) {
+            Ok(reg) => self.socket_registrations().push((raw_notifier, reg)),
+            Err(e) => match e.kind() {
+                _ => {
+                    log::error!("Could not register Fd: {}", e);
+                }
+            },
+        };
     }
 
     fn register_timer(
