@@ -245,7 +245,7 @@ impl SetupWorker {
         };
 
         let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
-        log::info!("E164: {}", e164);
+        log::info!("Using phone number: {}", number);
         this.borrow_mut().phoneNumber = e164.clone().into();
 
         // generate a random 24 bytes password
@@ -258,7 +258,7 @@ impl SetupWorker {
         let mut res = app
             .client_actor
             .send(super::client::Register {
-                e164: e164.clone(),
+                phonenumber: number.clone(),
                 password: password.clone(),
                 use_voice: this.borrow().useVoice,
                 captcha: None,
@@ -277,7 +277,7 @@ impl SetupWorker {
             res = app
                 .client_actor
                 .send(super::client::Register {
-                    e164: e164.clone(),
+                    phonenumber: number.clone(),
                     password: password.clone(),
                     use_voice: this.borrow().useVoice,
                     captcha: Some(captcha),
@@ -303,7 +303,7 @@ impl SetupWorker {
         let (regid, res) = app
             .client_actor
             .send(super::client::ConfirmRegistration {
-                e164: e164.clone(),
+                phonenumber: number.clone(),
                 password: password.clone(),
                 confirm_code: code,
                 signaling_key,

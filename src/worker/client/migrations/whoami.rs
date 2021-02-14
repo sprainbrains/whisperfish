@@ -37,11 +37,18 @@ impl Handler<WhoAmI> for ClientActor {
                         return;
                     }
                 };
+                let uuid = match uuid.parse() {
+                    Ok(uuid) => uuid,
+                    Err(e) => {
+                        log::error!("Could not parse received Uuid: {}", e);
+                        return;
+                    }
+                };
 
                 if let Some(credentials) = act.credentials.as_mut() {
-                    credentials.uuid = Some(uuid.clone());
+                    credentials.uuid = Some(uuid);
                     let mut cfg = storage.read_config().expect("read config");
-                    cfg.uuid = Some(uuid);
+                    cfg.uuid = Some(uuid.to_string());
                     storage.write_config(cfg).expect("write config");
                 } else {
                     log::error!("Credentials was none while setting UUID");
