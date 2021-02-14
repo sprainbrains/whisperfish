@@ -122,7 +122,7 @@ Page {
                         break;
                     default:
                         // two days to one week ago
-                        Qt.locale().standaloneDayName(parseInt(section), Locale.LongFormat)
+                        Qt.locale().dayName(parseInt(section), Locale.LongFormat)
                     }
                 }
             }
