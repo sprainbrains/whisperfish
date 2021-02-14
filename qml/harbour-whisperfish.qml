@@ -2,6 +2,7 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
 import "pages"
+import "js/emoji.js" as Emoji // for initialization
 
 ApplicationWindow
 {
@@ -11,6 +12,7 @@ ApplicationWindow
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
+    Component.onCompleted: Emoji.dataBaseDirectory = StandardPaths.data
 
     readonly property string mainPageName: "mainPage"
     readonly property string conversationPageName: "conversationPage"

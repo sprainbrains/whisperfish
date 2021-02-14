@@ -39,15 +39,14 @@ Label {
     id: root
     property string plainText
     property real emojiSizeMult: 1.5
-    property bool enableEmojis: false // TODO enable once a fallback mechanism for
-                                      // missing emojis is implemented
+    property bool enableEmojis: true
     property bool enableCounts: false // enable only if necessary; performance
     property alias enableElide: elideFixProxy.elide // cf. comments above
     property bool defaultLinkActions: true
     property alias shortenUrl: linkedTextProxy.shortenUrl
     property alias proxy: linkedTextProxy
 
-    readonly property var emojiStyle: Emoji.Openmoji // TODO Make emoji style configurable
+    readonly property var emojiStyle: Emoji.Style['openmoji'] // TODO Make emoji style configurable
     readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
     readonly property int plainCharactersCount: _parsedCountData !== null ?
                                                     _parsedCountData.plainCount :

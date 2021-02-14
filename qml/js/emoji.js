@@ -36,23 +36,61 @@
     - functions: grabTheRightIcon, parseString (adapted), toCodePoint, parse (adapted)
   - Update this guide if necessary.
 */
-.pragma library // +++ WF: added pragma so the file is loaded only once
 
-// +++ WF: added emoji styles objects
-// TODO: We should provide a way (either in-app or a guide) for users to download
-// their preferred emoji sets to a directory below $HOME. Space in the root partition
-// is limited, and we cannot ship copyrighted emoji sets e.g. from Emojipedia.
+// +++ WF: ↓↓ Whisperfish configuration
+.pragma library // load the file only once
+// TODO: We should provide a way for users to download emoji sets to WF's directory
+//       in $HOME/.local/share (in-app for open sets, and a guide for proprietary sets).
 // TODO: We need an entry in the settings page to configure the emoji style.
 // TODO: handle missing icons/characters instead of showing an empty space
 // TODO: Is there a way to include official Signal emojis?
-// TODO: check if selected emoji set is installed (implement in rust; until then
-// we could try to open a file through a HTTP request and cache the result)
-var Vector = 'V', Raster = 'R' // emoji source type
-var rasterSizes = [144, 72] // possible: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
-var emojiBaseDirectory = Qt.resolvedUrl('../../icons/emojis') // TODO move below $HOME
-var Openmoji = { dir: 'openmoji/13.0.0', ext: '.svg', type: Vector } // CC-BY-SA 4.0
-var Twemoji = { dir: 'twemoji/13.0.1', ext: '.svg', type: Vector }   // CC-BY-SA 4.0
-var Whatsapp = { dir: 'whatsapp/2.20.206.24', ext: '.png', type: Raster } // proprietary
+
+// Data directories: emojis are by default located in StandardPaths.data/emojis,
+// which is typically $HOME/.local/share/<org>/<app>/emojis. The base directory has to
+// be initialized from QML, as this script cannot access the StandardPaths object.
+var dataBaseDirectory = '' // base path to emoji sources
+var emojiSubDirectory = '../emojis' // subdirectory below DataBaseDirectory
+                                    // TODO Remove '../' once WF uses /<org>/<app>/
+
+// Emoji styles: emojis can be in raster or vector format. Raster emojis are
+// required in multiple resolutions.
+// Path: base/subdir/<style>/<version>/[<resolution>/]<codepoint>.<ext>
+var vectorRe = /^(svg)$/i
+var rasterRe = /^(png|gif)$/i
+var Style = { // could be initialized on startup with user-configured values
+    'openmoji': { dir: 'openmoji/13.0.0', ext: 'svg' }, // CC-BY-SA 4.0
+    'twemoji': { dir: 'twemoji/13.0.1', ext: 'svg' }, // CC-BY-SA 4.0
+    'whatsapp': { dir: 'whatsapp/2.20.206.24', ext: 'png' } // proprietary
+}
+
+// Required raster resolutions: Qt cannot scale inline images up, only down.
+// Sizes available from Emojipedia: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
+var rasterSizes = [144, 72] // decreasing
+
+// Styles are checked once (raster styles once per resolution) and the results
+// are cached. No emojis will be replaced if a style is not available,
+// i.e. the system font will be used. Emojis are always counted, though.
+var styleStatusCache = {}
+
+function checkStyle(path, style) {
+  // TODO This is a hack and should be implemented in rust for better checks
+  // and better performance. Ideally we should check if a set is complete...
+  if (styleStatusCache.hasOwnProperty(path)) {
+    return styleStatusCache[path];
+  }
+
+  var cleanPath = path;
+  if (/^file:\/\//.test(path)) cleanPath = path.substr(7);
+  var xhr = new XMLHttpRequest, success = false;
+  xhr.open("GET", cleanPath+'/2764.'+style.ext, false); // fetch 'heart' synchronously
+  xhr.send();
+
+  if (xhr.status === 200) success = true;
+  if (!success) console.error("failed to load emoji style at", cleanPath+'/2764.'+style.ext);
+  styleStatusCache[path] = success;
+  return success;
+}
+// +++ WF: ↑↑ Whisperfish configuration
 
 // +++ WF: added 'var', removed comma
 // RegExp based on emoji's official Unicode standards
@@ -126,6 +164,8 @@ function parseString(str, options) {
       );
       emojiCount++; // +++ WF: added
       // +++ WF: Removed extra attributes handling
+    } else if (iconId) { // +++ WF: added counting
+        emojiCount++; // count even if the system font is used
     } else {
         plainCount++; // +++ WF: added
     }
@@ -157,10 +197,14 @@ function toCodePoint(unicodeSurrogates, sep) {
 
 // +++ WF: Adapted from the original parse(what, how) function.
 function parse(what, size, style) {
-  var effectiveSize = Math.round(1.15*size)
-  var sourceSize = -1
+  var effectiveSize = Math.round(1.15*size);
+  var sourceSize = -1, isRaster = false, isVector = false, stylePath = '';
 
-  if (style.type === Raster) {
+  if (rasterRe.test(style.ext)) isRaster = true
+  else if (vectorRe.test(style.ext)) isVector = true
+  else console.error("invalid emoji style:", style.dir, style.ext)
+
+  if (isRaster) {
     // We have to choose the best source resolution for raster emojis.
     // Qt only supports downscaling of inline images, so we select the
     // nearest resolution above the desired size.
@@ -177,20 +221,23 @@ function parse(what, size, style) {
     // Reset the effective size if the fallback resolution too small.
     if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
     if (effectiveSize > sourceSize) effectiveSize = sourceSize
+
+    stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
+                                         style.dir, '/', sourceSize))
+  } else {
+    stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
+                                         style.dir))
+  }
+
+  if (!checkStyle(stylePath, style)) {
+      isRaster = false; isVector = false; // use system font
   }
 
   return parseString(what, {
     callback: function(icon, options) {
-      if (style.type === Raster) {
-        // Raster emojis are saved by resolution.
-        return ''.concat(options.base, '/', options.dir, '/', sourceSize, '/', icon, options.ext)
-      } else {
-        return ''.concat(options.base, '/', options.dir, '/', icon, options.ext)
-      }
+      if (isRaster || isVector) return ''.concat(stylePath, '/', icon, '.', style.ext)
+      else return null
     },
-    base:       emojiBaseDirectory,
-    size:       effectiveSize,
-    dir:        style.dir,
-    ext:        style.ext,
+    size: effectiveSize
   });
 }
