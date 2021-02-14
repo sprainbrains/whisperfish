@@ -126,8 +126,9 @@ function parseString(str, options) {
       );
       emojiCount++; // +++ WF: added
       // +++ WF: Removed extra attributes handling
+    } else {
+        plainCount++; // +++ WF: added
     }
-    plainCount++; // +++ WF: added
     return ret;
   });
   return {'emojiCount': emojiCount, 'plainCount': plainCount, 'text': ret}; // +++ WF: added
