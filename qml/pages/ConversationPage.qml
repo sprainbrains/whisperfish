@@ -109,7 +109,7 @@ Page {
         open: true
         dock: Dock.Bottom
 
-        Behavior on opacity { FadeAnimator { duration: 100 } }
+        Behavior on opacity { FadeAnimator { duration: 80 } }
 
         ChatTextInput {
             id: textInput
