@@ -162,16 +162,15 @@ function parseString(str, options) {
         options.size,
         '"/>'
       );
-      emojiCount++; // +++ WF: added
       // +++ WF: Removed extra attributes handling
-    } else if (iconId) { // +++ WF: added counting
-        emojiCount++; // count even if the system font is used
+      emojiCount++; // +++ WF: added counting
     } else {
-        plainCount++; // +++ WF: added
+      emojiCount++; // +++ WF: count even if the system font is used
     }
     return ret;
   });
-  return {'emojiCount': emojiCount, 'plainCount': plainCount, 'text': ret}; // +++ WF: added
+  plainCount = String(str).replace(re, '').length; // +++ WF: remove emojis
+  return { 'emojiCount': emojiCount, 'plainCount': plainCount, 'text': ret}; // +++ WF: added
 }
 
 // +++ WF: unchanged

@@ -49,8 +49,7 @@ Label {
     readonly property var emojiStyle: Emoji.Style['openmoji'] // TODO Make emoji style configurable
     readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
     readonly property int plainCharactersCount: _parsedCountData !== null ?
-                                                    _parsedCountData.plainCount :
-                                                    plainText.length
+                                                    _parsedCountData.plainCount : plainText.length
 
     readonly property bool _elideEnabled: enableElide !== Text.ElideNone
     readonly property real _effectiveEmojiSize: _elideEnabled ?
