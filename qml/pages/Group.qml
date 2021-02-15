@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.TextLinking 1.0
+import "../components"
 
 Page {
     id: root
@@ -96,31 +97,43 @@ Page {
             property bool isVerified: model.isVerified
             property bool isSelf: model.isSelf
 
-            Column {
-                id: column
+
+            Row {
                 width: parent.width - 2*Theme.horizontalPageMargin
+                height: parent.height
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingLarge
 
-                Row {
-                    spacing: Theme.paddingLarge
-                    Column {
-                        Row {
-                            Label {
-                                font.pixelSize: Theme.fontSizeMedium
-                                text: name
-                            }
-                        }
-                        Row {
-                            LinkedText {
-                                linkColor: Theme.highlightColor 
-                                font.pixelSize: Theme.fontSizeExtraSmall
-                                plainText: contactId
-                            }
-                        }
-                        Row {
-                            height: Theme.paddingLarge
-                        }
+                ProfilePicture {
+                    highlighted: item.down
+                    labelsHighlighted: highlighted
+                    imageSource: '' // TODO implement somewhere
+                    isGroup: false // groups can't be members of groups
+                    showInfoMark: false
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Column {
+                    anchors {
+                        verticalCenter: parent.verticalCenter
+                        // where does the extra top padding come from?
+                        verticalCenterOffset: -Theme.paddingSmall
+                    }
+                    Label {
+                        font.pixelSize: Theme.fontSizeMedium
+                        text: item.isSelf ?
+                                  //: TODO
+                                  //% "You"
+                                  qsTrId("whisperfish-group-member-name-self") :
+                                  name
+                    }
+                    LinkedText {
+                        id: phonenumberLink
+                        linkColor: color
+                        color: item.down ? Theme.secondaryHighlightColor :
+                                           Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        plainText: contactId
                     }
                 }
             }
