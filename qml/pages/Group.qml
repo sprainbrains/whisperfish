@@ -13,19 +13,33 @@ Page {
         contactListModel.clear()
         var lst = MessageModel.groupMembers.split(",")
         for (var i = 0; i < lst.length; i++) {
-            if (lst[i] !== SetupWorker.localId) {
-                // TODO localId is available but not used by the backend, i.e. always empty
-                var name = ContactModel.name(lst[i])
-                if (name === lst[i]) {
-                    // Unknown contact
-                    //: Unknown contact in group member list
-                    //% "Unknown"
-                    name = qsTrId("whisperfish-unknown-contact")
-                }
+            // TODO localId is available but not used by the backend, i.e. always empty
+            var name = ContactModel.name(lst[i])
+            var isUnknown = false // checked below
+            var isVerified = false // TODO implement in backend
 
-                contactListModel.append({"contactId": lst[i], "name": name})
+            // TODO We need a way localId is available but not used by the backend, i.e. always empty
+            //      Related to #138. We need a way to check our own id.
+            // TODO 'self' should always be the first entry in the list because the entry
+            //      will not be clickable and act as a header.
+            var isSelf = (lst[i] === SetupWorker.localId) // currently always false
+
+            if (name === lst[i]) {
+                // TODO Use nickname defined in the profile (#192)
+                // Unknown contact
+                //: Unknown contact in group member list
+                //% "Unknown"
+                name = qsTrId("whisperfish-unknown-contact")
+                isUnknown = true
             }
-        }    
+
+            contactListModel.append({"contactId": lst[i],
+                                        "name": name,
+                                        "isUnknown": isUnknown,
+                                        "isVerified": isVerified,
+                                        "isSelf": isSelf,
+                                    })
+        }
     }
 
     RemorsePopup { id: remorse }
@@ -72,7 +86,14 @@ Page {
         }
 
         delegate: ListItem {   
+            id: item
             contentHeight: Theme.itemSizeMedium
+            enabled: !isSelf
+
+            property bool selfIsAdmin: false // TODO implement in backend
+            property bool isUnknownContact: model.isUnknown
+            property bool isVerified: model.isVerified
+            property bool isSelf: model.isSelf
 
             Column {
                 id: column
