@@ -6,6 +6,15 @@ import "../components"
 Page {
     id: root
 
+    property string groupName: MessageModel.peerName
+    property string groupDescription: '' // TODO implement in backend
+    property string groupAvatar: '' // TODO implement in backend
+
+    // Group wallpapers/background are inherently un-sailfishy. We
+    // should show them somewhere, somehow nonetheless - just not as
+    // a background image. A group admin should be able to change it, too.
+    /* property string groupWallpaper: '' */
+
     ListModel {
         id: contactListModel
     }
@@ -49,7 +58,105 @@ Page {
         id: flick
         anchors.fill: parent
         model: contactListModel
-        header: PageHeader { title: MessageModel.peerName }
+        header: Column {
+            width: parent.width
+
+            PageHeader { title: groupName }
+
+            ProfilePicture {
+                id: groupAvatarItem
+                height: 2*Theme.itemSizeLarge
+                width: height
+                highlighted: false
+                labelsHighlighted: false
+                imageSource: groupAvatar
+                isGroup: true
+                showInfoMark: true
+                infoMark.source: 'image://theme/icon-s-group-chat' // edit
+                infoMarkSize: 0.9*Theme.iconSizeSmallPlus
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: {
+                    // TODO Implement a new page derived from ViewImagePage for showing
+                    //      profile pictures. A new action overlay at the bottom can provide
+                    //      options to change or delete the profile picture.
+                    //      Note: adding a PullDownMenu would be best but is not possible.
+                    //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
+                    //      but PullDownMenu requires a SilicaFlickable as parent.
+                    if (groupAvatar === '') {
+                        remorse.execute("Changing the avatar is not yet implemented.", function() {})
+                        return
+                    }
+                    pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), {
+                                   'title': groupName, 'source': groupAvatar })
+                }
+            }
+
+            Item {
+                width: parent.width
+                height: Theme.paddingLarge
+            }
+
+            Item {
+                width: parent.width
+                height: descriptionLabel.height
+                Behavior on height { SmoothedAnimation { duration: 150 } }
+                clip: true
+
+                LinkedEmojiLabel {
+                    id: descriptionLabel
+                    property bool expanded: false
+
+                    // TODO: the description should be editable if the user has the
+                    //       appropriate permission (either admin, or all are allowed to edit)
+
+                    x: Theme.horizontalPageMargin
+                    width: parent.width-2*Theme.horizontalPageMargin
+                    plainText: groupDescription
+                    font.pixelSize: Theme.fontSizeSmall
+                    // enableElide: Text.ElideRight -- no elide to enable dynamic height
+                    // height: maximumLineCount*font.pixelSize
+                    maximumLineCount: expanded ? 100000 : 5
+                    emojiSizeMult: 1.0
+                    horizontalAlignment: Text.AlignLeft
+                    color: expandDescriptionArea.pressed ?
+                               Theme.secondaryHighlightColor :
+                               Theme.secondaryColor
+                    linkColor: color
+
+                    MouseArea {
+                        // no BackgroundItem to simplify placement, and we don't need the background
+                        id: expandDescriptionArea
+                        anchors.fill: parent
+                        enabled: parent.truncated || parent.expanded
+                        onClicked: parent.expanded = !parent.expanded
+                    }
+                }
+
+                Label {
+                    anchors {
+                        bottom: descriptionLabel.bottom
+                        right: descriptionLabel.right
+                    }
+                    font.pixelSize: Theme.fontSizeExtraSmall
+                    text: "\u2022 \u2022 \u2022" // three dots
+                    visible: descriptionLabel.truncated || descriptionLabel.expanded
+                    color: expandDescriptionArea.pressed ?
+                               Theme.highlightColor :
+                               Theme.primaryColor
+                }
+
+                OpacityRampEffect {
+                    direction: OpacityRamp.TopToBottom
+                    offset: 0.5
+                    slope: 2
+                    sourceItem: descriptionLabel
+                    enabled: descriptionLabel.truncated &&
+                             !descriptionLabel.expanded
+                }
+            }
+
+            Item { width: parent.width; height: Theme.paddingLarge }
+        }
 
         VerticalScrollDecorator { flickable: flick }
 
@@ -66,12 +173,12 @@ Page {
                     //: Leave group remorse message
                     //% "Leaving group and removing ALL messages!"
                     remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
-                        function() {
-                            console.log("Leaving group")
-                            MessageModel.leaveGroup()
-                            SessionModel.removeById(MessageModel.sessionId)
-                            mainWindow.showMainPage()
-                        })
+                                    function() {
+                                        console.log("Leaving group")
+                                        MessageModel.leaveGroup()
+                                        SessionModel.removeById(MessageModel.sessionId)
+                                        mainWindow.showMainPage()
+                                    })
                 }
             }
             MenuItem {
@@ -90,7 +197,7 @@ Page {
             }
         }
 
-        delegate: ListItem {   
+        delegate: ListItem {
             id: item
             contentHeight: Theme.itemSizeMedium
             enabled: !isSelf
@@ -191,5 +298,5 @@ Page {
                 }
             }
         }
-     }
+    }
 }
