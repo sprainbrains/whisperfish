@@ -32,11 +32,8 @@ Page {
     RemorsePopup { id: remorse }
 
     SilicaListView {
-        anchors.top: header.bottom
-        x: Theme.paddingLarge
+        anchors.fill: parent
         model: contactListModel
-        height: parent.height - header.height
-        width: parent.width - 2 * Theme.paddingLarge
 
         header: PageHeader {
             id: header
