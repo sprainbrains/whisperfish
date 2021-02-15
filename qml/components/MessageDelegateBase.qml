@@ -15,9 +15,9 @@ ListItem {
     property bool enableDebugLayer: false
 
     property QtObject modelData
-    property bool outgoing: modelData.outgoing ? true : false
-    property bool hasText: modelData.message ? true : false
-    property int index: modelData.index
+    property bool outgoing: (modelData !== null && modelData.outgoing) ? true : false
+    property bool hasText: (modelData !== null && modelData.message) ? true : false
+    property int index: modelData !== null ? modelData.index : -1
     property ListView listView: ListView.view
 
     // All children are placed inside a bubble, positioned
