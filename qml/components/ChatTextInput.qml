@@ -88,7 +88,7 @@ Item {
     }
 
     Separator {
-        opacity: showSeparator ? 1.0 : 0.0
+        opacity: showSeparator ? Theme.opacityHigh : 0.0
         color: input.focus ? Theme.secondaryHighlightColor :
                              Theme.secondaryColor
         horizontalAlignment: Qt.AlignHCenter
