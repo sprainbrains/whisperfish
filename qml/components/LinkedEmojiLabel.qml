@@ -83,6 +83,7 @@ Label {
         visible: false
         plainText: _elideEnabled ? elideFixProxy.elidedText :
                                    parent.plainText
+        linkColor: root.linkColor
     }
 
     Text {

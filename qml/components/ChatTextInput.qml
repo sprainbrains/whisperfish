@@ -186,6 +186,7 @@ Item {
                     font.pixelSize: Theme.fontSizeExtraSmall
                     color: quoteItem.highlighted ? Theme.secondaryHighlightColor :
                                                    Theme.secondaryColor
+                    linkColor: color
                 }
             }
         }
