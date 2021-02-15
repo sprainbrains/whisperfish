@@ -14,7 +14,7 @@ Page {
     onStatusChanged: {
         if (status == PageStatus.Active) {
             if (MessageModel.group) {
-                pageStack.pushAttached(Qt.resolvedUrl("Group.qml"))
+                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
             } else {
                 pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
             }
