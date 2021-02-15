@@ -52,7 +52,7 @@ Page {
         PullDownMenu {
             MenuItem {
                 //: Leave group menu item
-                //% "Leave"
+                //% "Leave this group"
                 text: qsTrId("whisperfish-group-leave-menu")
                 onClicked: {
                     //: Leave group remorse message
