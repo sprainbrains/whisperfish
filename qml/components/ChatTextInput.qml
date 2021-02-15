@@ -184,6 +184,7 @@ Item {
                     // height: maximumLineCount*font.pixelSize
                     // enableElide: Text.ElideRight -- no elide to enable dynamic height
                     font.pixelSize: Theme.fontSizeExtraSmall
+                    emojiSizeMult: 1.2
                     color: quoteItem.highlighted ? Theme.secondaryHighlightColor :
                                                    Theme.secondaryColor
                     linkColor: color
