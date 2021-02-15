@@ -33,7 +33,7 @@ MouseArea {
     Rectangle {
         id: profileBackground
         anchors.fill: parent
-        radius: 180
+        radius: width/2
         color: profileBackgroundColor
         opacity: (!_hasImage || image.status !== Image.Ready) ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { } }
@@ -66,7 +66,7 @@ MouseArea {
     Rectangle {
         id: shapeMask
         anchors.fill: profileBackground
-        radius: 180
+        radius: width/2
         visible: false
         layer.enabled: true
     }
@@ -82,7 +82,7 @@ MouseArea {
             id: infoMarkMask
             anchors { bottom: parent.bottom; right: parent.right }
             width: infoMarkMaskFactor*infoMarkSize; height: width
-            radius: 180
+            radius: width/2
             visible: showInfoMark
         }
 
@@ -115,7 +115,7 @@ MouseArea {
             right: parent.right; rightMargin: (infoMarkMask.width-infoMarkSize)/2
         }
         width: infoMarkSize; height: width
-        radius: 180
+        radius: width/2
         visible: showInfoMark
         color: "transparent"
 
