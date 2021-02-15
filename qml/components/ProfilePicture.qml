@@ -14,6 +14,7 @@ MouseArea {
     property bool showInfoMark
     property alias infoMark: infoMarkIcon
     property real infoMarkSize: Theme.iconSizeSmall // set this, don't change infoMark.{width,height}
+    property real infoMarkMaskFactor: 1.2 // how much larger than the icon should the mask be?
 
     property color profileBackgroundColor: Theme.colorScheme === Theme.LightOnDark ?
                                                Qt.darker(Theme.secondaryHighlightColor) :
@@ -80,7 +81,7 @@ MouseArea {
         Rectangle {
             id: infoMarkMask
             anchors { bottom: parent.bottom; right: parent.right }
-            width: infoMarkSize; height: width
+            width: infoMarkMaskFactor*infoMarkSize; height: width
             radius: 180
             visible: showInfoMark
         }
@@ -109,7 +110,10 @@ MouseArea {
 
     Rectangle {
         id: infoMark
-        anchors { bottom: parent.bottom; right: parent.right }
+        anchors {
+            bottom: parent.bottom; bottomMargin: (infoMarkMask.width-infoMarkSize)/2
+            right: parent.right; rightMargin: (infoMarkMask.width-infoMarkSize)/2
+        }
         width: infoMarkSize; height: width
         radius: 180
         visible: showInfoMark
