@@ -51,23 +51,6 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                //: Add group member menu item
-                //% "Add Member"
-                text: qsTrId("whisperfish-group-add-member-menu")
-                onClicked: {
-                    remorse.execute("Changing group members unimplemented", function() {})
-
-                    return;
-                    //: Add group member remorse message
-                    //% "Adding %1 to group"
-                    remorse.execute(qsTrId("whisperfish-group-add-member-remorse").arg(name),
-                        function() {
-                            // MessageModel.addMember(SetupWorker.localId, tel)
-                        }
-                    )
-                }
-            }
-            MenuItem {
                 //: Leave group menu item
                 //% "Leave"
                 text: qsTrId("whisperfish-group-leave-menu")
@@ -82,6 +65,20 @@ Page {
                             mainWindow.showMainPage()
                         })
                 }
+            }
+            MenuItem {
+                // TODO implement in backend
+                //: Create invite link menu item
+                //% "Create invitation link"
+                text: qsTrId("whisperfish-group-invite-link-menu")
+                onClicked: remorse.execute("Changing group members is not yet implemented.", function() {})
+            }
+            MenuItem {
+                // TODO implement in backend
+                //: Add group member menu item
+                //% "Add Member"
+                text: qsTrId("whisperfish-group-add-member-menu")
+                onClicked: remorse.execute("Changing group members is not yet implemented.", function() {})
             }
         }
 
