@@ -224,7 +224,7 @@ Item {
                                      qsTrId("whisperfish-chat-input-placeholder-personal").arg(
                                          placeholderContactName) :
                                      //: Generic placeholder for chat input
-                                     //% "Message"
+                                     //% "Write a message"
                                      qsTrId("whisperfish-chat-input-placeholder-default")
                 EnterKey.onClicked: {
                     if (canSend && SettingsBridge.boolValue("enable_enter_send")) {
