@@ -2,29 +2,28 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.TextLinking 1.0
 
-
 Page {
-    id: group
-    objectName: "group"
+    id: root
+
     ListModel {
-        id:contactListModel
+        id: contactListModel
     }
 
     Component.onCompleted: {
         contactListModel.clear()
         var lst = MessageModel.groupMembers.split(",")
-        console.log("Local ID " + SetupWorker.localId)
-        for(var i = 0; i < lst.length; i++) {
-            // This part does not seem to work - localId is empty
-            if(lst[i] != SetupWorker.localId) {
+        for (var i = 0; i < lst.length; i++) {
+            if (lst[i] !== SetupWorker.localId) {
+                // TODO localId is available but not used by the backend, i.e. always empty
                 var name = ContactModel.name(lst[i])
-                if (name==lst[i]) {
+                if (name === lst[i]) {
                     // Unknown contact
                     //: Unknown contact in group member list
                     //% "Unknown"
                     name = qsTrId("whisperfish-unknown-contact")
                 }
-                contactListModel.append({"e164": lst[i], "name": name})
+
+                contactListModel.append({"contactId": lst[i], "name": name})
             }
         }    
     }
@@ -34,11 +33,7 @@ Page {
     SilicaListView {
         anchors.fill: parent
         model: contactListModel
-
-        header: PageHeader {
-            id: header
-            title: MessageModel.peerName
-        }
+        header: PageHeader { title: MessageModel.peerName }
 
         PullDownMenu {
             MenuItem {
@@ -98,7 +93,7 @@ Page {
                             LinkedText {
                                 linkColor: Theme.highlightColor 
                                 font.pixelSize: Theme.fontSizeExtraSmall
-                                plainText: e164
+                                plainText: contactId
                             }
                         }
                         Row {
