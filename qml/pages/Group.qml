@@ -111,6 +111,8 @@ Page {
                     isGroup: false // groups can't be members of groups
                     showInfoMark: false
                     anchors.verticalCenter: parent.verticalCenter
+                    onPressAndHold: item.openMenu()
+                    onClicked: item.clicked(null)
                 }
 
                 Column {
