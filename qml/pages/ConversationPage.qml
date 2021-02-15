@@ -11,9 +11,13 @@ Page {
     // E.g. when starting a new chat.
     property bool editorFocus: false
 
+    property bool isGroup: MessageModel.group
+    property var contact: isGroup ? null : resolvePeopleModel.personByPhoneNumber(MessageModel.peerTel, true)
+    property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : MessageModel.peerTel)
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
-            if (MessageModel.group) {
+            if (root.isGroup) {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
             } else {
                 pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
@@ -23,18 +27,24 @@ Page {
 
     ConversationPageHeader {
         id: pageHeader
-        title:  MessageModel.peerName
-        isGroup: MessageModel.group
+        title: conversationName
+        isGroup: root.isGroup
         anchors.top: parent.top
         description: {
             // Attempt to display group member names
             // TODO This should be rewritten once the backend supports it (#223).
-            if (MessageModel.group) {
+            if (root.isGroup) {
+                // XXX code duplication with Group.qml
                 var members = []
                 var lst = MessageModel.groupMembers.split(",")
                 for (var i = 0; i < lst.length; i++) {
                     if (lst[i] !== SetupWorker.localId) {
-                        members.push(ContactModel.name(lst[i]))
+                        var member = resolvePeopleModel.personByPhoneNumber(lst[i], true)
+                        if (!member) {
+                            members.push(lst[i])
+                        } else {
+                            members.push(member.displayLabel)
+                        }
                     }
                 }
                 return members.join(", ")
@@ -116,8 +126,8 @@ Page {
             id: textInput
             width: parent.width
             anchors.bottom: parent.bottom
-            enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
-            placeholderContactName: MessageModel.peerName
+            enablePersonalizedPlaceholder: messages.count === 0 && !root.isGroup
+            placeholderContactName: conversationName
             editor.focus: root.editorFocus
             showSeparator: !messages.atYEnd || quotedMessageShown
             editor.onFocusChanged: if (editor.focus) panel.show()
