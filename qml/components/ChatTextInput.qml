@@ -187,6 +187,8 @@ Item {
                     color: quoteItem.highlighted ? Theme.secondaryHighlightColor :
                                                    Theme.secondaryColor
                     linkColor: color
+                    defaultLinkActions: false
+                    onLinkActivated: {}
                 }
             }
         }
