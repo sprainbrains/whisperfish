@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import Sailfish.TextLinking 1.0
 import "../js/emoji.js" as Emoji
 
 /*!
@@ -76,9 +77,9 @@ Label {
     textFormat: Text.StyledText
     wrapMode: _elideEnabled ? Text.WrapAnywhere : Text.Wrap
     font.pixelSize: Theme.fontSizeMedium
-    onLinkActivated: defaultLinkActions ? Qt.openUrlExternally(link) : {}
+    onLinkActivated: defaultLinkActions ? linkedTextProxy.linkActivated(link) : {}
 
-    LinkedLabel {
+    LinkedText {
         id: linkedTextProxy
         visible: false
         plainText: _elideEnabled ? elideFixProxy.elidedText :
