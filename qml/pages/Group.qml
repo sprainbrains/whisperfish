@@ -63,12 +63,12 @@ Page {
                     //: Leave group remorse message
                     //% "Leaving group and removing ALL messages!"
                     remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
-                        function() {
-                            console.log("Leaving group")
-                            MessageModel.leaveGroup()
-                            SessionModel.removeById(MessageModel.sessionId)
-                            mainWindow.showMainPage()
-                        })
+                                    function() {
+                                        console.log("Leaving group")
+                                        MessageModel.leaveGroup()
+                                        SessionModel.removeById(MessageModel.sessionId)
+                                        mainWindow.showMainPage()
+                                    })
                 }
             }
             MenuItem {
@@ -87,7 +87,7 @@ Page {
             }
         }
 
-        delegate: ListItem {   
+        delegate: ListItem {
             id: item
             contentHeight: Theme.itemSizeMedium
             enabled: !isSelf
@@ -188,5 +188,5 @@ Page {
                 }
             }
         }
-     }
+    }
 }
