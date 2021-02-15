@@ -37,7 +37,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="257"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Slett samtale</translation>
     </message>
     <message id="whisperfish-delete-session">
         <source>Delete Conversation</source>
