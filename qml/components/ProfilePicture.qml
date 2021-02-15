@@ -33,23 +33,12 @@ MouseArea {
     Rectangle {
         id: profileBackground
         anchors.fill: parent
+        layer.enabled: true
+        layer.smooth: true
         radius: width/2
+        visible: false
         color: profileBackgroundColor
         opacity: (!_hasImage || image.status !== Image.Ready) ? 1.0 : 0.0
-        Behavior on opacity { FadeAnimator { } }
-    }
-
-    HighlightImage {
-        source: isGroup ? "image://theme/icon-m-users" :
-                          "image://theme/icon-m-contact"
-        anchors.centerIn: parent
-        highlighted: _labelsHighlighted
-        opacity: !_hasImage || image.status !== Image.Ready ?
-                     (Theme.colorScheme === Theme.LightOnDark ?
-                          Theme.opacityHigh : 1.0) : 0.0
-        visible: opacity > 0.0
-        color: Theme.secondaryColor
-        highlightColor: Theme.highlightColor
         Behavior on opacity { FadeAnimator { } }
     }
 
@@ -74,8 +63,6 @@ MouseArea {
     Rectangle { // effect container
         anchors.fill: shapeMask
         color: "transparent"
-
-        visible: _hasImage
         opacity: _highlighted ? Theme.opacityLow : 1.0
 
         Rectangle {
@@ -89,7 +76,8 @@ MouseArea {
         layer.enabled: true
         layer.samplerName: "imask"
         layer.effect: ShaderEffect {
-            property variant source: image
+            property variant source: (_hasImage && image.status === Image.Ready) ?
+                                         image : profileBackground
             property variant omask: shapeMask
             fragmentShader: "
                 varying highp vec2 qt_TexCoord0;
@@ -106,6 +94,20 @@ MouseArea {
                 }
             "
         }
+    }
+
+    HighlightImage {
+        source: isGroup ? "image://theme/icon-m-users" :
+                          "image://theme/icon-m-contact"
+        anchors.centerIn: parent
+        highlighted: _labelsHighlighted
+        opacity: !_hasImage || image.status !== Image.Ready ?
+                     (Theme.colorScheme === Theme.LightOnDark ?
+                          Theme.opacityHigh : 1.0) : 0.0
+        visible: opacity > 0.0
+        color: Theme.secondaryColor
+        highlightColor: Theme.highlightColor
+        Behavior on opacity { FadeAnimator { } }
     }
 
     Rectangle {
