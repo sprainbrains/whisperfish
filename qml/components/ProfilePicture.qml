@@ -34,6 +34,8 @@ MouseArea {
         anchors.fill: parent
         radius: 180
         color: profileBackgroundColor
+        opacity: (!_hasImage || image.status !== Image.Ready) ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator { } }
     }
 
     HighlightImage {
