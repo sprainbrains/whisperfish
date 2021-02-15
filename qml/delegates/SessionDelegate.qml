@@ -141,6 +141,8 @@ ListItem {
                       message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
+            defaultLinkActions: false
+            onLinkActivated: {}
         }
 
         Row {
