@@ -55,6 +55,10 @@ Page {
                 //% "Leave this group"
                 text: qsTrId("whisperfish-group-leave-menu")
                 onClicked: {
+                    // TODO Leaving a group should *never* delete its messages.
+                    //      Two different destructive actions should require two different
+                    //      inputs and two confirmations.
+                    //      Is it enough to remove the 'removeById' line?
                     //: Leave group remorse message
                     //% "Leaving group and removing ALL messages!"
                     remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
