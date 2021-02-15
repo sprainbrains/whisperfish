@@ -28,12 +28,8 @@ Page {
             }
         }    
     }
-    RemorsePopup { id: remorse }
 
-    PageHeader {
-        id: header
-        title: MessageModel.peerName
-    }
+    RemorsePopup { id: remorse }
 
     PullDownMenu {
         MenuItem {
@@ -78,6 +74,11 @@ Page {
         model: contactListModel
         height: parent.height - header.height
         width: parent.width - 2 * Theme.paddingLarge
+
+        header: PageHeader {
+            id: header
+            title: MessageModel.peerName
+        }
 
         delegate: ListItem {   
             Column {
