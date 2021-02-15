@@ -118,11 +118,38 @@ Item {
 
             Behavior on height { SmoothedAnimation { duration: 120 } }
 
+            HighlightImage {
+                id: closeButton
+                // HighlightImage with separate MouseArea instead of IconButton
+                // because the clickable area should be bigger and better placed.
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: quoteColumn.left; rightMargin: Theme.paddingMedium
+                }
+                width: Theme.iconSizeSmallPlus
+                height: width
+                horizontalAlignment: Image.AlignHCenter
+                verticalAlignment: Image.AlignVCenter
+                source: "../../icons/icon-s-close.png"
+                highlighted: closeButtonArea.pressed || quoteItem.down
+
+                MouseArea {
+                    id: closeButtonArea
+                    anchors.centerIn: parent
+                    width: 3*Theme.iconSizeSmall
+                    height: width
+                    onClicked: resetQuote()
+                }
+            }
+
             Column {
                 id: quoteColumn
                 spacing: Theme.paddingSmall
                 height: childrenRect.height
-                width: parent.width
+                anchors {
+                    left: parent.left; leftMargin: closeButton.width+Theme.paddingMedium
+                    right: parent.right
+                }
 
                 Item { height: 1; width: parent.width } // spacing
 
@@ -146,27 +173,6 @@ Item {
                                Qt.tint(quoteItem.highlighted ? Theme.highlightColor : Theme.primaryColor,
                                        '#'+Qt.md5(quotedMessageData.source).substr(0, 6)+'0F') :
                                Theme.secondaryHighlightColor
-
-                    HighlightImage {
-                        // HighlightImage with separate MouseArea instead of IconButton
-                        // because the clickable area should be bigger and better placed.
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            right: parent.right
-                        }
-                        width: Theme.iconSizeSmall
-                        height: width
-                        source: "image://theme/icon-s-clear-opaque-cross"
-                        highlighted: closeButtonArea.pressed || quoteItem.down
-
-                        MouseArea {
-                            id: closeButtonArea
-                            anchors.centerIn: parent
-                            width: 3*Theme.iconSizeSmall
-                            height: width
-                            onClicked: resetQuote()
-                        }
-                    }
                 }
 
                 LinkedEmojiLabel {
