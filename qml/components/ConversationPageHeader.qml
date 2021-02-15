@@ -127,7 +127,7 @@ SilicaItem {
         highlighted: false
         labelsHighlighted: false
         imageSource: profilePicture
-        isGroup: isGroup
+        isGroup: pageHeader.isGroup
         showInfoMark: false
         anchors {
             // NOTE This should feel like it is vertically centered in the
