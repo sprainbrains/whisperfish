@@ -95,7 +95,7 @@ MessageDelegateBase {
             id: senderNameLabel
             visible: showSender
             height: showSender ? implicitHeight : 0
-            text: showSender ? ContactModel.name(modelData.source) : ""
+            text: showSender ? contactName : ""
             horizontalAlignment: Text.AlignLeft
             font.pixelSize: Theme.fontSizeExtraSmall
             font.bold: true

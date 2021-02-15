@@ -18,6 +18,8 @@ ListItem {
     property bool outgoing: (modelData !== null && modelData.outgoing) ? true : false
     property bool hasText: (modelData !== null && modelData.message) ? true : false
     property int index: modelData !== null ? modelData.index : -1
+    property var contact: outgoing ? null : resolvePeopleModel.personByPhoneNumber(modelData.source)
+    property var contactName: contact !== null ? contact.displayLabel : modelData.source
     property ListView listView: ListView.view
 
     // All children are placed inside a bubble, positioned
