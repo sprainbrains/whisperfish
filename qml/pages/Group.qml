@@ -77,6 +77,8 @@ Page {
         }
 
         delegate: ListItem {   
+            contentHeight: Theme.itemSizeMedium
+
             Column {
                 id: column
                 width: parent.width
