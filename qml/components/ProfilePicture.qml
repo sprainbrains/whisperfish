@@ -117,7 +117,7 @@ MouseArea {
             id: infoMarkIcon
             // source: 'image://theme/icon-s-checkmark' // outline looks too busy
             source: 'image://theme/icon-s-installed'
-            anchors.centerIn: parent
+            anchors.fill: parent
             color: Theme.primaryColor
             highlighted: _labelsHighlighted
             highlightColor: Theme.secondaryHighlightColor
