@@ -102,6 +102,50 @@ Page {
             //      - Implement custom contact page for Whisperfish contacts
             onClicked: phonenumberLink.linkActivated('tel:'+contactId)
 
+            menu: Component {
+                ContextMenu {
+                    MenuItem {
+                        // TODO Implement a way to open a new chat with someone, or open
+                        //      an existing chat. This requires better handling of sessions (#105, #183)
+                        //: TODO
+                        //% "Message to %1"
+                        text: qsTrId("whisperfish-group-member-menu-direct-message").arg(
+                                  isUnknownContact ? contactId : name)
+                        // TODO Remove the conditional once contact ids are no longer phone numbers,
+                        //      and once profiles (nicknames) are implemented.
+                        onClicked: remorse.execute("Directly opening a chat is not yet implemented.", function() {})
+                    }
+                    MenuItem {
+                        //: TODO
+                        //% "Add to contacts"
+                        text: qsTrId("whisperfish-group-member-menu-save-contact")
+                        visible: isUnknownContact
+                        onClicked: item.clicked(null) // show contact page
+                    }
+                    MenuItem {
+                        //: TODO
+                        //% "Verify safety number"
+                        text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
+                        visible: !isVerified
+                        onClicked: remorse.execute("Directly verifying the safety number is not yet implemented.", function() {})
+                        // TODO We cannot open the verification page because we would have to
+                        //      reload the message model, which currently holds this group's messages.
+                        //      This is blocked by #105 and maybe #183.
+                        //
+                        // Not possible:
+                        //      MessageModel.load(contactId, ContactModel.name(contactId))
+                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
+                    }
+                    MenuItem {
+                        //: TODO
+                        //% "Remove from this group"
+                        text: qsTrId("whisperfish-group-member-menu-remove-from-group")
+                        visible: selfIsAdmin
+                        onClicked: remorse.execute("Changing group members is not yet implemented.", function() {})
+                    }
+                }
+            }
+
             Row {
                 width: parent.width - 2*Theme.horizontalPageMargin
                 height: parent.height
