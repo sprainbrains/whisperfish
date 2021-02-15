@@ -97,6 +97,10 @@ Page {
             property bool isVerified: model.isVerified
             property bool isSelf: model.isSelf
 
+            // TODO This is an ugly hack that relies on contactId being a phone number.
+            //      - Remove if/when contacts move to UUIDs
+            //      - Implement custom contact page for Whisperfish contacts
+            onClicked: phonenumberLink.linkActivated('tel:'+contactId)
 
             Row {
                 width: parent.width - 2*Theme.horizontalPageMargin
