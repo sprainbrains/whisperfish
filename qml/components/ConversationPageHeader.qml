@@ -100,12 +100,11 @@ SilicaItem {
 
     Label {
         id: _descriptionLabel
-        width: parent.width - parent.leftMargin - parent.rightMargin
         height: descrMetrics.height // force non-null height
         anchors {
             top: parent._titleItem.bottom
-            right: parent.right
-            rightMargin: parent.rightMargin
+            right: parent.right; rightMargin: parent.rightMargin
+            left: extraContent.right; leftMargin: Theme.paddingMedium
         }
         font.pixelSize: Theme.fontSizeSmall
         color: highlighted ? palette.secondaryColor : palette.secondaryHighlightColor
