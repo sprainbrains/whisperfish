@@ -81,7 +81,8 @@ Page {
 
             Column {
                 id: column
-                width: parent.width
+                width: parent.width - 2*Theme.horizontalPageMargin
+                anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingLarge
 
                 Row {
