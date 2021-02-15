@@ -31,43 +31,6 @@ Page {
 
     RemorsePopup { id: remorse }
 
-    PullDownMenu {
-        MenuItem {
-            //: Add group member menu item
-            //% "Add Member"
-            text: qsTrId("whisperfish-group-add-member-menu")
-            onClicked: {
-                remorse.execute("Changing group members unimplemented", function() {})
-
-                return;
-                //: Add group member remorse message
-                //% "Adding %1 to group"
-                remorse.execute(qsTrId("whisperfish-group-add-member-remorse").arg(name),
-                    function() {
-                        // MessageModel.addMember(SetupWorker.localId, tel)
-                    }
-                )
-            }
-        }
-        MenuItem {
-            //: Leave group menu item
-            //% "Leave"
-            text: qsTrId("whisperfish-group-leave-menu")
-            onClicked: {
-                //: Leave group remorse message
-                //% "Leaving group and removing ALL messages!"
-                remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
-                    function() {
-                        console.log("Leaving group")
-                        MessageModel.leaveGroup()
-                        SessionModel.removeById(MessageModel.sessionId)
-                        mainWindow.showMainPage()
-                    })
-            }
-        }
-    }
-
-
     SilicaListView {
         anchors.top: header.bottom
         x: Theme.paddingLarge
@@ -78,6 +41,42 @@ Page {
         header: PageHeader {
             id: header
             title: MessageModel.peerName
+        }
+
+        PullDownMenu {
+            MenuItem {
+                //: Add group member menu item
+                //% "Add Member"
+                text: qsTrId("whisperfish-group-add-member-menu")
+                onClicked: {
+                    remorse.execute("Changing group members unimplemented", function() {})
+
+                    return;
+                    //: Add group member remorse message
+                    //% "Adding %1 to group"
+                    remorse.execute(qsTrId("whisperfish-group-add-member-remorse").arg(name),
+                        function() {
+                            // MessageModel.addMember(SetupWorker.localId, tel)
+                        }
+                    )
+                }
+            }
+            MenuItem {
+                //: Leave group menu item
+                //% "Leave"
+                text: qsTrId("whisperfish-group-leave-menu")
+                onClicked: {
+                    //: Leave group remorse message
+                    //% "Leaving group and removing ALL messages!"
+                    remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
+                        function() {
+                            console.log("Leaving group")
+                            MessageModel.leaveGroup()
+                            SessionModel.removeById(MessageModel.sessionId)
+                            mainWindow.showMainPage()
+                        })
+                }
+            }
         }
 
         delegate: ListItem {   
