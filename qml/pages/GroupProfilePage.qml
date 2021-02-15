@@ -23,12 +23,12 @@ Page {
         contactListModel.clear()
         var lst = MessageModel.groupMembers.split(",")
         for (var i = 0; i < lst.length; i++) {
-            // TODO localId is available but not used by the backend, i.e. always empty
-            var name = ContactModel.name(lst[i])
+            var member = resolvePeopleModel.personByPhoneNumber(lst[i], true)
+            var name = member ? member.displayLabel : lst[i]
             var isUnknown = false // checked below
             var isVerified = false // TODO implement in backend
 
-            // TODO We need a way localId is available but not used by the backend, i.e. always empty
+            // TODO localId is available but not used by the backend, i.e. always empty
             //      Related to #138. We need a way to check our own id.
             // TODO 'self' should always be the first entry in the list because the entry
             //      will not be clickable and act as a header.
