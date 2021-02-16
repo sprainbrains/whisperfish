@@ -150,10 +150,11 @@ Page {
                 width: parent.width
                 // anchors.bottom: parent.bottom
                 enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
-                placeholderContactName: MessageModel.peerName
+                placeholderContactName: _contact !== null ? _contact.displayLabel : ''
                 showSeparator: false
                 enableSending: recipientNumber.length > 0
                 clearAfterSend: recipientNumber.length > 0
+                property var _contact: mainWindow.contactsReady ? resolvePeopleModel.personByPhoneNumber(recipientNumber) : null
 
                 onSendMessage: {
                     // TODO rewrite

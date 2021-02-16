@@ -19,7 +19,9 @@ ListItem {
     // TODO do we need special treatment for service messages in groups?
     property string _type: "unimplemented" /* modelData.serviceMessageType */ // cf. _message
     property string _origin: "none" /* modelData.serviceMessageOrigin */ // "self" or "peer"
-    property string _originName: ContactModel.name(modelData.source)
+    property string _originName: _contact !== null ? _contact.displayLabel : ''
+    property var _contact: (modelData !== null && mainWindow.contactsReady) ?
+                               resolvePeopleModel.personByPhoneNumber(modelData.source) : null
 
     property bool _canShowDetails: (_type === "fingerprintChanged" /*||
                                     _type === "sessionReset"*/) ?

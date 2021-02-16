@@ -9,6 +9,11 @@ Page {
     property bool outgoing
     property string messageText: modelData.message.trim()
 
+    property string _originName: _contact !== null ? _contact.displayLabel : ''
+    property var _contact: (modelData !== null && mainWindow.contactsReady) ?
+                               resolvePeopleModel.personByPhoneNumber(modelData.source) : null
+
+
     SilicaFlickable {
         id: flick
         anchors.fill: parent
@@ -32,7 +37,7 @@ Page {
                                  //: TODO
                                  //% "from %1 at %2 o'clock"
                                  qsTrId("whisperfish-expanded-message-info-incoming")).
-                                    arg(ContactModel.name(modelData.source)).arg(modelData.timestamp ?
+                                    arg(_originName).arg(modelData.timestamp ?
                                         Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
                                         //: Placeholder note if a message doesn't have a timestamp (which must not happen).
                                         //% "no time"
