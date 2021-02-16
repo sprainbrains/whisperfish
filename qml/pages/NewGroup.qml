@@ -91,9 +91,7 @@ Page {
             ChatTextInput {
                 id: textInput
                 width: parent.width
-                // anchors.bottom: parent.bottom
-                enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
-                placeholderContactName: MessageModel.peerName
+                enablePersonalizedPlaceholder: false
                 showSeparator: false
                 enableSending: selectedContacts.count > 0 && groupName.text != ""
                 clearAfterSend: selectedContacts.count > 0 && groupName.text != ""
