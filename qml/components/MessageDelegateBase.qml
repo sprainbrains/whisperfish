@@ -27,6 +27,13 @@ ListItem {
     readonly property bool isInGroup: MessageModel.group
     property bool showSender: (isInGroup && !outgoing) || !hasSource
 
+    // TODO the quoted message should be a notifyable object from a model
+    // TODO we need a way to get a valid index from a message id
+    //      (we must rely on the message's id instead of its index, as the latter may change)
+    property alias quotedMessage: quoteItem.messageData // required properties: message, source, id, index
+    readonly property bool hasQuotedMessage: quotedMessage !== null
+    property bool quotedMessageShown: hasQuotedMessage
+
     // All children are placed inside a bubble, positioned
     // left or right for incoming/outgoing messages. The bubble
     // extends slightly over the contents, the list item extends
@@ -39,12 +46,18 @@ ListItem {
     property real delegateContentWidth: -1
     property real maxMessageWidth: parent.width -
                                    6*Theme.horizontalPageMargin
-    readonly property real minMessageWidth: Math.max(senderNameLabel.implicitWidth)
+    readonly property real minMessageWidth: Math.max(senderNameLabel.implicitWidth,
+                                                     quoteItem.implicitWidth)
 
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
     // Signal signature: \c{replySignal(var index, var modelData)}.
     property var replySignal
+
+    // The parent view can specify a signal to be emitted when
+    // the user clicked on the quoted message.
+    // Signal signature: \c{quoteClickedSignal(var clickedIndex, var quotedData)}.
+    property var quoteClickedSignal
 
     Component.onCompleted: {
         if (delegateContentWidth <= 0) {
@@ -158,10 +171,36 @@ ListItem {
             source: (outgoing || !hasSource) ? '' : modelData.source
             outbound: root.outgoing
             maximumWidth: maxMessageWidth
+            highlighted: down || root.highlighted
             width: delegateContentWidth
             backgroundGrow: contentPadding/2
             backgroundItem.radius: background.radius
         }
+
+        Item {
+            width: delegateContentWidth
+            height: showSender ? senderNameLabel.backgroundGrow+Theme.paddingSmall : 0
+        }
+
+        QuotedMessagePreview {
+            id: quoteItem
+            visible: quotedMessageShown
+            width: delegateContentWidth
+            maximumWidth: maxMessageWidth
+            showCloseButton: false
+            showBackground: true
+            highlighted: down || root.highlighted
+            messageData: null
+            backgroundItem.roundedCorners: backgroundItem.bottomLeft |
+                                           backgroundItem.bottomRight |
+                                           (outgoing ? backgroundItem.topRight :
+                                                       backgroundItem.topLeft)
+            onClicked: quoteClickedSignal(index, messageData)
+        }
+
+        Item {
+            width: delegateContentWidth
+            height: quoteItem.shown ? Theme.paddingSmall : 0
         }
 
         Item {
