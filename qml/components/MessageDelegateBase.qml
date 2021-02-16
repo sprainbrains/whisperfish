@@ -17,10 +17,15 @@ ListItem {
     property QtObject modelData
     property bool outgoing: (modelData !== null && modelData.outgoing) ? true : false
     property bool hasText: (modelData !== null && modelData.message) ? true : false
+    readonly property bool hasSource: typeof modelData.source !== 'undefined' &&
+                                      modelData.source.trim() !== ''
     property int index: modelData !== null ? modelData.index : -1
     property var contact: outgoing ? null : resolvePeopleModel.personByPhoneNumber(modelData.source)
     property var contactName: contact !== null ? contact.displayLabel : modelData.source
     property ListView listView: ListView.view
+
+    readonly property bool isInGroup: MessageModel.group
+    property bool showSender: (isInGroup && !outgoing) || !hasSource
 
     // All children are placed inside a bubble, positioned
     // left or right for incoming/outgoing messages. The bubble
@@ -30,11 +35,11 @@ ListItem {
     default property alias delegateContents: delegateContentItem.data
 
     // Derived types have to set \c delegateContentWidth, which
-    // should (read: must) stay between \c minMessageWidth and
-    // \c maxMessageWidth.
+    // must stay between \c minMessageWidth and \c maxMessageWidth.
     property real delegateContentWidth: -1
     property real maxMessageWidth: parent.width -
                                    6*Theme.horizontalPageMargin
+    readonly property real minMessageWidth: Math.max(senderNameLabel.implicitWidth)
 
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
@@ -136,6 +141,27 @@ ListItem {
             top: parent.top
             rightMargin: Theme.horizontalPageMargin - contentPadding
             leftMargin: Theme.horizontalPageMargin - contentPadding
+        }
+
+        // IMPORTANT Never use 'parent.width' in this content container!
+        //           This breaks width calculations here and in derived items.
+        //           Always use delegateContentWidth instead.
+
+        SenderNameLabel {
+            id: senderNameLabel
+            visible: showSender
+            text: hasSource ?
+                      contactName :
+                      //: Label shown if a message doesn't have a sender.
+                      //% "no sender"
+                      qsTrId("whisperfish-sender-label-empty")
+            source: (outgoing || !hasSource) ? '' : modelData.source
+            outbound: root.outgoing
+            maximumWidth: maxMessageWidth
+            width: delegateContentWidth
+            backgroundGrow: contentPadding/2
+            backgroundItem.radius: background.radius
+        }
         }
 
         Item {

@@ -15,7 +15,7 @@ MessageDelegateBase {
     property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
                                                 metrics.width+messageLabel.emojiCount *
                                                 messageLabel.font.pixelSize,
-                                                senderNameLabel.implicitWidth) +
+                                                minMessageWidth) +
                                        Theme.paddingMedium,
                                        maxMessageWidth)
     property real expandedWidth: root.width - 2*Theme.horizontalPageMargin
@@ -25,10 +25,6 @@ MessageDelegateBase {
                                      //: Placeholder note if an empty message is encountered.
                                      //% "this message is empty"
                                      qsTrId("whisperfish-message-empty-note")
-    property bool showSender: MessageModel.group &&
-                              !outgoing &&
-                              typeof modelData.source !== 'undefined' &&
-                              modelData.source.trim() !== ''
     property bool isEmpty: !hasText || modelData.message.trim() === ""
     property bool canExpand: !isEmpty && modelData.message.length > shortenThreshold
     property bool expandExtraPage: canExpand && modelData.message.length > extraPageTreshold
@@ -86,32 +82,6 @@ MessageDelegateBase {
         width: _expanded ? expandedWidth : labelWidth
         height: childrenRect.height
         spacing: Theme.paddingMedium
-
-        Label {
-            id: senderNameLabel
-            visible: showSender
-            height: showSender ? implicitHeight : 0
-            text: showSender ? contactName : ""
-            horizontalAlignment: Text.AlignLeft
-            font.pixelSize: Theme.fontSizeExtraSmall
-            font.bold: true
-            color: Qt.tint(Theme.primaryColor,
-                           '#'+Qt.md5(modelData.source).substr(0, 6)+'0F')
-            width: parent.width
-            truncationMode: TruncationMode.Fade
-
-            BackgroundItem {
-                // TODO improve spacing - it should exactly include the
-                // bubble padding
-                anchors {
-                    fill: parent
-                    margins: -Theme.paddingMedium
-                }
-                enabled: visible
-                // TODO open contact page
-                onClicked: console.log("[unimplemented] sender name clicked")
-            }
-        }
 
         LinkedEmojiLabel {
             id: messageLabel
