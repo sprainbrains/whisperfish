@@ -50,9 +50,7 @@ Page {
                 enabled: false
                 delegateContentWidth: messageLabel.width
 
-                LinkedLabel {
-                    // TODO We may have to replace LinkedLabel with a custom
-                    // implementation to be able to use custom icons for emojis.
+                LinkedEmojiLabel {
                     id: messageLabel
                     wrapMode: Text.Wrap
                     width: root.width - 4*Theme.horizontalPageMargin
