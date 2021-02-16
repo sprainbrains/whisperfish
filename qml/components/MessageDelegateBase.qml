@@ -71,7 +71,7 @@ ListItem {
 
     MouseArea {
         id: replyArea
-        enabled: hasText // TODO enable if the message is not empty
+        enabled: hasText && root.enabled // TODO enable if the message is not empty
         property bool down: pressed && containsPress && !menuOpen
 
         anchors { top: parent.top; bottom: parent.bottom }
