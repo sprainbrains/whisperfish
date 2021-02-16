@@ -1,0 +1,129 @@
+// SPDX-FileCopyrightText: 2021 Mirian Margiani
+// SPDX-License-Identifier: AGPL-3.0-or-later
+import QtQuick 2.6
+import Sailfish.Silica 1.0
+
+// TODO preview quoted attachements
+
+BackgroundItem {
+    id: root
+    property var messageData: null // required properties: message, source, outgoing
+    property bool showCloseButton: true
+    property bool showBackground: false
+    property real contentPadding: Theme.paddingMedium
+
+    property alias maximumWidth: senderNameLabel.maximumWidth
+    property alias horizontalAlignment: textLabel.horizontalAlignment
+    property alias backgroundItem: bgRect
+
+    readonly property bool shown: (messageData !== null && visible)
+    property var _contact: (messageData !== null && mainWindow.contactsReady) ?
+                                     resolvePeopleModel.personByPhoneNumber(messageData.source) :
+                                     null
+    property string _contactName: _contact !== null ? _contact.displayLabel : ''
+
+    implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
+                                             metrics.width), maximumWidth) : 0
+    implicitHeight: shown ? quoteColumn.height : 0
+    height: implicitHeight
+    width: implicitWidth
+    _backgroundColor: "transparent"
+
+    signal closeClicked(var mouse)
+
+    TextMetrics {
+        id: metrics
+        font: textLabel.font
+        text: textLabel.plainText
+    }
+
+    HighlightImage {
+        id: closeButton
+        visible: shown && showCloseButton
+        // HighlightImage with separate MouseArea instead of IconButton
+        // for finer control over size and placement
+        anchors {
+            verticalCenter: parent.verticalCenter
+            right: quoteColumn.left; rightMargin: Theme.paddingMedium
+        }
+        width: visible ? Theme.iconSizeSmallPlus : 0
+        height: width
+        horizontalAlignment: Image.AlignHCenter
+        verticalAlignment: Image.AlignVCenter
+        source: "../../icons/icon-s-close.png"
+        highlighted: closeButtonArea.pressed || root.down
+
+        MouseArea {
+            id: closeButtonArea
+            anchors.centerIn: parent
+            width: 3*Theme.iconSizeSmall
+            height: width
+            onClicked: closeClicked(mouse)
+        }
+    }
+
+    RoundedRect {
+        id: bgRect
+        visible: shown && showBackground
+        color: down ? Theme.highlightBackgroundColor :
+                      Theme.rgba(Theme.secondaryColor, Theme.opacityFaint)
+        opacity: Theme.opacityFaint
+        roundedCorners: allCorners
+        anchors.fill: parent
+        radius: Theme.paddingMedium
+    }
+
+    Column {
+        id: quoteColumn
+        visible: shown
+        topPadding: padding-0.9*Theme.paddingSmall // remove excessive top padding
+        spacing: Theme.paddingSmall
+        height: childrenRect.height + 2*padding
+        anchors {
+            left: parent.left
+            leftMargin: showCloseButton ? closeButton.width+Theme.paddingMedium :
+                                          contentPadding
+            right: parent.right
+            rightMargin: contentPadding
+        }
+
+        Item { height: 1; width: parent.width } // spacing
+
+        SenderNameLabel {
+            id: senderNameLabel
+            text: messageData !== null ?
+                      (messageData.outgoing ?
+                           //: TODO
+                           //% "You"
+                           qsTrId("whisperfish-sender-name-label-outgoing") :
+                           _contactName) :
+                      ''
+            source: (messageData !== null && !messageData.outgoing) ?
+                        messageData.source : ''
+            defaultClickAction: false
+            anchors { left: parent.left; right: parent.right }
+            maximumWidth: parent.width
+            horizontalAlignment: root.horizontalAlignment
+            highlighted: root.highlighted
+            enableBackground: false
+        }
+
+        LinkedEmojiLabel {
+            id: textLabel
+            anchors { left: parent.left; right: parent.right }
+            verticalAlignment: Text.AlignTop
+            horizontalAlignment: Text.AlignLeft
+            plainText: messageData !== null ? messageData.message : ''
+            maximumLineCount: 2
+            // height: maximumLineCount*font.pixelSize
+            // enableElide: Text.ElideRight -- no elide to enable dynamic height
+            font.pixelSize: Theme.fontSizeExtraSmall
+            emojiSizeMult: 1.2
+            color: root.highlighted ? Theme.secondaryHighlightColor :
+                                      Theme.secondaryColor
+            linkColor: color
+            defaultLinkActions: false
+            onLinkActivated: {}
+        }
+    }
+}
