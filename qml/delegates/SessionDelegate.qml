@@ -96,7 +96,7 @@ ListItem {
             }
             onPressAndHold: delegate.openMenu()
             onClicked: {
-                MessageModel.load(model.id, contact.displayName)
+                MessageModel.load(model.id, delegate.name)
                 if (isGroup) {
                     // TODO fixme: the group page has the group's name as header
                     //      but doesn't show any members
