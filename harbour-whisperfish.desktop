@@ -3,6 +3,8 @@ Encoding=UTF-8
 Version=1.0
 Type=Application
 Name=Whisperfish
-Exec=invoker --type=qtquick2 --single-instance /usr/bin/harbour-whisperfish
+X-Nemo-Application-Type=qtquick2
+X-Nemo-Single-Instance=no
+Exec=harbour-whisperfish
 Icon=harbour-whisperfish
 X-Desktop-File-Install-Version=0.20

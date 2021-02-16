@@ -8,6 +8,8 @@ use failure::{bail, Error};
 
 use super::tokio_qt::*;
 
+use crate::gui::AppState;
+
 /// Qt is not thread safe, and the engine can only be created once and in one thread.
 /// So this is a guard that will be used to panic if the engine is created twice
 static HAS_ENGINE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -44,7 +46,15 @@ cpp! {{
 
         SfosApplicationHolder(int &argc, char **argv)
             : app(SailfishApp::application(argc, argv))
-            , view(SailfishApp::createView()) { }
+            , view(SailfishApp::createView()) {
+                QObject::connect(
+                    view->engine(),
+                    &QQmlEngine::quit,
+                    view.get(),
+                    &QWindow::close,
+                    Qt::QueuedConnection
+                );
+            }
     };
 
     struct CloseEventFilter : public QObject {
@@ -71,14 +81,15 @@ cpp_class! (
     pub unsafe struct SailfishApp as "SfosApplicationHolder"
 );
 
-struct SfosApplicationFuture {
+struct SfosApplicationFuture<'a> {
     app: SailfishApp,
     close_event_filter: *mut CloseEventFilter,
+    app_state: QObjectPinned<'a, AppState>,
 }
 
 use std::task::{Context, Poll};
 
-impl Future for SfosApplicationFuture {
+impl Future for SfosApplicationFuture<'_> {
     type Output = ();
     fn poll(mut self: std::pin::Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
         let dispatch = self.app.event_dispatcher_mut().unwrap();
@@ -94,11 +105,18 @@ impl Future for SfosApplicationFuture {
         let has_closed = unsafe {
             cpp!([filter as "CloseEventFilter*"] -> bool as "bool" {
                 QWindowSystemInterface::sendWindowSystemEvents(QEventLoop::AllEvents);
-                return filter->isClosed;
+                bool st = filter->isClosed;
+                filter->isClosed = false;
+                return st;
             })
         };
 
         if has_closed {
+            // Reset in QML when the window reopens.
+            self.app_state.borrow_mut().set_closed();
+        }
+
+        if self.app_state.borrow().is_closed() && self.app_state.borrow().may_exit {
             Poll::Ready(())
         } else {
             Poll::Pending
@@ -209,7 +227,10 @@ impl SailfishApp {
         }
     }
 
-    pub fn exec_async(mut self) -> impl Future<Output = ()> {
+    pub fn exec_async(
+        mut self,
+        app_state: QObjectPinned<'_, AppState>,
+    ) -> impl Future<Output = ()> + '_ {
         assert!(self.event_dispatcher_mut().is_some());
         // XXX: implement Drop to deregister the filter.
         let app: &mut Self = &mut self;
@@ -223,6 +244,7 @@ impl SailfishApp {
         SfosApplicationFuture {
             app: self,
             close_event_filter,
+            app_state,
         }
     }
 

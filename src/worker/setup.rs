@@ -67,10 +67,8 @@ impl SetupWorker {
             }
         };
 
-        let whisperfish_config_file = crate::conf_dir().join("harbour-whisperfish.conf");
-        if !whisperfish_config_file.exists() {
-            app.settings.pinned().borrow_mut().defaults();
-        }
+        // Defaults does not override unset settings
+        app.settings.pinned().borrow_mut().defaults();
 
         let config = this.borrow().config.as_ref().unwrap().clone();
 
@@ -96,6 +94,12 @@ impl SetupWorker {
         }
 
         app.storage_ready().await;
+
+        #[cfg(not(feature = "harbour"))]
+        {
+            app.app_state.pinned().borrow_mut().may_exit =
+                app.settings.pinned().borrow().get_bool("quit_on_ui_close");
+        }
 
         this.borrow().setupChanged();
         this.borrow().setupComplete();
@@ -140,7 +144,6 @@ impl SetupWorker {
                 server: None,
                 root_ca: None,
                 proxy_server: None,
-                verification_type: "voice".into(),
                 storage_dir: "".into(),
                 storage_password: "".into(),
                 log_level: "debug".into(),
@@ -164,6 +167,11 @@ impl SetupWorker {
         if let Ok(storage) = res {
             return Ok(storage);
         }
+
+        app.app_state
+            .pinned()
+            .borrow_mut()
+            .activate_hidden_window(true);
 
         for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
             let password: String = app
@@ -199,6 +207,11 @@ impl SetupWorker {
 
     async fn register(app: Rc<WhisperfishApp>) -> Result<(), Error> {
         let this = app.setup_worker.pinned();
+
+        app.app_state
+            .pinned()
+            .borrow_mut()
+            .activate_hidden_window(true);
 
         let storage_password: String = app
             .prompt

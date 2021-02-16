@@ -71,12 +71,11 @@ resource_rules:
           comment: |
             🤖 Bleep bloop, I'm a bot 🤖
             I was instructed to provide links to CI builds, so here they are for
-            [armv7hl](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse?job=build:armv7hl),
-            [aarch64](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse?job=build:aarch64),
+            [armv7hl](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse/target/armv7-unknown-linux-gnueabihf/release/rpmbuild/RPMS/armv7hl/?job=build:armv7hl),
+            [aarch64](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse/target/aarch64-unknown-linux-gnu/release/rpmbuild/RPMS/aarch64/?job=build:aarch64),
             and
-            [i486](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse?job=build:i486)
+            [i486](https://gitlab.com/#{project_path}/-/jobs/artifacts/#{resource['source_branch']}/browse/target/i686-unknown-linux-gnu/release/rpmbuild/RPMS/i486/?job=build:i486)
             .
-            Just click through `target` ➡️ your architecture ➡️ `release` ➡️ `rpmbuild` ➡️ `RPMS` ➡️ another architecture, and you'll have an `.rpm`!
             Don't forget to revert to OpenRepos after your testing, because you will not receive updates until two new versions appear!
 
             These builds are only available and up-to-date when the ![pipeline status](https://gitlab.com/#{project_path}/badges/#{resource['source_branch']}/pipeline.svg) is green!

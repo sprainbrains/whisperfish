@@ -111,7 +111,7 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
 
 4. Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency, together with some other headers::
 
-   sdk-manage develpkg install SailfishOS-latest-armv7hl sqlcipher-devel qt5-qtwebsockets-devel openssl-devel
+   sdk-manage develpkg install SailfishOS-latest-armv7hl sailfish-components-webview-qt5 qt5-qtwebsockets-devel openssl-devel dbus-devel
 
 5. Make a copy of ``dotenv.example`` to ``.env``, adapt it to your configuration and source it.
 
@@ -132,7 +132,8 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
                    rpm \
                    cmake \
                    protobuf-compiler \
-                   libsqlcipher-dev
+                   curl \
+                   tcl
 
    You will also be needing some Rust things. Make sure to have a Rust version above 1.48::
 
