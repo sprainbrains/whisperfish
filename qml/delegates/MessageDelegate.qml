@@ -35,10 +35,6 @@ MessageDelegateBase {
 
     // TODO Attachments with mimetype text/x-signal-plain have to be
     // treated as extra long messages.
-
-    // TODO Implement a separate page for showing extremely long
-    // messages. Showing a context menu fails if list delegates are too high
-    // (list view goes black).
     property bool _expanded: false
 
     onClicked: {
