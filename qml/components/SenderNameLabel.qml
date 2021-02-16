@@ -64,7 +64,7 @@ Item {
 
         RoundedRect {
             id: bgRect
-            color: highlighted ? Theme.highlightBackgroundColor : "transparent"
+            color: down ? Theme.highlightBackgroundColor : "transparent"
             opacity: Theme.opacityFaint
             roundedCorners: bottomLeft | bottomRight | (outbound ? topRight : topLeft)
             anchors.fill: parent
