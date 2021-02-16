@@ -6,49 +6,54 @@ import "../components"
 Page {
     id: root
 
-    property string groupName: MessageModel.peerName
-    property string groupDescription: '' // TODO implement in backend
-    property string groupAvatar: '' // TODO implement in backend
-
     // Group wallpapers/background are inherently un-sailfishy. We
     // should show them somewhere, somehow nonetheless - just not as
     // a background image. A group admin should be able to change it, too.
     /* property string groupWallpaper: '' */
 
+    property string groupName: MessageModel.peerName
+    property string groupDescription: '' // TODO implement in backend
+    property string groupAvatar: '' // TODO implement in backend
+
+    readonly property string groupMembers: MessageModel.groupMembers
+    onGroupMembersChanged: contactListModel.refresh()
+    Component.onCompleted: contactListModel.refresh()
+
     ListModel {
         id: contactListModel
-    }
+        function refresh() {
+            clear()
+            var lst = groupMembers.split(",")
+            for (var i = 0; i < lst.length; i++) {
+                var member = resolvePeopleModel.personByPhoneNumber(lst[i], true)
+                var name = member ? member.displayLabel : lst[i]
+                var isUnknown = false // checked below
+                var isVerified = false // TODO implement in backend
 
-    Component.onCompleted: {
-        contactListModel.clear()
-        var lst = MessageModel.groupMembers.split(",")
-        for (var i = 0; i < lst.length; i++) {
-            var member = resolvePeopleModel.personByPhoneNumber(lst[i], true)
-            var name = member ? member.displayLabel : lst[i]
-            var isUnknown = false // checked below
-            var isVerified = false // TODO implement in backend
+                if (!lst[i]) continue // skip empty/invalid values
 
-            // TODO localId is available but not used by the backend, i.e. always empty
-            //      Related to #138. We need a way to check our own id.
-            // TODO 'self' should always be the first entry in the list because the entry
-            //      will not be clickable and act as a header.
-            var isSelf = (lst[i] === SetupWorker.localId) // currently always false
+                // TODO localId is available but not used by the backend, i.e. always empty
+                //      Related to #138. We need a way to check our own id.
+                // TODO 'self' should always be the first entry in the list because the entry
+                //      will not be clickable and act as a header.
+                var isSelf = (lst[i] === SetupWorker.localId) // currently always false
 
-            if (name === lst[i]) {
-                // TODO Use nickname defined in the profile (#192)
-                // Unknown contact
-                //: Unknown contact in group member list
-                //% "Unknown"
-                name = qsTrId("whisperfish-unknown-contact")
-                isUnknown = true
+                if (name === lst[i]) {
+                    // TODO Use nickname defined in the profile (#192)
+                    // Unknown contact
+                    //: Unknown contact in group member list
+                    //% "Unknown"
+                    name = qsTrId("whisperfish-unknown-contact")
+                    isUnknown = true
+                }
+
+                append({"contactId": lst[i],
+                           "name": name,
+                           "isUnknown": isUnknown,
+                           "isVerified": isVerified,
+                           "isSelf": isSelf,
+                       })
             }
-
-            contactListModel.append({"contactId": lst[i],
-                                        "name": name,
-                                        "isUnknown": isUnknown,
-                                        "isVerified": isVerified,
-                                        "isSelf": isSelf,
-                                    })
         }
     }
 

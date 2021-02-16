@@ -98,8 +98,6 @@ ListItem {
             onClicked: {
                 MessageModel.load(model.id, delegate.name)
                 if (isGroup) {
-                    // TODO fixme: the group page has the group's name as header
-                    //      but doesn't show any members
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
                 } else {
                     pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
