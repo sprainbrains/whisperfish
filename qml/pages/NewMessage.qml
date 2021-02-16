@@ -148,8 +148,7 @@ Page {
             ChatTextInput {
                 id: textInput
                 width: parent.width
-                // anchors.bottom: parent.bottom
-                enablePersonalizedPlaceholder: messages.count === 0 && !MessageModel.group
+                enablePersonalizedPlaceholder: true
                 placeholderContactName: _contact !== null ? _contact.displayLabel : ''
                 showSeparator: false
                 enableSending: recipientNumber.length > 0
