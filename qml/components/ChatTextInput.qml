@@ -158,25 +158,22 @@ Item {
                 Item { height: 1; width: parent.width } // spacing
 
                 // TODO Preview quoted attachements.
-                Label {
-                    width: parent.width
-                    maximumLineCount: 1
-                    truncationMode: TruncationMode.Fade
-                    verticalAlignment: Text.AlignVCenter
-                    horizontalAlignment: Text.AlignLeft
+                SenderNameLabel {
                     text: quotedMessageData !== null ?
                               (quotedMessageData.outgoing ?
                                    //: TODO
                                    //% "You"
-                                   qsTrId("whisperfish-chat-input-quoted-message-title-outgoing") :
+                                   qsTrId("whisperfish-quoted-message-title-outgoing") :
                                    _quotedContactName) :
                               ''
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    font.bold: true
-                    color: quotedMessageData !== null ?
-                               Qt.tint(quoteItem.highlighted ? Theme.highlightColor : Theme.primaryColor,
-                                       '#'+Qt.md5(quotedMessageData.source).substr(0, 6)+'0F') :
-                               Theme.secondaryHighlightColor
+                    source: (quotedMessageData !== null && !quotedMessageData.outgoing) ?
+                                quotedMessageData.source : ''
+                    defaultClickAction: false
+                    width: parent.width
+                    maximumWidth: parent.width
+                    horizontalAlignment: Text.AlignLeft
+                    highlighted: quoteItem.highlighted
+                    enableBackground: false
                 }
 
                 LinkedEmojiLabel {
