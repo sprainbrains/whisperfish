@@ -31,11 +31,7 @@ Item {
                                     (text.trim().length > 0 ||
                                      attachments.length > 0)
 
-    property var _quotedContact: (_quotedMessageData !== null && mainWindow.contactsReady) ?
-                               resolvePeopleModel.personByPhoneNumber(_quotedMessageData.source) :
-                               null
-    property string _quotedContactName: _quotedContact !== null ? _quotedContact.displayLabel : ''
-    property var _quotedMessageData: null
+    property alias _quotedMessageData: quoteItem.messageData
     property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
@@ -110,89 +106,17 @@ Item {
         height: input.height + spacing + quoteItem.height
         spacing: Theme.paddingSmall
 
-        BackgroundItem {
+        QuotedMessagePreview {
             id: quoteItem
             width: parent.width - 2*Theme.horizontalPageMargin
             anchors.horizontalCenter: parent.horizontalCenter
-            height: quotedMessageData === null ? 0 : quoteColumn.height
-            visible: height > 0
-            _backgroundColor: "transparent"
-            clip: true
-            onClicked: quotedMessageClicked(quotedMessageIndex, quotedMessageData)
-
+            showCloseButton: true
+            showBackground: false
+            messageData: null // set through setQuote()/resetQuote()
+            clip: true // for slide animation
             Behavior on height { SmoothedAnimation { duration: 120 } }
-
-            HighlightImage {
-                id: closeButton
-                // HighlightImage with separate MouseArea instead of IconButton
-                // because the clickable area should be bigger and better placed.
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    right: quoteColumn.left; rightMargin: Theme.paddingMedium
-                }
-                width: Theme.iconSizeSmallPlus
-                height: width
-                horizontalAlignment: Image.AlignHCenter
-                verticalAlignment: Image.AlignVCenter
-                source: "../../icons/icon-s-close.png"
-                highlighted: closeButtonArea.pressed || quoteItem.down
-
-                MouseArea {
-                    id: closeButtonArea
-                    anchors.centerIn: parent
-                    width: 3*Theme.iconSizeSmall
-                    height: width
-                    onClicked: resetQuote()
-                }
-            }
-
-            Column {
-                id: quoteColumn
-                spacing: Theme.paddingSmall
-                height: childrenRect.height
-                anchors {
-                    left: parent.left; leftMargin: closeButton.width+Theme.paddingMedium
-                    right: parent.right
-                }
-
-                Item { height: 1; width: parent.width } // spacing
-
-                // TODO Preview quoted attachements.
-                SenderNameLabel {
-                    text: quotedMessageData !== null ?
-                              (quotedMessageData.outgoing ?
-                                   //: TODO
-                                   //% "You"
-                                   qsTrId("whisperfish-quoted-message-title-outgoing") :
-                                   _quotedContactName) :
-                              ''
-                    source: (quotedMessageData !== null && !quotedMessageData.outgoing) ?
-                                quotedMessageData.source : ''
-                    defaultClickAction: false
-                    width: parent.width
-                    maximumWidth: parent.width
-                    horizontalAlignment: Text.AlignLeft
-                    highlighted: quoteItem.highlighted
-                    enableBackground: false
-                }
-
-                LinkedEmojiLabel {
-                    width: parent.width
-                    verticalAlignment: Text.AlignTop
-                    horizontalAlignment: Text.AlignLeft
-                    plainText: quotedMessageData !== null ? quotedMessageData.message : ''
-                    maximumLineCount: 2
-                    // height: maximumLineCount*font.pixelSize
-                    // enableElide: Text.ElideRight -- no elide to enable dynamic height
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    emojiSizeMult: 1.2
-                    color: quoteItem.highlighted ? Theme.secondaryHighlightColor :
-                                                   Theme.secondaryColor
-                    linkColor: color
-                    defaultLinkActions: false
-                    onLinkActivated: {}
-                }
-            }
+            onClicked: quotedMessageClicked(quotedMessageIndex, quotedMessageData)
+            onCloseClicked: resetQuote()
         }
 
         RowLayout {
