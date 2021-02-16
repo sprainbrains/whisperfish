@@ -31,6 +31,10 @@ Item {
                                     (text.trim().length > 0 ||
                                      attachments.length > 0)
 
+    property var _quotedContact: (_quotedMessageData !== null && mainWindow.contactsReady) ?
+                               resolvePeopleModel.personByPhoneNumber(_quotedMessageData.source) :
+                               null
+    property string _quotedContactName: _quotedContact !== null ? _quotedContact.displayLabel : ''
     property var _quotedMessageData: null
     property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
@@ -162,10 +166,10 @@ Item {
                     horizontalAlignment: Text.AlignLeft
                     text: quotedMessageData !== null ?
                               (quotedMessageData.outgoing ?
-                                  //: TODO
-                                  //% "You"
-                                  qsTrId("whisperfish-chat-input-quoted-message-title-outgoing") :
-                                  ContactModel.name(quotedMessageData.source)) :
+                                   //: TODO
+                                   //% "You"
+                                   qsTrId("whisperfish-chat-input-quoted-message-title-outgoing") :
+                                   _quotedContactName) :
                               ''
                     font.pixelSize: Theme.fontSizeExtraSmall
                     font.bold: true
@@ -218,7 +222,7 @@ Item {
                 hideLabelOnEmptyField: false
                 textRightMargin: 0
                 font.pixelSize: Theme.fontSizeSmall
-                placeholderText: enablePersonalizedPlaceholder && placeholderContactName.length ?
+                placeholderText: (enablePersonalizedPlaceholder && placeholderContactName.length > 0) ?
                                      //: Personalized placeholder for chat input, e.g. "Hi John"
                                      //% "Hi %1"
                                      qsTrId("whisperfish-chat-input-placeholder-personal").arg(
