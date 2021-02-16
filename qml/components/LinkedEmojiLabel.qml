@@ -78,6 +78,7 @@ Label {
     wrapMode: _elideEnabled ? Text.WrapAnywhere : Text.Wrap
     font.pixelSize: Theme.fontSizeMedium
     onLinkActivated: defaultLinkActions ? linkedTextProxy.linkActivated(link) : {}
+    linkColor: color
 
     LinkedText {
         id: linkedTextProxy
