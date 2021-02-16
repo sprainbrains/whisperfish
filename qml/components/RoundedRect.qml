@@ -13,10 +13,12 @@ import QtQuick 2.2
 */
 Item {
     id: root
+    readonly property int none: 0
     readonly property int topLeft: 1
     readonly property int topRight: 2
     readonly property int bottomLeft: 4
     readonly property int bottomRight: 8
+    readonly property int allCorners: topLeft | topRight | bottomLeft | bottomRight
 
     property int roundedCorners: 0 // e.g. topLeft | bottomLeft
     property color color: "white"
