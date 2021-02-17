@@ -24,14 +24,21 @@ Item {
     property color color: "white"
     property real radius: 10
 
+    property color borderColor: "transparent"
+    property int borderWidth: 0
+
     ShaderEffect {
         property alias color: root.color
+        property alias borderColor: root.borderColor
         property var source: ShaderEffectSource {
             sourceRect: Qt.rect(0, 0, root.width, root.height)
             sourceItem: Rectangle {
                 width: root.width
                 height: root.height
                 radius: root.radius
+                color: root.color
+                border.width: borderWidth
+                border.color: borderColor
             }
         }
 
@@ -39,13 +46,18 @@ Item {
         property bool rTR: (roundedCorners & topRight) > 0
         property bool rBL: (roundedCorners & bottomLeft) > 0
         property bool rBR: (roundedCorners & bottomRight) > 0
+        property double borderW: borderWidth/root.width
+        property double borderH: borderWidth/root.height
 
         anchors.fill: parent
         fragmentShader: "
             uniform sampler2D source;
             varying highp vec2 qt_TexCoord0;
             uniform highp vec4 color;
+            uniform highp vec4 borderColor;
             uniform highp float qt_Opacity;
+            uniform highp float borderW;
+            uniform highp float borderH;
 
             uniform bool rTL;
             uniform bool rTR;
@@ -58,7 +70,11 @@ Item {
                     || (rBL && qt_TexCoord0.x <  0.5 && qt_TexCoord0.y >= 0.5)
                     || (rBR && qt_TexCoord0.x >= 0.5 && qt_TexCoord0.y >= 0.5)
                 ) {
-                    gl_FragColor = color * (texture2D(source, qt_TexCoord0).w) * qt_Opacity;
+                    gl_FragColor = texture2D(source, qt_TexCoord0.st) * qt_Opacity;
+                } else if (   qt_TexCoord0.x <= borderW || (1.0-qt_TexCoord0.x) <= borderW
+                           || qt_TexCoord0.y <= borderH || (1.0-qt_TexCoord0.y) <= borderH
+                ) {
+                    gl_FragColor = borderColor * qt_Opacity;
                 } else {
                     gl_FragColor = color * qt_Opacity;
                 }
