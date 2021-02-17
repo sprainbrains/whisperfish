@@ -133,12 +133,8 @@ Page {
             editor.onFocusChanged: if (editor.focus) panel.show()
 
             onQuotedMessageClicked: {
-                // TODO This should use the message id instead of an index.
-                //      Indices may change, the saved index may become invalid.
-                //      We need a method like MessageModel.indexFromId(mId) to
-                //      get the current and valid index for the quoted message.
-                // TODO The delegate of the quoted message should be highlighted.
-                messages.positionViewAtIndex(quotedMessageIndex, ListView.End)
+                // TODO use message id instead of index
+                messages.jumpToMessage(index)
             }
             onSendMessage: {
                 // TODO This should be handled completely in the backend.

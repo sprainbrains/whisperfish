@@ -156,6 +156,14 @@ SilicaListView {
 
     VerticalScrollDecorator { flickable: messagesView }
 
+    function jumpToMessage(index) {
+        // TODO This should use the message id instead of an index.
+        //      Indices may change, the saved index may become invalid.
+        //      We need a method like MessageModel.indexFromId(mId) to
+        //      get the current and valid index for the quoted message.
+        positionViewAtIndex(index, ListView.End)
+    }
+
     function openAttachment(contentItem) {
         MessageModel.openAttachment(contentItem.modelData.index)
     }

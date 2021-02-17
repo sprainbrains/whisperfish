@@ -35,7 +35,7 @@ Item {
     property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
-    signal quotedMessageClicked(var index, var modelData)
+    signal quotedMessageClicked(var index, var quotedData)
 
     function reset() {
         Qt.inputMethod.commit()
