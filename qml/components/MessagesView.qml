@@ -35,6 +35,7 @@ SilicaListView {
     // TODO verify:
     // avoids resetting focus every time a row is added, which breaks text input
     currentIndex: -1
+    highlightFollowsCurrentItem: false
 
     // TODO verify: date->string is always ISO formatted?
     // TODO Use a custom property for sections. It should contain
@@ -68,6 +69,10 @@ SilicaListView {
         height: loader.y + loader.height
         width: parent.width
 
+        ListView.onIsCurrentItemChanged: {
+            if (!ListView.isCurrentItem) return
+            blinkAnimation.start()
+        }
         ListView.onRemove: loader.item.animateRemoval(wrapper)
         onAtSectionBoundaryChanged: {
             if (atSectionBoundary) {
@@ -85,6 +90,14 @@ SilicaListView {
                 section.destroy()
                 section = null
             }
+        }
+
+        SequentialAnimation {
+            id: blinkAnimation
+            FadeAnimator { target: wrapper; duration: 220; from: 1.0; to: Theme.opacityHigh }
+            FadeAnimator { target: wrapper; duration: 200; from: Theme.opacityHigh; to: 1.0 }
+            FadeAnimator { target: wrapper; duration: 180; from: 1.0; to: Theme.opacityHigh }
+            FadeAnimator { target: wrapper; duration: 180; from: Theme.opacityHigh; to: 1.0 }
         }
 
         Loader {
@@ -164,6 +177,13 @@ SilicaListView {
         //      We need a method like MessageModel.indexFromId(mId) to
         //      get the current and valid index for the quoted message.
         positionViewAtIndex(index, ListView.End)
+
+        // We briefly set the current index to the target message. This
+        // notifies the resp. delegate which is enough to start an animation.
+        // We reset it to -1 because of this comment in the old implementation:
+        // "avoids resetting focus every time a row is added, which breaks text input"
+        currentIndex = index
+        currentIndex = -1
     }
 
     function openAttachment(contentItem) {
