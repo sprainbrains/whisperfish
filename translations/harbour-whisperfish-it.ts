@@ -628,14 +628,14 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Continua</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="24"/>
         <source>Confirm</source>
         <extracomment>Reset peer identity accept text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conferma</translation>
     </message>
     <message id="whisperfish-peer-not-trusted">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="32"/>
@@ -655,7 +655,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="24"/>
         <source>Linked Devices</source>
         <extracomment>Linked devices menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivi collegati</translation>
     </message>
     <message id="whisperfish-settings-reconnect-menu">
         <location filename="../qml/pages/Settings.qml" line="33"/>
@@ -668,20 +668,20 @@ Settings page share contacts</extracomment>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="56"/>
         <source>My Identity</source>
         <extracomment>Settings page My identity section label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>La mia identità</translation>
     </message>
     <message id="whisperfish-settings-my-phone-number">
         <location filename="../qml/pages/Settings.qml" line="65"/>
         <source>My Phone</source>
         <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Il mio telefono</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="75"/>
@@ -693,20 +693,20 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="86"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identità</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
         <location filename="../qml/pages/Settings.qml" line="95"/>
         <source>Notifications</source>
         <extracomment>Settings page notifications section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Notifiche</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable">
         <location filename="../qml/pages/Settings.qml" line="102"/>
         <source>Enable notifications</source>
         <oldsource>Enabled</oldsource>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Abilita le notifiche</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="105"/>
@@ -718,7 +718,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="118"/>
         <source>Show Message Body</source>
         <extracomment>Settings page notifications show message body</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il corpo del messaggio</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body-description">
         <location filename="../qml/pages/Settings.qml" line="121"/>
@@ -730,13 +730,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="136"/>
         <source>General</source>
         <extracomment>Settings page general section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Generale</translation>
     </message>
     <message id="whisperfish-settings-country-code">
         <location filename="../qml/pages/Settings.qml" line="144"/>
         <source>Country Code</source>
         <extracomment>Settings page country code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Codice paese</translation>
     </message>
     <message id="whisperfish-settings-country-code-description">
         <location filename="../qml/pages/Settings.qml" line="147"/>
@@ -810,13 +810,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="283"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lascia Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="296"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avanzato</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode">
         <location filename="../qml/pages/Settings.qml" line="303"/>
@@ -876,13 +876,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="371"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Connesso</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
         <location filename="../qml/pages/Settings.qml" line="374"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Disconnesso</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
         <location filename="../qml/pages/Settings.qml" line="379"/>
@@ -894,7 +894,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="385"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sessioni totali</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
         <location filename="../qml/pages/Settings.qml" line="391"/>
@@ -949,7 +949,7 @@ Settings page share contacts</extracomment>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verifica i numeri di sicurezza</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
         <location filename="../qml/pages/Group.qml" line="18"/>
@@ -975,7 +975,7 @@ Settings page share contacts</extracomment>
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lascia il gruppo e rimuovi TUTTI i messaggi!</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <location filename="../qml/pages/Group.qml" line="62"/>
@@ -1017,7 +1017,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
         <source>Please enter the code you received from Signal.</source>
         <extracomment>verify registration prompt</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il codice che hai ricevuto da Signal.</translation>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
