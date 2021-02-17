@@ -25,13 +25,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="121"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished">Notiz an mich selbst</translation>
+        <translation>Notiz an mich selbst</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="139"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished">Entwurf: %1</translation>
+        <translation>Entwurf: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="257"/>
@@ -103,13 +103,13 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>Build ID: %1</translation>
+        <translation>Version-ID: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation>Copyright</translation>
+        <translation>Urheberrecht</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="87"/>
@@ -133,13 +133,13 @@
         <location filename="../qml/pages/About.qml" line="117"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Besuche Wiki</translation>
+        <translation>Besuche das Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="126"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation>Zusätzliches Copyright</translation>
+        <translation>Zusätzliches Urheberrecht</translation>
     </message>
     <message id="whisperfish-add-confirm">
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
@@ -163,7 +163,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="54"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation>Installiere Signal Desktop. Nutze einen QR-Code Scanner um die URL aus dem QR-Code hinzuzufügen.</translation>
+        <translation>Installiere Signal Desktop. Nutze einen QR-Code-Scanner, um die URL aus dem QR-Code hinzuzufügen.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
         <location filename="../qml/pages/AttachmentPage.qml" line="25"/>
@@ -195,7 +195,7 @@
         <location filename="../qml/pages/WFChatTextInput.qml" line="203"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation>Wähle Datei</translation>
+        <translation>Wähle eine Datei</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <source>Choose Country Code</source>
@@ -266,7 +266,7 @@
         <location filename="../qml/pages/MainPage.qml" line="97"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation>Ziehen Sie nach unten, um eine neue Unterhaltung zu beginnen.</translation>
+        <translation>Ziehe nach unten, um eine neue Unterhaltung zu beginnen.</translation>
     </message>
     <message id="whisperfish-registration-complete">
         <source>Registration complete!</source>
@@ -339,13 +339,13 @@
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen&#xa0;…</translation>
+        <translation>Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Neuer Versand&#xa0;…</translation>
+        <translation>Neuer Versand …</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="135"/>
@@ -514,7 +514,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>Repeat the password</source>
         <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
-        <translation type="unfinished">Passwort wiederholen</translation>
+        <translation>Passwort wiederholen</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>
@@ -563,14 +563,14 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/UnlockPage.qml" line="52"/>
         <source>Please try again</source>
         <extracomment>input field placeholder after failed attempt to unlock (keep it short)</extracomment>
-        <translation type="unfinished">Bitte versuche es erneut</translation>
+        <translation>Bitte versuche es erneut</translation>
     </message>
     <message id="whisperfish-password-placeholder">
         <location filename="../qml/pages/UnlockPage.qml" line="76"/>
         <source>Your password</source>
         <oldsource>Password</oldsource>
         <extracomment>password placeholder</extracomment>
-        <translation type="unfinished">Passwort</translation>
+        <translation>Dein Passwort</translation>
     </message>
     <message id="whisperfish-unlock-button-label">
         <location filename="../qml/pages/UnlockPage.qml" line="85"/>
@@ -656,7 +656,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="12"/>
         <source>Register</source>
         <extracomment>registration page title</extracomment>
-        <translation type="unfinished">Registrierung</translation>
+        <translation>Registrierung</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
         <location filename="../qml/pages/RegisterPage.qml" line="38"/>
@@ -687,7 +687,7 @@ Settings page share contacts</extracomment>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
-        <translation type="unfinished">Signal wird dich anrufen, um dir einen 6-stelligen Code mitzuteilen. Sei bereit zum Notieren.</translation>
+        <translation>Signal wird dich anrufen, um dir einen 6-stelligen Code mitzuteilen. Sei bereit zum Notieren.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="136"/>
@@ -745,7 +745,7 @@ Settings page share contacts</extracomment>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished">Whisperfish Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="56"/>
@@ -831,7 +831,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="178"/>
         <source>Save Attachments</source>
         <extracomment>Settings page save attachments</extracomment>
-        <translation>Speichere Anhänge</translation>
+        <translation>Anhänge speichern</translation>
     </message>
     <message id="whisperfish-settings-save-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="182"/>
@@ -856,38 +856,38 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="239"/>
         <source>Autostart and Background</source>
         <extracomment>Settings page startup and shutdown section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Autostart und Hintergrunddienste</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart">
         <location filename="../qml/pages/Settings.qml" line="246"/>
         <source>Autostart after boot</source>
         <extracomment>Settings page enable autostart</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Autostart nach dem Booten</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wenn diese Funktion aktiviert ist, läuft Whisperfish im Hintergrund weiter und kann Benachrichtigungen senden, nachdem das App-Fenster geschlossen wurde.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Background mode</source>
         <extracomment>Settings page enable background mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundmodus</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="249"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wenn diese Option aktiviert ist, wird Whisperfish nach jedem Start automatisch gestartet. Wenn die Speicherverschlüsselung aktiviert oder der Hintergrundmodus ausgeschaltet ist, wird die Benutzeroberfläche angezeigt, ansonsten startet die App im Hintergrund.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="283"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish beenden</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="296"/>
@@ -911,7 +911,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="314"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten&#xa0;…</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="327"/>
@@ -1120,7 +1120,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="10"/>
         <source>Verify</source>
         <extracomment>verify registration page title</extracomment>
-        <translation type="unfinished">Überprüfen</translation>
+        <translation>Überprüfen</translation>
     </message>
     <message id="whisperfish-verify-code-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
@@ -1132,7 +1132,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
         <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation type="unfinished">Signal sollte Sie mit einem 6-stelligen Prüfcode angerufen haben. Bitte warten Sie einen Moment oder starten Sie den Vorgang erneut, wenn Sie keinen Anruf erhalten haben.</translation>
+        <translation>Signal sollte dich mit einem 6-stelligen Prüfcode angerufen haben. Bitte warte einen Moment oder starte den Vorgang erneut, wenn du keinen Anruf erhalten hast.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
@@ -1156,7 +1156,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="87"/>
         <source>Code</source>
         <extracomment>verification code input placeholder</extracomment>
-        <translation type="unfinished">Code</translation>
+        <translation>Code</translation>
     </message>
 </context>
 </TS>
