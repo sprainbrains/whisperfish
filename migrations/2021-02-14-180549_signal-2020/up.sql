@@ -200,6 +200,196 @@ CREATE TABLE stickers (
 ---
 -- 3. Copy over the data
 
+-- Create a view for the group members.
+-- The TEMPORARY view is automatically destroyed
+-- at the end of the connection.
+CREATE TEMPORARY VIEW old_group_members AS
+WITH split(group_id, word, str) AS (
+    SELECT
+        group_id, '', group_members||','
+        FROM old_session
+        WHERE is_group != 0
+            AND group_members IS NOT NULL
+            AND group_members != ""
+    UNION ALL
+    SELECT
+        group_id,
+        substr(str, 0, instr(str, ',')),
+        substr(str, instr(str, ',')+1)
+    FROM split
+    WHERE str!=''
+)
+SELECT
+    group_id,
+    word
+AS group_member_e164
+FROM split
+WHERE word != '';
+
+-- We have two sources of recipients.
+-- - 1:1/direct messages, i.e. the `source` field of `old_session`.
+INSERT INTO recipients (
+    e164
+)
+SELECT
+    source
+FROM old_session
+WHERE source IS NOT NULL and source != "";
+
+-- - group messages, i.e. the `group_members` field of `old_session`.
+INSERT OR IGNORE INTO recipients (
+    e164
+) SELECT DISTINCT (
+    group_member_e164
+) FROM old_group_members;
+
+-- 🫂  Create the groups 🫂
+INSERT INTO group_v1s (
+    id,
+    name
+)
+SELECT group_id, group_name
+FROM old_session
+WHERE is_group;
+
+INSERT INTO group_v1_members (
+    group_v1_id,
+    recipient_id
+)
+SELECT group_id, recipients.id
+FROM old_group_members, recipients
+WHERE old_group_members.group_member_e164 == recipients.e164;
+
+-- For sessions, too, we have two sources.
+-- They both come from old_session. 🐎 Hold your horses 🐎
+-- - 🐎 1:1 sessions have to be tied to the recipient table
+INSERT INTO sessions (
+    direct_message_recipient_id
+)
+SELECT recipients.id
+FROM recipients, old_session
+WHERE recipients.e164 == old_session.source
+    AND NOT old_session.is_group;
+-- - 🐎 groups have to be tied to the group_v1s table
+INSERT INTO sessions (
+    group_v1_id
+)
+SELECT group_id
+FROM old_session
+WHERE old_session.is_group;
+
+-- ✉️  And finally the messages ✉️
+-- This is also split in groups and 1:1,
+-- because of the lack of SQL-skilzz
+INSERT INTO messages (
+    session_id,
+    text,
+
+    received_timestamp,
+    sent_timestamp,
+    server_timestamp,
+
+    is_read,
+    is_outbound,
+    flags
+)
+SELECT
+    sessions.id,
+    old_message.message,
+
+    -- received timestamp
+    CASE WHEN old_message.outgoing == 0
+        THEN old_message.timestamp
+        ELSE NULL
+    END,
+    -- sent timestamp
+    CASE WHEN old_message.outgoing
+        THEN old_message.timestamp
+        ELSE NULL
+    END,
+    -- server timestamp
+    old_message.timestamp,
+
+    old_message.received,
+    old_message.outgoing,
+    old_message.flags
+FROM sessions, recipients, old_message, old_session
+WHERE sessions.direct_message_recipient_id == recipients.id
+    AND recipients.e164 == old_session.source
+    AND old_session.id == old_message.session_id
+    AND NOT old_session.is_group;
+
+INSERT INTO messages (
+    session_id,
+    text,
+
+    sender_recipient_id,
+
+    received_timestamp,
+    sent_timestamp,
+    server_timestamp,
+
+    is_read,
+    is_outbound,
+    flags
+)
+SELECT
+    sessions.id,
+    old_message.message,
+
+    -- sender id
+    CASE WHEN old_message.outgoing == 0
+        THEN recipients.id
+        ELSE NULL
+    END,
+
+    -- received timestamp
+    CASE WHEN old_message.outgoing == 0
+        THEN old_message.timestamp
+        ELSE NULL
+    END,
+    -- sent timestamp
+    CASE WHEN old_message.outgoing
+        THEN old_message.timestamp
+        ELSE NULL
+    END,
+    -- server timestamp
+    old_message.timestamp,
+
+    old_message.received,
+    old_message.outgoing,
+    old_message.flags
+FROM sessions, old_message, old_session
+-- Use a LEFT JOIN , because when old_message.source = NULL or empty string, we still want the message.
+LEFT JOIN recipients ON recipients.e164 == old_message.source
+WHERE sessions.group_v1_id == old_session.group_id
+    AND old_session.id == old_message.session_id
+    AND old_session.is_group;
+
+INSERT INTO attachments (
+    message_id,
+    attachment_path,
+    content_type,
+
+    is_voice_note,
+    is_borderless,
+    is_quote
+)
+SELECT
+    messages.id,
+    old_message.attachment,
+    CASE WHEN old_message.mime_type IS NULL
+        THEN ""
+        ELSE old_message.mime_type
+    END,
+
+    0,
+    0,
+    0
+FROM messages, old_message
+WHERE messages.server_timestamp == old_message.timestamp
+    AND old_message.has_attachment;
+
 -- 4. Drop the old tables
 
 DROP TABLE old_sentq;
