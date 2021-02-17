@@ -25,13 +25,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="121"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Σημείωμα για εμένα</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="139"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Πρόχειρο: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="257"/>
@@ -49,14 +49,14 @@
         <location filename="../qml/harbour-whisperfish.qml" line="139"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία ρύθμισης του Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="144"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία ρύθμισης του χώρου αποθήκευσης</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -98,13 +98,13 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>Build ID: %1</translation>
+        <translation>Αριθμός Έκδοσης: %1</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="87"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Υποστήριξη μέσω Liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="97"/>
@@ -122,7 +122,7 @@
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Πνευματική ιδιοκτησία</translation>
     </message>
     <message id="whisperfish-about-wiki-link">
         <location filename="../qml/pages/About.qml" line="117"/>
@@ -134,7 +134,7 @@
         <location filename="../qml/pages/About.qml" line="126"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Περαιτέρω πνευματική ιδιοκτησία</translation>
     </message>
     <message id="whisperfish-add-confirm">
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
@@ -256,13 +256,13 @@
         <location filename="../qml/pages/MainPage.qml" line="97"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Σύρετε προς τα κάτω για να ξεκινήσετε καινούργια συνομιλία.</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../qml/pages/MainPage.qml" line="25"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Περί Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="31"/>
@@ -340,19 +340,19 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="18"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επαναφορά Ασφαλούς Συνεδρίας</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="23"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Γίνεται επαναφορά ασφαλούς συνεδρίας</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Εαν επιθυμείτε να επιβεβαιώσετε την ασφάλεια της κρυπτογράφησης με %1, συγκρίνετε τους παραπάνω αριθμούς με τους αριθμούς στη δική τους συσκευή.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="58"/>
@@ -537,7 +537,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Το Whisperfish αποθηκεύει τα κλειδιά ταυτοποίησης, την κατάσταση συνεδρίας και τα δεδομένα μηνύματων με κρυπτογράφηση στο δίσκό. Ο κωδικός πρόσβασης που καθορίζετε δεν αποθηκεύετε πουθενά και κατά συνέπεια δε μπορείτε να ανακτήσετε τα δεδομένα σας εάν χάσετε τον κωδικό σας. Σημείωση: Τα συνημμένα προς το παρόν αποθηκεύονται χωρίς κρυπτογράφηση. Μπορείτε να απενεργοποιήσετε την αποθήκευση δεδομένων στη σελίδα Ρυθμίσεων.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -596,31 +596,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="76"/>
         <source>Prefix</source>
         <extracomment>label for combo box for selecting calling code (phone number prefix) important: translate as short as possible</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Πρόθεμα</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
         <location filename="../qml/pages/RegisterPage.qml" line="112"/>
         <source>Phone number</source>
         <extracomment>phone number input label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αριθμός τηλεφώνου</translation>
     </message>
     <message id="whisperfish-registration-number-input-placeholder">
         <location filename="../qml/pages/RegisterPage.qml" line="116"/>
         <source>Phone number</source>
         <extracomment>phone number input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αριθμός τηλεφώνου</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="134"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Το Signal θα σας καλέσει παρέχοντας εναν 6-ψηφιο κωδικό επιβεβαίωσης. Παρακαλώ να είστε έτοιμοι να τον σημειώσετε.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="136"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Το Signal θα σας αποστείλει έναν 6-ψήφιο κωδικό επιβεβαίωσης μέσω SMS.</translation>
     </message>
     <message id="whisperfish-continue-button-label">
         <location filename="../qml/pages/RegisterPage.qml" line="176"/>
@@ -628,207 +628,207 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Συνέχεια</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="24"/>
         <source>Confirm</source>
         <extracomment>Reset peer identity accept text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επιβεβαίωση</translation>
     </message>
     <message id="whisperfish-peer-not-trusted">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="32"/>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="32"/>
         <source>Peer identity is not trusted</source>
         <extracomment>Peer identity not trusted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Η ταυτότητα του συνομιλητή δεν είναι έμπιστη</translation>
     </message>
     <message id="whisperfish-peer-not-trusted-message">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="42"/>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ΠΡΟΣΟΧΗ: Η ταυτότητα του %1 δεν είναι πλέον έμπιστη. Πιέστε Επιβεβαίωση για να επαναφέρετε την ταυτότητα του συνομιλητη.</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="24"/>
         <source>Linked Devices</source>
         <extracomment>Linked devices menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Συνδεδεμένες συσκευές</translation>
     </message>
     <message id="whisperfish-settings-reconnect-menu">
         <location filename="../qml/pages/Settings.qml" line="33"/>
         <source>Reconnect</source>
         <extracomment>Reconnect menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επανασύνδεση</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="49"/>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ρυθμίσεις</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="56"/>
         <source>My Identity</source>
         <extracomment>Settings page My identity section label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Η ταυτότητά μου</translation>
     </message>
     <message id="whisperfish-settings-my-phone-number">
         <location filename="../qml/pages/Settings.qml" line="65"/>
         <source>My Phone</source>
         <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ο αριθμός τηλεφώνου μου</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="75"/>
         <source>My UUID registration number</source>
         <extracomment>Settings page My UUID</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ο αριθμός εγγραφής UUID</translation>
     </message>
     <message id="whisperfish-settings-identity-label">
         <location filename="../qml/pages/Settings.qml" line="86"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ταυτότητα</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
         <location filename="../qml/pages/Settings.qml" line="95"/>
         <source>Notifications</source>
         <extracomment>Settings page notifications section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ειδοποιήσεις</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable">
         <location filename="../qml/pages/Settings.qml" line="102"/>
         <source>Enable notifications</source>
         <oldsource>Enabled</oldsource>
         <extracomment>Settings page notifications enable</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποίηση ειδοποιήσεων</translation>
     </message>
     <message id="whisperfish-settings-notifications-enable-description">
         <location filename="../qml/pages/Settings.qml" line="105"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Εαν είναι απενεργοποιημένο, το Whisperfish δε θα εμφανίσει καμμία ειδοποίηση</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="118"/>
         <source>Show Message Body</source>
         <extracomment>Settings page notifications show message body</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση περιεχομένου μηνύματος</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body-description">
         <location filename="../qml/pages/Settings.qml" line="121"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Εαν είναι απενεργοποιημένο, το Whisperfish θα εμφανίσει μόνο τον αποστολέα του μηνύματος, όχι τα περιεχόμενα.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="136"/>
         <source>General</source>
         <extracomment>Settings page general section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Γενικά</translation>
     </message>
     <message id="whisperfish-settings-country-code">
         <location filename="../qml/pages/Settings.qml" line="144"/>
         <source>Country Code</source>
         <extracomment>Settings page country code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κωδικός Χώρας</translation>
     </message>
     <message id="whisperfish-settings-country-code-description">
         <location filename="../qml/pages/Settings.qml" line="147"/>
         <source>The selected country code determines what happens when a local phone number is entered.</source>
         <extracomment>Settings page country code description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ο επιλεγμένος κωδικός χώρας καθορίζει τη συμπεριφορά της εφαρμογής όταν εισάγετε έναν τοπικό αριθμό τηλεφώνου.</translation>
     </message>
     <message id="whisperfish-settings-country-code-empty">
         <location filename="../qml/pages/Settings.qml" line="151"/>
         <source>none</source>
         <extracomment>settings page country code selection: nothing selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κανένας</translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
         <location filename="../qml/pages/Settings.qml" line="178"/>
         <source>Save Attachments</source>
         <extracomment>Settings page save attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποθήκευση Συνημμένων</translation>
     </message>
     <message id="whisperfish-settings-save-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="182"/>
         <source>Attachments are stored at %1</source>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Τα συνημμένα αποθηκέυονται στο %1</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="215"/>
         <source>Return key send</source>
         <oldsource>EnterKey Send</oldsource>
         <extracomment>Settings page enable enter send</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποστολή μηνύματος με το πλήκτρο Enter</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send-description">
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Όταν είναι ενεργοποιημένο, το πλήκτρο Enter λειτουργεί σαν κουμπί αποστολής. Εναλλακτικά, το πληκτρο μπορει να χρησιμοποιηθεί για τη δημιουργία μηνυμάτων με πολλαπλές σειρές.</translation>
     </message>
     <message id="whisperfish-settings-startup-shutdown-section">
         <location filename="../qml/pages/Settings.qml" line="239"/>
         <source>Autostart and Background</source>
         <extracomment>Settings page startup and shutdown section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αυτόματη Εκκίνηση και λειτουργία παρασκηνίου</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart">
         <location filename="../qml/pages/Settings.qml" line="246"/>
         <source>Autostart after boot</source>
         <extracomment>Settings page enable autostart</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αυτόματη εκκίνηση μετά την εκκίνηση της συσκευής</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Όταν είναι ενεργοποιημένο, το Whisperfish συνεχίζει να λειτουργεί στο παρασκήνιο και μπορεί να στέλνει ειδοποιήσεις αφού κλείσετε το παράθυρο της εφαρμογής.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Background mode</source>
         <extracomment>Settings page enable background mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Λειτουργία παρασκηνίου</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="249"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Όταν είναι ενεργοποιημένο, το Whisperfish ξεκινά αυτόματα μετά απο κάθε εκκίνηση της συσκευής. Εάν η κρυπτογράφηση του αποθηκευτικού χώρου είναι ενεργοποιημένη ή η λειτουργία παρασκηνίου ειναι απενεργοποιημένη, το παράθυρο της εφαρμογής θα εμφανιστεί, διαφορετικά η εφαρμογή ξεκινά στο παρασκήνιο.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="283"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Έξοδος από το Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="296"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Για προχωρημένους</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode">
         <location filename="../qml/pages/Settings.qml" line="303"/>
         <source>Incognito Mode</source>
         <extracomment>Settings page incognito mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κρυφή λειτουργία</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode-description">
         <location filename="../qml/pages/Settings.qml" line="306"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Η κρυφή λειτουργία απενεργοποιεί εντελώς τη δυνατότητα αποθήκευσης. Κανένα μήνυμα ή συνημμένο δεν αποθηκεύεται, τα μηνύματα είναι ορατά μέχρι να γίνει επανεκκίνηση.</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="314"/>
@@ -840,37 +840,37 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="327"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αλλαγή διαστάσεων συνημμένων JPEG</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="330"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Μείωση μεγέθους συνημμένων JPEG για εξοικονόμηση δεδομένων.</translation>
     </message>
     <message id="whisperfish-settings-debug-mode">
         <location filename="../qml/pages/Settings.qml" line="344"/>
         <source>Debug mode</source>
         <extracomment>Settings page: debug info toggle</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Λειτουργία εύρεσης σφαλμάτων</translation>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
         <location filename="../qml/pages/Settings.qml" line="347"/>
         <source>Show debugging information in the user interface.</source>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση πληροφοριών για εύρεση σφαλμάτων στο παράθυρο της εφαρμογής.</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="362"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Στατιστικά</translation>
     </message>
     <message id="whisperfish-settings-websocket">
         <location filename="../qml/pages/Settings.qml" line="367"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κατάσταση Websocket</translation>
     </message>
     <message id="whisperfish-settings-connected">
         <location filename="../qml/pages/Settings.qml" line="371"/>
@@ -894,62 +894,62 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="385"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Συνολικός αριθμός συνεδριών</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
         <location filename="../qml/pages/Settings.qml" line="391"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Συνολικός αριθμός μηνυμάτων</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
         <location filename="../qml/pages/Settings.qml" line="397"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επαφές Signal</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
         <location filename="../qml/pages/Settings.qml" line="403"/>
         <source>Encrypted Key Store</source>
         <extracomment>Settings page encrypted key store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κρυποτγραφημένη αποθήκη κλειδιών</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-enabled">
         <location filename="../qml/pages/Settings.qml" line="407"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποιημένη</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
         <location filename="../qml/pages/Settings.qml" line="410"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Απενεργοποιημένη</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
         <location filename="../qml/pages/Settings.qml" line="415"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κρυπτογραφημένη Βάση Δεδομένων</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
         <location filename="../qml/pages/Settings.qml" line="419"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποιημένη</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../qml/pages/Settings.qml" line="422"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Απενεργοποιημένη</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επιβεβαιώστε αριθμούς ασφαλείας</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
         <location filename="../qml/pages/Group.qml" line="18"/>
@@ -968,26 +968,26 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Group.qml" line="35"/>
         <source>Leave</source>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Έξοδος από ομάδα</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/Group.qml" line="39"/>
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Έξοδος από ομάδα και διαγραφή ΟΛΩΝ των μηνυμάτων!</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <location filename="../qml/pages/Group.qml" line="62"/>
         <source>Group members</source>
         <extracomment>Group members</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Μέλη Ομάδας</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
         <source>Whisperfish</source>
         <extracomment>default title of full-screen info pages (below the icon)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish</translation>
     </message>
     <message id="whisperfish-fatal-error-title">
         <location filename="../qml/pages/FatalErrorPage.qml" line="11"/>
@@ -999,19 +999,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/FatalErrorPage.qml" line="18"/>
         <source>Please restart Whisperfish. If the problem persists and appears to be an issue with Whisperfish, please report the issue.</source>
         <extracomment>generic hint on what to do after a fatal error occurred (error message will be shown separately)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Παρακαλώ επανεκκινήστε το Whisperfish. Εαν το πρόβλημα παραμείνει και πρόκειται για σφάλμα της εφαρμογής Whisperfish, παρακαλώ να αναφέρετε το πρόβλημα.</translation>
     </message>
     <message id="whisperfish-startup-placeholder-title">
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
         <source>Welcome</source>
         <extracomment>welcome text shown when startup takes a long time</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Καλώς ήρθατε</translation>
     </message>
     <message id="whisperfish-verify-page-title">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="10"/>
         <source>Verify</source>
         <extracomment>verify registration page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επιβεβαίωση</translation>
     </message>
     <message id="whisperfish-verify-code-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
@@ -1023,13 +1023,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
         <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Το Signal θα πρέπει να σας έχει καλέσει με έναν 6-ψήφιο κωδικό επιβεβαίωσης. Παρακαλώ περιμενετε, ή επανεκκινήστε τη διαδικασία εαν δεν έχετε λάβει την κλήση.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
         <source>Signal should have sent you a 6-digit verification code via text message. Please wait a moment, or restart the process if you have not received a message.</source>
         <extracomment>verify registration instructions: text message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Το Signal θα πρέπει να σας έχει αποστείλει έναν 6-ψήφιο κωδικό επιβεβαίωσης με SMS. Παρακαλώ περιμενετε, ή επανεκκινήστε τη διαδικασία εαν δεν έχετε λάβει την μήνυμα.</translation>
     </message>
     <message id="whisperfish-verify-retry-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="43"/>
