@@ -30,7 +30,8 @@ ListItem {
     // TODO the quoted message should be a notifyable object from a model
     // TODO we need a way to get a valid index from a message id
     //      (we must rely on the message's id instead of its index, as the latter may change)
-    property alias quotedMessage: quoteItem.messageData // required properties: message, source, id, index
+    // required properties: message, source, outgoing, AND id, index
+    property alias quotedMessage: quoteItem.messageData
     readonly property bool hasQuotedMessage: quotedMessage !== null
     property bool quotedMessageShown: hasQuotedMessage
 

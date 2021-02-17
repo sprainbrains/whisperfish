@@ -99,6 +99,10 @@ Page {
             textInput.setQuote(index, modelData)
             textInput.forceEditorFocus(true)
         }
+        onQuoteClicked: {
+            // TODO use message id instead of index
+            jumpToMessage(quotedData.index)
+        }
     }
 
     OpacityRampEffect {

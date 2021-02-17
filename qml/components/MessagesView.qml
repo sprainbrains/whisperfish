@@ -48,6 +48,7 @@ SilicaListView {
     property bool menuOpen: false
 
     signal replyTriggered(var index, var modelData)
+    signal quoteClicked(var clickedIndex, var quotedData)
 
     delegate: Item {
         id: wrapper
@@ -109,6 +110,7 @@ SilicaListView {
                 // inside the loaded component
                 listView: messagesView
                 replySignal: replyTriggered
+                quoteClickedSignal: quoteClicked
             }
         }
 
