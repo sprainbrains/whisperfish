@@ -39,8 +39,7 @@ Item {
         id: unreadLabel
         y: Theme.paddingMedium
         color: Theme.primaryColor
-        text: SessionModel.unread
-        visible: SessionModel.unread > 0
+        text: SessionModel.unread ? SessionModel.unread : ''
         font {
             pixelSize: Theme.fontSizeHuge
             family: Theme.fontFamilyHeading
