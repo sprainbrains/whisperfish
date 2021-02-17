@@ -46,8 +46,8 @@ ListItem {
     property real delegateContentWidth: -1
     property real maxMessageWidth: parent.width -
                                    6*Theme.horizontalPageMargin
-    readonly property real minMessageWidth: Math.max(senderNameLabel.implicitWidth,
-                                                     quoteItem.implicitWidth)
+    readonly property real minMessageWidth: Math.max(showSender ? senderNameLabel.implicitWidth : 0,
+                                                     quotedMessageShown ? quoteItem.implicitWidth : 0)
 
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
