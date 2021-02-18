@@ -114,6 +114,8 @@ CREATE TABLE sessions (
 
     draft TEXT,
 
+    expiring_message_timeout INTEGER,
+
     -- Deleting recipients should be separate from deleting sessions. ON DELETE RESTRICT
     FOREIGN KEY(direct_message_recipient_id) REFERENCES recipients(id),
     FOREIGN KEY(group_v1_id) REFERENCES group_v1s(id),
