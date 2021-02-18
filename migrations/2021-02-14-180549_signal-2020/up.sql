@@ -147,6 +147,11 @@ CREATE TABLE messages (
     expires_in INTEGER,
     expiry_started TIMESTAMP,
 
+    -- scheduled messages
+    schedule_send_time TIMESTAMP,
+
+    is_bookmarked BOOLEAN DEFAULT FALSE NOT NULL,
+
     -- misc flags
     use_unidentified BOOLEAN DEFAULT FALSE NOT NULL,
     is_remote_deleted BOOLEAN DEFAULT FALSE NOT NULL,
