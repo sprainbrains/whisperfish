@@ -104,6 +104,14 @@ CREATE TABLE sessions (
     direct_message_recipient_id INTEGER,
     group_v1_id VARCHAR(32),
 
+    is_archived BOOLEAN DEFAULT FALSE NOT NULL,
+    is_pinned BOOLEAN DEFAULT FALSE NOT NULL,
+
+    -- silent: notification without sound or vibration
+    is_silent BOOLEAN DEFAULT FALSE NOT NULL,
+    -- muted: no notification at all
+    is_muted BOOLEAN DEFAULT FALSE NOT NULL,
+
     draft TEXT,
 
     -- Deleting recipients should be separate from deleting sessions. ON DELETE RESTRICT
