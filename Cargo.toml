@@ -122,6 +122,7 @@ whisperfish-migration-dry-run = { path = "/usr/bin/whisperfish-migration-dry-run
 "../harbour-whisperfish-message.conf" = { path = "/usr/share/lipstick/notificationcategories/harbour-whisperfish-message.conf" }
 "../icons/86x86/harbour-whisperfish.png" = { path = "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png" }
 "tmp_feature_files/systemd/" = { path = "/usr/lib/systemd/user/" }
+"tmp_feature_files/transferplugin/" = { path = "/usr/lib/nemo-transferengine/plugins/" }
 
 
 "../qml/" = { path = "/usr/share/harbour-whisperfish/qml/" }

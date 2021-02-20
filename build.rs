@@ -238,7 +238,7 @@ fn prepare_rpm_build() {
         std::fs::remove_dir_all(&rpm_extra_dir)
             .unwrap_or_else(|_| panic!("Could not remove {:?} for cleanup", rpm_extra_dir));
     }
-    let cond_folder: &[&str] = &["systemd"];
+    let cond_folder: &[&str] = &["systemd", "transferplugin"];
     for d in cond_folder.iter() {
         let nd = rpm_extra_dir.join(d);
         std::fs::create_dir_all(&nd).unwrap_or_else(|_| panic!("Could not create {:?}", &nd));
@@ -294,6 +294,67 @@ fn prepare_rpm_build() {
             writeln!(spec, "{}", line).expect("Failed to write to spec file");
         }
     }
+}
+
+fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compile: bool) {
+    if !cross_compile {
+        let moc_files = &["WhisperfishTransfer", "WhisperfishTransferPlugin"];
+        std::fs::create_dir_all(Path::new("shareplugin/moc"))
+            .expect("Could not create shareplugin/moc");
+        for file in moc_files.iter() {
+            Command::new("moc")
+                .arg("-I")
+                .arg(format!("{}/usr/include/", mer_target_root))
+                .arg("-o")
+                .arg(format!("shareplugin/moc/{}.cpp", file))
+                .arg(format!("shareplugin/{}.h", file))
+                .status()
+                .expect("moc failed");
+        }
+    }
+
+    let mut gcc = cc::Build::new()
+        .cargo_metadata(false)
+        .cpp(true)
+        .flag(&format!("--sysroot={}", mer_target_root))
+        .flag("-isysroot")
+        .flag(&mer_target_root)
+        .include(format!("{}/usr/include/", mer_target_root))
+        .include(&qt_include_path)
+        .include(format!("{}/QtCore", qt_include_path))
+        .shared_flag(true)
+        .get_compiler()
+        .to_command();
+    gcc.arg(format!("-L{}/usr/lib64", mer_target_root))
+        .arg(format!("-L{}/usr/lib", mer_target_root))
+        .arg("-lnemotransferengine-qt5")
+        .arg("-lQt5DBus")
+        .arg("-lQt5Core")
+        .arg("-o")
+        .arg(".rpm/tmp_feature_files/transferplugin/libwhisperfishshareplugin.so")
+        .arg("shareplugin/WhisperfishPluginInfo.cpp")
+        .arg("shareplugin/WhisperfishTransfer.cpp")
+        .arg("shareplugin/WhisperfishTransferPlugin.cpp");
+
+    if cross_compile {
+        gcc.arg("shareplugin/sfmoc/WhisperfishTransfer.cpp")
+            .arg("shareplugin/sfmoc/WhisperfishTransferPlugin.cpp");
+    } else {
+        gcc.arg("shareplugin/moc/WhisperfishTransfer.cpp")
+            .arg("shareplugin/moc/WhisperfishTransferPlugin.cpp");
+    }
+
+    println!("running: {:?}", gcc);
+    gcc.status().expect("share plugin compile command failed");
+
+    println!("cargo:rerun-if-changed=shareplugin/WhisperfishPluginInfo.cpp");
+    println!("cargo:rerun-if-changed=shareplugin/WhisperfishPluginInfo.h");
+    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransferPlugin.cpp");
+    println!("cargo:rerun-if-changed=shareplugin/sfmoc/WhisperfishTransferPlugin.cpp");
+    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransferPlugin.h");
+    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransfer.cpp");
+    println!("cargo:rerun-if-changed=shareplugin/sfmoc/WhisperfishTransfer.cpp");
+    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransfer.h");
 }
 
 fn build_sqlcipher(mer_target_root: &str) {
@@ -385,11 +446,8 @@ fn main() {
     // currently requires -Zextra-link-arg, so we're duplicating this in dotenv
     println!("cargo:rustc-link-arg=--sysroot={}", mer_target_root);
 
-    cfg.include(format!(
-        "{}/QtGui/{}",
-        qt_include_path,
-        detect_qt_version(std::path::Path::new(&qt_include_path)).unwrap()
-    ));
+    let qt_version = detect_qt_version(std::path::Path::new(&qt_include_path)).unwrap();
+    cfg.include(format!("{}/QtGui/{}", qt_include_path, qt_version));
 
     // This is kinda hacky. Sorry.
     if cross_compile {
@@ -440,6 +498,11 @@ fn main() {
     }
 
     prepare_rpm_build();
+
+    if env::var("CARGO_FEATURE_HARBOUR").is_err() &&
+        env::var("CARGO_FEATURE_SAILFISH").is_ok() {
+        build_share_plugin(&mer_target_root, &qt_include_path, cross_compile);
+    }
 
     if cross_compile {
         build_sqlcipher(&mer_target_root);

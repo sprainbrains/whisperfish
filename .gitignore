@@ -19,6 +19,9 @@ sqlcipher/*.c
 sqlcipher/*.h
 sqlcipher/LICENSE
 
+shareplugin/moc/*
+shareplugin/compile_flags.txt 
+
 # cargo
 /target
 **/*.rs.bk
