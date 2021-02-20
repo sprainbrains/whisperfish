@@ -12,7 +12,7 @@ use rstest_reuse::{self, *};
 
 type MigrationList = Vec<(String, Box<dyn Migration + 'static>)>;
 
-#[path = "migrations/orm.rs"]
+#[path = "migrations/orm/mod.rs"]
 pub mod orm;
 #[path = "migrations/schemas/mod.rs"]
 pub mod schemas;
@@ -115,21 +115,58 @@ fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
 // assertions should be done against `harbour_whisperfish::schema`.
 //
 // Tests usually use the following pattern:
-// - a method assert_FOO(db) that puts assertions on the db
+// - a method assert_FOO(db) that puts assertions on the db in the "current" setting.
 // - a bunch of `rstest`s that take different kinds of initial dbs, puts in the data and then calls
 //   the migrations and the assert function.
 
 fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
     use orm::current::*;
-    use schemas::current::session::dsl::*;
 
-    assert_eq!(1, session.count().first::<i64>(&db).unwrap());
+    let session_tests = [
+        |session: Session, members: Option<Vec<(GroupV1Member, Recipient)>>| {
+            assert!(session.is_group_v1());
+            let members = members.unwrap();
+            assert_eq!(members.len(), 3);
+        },
+    ];
 
-    let sessions: Vec<Session> = session.load(&db).unwrap();
-    assert_eq!(
-        sessions[0].timestamp,
-        NaiveDate::from_ymd(2016, 7, 8).and_hms_milli(9, 10, 11, 325)
-    );
+    let all_sessions: Vec<DbSession> = {
+        use schemas::current::sessions::dsl::*;
+        assert_eq!(
+            session_tests.len() as i64,
+            sessions.count().first::<i64>(&db).unwrap()
+        );
+
+        sessions.load(&db).unwrap()
+    };
+
+    for (session, test) in all_sessions.into_iter().zip(&session_tests) {
+        dbg!(&session);
+
+        let group = session.group_v1_id.as_ref().map(|g_id| {
+            use schemas::current::group_v1s::dsl::*;
+            group_v1s.filter(id.eq(g_id)).first(&db).unwrap()
+        });
+
+        let recipient = session.direct_message_recipient_id.as_ref().map(|r_id| {
+            use schemas::current::recipients::dsl::*;
+            recipients.filter(id.eq(r_id)).first(&db).unwrap()
+        });
+
+        let members = session.group_v1_id.as_ref().map(|g_id| {
+            use schemas::current::group_v1_members::dsl::*;
+            use schemas::current::recipients::dsl::recipients;
+            group_v1_members
+                .inner_join(recipients)
+                .filter(group_v1_id.eq(g_id))
+                .load(&db)
+                .unwrap()
+        });
+
+        dbg!(&group);
+        dbg!(&recipient);
+        test(Session::from((session, recipient, group)), members);
+    }
 }
 
 #[rstest]
