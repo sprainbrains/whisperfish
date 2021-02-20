@@ -233,6 +233,26 @@ CREATE TABLE stickers (
 );
 
 
+CREATE TABLE reactions (
+    reaction_id INTEGER PRIMARY KEY NOT NULL,
+
+    message_id INTEGER NOT NULL,
+    author INTEGER NOT NULL,
+
+    emoji TEXT NOT NULL,
+    sent_time TIMESTAMP NOT NULL,
+    received_time TIMESTAMP NOT NULL,
+
+    -- In Signal, only one emoji per author is allowed
+    UNIQUE (author, message_id),
+
+    FOREIGN KEY(message_id) REFERENCES messages(id),
+    FOREIGN KEY(author) REFERENCES recipients(id)
+);
+
+CREATE INDEX reaction_message ON reactions(message_id);
+CREATE INDEX reaction_author ON reactions(author);
+
 ---
 -- 3. Copy over the data
 
