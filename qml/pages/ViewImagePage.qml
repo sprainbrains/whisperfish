@@ -200,44 +200,23 @@ Page {
 
     Loader {
         id: statusLoader
-        anchors.centerIn: parent
+        anchors.fill: parent
         sourceComponent: undefined
     }
 
     Component {
         id: loadingIndicator
-
-        Item {
-            height: childrenRect.height
-            width: page.width
-
-            BusyIndicator {
-                id: imageLoadingIndicator
-                anchors.horizontalCenter: parent.horizontalCenter
-                running: true
-            }
-
-            Text {
-                anchors {
-                    horizontalCenter: parent.horizontalCenter
-                    top: imageLoadingIndicator.bottom; topMargin: Theme.paddingLarge
-                }
-                font.pixelSize: Theme.fontSizeSmall;
-                color: Theme.highlightColor;
-                text: qsTr("Loading image... %1").arg(Math.round(image.progress*100) + "%")
-            }
+        BusyLabel {
+            text: qsTr("Loading image")
+            running: true
         }
     }
 
     Component {
         id: failedLoading
-        Text {
-            width: page.width - 2*Theme.horizontalPageMargin
-            wrapMode: Text.Wrap
-            textFormat: Text.PlainText
-            font.pixelSize: Theme.fontSizeMedium
+        BusyLabel {
             text: qsTr("Error loading image")
-            color: Theme.highlightColor
+            running: false
         }
     }
 }
