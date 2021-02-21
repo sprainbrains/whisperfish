@@ -31,42 +31,19 @@ import QtGraphicalEffects 1.0
 */
 OpacityMask {
     id: root
-    readonly property int topLeft: 1
-    readonly property int topRight: 2
-    readonly property int bottomLeft: 4
-    readonly property int bottomRight: 8
+    readonly property alias topLeft: src.topLeft
+    readonly property alias topRight: src.topRight
+    readonly property alias bottomLeft: src.bottomLeft
+    readonly property alias bottomRight: src.bottomRight
+    readonly property alias allCorners: src.allCorners
+    readonly property alias none: src.none
 
-    property int roundedCorners: 0 // e.g. topLeft | bottomLeft
-    property real radius: 20
+    property alias roundedCorners: src.roundedCorners // e.g. topLeft | bottomLeft
+    property alias radius: src.radius
 
-    maskSource: Item {
+    maskSource: RoundedRect {
+        id: src
         width: root.width
         height: root.height
-
-        Rectangle {
-            id: allRounded
-            anchors.fill: parent
-            radius: root.radius
-        }
-        Rectangle {
-            height: ((roundedCorners & topLeft) == 0) ? 2*root.radius : 0
-            width: height
-            anchors { left: parent.left; top: parent.top }
-        }
-        Rectangle {
-            height: ((roundedCorners & topRight) == 0) ? 2*root.radius : 0
-            width: height
-            anchors { right: parent.right; top: parent.top }
-        }
-        Rectangle {
-            height: ((roundedCorners & bottomLeft) == 0) ? 2*root.radius : 0
-            width: height
-            anchors { left: parent.left; bottom: parent.bottom }
-        }
-        Rectangle {
-            height: ((roundedCorners & bottomRight) == 0) ? 2*root.radius : 0
-            width: height
-            anchors { right: parent.right; bottom: parent.bottom }
-        }
     }
 }
