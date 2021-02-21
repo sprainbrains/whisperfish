@@ -48,9 +48,9 @@ ListItem {
     // incoming/outbound messages. The bubble extends slightly over the contents.
     default property alias delegateContents: contentColumn.data
     property real contentPadding: 2*Theme.paddingMedium
-    property real delegateContentWidth: contentColumn.width
-    property real expandedWidth: width - 2*Theme.horizontalPageMargin // page width
-    property real unexpandedWidth: Math.min(Math.max(metrics.width+messageLabel.emojiCount *
+    property real delegateContentWidth: isExpanded ? _expandedWidth : _unexpandedWidth
+    property real _expandedWidth: width - 2*Theme.horizontalPageMargin // page width
+    property real _unexpandedWidth: Math.min(Math.max(metrics.width+messageLabel.emojiCount *
                                                      messageLabel.font.pixelSize, minMessageWidth) +
                                             Theme.paddingMedium, maxMessageWidth)
     property real maxMessageWidth: parent.width - 6*Theme.horizontalPageMargin
@@ -195,7 +195,7 @@ ListItem {
 
         Column {
             id: contentColumn
-            width: isExpanded ? expandedWidth : unexpandedWidth
+            width: delegateContentWidth
             height: childrenRect.height
 
             LinkedEmojiLabel {
