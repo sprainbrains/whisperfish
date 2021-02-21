@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2021 Mirian Margiani
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
-import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
 import Nemo.Time 1.0
@@ -104,6 +103,7 @@ Item {
         id: column
         width: parent.width
         height: input.height + spacing + quoteItem.height
+        anchors.bottom: parent.bottom
         spacing: Theme.paddingSmall
 
         QuotedMessagePreview {
@@ -119,20 +119,24 @@ Item {
             onCloseClicked: resetQuote()
         }
 
-        RowLayout {
-            width: parent.width
-            layoutDirection: Qt.LeftToRight
-            spacing: Theme.paddingSmall
-            Layout.fillHeight: true
+        Item {
+            anchors { left: parent.left; right: parent.right }
+            height: input.height
 
             TextArea {
                 id: input
-                Layout.minimumHeight: Theme.itemSizeMedium
-                Layout.fillWidth: true
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignLeft | Qt.AlignBottom
-                Layout.maximumHeight: maxHeight - column.spacing - quoteItem.height
-                width: parent.width - attachButton
+                property real minInputHeight: Theme.itemSizeMedium
+                property real maxInputHeight: maxHeight - column.spacing - quoteItem.height
+                height: implicitHeight < maxInputHeight ?
+                            (implicitHeight > minInputHeight ? implicitHeight : minInputHeight) :
+                            maxInputHeight
+                width: parent.width - attachButton.width - sendButton.width -
+                       2*Theme.paddingSmall - Theme.horizontalPageMargin
+                anchors {
+                    bottom: parent.bottom; bottomMargin: -Theme.paddingSmall
+                    left: parent.left
+                    right: attachButton.left; rightMargin: Theme.paddingSmall
+                }
                 label: Format.formatDate(clock.time, Formatter.TimeValue) +
                        (attachments.length > 0 ?
                             " — " +
@@ -160,8 +164,10 @@ Item {
 
             IconButton {
                 id: attachButton
-                Layout.alignment: Qt.AlignRight
-                anchors { bottom: parent.bottom; bottomMargin: Theme.paddingMedium }
+                anchors {
+                    right: sendButton.left; rightMargin: Theme.paddingSmall
+                    bottom: parent.bottom; bottomMargin: Theme.paddingMedium
+                }
                 icon.source: "image://theme/icon-m-attach"
                 icon.width: Theme.iconSizeMedium
                 icon.height: icon.width
@@ -170,8 +176,10 @@ Item {
 
             IconButton {
                 id: sendButton
-                Layout.alignment: Qt.AlignRight
-                anchors { bottom: parent.bottom; bottomMargin: Theme.paddingMedium }
+                anchors {
+                    right: parent.right; rightMargin: Theme.horizontalPageMargin
+                    bottom: parent.bottom; bottomMargin: Theme.paddingMedium
+                }
                 icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall
                 icon.height: width
                 icon.source: "image://theme/icon-m-send"
