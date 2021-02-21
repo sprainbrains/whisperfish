@@ -11,7 +11,6 @@ import "../components"
 
 // TODO attached info page
 // TODO black background
-// TODO Whisperfish translations
 // TODO async loading
 
 Page {
@@ -207,7 +206,9 @@ Page {
     Component {
         id: loadingIndicator
         BusyLabel {
-            text: qsTr("Loading image")
+            //: TODO
+            //% "Loading image"
+            text: qsTrId("whisperfish-view-image-page-loading")
             running: true
         }
     }
@@ -215,7 +216,9 @@ Page {
     Component {
         id: failedLoading
         BusyLabel {
-            text: qsTr("Error loading image")
+            //: TODO
+            //% "Failed to load"
+            text: qsTrId("whisperfish-view-image-page-error")
             running: false
         }
     }
