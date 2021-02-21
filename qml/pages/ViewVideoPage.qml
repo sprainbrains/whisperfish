@@ -12,7 +12,6 @@ import "../components"
 
 // TODO video controls
 // TODO attached info page
-// TODO Whisperfish translations
 
 Page {
     id: page
@@ -97,7 +96,9 @@ Page {
         Component {
             id: failedLoading
             BusyLabel {
-                text: qsTrId("Error playing video") +
+                //: TODO
+                //% "Failed to play"
+                text: qsTrId("whisperfish-view-video-page-error") +
                       "\n\n" + _errorString
                 running: false
             }
