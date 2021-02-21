@@ -84,9 +84,10 @@ Page {
         onErrorChanged: {
             if (error === MediaPlayer.NoError) return;
             // we don't want to risk crashes by trying any further
+            console.log("playing video failed:", errorString)
             _errorString = errorString
             source = ""
-            loader.sourceComponent = failedLoading;
+            loader.sourceComponent = failedLoading
         }
     }
 
