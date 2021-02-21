@@ -66,19 +66,25 @@ ListItem {
         }
     }
 
-    RoundedRect {
+    Loader {
         id: background
-        opacity: (down || replyArea.down) ?
-                     (outgoing ? 0.7*Theme.opacityFaint : 1.0*Theme.opacityFaint) :
-                     (outgoing ? 0.4*Theme.opacityFaint : 0.8*Theme.opacityFaint)
-        color: (down || replyArea.down) ?
-                   Theme.highlightBackgroundColor :
-                   Theme.secondaryColor
-        radius: Theme.paddingLarge
         anchors { fill: contentContainer; margins: contentPadding/3 }
-        roundedCorners: outgoing ?
-                            bottomLeft | topRight :
-                            bottomRight | topLeft
+        asynchronous: true
+        property real cornerRadius: Theme.paddingLarge
+        sourceComponent: Component {
+            RoundedRect {
+                opacity: (down || replyArea.down) ?
+                             (outgoing ? 0.7*Theme.opacityFaint : 1.0*Theme.opacityFaint) :
+                             (outgoing ? 0.4*Theme.opacityFaint : 0.8*Theme.opacityFaint)
+                color: (down || replyArea.down) ?
+                           Theme.highlightBackgroundColor :
+                           Theme.secondaryColor
+                radius: cornerRadius
+                roundedCorners: outgoing ?
+                                    bottomLeft | topRight :
+                                    bottomRight | topLeft
+            }
+        }
     }
 
     Rectangle {
@@ -175,7 +181,7 @@ ListItem {
             highlighted: down || root.highlighted
             width: delegateContentWidth
             backgroundGrow: contentPadding/2
-            backgroundItem.radius: background.radius
+            backgroundItem.radius: background.cornerRadius
         }
 
         Item {
