@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import "../components"
 
 // TODO the code has to be cleaned up, organized, and documented
 //      to ease development of derived types
