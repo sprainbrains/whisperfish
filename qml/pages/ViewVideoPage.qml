@@ -12,7 +12,6 @@ import "../components"
 
 // TODO video controls
 // TODO attached info page
-// TODO black background
 // TODO Whisperfish translations
 
 Page {
@@ -21,8 +20,22 @@ Page {
     property alias title: titleOverlay.title
     property alias path: video.source
     property alias autoPlay: video.autoPlay
+    property bool enableDarkBackground: true
     property bool _isPlaying: autoPlay
     property string _errorString
+
+    Loader {
+        sourceComponent: enableDarkBackground ? backgroundComponent : null
+        anchors.fill: parent
+        Component {
+            id: backgroundComponent
+            Rectangle {
+                visible: enableDarkBackground
+                color: Theme.overlayBackgroundColor
+                opacity: Theme.opacityHigh
+            }
+        }
+    }
 
     MediaTitleOverlay {
         id: titleOverlay
