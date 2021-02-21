@@ -10,7 +10,6 @@ import Sailfish.Silica 1.0
 import "../components"
 
 // TODO attached info page
-// TODO black background
 
 Page {
     id: page
@@ -18,6 +17,7 @@ Page {
     property alias title: titleOverlay.title
     property string path: ''
     property bool isAnimated: false
+    property bool enableDarkBackground: true
 
     readonly property bool isImageReady: image.status === Image.Ready
     readonly property Flickable flickable: flick
@@ -26,6 +26,19 @@ Page {
     onStatusChanged: {
         if (page.status === PageStatus.Inactive && isImageReady) {
             image.fitToScreen()
+        }
+    }
+
+    Loader {
+        sourceComponent: enableDarkBackground ? backgroundComponent : null
+        anchors.fill: parent
+        Component {
+            id: backgroundComponent
+            Rectangle {
+                visible: enableDarkBackground
+                color: Theme.overlayBackgroundColor
+                opacity: Theme.opacityHigh
+            }
         }
     }
 
