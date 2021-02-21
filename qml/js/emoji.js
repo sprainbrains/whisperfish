@@ -60,7 +60,8 @@ var rasterRe = /^(png|gif)$/i
 var Style = { // could be initialized on startup with user-configured values
     'openmoji': { dir: 'openmoji/13.0.0', ext: 'svg' }, // CC-BY-SA 4.0
     'twemoji': { dir: 'twemoji/13.0.1', ext: 'svg' }, // CC-BY-SA 4.0
-    'whatsapp': { dir: 'whatsapp/2.20.206.24', ext: 'png' } // proprietary
+    'whatsapp': { dir: 'whatsapp/2.20.206.24', ext: 'png' }, // proprietary
+    'system': { dir: '', ext: '' }
 }
 
 // Required raster resolutions: Qt cannot scale inline images up, only down.
@@ -77,6 +78,10 @@ function checkStyle(path, style) {
   // and better performance. Ideally we should check if a set is complete...
   if (styleStatusCache.hasOwnProperty(path)) {
     return styleStatusCache[path];
+  }
+  if (style.dir === '') { // use system font
+      styleStatusCache[path] = false;
+      return false;
   }
 
   var cleanPath = path;
@@ -201,7 +206,7 @@ function parse(what, size, style) {
 
   if (rasterRe.test(style.ext)) isRaster = true
   else if (vectorRe.test(style.ext)) isVector = true
-  else console.error("invalid emoji style:", style.dir, style.ext)
+  /* else console.error("invalid emoji style:", style.dir, style.ext) */
 
   if (isRaster) {
     // We have to choose the best source resolution for raster emojis.
