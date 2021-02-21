@@ -10,6 +10,11 @@ import Sailfish.Silica 1.0
 import QtMultimedia 5.0
 import "../components"
 
+// TODO video controls
+// TODO attached info page
+// TODO black background
+// TODO Whisperfish translations
+
 Page {
     id: page
     allowedOrientations: Orientation.All

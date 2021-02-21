@@ -9,12 +9,18 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 import "../components"
 
+// TODO attached info page
+// TODO black background
+// TODO Whisperfish translations
+// TODO async loading
+
 Page {
     id: page
     allowedOrientations: Orientation.All
     property alias title: titleOverlay.title
     property alias path: image.source // deprecated
     property alias source: image.source
+    property bool isAnimated: false
 
     readonly property Flickable flickable: flick
     readonly property bool editMode: false // not implemented
