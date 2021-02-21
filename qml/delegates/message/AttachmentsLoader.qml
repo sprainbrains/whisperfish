@@ -37,7 +37,7 @@ Loader {
             layer.enabled: true
             layer.effect: RoundedMask {
                 roundedCorners: background.item ? background.item.roundedCorners : allCorners
-                radius: Theme.paddingLarge
+                radius: Theme.paddingMedium
             }
 
             Column {
