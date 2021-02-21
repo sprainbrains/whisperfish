@@ -14,7 +14,7 @@ Item {
     anchors.fill: parent
     property alias title: titleLabel.text
 
-    property bool shown: false
+    property bool shown: true
     opacity: shown ? 1.0 : 0.0; visible: opacity != 0.0
     Behavior on opacity { NumberAnimation { duration: 80 } }
 
