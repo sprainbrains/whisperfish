@@ -16,6 +16,9 @@ Loader {
     property real detailHeight: detailAttachments.length > 0 ? Math.min(maxDetails, detailAttachments.length)*detailItemHeight : 0
     property real spacing: (thumbsAttachments.length > 0 && detailAttachments.length > 0) ? Theme.paddingMedium : 0
 
+    property bool cornersOutbound: false
+    property bool cornersQuoted: false
+
     readonly property int maxDetails: 2
     readonly property int maxThumbs: 5
 
@@ -36,7 +39,9 @@ Loader {
             opacity: highlighted ? Theme.opacityHigh : 1.0
             layer.enabled: true
             layer.effect: RoundedMask {
-                roundedCorners: background.item ? background.item.roundedCorners : allCorners
+                id: roundedMask
+                roundedCorners: cornersQuoted ? allCorners : (bottomLeft | bottomRight |
+                                                              (cornersOutbound ? topRight : topLeft))
                 radius: Theme.paddingMedium
             }
 

@@ -200,6 +200,8 @@ ListItem {
             asynchronous: true
             enabled: hasAttachments
             width: delegateContentWidth
+            cornersOutbound: isOutbound
+            cornersQuoted: showQuotedMessage
         }
 
         Item { width: 1; height: hasAttachments ? Theme.paddingSmall : 0 }
