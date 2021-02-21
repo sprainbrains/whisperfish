@@ -177,7 +177,8 @@ Item {
             IconButton {
                 id: sendButton
                 anchors {
-                    right: parent.right; rightMargin: Theme.horizontalPageMargin
+                    // icon-m-send has own padding
+                    right: parent.right; rightMargin: Theme.horizontalPageMargin-Theme.paddingMedium
                     bottom: parent.bottom; bottomMargin: Theme.paddingMedium
                 }
                 icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall
