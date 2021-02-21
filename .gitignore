@@ -20,7 +20,8 @@ sqlcipher/*.h
 sqlcipher/LICENSE
 
 shareplugin/moc/*
-shareplugin/compile_flags.txt 
+shareplugin/compile_flags.txt
+shareplugin/libwhisperfishshareplugin.so
 
 # cargo
 /target
