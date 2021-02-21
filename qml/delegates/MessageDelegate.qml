@@ -178,14 +178,6 @@ ListItem {
 
         Item { width: 1; height: showSender ? senderNameLabel.backgroundGrow+Theme.paddingSmall : 0 }
 
-        AttachmentsLoader {
-            asynchronous: true
-            enabled: hasAttachments
-            width: delegateContentWidth
-        }
-
-        Item { width: 1; height: hasAttachments ? Theme.paddingSmall : 0 }
-
         QuotedMessagePreview {
             id: quoteItem
             visible: showQuotedMessage
@@ -203,6 +195,14 @@ ListItem {
         }
 
         Item { width: 1; height: quoteItem.shown ? Theme.paddingSmall : 0 }
+
+        AttachmentsLoader {
+            asynchronous: true
+            enabled: hasAttachments
+            width: delegateContentWidth
+        }
+
+        Item { width: 1; height: hasAttachments ? Theme.paddingSmall : 0 }
 
         Column {
             id: contentColumn
