@@ -52,9 +52,11 @@ ListItem {
     property real contentPadding: 2*Theme.paddingMedium
     property real delegateContentWidth: isExpanded ? _expandedWidth : _unexpandedWidth
     property real _expandedWidth: width - 2*Theme.horizontalPageMargin // page width
-    property real _unexpandedWidth: Math.min(Math.max(metrics.width+messageLabel.emojiCount *
-                                                     messageLabel.font.pixelSize, minMessageWidth) +
-                                            Theme.paddingMedium, maxMessageWidth)
+    property real _unexpandedWidth: hasAttachments ?
+                                        maxMessageWidth :
+                                        Math.min(Math.max(metrics.width+messageLabel.emojiCount *
+                                                          messageLabel.font.pixelSize, minMessageWidth) +
+                                                 Theme.paddingMedium, maxMessageWidth)
     property real maxMessageWidth: parent.width - 6*Theme.horizontalPageMargin
     property real minMessageWidth: Math.max(showSender ? senderNameLabel.implicitWidth : 0,
                                             showQuotedMessage ? quoteItem.implicitWidth : 0,
@@ -149,6 +151,7 @@ ListItem {
         // This breaks width calculations here and in derived items.
         // Always use delegateContentWidth instead.
         padding: contentPadding
+        spacing: 0
         anchors {
             // The text should be aligned with other page elements by having the default side margins.
             // The bubble should extend a little bit over the margins.
@@ -197,18 +200,19 @@ ListItem {
         Column {
             id: contentColumn
             width: delegateContentWidth
-            height: childrenRect.height
+            height: (hasText || isEmpty) ? childrenRect.height : 0
 
             LinkedEmojiLabel {
                 id: messageLabel
                 // TODO investigate binding loop on emojiOnly
                 property bool emojiOnly: emojiCount > 0 && plainCharactersCount === 0 &&
                                          emojiCount <= 5 // treat long messages as text
-                plainText: hasText ?
-                               (isExpanded ? _message : _message.substr(0, shortenThreshold) + (showExpand ? ' ...' : '')) :
+                visible: isEmpty || hasText
+                plainText: isEmpty ?
                                //: Placeholder note if an empty message is encountered.
                                //% "this message is empty"
-                               qsTrId("whisperfish-message-empty-note")
+                               qsTrId("whisperfish-message-empty-note") :
+                               (isExpanded ? _message : _message.substr(0, shortenThreshold) + (showExpand ? ' ...' : ''))
                 wrapMode: Text.Wrap
                 anchors { left: parent.left; right: parent.right }
                 horizontalAlignment: emojiOnly ? Text.AlignHCenter :
