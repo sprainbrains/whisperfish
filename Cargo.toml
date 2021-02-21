@@ -45,6 +45,7 @@ zkgroup = { git = "https://github.com/signalapp/zkgroup" }
 log = "0.4.8"
 env_logger = "0.8"
 scrypt = { version = "0.6", default-features = false, features=["std"] }
+single-instance = "0.3.1"
 hex="0.4"
 phonenumber = "0.3"
 itertools = "0.10.0"
