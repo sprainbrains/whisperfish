@@ -231,8 +231,14 @@ fn protobuf() -> Result<(), Error> {
 fn prepare_rpm_build() {
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_HARBOUR");
 
-    // Create tmp folders where feature-dependend files are copied to if they should be included.
-    // Define the whole folder in Cargo.toml for inlusion in the rpm
+    // Adding files only for a specific feature:
+    // - Register a new folder in cond_folder and add .rpm/tmp_feature_files/new_folder to
+    //   Cargo.toml be included in the rpm where your file should end up.
+    // - Add your source file to cond_files as ("filename", "new_folder", generated) with gerenated
+    //   = true if the file is generated during build (this prevents a rerun-if-changeged line to be
+    //   emitted)
+    // - Add your file to the rpm spec between lines `#[{{ [NOT] FEATURE_FLAG` and `#}}]`
+
     let rpm_extra_dir = std::path::PathBuf::from(".rpm/tmp_feature_files");
     if rpm_extra_dir.exists() {
         std::fs::remove_dir_all(&rpm_extra_dir)
@@ -243,13 +249,21 @@ fn prepare_rpm_build() {
         let nd = rpm_extra_dir.join(d);
         std::fs::create_dir_all(&nd).unwrap_or_else(|_| panic!("Could not create {:?}", &nd));
     }
-    let cond_files: &[(&str, &str)] = if env::var("CARGO_FEATURE_HARBOUR").is_err() {
-        // [ ("file name", "destination folder"), ... ]
-        &[("harbour-whisperfish.service", "systemd"), ("be.rubdos.whisperfish.service", "dbus")]
+    let cond_files: &[(&str, &str, bool)] = if env::var("CARGO_FEATURE_HARBOUR").is_err() {
+        // [ ("file name", "destination folder", generated), ... ]
+        &[
+            ("harbour-whisperfish.service", "systemd", false),
+            ("be.rubdos.whisperfish.service", "dbus", false),
+            (
+                "shareplugin/libwhisperfishshareplugin.so",
+                "transferplugin",
+                true,
+            ),
+        ]
     } else {
         &[]
     };
-    for (file, dest) in cond_files.iter() {
+    for (file, dest, gen) in cond_files.iter() {
         let dest_dir = rpm_extra_dir.join(dest);
         if !dest_dir.exists() {
             std::fs::create_dir_all(&dest_dir)
@@ -258,7 +272,9 @@ fn prepare_rpm_build() {
         let dest_file = dest_dir.join(file);
         std::fs::copy(Path::new(file), &dest_file)
             .unwrap_or_else(|_| panic!("failed to copy {} to {:?}", file, dest_file));
-        println!("cargo:rerun-if-changed={}", file);
+        if !gen {
+            println!("cargo:rerun-if-changed={}", file.to_str().unwrap());
+        }
     }
 
     // Build RPM Spec
@@ -297,7 +313,46 @@ fn prepare_rpm_build() {
     }
 }
 
+fn needs_rerun(dest: &str, sources: &[&str]) -> bool {
+    for f in sources.iter() {
+        println!("cargo:rerun-if-changed={}", f);
+    }
+
+    let metadata = std::fs::metadata(dest);
+    if metadata.is_err() {
+        return true;
+    }
+    let reftime = match metadata.unwrap().modified() {
+        Ok(time) => time,
+        Err(_) => return true,
+    };
+
+    for f in sources.iter() {
+        if std::fs::metadata(f).unwrap().modified().unwrap() > reftime {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compile: bool) {
+    if !needs_rerun(
+        "shareplugin/libwhisperfishshareplugin.so",
+        &[
+            "shareplugin/WhisperfishPluginInfo.cpp",
+            "shareplugin/WhisperfishPluginInfo.h",
+            "shareplugin/WhisperfishTransferPlugin.cpp",
+            "shareplugin/sfmoc/WhisperfishTransferPlugin.cpp",
+            "shareplugin/WhisperfishTransferPlugin.h",
+            "shareplugin/WhisperfishTransfer.cpp",
+            "shareplugin/sfmoc/WhisperfishTransfer.cpp",
+            "shareplugin/WhisperfishTransfer.h",
+        ],
+    ) {
+        return;
+    }
+
     if !cross_compile {
         let moc_files = &["WhisperfishTransfer", "WhisperfishTransferPlugin"];
         std::fs::create_dir_all(Path::new("shareplugin/moc"))
@@ -332,7 +387,7 @@ fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compil
         .arg("-lQt5DBus")
         .arg("-lQt5Core")
         .arg("-o")
-        .arg(".rpm/tmp_feature_files/transferplugin/libwhisperfishshareplugin.so")
+        .arg("shareplugin/libwhisperfishshareplugin.so")
         .arg("shareplugin/WhisperfishPluginInfo.cpp")
         .arg("shareplugin/WhisperfishTransfer.cpp")
         .arg("shareplugin/WhisperfishTransferPlugin.cpp");
@@ -347,15 +402,7 @@ fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compil
 
     println!("running: {:?}", gcc);
     gcc.status().expect("share plugin compile command failed");
-
-    println!("cargo:rerun-if-changed=shareplugin/WhisperfishPluginInfo.cpp");
-    println!("cargo:rerun-if-changed=shareplugin/WhisperfishPluginInfo.h");
-    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransferPlugin.cpp");
-    println!("cargo:rerun-if-changed=shareplugin/sfmoc/WhisperfishTransferPlugin.cpp");
-    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransferPlugin.h");
-    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransfer.cpp");
-    println!("cargo:rerun-if-changed=shareplugin/sfmoc/WhisperfishTransfer.cpp");
-    println!("cargo:rerun-if-changed=shareplugin/WhisperfishTransfer.h");
+    panic!("tset");
 }
 
 fn build_sqlcipher(mer_target_root: &str) {
@@ -363,6 +410,17 @@ fn build_sqlcipher(mer_target_root: &str) {
     // sailfish-components-webview.
     // This may become obsolete with an sqlcipher upgrade from jolla or when
     // https://gitlab.com/rubdos/whisperfish/-/issues/227 is implemented.
+
+    if !needs_rerun(
+        &format!("{}/libsqlcipher.a", env::var("OUT_DIR").unwrap()),
+        &[
+            "sqlcipher/sqlite3.c",
+            "sqlcipher/sqlite3.h",
+            "sqlcipher/sqlite3ext.h",
+        ],
+    ) {
+        return;
+    }
 
     if !Path::new("sqlcipher/sqlite3.c").is_file() {
         // Download and prepare sqlcipher source
@@ -409,7 +467,6 @@ fn build_sqlcipher(mer_target_root: &str) {
 
     println!("cargo:lib_dir={}", env::var("OUT_DIR").unwrap());
     println!("cargo:rustc-link-lib=static=sqlcipher");
-    println!("cargo:rerun-if-changed=sqlcipher/sqlite3.c");
 }
 
 fn main() {
@@ -498,16 +555,15 @@ fn main() {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 
-    prepare_rpm_build();
-
-    if env::var("CARGO_FEATURE_HARBOUR").is_err() &&
-        env::var("CARGO_FEATURE_SAILFISH").is_ok() {
+    if env::var("CARGO_FEATURE_HARBOUR").is_err() {
         build_share_plugin(&mer_target_root, &qt_include_path, cross_compile);
     }
 
     if cross_compile {
         build_sqlcipher(&mer_target_root);
     }
+
+    prepare_rpm_build();
 
     // vergen
     let flags = ConstantsFlags::all();
