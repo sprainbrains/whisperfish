@@ -11,21 +11,20 @@ import "../components"
 
 // TODO attached info page
 // TODO black background
-// TODO async loading
 
 Page {
     id: page
     allowedOrientations: Orientation.All
     property alias title: titleOverlay.title
-    property alias path: image.source // deprecated
-    property alias source: image.source
+    property string path: ''
     property bool isAnimated: false
 
+    readonly property bool isImageReady: image.status === Image.Ready
     readonly property Flickable flickable: flick
     readonly property bool editMode: false // not implemented
 
     onStatusChanged: {
-        if (page.status === PageStatus.Inactive && image.status === Image.Ready) {
+        if (page.status === PageStatus.Inactive && isImageReady) {
             image.fitToScreen()
         }
     }
@@ -37,14 +36,31 @@ Page {
         anchors.fill: parent
         contentWidth: imageView.width
         contentHeight: imageView.height
-        onHeightChanged: if (image.status === Image.Ready) image.fitToScreen();
+        onHeightChanged: if (isImageReady) image.fitToScreen()
 
         Item {
             id: imageView
             width: Math.max(image.width*image.scale, flick.width)
             height: Math.max(image.height*image.scale, flick.height)
 
-            AnimatedImage {
+            Loader {
+                // We have to use a separate loader if the image is animated
+                // because AnimatedImage doesn't support 'asynchronous: true'.
+                id: animationLoader
+                anchors.fill: image
+                asynchronous: true
+                sourceComponent: isAnimated ? animationComponent : null
+                Component {
+                    id: animationComponent
+                    AnimatedImage {
+                        scale: image.scale
+                        fillMode: image.fillMode
+                        source: page.path
+                    }
+                }
+            }
+
+            Image {
                 id: image
                 property real prevScale
                 property alias imageRotation: imageRotation
@@ -56,12 +72,14 @@ Page {
                     prevScale = scale
                 }
 
+                visible: !isAnimated
                 anchors.centerIn: parent
                 fillMode: Image.PreserveAspectFit
                 cache: false
                 asynchronous: true
                 smooth: !flick.moving
                 opacity: status === Image.Ready ? 1.0 : 0.0
+                source: page.path
 
                 Behavior on opacity { FadeAnimator { duration: 250 } }
 
@@ -129,7 +147,7 @@ Page {
 
                 onDoubleClicked: {
                     pinchRequested = true
-                    if (image.status !== Image.Ready) return;
+                    if (!isImageReady) return;
 
                     var newScale = pinchArea.minScale;
                     if (Math.round(image.scale) === Math.round(pinchArea.minScale)) {
@@ -164,7 +182,7 @@ Page {
             }
 
             anchors.fill: parent
-            enabled: image.status === Image.Ready
+            enabled: isImageReady
             pinch.target: image
             pinch.minimumScale: 0.5*minScale
             pinch.maximumScale: 1.5*maxScale
