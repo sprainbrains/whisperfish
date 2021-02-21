@@ -11,7 +11,7 @@ ListItem {
     width: parent.width
     contentHeight: contentContainer.height
     highlighted: down || menuOpen || replyArea.pressed
-    highlightedColor: "transparent"
+    _backgroundColor: "transparent"
 
     // REQUIRED PROPERTIES
     property QtObject modelData
