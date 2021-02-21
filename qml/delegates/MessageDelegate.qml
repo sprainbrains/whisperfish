@@ -222,8 +222,8 @@ ListItem {
                                          Theme.secondaryColor
                 enableCounts: true
                 font.pixelSize: emojiOnly ?
-                                    (emojiCount <= 2 ? 1.5*Theme.fontSizeExtraLarge :
-                                                       1.0*Theme.fontSizeExtraLarge) :
+                                    (emojiCount <= 2 ? 1.5*Theme.fontSizeLarge :
+                                                       1.0*Theme.fontSizeLarge) :
                                     Theme.fontSizeSmall // TODO make configurable
             }
         }

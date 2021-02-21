@@ -39,7 +39,7 @@ import "../js/emoji.js" as Emoji
 Label {
     id: root
     property string plainText
-    property real emojiSizeMult: 1.5
+    property real emojiSizeMult: 1.2
     property bool enableEmojis: true
     property bool enableCounts: false // enable only if necessary; performance
     property alias enableElide: elideFixProxy.elide // cf. comments above
