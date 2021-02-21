@@ -68,13 +68,13 @@ ListItem {
 
     readonly property bool hasData: modelData !== null && typeof modelData !== 'undefined'
     readonly property bool hasQuotedMessage: quotedMessageData !== null
-    readonly property bool hasAttachments: hasData && modelData.hasAttachment
+    readonly property bool hasAttachments: hasData && (modelData.hasAttachment === true)
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && _source !== ''
-    readonly property bool isOutbound: (hasData && modelData.outgoing) ? true : false
+    readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: MessageModel.group
     readonly property bool isEmpty: !hasText && !hasAttachments
-    property bool isExpanded: false // this has to be handled by derived items
+    property bool isExpanded: false
 
     onClicked: {
         if (!showExpand) return
