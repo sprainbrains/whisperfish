@@ -93,17 +93,13 @@ Page {
 
     Loader {
         id: loader
-        anchors.centerIn: parent
+        anchors.fill: parent
         Component {
             id: failedLoading
-            Text {
-                width: page.width - 2*Theme.horizontalPageMargin
-                wrapMode: Text.Wrap
-                textFormat: Text.PlainText
-                font.pixelSize: Theme.fontSizeMedium
-                text: qsTr("Error playing video") +
+            BusyLabel {
+                text: qsTrId("Error playing video") +
                       "\n\n" + _errorString
-                color: Theme.highlightColor
+                running: false
             }
         }
     }
