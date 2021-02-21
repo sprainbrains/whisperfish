@@ -8,16 +8,16 @@ import "../components"
 MessageDelegateBase {
     id: root
     delegateContentWidth: column.width
+    showExpand: !isEmpty && modelData.message.length > shortenThreshold
+
     readonly property int shortenThreshold: 600 // in characters
     readonly property int extraPageTreshold: 1500 // in characters
 
-    property real labelWidth: Math.min(Math.max(infoLabel.width+statusIcon.width,
-                                                metrics.width+messageLabel.emojiCount *
+    property real labelWidth: Math.min(Math.max(metrics.width+messageLabel.emojiCount *
                                                 messageLabel.font.pixelSize,
                                                 minMessageWidth) +
                                        Theme.paddingMedium,
                                        maxMessageWidth)
-    property real expandedWidth: root.width - 2*Theme.horizontalPageMargin
     property string messageText: hasText && typeof modelData.message !== 'undefined' &&
                                  modelData.message.trim() !== "" ?
                                      modelData.message :
@@ -25,15 +25,13 @@ MessageDelegateBase {
                                      //% "this message is empty"
                                      qsTrId("whisperfish-message-empty-note")
     property bool isEmpty: !hasText || modelData.message.trim() === ""
-    property bool canExpand: !isEmpty && modelData.message.length > shortenThreshold
-    property bool expandExtraPage: canExpand && modelData.message.length > extraPageTreshold
+    property bool expandExtraPage: showExpand && modelData.message.length > extraPageTreshold
 
     // TODO Attachments with mimetype text/x-signal-plain have to be
     // treated as extra long messages.
-    property bool _expanded: false
 
     onClicked: {
-        if (!canExpand) return
+        if (!showExpand) return
 
         if (expandExtraPage) {
             // TODO Cache the page object, so we can return to the
@@ -44,7 +42,7 @@ MessageDelegateBase {
                                'outgoing': outgoing
                            })
         } else {
-            _expanded = !_expanded
+            isExpanded = isExpanded
             // We make sure the list item is visible immediately
             // after changing the state. If omitted, closing a very
             // long delegate would leave the view to be positionend
@@ -78,7 +76,7 @@ MessageDelegateBase {
 
     Column {
         id: column
-        width: _expanded ? expandedWidth : labelWidth
+        width: isExpanded ? expandedWidth : labelWidth
         height: childrenRect.height
         spacing: Theme.paddingMedium
 
@@ -106,100 +104,20 @@ MessageDelegateBase {
                                 Theme.fontSizeSmall // TODO make configurable
             states: [
                 State {
-                    name: "default"; when: !_expanded
+                    name: "default"; when: !isExpanded
                     PropertyChanges {
                         target: messageLabel
-                        plainText: messageText.substr(0, shortenThreshold) + (canExpand ? ' ...' : '')
+                        plainText: messageText.substr(0, shortenThreshold) + (showExpand ? ' ...' : '')
                     }
                 },
                 State {
-                    name: "expanded"; when: _expanded
+                    name: "expanded"; when: isExpanded
                     PropertyChanges {
                         target: messageLabel
                         plainText: messageText
                     }
                 }
             ]
-        }
-
-        Row {
-            id: infoRow
-            spacing: 0
-            layoutDirection: outgoing ? Qt.RightToLeft : Qt.LeftToRight
-            anchors { left: parent.left; right: parent.right }
-
-            HighlightImage {
-                id: statusIcon
-                visible: outgoing
-                width: visible ? Theme.iconSizeSmall : 0
-                height: width
-                color: infoLabel.color
-                source: {
-                    if (modelData.read) "../../icons/icon-s-read.png"
-                    else if (modelData.received) "../../icons/icon-s-received.png"
-                    else if (modelData.sent) "../../icons/icon-s-sent.png"
-                    // TODO actually use 'queued' state in model
-                    else if (modelData.queued) "../../icons/icon-s-queued.png"
-                    // TODO implement 'failed' state in model
-                    // TODO check if SFOS 4 has "image://theme/icon-s-blocked" (3.4 doesn't)
-                    else if (modelData.failed) "../../icons/icon-s-failed.png"
-                    // TODO If all states are implemented and used, then we should
-                    // change the default state to 'failed'. Until then the default
-                    // has to be 'queued' to prevent a new message's icon to jump
-                    // from 'failed' to 'received'.
-                    else "../../icons/icon-s-queued.png"
-                }
-            }
-
-            Label {
-                id: infoLabel
-                text: modelData.timestamp ?
-                          Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
-                          //: Placeholder note if a message doesn't have a timestamp (which must not happen).
-                          //% "no time"
-                          qsTrId("whisperfish-message-no-timestamp")
-                horizontalAlignment: outgoing ? Text.AlignRight : Text.AlignLeft // TODO make configurable
-                font.pixelSize: Theme.fontSizeExtraSmall // TODO make configurable
-                color: outgoing ?
-                           (highlighted ? Theme.secondaryHighlightColor :
-                                          Theme.secondaryHighlightColor) :
-                           (highlighted ? Theme.secondaryHighlightColor :
-                                          Theme.secondaryColor)
-            }
-
-            Label {
-                id: debugLabel
-                visible: SettingsBridge.boolValue("debug_mode")
-                width: visible ? implicitWidth : 0
-                text: visible ? " [%1] ".arg(modelData.id) : ""
-                color: infoLabel.color
-                font.pixelSize: Theme.fontSizeExtraSmall
-            }
-
-            Row {
-                id: showMoreRow
-                visible: canExpand
-                spacing: Theme.paddingSmall
-                layoutDirection: outgoing ? Qt.LeftToRight : Qt.RightToLeft
-                width: !visible ? 0 : parent.width - infoLabel.width -
-                                      statusIcon.width - debugLabel.width
-
-                Item { width: Theme.paddingSmall; height: 1 }
-                Label {
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    text: "\u2022 \u2022 \u2022" // three dots
-                }
-                Label {
-                    text: _expanded ?
-                              //: Hint for very long messages, while expanded
-                              //% "show less"
-                              qsTrId("whisperfish-message-show-less") :
-                              //: Hint for very long messages, while not expanded
-                              //% "show more"
-                              qsTrId("whisperfish-message-show-more")
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                }
-            }
         }
 
         states: [
