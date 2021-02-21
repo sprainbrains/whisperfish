@@ -82,10 +82,7 @@ ListItem {
             // TODO Cache the page object, so we can return to the
             // same scroll position where the user left the page.
             // It is not possible to re-use the returned object from pageStack.push().
-            pageStack.push("../pages/ExpandedMessagePage.qml", {
-                               'modelData': modelData,
-                               'outgoing': outgoing
-                           })
+            pageStack.push("../pages/ExpandedMessagePage.qml", { 'modelData': modelData })
         } else {
             isExpanded = !isExpanded
             // We make sure the list item is visible immediately
@@ -202,6 +199,7 @@ ListItem {
 
             LinkedEmojiLabel {
                 id: messageLabel
+                // TODO investigate binding loop on emojiOnly
                 property bool emojiOnly: emojiCount > 0 && plainCharactersCount === 0 &&
                                          emojiCount <= 5 // treat long messages as text
                 plainText: hasText ?
