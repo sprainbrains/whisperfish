@@ -123,21 +123,6 @@ ListItem {
             }
             Behavior on opacity { FadeAnimation { duration: 50 } }
         }
-
-        states: [
-            State {
-                name: "outgoing"; when: outgoing
-                AnchorChanges { target: replyArea; anchors.left: parent.left }
-                AnchorChanges { target: replyHintIcon; anchors.left: parent.left }
-                AnchorChanges { target: replyHintBackground; anchors.left: parent.left }
-            },
-            State {
-                name: "incoming"; when: !outgoing
-                AnchorChanges { target: replyArea; anchors.right: parent.right }
-                AnchorChanges { target: replyHintIcon; anchors.right: parent.right }
-                AnchorChanges { target: replyHintBackground; anchors.right: parent.right }
-            }
-        ]
     }
 
     Column {
@@ -205,15 +190,23 @@ ListItem {
             height: childrenRect.height
         }
 
-        states: [
-            State {
-                name: "outgoing"; when: outgoing
-                AnchorChanges { target: contentContainer; anchors.right: parent.right }
-            },
-            State {
-                name: "incoming"; when: !outgoing
-                AnchorChanges { target: contentContainer; anchors.left: parent.left }
             }
-        ]
     }
+
+    states: [
+        State {
+            name: "outgoing"; when: outgoing
+            AnchorChanges { target: contentContainer; anchors.right: parent.right }
+            AnchorChanges { target: replyArea; anchors.left: parent.left }
+            AnchorChanges { target: replyHintIcon; anchors.left: parent.left }
+            AnchorChanges { target: replyHintBackground; anchors.left: parent.left }
+        },
+        State {
+            name: "incoming"; when: !outgoing
+            AnchorChanges { target: contentContainer; anchors.left: parent.left }
+            AnchorChanges { target: replyArea; anchors.right: parent.right }
+            AnchorChanges { target: replyHintIcon; anchors.right: parent.right }
+            AnchorChanges { target: replyHintBackground; anchors.right: parent.right }
+        }
+    ]
 }
