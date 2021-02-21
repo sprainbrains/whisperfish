@@ -194,7 +194,7 @@ ListItem {
             showCloseButton: false
             showBackground: true
             highlighted: down || root.highlighted
-            messageData: null
+            messageData: quotedMessageData
             backgroundItem.roundedCorners: backgroundItem.bottomLeft |
                                            backgroundItem.bottomRight |
                                            (isOutbound ? backgroundItem.topRight :
