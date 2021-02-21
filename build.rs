@@ -402,7 +402,6 @@ fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compil
 
     println!("running: {:?}", gcc);
     gcc.status().expect("share plugin compile command failed");
-    panic!("tset");
 }
 
 fn build_sqlcipher(mer_target_root: &str) {
