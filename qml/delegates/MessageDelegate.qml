@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
-//import Nemo.Thumbnailer 1.0
 import "../components"
 import "message"
 
@@ -178,6 +177,14 @@ ListItem {
         }
 
         Item { width: 1; height: showSender ? senderNameLabel.backgroundGrow+Theme.paddingSmall : 0 }
+
+        AttachmentsLoader {
+            asynchronous: true
+            enabled: hasAttachments
+            width: delegateContentWidth
+        }
+
+        Item { width: 1; height: hasAttachments ? Theme.paddingSmall : 0 }
 
         QuotedMessagePreview {
             id: quoteItem
