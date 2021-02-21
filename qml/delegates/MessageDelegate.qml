@@ -212,14 +212,14 @@ ListItem {
                 wrapMode: Text.Wrap
                 anchors { left: parent.left; right: parent.right }
                 horizontalAlignment: emojiOnly ? Text.AlignHCenter :
-                                                  (outgoing ? Text.AlignRight : Text.AlignLeft) // TODO make configurable
+                                                 (isOutbound ? Text.AlignRight : Text.AlignLeft) // TODO make configurable
                 color: isEmpty ?
                            (highlighted ? Theme.secondaryHighlightColor :
-                                          (outgoing ? Theme.secondaryHighlightColor :
-                                                      Theme.secondaryColor)) :
+                                          (isOutbound ? Theme.secondaryHighlightColor :
+                                                        Theme.secondaryColor)) :
                            (highlighted ? Theme.highlightColor :
-                                          (outgoing ? Theme.highlightColor :
-                                                      Theme.primaryColor))
+                                          (isOutbound ? Theme.highlightColor :
+                                                        Theme.primaryColor))
                 linkColor: highlighted ? Theme.secondaryHighlightColor :
                                          Theme.secondaryColor
                 enableCounts: true

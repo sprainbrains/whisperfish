@@ -29,8 +29,8 @@ MouseArea {
         id: replyHintBackground
         width: parent.height
         height: Math.max(parent.width, root.width-delegateContentWidth)
-        rotation: outgoing ? -90 : 90
-        transformOrigin: outgoing ? Item.TopLeft : Item.TopRight
+        rotation: isOutbound ? -90 : 90
+        transformOrigin: isOutbound ? Item.TopLeft : Item.TopRight
         y: parent.height
         opacity: parent.down ? 1.0 : 0.0
         gradient: Gradient {
@@ -43,12 +43,12 @@ MouseArea {
 
     states: [
         State {
-            name: "outgoing"; when: outgoing
+            name: "outbound"; when: isOutbound
             AnchorChanges { target: replyHintIcon; anchors.left: parent.left }
             AnchorChanges { target: replyHintBackground; anchors.left: parent.left }
         },
         State {
-            name: "incoming"; when: !outgoing
+            name: "inbound"; when: !isOutbound
             AnchorChanges { target: replyHintIcon; anchors.right: parent.right }
             AnchorChanges { target: replyHintBackground; anchors.right: parent.right }
         }

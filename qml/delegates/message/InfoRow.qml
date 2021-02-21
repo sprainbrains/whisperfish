@@ -17,7 +17,7 @@ Row {
         height: width
         color: infoLabel.color
         source: {
-            if (!modelData) "../../../icons/icon-s-queued.png" // cf. below
+            if (!hasData) "../../../icons/icon-s-queued.png" // cf. below
             if (modelData.read) "../../../icons/icon-s-read.png"
             else if (modelData.received) "../../../icons/icon-s-received.png"
             else if (modelData.sent) "../../../icons/icon-s-sent.png"
@@ -36,7 +36,7 @@ Row {
 
     Label {
         id: infoLabel
-        text: modelData ?
+        text: hasData ?
                   (modelData.timestamp ?
                        Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
                        //: Placeholder note if a message doesn't have a timestamp (which must not happen).
