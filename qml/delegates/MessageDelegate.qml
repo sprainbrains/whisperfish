@@ -8,7 +8,6 @@ import "../components"
 MessageDelegateBase {
     id: root
     delegateContentWidth: column.width
-    enableDebugLayer: false
     readonly property int shortenThreshold: 600 // in characters
     readonly property int extraPageTreshold: 1500 // in characters
 

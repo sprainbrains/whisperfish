@@ -10,10 +10,6 @@ ListItem {
     _backgroundColor: "transparent"
     highlighted: down || menuOpen || replyArea.down
 
-    // TODO Uncomment this line only for development!
-    // down: pressed || (enableDebugLayer && (index % 2 == 0))
-    property bool enableDebugLayer: false
-
     property QtObject modelData
     property bool outgoing: (modelData !== null && modelData.outgoing) ? true : false
     property bool hasText: (modelData !== null && modelData.message) ? true : false
@@ -85,13 +81,6 @@ ListItem {
                                     bottomRight | topLeft
             }
         }
-    }
-
-    Rectangle {
-        visible: enableDebugLayer
-        anchors.fill: contentContainer
-        color: Theme.highlightDimmerColor
-        opacity: 0.4
     }
 
     MouseArea {
