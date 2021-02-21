@@ -231,20 +231,21 @@ fn protobuf() -> Result<(), Error> {
 fn prepare_rpm_build() {
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_HARBOUR");
 
-    // create tmp folders where feature-dependend files are copied to if they should be included.
+    // Create tmp folders where feature-dependend files are copied to if they should be included.
     // Define the whole folder in Cargo.toml for inlusion in the rpm
     let rpm_extra_dir = std::path::PathBuf::from(".rpm/tmp_feature_files");
     if rpm_extra_dir.exists() {
         std::fs::remove_dir_all(&rpm_extra_dir)
             .unwrap_or_else(|_| panic!("Could not remove {:?} for cleanup", rpm_extra_dir));
     }
-    let cond_folder: &[&str] = &["systemd", "transferplugin"];
+    let cond_folder: &[&str] = &["systemd", "transferplugin", "dbus"];
     for d in cond_folder.iter() {
         let nd = rpm_extra_dir.join(d);
         std::fs::create_dir_all(&nd).unwrap_or_else(|_| panic!("Could not create {:?}", &nd));
     }
     let cond_files: &[(&str, &str)] = if env::var("CARGO_FEATURE_HARBOUR").is_err() {
-        &[("harbour-whisperfish.service", "systemd")]
+        // [ ("file name", "destination folder"), ... ]
+        &[("harbour-whisperfish.service", "systemd"), ("be.rubdos.whisperfish.service", "dbus")]
     } else {
         &[]
     };

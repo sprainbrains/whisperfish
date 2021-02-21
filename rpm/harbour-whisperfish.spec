@@ -78,4 +78,6 @@ systemctl-user disable harbour-whisperfish.service || true
 %{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 #[{{ NOT HARBOUR
 %{_exec_prefix}/lib/systemd/user/%{name}.service
+%{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
+%{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 #}}]
