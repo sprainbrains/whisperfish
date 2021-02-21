@@ -139,7 +139,9 @@ ListItem {
         asynchronous: true
         anchors { bottom: parent.bottom; top: parent.top }
         width: parent.width/2
-        sourceComponent: Component { ReplyArea { } }
+        sourceComponent: Component {
+            ReplyArea { enabled: root.enabled }
+        }
     }
 
     Column {
