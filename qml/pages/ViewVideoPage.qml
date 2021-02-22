@@ -20,7 +20,7 @@ Page {
     property alias path: video.source
     property alias autoPlay: video.autoPlay
     property bool enableDarkBackground: true
-    property bool _isPlaying: autoPlay
+    property bool _isPlaying: video.playbackState === MediaPlayer.PlayingState
     property string _errorString
 
     Loader {
@@ -62,12 +62,10 @@ Page {
         anchors.fill: parent
         onClicked: {
             if (_isPlaying === true) {
-                _isPlaying = false;
                 titleOverlay.show();
                 video.pause();
             } else {
                 titleOverlay.hide();
-                _isPlaying = true;
                 video.play();
             }
         }
