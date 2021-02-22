@@ -34,6 +34,8 @@ MouseArea {
     }
 
     // TODO handle missing files and failed thumbnails
+    // TODO fix: there are no thumbnails for video files in Whisperfish, even though
+    //      the thumbnailer supports videos
     Thumbnail {
         visible: !_isAnimated
         width: parent.width; height: parent.height
