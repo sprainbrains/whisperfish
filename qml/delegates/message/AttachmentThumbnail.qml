@@ -41,6 +41,12 @@ MouseArea {
         width: parent.width; height: parent.height
         source: (!_isAnimated && _hasAttach) ? attach.data : ''
         sourceSize { width: width; height: height }
+
+        onStatusChanged: {
+            if (status === Thumbnail.Error && _hasAttach) {
+                console.warn("thumbnail failed for", attach.data)
+            }
+        }
     }
 
     Loader {
