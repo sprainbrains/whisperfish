@@ -32,7 +32,6 @@ SilicaListView {
     verticalLayoutDirection: ListView.BottomToTop
     quickScroll: true  // TODO how to only allow downwards?
 
-    // TODO verify:
     // avoids resetting focus every time a row is added, which breaks text input
     currentIndex: -1
     highlightFollowsCurrentItem: false
@@ -105,9 +104,9 @@ SilicaListView {
             y: section ? section.y + section.height : 0
             width: parent.width
 
-            // TODO We can choose the delegate based on message contents,
-            // e.g. a different delegate for stickers. This will improve
-            // performance. (Once we have multiple delegates...)
+            // choose the delegate based on message contents
+            // NOTE we could make this loader asynchronous if we find a way
+            // to calculate the effective message height here
             sourceComponent: wrapper.isServiceMessage ?
                                  serviceMessageDelegate :
                                  defaultMessageDelegate
