@@ -222,7 +222,7 @@ Page {
                     MenuItem {
                         // TODO Implement a way to open a new chat with someone, or open
                         //      an existing chat. This requires better handling of sessions (#105, #183)
-                        //: TODO
+                        //: Menu item to start a private chat with a group member
                         //% "Message to %1"
                         text: qsTrId("whisperfish-group-member-menu-direct-message").arg(
                                   isUnknownContact ? contactId : name)
@@ -231,14 +231,14 @@ Page {
                         onClicked: remorse.execute("Directly opening a chat is not yet implemented.", function() {})
                     }
                     MenuItem {
-                        //: TODO
+                        //: Menu item to save a group member to the local address book
                         //% "Add to contacts"
                         text: qsTrId("whisperfish-group-member-menu-save-contact")
                         visible: isUnknownContact
                         onClicked: item.clicked(null) // show contact page
                     }
                     MenuItem {
-                        //: TODO
+                        //: Menu item to verify safety numbers with a group member
                         //% "Verify safety number"
                         text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
                         visible: !isVerified
@@ -252,7 +252,7 @@ Page {
                         //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
                     }
                     MenuItem {
-                        //: TODO
+                        //: Menu item to remove a member from a group (requires admin privileges)
                         //% "Remove from this group"
                         text: qsTrId("whisperfish-group-member-menu-remove-from-group")
                         visible: selfIsAdmin
@@ -287,7 +287,7 @@ Page {
                     Label {
                         font.pixelSize: Theme.fontSizeMedium
                         text: item.isSelf ?
-                                  //: TODO
+                                  //: Title for the user's entry in a list of group members
                                   //% "You"
                                   qsTrId("whisperfish-group-member-name-self") :
                                   name

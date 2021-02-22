@@ -76,10 +76,10 @@ Item {
         id: label
         highlighted: root.highlighted
         plainText: outbound ?
-                  //: TODO
-                  //% "You"
-                  qsTrId("whisperfish-sender-name-label-outgoing") :
-                  effectiveText
+                       //: Name shown when replying to own messages
+                       //% "You"
+                       qsTrId("whisperfish-sender-name-label-outgoing") :
+                       effectiveText
         width: parent.implicitWidth
         height: parent.implicitHeight
         maximumLineCount: 1

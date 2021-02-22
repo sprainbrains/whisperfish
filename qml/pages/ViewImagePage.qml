@@ -237,7 +237,7 @@ Page {
     Component {
         id: loadingIndicator
         BusyLabel {
-            //: TODO
+            //: Full page placeholder shown while a large image is being loaded
             //% "Loading image"
             text: qsTrId("whisperfish-view-image-page-loading")
             running: true
@@ -247,7 +247,7 @@ Page {
     Component {
         id: failedLoading
         BusyLabel {
-            //: TODO
+            //: Full page placeholder shown when an image failed to load
             //% "Failed to load"
             text: qsTrId("whisperfish-view-image-page-error")
             running: false

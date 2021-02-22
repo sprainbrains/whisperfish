@@ -44,60 +44,60 @@ ListItem {
     }
     property string _message: {
         if (_type === "joinedGroup" && _origin === "self") {
-            //: TODO
+            //: Service message, %1 = group name
             //% "You joined the group “%1”."
             qsTrId("whisperfish-service-message-joined-group-self").arg(_originName)
         } else if (_type === "leftGroup" && _origin === "self") {
-            //: TODO
+            //: Service message
             //% "You left the group."
             qsTrId("whisperfish-service-message-left-group-self")
         } else if (_type === "joinedGroup" && _origin === "peer") {
-            //: TODO
+            //: Service message, %1 is the new member's name
             //% "%1 joined the group."
             qsTrId("whisperfish-service-message-joined-group-peer").arg(_originName)
         } else if (_type === "leftGroup" && _origin === "peer") {
-            //: TODO
+            //: Service message, %1 is is the lost member's name
             //% "%1 left the group."
             qsTrId("whisperfish-service-message-left-group-peer").arg(_originName)
         } else if (_type === "missedCallVoice") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "You missed a call from %1."
             qsTrId("whisperfish-service-message-missed-call-voice").arg(_originName)
         } else if (_type === "missedCallVideo") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "You missed a video call from %1."
             qsTrId("whisperfish-service-message-missed-call-video").arg(_originName)
         } else if (_type === "callVoice" && _origin === "self") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "You called %1."
             qsTrId("whisperfish-service-message-call-voice-self").arg(_originName)
         } else if (_type === "callVideo" && _origin === "self") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "You started a video call with %1."
             qsTrId("whisperfish-service-message-call-video-self").arg(_originName)
         } else if (_type === "callVoice" && _origin === "peer") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "%1 called you."
             qsTrId("whisperfish-service-message-call-voice-peer").arg(_originName)
         } else if (_type === "callVideo" && _origin === "peer") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "%1 started a video call with you."
             qsTrId("whisperfish-service-message-call-video-peer").arg(_originName)
         } else if (_type === "fingerprintChanged") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "Your safety number with %1 has changed. "
             //% "Swipe right to verify the new number."
             qsTrId("whisperfish-service-message-fingerprint-changed").arg(_originName)
         } else if (_type === "sessionReset" && _origin === "self") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "You have reset the secure session with %1."
             qsTrId("whisperfish-service-message-session-reset-self").arg(_originName)
         } else if (_type === "sessionReset" && _origin === "peer") {
-            //: TODO
+            //: Service message, %1 is a name
             //% "%1 has reset the secure session with you."
             qsTrId("whisperfish-service-message-session-reset-peer").arg(_originName)
         } else {
-            //: TODO
+            //: Service message, %1 is an internal message type identifier
             //% "This service message is not yet supported by Whisperfish. "
             //% "Please file a bug report. (Type: '%1'.)"
             qsTrId("whisperfish-service-message-not-supported").arg(_type)

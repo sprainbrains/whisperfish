@@ -140,7 +140,7 @@ Item {
                 label: Format.formatDate(clock.time, Formatter.TimeValue) +
                        (attachments.length > 0 ?
                             " — " +
-                            //: TODO
+                            //: Number of attachments currently selected for sending
                             //% "%n attachment(s)"
                             qsTrId("whisperfish-chat-input-attachment-label", attachments.length) :
                             "")

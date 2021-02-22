@@ -100,7 +100,7 @@ Page {
         Component {
             id: failedLoading
             BusyLabel {
-                //: TODO
+                //: Full page placeholder shown when a video failed to load
                 //% "Failed to play"
                 text: qsTrId("whisperfish-view-video-page-error") +
                       "\n\n" + _errorString

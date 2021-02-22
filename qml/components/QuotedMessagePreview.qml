@@ -93,7 +93,7 @@ BackgroundItem {
             id: senderNameLabel
             text: messageData !== null ?
                       (messageData.outgoing ?
-                           //: TODO
+                           //: Name shown when replying to own messages
                            //% "You"
                            qsTrId("whisperfish-sender-name-label-outgoing") :
                            _contactName) :

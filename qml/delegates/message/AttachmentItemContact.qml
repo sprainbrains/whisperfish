@@ -16,7 +16,7 @@ AttachmentItemBase {
 
         Label {
             // TODO show contact name from file; this requires parsing the file
-            //: TODO
+            //: Placeholder shown as title for an attached contact in a message
             //% "Shared contact"
             text: qsTrId("whisperfish-attachment-preview-contact-title")
             width: parent.width - Theme.paddingSmall

@@ -34,7 +34,7 @@ Page {
         PullDownMenu {
             // TODO investigate why sharing crashes Whisperfish
             /* MenuItem {
-                //: TODO
+                //: Menu item to share a contact card
                 //% "Share"
                 text: qsTrId("whisperfish-contact-card-page-share")
                 onClicked: {
@@ -48,7 +48,7 @@ Page {
                 }
             } */
             MenuItem {
-                //: TODO
+                //: Menu item to save a shared contact to the local address book
                 //% "Save to address book"
                 text: qsTrId("whisperfish-contact-card-page-save")
                 onClicked: Qt.openUrlExternally(vcfUrl)

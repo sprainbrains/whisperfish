@@ -25,14 +25,14 @@ Page {
             spacing: Theme.paddingMedium
 
             PageHeader {
-                //: TODO
+                //: Page title for a very long message shown on a page of its own
                 //% "Full message"
                 title: qsTrId("whisperfish-expanded-message-page-header")
                 description: (delegate.isOutbound ?
-                                  //: TODO
+                                  //: Page description for a very long message shown on a page of its own
                                   //% "to %1"
                                   qsTrId("whisperfish-expanded-message-info-outbound") :
-                                  //: TODO
+                                  //: Page description for a very long message shown on a page of its own
                                   //% "from %1"
                                   qsTrId("whisperfish-expanded-message-info-inbound")).
                               arg(_originName)
