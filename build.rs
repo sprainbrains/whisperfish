@@ -336,7 +336,7 @@ fn needs_rerun(dest: &str, sources: &[&str]) -> bool {
     return false;
 }
 
-fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compile: bool) {
+fn build_share_plugin(mer_target_root: &str, qt_include_path: &str) {
     if !needs_rerun(
         "shareplugin/libwhisperfishshareplugin.so",
         &[
@@ -351,22 +351,6 @@ fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compil
         ],
     ) {
         return;
-    }
-
-    if !cross_compile {
-        let moc_files = &["WhisperfishTransfer", "WhisperfishTransferPlugin"];
-        std::fs::create_dir_all(Path::new("shareplugin/moc"))
-            .expect("Could not create shareplugin/moc");
-        for file in moc_files.iter() {
-            Command::new("moc")
-                .arg("-I")
-                .arg(format!("{}/usr/include/", mer_target_root))
-                .arg("-o")
-                .arg(format!("shareplugin/moc/{}.cpp", file))
-                .arg(format!("shareplugin/{}.h", file))
-                .status()
-                .expect("moc failed");
-        }
     }
 
     let mut gcc = cc::Build::new()
@@ -390,15 +374,9 @@ fn build_share_plugin(mer_target_root: &str, qt_include_path: &str, cross_compil
         .arg("shareplugin/libwhisperfishshareplugin.so")
         .arg("shareplugin/WhisperfishPluginInfo.cpp")
         .arg("shareplugin/WhisperfishTransfer.cpp")
-        .arg("shareplugin/WhisperfishTransferPlugin.cpp");
-
-    if cross_compile {
-        gcc.arg("shareplugin/sfmoc/WhisperfishTransfer.cpp")
-            .arg("shareplugin/sfmoc/WhisperfishTransferPlugin.cpp");
-    } else {
-        gcc.arg("shareplugin/moc/WhisperfishTransfer.cpp")
-            .arg("shareplugin/moc/WhisperfishTransferPlugin.cpp");
-    }
+        .arg("shareplugin/WhisperfishTransferPlugin.cpp")
+        .arg("shareplugin/sfmoc/WhisperfishTransfer.cpp")
+        .arg("shareplugin/sfmoc/WhisperfishTransferPlugin.cpp");
 
     println!("running: {:?}", gcc);
     gcc.status().expect("share plugin compile command failed");
@@ -554,15 +532,17 @@ fn main() {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 
-    if env::var("CARGO_FEATURE_HARBOUR").is_err() {
-        build_share_plugin(&mer_target_root, &qt_include_path, cross_compile);
+    if env::var("CARGO_FEATURE_HARBOUR").is_err() && cross_compile {
+        build_share_plugin(&mer_target_root, &qt_include_path);
     }
 
     if cross_compile {
         build_sqlcipher(&mer_target_root);
     }
 
-    prepare_rpm_build();
+    if cross_compile {
+        prepare_rpm_build();
+    }
 
     // vergen
     let flags = ConstantsFlags::all();
