@@ -14,7 +14,7 @@ ApplicationWindow
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
-    Component.onCompleted: Emoji.dataBaseDirectory = StandardPaths.data
+    Component.onCompleted: Emoji.dataBaseDirectory = StandardPaths.genericData
 
     readonly property string mainPageName: "mainPage"
     readonly property string conversationPageName: "conversationPage"

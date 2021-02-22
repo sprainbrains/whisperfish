@@ -46,11 +46,10 @@
 // TODO: Is there a way to include official Signal emojis?
 
 // Data directories: emojis are by default located in StandardPaths.data/emojis,
-// which is typically $HOME/.local/share/<org>/<app>/emojis. The base directory has to
+// which is typically $HOME/.local/share/sailor-emoji. The base directory has to
 // be initialized from QML, as this script cannot access the StandardPaths object.
 var dataBaseDirectory = '' // base path to emoji sources
-var emojiSubDirectory = '../emojis' // subdirectory below DataBaseDirectory
-                                    // TODO Remove '../' once WF uses /<org>/<app>/
+var emojiSubDirectory = 'sailor-emoji' // subdirectory below DataBaseDirectory
 
 // Emoji styles: emojis can be in raster or vector format. Raster emojis are
 // required in multiple resolutions.

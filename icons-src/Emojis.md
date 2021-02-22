@@ -4,17 +4,17 @@
 
 Whisperfish supports different emoji styles. Download a set and extract it to:
 
-    `~/.local/share/harbour-whisperfish/emojis`
+    `~/.local/share/sailor-emoji/`
 
 Sets supported by default:
 
 - OpenMoji:
     - download https://github.com/hfg-gmuend/openmoji/releases/download/13.0.0/openmoji-svg-color.zip
-    - extract it to `~/.local/share/harbour-whisperfish/emojis/openmoji/13.0.0`
+    - extract it to `~/.local/share/sailor-emoji/openmoji/13.0.0`
     - run `for i in *.svg; do mv "$i" "${i,,}"; done` (in `bash`) to convert all names to lower case
 - Twemoji:
     - download https://github.com/twitter/twemoji/archive/v13.0.1.tar.gz
-    - extract `assets/svg/` to `~/.local/share/harbour-whisperfish/emojis/twemoji/13.0.1`
+    - extract `assets/svg/` to `~/.local/share/sailor-emoji/twemoji/13.0.1`
 - Whatsapp: you have to fetch PNG files in multiple resolutions from Emojipedia
   (see below for details)
 
@@ -22,7 +22,7 @@ Sets supported by default:
 
 Whisperfish supports different emoji styles. They have to be installed in:
 
-    `~/.local/share/harbour-whisperfish/emojis`
+    `~/.local/share/sailor-emoji/`
 
 Currently, all styles have to be registered in `qml/js/emoji.js`. This can be
 simplified in the future.
