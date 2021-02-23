@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
-import "../../components"
+import "../attachment"
+import ".."
 
 // This component must be a child of MessageDelegate.
 Loader {
