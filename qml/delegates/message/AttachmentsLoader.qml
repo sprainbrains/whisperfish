@@ -22,6 +22,9 @@ Loader {
     readonly property int maxDetails: 2
     readonly property int maxThumbs: 5
 
+    signal _pressAndHold
+    on_PressAndHold: openMenu()
+
     // TODO adapt size to screen orientation, i.e. reduce in horizontal mode
     width: 2*Theme.itemSizeExtraLarge
     height: {
@@ -78,6 +81,7 @@ Loader {
         AttachmentThumbnail {
             anchors.fill: parent
             attach: thumbsAttachments[0]
+            onPressAndHold: _pressAndHold()
         }
     }
 
@@ -87,10 +91,12 @@ Loader {
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: thumbsAttachments[0]
+                onPressAndHold: _pressAndHold()
             }
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: thumbsAttachments[1]
+                onPressAndHold: _pressAndHold()
             }
         }
     }
@@ -101,6 +107,7 @@ Loader {
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: thumbsAttachments[0]
+                onPressAndHold: _pressAndHold()
             }
 
             Column {
@@ -108,10 +115,12 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[1]
+                    onPressAndHold: _pressAndHold()
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[2]
+                    onPressAndHold: _pressAndHold()
                 }
             }
         }
@@ -125,10 +134,12 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[0]
+                    onPressAndHold: _pressAndHold()
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[1]
+                    onPressAndHold: _pressAndHold()
                 }
             }
             Column {
@@ -136,10 +147,12 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[2]
+                    onPressAndHold: _pressAndHold()
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[3]
+                    onPressAndHold: _pressAndHold()
                 }
             }
         }
@@ -153,10 +166,12 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
                     attach: thumbsAttachments[0]
+                    onPressAndHold: _pressAndHold()
                 }
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
                     attach: thumbsAttachments[1]
+                    onPressAndHold: _pressAndHold()
                 }
             }
             Row {
@@ -164,15 +179,18 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
                     attach: thumbsAttachments[2]
+                    onPressAndHold: _pressAndHold()
                 }
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
                     attach: thumbsAttachments[3]
+                    onPressAndHold: _pressAndHold()
                 }
                 AttachmentThumbnail {
                     id: showMoreThumb
                     width: parent.width/3; height: parent.height
                     attach: thumbsAttachments[4]
+                    onPressAndHold: _pressAndHold()
 
                     Rectangle {
                         visible: thumbsAttachments.length > maxThumbs
@@ -248,6 +266,7 @@ Loader {
         id: detail_contactComponent
         AttachmentItemContact {
             attach: detailAttachments[currentAttachmentIndex]
+            onPressAndHold: _pressAndHold()
         }
     }
 
@@ -255,6 +274,7 @@ Loader {
         id: detail_audioComponent
         AttachmentItemAudio {
             attach: detailAttachments[currentAttachmentIndex]
+            onPressAndHold: _pressAndHold()
         }
     }
 
@@ -262,6 +282,7 @@ Loader {
         id: detail_fileComponent
         AttachmentItemFile {
             attach: detailAttachments[currentAttachmentIndex]
+            onPressAndHold: _pressAndHold()
         }
     }
 }
