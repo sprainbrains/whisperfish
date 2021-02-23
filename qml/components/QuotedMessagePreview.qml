@@ -123,7 +123,7 @@ BackgroundItem {
                                       Theme.secondaryColor
             linkColor: color
             defaultLinkActions: false
-            onLinkActivated: {}
+            onLinkActivated: root.clicked(null)
         }
     }
 }
