@@ -4,6 +4,7 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 
 AttachmentItemBase {
+    id: item
     onClicked: if (_effectiveEnableClick) Qt.openUrlExternally(attach.data)
 
     Column {
@@ -13,13 +14,15 @@ AttachmentItemBase {
         }
 
         Label {
+            highlighted: item.highlighted ? true : undefined
             text: _hasAttach ? lastPartOfPath(attach.data) : ''
             width: parent.width - Theme.paddingSmall
             elide: Text.ElideMiddle
         }
         Label {
             text: _hasAttach ? attach.data : ''
-            color: Theme.secondaryColor
+            highlighted: item.highlighted ? true : undefined
+            color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             width: parent.width - Theme.paddingSmall
             font.pixelSize: Theme.fontSizeExtraSmall
             elide: Text.ElideMiddle

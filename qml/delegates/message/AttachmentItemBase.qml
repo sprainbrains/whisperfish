@@ -54,6 +54,7 @@ MouseArea {
             }
             HighlightImage {
                 anchors.centerIn: parent
+                highlighted: root.highlighted ? true : undefined
                 width: Theme.iconSizeMedium; height: width
                 visible: thumb.status === Thumbnail.Error ||
                          thumb.status === Thumbnail.Null
