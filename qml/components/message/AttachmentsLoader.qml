@@ -255,6 +255,7 @@ Loader {
                 }
 
                 OpacityRampEffect {
+                    enabled: detailOverlay.visible
                     sourceItem: detailOverlay
                     direction: OpacityRamp.BottomToTop
                     offset: -0.1
@@ -269,6 +270,7 @@ Loader {
                 }
 
                 Label {
+                    visible: detailOverlay.visible
                     highlighted: (showMoreDetail.item && showMoreDetail.item.highlighted) ? true : undefined
                     anchors { fill: detailOverlay; margins: Theme.paddingMedium }
                     //: Note if some message attachments are hidden instead of being shown inline
