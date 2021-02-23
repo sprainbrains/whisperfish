@@ -154,16 +154,20 @@ Page {
                 enableSending: recipientNumber.length > 0
                 clearAfterSend: recipientNumber.length > 0
                 property var _contact: mainWindow.contactsReady ? resolvePeopleModel.personByPhoneNumber(recipientNumber) : null
-                enableAttachments: false // TODO support attachments
 
                 onSendMessage: {
-                    // TODO rewrite
-                    if (recipientNumber.length != 0) {
-                        var source = recipientNumber
-                        // Errors should be handled asynchronously
-                        MessageModel.createMessage(source, text, "", "", false)
+                    // TODO This should be handled completely in the backend.
+                    // TODO errors should be handled (asynchronously)
+                    if (recipientNumber.length > 0) {
+                        var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
+                        MessageModel.createMessage(recipientNumber, text, '', firstAttachedPath, false)
+
+                        for (var i = 1; i < attachments.length; i++) {
+                            MessageModel.createMessage(recipientNumber, '', '', attachments[i].data, true)
+                        }
+
                         SessionModel.reload()
-                        pageStack.pop()
+                        pageStack.pop() // TODO open the new chat instead of returning to the main page
                     } else {
                         //: Invalid recipient error
                         //% "Invalid recipient"
