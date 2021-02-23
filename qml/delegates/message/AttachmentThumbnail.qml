@@ -52,6 +52,7 @@ MouseArea {
     Loader {
         id: animationLoader
         anchors.fill: parent
+        asynchronous: true
         sourceComponent: _isAnimated ? animatedComponent : null
     }
 
@@ -75,7 +76,6 @@ MouseArea {
             // and show it on a separate page. Is it ok if the inline view is cropped?
             property int rounds: 0
             property int maxRounds: 2
-            asynchronous: true
             fillMode: Image.PreserveAspectCrop
             source: _hasAttach ? attach.data : ''
             onCurrentFrameChanged: if (currentFrame === 0) rounds++
