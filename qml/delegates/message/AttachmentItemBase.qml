@@ -49,7 +49,7 @@ MouseArea {
             Thumbnail {
                 id: thumb
                 anchors.fill: parent
-                source: (icon !== '' && _hasAttach) ? attach.data : ''
+                source: (icon === '' && _hasAttach) ? attach.data : ''
                 sourceSize { width: width; height: height }
             }
             HighlightImage {
@@ -58,13 +58,13 @@ MouseArea {
                 width: Theme.iconSizeMedium; height: width
                 visible: thumb.status === Thumbnail.Error ||
                          thumb.status === Thumbnail.Null
-                source: mimeToIcon(attach.type)
+                source: _hasAttach ? mimeToIcon(attach.type) : ''
             }
         }
 
         Item {
             id: attachmentContentItem
-            width: parent.width - parent.height /* icon width */ - spacing
+            width: parent.width - parent.height /* icon width */ - parent.spacing
             height: parent.height
 
             /* children... */
