@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import "../delegates/message" // TODO move AttachmentItemBase to components/
 
 // TODO preview quoted attachements
 
 BackgroundItem {
     id: root
-    property var messageData: null // required properties: message, source, outgoing
+    // 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
+    property var messageData: null // required properties: message, source, outgoing, attachments
     property bool showCloseButton: true
     property bool showBackground: false
     property real contentPadding: Theme.paddingMedium
@@ -24,7 +26,7 @@ BackgroundItem {
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
                                              metrics.width), maximumWidth) : 0
-    implicitHeight: shown ? quoteColumn.height : 0
+    implicitHeight: shown ? Math.max(quoteColumn.height, attachThumb.height) : 0
     height: implicitHeight
     width: implicitWidth
     _backgroundColor: "transparent"
@@ -83,7 +85,7 @@ BackgroundItem {
             left: parent.left
             leftMargin: showCloseButton ? closeButton.width+Theme.paddingMedium :
                                           contentPadding
-            right: parent.right
+            right: attachThumb.left
             rightMargin: contentPadding
         }
 
@@ -113,7 +115,13 @@ BackgroundItem {
             anchors { left: parent.left; right: parent.right }
             verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignLeft
-            plainText: messageData !== null ? messageData.message : ''
+            plainText: (messageData !== null && messageData.message.trim() !== '') ?
+                           messageData.message :
+                           ((messageData !== null && messageData.attachments.length > 0) ?
+                                //: Placeholder text if quoted message preview contains no text, only attachments
+                                //% "Attachment"
+                                qsTrId("whisperfish-quoted-message-preview-attachment") :
+                                '')
             maximumLineCount: 2
             // height: maximumLineCount*font.pixelSize
             // enableElide: Text.ElideRight -- no elide to enable dynamic height
@@ -124,6 +132,26 @@ BackgroundItem {
             linkColor: color
             defaultLinkActions: false
             onLinkActivated: root.clicked(null)
+        }
+    }
+
+    AttachmentItemBase {
+        id: attachThumb
+        anchors {
+            right: parent.right; rightMargin: 0
+            verticalCenter: parent.verticalCenter
+        }
+        width: attach === null ? 0 : Theme.itemSizeMedium
+        height: width
+        attach: (messageData !== null && messageData.attachments.length > 0) ?
+                    messageData.attachments[0] : null
+        enabled: false
+        layer.enabled: true
+        layer.smooth: true
+        layer.effect: RoundedMask {
+            // TODO the corners may have to be adapted for different use cases...
+            roundedCorners: allCorners
+            radius: Theme.paddingSmall
         }
     }
 }

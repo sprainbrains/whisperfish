@@ -56,6 +56,8 @@ Item {
             message: modelData.message,
             source: modelData.source,
             outgoing: modelData.outgoing,
+            attachments: (modelData.attachment && modelData.mimeType) ?
+                             [{ data: modelData.attachment, type: modelData.mimeType }] : [],
             id: modelData.id,
         }
     }
