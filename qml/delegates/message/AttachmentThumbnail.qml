@@ -57,6 +57,7 @@ MouseArea {
     }
 
     HighlightImage {
+        highlighted: parent.highlighted ? true : undefined
         anchors.centerIn: parent
         width: Theme.iconSizeLarge; height: width
         source: (_isVideo || _isAnimatedPaused) ? 'image://theme/icon-l-play' : ''
