@@ -192,7 +192,15 @@ Loader {
                     attach: thumbsAttachments[4]
                     onPressAndHold: _pressAndHold()
 
+                    OpacityRampEffect {
+                        sourceItem: thumbsOverlay
+                        direction: OpacityRamp.BottomToTop
+                        offset: 0.0
+                        slope: 0.5
+                    }
+
                     Rectangle {
+                        id: thumbsOverlay
                         visible: thumbsAttachments.length > maxThumbs
                         anchors.fill: parent
                         color: Theme.highlightDimmerColor
@@ -234,29 +242,41 @@ Loader {
             Item {
                 width: parent.width
                 height: showMoreDetail.sourceComponent !== null ? parent.height/maxDetails : 0
+
                 Loader {
                     id: showMoreDetail
                     anchors.fill: parent
                     property int currentAttachmentIndex: 1
+                    opacity: detailOverlay.visible ? Theme.opacityFaint : 1.0
                     sourceComponent: detailAttachments.length >= maxDetails ?
                                          detailColumn.componentForMime(detailAttachments[0].type) : null
 
                 }
+
+                OpacityRampEffect {
+                    sourceItem: detailOverlay
+                    direction: OpacityRamp.BottomToTop
+                    offset: -0.1
+                    slope: 1.0
+                }
+
                 Rectangle {
+                    id: detailOverlay
                     visible: detailAttachments.length > maxDetails
                     color: Theme.highlightDimmerColor
-                    opacity: highlighted ? 0.7 : 0.85
                     anchors.fill: showMoreDetail
-                    property bool highlighted: showMoreDetail.item && showMoreDetail.item.highlighted
+                }
 
-                    Label {
-                        highlighted: parent.highlighted
-                        anchors.fill: parent
-                        text: "+%1".arg(detailAttachments.length-maxDetails) // translate?
-                        fontSizeMode: Text.Fit
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
+                Label {
+                    highlighted: (showMoreDetail.item && showMoreDetail.item.highlighted) ? true : undefined
+                    anchors { fill: detailOverlay; margins: Theme.paddingMedium }
+                    //: Note if some message attachments are hidden instead of being shown inline
+                    //% "and %1 more"
+                    text: qsTrId("whisperfish-attachments-loader-show-more",
+                                 detailAttachments.length-maxDetails+1).arg(detailAttachments.length-maxDetails+1)
+                    fontSizeMode: Text.Fit
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
             }
         }
