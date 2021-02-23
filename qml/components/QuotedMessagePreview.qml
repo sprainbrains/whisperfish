@@ -4,8 +4,6 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "attachment"
 
-// TODO preview quoted attachements
-
 BackgroundItem {
     id: root
     // 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
