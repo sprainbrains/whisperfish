@@ -143,17 +143,17 @@ Page {
             onSendMessage: {
                 // TODO This should be handled completely in the backend.
                 // TODO Support multiple attachments in the backend.
+                var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
                 var sid = 0
-                if (attachments.length > 0) {
-                    sid = MessageModel.createMessage(MessageModel.peerTel, text, '',
-                                                     attachments[0], true)
-                } else {
-                    sid = MessageModel.createMessage(MessageModel.peerTel, text,
-                                                     '', '', true)
-                }
+                sid = MessageModel.createMessage(MessageModel.peerTel, text, '', firstAttachedPath, true)
+                if (sid > 0) SessionModel.add(sid, true) // update session model
 
-                // update session model
-                if(sid > 0) SessionModel.add(sid, true)
+                // send remaining attachments in separate messages because the
+                // backend does not support sending multiple attachments at once
+                for (var i = 1; i < attachments.length; i++) {
+                    sid = MessageModel.createMessage(MessageModel.peerTel, '', '', attachments[i].data, true)
+                    if (sid > 0) SessionModel.add(sid, true) // update session model
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ Item {
     height: column.height + Theme.paddingSmall
 
     property alias text: input.text
+    // contents: [{data: path, type: mimetype}, ...]
     property var attachments: ([]) // always update via assignment to ensure notifications
     property alias textPlaceholder: input.placeholderText
     property alias editor: input
@@ -199,14 +200,23 @@ Item {
             }
 
             Component {
-                id: contentPickerPage
-                ContentPickerPage {
-                    //: Title for file picker page
-                    //% "Select file"
-                    title: qsTrId("whisperfish-select-file")
-                    onSelectedContentPropertiesChanged: {
-                        // TODO implement selecting multiple attachments
-                        root.attachments = [selectedContentProperties.filePath]
+                id: multiDocumentPickerDialog
+                MultiContentPickerDialog {
+                    //: Attachment picker page title
+                    //% "Select attachments"
+                    title: qsTrId("whisperfish-select-attachments-page-title")
+                    onAccepted: {
+                        var newAttachments = []
+                        for (var i = 0; i < selectedContent.count; i++) {
+                            var item = selectedContent.get(i)
+                            newAttachments.push({data: item.filePath, type: item.mimeType})
+                        }
+                        root.attachments = newAttachments // assignment to update bindings
+                    }
+                    onRejected: {
+                        // Rejecting the dialog should not unexpectedly clear the
+                        // currently selected attachments.
+                        // root.attachments = []
                     }
                 }
             }
