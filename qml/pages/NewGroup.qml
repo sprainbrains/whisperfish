@@ -95,6 +95,7 @@ Page {
                 showSeparator: false
                 enableSending: selectedContacts.count > 0 && groupName.text != ""
                 clearAfterSend: selectedContacts.count > 0 && groupName.text != ""
+                enableAttachments: false // TODO support attachments
 
                 onSendMessage: {
                     // TODO rewrite

@@ -23,6 +23,7 @@ Item {
     property bool showSeparator: false
     property bool clearAfterSend: true
     property bool enableSending: true
+    property bool enableAttachments: true
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
@@ -170,9 +171,10 @@ Item {
                     bottom: parent.bottom; bottomMargin: Theme.paddingMedium
                 }
                 icon.source: "image://theme/icon-m-attach"
-                icon.width: Theme.iconSizeMedium
+                icon.width: enableAttachments ? Theme.iconSizeMedium : 0
                 icon.height: icon.width
-                onClicked: pageStack.push(contentPickerPage)
+                visible: enableAttachments
+                onClicked: pageStack.push(multiDocumentPickerDialog)
             }
 
             IconButton {

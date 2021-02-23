@@ -154,10 +154,10 @@ Page {
                 enableSending: recipientNumber.length > 0
                 clearAfterSend: recipientNumber.length > 0
                 property var _contact: mainWindow.contactsReady ? resolvePeopleModel.personByPhoneNumber(recipientNumber) : null
+                enableAttachments: false // TODO support attachments
 
                 onSendMessage: {
                     // TODO rewrite
-                    // TODO support attachments
                     if (recipientNumber.length != 0) {
                         var source = recipientNumber
                         // Errors should be handled asynchronously
