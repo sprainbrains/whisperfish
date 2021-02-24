@@ -2,7 +2,7 @@
  * This file has been adapted from File Browser for use in Whisperfish.
  *
  * SPDX-FileCopyrightText: 2020-2021 Mirian Margiani
- * SPDX-License-Identifier: GPL-3.0-or-later AND AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later OR AGPL-3.0-or-later
  */
 
 import QtQuick 2.0
