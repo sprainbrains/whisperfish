@@ -213,9 +213,6 @@ ListItem {
 
             LinkedEmojiLabel {
                 id: messageLabel
-                // TODO investigate binding loop on emojiOnly
-                property bool emojiOnly: emojiCount > 0 && plainCharactersCount === 0 &&
-                                         emojiCount <= 5 // treat long messages as text
                 visible: isEmpty || hasText
                 plainText: isEmpty ?
                                //: Placeholder note if an empty message is encountered.
@@ -236,6 +233,7 @@ ListItem {
                 linkColor: highlighted ? Theme.secondaryHighlightColor :
                                          Theme.secondaryColor
                 enableCounts: true
+                emojiOnlyThreshold: 5 // treat long messages as text
                 font.pixelSize: emojiOnly ?
                                     (emojiCount <= 2 ? 1.5*Theme.fontSizeLarge :
                                                        1.0*Theme.fontSizeLarge) :

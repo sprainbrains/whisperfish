@@ -51,6 +51,10 @@ Label {
     readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
     readonly property int plainCharactersCount: _parsedCountData !== null ?
                                                     _parsedCountData.plainCount : plainText.length
+    readonly property bool emojiOnly: _parsedCountData !== null ?
+                                          (emojiCount > 0 && emojiCount <= emojiOnlyThreshold &&
+                                           plainCharactersCount === 0) : false
+    property int emojiOnlyThreshold: 5
 
     readonly property bool _elideEnabled: enableElide !== Text.ElideNone
     readonly property real _effectiveEmojiSize: _elideEnabled ?
@@ -66,8 +70,10 @@ Label {
     // We parse the data a second time without being dependent on the
     // _effectiveEmojiSize property. This allows the emoji count to be used to
     // decide the font size. (Otherwise there's a binding loop on _parsedEmojiData.)
+    // We also have to parse the full plain text instead of the elided text
+    // to avoid a binding loop through elideFixProxy.font.
     property var _parsedCountData: (enableEmojis && enableCounts) ?
-                                       Emoji.parse(linkedTextProxy.text, 0, emojiStyle) : null
+                                       Emoji.parse(plainText, 0, emojiStyle) : null
 
     // shadow elide settings; there is no way to ensure they are set to ...None
     readonly property int truncationMode: 0
