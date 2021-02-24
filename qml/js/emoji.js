@@ -64,6 +64,7 @@ var Style = { // could be initialized on startup with user-configured values
 // Required raster resolutions: Qt cannot scale inline images up, only down.
 // Sizes available from Emojipedia: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
 var rasterSizes = [144, 72] // decreasing
+var rasterSizesCache = {}
 
 // Styles are checked once (raster styles once per resolution) and the results
 // are cached. No emojis will be replaced if a style is not available,
@@ -204,23 +205,34 @@ function parse(what, size, style) {
   if (style.type === 'r' /* raster */) {
     // We have to choose the best source resolution for raster emojis.
     // Qt only supports downscaling of inline images, so we select the
-    // nearest resolution above the desired size.
+    // closest resolution above the desired size.
 
-    // Reset the desired size to the largest available size.
-    if (effectiveSize > rasterSizes[0]) effectiveSize = rasterSizes[0]
+    var cached = rasterSizesCache[effectiveSize]
+    if (cached !== undefined) {
+      sourceSize = cached.source
+      stylePath = cached.path
+      effectiveSize = cached.effective
+    } else {
+      var key = effectiveSize
+      // Reset the desired size to the largest available size.
+      if (effectiveSize > rasterSizes[0]) effectiveSize = rasterSizes[0]
 
-    for (var i in rasterSizes) {
-      // Select the new size if it is >= the desired size.
-      if (rasterSizes[i] >= effectiveSize) sourceSize = rasterSizes[i]
+      for (var i in rasterSizes) {
+        // Select the new size if it is >= the desired size.
+        if (rasterSizes[i] >= effectiveSize) sourceSize = rasterSizes[i]
+      }
+
+      // Reset the source size to the smallest available size if none was found.
+      // Reset the effective size if the fallback resolution too small.
+      if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
+      if (effectiveSize > sourceSize) effectiveSize = sourceSize
+
+      stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
+                                           style.dir, '/', sourceSize))
+
+      // cache the result using the original effectiveSize as key
+      rasterSizesCache[key] = {source: sourceSize, effective: effectiveSize, path: stylePath}
     }
-
-    // Reset the source size to the smallest available size if none was found.
-    // Reset the effective size if the fallback resolution too small.
-    if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
-    if (effectiveSize > sourceSize) effectiveSize = sourceSize
-
-    stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
-                                         style.dir, '/', sourceSize))
   } else if (style.type === 's') {
     useSystem = true
   } else {
