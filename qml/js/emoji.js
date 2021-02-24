@@ -54,13 +54,11 @@ var emojiSubDirectory = 'sailor-emoji' // subdirectory below DataBaseDirectory
 // Emoji styles: emojis can be in raster or vector format. Raster emojis are
 // required in multiple resolutions.
 // Path: base/subdir/<style>/<version>/[<resolution>/]<codepoint>.<ext>
-var vectorRe = /^(svg)$/i
-var rasterRe = /^(png|gif)$/i
 var Style = { // could be initialized on startup with user-configured values
-    'openmoji': { dir: 'openmoji/13.0.0', ext: 'svg' }, // CC-BY-SA 4.0
-    'twemoji': { dir: 'twemoji/13.0.1', ext: 'svg' }, // CC-BY-SA 4.0
-    'whatsapp': { dir: 'whatsapp/2.20.206.24', ext: 'png' }, // proprietary
-    'system': { dir: '', ext: '' }
+    'openmoji': { dir: 'openmoji/13.0.0', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
+    'twemoji': { dir: 'twemoji/13.0.1', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
+    'whatsapp': { dir: 'whatsapp/2.20.206.24', ext: 'png', type: 'r' }, // proprietary
+    'system': { type: 's' }
 }
 
 // Required raster resolutions: Qt cannot scale inline images up, only down.
@@ -201,13 +199,9 @@ function toCodePoint(unicodeSurrogates, sep) {
 // +++ WF: Adapted from the original parse(what, how) function.
 function parse(what, size, style) {
   var effectiveSize = Math.round(1.15*size);
-  var sourceSize = -1, isRaster = false, isVector = false, stylePath = '';
+  var sourceSize = -1, stylePath = '', useSystem = false;
 
-  if (rasterRe.test(style.ext)) isRaster = true
-  else if (vectorRe.test(style.ext)) isVector = true
-  /* else console.error("invalid emoji style:", style.dir, style.ext) */
-
-  if (isRaster) {
+  if (style.type === 'r' /* raster */) {
     // We have to choose the best source resolution for raster emojis.
     // Qt only supports downscaling of inline images, so we select the
     // nearest resolution above the desired size.
@@ -227,19 +221,21 @@ function parse(what, size, style) {
 
     stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
                                          style.dir, '/', sourceSize))
+  } else if (style.type === 's') {
+    useSystem = true
   } else {
     stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
                                          style.dir))
   }
 
-  if (!checkStyle(stylePath, style)) {
-      isRaster = false; isVector = false; // use system font
+  if (!useSystem && !checkStyle(stylePath, style)) {
+      useSystem = true;
   }
 
   return parseString(what, {
     callback: function(icon, options) {
-      if (isRaster || isVector) return ''.concat(stylePath, '/', icon, '.', style.ext)
-      else return null
+      if (useSystem) return null
+      else return ''.concat(stylePath, '/', icon, '.', style.ext)
     },
     size: effectiveSize
   });
