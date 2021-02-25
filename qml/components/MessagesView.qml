@@ -29,12 +29,6 @@ import "../delegates"
 
 SilicaListView {
     id: messagesView
-    verticalLayoutDirection: ListView.BottomToTop
-    quickScroll: true  // TODO how to only allow downwards?
-
-    // avoids resetting focus every time a row is added, which breaks text input
-    currentIndex: -1
-    highlightFollowsCurrentItem: false
 
     // TODO verify: date->string is always ISO formatted?
     // TODO Use a custom property for sections. It should contain
@@ -46,10 +40,40 @@ SilicaListView {
     section.property: "timestamp"
 
     property bool menuOpen: false
+    property var selectedMessages: ({}) // changed by assignment in resetSelection()/onItemSel...Toggled
+    property int selectedCount: 0
+    property bool isSelecting: false
 
     signal replyTriggered(var index, var modelData)
     signal quoteClicked(var clickedIndex, var quotedData)
+    signal itemSelectionToggled(var modelData)
 
+    function startSelection() {
+        isSelecting = true
+    }
+
+    function resetSelection() {
+        isSelecting = false
+        selectedMessages = {}
+        selectedCount = 0
+    }
+
+    onSelectedCountChanged: if (selectedCount === 0) isSelecting = false
+    onItemSelectionToggled: {
+        if (selectedMessages[modelData.id] === undefined) {
+            selectedMessages[modelData.id] = {id: modelData.id, index: modelData.index}
+            selectedCount++
+        } else {
+            delete selectedMessages[modelData.id]
+            selectedCount--
+        }
+        selectedMessages = selectedMessages // notify changes
+    }
+
+    verticalLayoutDirection: ListView.BottomToTop
+    quickScroll: true  // TODO how to only allow downwards?
+    currentIndex: -1
+    highlightFollowsCurrentItem: false
     delegate: Item {
         id: wrapper
         property string newerSection: ListView.previousSection
@@ -123,6 +147,8 @@ SilicaListView {
                 listView: messagesView
                 replySignal: replyTriggered
                 quoteClickedSignal: quoteClicked
+                openMenuOnPressAndHold: isSelecting ? false : true
+                onClicked: if (isSelecting) itemSelectionToggled(model.id)
             }
         }
 
