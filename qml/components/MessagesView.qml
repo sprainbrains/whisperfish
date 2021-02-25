@@ -214,10 +214,13 @@ SilicaListView {
     }
 
     Component {
-        // Having context menu and worker functions are defined outside
-        // the delegate means less code in the delegate. This could help
-        // performance...?
         id: messageContextMenu
+
+        // IMPORTANT:
+        // The context menu should show at max. 4 entries at a time.
+        // Dangerous, destructiv, or secondary actions should be shown in
+        // the selection/actions panel (defined in ConversationPage.qml).
+        // See ConversationPage::actionsPanel for a list of message actions.
 
         ContextMenu {
             id: menu

@@ -182,6 +182,25 @@ Page {
             Behavior on opacity { FadeAnimator { } }
         }
 
+        // ITEMS:
+        // . = always visible
+        // * = conditionally visible
+
+        // -- CONTEXT MENU:
+        // 0* resend        [if failed]
+        // 1* react         [if not failed]
+        // 2. copy
+        // 3* forward       [if not failed]
+        // 4. select · more
+
+        // -- PANEL:
+        // 1. clear selection
+        // 2. copy
+        // 3* info          [if only one selected]
+        // 4. delete for me
+        // 5. delete for all
+        // 6* resend        [if at least one failed]
+
         Column {
             id: actionsColumn
             spacing: Theme.paddingLarge
