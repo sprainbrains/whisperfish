@@ -68,7 +68,7 @@ pub struct MessageModel {
 
     load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
-    remove: qt_method!(fn(&self, id: usize)),
+    remove: qt_method!(fn(&self, id: usize /* FIXME the implemented method takes an *index* but should take a message ID */)),
 
     numericFingerprint: qt_method!(fn(&self, localId: QString, remoteId: QString) -> QString),
 
@@ -213,6 +213,8 @@ impl MessageModel {
     /// Note the Go code said main thread only. This is
     /// satisfied in Rust by sending the request to the
     /// main thread.
+    ///
+    /// FIXME Take a message ID instead of an index.
     pub fn remove(&self, idx: usize) {
         let msg = if let Some(msg) = self.messages.get(idx) {
             msg
