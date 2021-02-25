@@ -837,7 +837,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation type="unfinished">Ekler %1 konumunda saklanıyor</translation>
+        <translation>Ekler %1 konumunda saklanıyor. Şu anda, devre dışı bırakıldığında ekler çalışmayacaktır.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="215"/>
