@@ -1294,7 +1294,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#073a80b3e78c84996b1afe967740d4d4c77467ad"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#65d0ba3f908128b6fe52b223b07c4bbdbde44582"
 dependencies = [
  "aes",
  "aes-ctr",
@@ -1309,6 +1309,7 @@ dependencies = [
  "http",
  "libsignal-protocol",
  "log",
+ "phonenumber",
  "pin-project 1.0.5",
  "prost",
  "prost-build",
@@ -1317,12 +1318,13 @@ dependencies = [
  "sha2",
  "thiserror",
  "url",
+ "uuid",
 ]
 
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#073a80b3e78c84996b1afe967740d4d4c77467ad"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#65d0ba3f908128b6fe52b223b07c4bbdbde44582"
 dependencies = [
  "actix",
  "actix-http",
@@ -1337,6 +1339,7 @@ dependencies = [
  "libsignal-service",
  "log",
  "mpart-async",
+ "phonenumber",
  "rand 0.8.3",
  "rustls",
  "serde",
