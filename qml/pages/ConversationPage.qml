@@ -14,6 +14,7 @@ Page {
     property bool isGroup: MessageModel.group
     property var contact: isGroup ? null : resolvePeopleModel.personByPhoneNumber(MessageModel.peerTel, true)
     property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : MessageModel.peerTel)
+    property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
@@ -85,7 +86,10 @@ Page {
         model: MessageModel
         clip: true // to prevent the view from flowing through the page header
         headerPositioning: ListView.InlineHeader
-        header: Item { height: panel.height; width: messages.width }
+        header: Item {
+            height: activePanel.height; width: messages.width
+            Behavior on height { NumberAnimation { duration: 150 } }
+        }
 
         onAtYEndChanged: panel.show()
         onMenuOpenChanged: panel.open = !messages.menuOpen
@@ -103,13 +107,21 @@ Page {
             // TODO use message id instead of index
             jumpToMessage(quotedData.index)
         }
+        onIsSelectingChanged: {
+            if (isSelecting) actionsPanel.show()
+            else actionsPanel.hide()
+        }
+        onSelectedCountChanged: {
+            if (selectedCount > 0) actionsPanel.show()
+            else actionsPanel.hide()
+        }
     }
 
     OpacityRampEffect {
         sourceItem: messages
         direction: OpacityRamp.TopToBottom
         slope: sourceItem.height
-        offset: 1-(panel.visibleSize/sourceItem.height)
+        offset: 1-(activePanel.visibleSize/sourceItem.height)
         enabled: !sourceItem.quickScrollAnimating &&
                  !sourceItem.menuOpen
     }
@@ -117,7 +129,8 @@ Page {
     DockedPanel {
         id: panel
         background: null // transparent
-        opacity: (messages.menuOpen || messages.quickScrollAnimating) ? 0.0 : 1.0
+        opacity: (actionsPanel.visibleSize > 0 || messages.menuOpen ||
+                  messages.quickScrollAnimating) ? 0.0 : 1.0
         width: parent.width
         height: textInput.height
         open: true
