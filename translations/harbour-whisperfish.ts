@@ -758,7 +758,8 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-save-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="182"/>
-        <source>Attachments are stored at %1</source>
+        <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
+        <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
         <translation type="unfinished"></translation>
     </message>
