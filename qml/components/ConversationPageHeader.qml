@@ -136,7 +136,6 @@ SilicaItem {
             bottom: _descriptionLabel.bottom; bottomMargin: Theme.paddingSmall
             left: parent.left; leftMargin: pageHeader.leftMargin
         }
-        onPressAndHold: delegate.openMenu()
         onClicked: pageStack.navigateForward(PageStackAction.Animated)
     }
 }
