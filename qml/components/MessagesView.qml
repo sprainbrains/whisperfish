@@ -43,6 +43,7 @@ SilicaListView {
     property var selectedMessages: ({}) // changed by assignment in resetSelection()/onItemSel...Toggled
     property int selectedCount: 0
     property bool isSelecting: false
+    property bool hideSelected: false
 
     signal replyTriggered(var index, var modelData)
     signal quoteClicked(var clickedIndex, var quotedData)
@@ -56,6 +57,7 @@ SilicaListView {
         isSelecting = false
         selectedMessages = {}
         selectedCount = 0
+        hideSelected = false
     }
 
     onSelectedCountChanged: if (selectedCount === 0) isSelecting = false

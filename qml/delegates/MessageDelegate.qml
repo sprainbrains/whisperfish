@@ -11,6 +11,7 @@ ListItem {
     contentHeight: contentContainer.height
     highlighted: down || menuOpen || replyArea.pressed || isSelected
     _backgroundColor: "transparent"
+    hidden: !!(isSelected && listView.hideSelected)
 
     // REQUIRED PROPERTIES
     property QtObject modelData
