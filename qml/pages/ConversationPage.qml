@@ -16,6 +16,8 @@ Page {
     property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : MessageModel.peerTel)
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
+    property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
             if (root.isGroup) {
@@ -225,8 +227,89 @@ Page {
 
             InfoHintLabel {
                 id: infoLabel
+                //: Info label shown while selecting messages
+                //% "%1 message(s) selected"
+                defaultMessage: qsTrId("whisperfish-message-actions-info-label",
+                                       _selectedCount).arg(messages.selectedCount)
             }
 
+            // IMPORTANT:
+            // - Both horizontal and vertical space may be very limited.
+            //   There should never be more than two rows, and each row should
+            //   contain at max. 4 icons at a time.
+            // - Icons should always keep the same position so users can tap without looking.
+            //   Entries may be hidden if they are at the sides and are seldomly used.
+            //   Nothing should take the place of a hidden entry but there must not be any gaps.
+            //   Entries that are conditionally unavailable should be deactivated, not hidden.
+            //
+            // TODO it may make sense to combine both rows into one in horizontal mode
+
+            Row {
+                spacing: Theme.paddingLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-clear"
+                    //: Message action description, shown if one or more messages are selected
+                    //% "Clear selection"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-clear-selection",
+                                                 _selectedCount))
+                    onClicked: messages.resetSelection()
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "../../icons/icon-m-copy.png"
+                    //: Message action description
+                    //% "Copy %1 message(s)"
+                    onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-copy",
+                                                                  _selectedCount).arg(_selectedCount))
+                    onClicked: {} // TODO implement
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-about"
+                    //: Message action description (only available if n==1)
+                    //% "Show message info"
+                    onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-info"))
+                    enabled: _selectedCount === 1
+                    onClicked: {} // TODO implement
+                }
+            }
+            Row {
+                spacing: Theme.paddingLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-delete"
+                    //: Message action description
+                    //% "Delete %1 message(s) for me"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-delete-for-self",
+                                                 _selectedCount).arg(_selectedCount))
+                    onClicked: {} // TODO implement
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "../../icons/icon-m-delete-all.png"
+                    //: Message action description
+                    //% "Delete %1 message(s) for all"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-delete-for-all",
+                                                 _selectedCount).arg(_selectedCount))
+                    onClicked: {} // TODO implement
+                }
+                IconButton {
+                    width: visible ? Theme.itemSizeSmall : 0; height: width
+                    icon.source: "image://theme/icon-m-refresh"
+                    //: Message action description
+                    //% "Retry sending (the) failed message(s)"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-resend", _selectedCount))
+                    visible: false // TODO show if at least one message is failed
+                    onClicked: {} // TODO implement
+                }
+            }
         }
     }
 }
