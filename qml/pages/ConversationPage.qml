@@ -157,4 +157,44 @@ Page {
             }
         }
     }
+
+    DockedPanel {
+        id: actionsPanel
+        background: null // transparent
+        opacity: (messages.menuOpen || messages.quickScrollAnimating) ? 0.0 : 1.0
+        width: parent.width
+        height: actionsColumn.height + 2*Theme.horizontalPageMargin
+        open: false
+        dock: Dock.Bottom
+        onOpenChanged: if (open) panel.hide()
+
+        Behavior on opacity { FadeAnimator { duration: 80 } }
+
+        Separator {
+            opacity: messages.atYEnd ? 0.0 : Theme.opacityHigh
+            color: Theme.secondaryHighlightColor
+            horizontalAlignment: Qt.AlignHCenter
+            anchors {
+                left: parent.left; leftMargin: Theme.horizontalPageMargin
+                right: parent.right; rightMargin: Theme.horizontalPageMargin
+                top: parent.top
+            }
+            Behavior on opacity { FadeAnimator { } }
+        }
+
+        Column {
+            id: actionsColumn
+            spacing: Theme.paddingLarge
+            height: childrenRect.height
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left; right: parent.right
+            }
+
+            InfoHintLabel {
+                id: infoLabel
+            }
+
+        }
+    }
 }
