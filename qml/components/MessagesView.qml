@@ -43,7 +43,9 @@ SilicaListView {
     property var selectedMessages: ({}) // changed by assignment in resetSelection()/onItemSel...Toggled
     property int selectedCount: 0
     property bool isSelecting: false
+    property bool selectionBlocked: false
     property bool hideSelected: false
+    property var __running_remorse: null
 
     signal replyTriggered(var index, var modelData)
     signal quoteClicked(var clickedIndex, var quotedData)
@@ -53,13 +55,132 @@ SilicaListView {
         isSelecting = true
     }
 
-    function resetSelection() {
+    function resetSelection(keepRemorse) {
+        if (!keepRemorse && !!__running_remorse) {
+            __running_remorse.triggered.disconnect(resetSelection)
+            __running_remorse.canceled.disconnect(resetSelection)
+            __running_remorse.cancel()
+        }
         isSelecting = false
         selectedMessages = {}
         selectedCount = 0
+        selectionBlocked = false
         hideSelected = false
+        if (!keepRemorse) __running_remorse = null
     }
 
+    // Use this function to call a message action. It makes sure to
+    // block the selection while the action is executed, and resets
+    // the selection afterwards.
+    function messageAction(callback, listItem) {
+        selectionBlocked = true
+        var remorse = callback(listItem)
+
+        if (!!remorse) { // delay resetting if the action returns a remorse item
+            __running_remorse = remorse
+            remorse.triggered.connect(function(){resetSelection(true)})
+            remorse.canceled.connect(resetSelection)
+        } else {
+            resetSelection()
+        }
+    }
+
+    // ↓↓↓↓ message action functions to be used through messageAction(action, ...)
+    //      Action functions may take a list item as argument to e.g. execute a
+    //      remorse action on it.
+    //      Actions may return a remorse item object. If so, messageAction() will
+    //      reset the selection only after the remorse item has finished, however
+    //      *before* the remorse item's callback has been executed. I.e. the
+    //      selection cannot be used within the remorse callback.
+
+    function reactInline(listItem) { // call through messageAction()
+        listItem.remorseAction("Emoji reactions are not yet implemented.", function(){})
+    }
+
+    function resendInline(listItem) { // call through messageAction()
+        // TODO give some kind of feedback on success
+        console.log("Resending message:", listItem.modelData.id)
+        MessageModel.sendMessage(listItem.modelData.id) // no remorse needed
+    }
+
+    function resendSelected() { // call through messageAction()
+        // TODO give some kind of feedback on success
+        Remorse.popupAction(root, "Resending selected messages is not yet implemented.", function(){})
+    }
+
+    function copyInline(listItem) { // call through messageAction()
+        // TODO give some kind of feedback on success
+        Clipboard.text = listItem.modelData.message
+    }
+
+    function copySelected() { // call through messageAction()
+        // TODO give some kind of feedback on success
+        // TODO implement getting a message by its ID from the model
+
+        // Copying multiple messages should copy them sorted by message id
+        // and including sender name and timestamp:
+        // [2021-02-25T00:00:00] Jane Doe: hello John
+        // [2021-02-25T00:00:01] John Doe: hello Jane
+        Remorse.popupAction(root, "Copying selected messages is not yet implemented.", function(){})
+    }
+
+    function forwardInline(listItem) { // call through messageAction()
+        // TODO implement: a list of contacts should be openend where
+        // the user can select one or multiple recipients (this can probably
+        // use the same implementation needed for sharing, #242)
+        listItem.remorseAction("Forwarding messages is not yet implemented.", function(){})
+    }
+
+    function deleteSelectedForSelf() { // call through messageAction()
+        var selectedIndices = _getSelectedIndices()
+        hideSelected = true
+
+        //: Remorse: *locally* deleted one or multiple message (past tense)
+        //% "Locally deleted %1 messages"
+        return Remorse.popupAction(
+                    root, qsTrId("whisperfish-remorse-deleted-messages-locally"). arg(selectedCount),
+                    function() {
+                        for (var i in selectedIndices) {
+                            console.log("Delete message:", selectedIndices[i])
+                            // TODO MessageModel.remove should take a message ID.
+                            // Rewrite this function to use IDs when that is fixed.
+                            MessageModel.remove(selectedIndices[i])
+                        }
+                    })
+    }
+
+    function deleteSelectedForAll() { // call through messageAction()
+        // TODO implement in the model
+        Remorse.popupAction(root, "Deleting for all peers is not yet implemented.", function(){})
+    }
+
+    function showMessageInfo() { // call through messageAction()
+        // TODO implement: open a separate page and show some info on
+        // the currently selected message. This requires direct access to
+        // message data through the model. It should silently fail
+        // when multiple messages are selected.
+        Remorse.popupAction(root, "Message info is not yet implemented.", function(){})
+    }
+
+    /* ↑↑↑↑ message action functions to be used through messageAction(action, ...) */
+
+    function _getSelectedIndices() {
+        var selectedIndices = []
+        for (var i in selectedMessages) {
+            if (!selectedMessages.hasOwnProperty(i)) continue
+            selectedIndices.push(selectedMessages[i].index)
+        }
+        selectedIndices.sort(function(a,b){return b-a}) // descending
+        return selectedIndices
+    }
+
+    // TODO all model methods must take message id's instead of
+    // indices. When that is given, we can remove this line and
+    // keep the selection.
+    // WARNING It is problematic to reset the selection while
+    // a message action is running. The selection should only be reset through
+    // messageAction(), and all actions should use IDs instead of indices.
+    onCountChanged: resetSelection()
     onSelectedCountChanged: if (selectedCount === 0) isSelecting = false
     onItemSelectionToggled: {
         if (selectedMessages[modelData.id] === undefined) {
@@ -150,7 +271,12 @@ SilicaListView {
                 replySignal: replyTriggered
                 quoteClickedSignal: quoteClicked
                 openMenuOnPressAndHold: isSelecting ? false : true
-                onClicked: if (isSelecting) itemSelectionToggled(model.id)
+
+                onClicked: {
+                    if (isSelecting && !selectionBlocked) {
+                        itemSelectionToggled(model)
+                    }
+                }
             }
         }
 
@@ -211,34 +337,6 @@ SilicaListView {
         // "avoids resetting focus every time a row is added, which breaks text input"
         currentIndex = index
         currentIndex = -1
-    }
-
-    function openAttachment(contentItem) {
-        MessageModel.openAttachment(contentItem.modelData.index)
-    }
-
-    function remove(contentItem) {
-        //: Deleting message remorse
-        //% "Deleting"
-        contentItem.remorseAction(qsTrId("whisperfish-delete-message"),
-            function() {
-                console.log("Delete message: "+contentItem.modelData.id)
-                MessageModel.remove(contentItem.modelData.index)
-            })
-    }
-
-    function resend(contentItem) {
-        //: Resend message remorse
-        //% "Resending"
-        contentItem.remorseAction(qsTrId("whisperfish-resend-message"),
-            function() {
-                console.log("Resending message: "+contentItem.modelData.id)
-                MessageModel.sendMessage(contentItem.modelData.id)
-            })
-    }
-
-    function copy(contentItem) {
-        Clipboard.text = contentItem.modelData.message
     }
 
     Component {

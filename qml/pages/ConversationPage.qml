@@ -110,12 +110,16 @@ Page {
             jumpToMessage(quotedData.index)
         }
         onIsSelectingChanged: {
-            if (isSelecting) actionsPanel.show()
+            if (isSelecting && !selectionBlocked) actionsPanel.show()
             else actionsPanel.hide()
         }
         onSelectedCountChanged: {
-            if (selectedCount > 0) actionsPanel.show()
+            if (selectedCount > 0 && !selectionBlocked) actionsPanel.show()
             else actionsPanel.hide()
+        }
+        onSelectionBlockedChanged: {
+            if (selectionBlocked) actionsPanel.hide()
+            else if (isSelecting) actionsPanel.show()
         }
     }
 
@@ -264,7 +268,7 @@ Page {
                     //% "Copy %1 message(s)"
                     onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-copy",
                                                                   _selectedCount).arg(_selectedCount))
-                    onClicked: {} // TODO implement
+                    onClicked: messages.messageAction(messages.copySelected)
                 }
                 IconButton {
                     width: Theme.itemSizeSmall; height: width
@@ -273,7 +277,7 @@ Page {
                     //% "Show message info"
                     onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-info"))
                     enabled: _selectedCount === 1
-                    onClicked: {} // TODO implement
+                    onClicked: messages.messageAction(messages.showMessageInfo)
                 }
             }
             Row {
@@ -287,7 +291,7 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-self",
                                                  _selectedCount).arg(_selectedCount))
-                    onClicked: {} // TODO implement
+                    onClicked: messages.messageAction(messages.deleteSelectedForSelf)
                 }
                 IconButton {
                     width: Theme.itemSizeSmall; height: width
@@ -297,8 +301,11 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-all",
                                                  _selectedCount).arg(_selectedCount))
-                    onClicked: {} // TODO implement
+                    onClicked: messages.messageAction(messages.deleteSelectedForAll)
+                    enabled: false // TODO enable once implemented
                 }
+
+                // TODO find a way to count failed messages in the current selection
                 IconButton {
                     width: visible ? Theme.itemSizeSmall : 0; height: width
                     icon.source: "image://theme/icon-m-refresh"
@@ -307,7 +314,8 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-resend", _selectedCount))
                     visible: false // TODO show if at least one message is failed
-                    onClicked: {} // TODO implement
+                                   // NOTE this action should be *hidden* if it is not applicable
+                    onClicked: messages.messageAction(messages.resendSelected)
                 }
             }
         }
