@@ -9,7 +9,7 @@ MouseArea {
     enabled: !isEmpty
     property bool down: pressed && containsPress && !menuOpen
 
-    onPressAndHold: root.openMenu()
+    onPressAndHold: handleExternalPressAndHold(mouse)
     onClicked: {
         if (replySignal) replySignal(index, modelData)
         else console.error("reply requested but not signal specified")

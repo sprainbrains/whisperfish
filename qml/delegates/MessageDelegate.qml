@@ -9,7 +9,7 @@ ListItem {
     id: root
     width: parent.width
     contentHeight: contentContainer.height
-    highlighted: down || menuOpen || replyArea.pressed
+    highlighted: down || menuOpen || replyArea.pressed || isSelected
     _backgroundColor: "transparent"
 
     // REQUIRED PROPERTIES
@@ -78,6 +78,12 @@ ListItem {
     readonly property bool isInGroup: MessageModel.group
     readonly property bool isEmpty: !hasText && !hasAttachments
     property bool isExpanded: false
+    property bool isSelected: listView.selectedMessages[modelData.id] !== undefined
+
+    function handleExternalPressAndHold(mouse) {
+        if (openMenuOnPressAndHold) openMenu()
+        else pressAndHold(mouse) // propagate
+    }
 
     onClicked: {
         if (!showExpand) return
@@ -140,7 +146,7 @@ ListItem {
         anchors { bottom: parent.bottom; top: parent.top }
         width: parent.width/2
         sourceComponent: Component {
-            ReplyArea { enabled: root.enabled }
+            ReplyArea { enabled: root.enabled && !listView.isSelecting }
         }
     }
 
@@ -174,6 +180,7 @@ ListItem {
             width: delegateContentWidth
             backgroundGrow: contentPadding/2
             backgroundItem.radius: backgroundCornerRadius
+            enabled: !listView.isSelecting
         }
 
         Item { width: 1; height: showSender ? senderNameLabel.backgroundGrow+Theme.paddingSmall : 0 }
@@ -191,7 +198,10 @@ ListItem {
                                            backgroundItem.bottomRight |
                                            (isOutbound ? backgroundItem.topRight :
                                                        backgroundItem.topLeft)
-            onClicked: quoteClickedSignal(index, messageData)
+            onClicked: {
+                if (listView.isSelecting) root.clicked(mouse)
+                else quoteClickedSignal(index, messageData)
+            }
         }
 
         Item { width: 1; height: quoteItem.shown ? Theme.paddingSmall : 0 }
@@ -238,6 +248,7 @@ ListItem {
                                     (emojiCount <= 2 ? 1.5*Theme.fontSizeLarge :
                                                        1.0*Theme.fontSizeLarge) :
                                     Theme.fontSizeSmall // TODO make configurable
+                defaultLinkActions: !listView.isSelecting
             }
         }
 
