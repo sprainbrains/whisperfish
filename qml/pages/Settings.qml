@@ -178,7 +178,7 @@ Page {
                 text: qsTrId("whisperfish-settings-save-attachments")
                 description:  {
                     //: Settings page save attachments description
-                    //% "Attachments are stored at %1"
+                    //% "Attachments are stored at %1. Currently, when disabled, attachments will not work."
                     qsTrId("whisperfish-settings-save-attachments-description")
                         .arg(SettingsBridge.stringValue("attachment_dir"))
                 }
