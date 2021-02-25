@@ -263,32 +263,41 @@ SilicaListView {
             }
 
             MenuItem {
+                //: React with emoji to message menu item
+                //% "React"
+                text: qsTrId("whisperfish-react-message-menu")
+                visible: !!(menu.parent && !menu.parent.modelData.queued) // TODO use .failed
+                onClicked: reactInline(menu.parent)
+            }
+            MenuItem {
+                //: Resend message menu item
+                //% "Retry sending"
+                text: qsTrId("whisperfish-resend-message-menu")
+                visible: !!(menu.parent && menu.parent.modelData.queued)
+                onClicked: resendInline(menu.parent)
+            }
+            MenuItem {
                 //: Copy message menu item
                 //% "Copy"
                 text: qsTrId("whisperfish-copy-message-menu")
                 visible: menu.parent && menu.parent.hasText
-                onClicked: copy(menu.parent)
+                onClicked: copyInline(menu.parent)
             }
             MenuItem {
-                //: Open attachment message menu item
-                //% "Open"
-                text: qsTrId("whisperfish-open-message-menu")
-                visible: menu.parent && menu.parent.modelData.hasAttachment
-                onClicked: openAttachment(menu.parent)
+                //: Forward message menu item
+                //% "Forward"
+                text: qsTrId("whisperfish-forward-message-menu")
+                visible: !!(menu.parent && !menu.parent.modelData.queued) // TODO use .failed
+                onClicked: forwardInline(menu.parent)
             }
             MenuItem {
-                //: Delete message menu item
-                //% "Delete"
-                text: qsTrId("whisperfish-delete-message-menu")
-                visible: true
-                onClicked: remove(menu.parent)
-            }
-            MenuItem {
-                //: Resend message menu item
-                //% "Resend"
-                text: qsTrId("whisperfish-resend-message-menu")
-                visible: menu.parent && menu.parent.modelData.queued
-                onClicked: resend(menu.parent)
+                //: "Select and show more options" message menu item
+                //% "Select • more"
+                text: qsTrId("whisperfish-select-or-options-message-menu")
+                onClicked: {
+                    itemSelectionToggled(menu.parent.modelData)
+                    messagesView.startSelection()
+                }
             }
         }
     }
