@@ -86,7 +86,8 @@ ListItem {
     }
 
     onClicked: {
-        if (!showExpand) return
+        // selection is handled in messagesView
+        if (listView.isSelecting || !showExpand) return
         if (expandExtraPage) {
             // TODO Cache the page object, so we can return to the
             // same scroll position where the user left the page.
