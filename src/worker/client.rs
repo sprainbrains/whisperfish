@@ -5,6 +5,7 @@ use std::time::Duration;
 use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
+use phonenumber::PhoneNumber;
 use qmetaobject::*;
 
 use crate::actor::{LoadAllSessions, SessionActor};
@@ -118,17 +119,6 @@ impl ClientActor {
     fn authenticated_service_with_credentials(&self, credentials: Credentials) -> AwcPushService {
         let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
-        // Ignore empty UUID strings.
-        let uuid = match credentials.uuid {
-            Some(uuid) if uuid.trim().is_empty() => None,
-            uuid => uuid,
-        };
-        let credentials = Credentials {
-            uuid,
-            e164: credentials.e164,
-            password: credentials.password,
-            signaling_key: credentials.signaling_key,
-        };
 
         AwcPushService::new(service_cfg, Some(credentials), &useragent)
     }
@@ -404,8 +394,7 @@ impl ClientActor {
                 ctx,
                 metadata
                     .sender
-                    .e164
-                    .clone()
+                    .e164()
                     .expect("valid e164 in ServiceAddress. Whisperfish issue #80"),
                 message,
                 false,
@@ -718,7 +707,10 @@ impl Handler<SendMessage> for ClientActor {
                         .split(',')
                         .filter_map(|e164| {
                             let member = ServiceAddress {
-                                e164: Some(e164.to_string()),
+                                phonenumber: Some(
+                                    phonenumber::parse(None, e164)
+                                        .expect("valid phone number in db"),
+                                ),
                                 relay: None,
                                 uuid: None,
                             };
@@ -741,7 +733,10 @@ impl Handler<SendMessage> for ClientActor {
                     }
                 } else {
                     let recipient = ServiceAddress {
-                        e164: Some(session.source.clone()),
+                        phonenumber: Some(
+                            phonenumber::parse(None, &session.source)
+                                .expect("only valid phone number in db"),
+                        ),
                         relay: None,
                         uuid: None,
                     };
@@ -817,27 +812,36 @@ impl Handler<StorageReady> for ClientActor {
             // Web socket
             let phonenumber = phonenumber::parse(None, config.tel.expect("phone number")).unwrap();
             let uuid = config.uuid.clone();
-            let e164 = phonenumber
-                .format()
-                .mode(phonenumber::Mode::E164)
-                .to_string();
-            log::info!("E164: {}", e164);
+            let uuid = if let Some(uuid) = uuid {
+                match uuid::Uuid::parse_str(&uuid) {
+                    Ok(uuid) => Some(uuid),
+                    Err(e) => {
+                        log::error!("Could not parse uuid {}. Try removing the uuid field in config.yaml and restart Whisperfish. {}", uuid, e);
+                        None
+                    }
+                }
+            } else {
+                None
+            };
+            log::info!("Phone number: {}", phonenumber);
+            log::info!("UUID: {:?}", uuid);
 
             let password = storage_for_password.signal_password().await.unwrap();
             let signaling_key = Some(storage_for_password.signaling_key().await.unwrap());
 
-            (uuid, e164, password, signaling_key)
+            (uuid, phonenumber, password, signaling_key)
         };
         let service_cfg = self.service_cfg();
 
         Box::pin(request_password.into_actor(self).map(
-            move |(uuid, e164, password, signaling_key), act, ctx| {
+            move |(uuid, phonenumber, password, signaling_key), act, ctx| {
                 // Store credentials
                 let credentials = Credentials {
-                    uuid: uuid.clone(),
-                    e164: e164.clone(),
+                    uuid,
+                    phonenumber: phonenumber.clone(),
                     password: Some(password),
                     signaling_key,
+                    device_id: None, // !77
                 };
                 act.credentials = Some(credentials);
                 // end store credentials
@@ -854,7 +858,7 @@ impl Handler<StorageReady> for ClientActor {
                 .expect("initialized storage");
                 let local_addr = ServiceAddress {
                     uuid,
-                    e164: Some(e164),
+                    phonenumber: Some(phonenumber),
                     relay: None,
                 };
                 let cipher = ServiceCipher::from_context(
@@ -981,7 +985,7 @@ impl From<SmsVerificationCodeResponse> for RegistrationResponse {
 #[derive(Message)]
 #[rtype(result = "Result<RegistrationResponse, failure::Error>")]
 pub struct Register {
-    pub e164: String,
+    pub phonenumber: PhoneNumber,
     pub password: String,
     pub use_voice: bool,
     pub captcha: Option<String>,
@@ -992,7 +996,7 @@ impl Handler<Register> for ClientActor {
 
     fn handle(&mut self, reg: Register, _ctx: &mut Self::Context) -> Self::Result {
         let Register {
-            e164,
+            phonenumber,
             password,
             use_voice,
             captcha,
@@ -1000,21 +1004,22 @@ impl Handler<Register> for ClientActor {
 
         let push_service = self.authenticated_service_with_credentials(Credentials {
             uuid: None,
-            e164: e164.clone(),
+            phonenumber: phonenumber.clone(),
             password: Some(password),
             signaling_key: None,
+            device_id: None, // !77
         });
         // XXX add profile key when #192 implemneted
         let mut account_manager = AccountManager::new(self.context.clone(), push_service, None);
         let registration_procedure = async move {
             if use_voice {
                 account_manager
-                    .request_voice_verification_code(&e164, captcha.as_deref(), None)
+                    .request_voice_verification_code(phonenumber, captcha.as_deref(), None)
                     .await
                     .map(Into::into)
             } else {
                 account_manager
-                    .request_sms_verification_code(&e164, captcha.as_deref(), None)
+                    .request_sms_verification_code(phonenumber, captcha.as_deref(), None)
                     .await
                     .map(Into::into)
             }
@@ -1031,7 +1036,7 @@ impl Handler<Register> for ClientActor {
 #[derive(Message)]
 #[rtype(result = "Result<(u32, ConfirmCodeResponse), failure::Error>")]
 pub struct ConfirmRegistration {
-    pub e164: String,
+    pub phonenumber: PhoneNumber,
     pub password: String,
     pub confirm_code: u32,
     pub signaling_key: [u8; 52],
@@ -1042,7 +1047,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
         let ConfirmRegistration {
-            e164,
+            phonenumber,
             password,
             confirm_code,
             signaling_key,
@@ -1054,9 +1059,10 @@ impl Handler<ConfirmRegistration> for ClientActor {
 
         let mut push_service = self.authenticated_service_with_credentials(Credentials {
             uuid: None,
-            e164: e164.clone(),
+            phonenumber: phonenumber,
             password: Some(password),
             signaling_key: None,
+            device_id: None, // !77
         });
         let confirmation_procedure = async move {
             push_service.confirm_verification_code(confirm_code,
