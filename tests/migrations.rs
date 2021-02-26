@@ -105,7 +105,8 @@ fn run_plain_migrations(db: SqliteConnection) {
 
 #[apply(initial_dbs)]
 fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
-    for (_name, migration) in migrations {
+    for (migration_name, migration) in migrations {
+        dbg!(migration_name);
         diesel_migrations::run_migrations(&db, vec![migration], &mut std::io::stdout()).unwrap();
     }
 
@@ -166,8 +167,12 @@ fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
                 .unwrap()
         });
 
-        dbg!(&group);
-        dbg!(&recipient);
+        if let Some(group) = group.as_ref() {
+            dbg!(group);
+        }
+        if let Some(recipient) = recipient.as_ref() {
+            dbg!(recipient);
+        }
         test(Session::from((session, recipient, group)), members);
     }
 }
