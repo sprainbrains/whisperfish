@@ -11,7 +11,7 @@ doc/ @mjtorn
 
 # Database schema
 [Database]
-migrations/ @mjtorn @rubdos
+/migrations/ @mjtorn @rubdos
 diesel.toml @rubdos
 
 # UI
