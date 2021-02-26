@@ -19,7 +19,10 @@ pub mod schemas;
 
 #[fixture]
 fn empty_db() -> SqliteConnection {
-    SqliteConnection::establish(":memory:").unwrap()
+    let conn = SqliteConnection::establish(":memory:").unwrap();
+    conn.execute("PRAGMA foreign_keys = ON;").unwrap();
+
+    conn
 }
 
 #[fixture]
