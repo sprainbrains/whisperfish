@@ -128,9 +128,41 @@ fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
 
     let session_tests = [
         |session: Session, members: Option<Vec<(GroupV1Member, Recipient)>>| {
+            assert!(session.is_dm());
+            assert!(members.is_none());
+
+            let recipient = session.unwrap_dm();
+            assert_eq!(recipient.e164.as_deref(), Some("+32475"));
+        },
+        |session: Session, members: Option<Vec<(GroupV1Member, Recipient)>>| {
             assert!(session.is_group_v1());
-            let members = members.unwrap();
-            assert_eq!(members.len(), 3);
+            let mut members = members.unwrap();
+            let test = ["+32475", "+32476", "+3277"];
+            members.sort_by_key(|(_, r)| r.e164.clone().unwrap());
+            assert_eq!(test.len(), members.len());
+            for ((_, r), t) in members.iter().zip(&test) {
+                assert_eq!(r.e164.as_ref().unwrap(), t);
+            }
+        },
+        |session: Session, members: Option<Vec<(GroupV1Member, Recipient)>>| {
+            assert!(session.is_group_v1());
+            let mut members = members.unwrap();
+            let test = ["+33475", "+33476", "+3377"];
+            members.sort_by_key(|(_, r)| r.e164.clone().unwrap());
+            assert_eq!(test.len(), members.len());
+            for ((_, r), t) in members.iter().zip(&test) {
+                assert_eq!(r.e164.as_ref().unwrap(), t);
+            }
+        },
+        |session: Session, members: Option<Vec<(GroupV1Member, Recipient)>>| {
+            assert!(session.is_group_v1());
+            let mut members = members.unwrap();
+            let test = ["+32475", "+32476", "+33475", "+33476", "+3377"];
+            members.sort_by_key(|(_, r)| r.e164.clone().unwrap());
+            assert_eq!(test.len(), members.len());
+            for ((_, r), t) in members.iter().zip(&test) {
+                assert_eq!(r.e164.as_ref().unwrap(), t);
+            }
         },
     ];
 
@@ -185,6 +217,22 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
     let db = original_go_db;
 
     let sessions = vec![
+        // Just a 1-1 session
+        NewSession {
+            source: "+32475".into(),
+            message: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: false,
+            group_members: None,
+            group_id: None,
+            group_name: None,
+            has_attachment: false,
+        },
         // A group with three members
         NewSession {
             source: "+32474".into(),
@@ -199,6 +247,38 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
             group_members: Some("+32475,+32476,+3277".into()),
             group_id: Some("AF88".into()),
             group_name: Some("The first group".into()),
+            has_attachment: false,
+        },
+        // Another group with distinct members
+        NewSession {
+            source: "".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+33475,+33476,+3377".into()),
+            group_id: Some("AF89".into()),
+            group_name: Some("The second group".into()),
+            has_attachment: false,
+        },
+        // Another group, now with some common members
+        NewSession {
+            source: "".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+32475,+32476,+33475,+33476,+3377".into()),
+            group_id: Some("AF90".into()),
+            group_name: Some("The third group".into()),
             has_attachment: false,
         },
     ];
