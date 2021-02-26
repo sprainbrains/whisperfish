@@ -113,6 +113,7 @@ async fn main() -> Result<(), Error> {
         phonenumber,
         password: None,
         signaling_key,
+        device_id: None, // !77
     };
 
     let service_cfg = SignalServers::Production.into();

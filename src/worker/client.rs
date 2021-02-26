@@ -841,6 +841,7 @@ impl Handler<StorageReady> for ClientActor {
                     phonenumber: phonenumber.clone(),
                     password: Some(password),
                     signaling_key,
+                    device_id: None, // !77
                 };
                 act.credentials = Some(credentials);
                 // end store credentials
@@ -1006,6 +1007,7 @@ impl Handler<Register> for ClientActor {
             phonenumber: phonenumber.clone(),
             password: Some(password),
             signaling_key: None,
+            device_id: None, // !77
         });
         // XXX add profile key when #192 implemneted
         let mut account_manager = AccountManager::new(self.context.clone(), push_service, None);
@@ -1060,6 +1062,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
             phonenumber: phonenumber,
             password: Some(password),
             signaling_key: None,
+            device_id: None, // !77
         });
         let confirmation_procedure = async move {
             push_service.confirm_verification_code(confirm_code,
