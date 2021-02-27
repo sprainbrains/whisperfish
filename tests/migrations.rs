@@ -113,6 +113,54 @@ fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
     assert!(!diesel_migrations::any_pending_migrations(&db).unwrap());
 }
 
+fn load_sessions(
+    db: &SqliteConnection,
+) -> Vec<(
+    orm::current::Session,
+    Option<Vec<(orm::current::GroupV1Member, orm::current::Recipient)>>,
+)> {
+    use orm::current::*;
+    use schemas::current::sessions;
+
+    let all_sessions: Vec<DbSession> = sessions::table.load(db).unwrap();
+
+    let mut result = vec![];
+
+    for session in all_sessions {
+        dbg!(&session);
+
+        let group = session.group_v1_id.as_ref().map(|g_id| {
+            use schemas::current::group_v1s::dsl::*;
+            group_v1s.filter(id.eq(g_id)).first(db).unwrap()
+        });
+
+        let recipient = session.direct_message_recipient_id.as_ref().map(|r_id| {
+            use schemas::current::recipients::dsl::*;
+            recipients.filter(id.eq(r_id)).first(db).unwrap()
+        });
+
+        let members = session.group_v1_id.as_ref().map(|g_id| {
+            use schemas::current::group_v1_members::dsl::*;
+            use schemas::current::recipients::dsl::recipients;
+            group_v1_members
+                .inner_join(recipients)
+                .filter(group_v1_id.eq(g_id))
+                .load(db)
+                .unwrap()
+        });
+
+        if let Some(group) = group.as_ref() {
+            dbg!(group);
+        }
+        if let Some(recipient) = recipient.as_ref() {
+            dbg!(recipient);
+        }
+        result.push((Session::from((session, recipient, group)), members));
+    }
+
+    result
+}
+
 // As of here, we inject data in an old database, and test whether the data is still intact after
 // running all the migrations.
 // Insertion of the data can be done through the old models (found in `old_schemes`), and
@@ -166,46 +214,10 @@ fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
         },
     ];
 
-    let all_sessions: Vec<DbSession> = {
-        use schemas::current::sessions::dsl::*;
-        assert_eq!(
-            session_tests.len() as i64,
-            sessions.count().first::<i64>(&db).unwrap()
-        );
-
-        sessions.load(&db).unwrap()
-    };
-
-    for (session, test) in all_sessions.into_iter().zip(&session_tests) {
-        dbg!(&session);
-
-        let group = session.group_v1_id.as_ref().map(|g_id| {
-            use schemas::current::group_v1s::dsl::*;
-            group_v1s.filter(id.eq(g_id)).first(&db).unwrap()
-        });
-
-        let recipient = session.direct_message_recipient_id.as_ref().map(|r_id| {
-            use schemas::current::recipients::dsl::*;
-            recipients.filter(id.eq(r_id)).first(&db).unwrap()
-        });
-
-        let members = session.group_v1_id.as_ref().map(|g_id| {
-            use schemas::current::group_v1_members::dsl::*;
-            use schemas::current::recipients::dsl::recipients;
-            group_v1_members
-                .inner_join(recipients)
-                .filter(group_v1_id.eq(g_id))
-                .load(&db)
-                .unwrap()
-        });
-
-        if let Some(group) = group.as_ref() {
-            dbg!(group);
-        }
-        if let Some(recipient) = recipient.as_ref() {
-            dbg!(recipient);
-        }
-        test(Session::from((session, recipient, group)), members);
+    let sessions = load_sessions(&db);
+    assert_eq!(sessions.len(), session_tests.len());
+    for ((session, members), test) in sessions.into_iter().zip(&session_tests) {
+        test(session, members);
     }
 }
 
@@ -294,4 +306,122 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
 
     embedded_migrations::run(&db).unwrap();
     assert_bunch_of_empty_sessions(db);
+}
+
+fn assert_direct_session_with_messages(db: SqliteConnection) {
+    use orm::current::*;
+
+    let sessions = load_sessions(&db);
+    assert_eq!(sessions.len(), 1);
+    let (session, _members) = &sessions[0];
+    assert!(_members.is_none());
+    let recipient = session.unwrap_dm();
+    assert_eq!(recipient.e164.as_deref(), Some("+32475"));
+
+    let messages: Vec<Message> = {
+        use schemas::current::messages::dsl::*;
+
+        messages
+            .filter(session_id.eq(session.id))
+            .load(&db)
+            .unwrap()
+    };
+
+    let message_tests = [
+        |message: Message| {
+            assert!(message.is_outbound);
+        },
+        |message: Message| {
+            assert!(!message.is_outbound);
+        },
+    ];
+
+    assert_eq!(messages.len(), message_tests.len());
+    for (message, test) in messages.into_iter().zip(&message_tests) {
+        test(message)
+    }
+}
+
+#[rstest]
+fn direct_session_with_messages(original_go_db: SqliteConnection) {
+    use orm::original::*;
+    use schemas::original::*;
+
+    let db = original_go_db;
+
+    let sessions = vec![
+        // Just a 1-1 session
+        NewSession {
+            source: "+32475".into(),
+            message: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: false,
+            group_members: None,
+            group_id: None,
+            group_name: None,
+            has_attachment: false,
+        },
+    ];
+
+    let count = sessions.len();
+    assert_eq!(
+        diesel::insert_into(session::table)
+            .values(sessions)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    assert_eq!(ids.len(), count);
+
+    let messages = vec![
+        NewMessage {
+            session_id: Some(ids[0]),
+            source: "+32475".into(),
+            text: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: false,
+            flags: 0,
+            attachment: None,
+            mime_type: None,
+            has_attachment: false,
+            outgoing: true,
+        },
+        NewMessage {
+            session_id: Some(ids[0]),
+            source: "+32475".into(),
+            text: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            flags: 0,
+            attachment: None,
+            mime_type: None,
+            has_attachment: false,
+            outgoing: false,
+        },
+    ];
+
+    let count = messages.len();
+    assert_eq!(
+        diesel::insert_into(message::table)
+            .values(messages)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    embedded_migrations::run(&db).unwrap();
+    assert_direct_session_with_messages(db);
 }
