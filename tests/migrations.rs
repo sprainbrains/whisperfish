@@ -425,3 +425,150 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
     embedded_migrations::run(&db).unwrap();
     assert_direct_session_with_messages(db);
 }
+
+fn assert_group_sessions_with_messages(db: SqliteConnection) {
+    use orm::current::*;
+
+    let sessions = load_sessions(&db);
+    assert_eq!(sessions.len(), 2);
+    let (session1, _members) = &sessions[0];
+    assert!(_members.is_some());
+    let (session2, _members) = &sessions[1];
+    assert!(_members.is_some());
+
+    assert!(session1.is_group_v1());
+    assert!(session2.is_group_v1());
+
+    let messages1: Vec<Message> = {
+        use schemas::current::messages::dsl::*;
+
+        messages
+            .filter(session_id.eq(session1.id))
+            .load(&db)
+            .unwrap()
+    };
+    assert_eq!(messages1.len(), 1);
+
+    let messages2: Vec<Message> = {
+        use schemas::current::messages::dsl::*;
+
+        messages
+            .filter(session_id.eq(session2.id))
+            .load(&db)
+            .unwrap()
+    };
+    assert_eq!(messages2.len(), 1);
+
+    let message_tests = [
+        |message: Message| {
+            assert!(message.is_outbound);
+        },
+        |message: Message| {
+            assert!(!message.is_outbound);
+        },
+    ];
+
+    for (message, test) in messages1.into_iter().chain(messages2).zip(&message_tests) {
+        dbg!(&message);
+        test(message)
+    }
+}
+
+#[rstest]
+fn group_sessions_with_messages(original_go_db: SqliteConnection) {
+    use orm::original::*;
+    use schemas::original::*;
+
+    let db = original_go_db;
+
+    let sessions = vec![
+        NewSession {
+            source: "+32474".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+32475,+32476,+3277".into()),
+            group_id: Some("AF88".into()),
+            group_name: Some("The first group".into()),
+            has_attachment: false,
+        },
+        // Another group with distinct members
+        NewSession {
+            source: "".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+33475,+33476,+3377".into()),
+            group_id: Some("AF89".into()),
+            group_name: Some("The second group".into()),
+            has_attachment: false,
+        },
+    ];
+
+    let count = sessions.len();
+    assert_eq!(
+        diesel::insert_into(session::table)
+            .values(sessions)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    assert_eq!(ids.len(), count);
+
+    let messages = vec![
+        NewMessage {
+            session_id: Some(ids[0]),
+            source: "+32475".into(),
+            text: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: false,
+            flags: 0,
+            attachment: None,
+            mime_type: None,
+            has_attachment: false,
+            outgoing: true,
+        },
+        NewMessage {
+            session_id: Some(ids[1]),
+            source: "+32475".into(),
+            text: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            flags: 0,
+            attachment: None,
+            mime_type: None,
+            has_attachment: false,
+            outgoing: false,
+        },
+    ];
+
+    let count = messages.len();
+    assert_eq!(
+        diesel::insert_into(message::table)
+            .values(messages)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    embedded_migrations::run(&db).unwrap();
+    assert_group_sessions_with_messages(db);
+}
