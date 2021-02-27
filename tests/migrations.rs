@@ -17,6 +17,88 @@ pub mod orm;
 #[path = "migrations/schemas/mod.rs"]
 pub mod schemas;
 
+mod original_data {
+    use super::*;
+
+    use orm::original::*;
+
+    /// Just a 1-1 session
+    pub fn dm1() -> NewSession {
+        NewSession {
+            source: "+32475".into(),
+            message: "Hoh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: false,
+            group_members: None,
+            group_id: None,
+            group_name: None,
+            has_attachment: false,
+        }
+    }
+
+    /// A group
+    pub fn group1() -> NewSession {
+        NewSession {
+            source: "+32474".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+32475,+32476,+3277".into()),
+            group_id: Some("AF88".into()),
+            group_name: Some("The first group".into()),
+            has_attachment: false,
+        }
+    }
+
+    /// Another group with members distinct from group1
+    pub fn group2() -> NewSession {
+        NewSession {
+            source: "".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+33475,+33476,+3377".into()),
+            group_id: Some("AF89".into()),
+            group_name: Some("The second group".into()),
+            has_attachment: false,
+        }
+    }
+
+    /// Another group, now with some common members between 1 & 2
+    pub fn group3() -> NewSession {
+        NewSession {
+            source: "".into(),
+            message: "Heh.".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 8)
+                .and_hms_milli(9, 10, 11, 325)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            unread: true,
+            is_group: true,
+            group_members: Some("+32475,+32476,+33475,+33476,+3377".into()),
+            group_id: Some("AF90".into()),
+            group_name: Some("The third group".into()),
+            has_attachment: false,
+        }
+    }
+}
+
 #[fixture]
 fn empty_db() -> SqliteConnection {
     let conn = SqliteConnection::establish(":memory:").unwrap();
@@ -223,77 +305,13 @@ fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
 
 #[rstest]
 fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
-    use orm::original::*;
     use schemas::original::session::dsl::*;
+
+    use original_data::*;
 
     let db = original_go_db;
 
-    let sessions = vec![
-        // Just a 1-1 session
-        NewSession {
-            source: "+32475".into(),
-            message: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: false,
-            group_members: None,
-            group_id: None,
-            group_name: None,
-            has_attachment: false,
-        },
-        // A group with three members
-        NewSession {
-            source: "+32474".into(),
-            message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: true,
-            group_members: Some("+32475,+32476,+3277".into()),
-            group_id: Some("AF88".into()),
-            group_name: Some("The first group".into()),
-            has_attachment: false,
-        },
-        // Another group with distinct members
-        NewSession {
-            source: "".into(),
-            message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: true,
-            group_members: Some("+33475,+33476,+3377".into()),
-            group_id: Some("AF89".into()),
-            group_name: Some("The second group".into()),
-            has_attachment: false,
-        },
-        // Another group, now with some common members
-        NewSession {
-            source: "".into(),
-            message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: true,
-            group_members: Some("+32475,+32476,+33475,+33476,+3377".into()),
-            group_id: Some("AF90".into()),
-            group_name: Some("The third group".into()),
-            has_attachment: false,
-        },
-    ];
+    let sessions = vec![dm1(), group1(), group2(), group3()];
 
     let count = sessions.len();
     assert_eq!(
@@ -349,24 +367,7 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
 
     let db = original_go_db;
 
-    let sessions = vec![
-        // Just a 1-1 session
-        NewSession {
-            source: "+32475".into(),
-            message: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: false,
-            group_members: None,
-            group_id: None,
-            group_name: None,
-            has_attachment: false,
-        },
-    ];
+    let sessions = vec![original_data::dm1()];
 
     let count = sessions.len();
     assert_eq!(
@@ -479,41 +480,11 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
     use orm::original::*;
     use schemas::original::*;
 
+    use original_data::*;
+
     let db = original_go_db;
 
-    let sessions = vec![
-        NewSession {
-            source: "+32474".into(),
-            message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: true,
-            group_members: Some("+32475,+32476,+3277".into()),
-            group_id: Some("AF88".into()),
-            group_name: Some("The first group".into()),
-            has_attachment: false,
-        },
-        // Another group with distinct members
-        NewSession {
-            source: "".into(),
-            message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
-                .timestamp_millis(),
-            sent: true,
-            received: true,
-            unread: true,
-            is_group: true,
-            group_members: Some("+33475,+33476,+3377".into()),
-            group_id: Some("AF89".into()),
-            group_name: Some("The second group".into()),
-            has_attachment: false,
-        },
-    ];
+    let sessions = vec![group1(), group2()];
 
     let count = sessions.len();
     assert_eq!(
