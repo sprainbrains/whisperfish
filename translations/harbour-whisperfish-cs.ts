@@ -7,7 +7,7 @@
         <location filename="../qml/cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation>Nový</translation>
+        <translation>Nová</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
@@ -19,7 +19,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="48"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
-        <translation type="unfinished">Mazání všech zpráv</translation>
+        <translation>Odstranění všech zpráv</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="121"/>
@@ -37,7 +37,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="257"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation>Smazat konverzaci</translation>
+        <translation>Odstranit konverzaci</translation>
     </message>
     <message id="whisperfish-delete-session">
         <source>Delete Conversation</source>
