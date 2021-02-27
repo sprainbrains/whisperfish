@@ -328,6 +328,7 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
 
 fn assert_direct_session_with_messages(db: SqliteConnection) {
     use orm::current::*;
+    use schemas::current::*;
 
     let sessions = load_sessions(&db);
     assert_eq!(sessions.len(), 1);
@@ -346,17 +347,28 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
     };
 
     let message_tests = [
-        |message: Message| {
+        |message: Message, attachments: Vec<Attachment>| {
             assert!(message.is_outbound);
+            assert!(attachments.is_empty());
         },
-        |message: Message| {
+        |message: Message, attachments: Vec<Attachment>| {
             assert!(!message.is_outbound);
+            assert!(attachments.is_empty());
+        },
+        |message: Message, attachments: Vec<Attachment>| {
+            assert!(!message.is_outbound);
+            assert_eq!(attachments.len(), 1);
         },
     ];
 
     assert_eq!(messages.len(), message_tests.len());
     for (message, test) in messages.into_iter().zip(&message_tests) {
-        test(message)
+        // Get attachment
+        let attachments: Vec<Attachment> = attachments::table
+            .filter(attachments::message_id.eq(message.id))
+            .load(&db)
+            .unwrap();
+        test(message, attachments);
     }
 }
 
@@ -410,6 +422,21 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
             attachment: None,
             mime_type: None,
             has_attachment: false,
+            outgoing: false,
+        },
+        NewMessage {
+            session_id: Some(ids[0]),
+            source: "+32475".into(),
+            text: "Hoh. Attachment!".into(),
+            timestamp: NaiveDate::from_ymd(2016, 7, 9)
+                .and_hms_milli(9, 10, 11, 326)
+                .timestamp_millis(),
+            sent: true,
+            received: true,
+            flags: 0,
+            attachment: Some("/root/foobar.jpg".into()),
+            mime_type: Some("image/jpeg".into()),
+            has_attachment: true,
             outgoing: false,
         },
     ];

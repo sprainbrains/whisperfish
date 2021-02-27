@@ -86,6 +86,40 @@ pub struct DbSession {
     pub expiring_message_timeout: Option<i32>,
 }
 
+#[derive(Queryable, Debug, Clone)]
+pub struct Attachment {
+    id: i32,
+    json: Option<String>,
+    message_id: i32,
+    content_type: String,
+    name: Option<String>,
+    content_disposition: Option<String>,
+    content_location: Option<String>,
+    attachment_path: Option<String>,
+    is_pending_upload: bool,
+    transfer_file_path: Option<String>,
+    size: Option<i32>,
+    file_name: Option<String>,
+    unique_id: Option<String>,
+    digest: Option<String>,
+    is_voice_note: bool,
+    is_borderless: bool,
+    is_quote: bool,
+    width: Option<i32>,
+    height: Option<i32>,
+    sticker_pack_id: Option<String>,
+    sticker_pack_key: Option<Vec<u8>>,
+    sticker_id: Option<i32>,
+    sticker_emoji: Option<String>,
+    data_hash: Option<Vec<u8>>,
+    visual_hash: Option<String>,
+    transform_properties: Option<String>,
+    transfer_file: Option<String>,
+    display_order: i32,
+    upload_timestamp: NaiveDateTime,
+    cdn_number: Option<i32>,
+}
+
 #[derive(Debug, Clone)]
 pub struct Session {
     pub id: i32,
