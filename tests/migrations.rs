@@ -368,6 +368,8 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
             .filter(attachments::message_id.eq(message.id))
             .load(&db)
             .unwrap();
+
+        assert!(message.sender_recipient_id.is_none());
         test(message, attachments);
     }
 }
@@ -490,9 +492,11 @@ fn assert_group_sessions_with_messages(db: SqliteConnection) {
     let message_tests = [
         |message: Message| {
             assert!(message.is_outbound);
+            assert!(message.sender_recipient_id.is_none());
         },
         |message: Message| {
             assert!(!message.is_outbound);
+            assert!(message.sender_recipient_id.is_some());
         },
     ];
 
