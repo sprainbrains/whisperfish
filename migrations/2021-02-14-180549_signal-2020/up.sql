@@ -253,6 +253,19 @@ CREATE TABLE reactions (
 CREATE INDEX reaction_message ON reactions(message_id);
 CREATE INDEX reaction_author ON reactions(author);
 
+CREATE TABLE receipts (
+    message_id INTEGER NOT NULL,
+    recipient_id INTEGER NOT NULL,
+
+    delivered TIMESTAMP,
+    read TIMESTAMP,
+    viewed TIMESTAMP,
+
+    PRIMARY KEY (message_id, recipient_id),
+    FOREIGN KEY (message_id) REFERENCES messages(id),
+    FOREIGN KEY (recipient_id) REFERENCES recipients(id)
+);
+
 ---
 -- 3. Copy over the data
 
@@ -445,6 +458,32 @@ SELECT
 FROM messages, old_message
 WHERE messages.server_timestamp == old_message.timestamp
     AND old_message.has_attachment;
+
+-- For outbound 1:1 messages, we have read-receipts.
+-- We don't have their date, but we just set it on UNIX epoch as marker.
+INSERT OR IGNORE INTO receipts (
+    message_id,
+    recipient_id,
+
+    delivered -- we called this "received"
+    -- read receipts and view receipts weren't handled before.
+)
+SELECT
+    messages.id,
+    recipients.id,
+
+    CASE WHEN old_message.received
+        THEN '1970-01-01T00:00:00'
+        ELSE NULL
+    END
+
+FROM sessions, messages, recipients, old_message
+WHERE messages.server_timestamp == old_message.timestamp
+    AND messages.session_id == sessions.id
+    AND recipients.id == sessions.direct_message_recipient_id
+    AND messages.is_outbound;
+
+-- We don't care about group messages, since this is information we did not retain. Sorry!
 
 -- 4. Drop the old tables
 

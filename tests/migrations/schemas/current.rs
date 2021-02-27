@@ -81,9 +81,9 @@ table! {
 }
 
 table! {
-    receipts (message_id, receipient_id) {
+    receipts (message_id, recipient_id) {
         message_id -> Integer,
-        receipient_id -> Integer,
+        recipient_id -> Integer,
         delivered -> Nullable<Timestamp>,
         read -> Nullable<Timestamp>,
         viewed -> Nullable<Timestamp>,
