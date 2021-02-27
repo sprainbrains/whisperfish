@@ -339,13 +339,13 @@
         <location filename="../qml/pages/MessagesView.qml" line="102"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen&#xa0;…</translation>
+        <translation>Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/pages/MessagesView.qml" line="112"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Neuer Versand&#xa0;…</translation>
+        <translation>Neuer Versand …</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/pages/MessagesView.qml" line="135"/>
@@ -714,7 +714,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="32"/>
         <source>Peer identity is not trusted</source>
         <extracomment>Peer identity not trusted</extracomment>
-        <translation>Peer Identität wird nicht vertraut</translation>
+        <translation>Identität des Partners wird nicht vertraut</translation>
     </message>
     <message id="whisperfish-peer-not-trusted-message">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="42"/>
@@ -838,7 +838,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation type="unfinished">Anhänge werden in %1 gespeichert.</translation>
+        <translation>Anhänge werden in %1 gespeichert. Wenn dies deaktiviert ist, funktionieren Anhänge nicht.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="215"/>
@@ -912,7 +912,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="314"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten&#xa0;…</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="327"/>
