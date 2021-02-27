@@ -369,7 +369,10 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
             .load(&db)
             .unwrap();
 
+        // These may not be true anymore after the Signal-2020 migration.
         assert!(message.sender_recipient_id.is_none());
+        assert_eq!(message.sent_timestamp.is_some(), message.is_outbound);
+        assert_eq!(message.received_timestamp.is_none(), message.is_outbound);
         test(message, attachments);
     }
 }
