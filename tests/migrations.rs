@@ -543,3 +543,71 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
     embedded_migrations::run(&db).unwrap();
     assert_group_sessions_with_messages(db);
 }
+
+#[rstest]
+/// A test that creates a single session and 10^5 random messages and timestamps.
+fn timestamp_conversion(original_go_db: SqliteConnection) {
+    use orm::original::*;
+    use rand::Rng;
+    use schemas::original::*;
+
+    let db = original_go_db;
+
+    assert_eq!(
+        diesel::insert_into(session::table)
+            .values(original_data::dm1())
+            .execute(&db)
+            .unwrap(),
+        1
+    );
+
+    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    assert_eq!(ids.len(), 1);
+    let session_id = Some(ids[0]);
+
+    let mut message = NewMessage {
+        session_id,
+        source: "+32475".into(),
+        text: "Hoh.".into(),
+        timestamp: NaiveDate::from_ymd(2016, 7, 9)
+            .and_hms_milli(9, 10, 11, 325)
+            .timestamp_millis(),
+        sent: true,
+        received: false,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: true,
+    };
+
+    let count = 100_000;
+
+    let mut timestamps = Vec::with_capacity(count);
+    let mut rng = rand::thread_rng();
+
+    for _ in 0..count {
+        let ts: u64 = rng.gen_range(0..1614425253000);
+        message.timestamp = ts as i64;
+        let ts = NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1000_000) as u32);
+        timestamps.push(ts);
+
+        diesel::insert_into(message::table)
+            .values(&message)
+            .execute(&db)
+            .unwrap();
+    }
+
+    embedded_migrations::run(&db).unwrap();
+
+    for (i, ts) in timestamps.into_iter().enumerate() {
+        use orm::current::*;
+        use schemas::current::*;
+
+        let message: Message = messages::table
+            .filter(messages::id.eq((i + 1) as i32))
+            .first(&db)
+            .unwrap();
+        assert_eq!(message.sent_timestamp, Some(ts), "at message {}", i);
+    }
+}
