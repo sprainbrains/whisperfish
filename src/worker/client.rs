@@ -37,7 +37,7 @@ mod linked_devices;
 pub use linked_devices::*;
 
 fn millis_to_naive_chrono(ts: u64) -> NaiveDateTime {
-    NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1000) as u32)
+    NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1000_000) as u32)
 }
 
 #[derive(Message)]
