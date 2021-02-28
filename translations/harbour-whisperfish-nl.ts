@@ -1096,7 +1096,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Voeg toe aan contacten</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
         <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
