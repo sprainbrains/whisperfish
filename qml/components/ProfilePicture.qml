@@ -14,6 +14,7 @@ MouseArea {
     property bool showInfoMark
     property alias infoMark: infoMarkIcon
     property real infoMarkSize: Theme.iconSizeSmall // set this, don't change infoMark.{width,height}
+    property real infoMarkMaskFactor: 1.2 // how much larger than the icon should the mask be?
 
     property color profileBackgroundColor: Theme.colorScheme === Theme.LightOnDark ?
                                                Qt.darker(Theme.secondaryHighlightColor) :
@@ -32,21 +33,12 @@ MouseArea {
     Rectangle {
         id: profileBackground
         anchors.fill: parent
-        radius: 180
+        layer.enabled: true
+        layer.smooth: true
+        radius: width/2
+        visible: false
         color: profileBackgroundColor
-    }
-
-    HighlightImage {
-        source: isGroup ? "image://theme/icon-m-users" :
-                          "image://theme/icon-m-contact"
-        anchors.centerIn: parent
-        highlighted: _labelsHighlighted
-        opacity: !_hasImage || image.status !== Image.Ready ?
-                     (Theme.colorScheme === Theme.LightOnDark ?
-                          Theme.opacityHigh : 1.0) : 0.0
-        visible: opacity > 0.0
-        color: Theme.secondaryColor
-        highlightColor: Theme.highlightColor
+        opacity: (!_hasImage || image.status !== Image.Ready) ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { } }
     }
 
@@ -63,7 +55,7 @@ MouseArea {
     Rectangle {
         id: shapeMask
         anchors.fill: profileBackground
-        radius: 180
+        radius: width/2
         visible: false
         layer.enabled: true
     }
@@ -71,22 +63,21 @@ MouseArea {
     Rectangle { // effect container
         anchors.fill: shapeMask
         color: "transparent"
-
-        visible: _hasImage
         opacity: _highlighted ? Theme.opacityLow : 1.0
 
         Rectangle {
             id: infoMarkMask
             anchors { bottom: parent.bottom; right: parent.right }
-            width: infoMarkSize; height: width
-            radius: 180
+            width: infoMarkMaskFactor*infoMarkSize; height: width
+            radius: width/2
             visible: showInfoMark
         }
 
         layer.enabled: true
         layer.samplerName: "imask"
         layer.effect: ShaderEffect {
-            property variant source: image
+            property variant source: (_hasImage && image.status === Image.Ready) ?
+                                         image : profileBackground
             property variant omask: shapeMask
             fragmentShader: "
                 varying highp vec2 qt_TexCoord0;
@@ -105,11 +96,28 @@ MouseArea {
         }
     }
 
+    HighlightImage {
+        source: isGroup ? "image://theme/icon-m-users" :
+                          "image://theme/icon-m-contact"
+        anchors.centerIn: parent
+        highlighted: _labelsHighlighted
+        opacity: !_hasImage || image.status !== Image.Ready ?
+                     (Theme.colorScheme === Theme.LightOnDark ?
+                          Theme.opacityHigh : 1.0) : 0.0
+        visible: opacity > 0.0
+        color: Theme.secondaryColor
+        highlightColor: Theme.highlightColor
+        Behavior on opacity { FadeAnimator { } }
+    }
+
     Rectangle {
         id: infoMark
-        anchors { bottom: parent.bottom; right: parent.right }
+        anchors {
+            bottom: parent.bottom; bottomMargin: (infoMarkMask.width-infoMarkSize)/2
+            right: parent.right; rightMargin: (infoMarkMask.width-infoMarkSize)/2
+        }
         width: infoMarkSize; height: width
-        radius: 180
+        radius: width/2
         visible: showInfoMark
         color: "transparent"
 
@@ -117,7 +125,7 @@ MouseArea {
             id: infoMarkIcon
             // source: 'image://theme/icon-s-checkmark' // outline looks too busy
             source: 'image://theme/icon-s-installed'
-            anchors.centerIn: parent
+            anchors.fill: parent
             color: Theme.primaryColor
             highlighted: _labelsHighlighted
             highlightColor: Theme.secondaryHighlightColor

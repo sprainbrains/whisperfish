@@ -1,4 +1,4 @@
-import QtQuick 2.2
+import QtQuick 2.6
 import Sailfish.Silica 1.0
 import org.nemomobile.contacts 1.0
 import "../components"
@@ -96,9 +96,9 @@ ListItem {
             }
             onPressAndHold: delegate.openMenu()
             onClicked: {
-                MessageModel.load(model.id, contact.displayName)
+                MessageModel.load(model.id, delegate.name)
                 if (isGroup) {
-                    pageStack.push(Qt.resolvedUrl("../pages/Group.qml"))
+                    pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
                 } else {
                     pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
                 }
@@ -122,25 +122,27 @@ ListItem {
                       name
         }
 
-        Label {
+        LinkedEmojiLabel {
             id: lowerLabel
             anchors {
                 left: upperLabel.left; right: unreadBackground.left
                 top: upperLabel.bottom; bottom: parent.bottom
             }
+            wrapMode: Text.WrapAnywhere
             maximumLineCount: 2
-            wrapMode: Text.Wrap
+            enableElide: Text.ElideRight
             color: highlighted ? Theme.secondaryHighlightColor :
                                  Theme.secondaryColor
             font.pixelSize: Theme.fontSizeExtraSmall
-            text: hasDraft ?
+            plainText: hasDraft ?
                       //: Message preview for a saved, unsent message
                       //% "Draft: %1"
                       qsTrId("whisperfish-message-preview-draft").arg(draft) :
                       message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
-            elide: Text.ElideRight
+            defaultLinkActions: false
+            onLinkActivated: {}
         }
 
         Row {

@@ -4,6 +4,7 @@ import Nemo.Notifications 1.0
 import Nemo.DBus 2.0
 import org.nemomobile.contacts 1.0
 import "pages"
+import "js/emoji.js" as Emoji // for initialization
 
 ApplicationWindow
 {
@@ -13,8 +14,10 @@ ApplicationWindow
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
+    Component.onCompleted: Emoji.dataBaseDirectory = StandardPaths.genericData
 
     readonly property string mainPageName: "mainPage"
+    readonly property string conversationPageName: "conversationPage"
     property var notificationMap: ({})
 
     // setting this to "true" will block global navigation
@@ -51,7 +54,7 @@ ApplicationWindow
 
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
-           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation"))) {
+           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName))) {
            return
         }
 
@@ -73,7 +76,7 @@ ApplicationWindow
             mainWindow.activate()
             showMainPage()
             mainWindow.activateSession(sid, name, source)
-            pageStack.push(Qt.resolvedUrl("pages/Conversation.qml"), {}, PageStackAction.Immediate)
+            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), {}, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -97,7 +100,7 @@ ApplicationWindow
     Connections {
         target: ClientWorker
         onMessageReceived: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 SessionModel.add(sid, true)
                 MessageModel.add(mid)
             } else {
@@ -105,7 +108,7 @@ ApplicationWindow
             }
         }
         onMessageReceipt: {
-            if(mid > 0 && pageStack.currentPage.objectName == "conversation") {
+            if(mid > 0 && pageStack.currentPage.objectName == conversationPageName) {
                 MessageModel.markReceived(mid)
             }
 
@@ -117,7 +120,7 @@ ApplicationWindow
             newMessageNotification(sid, source, message, isGroup)
         }
         onMessageSent: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == "conversation") {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 SessionModel.markSent(sid, message)
                 MessageModel.markSent(mid)
             } else {

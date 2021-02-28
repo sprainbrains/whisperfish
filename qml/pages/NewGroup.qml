@@ -5,6 +5,7 @@ import Sailfish.Contacts 1.0
 import Sailfish.Telephony 1.0
 import org.nemomobile.contacts 1.0
 import org.nemomobile.commhistory 1.0
+import "../components"
 
 Page {
     id: newGroupPage
@@ -87,14 +88,19 @@ Page {
                 }
             }
 
-            WFChatTextInput {
+            ChatTextInput {
                 id: textInput
                 width: parent.width
-                enabled: selectedContacts.count > 0 && groupName.text != ""
+                enablePersonalizedPlaceholder: false
+                showSeparator: false
+                enableSending: selectedContacts.count > 0 && groupName.text != ""
                 clearAfterSend: selectedContacts.count > 0 && groupName.text != ""
+                enableAttachments: false // TODO support attachments
 
                 onSendMessage: {
-                    if (selectedContacts.count == 0) {
+                    // TODO rewrite
+                    // TODO support attachments
+                    if (selectedContacts.count === 0) {
                         //: Invalid recipient error
                         //% "Please select group members"
                         errorLabel.text = qsTrId("whisperfish-error-invalid-group-members")
@@ -107,7 +113,7 @@ Page {
                         for (var i = 0; i < selectedContacts.count; ++i) {
                             var contact = selectedContacts.get(i);
                             var phone = ContactModel.format(contact.property.number);
-                            if (phone == "") {
+                            if (phone === "") {
                                 console.log("Skipping invalid number" + contact.formattedNameText + " (" + contact.property.number + ")");
                                 continue;
                             }
