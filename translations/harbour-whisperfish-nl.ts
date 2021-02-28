@@ -1071,7 +1071,7 @@ Settings page share contacts</extracomment>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished">Verlaten</translation>
+        <translation>Deze groep verlaten</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
