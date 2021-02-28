@@ -28,13 +28,13 @@
         <translation>Kendime not</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="139"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="140"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Taslak: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="257"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="259"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Konuşmayı sil</translation>
@@ -45,19 +45,19 @@
         <translation type="vanished">Konuşmayı Sil</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="64"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="67"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Yeni Mesaj</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="139"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="142"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Signal istemcisi kurulumu başarısız oldu</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="144"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="147"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
@@ -166,36 +166,29 @@
         <translation>Signal Desktop&apos;ı kurun. Signal Desktop&apos;ta görüntülenen QR kodunu taramak için CodeReader uygulamasını kullanın ve URL&apos;yi kopyalayıp buraya yapıştırın.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
-        <location filename="../qml/pages/AttachmentPage.qml" line="25"/>
-        <location filename="../qml/pages/VideoAttachment.qml" line="24"/>
         <source>Me</source>
         <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
-        <translation>Ben</translation>
+        <translation type="vanished">Ben</translation>
     </message>
     <message id="whisperfish-attachment-from-contact">
-        <location filename="../qml/pages/AttachmentPage.qml" line="28"/>
-        <location filename="../qml/pages/VideoAttachment.qml" line="27"/>
         <source>From %1</source>
         <extracomment>Personalized placeholder showing the attachment is from contact</extracomment>
-        <translation>%1 kişisinden</translation>
+        <translation type="vanished">%1 kişisinden</translation>
     </message>
     <message id="whisperfish-chatinput-contact">
-        <location filename="../qml/pages/WFChatTextInput.qml" line="112"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation>Merhaba %1</translation>
+        <translation type="vanished">Merhaba %1</translation>
     </message>
     <message id="whisperfish-chatinput-generic">
-        <location filename="../qml/pages/WFChatTextInput.qml" line="115"/>
         <source>Hi</source>
         <extracomment>Generic placeholder for chat input</extracomment>
-        <translation>Merhaba</translation>
+        <translation type="vanished">Merhaba</translation>
     </message>
     <message id="whisperfish-select-file">
-        <location filename="../qml/pages/WFChatTextInput.qml" line="203"/>
         <source>Select file</source>
         <extracomment>Title for file picker page</extracomment>
-        <translation>Dosya seç</translation>
+        <translation type="vanished">Dosya seç</translation>
     </message>
     <message id="whisperfish-choose-country-code">
         <source>Choose Country Code</source>
@@ -330,43 +323,42 @@
         <translation>Kilitli</translation>
     </message>
     <message id="whisperfish-group-label">
-        <location filename="../qml/pages/MessagesView.qml" line="89"/>
         <source>Group: %1</source>
         <extracomment>Group message label</extracomment>
-        <translation>Grup: %1</translation>
+        <translation type="vanished">Grup: %1</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../qml/pages/MessagesView.qml" line="102"/>
+        <location filename="../qml/components/MessagesView.qml" line="195"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
         <translation>Siliniyor</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../qml/pages/MessagesView.qml" line="112"/>
+        <location filename="../qml/components/MessagesView.qml" line="205"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
         <translation>Yeniden gönderiliyor</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="135"/>
+        <location filename="../qml/components/MessagesView.qml" line="237"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Kopyala</translation>
     </message>
     <message id="whisperfish-open-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="141"/>
+        <location filename="../qml/components/MessagesView.qml" line="244"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
         <translation>Aç</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="148"/>
+        <location filename="../qml/components/MessagesView.qml" line="251"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
         <translation>Sil</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../qml/pages/MessagesView.qml" line="154"/>
+        <location filename="../qml/components/MessagesView.qml" line="258"/>
         <source>Resend</source>
         <extracomment>Resend message menu item</extracomment>
         <translation>Yeniden Gönder</translation>
@@ -390,50 +382,50 @@
         <translation>%1 ile uçtan uca şifrelemenizin güvenliğini doğrulamak istiyorsanız, yukarıdaki sayıları aygıtlarındaki sayılarla karşılaştırın.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
-        <location filename="../qml/pages/NewMessage.qml" line="58"/>
+        <location filename="../qml/pages/NewMessage.qml" line="59"/>
         <source>This phone number contains invalid characters.</source>
         <extracomment>invalid recipient phone number: invalid characters</extracomment>
         <translation>Bu telefon numarası geçersiz karakterler içeriyor.</translation>
     </message>
     <message id="whisperfish-recipient-local-number-not-allowed">
-        <location filename="../qml/pages/NewMessage.qml" line="63"/>
+        <location filename="../qml/pages/NewMessage.qml" line="64"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
         <translation>Lütfen ayarlarda bir ülke kodu belirleyin veya uluslararası biçimi kullanın.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
-        <location filename="../qml/pages/NewMessage.qml" line="67"/>
+        <location filename="../qml/pages/NewMessage.qml" line="68"/>
         <source>This phone number appears to be invalid.</source>
         <extracomment>invalid recipient phone number: failed to format</extracomment>
         <translation>Bu telefon numarası geçersiz görünüyor.</translation>
     </message>
     <message id="whisperfish-new-message-title">
-        <location filename="../qml/pages/NewMessage.qml" line="95"/>
+        <location filename="../qml/pages/NewMessage.qml" line="96"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
         <translation>Yeni mesaj</translation>
     </message>
     <message id="whisperfish-new-group-title">
-        <location filename="../qml/pages/NewGroup.qml" line="37"/>
+        <location filename="../qml/pages/NewGroup.qml" line="38"/>
         <source>New Group</source>
         <extracomment>New group page title</extracomment>
         <translation>Yeni Grup</translation>
     </message>
     <message id="whisperfish-group-name-label">
-        <location filename="../qml/pages/NewGroup.qml" line="46"/>
+        <location filename="../qml/pages/NewGroup.qml" line="47"/>
         <source>Group Name</source>
         <extracomment>Group name label</extracomment>
         <translation>Grup Adı</translation>
     </message>
     <message id="whisperfish-group-name-placeholder">
-        <location filename="../qml/pages/NewGroup.qml" line="49"/>
+        <location filename="../qml/pages/NewGroup.qml" line="50"/>
         <source>Group Name</source>
         <extracomment>Group name placeholder</extracomment>
         <translation>Grup Adı</translation>
     </message>
     <message id="whisperfish-new-group-message-members">
-        <location filename="../qml/pages/NewGroup.qml" line="68"/>
-        <location filename="../qml/pages/NewGroup.qml" line="72"/>
+        <location filename="../qml/pages/NewGroup.qml" line="69"/>
+        <location filename="../qml/pages/NewGroup.qml" line="73"/>
         <source>Members</source>
         <extracomment>New group message members label
 ----------
@@ -441,8 +433,8 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Üyeler</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="113"/>
-        <location filename="../qml/pages/NewMessage.qml" line="117"/>
+        <location filename="../qml/pages/NewMessage.qml" line="114"/>
+        <location filename="../qml/pages/NewMessage.qml" line="118"/>
         <source>Recipient</source>
         <extracomment>New message recipient label
 ----------
@@ -450,19 +442,19 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Alıcı</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
-        <location filename="../qml/pages/NewGroup.qml" line="104"/>
+        <location filename="../qml/pages/NewGroup.qml" line="110"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
         <translation>Lütfen grubu adlandırın</translation>
     </message>
     <message id="whisperfish-error-invalid-group-members">
-        <location filename="../qml/pages/NewGroup.qml" line="100"/>
+        <location filename="../qml/pages/NewGroup.qml" line="106"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Lütfen grup üyelerini seçin</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
-        <location filename="../qml/pages/NewMessage.qml" line="164"/>
+        <location filename="../qml/pages/NewMessage.qml" line="174"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
         <translation>Geçersiz alıcı</translation>
@@ -1059,36 +1051,77 @@ Settings page share contacts</extracomment>
         <translation>Güvenlik numaralarını doğrula</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/Group.qml" line="18"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="200"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Üye Ekle</translation>
     </message>
     <message id="whisperfish-group-add-member-remorse">
-        <location filename="../qml/pages/Group.qml" line="25"/>
         <source>Adding %1 to group</source>
         <oldsource>%1 added to group</oldsource>
         <extracomment>Add group member remorse message</extracomment>
-        <translation>%1 gruba ekleniyor</translation>
+        <translation type="vanished">%1 gruba ekleniyor</translation>
+    </message>
+    <message id="whisperfish-unknown-contact">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
+        <source>Unknown</source>
+        <extracomment>Unknown contact in group member list</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-leave-menu">
-        <location filename="../qml/pages/Group.qml" line="35"/>
-        <source>Leave</source>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="172"/>
+        <source>Leave this group</source>
+        <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
-        <translation>Ayrıl</translation>
+        <translation type="unfinished">Ayrıl</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/Group.qml" line="39"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
         <translation>Gruptan ayrılıp TÜM mesajlar kaldırılıyor!</translation>
     </message>
+    <message id="whisperfish-group-invite-link-menu">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
+        <source>Create invitation link</source>
+        <extracomment>Create invite link menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-menu-direct-message">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="227"/>
+        <source>Message to %1</source>
+        <extracomment>Menu item to start a private chat with a group member</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-menu-save-contact">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
+        <source>Add to contacts</source>
+        <extracomment>Menu item to save a group member to the local address book</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-menu-verify-fingerprint">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
+        <source>Verify safety number</source>
+        <extracomment>Menu item to verify safety numbers with a group member</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-menu-remove-from-group">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
+        <source>Remove from this group</source>
+        <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-name-self">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="292"/>
+        <source>You</source>
+        <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-group-members-title">
-        <location filename="../qml/pages/Group.qml" line="62"/>
         <source>Group members</source>
         <extracomment>Group members</extracomment>
-        <translation>Grup üyeleri</translation>
+        <translation type="vanished">Grup üyeleri</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
@@ -1155,6 +1188,220 @@ Settings page share contacts</extracomment>
         <source>Code</source>
         <extracomment>verification code input placeholder</extracomment>
         <translation>Kod</translation>
+    </message>
+    <message id="whisperfish-attachment-preview-contact-title">
+        <location filename="../qml/components/attachment/AttachmentItemContact.qml" line="22"/>
+        <source>Shared contact</source>
+        <extracomment>Placeholder shown as title for an attached contact in a message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-chat-input-attachment-label" numerus="yes">
+        <location filename="../qml/components/ChatTextInput.qml" line="149"/>
+        <source>%n attachment(s)</source>
+        <extracomment>Number of attachments currently selected for sending</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-chat-input-placeholder-personal">
+        <location filename="../qml/components/ChatTextInput.qml" line="157"/>
+        <source>Hi %1</source>
+        <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
+        <translation type="unfinished">Merhaba %1</translation>
+    </message>
+    <message id="whisperfish-chat-input-placeholder-default">
+        <location filename="../qml/components/ChatTextInput.qml" line="161"/>
+        <source>Write a message</source>
+        <extracomment>Generic placeholder for chat input</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-select-attachments-page-title">
+        <location filename="../qml/components/ChatTextInput.qml" line="211"/>
+        <source>Select attachments</source>
+        <extracomment>Attachment picker page title</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-attachments-loader-show-more" numerus="yes">
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="278"/>
+        <source>and %1 more</source>
+        <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-message-no-timestamp">
+        <location filename="../qml/components/message/InfoRow.qml" line="46"/>
+        <source>no time</source>
+        <extracomment>Placeholder note if a message doesn&apos;t have a timestamp (which must not happen).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-message-show-less">
+        <location filename="../qml/components/message/InfoRow.qml" line="83"/>
+        <source>show less</source>
+        <extracomment>Hint for very long messages, while expanded</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-message-show-more">
+        <location filename="../qml/components/message/InfoRow.qml" line="86"/>
+        <source>show more</source>
+        <extracomment>Hint for very long messages, while not expanded</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-sender-name-label-outgoing">
+        <location filename="../qml/components/QuotedMessagePreview.qml" line="98"/>
+        <location filename="../qml/components/SenderNameLabel.qml" line="81"/>
+        <source>You</source>
+        <extracomment>Name shown when replying to own messages</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-quoted-message-preview-attachment">
+        <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
+        <source>Attachment</source>
+        <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
+        <translation type="unfinished">Ek</translation>
+    </message>
+    <message id="whisperfish-sender-label-empty">
+        <location filename="../qml/delegates/MessageDelegate.qml" line="169"/>
+        <source>no sender</source>
+        <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-message-empty-note">
+        <location filename="../qml/delegates/MessageDelegate.qml" line="220"/>
+        <source>this message is empty</source>
+        <extracomment>Placeholder note if an empty message is encountered.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-joined-group-self">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="49"/>
+        <source>You joined the group “%1”.</source>
+        <extracomment>Service message, %1 = group name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-left-group-self">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="53"/>
+        <source>You left the group.</source>
+        <extracomment>Service message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-joined-group-peer">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="57"/>
+        <source>%1 joined the group.</source>
+        <extracomment>Service message, %1 is the new member&apos;s name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-left-group-peer">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="61"/>
+        <source>%1 left the group.</source>
+        <extracomment>Service message, %1 is is the lost member&apos;s name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-missed-call-voice">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="65"/>
+        <source>You missed a call from %1.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-missed-call-video">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="69"/>
+        <source>You missed a video call from %1.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-call-voice-self">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="73"/>
+        <source>You called %1.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-call-video-self">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="77"/>
+        <source>You started a video call with %1.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-call-voice-peer">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="81"/>
+        <source>%1 called you.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-call-video-peer">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="85"/>
+        <source>%1 started a video call with you.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-fingerprint-changed">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
+        <source>Your safety number with %1 has changed. Swipe right to verify the new number.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-session-reset-self">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="94"/>
+        <source>You have reset the secure session with %1.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-session-reset-peer">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="98"/>
+        <source>%1 has reset the secure session with you.</source>
+        <extracomment>Service message, %1 is a name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-not-supported">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="103"/>
+        <source>This service message is not yet supported by Whisperfish. Please file a bug report. (Type: &apos;%1&apos;.)</source>
+        <extracomment>Service message, %1 is an internal message type identifier</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-service-message-more-info">
+        <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
+        <source>more information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-contact-card-page-save">
+        <location filename="../qml/pages/ContactCardPage.qml" line="53"/>
+        <source>Save to address book</source>
+        <extracomment>Menu item to save a shared contact to the local address book</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-expanded-message-page-header">
+        <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
+        <source>Full message</source>
+        <extracomment>Page title for a very long message shown on a page of its own</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-expanded-message-info-outbound">
+        <location filename="../qml/pages/ExpandedMessagePage.qml" line="34"/>
+        <source>to %1</source>
+        <extracomment>Page description for a very long message shown on a page of its own</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-expanded-message-info-inbound">
+        <location filename="../qml/pages/ExpandedMessagePage.qml" line="37"/>
+        <source>from %1</source>
+        <extracomment>Page description for a very long message shown on a page of its own</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-view-image-page-loading">
+        <location filename="../qml/pages/ViewImagePage.qml" line="242"/>
+        <source>Loading image</source>
+        <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-view-image-page-error">
+        <location filename="../qml/pages/ViewImagePage.qml" line="252"/>
+        <source>Failed to load</source>
+        <extracomment>Full page placeholder shown when an image failed to load</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-view-video-page-error">
+        <location filename="../qml/pages/ViewVideoPage.qml" line="105"/>
+        <source>Failed to play</source>
+        <extracomment>Full page placeholder shown when a video failed to load</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
