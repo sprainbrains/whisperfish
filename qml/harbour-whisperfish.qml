@@ -57,6 +57,10 @@ ApplicationWindow
            return
         }
 
+        if (SettingsBridge.boolValue("minimise_notify") && (sid in notificationMap)) {
+            return
+        }
+
         var m
         if(SettingsBridge.boolValue("show_notify_message")) {
             m = messageNotification.createObject(null)
