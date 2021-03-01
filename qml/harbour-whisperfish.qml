@@ -44,7 +44,6 @@ ApplicationWindow
 
     function activateSession(sid, name, source) {
         console.log("Activating session for source: "+source)
-        SessionModel.markRead(sid)
         MessageModel.load(sid, name)
     }
 
@@ -58,10 +57,16 @@ ApplicationWindow
            return
         }
 
-        var m = messageNotification.createObject(null)
+        var m
         if(SettingsBridge.boolValue("show_notify_message")) {
+            m = messageNotification.createObject(null)
             m.body = message
         } else {
+            if (sid in notificationMap) {
+                m = notificationMap[sid][0]
+            } else {
+                m = messageNotification.createObject(null)
+            }
             //: Default label for new message notification
             //% "New Message"
             m.body = qsTrId("whisperfish-notification-default-message")
@@ -71,7 +76,6 @@ ApplicationWindow
         m.previewBody = m.body
         m.summary = name
         m.clicked.connect(function() {
-            clearNotifications(sid)
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
