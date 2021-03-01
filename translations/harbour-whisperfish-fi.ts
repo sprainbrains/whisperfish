@@ -45,19 +45,19 @@
         <translation type="vanished">Poista keskustelu</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="67"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="72"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Uusi viesti</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="142"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="146"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Signal-sovelluksen määritys epäonnistui</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="147"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="151"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
