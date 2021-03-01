@@ -14,6 +14,9 @@ stages:
   artifacts:
     paths:
       - target/*/release/rpmbuild/RPMS/*/*.rpm
+      - target/*/release/whisperfish-migration-dry-run
+      - target/*/release/fetch-signal-attachment
+      - target/*/release/harbour-whisperfish
   cache:
     paths:
       - target
