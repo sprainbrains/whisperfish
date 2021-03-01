@@ -131,11 +131,7 @@ Page {
         delegate: SessionDelegate {
             onClicked: {
                 console.log("Activating session: "+model.id)
-                mainWindow.clearNotifications(model.id)
                 pageStack.push(Qt.resolvedUrl("ConversationPage.qml"));
-                if (model.unread) {
-                    SessionModel.markRead(model.id)
-                }
                 var contact = resolvePeopleModel.personByPhoneNumber(model.source);
                 MessageModel.load(model.id, contact ? contact.displayLabel : model.source)
             }

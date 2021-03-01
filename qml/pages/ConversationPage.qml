@@ -17,10 +17,22 @@ Page {
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
+            SessionModel.markRead(MessageModel.sessionId)
+            mainWindow.clearNotifications(MessageModel.sessionId)
             if (root.isGroup) {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
             } else {
                 pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
+            }
+        }
+    }
+
+    Connections {
+        target: Qt.application
+        onStateChanged: {
+            if ((Qt.application.state === Qt.ApplicationActive) && (status === PageStatus.Active)) {
+                SessionModel.markRead(MessageModel.sessionId)
+                mainWindow.clearNotifications(MessageModel.sessionId)
             }
         }
     }
