@@ -56,6 +56,8 @@ tempdir = "0.3.5"
 
 structopt = "0.3.16"
 
+rpassword = "5.0"
+
 [build-dependencies]
 cpp_build = "0.5"
 cc = "1.0"
@@ -105,6 +107,7 @@ target = "armv7-unknown-linux-gnueabihf"
 
 [package.metadata.rpm.targets]
 harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
+whisperfish-migration-dry-run = { path = "/usr/bin/whisperfish-migration-dry-run" }
 
 [package.metadata.rpm.files]
 "../harbour-whisperfish.desktop" = { path = "/usr/share/applications/harbour-whisperfish.desktop" }

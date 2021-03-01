@@ -42,6 +42,10 @@ for filename in .%{_datadir}/%{name}/translations/*.ts; do
 done
 rm .%{_datadir}/%{name}/translations/*.ts
 
+#[{{ HARBOUR
+rm .%{_bindir}/whisperfish-migration-dry-run
+#}}]
+
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
