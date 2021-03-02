@@ -127,6 +127,23 @@ Page {
                     }
                 }
             }
+            IconTextSwitch {
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page notifications show minimum number of notifications
+                //% "Minimise notifications"
+                text: qsTrId("whisperfish-settings-notifications-minimise")
+                //: Settings page notifications show minimum number of notifications description
+                //% "If turned on, Whisperfish will suppress all but the first notification from each session."
+                description: qsTrId("whisperfish-settings-notifications-minimise-description")
+                checked: SettingsBridge.boolValue("minimise_notify")
+                icon.source: "image://theme/icon-m-repeat-single"
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("minimise_notify")) {
+                        SettingsBridge.boolSet("minimise_notify", checked)
+                    }
+                }
+            }
+
             // ------ END NOTIFICATION SETTINGS ------
 
             // ------ BEGIN GENERAL SETTINGS ------
