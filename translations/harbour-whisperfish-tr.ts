@@ -1201,7 +1201,6 @@ Settings page share contacts</extracomment>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
             <numerusform>%n ek</numerusform>
-            <numerusform>%n ek</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1227,7 +1226,6 @@ Settings page share contacts</extracomment>
         <source>and %1 more</source>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>ve %1 tane daha</numerusform>
             <numerusform>ve %1 tane daha</numerusform>
         </translation>
     </message>
