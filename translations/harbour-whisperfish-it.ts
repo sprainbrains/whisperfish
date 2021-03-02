@@ -104,7 +104,7 @@
         <location filename="../qml/pages/About.qml" line="87"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sostieni su Liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="97"/>
@@ -529,7 +529,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish memorizza le chiavi di identità, lo stato della sessione e i dati dei messaggi locali crittografati su disco. La password che hai impostato non è memorizzata da nessuna parte e non sarai in grado di ripristinare i tuoi dati se perdi la password. Nota: gli allegati sono attualmente archiviati non crittografati. È possibile disabilitare la memorizzazione degli allegati nella pagina Impostazioni.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -766,38 +766,38 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Quando è abilitato, il tasto Invio funziona come un tasto di invio. Altrimenti, il tasto Invio può essere utilizzato per i messaggi su più righe.</translation>
     </message>
     <message id="whisperfish-settings-startup-shutdown-section">
         <location filename="../qml/pages/Settings.qml" line="239"/>
         <source>Autostart and Background</source>
         <extracomment>Settings page startup and shutdown section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avvio automatico e sfondo</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart">
         <location filename="../qml/pages/Settings.qml" line="246"/>
         <source>Autostart after boot</source>
         <extracomment>Settings page enable autostart</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avvio automatico dopo l&apos;avvio</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Quando è abilitato, Whisperfish continua a funzionare nello sfondo e può inviare notifiche dopo che la finestra dell&apos;applicazione è stata chiusa.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Background mode</source>
         <extracomment>Settings page enable background mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modalità sfondo</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="249"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Se abilitato, Whisperfish si avvia automaticamente dopo ogni avvio. Se la crittografia dell&apos;archiviazione è abilitata o la modalità sfondo è disattivata, verrà visualizzata l&apos;interfaccia utente, altrimenti l&apos;applicazione si avvia nello sfondo.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="283"/>
@@ -815,31 +815,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="303"/>
         <source>Incognito Mode</source>
         <extracomment>Settings page incognito mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modalità incognito</translation>
     </message>
     <message id="whisperfish-settings-incognito-mode-description">
         <location filename="../qml/pages/Settings.qml" line="306"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>La modalità incognito disabilita completamente l&apos;archiviazione. Non vengono salvati allegati né messaggi, i messaggi sono visibili fino al riavvio.</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="314"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Riavvia Whisperfish…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="327"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ridimensiona allegati JPEG</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="330"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ridimensiona gli allegati JPEG per risparmiare sulla larghezza di banda.</translation>
     </message>
     <message id="whisperfish-settings-debug-mode">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -851,7 +851,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="347"/>
         <source>Show debugging information in the user interface.</source>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra le informazioni di debug nell&apos;interfaccia utente.</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="362"/>
@@ -863,7 +863,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="367"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Stato del websocket</translation>
     </message>
     <message id="whisperfish-settings-connected">
         <location filename="../qml/pages/Settings.qml" line="371"/>
@@ -960,14 +960,14 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sconosciuto</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="172"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished">Lascia</translation>
+        <translation>Lascia questo gruppo</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
@@ -980,37 +980,37 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Crea un collegamento di invito</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="227"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Messaggio a %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi ai contatti</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
         <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verifica il numero di sicurezza</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
         <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi da questo gruppo</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
         <location filename="../qml/pages/GroupProfilePage.qml" line="292"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tu</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <source>Group members</source>
@@ -1033,7 +1033,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/FatalErrorPage.qml" line="18"/>
         <source>Please restart Whisperfish. If the problem persists and appears to be an issue with Whisperfish, please report the issue.</source>
         <extracomment>generic hint on what to do after a fatal error occurred (error message will be shown separately)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Si prega di riavviare Whisperfish. Se il problema persiste e sembra essere un problema con Whisperfish, segnala il problema.</translation>
     </message>
     <message id="whisperfish-startup-placeholder-title">
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
@@ -1087,217 +1087,217 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/attachment/AttachmentItemContact.qml" line="22"/>
         <source>Shared contact</source>
         <extracomment>Placeholder shown as title for an attached contact in a message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Contatto condiviso</translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
         <location filename="../qml/components/ChatTextInput.qml" line="149"/>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n allegato</numerusform>
+            <numerusform>%n allegati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
         <location filename="../qml/components/ChatTextInput.qml" line="157"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="unfinished">Ciao %1</translation>
+        <translation>Ciao %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
         <location filename="../qml/components/ChatTextInput.qml" line="161"/>
         <source>Write a message</source>
         <extracomment>Generic placeholder for chat input</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Scrivi un messaggio</translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
         <location filename="../qml/components/ChatTextInput.qml" line="211"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona allegati</translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="278"/>
         <source>and %1 more</source>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>e %1 in più</numerusform>
+            <numerusform>e %1 in più</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
         <location filename="../qml/components/message/InfoRow.qml" line="46"/>
         <source>no time</source>
         <extracomment>Placeholder note if a message doesn&apos;t have a timestamp (which must not happen).</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>senza ora</translation>
     </message>
     <message id="whisperfish-message-show-less">
         <location filename="../qml/components/message/InfoRow.qml" line="83"/>
         <source>show less</source>
         <extracomment>Hint for very long messages, while expanded</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>mostra meno</translation>
     </message>
     <message id="whisperfish-message-show-more">
         <location filename="../qml/components/message/InfoRow.qml" line="86"/>
         <source>show more</source>
         <extracomment>Hint for very long messages, while not expanded</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>mostra di più</translation>
     </message>
     <message id="whisperfish-sender-name-label-outgoing">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="98"/>
         <location filename="../qml/components/SenderNameLabel.qml" line="81"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tu</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished">Allegato</translation>
+        <translation>Allegato</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="169"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>nessun mittente</translation>
     </message>
     <message id="whisperfish-message-empty-note">
         <location filename="../qml/delegates/MessageDelegate.qml" line="220"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>questo messaggio è vuoto</translation>
     </message>
     <message id="whisperfish-service-message-joined-group-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="49"/>
         <source>You joined the group “%1”.</source>
         <extracomment>Service message, %1 = group name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ti sei unito/a al gruppo «%1».</translation>
     </message>
     <message id="whisperfish-service-message-left-group-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="53"/>
         <source>You left the group.</source>
         <extracomment>Service message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hai lasciato il gruppo.</translation>
     </message>
     <message id="whisperfish-service-message-joined-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="57"/>
         <source>%1 joined the group.</source>
         <extracomment>Service message, %1 is the new member&apos;s name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 si è unito/a al gruppo.</translation>
     </message>
     <message id="whisperfish-service-message-left-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="61"/>
         <source>%1 left the group.</source>
         <extracomment>Service message, %1 is is the lost member&apos;s name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 ha lasciato il gruppo.</translation>
     </message>
     <message id="whisperfish-service-message-missed-call-voice">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="65"/>
         <source>You missed a call from %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hai perso una chiamata da %1.</translation>
     </message>
     <message id="whisperfish-service-message-missed-call-video">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="69"/>
         <source>You missed a video call from %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hai perso una videochiamata da %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="73"/>
         <source>You called %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hai chiamato %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-video-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="77"/>
         <source>You started a video call with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hai iniziato una videochiamata con %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="81"/>
         <source>%1 called you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 ti ha chiamato.</translation>
     </message>
     <message id="whisperfish-service-message-call-video-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="85"/>
         <source>%1 started a video call with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 ha iniziato una videochiamata con te.</translation>
     </message>
     <message id="whisperfish-service-message-fingerprint-changed">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
         <source>Your safety number with %1 has changed. Swipe right to verify the new number.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Il tuo numero di sicurezza con %1 è cambiato. Scorri verso destra per verificare il nuovo numero.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="94"/>
         <source>You have reset the secure session with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hai reimpostato la sessione sicura con %1.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="98"/>
         <source>%1 has reset the secure session with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 ha ripristinato la sessione sicura con te.</translation>
     </message>
     <message id="whisperfish-service-message-not-supported">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="103"/>
         <source>This service message is not yet supported by Whisperfish. Please file a bug report. (Type: &apos;%1&apos;.)</source>
         <extracomment>Service message, %1 is an internal message type identifier</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Questo messaggio di servizio non è ancora supportato da Whisperfish. Si prega di inviare una segnalazione di errore. (Tipo: «%1».)</translation>
     </message>
     <message id="whisperfish-service-message-more-info">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
         <source>more information</source>
-        <translation type="unfinished"></translation>
+        <translation>più informazioni</translation>
     </message>
     <message id="whisperfish-contact-card-page-save">
         <location filename="../qml/pages/ContactCardPage.qml" line="53"/>
         <source>Save to address book</source>
         <extracomment>Menu item to save a shared contact to the local address book</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Salva nella rubrica</translation>
     </message>
     <message id="whisperfish-expanded-message-page-header">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
         <source>Full message</source>
         <extracomment>Page title for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Messaggio completo</translation>
     </message>
     <message id="whisperfish-expanded-message-info-outbound">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="34"/>
         <source>to %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>a %1</translation>
     </message>
     <message id="whisperfish-expanded-message-info-inbound">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="37"/>
         <source>from %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>da %1</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
         <location filename="../qml/pages/ViewImagePage.qml" line="242"/>
         <source>Loading image</source>
         <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento dell&apos;immagine</translation>
     </message>
     <message id="whisperfish-view-image-page-error">
         <location filename="../qml/pages/ViewImagePage.qml" line="252"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento fallito</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
         <location filename="../qml/pages/ViewVideoPage.qml" line="105"/>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile riprodurre</translation>
     </message>
 </context>
 </TS>

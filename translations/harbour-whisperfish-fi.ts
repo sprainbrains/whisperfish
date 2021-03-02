@@ -1069,14 +1069,14 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tuntematon</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="172"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished">Poistu ryhmästä</translation>
+        <translation>Poistu ryhmästä</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
@@ -1119,7 +1119,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="292"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sinä</translation>
     </message>
     <message id="whisperfish-group-members-title">
         <source>Group members</source>
@@ -1211,7 +1211,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="157"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="unfinished">Hei, %1</translation>
+        <translation>Hei, %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
         <location filename="../qml/components/ChatTextInput.qml" line="161"/>
@@ -1263,7 +1263,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished">Liite</translation>
+        <translation>Liite</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="169"/>
