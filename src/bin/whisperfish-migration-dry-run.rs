@@ -196,10 +196,6 @@ fn main() -> Result<(), failure::Error> {
     let original_db_location = storage.join("db").join("harbour-whisperfish.db");
     println!("Location of the database: {:?}", original_db_location);
 
-    println!("We now ask you your Whisperfish password.");
-    let password =
-        rpassword::read_password_from_tty(Some("Whisperfish storage password: ")).unwrap();
-
     // Copy the database to /tmp
     let db_location = Path::new("/tmp/wf-migration-dry-run.db");
     std::fs::copy(&original_db_location, db_location)?;
@@ -209,14 +205,23 @@ fn main() -> Result<(), failure::Error> {
 
     let db = SqliteConnection::establish(db_location.to_str().unwrap())?;
     println!("The copy of the database has been opened.");
-    let db_salt_path = storage.join("db").join("salt");
-    let db_key = derive_db_key(&password, &db_salt_path)?;
-    println!("Derived the db key.");
 
-    db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key)))?;
-    db.execute("PRAGMA cipher_page_size = 4096;")?;
+    if let Err(_) = db.execute("SELECT count(*) FROM sqlite_master;") {
+        println!("We now ask you your Whisperfish password.");
+        let password =
+            rpassword::read_password_from_tty(Some("Whisperfish storage password: ")).unwrap();
 
-    println!("The copy of the database has been decrypted.");
+        let db_salt_path = storage.join("db").join("salt");
+        let db_key = derive_db_key(&password, &db_salt_path)?;
+        println!("Derived the db key.");
+
+        db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key)))?;
+        db.execute("PRAGMA cipher_page_size = 4096;")?;
+
+        // Test again whether the db is readable
+        db.execute("SELECT count(*) FROM sqlite_master;")?;
+        println!("The copy of the database has been decrypted.");
+    }
 
     println!("------");
     if let Err(e) = print_original_stats(&db) {
