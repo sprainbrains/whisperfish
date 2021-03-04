@@ -1,5 +1,8 @@
+use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+
+use parking_lot::ReentrantMutex;
 
 use crate::schema::message;
 use crate::schema::sentq;
@@ -200,7 +203,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 
 #[derive(Clone)]
 pub struct Storage {
-    pub db: Arc<Mutex<SqliteConnection>>,
+    pub db: Arc<AssertUnwindSafe<ReentrantMutex<SqliteConnection>>>,
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
     protocol_store: Arc<Mutex<ProtocolStore>>,
@@ -499,7 +502,7 @@ impl Storage {
         .await?;
 
         Ok(Storage {
-            db: Arc::new(Mutex::new(db)),
+            db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             keys,
             protocol_store: Arc::new(Mutex::new(protocol_store)),
             path: path.to_path_buf(),
@@ -525,7 +528,7 @@ impl Storage {
         let protocol_store = ProtocolStore::open_with_key(keys, path).await?;
 
         Ok(Storage {
-            db: Arc::new(Mutex::new(db)),
+            db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             keys,
             protocol_store: Arc::new(Mutex::new(protocol_store)),
             path: path.to_path_buf(),
@@ -667,16 +670,14 @@ impl Storage {
         use crate::schema::session::dsl as schema_dsl;
 
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called create_session()");
 
         let query = diesel::insert_into(schema_dsl::session).values(new_session);
 
-        let res = query.execute(&*conn).expect("inserting a session");
+        let res = query.execute(&*db).expect("inserting a session");
 
         // Then see if the session was inserted ok and what it was
-        drop(conn); // Connection must be dropped because everyone wants a lock here
         let latest_session_res = self.fetch_latest_session();
 
         if res != 1 || latest_session_res.is_none() {
@@ -710,7 +711,6 @@ impl Storage {
     /// Also with better schema design this whole thing would be moot!
     pub fn update_session(&self, db_session: &Session, new_session: &NewSession, is_unread: bool) {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called update_session()");
 
@@ -722,7 +722,7 @@ impl Storage {
             session::received.eq(new_session.received),
             session::has_attachment.eq(new_session.has_attachment),
         ));
-        query.execute(&*conn).expect("updating session");
+        query.execute(&*db).expect("updating session");
 
         if let Some(ref members) = &new_session.group_members {
             if !members.is_empty() {
@@ -731,7 +731,7 @@ impl Storage {
                         session::group_members.eq(&new_session.group_members),
                         session::is_group.eq(true),
                     ));
-                query.execute(&*conn).expect("updating group members");
+                query.execute(&*db).expect("updating group members");
             }
         }
 
@@ -742,7 +742,7 @@ impl Storage {
                         session::group_name.eq(&new_session.group_name),
                         session::is_group.eq(true),
                     ));
-                query.execute(&*conn).expect("updating group name");
+                query.execute(&*db).expect("updating group name");
             }
         }
     }
@@ -756,11 +756,11 @@ impl Storage {
         let session = self.fetch_session(message.sid)?;
         log::trace!("mark_message_received: {:?}", session);
 
-        let conn = self.db.lock().unwrap();
-        conn.transaction(|| -> Result<_, diesel::result::Error> {
+        let db = self.db.lock();
+        db.transaction(|| -> Result<_, diesel::result::Error> {
             diesel::update(message::table.filter(message::id.eq(&message.id)))
                 .set(message::received.eq(true))
-                .execute(&*conn)?;
+                .execute(&*db)?;
 
             diesel::update(
                 session::table.filter(
@@ -770,7 +770,7 @@ impl Storage {
                 ),
             )
             .set(session::received.eq(true))
-            .execute(&*conn)?;
+            .execute(&*db)?;
             Ok(())
         })
         .expect("update received state");
@@ -783,62 +783,57 @@ impl Storage {
     /// It needs to be locked from the outside because sqlite sucks.
     pub fn fetch_latest_session(&self) -> Option<Session> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called fetch_latest_session()");
         session::table
             .order_by(session::columns::id.desc())
-            .first(&*conn)
+            .first(&*db)
             .ok()
     }
 
     pub fn fetch_session(&self, sid: i32) -> Option<Session> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called fetch_session({})", sid);
         session::table
             .filter(session::columns::id.eq(sid))
-            .first(&*conn)
+            .first(&*db)
             .ok()
     }
 
     pub fn fetch_session_by_source(&self, source: &str) -> Option<Session> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called fetch_session_by_source({})", source);
         session::table
             .filter(session::columns::source.eq(source))
-            .first(&*conn)
+            .first(&*db)
             .ok()
     }
 
     pub fn fetch_session_by_group(&self, group_id: &str) -> Option<Session> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called fetch_session_by_group({})", group_id);
         session::table
             .filter(session::columns::group_id.eq(group_id))
-            .first(&*conn)
+            .first(&*db)
             .ok()
     }
 
     pub fn delete_session(&self, id: i32) {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called delete_session({})", id);
 
         // Preserve the Go order of deleting things
-        conn.transaction(|| -> Result<_, diesel::result::Error> {
+        db.transaction(|| -> Result<_, diesel::result::Error> {
             // SessioN
             // `delete from session where id = ?`
             let query = diesel::delete(session::table.filter(session::columns::id.eq(id)));
             let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
             log::trace!("{:?}", debug);
-            query.execute(&*conn)?;
+            query.execute(&*db)?;
 
             // SentQ
             // `delete from sentq where message_id in (select id from message where session_id = ?)`
@@ -859,26 +854,26 @@ impl Storage {
             for msg_id in message::table
                 .select(message::columns::id)
                 .filter(message::columns::session_id.eq(id))
-                .load::<i32>(&*conn)
+                .load::<i32>(&*db)
                 .unwrap()
             {
                 let query =
                     diesel::delete(sentq::table.filter(sentq::columns::message_id.eq(msg_id)));
                 let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
                 log::trace!("{:?}", debug);
-                query.execute(&*conn)?;
+                query.execute(&*db)?;
             }
 
             let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
             log::trace!("{:?}", debug);
-            query.execute(&*conn)?;
+            query.execute(&*db)?;
 
             // Messages
             // `delete from message where session_id = ?`
             let query = diesel::delete(message::table.filter(message::columns::session_id.eq(id)));
             let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
             log::trace!("{:?}", debug);
-            query.execute(&*conn)?;
+            query.execute(&*db)?;
 
             Ok(())
         })
@@ -887,13 +882,12 @@ impl Storage {
 
     pub fn mark_session_read(&self, sess: &Session) {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called mark_session_read({})", sess.id);
 
         diesel::update(session::table.filter(session::id.eq(sess.id)))
             .set((session::unread.eq(false),))
-            .execute(&*conn)
+            .execute(&*db)
             .expect("Mark session read");
     }
 
@@ -902,7 +896,6 @@ impl Storage {
     /// This is because during development messages may come in partially
     fn update_message_if_needed(&self, new_message: &NewMessage) -> Option<Message> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!(
             "Called update_message_if_needed({})",
@@ -932,7 +925,7 @@ impl Storage {
             .filter(message::columns::timestamp.eq(new_message.timestamp))
             .filter(message::columns::text.eq(&new_message.text))
             .order_by(message::columns::id.desc())
-            .first(&*conn)
+            .first(&*db)
             .ok()?;
 
         // Do not update `(session_id, timestamp, message)` because that's considered unique
@@ -955,7 +948,7 @@ impl Storage {
                 message::outgoing.eq(new_message.outgoing),
             ));
 
-            query.execute(&*conn).expect("updating message");
+            query.execute(&*db).expect("updating message");
 
             // Also update the message we got from the db to match what was updated
             msg.sent = new_message.sent;
@@ -974,7 +967,6 @@ impl Storage {
         // XXX: multiple attachments https://gitlab.com/rubdos/whisperfish/-/issues/11
 
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         diesel::update(message::table.filter(message::id.eq(mid)))
             .set((
@@ -982,7 +974,7 @@ impl Storage {
                 message::has_attachment.eq(true),
                 message::attachment.eq(path),
             ))
-            .execute(&*conn)
+            .execute(&*db)
             .expect("set attachment");
     }
 
@@ -991,16 +983,14 @@ impl Storage {
         use crate::schema::message::dsl as schema_dsl;
 
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called create_message()");
 
         let query = diesel::insert_into(schema_dsl::message).values(new_message);
 
-        let res = query.execute(&*conn).expect("inserting a message");
+        let res = query.execute(&*db).expect("inserting a message");
 
         // Then see if the message was inserted ok and what it was
-        drop(conn); // Connection must be dropped because everyone wants a lock here
         let latest_message_res = self.fetch_latest_message();
 
         if res != 1 || latest_message_res.is_none() {
@@ -1034,7 +1024,6 @@ impl Storage {
     /// It needs to be locked from the outside because sqlite sucks.
     pub fn fetch_latest_message(&self) -> Option<Message> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called fetch_latest_message()");
         message::table
@@ -1057,13 +1046,12 @@ impl Storage {
                 ),
             ))
             .order_by(message::columns::id.desc())
-            .first(&*conn)
+            .first(&*db)
             .ok()
     }
 
     pub fn fetch_message_by_timestamp(&self, ts: NaiveDateTime) -> Option<Message> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         // Even a single message needs to know if it's queued to satisfy the `Message` trait
         log::trace!("Called fetch_message_by_timestamp({})", ts);
@@ -1091,12 +1079,11 @@ impl Storage {
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        query.first(&*conn).ok()
+        query.first(&*db).ok()
     }
 
     pub fn fetch_message(&self, id: i32) -> Option<Message> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         // Even a single message needs to know if it's queued to satisfy the `Message` trait
         log::trace!("Called fetch_message({})", id);
@@ -1124,12 +1111,11 @@ impl Storage {
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        query.first(&*conn).ok()
+        query.first(&*db).ok()
     }
 
     pub fn fetch_all_messages(&self, sid: i32) -> Option<Vec<Message>> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called fetch_all_messages({})", sid);
         let query = message::table
@@ -1157,12 +1143,11 @@ impl Storage {
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        query.load::<Message>(&*conn).ok()
+        query.load::<Message>(&*db).ok()
     }
 
     pub fn delete_message(&self, id: i32) -> Option<usize> {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         log::trace!("Called delete_message({})", id);
 
@@ -1172,29 +1157,27 @@ impl Storage {
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        query.execute(&*conn).ok()
+        query.execute(&*db).ok()
     }
 
     pub fn queue_message(&self, msg: &Message) {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         diesel::insert_into(sentq::table)
             .values((
                 sentq::message_id.eq(msg.id),
                 sentq::timestamp.eq(msg.timestamp),
             ))
-            .execute(&*conn)
+            .execute(&*db)
             .unwrap();
     }
 
     pub fn dequeue_message(&self, mid: i32) {
         let db = self.db.lock();
-        let conn = db.unwrap();
 
         diesel::delete(sentq::table)
             .filter(sentq::message_id.eq(mid))
-            .execute(&*conn)
+            .execute(&*db)
             .unwrap();
     }
 

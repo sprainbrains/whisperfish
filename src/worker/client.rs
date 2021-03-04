@@ -289,8 +289,7 @@ impl ClientActor {
                         use crate::schema::session::dsl::*;
                         use diesel::prelude::*;
                         let db = storage.db
-                            .lock()
-                            .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                            .lock();
                         session.order_by(timestamp.desc()).load(&*db)?
                     };
 
@@ -315,8 +314,7 @@ impl ClientActor {
                         use crate::schema::session::dsl::*;
                         use diesel::prelude::*;
                         let db = storage.db
-                            .lock()
-                            .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                            .lock();
                         session.order_by(timestamp.desc()).load(&*db)?
                     };
 

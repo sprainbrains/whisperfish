@@ -1077,6 +1077,7 @@ dependencies = [
  "libsqlite3-sys",
  "log",
  "mime_guess",
+ "parking_lot",
  "pbkdf2",
  "phonenumber",
  "pin-utils",

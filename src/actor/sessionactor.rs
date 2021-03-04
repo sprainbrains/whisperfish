@@ -145,9 +145,7 @@ impl Handler<LoadAllSessions> for SessionActor {
 
         actix::spawn(async move {
             let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
-                let db = db
-                    .lock()
-                    .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
+                let db = db.lock();
                 use crate::schema::session::dsl::*;
                 Ok(session.order_by(timestamp.desc()).load(&*db)?)
             })
