@@ -330,12 +330,12 @@
     <message id="whisperfish-delete-message">
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation type="vanished">Löschen&#xa0;…</translation>
+        <translation type="vanished">Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation type="vanished">Neuer Versand&#xa0;…</translation>
+        <translation type="vanished">Neuer Versand …</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
@@ -943,7 +943,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten&#xa0;…</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -1478,7 +1478,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="290"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nachrichteninformationen anzeigen</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
