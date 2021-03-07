@@ -328,55 +328,82 @@
         <translation type="vanished">群组:%1</translation>
     </message>
     <message id="whisperfish-delete-message">
-        <location filename="../qml/components/MessagesView.qml" line="195"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>正在删除</translation>
+        <translation type="vanished">正在删除</translation>
     </message>
     <message id="whisperfish-resend-message">
-        <location filename="../qml/components/MessagesView.qml" line="205"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>正在重新发送</translation>
+        <translation type="vanished">正在重新发送</translation>
+    </message>
+    <message id="whisperfish-remorse-deleted-messages-locally">
+        <location filename="../qml/components/MessagesView.qml" line="141"/>
+        <source>Locally deleted %1 messages</source>
+        <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-react-message-menu">
+        <location filename="../qml/components/MessagesView.qml" line="366"/>
+        <source>React</source>
+        <extracomment>React with emoji to message menu item</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="237"/>
+        <location filename="../qml/components/MessagesView.qml" line="380"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>复制</translation>
     </message>
+    <message id="whisperfish-forward-message-menu">
+        <location filename="../qml/components/MessagesView.qml" line="387"/>
+        <source>Forward</source>
+        <extracomment>Forward message menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-select-or-options-message-menu">
+        <location filename="../qml/components/MessagesView.qml" line="394"/>
+        <source>Select • more</source>
+        <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-open-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="244"/>
         <source>Open</source>
         <extracomment>Open attachment message menu item</extracomment>
-        <translation>打开</translation>
+        <translation type="vanished">打开</translation>
     </message>
     <message id="whisperfish-delete-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="251"/>
         <source>Delete</source>
         <extracomment>Delete message menu item</extracomment>
-        <translation>删除</translation>
+        <translation type="vanished">删除</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="258"/>
-        <source>Resend</source>
+        <location filename="../qml/components/MessagesView.qml" line="373"/>
+        <source>Retry sending</source>
+        <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation>重新发送</translation>
+        <translation type="unfinished">重新发送</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="18"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>重置安全会话</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="23"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
         <translation>正在重置安全会话</translation>
     </message>
+    <message id="whisperfish-show-contact-page-menu">
+        <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
+        <source>Show contact</source>
+        <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>如果你希望使用 %1 验证你的端对端加密，请比较上方数字及对方设备上的数字。</translation>
@@ -1059,7 +1086,7 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Signal 会以文本形式发送给你6位验证码。请在此输入。</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="53"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
@@ -1237,7 +1264,7 @@ Settings page share contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
-        <location filename="../qml/components/message/AttachmentsLoader.qml" line="278"/>
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="285"/>
         <source>and %1 more</source>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation type="unfinished">
@@ -1276,13 +1303,13 @@ Settings page share contacts</extracomment>
         <translation type="unfinished">附件</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="169"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="177"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="220"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="232"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation type="unfinished"></translation>
@@ -1417,6 +1444,60 @@ Settings page share contacts</extracomment>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-message-actions-info-label" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="248"/>
+        <source>%1 message(s) selected</source>
+        <extracomment>Info label shown while selecting messages</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-message-action-clear-selection" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="272"/>
+        <source>Clear selection</source>
+        <extracomment>Message action description, shown if one or more messages are selected</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-message-action-copy" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="281"/>
+        <source>Copy %1 message(s)</source>
+        <extracomment>Message action description</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-message-action-info">
+        <location filename="../qml/pages/ConversationPage.qml" line="290"/>
+        <source>Show message info</source>
+        <extracomment>Message action description (only available if n==1)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-message-action-delete-for-self" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="304"/>
+        <source>Delete %1 message(s) for me</source>
+        <extracomment>Message action description</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-message-action-delete-for-all" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="314"/>
+        <source>Delete %1 message(s) for all</source>
+        <extracomment>Message action description</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message id="whisperfish-message-action-resend" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="327"/>
+        <source>Retry sending (the) failed message(s)</source>
+        <extracomment>Message action description</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 </TS>
