@@ -341,13 +341,13 @@
         <location filename="../qml/components/MessagesView.qml" line="141"/>
         <source>Locally deleted %1 messages</source>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Místně odstraněné %1 zprávy</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reagovat</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="380"/>
@@ -359,13 +359,13 @@
         <location filename="../qml/components/MessagesView.qml" line="387"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Přeposlat</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="394"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vyberte • další</translation>
     </message>
     <message id="whisperfish-open-message-menu">
         <source>Open</source>
@@ -400,7 +400,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazit kontakt</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
@@ -900,13 +900,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Minimise notifications</source>
         <extracomment>Settings page notifications show minimum number of notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Minimalizovat oznámení</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise-description">
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokud je zapnutá, Whisperfish potlačí všechna oznámení z každé relace kromě prvního.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
@@ -1450,66 +1450,66 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="248"/>
         <source>%1 message(s) selected</source>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 vybraná zpráva</numerusform>
+            <numerusform>%1 vybrané zprávy</numerusform>
+            <numerusform>%1 vybraných zpráv</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="272"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Vymazat výběr</numerusform>
+            <numerusform>Vymazat výběr</numerusform>
+            <numerusform>Vymazat výběr</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="281"/>
         <source>Copy %1 message(s)</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Kopírovat %1 zprávu</numerusform>
+            <numerusform>Kopírovat %1 zprávy</numerusform>
+            <numerusform>Kopírovat %1 zpráv</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
         <location filename="../qml/pages/ConversationPage.qml" line="290"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazit informace o zprávě</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
         <source>Delete %1 message(s) for me</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Odstranit %1 zprávu</numerusform>
+            <numerusform>Odstranit %1 zprávy</numerusform>
+            <numerusform>Odstranit %1 zpráv</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="314"/>
         <source>Delete %1 message(s) for all</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Odstranit %1 zprávu pro všechny</numerusform>
+            <numerusform>Odstranit %1 zprávy pro všechny</numerusform>
+            <numerusform>Odstranit %1 zpráv pro všechny</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="327"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Opakovat odeslání zprávy se nezdařilo</numerusform>
+            <numerusform>Opakovat odeslání zprávy se nezdařilo</numerusform>
+            <numerusform>Opakovat odeslání zprávy se nezdařilo</numerusform>
         </translation>
     </message>
 </context>
