@@ -830,7 +830,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation type="unfinished">Liitteet tallennetaan sijaintiin %1</translation>
+        <translation>Liitteet tallennetaan sijaintiin %1. Valinnan on oltava päällä, jotta liitteiden vastaanottaminen toimii.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="232"/>
@@ -874,13 +874,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Minimise notifications</source>
         <extracomment>Settings page notifications show minimum number of notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vähennä ilmoitusten määrää</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise-description">
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Asetuksen ollessa valittuna Whisperfish näyttää vain istunnon ensimmäisen ilmoituksen.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
@@ -1101,31 +1101,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Luo kutsulinkki</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="227"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lähetä viesti käyttäjälle %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lisää osoitekirjaan</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
         <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tarkasta turvanumero</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
         <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Poista ryhmästä</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
         <location filename="../qml/pages/GroupProfilePage.qml" line="292"/>
@@ -1208,15 +1208,15 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/attachment/AttachmentItemContact.qml" line="22"/>
         <source>Shared contact</source>
         <extracomment>Placeholder shown as title for an attached contact in a message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Jaettu kontakti</translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
         <location filename="../qml/components/ChatTextInput.qml" line="149"/>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n liite</numerusform>
+            <numerusform>%n liitettä</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1229,47 +1229,47 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="161"/>
         <source>Write a message</source>
         <extracomment>Generic placeholder for chat input</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kirjoita viesti</translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
         <location filename="../qml/components/ChatTextInput.qml" line="211"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Valitse liitteet</translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="278"/>
         <source>and %1 more</source>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>ja %1 muu</numerusform>
+            <numerusform>ja %1 muuta</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
         <location filename="../qml/components/message/InfoRow.qml" line="46"/>
         <source>no time</source>
         <extracomment>Placeholder note if a message doesn&apos;t have a timestamp (which must not happen).</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ei aikaleimaa</translation>
     </message>
     <message id="whisperfish-message-show-less">
         <location filename="../qml/components/message/InfoRow.qml" line="83"/>
         <source>show less</source>
         <extracomment>Hint for very long messages, while expanded</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>näytä vähemmän</translation>
     </message>
     <message id="whisperfish-message-show-more">
         <location filename="../qml/components/message/InfoRow.qml" line="86"/>
         <source>show more</source>
         <extracomment>Hint for very long messages, while not expanded</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>näytä enemmän</translation>
     </message>
     <message id="whisperfish-sender-name-label-outgoing">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="98"/>
         <location filename="../qml/components/SenderNameLabel.qml" line="81"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
-        <translation type="unfinished">Sinä</translation>
+        <translation>Sinä</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
@@ -1281,73 +1281,73 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/MessageDelegate.qml" line="169"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ei lähettäjää</translation>
     </message>
     <message id="whisperfish-message-empty-note">
         <location filename="../qml/delegates/MessageDelegate.qml" line="220"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>viesti on tyhjä</translation>
     </message>
     <message id="whisperfish-service-message-joined-group-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="49"/>
         <source>You joined the group “%1”.</source>
         <extracomment>Service message, %1 = group name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Liityit ryhmään &quot;%1&quot;.</translation>
     </message>
     <message id="whisperfish-service-message-left-group-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="53"/>
         <source>You left the group.</source>
         <extracomment>Service message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Poistuit ryhmästä.</translation>
     </message>
     <message id="whisperfish-service-message-joined-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="57"/>
         <source>%1 joined the group.</source>
         <extracomment>Service message, %1 is the new member&apos;s name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 liittyi ryhmään.</translation>
     </message>
     <message id="whisperfish-service-message-left-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="61"/>
         <source>%1 left the group.</source>
         <extracomment>Service message, %1 is is the lost member&apos;s name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 poistui ryhmästä.</translation>
     </message>
     <message id="whisperfish-service-message-missed-call-voice">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="65"/>
         <source>You missed a call from %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vastaamaton puhelu: %1</translation>
     </message>
     <message id="whisperfish-service-message-missed-call-video">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="69"/>
         <source>You missed a video call from %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vastaamaton videopuhelu: %1</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="73"/>
         <source>You called %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Soitit käyttäjälle %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-video-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="77"/>
         <source>You started a video call with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aloitit videopuhelun käyttäjän %1 kanssa.</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="81"/>
         <source>%1 called you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 soitti sinulle.</translation>
     </message>
     <message id="whisperfish-service-message-call-video-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="85"/>
         <source>%1 started a video call with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 aloitti videopuhelun kanssasi.</translation>
     </message>
     <message id="whisperfish-service-message-fingerprint-changed">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
@@ -1376,49 +1376,49 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-service-message-more-info">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
         <source>more information</source>
-        <translation type="unfinished"></translation>
+        <translation>lisätietoja</translation>
     </message>
     <message id="whisperfish-contact-card-page-save">
         <location filename="../qml/pages/ContactCardPage.qml" line="53"/>
         <source>Save to address book</source>
         <extracomment>Menu item to save a shared contact to the local address book</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tallenna osoitekirjaan</translation>
     </message>
     <message id="whisperfish-expanded-message-page-header">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
         <source>Full message</source>
         <extracomment>Page title for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Koko viesti</translation>
     </message>
     <message id="whisperfish-expanded-message-info-outbound">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="34"/>
         <source>to %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vastaanottaja: %1</translation>
     </message>
     <message id="whisperfish-expanded-message-info-inbound">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="37"/>
         <source>from %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>lähettäjä: %1</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
         <location filename="../qml/pages/ViewImagePage.qml" line="242"/>
         <source>Loading image</source>
         <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ladataan kuvaa</translation>
     </message>
     <message id="whisperfish-view-image-page-error">
         <location filename="../qml/pages/ViewImagePage.qml" line="252"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lataus epäonnistui</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
         <location filename="../qml/pages/ViewVideoPage.qml" line="105"/>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Videon toisto epäonnistui.</translation>
     </message>
 </context>
 </TS>

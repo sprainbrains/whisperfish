@@ -797,13 +797,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Minimise notifications</source>
         <extracomment>Settings page notifications show minimum number of notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Riduci le notifiche</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise-description">
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Se attivato, Whisperfish sopprimerà tutte le notifiche di ogni sessione tranne la prima.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>

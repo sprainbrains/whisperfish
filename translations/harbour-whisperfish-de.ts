@@ -331,13 +331,13 @@
         <location filename="../qml/components/MessagesView.qml" line="195"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen&#xa0;…</translation>
+        <translation>Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/components/MessagesView.qml" line="205"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Neuer Versand&#xa0;…</translation>
+        <translation>Neuer Versand …</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="237"/>
@@ -379,7 +379,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obrigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
+        <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="59"/>
@@ -391,7 +391,7 @@
         <location filename="../qml/pages/NewMessage.qml" line="64"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
-        <translation>Bitte legen Sie in den Einstellungen einen Ländercode fest oder verwenden Sie das internationale Format.</translation>
+        <translation>Bitte lege in den Einstellungen einen Ländercode fest oder verwende das internationale Format.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
         <location filename="../qml/pages/NewMessage.qml" line="68"/>
@@ -654,7 +654,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="38"/>
         <source>Please retry with a valid phone number.</source>
         <extracomment>new registration prompt text asking to retry</extracomment>
-        <translation>Bitte versuchen Sie es erneut mit einer gültigen Telefonnummer.</translation>
+        <translation>Bitte versuche es erneut mit einer gültigen Telefonnummer.</translation>
     </message>
     <message id="whisperfish-registration-phone-number-prefix">
         <location filename="../qml/pages/RegisterPage.qml" line="76"/>
@@ -874,13 +874,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Minimise notifications</source>
         <extracomment>Settings page notifications show minimum number of notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Benachrichtigungen minimieren</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise-description">
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wenn diese Option aktiviert ist, minimiert Whisperfish alle Benachrichtigungen außer der ersten von jeder Sitzung.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
@@ -916,7 +916,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten&#xa0;…</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>

@@ -873,13 +873,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Minimise notifications</source>
         <extracomment>Settings page notifications show minimum number of notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bildirimleri küçült</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise-description">
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Açılırsa, Whisperfish her oturumdan yalnızca ilk bildirimi gösterecektir.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
@@ -1213,6 +1213,7 @@ Settings page share contacts</extracomment>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
             <numerusform>%n ek</numerusform>
+            <numerusform>%n ek</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1238,6 +1239,7 @@ Settings page share contacts</extracomment>
         <source>and %1 more</source>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>ve %1 tane daha</numerusform>
             <numerusform>ve %1 tane daha</numerusform>
         </translation>
     </message>
