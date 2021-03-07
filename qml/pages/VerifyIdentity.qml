@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import Sailfish.TextLinking 1.0
 
 Page {
     id: verifyIdentity
@@ -26,6 +27,14 @@ Page {
                             MessageModel.endSession(MessageModel.peerTel)
                         })
                 }
+            }
+            MenuItem {
+                //: Show a peer's system contact page (menu item)
+                //% "Show contact"
+                text: qsTrId("whisperfish-show-contact-page-menu")
+                // TODO maybe: replace with a custom link handler
+                onClicked: phoneNumberLinker.linkActivated('tel:'+MessageModel.peerTel)
+                LinkedText { id: phoneNumberLinker; visible: false }
             }
         }
 
