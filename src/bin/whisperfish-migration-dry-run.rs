@@ -8,10 +8,23 @@ use std::path::Path;
 
 use diesel::dsl::*;
 use diesel::prelude::*;
+use diesel::sql_types::*;
 use harbour_whisperfish::store;
 
 #[path = "../../tests/migrations/schemas/mod.rs"]
 pub mod schemas;
+
+#[derive(Queryable, QueryableByName, Debug)]
+pub struct ForeignKeyViolation {
+    #[sql_type = "Text"]
+    table: String,
+    #[sql_type = "Integer"]
+    rowid: i32,
+    #[sql_type = "Text"]
+    parent: String,
+    #[sql_type = "Integer"]
+    fkid: i32,
+}
 
 embed_migrations!();
 
@@ -228,6 +241,10 @@ fn main() -> Result<(), failure::Error> {
         println!("Could not print \"original schema\" statistics: {}", e);
     }
 
+    // We set the foreign key enforcement *off*,
+    // such that we can print violations later.
+    db.execute("PRAGMA foreign_keys = OFF;").unwrap();
+
     println!("------");
     let start = std::time::Instant::now();
     embedded_migrations::run(&db).unwrap();
@@ -239,6 +256,18 @@ fn main() -> Result<(), failure::Error> {
     println!("------");
     println!("Here above, the dry run should have produced at least two sets of statistics of your data.");
     println!("These should give a decent indication to whether some data has been lost. Please report a bug if so.");
+
+    let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA foreign_key_check;")
+        .load(&db)
+        .unwrap();
+
+    if violations.len() > 0 {
+        println!(
+            "In worse news: there are foreign key violations. Here the are: {:?}",
+            violations
+        );
+        println!("This is definitely a bug. Please report. REPORT REPORT.");
+    }
 
     Ok(())
 }
