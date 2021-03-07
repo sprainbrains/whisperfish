@@ -14,6 +14,9 @@ Page {
     property bool isGroup: MessageModel.group
     property var contact: isGroup ? null : resolvePeopleModel.personByPhoneNumber(MessageModel.peerTel, true)
     property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : MessageModel.peerTel)
+    property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
+
+    property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
@@ -97,7 +100,10 @@ Page {
         model: MessageModel
         clip: true // to prevent the view from flowing through the page header
         headerPositioning: ListView.InlineHeader
-        header: Item { height: panel.height; width: messages.width }
+        header: Item {
+            height: activePanel.height; width: messages.width
+            Behavior on height { NumberAnimation { duration: 150 } }
+        }
 
         onAtYEndChanged: panel.show()
         onMenuOpenChanged: panel.open = !messages.menuOpen
@@ -115,13 +121,25 @@ Page {
             // TODO use message id instead of index
             jumpToMessage(quotedData.index)
         }
+        onIsSelectingChanged: {
+            if (isSelecting && !selectionBlocked) actionsPanel.show()
+            else actionsPanel.hide()
+        }
+        onSelectedCountChanged: {
+            if (selectedCount > 0 && !selectionBlocked) actionsPanel.show()
+            else actionsPanel.hide()
+        }
+        onSelectionBlockedChanged: {
+            if (selectionBlocked) actionsPanel.hide()
+            else if (isSelecting) actionsPanel.show()
+        }
     }
 
     OpacityRampEffect {
         sourceItem: messages
         direction: OpacityRamp.TopToBottom
         slope: sourceItem.height
-        offset: 1-(panel.visibleSize/sourceItem.height)
+        offset: 1-(activePanel.visibleSize/sourceItem.height)
         enabled: !sourceItem.quickScrollAnimating &&
                  !sourceItem.menuOpen
     }
@@ -129,7 +147,8 @@ Page {
     DockedPanel {
         id: panel
         background: null // transparent
-        opacity: (messages.menuOpen || messages.quickScrollAnimating) ? 0.0 : 1.0
+        opacity: (actionsPanel.visibleSize > 0 || messages.menuOpen ||
+                  messages.quickScrollAnimating) ? 0.0 : 1.0
         width: parent.width
         height: textInput.height
         open: true
@@ -165,6 +184,150 @@ Page {
                 for (var i = 1; i < attachments.length; i++) {
                     sid = MessageModel.createMessage(MessageModel.peerTel, '', '', attachments[i].data, true)
                     if (sid > 0) SessionModel.add(sid, true) // update session model
+                }
+            }
+        }
+    }
+
+    DockedPanel {
+        id: actionsPanel
+        background: null // transparent
+        opacity: (messages.menuOpen || messages.quickScrollAnimating) ? 0.0 : 1.0
+        width: parent.width
+        height: actionsColumn.height + 2*Theme.horizontalPageMargin
+        open: false
+        dock: Dock.Bottom
+        onOpenChanged: if (open) panel.hide()
+
+        Behavior on opacity { FadeAnimator { duration: 80 } }
+
+        Separator {
+            opacity: messages.atYEnd ? 0.0 : Theme.opacityHigh
+            color: Theme.secondaryHighlightColor
+            horizontalAlignment: Qt.AlignHCenter
+            anchors {
+                left: parent.left; leftMargin: Theme.horizontalPageMargin
+                right: parent.right; rightMargin: Theme.horizontalPageMargin
+                top: parent.top
+            }
+            Behavior on opacity { FadeAnimator { } }
+        }
+
+        // ITEMS:
+        // . = always visible
+        // * = conditionally visible
+
+        // -- CONTEXT MENU:
+        // 0* resend        [if failed]
+        // 1* react         [if not failed]
+        // 2. copy
+        // 3* forward       [if not failed]
+        // 4. select · more
+
+        // -- PANEL:
+        // 1. clear selection
+        // 2. copy
+        // 3* info          [if only one selected]
+        // 4. delete for me
+        // 5. delete for all
+        // 6* resend        [if at least one failed]
+
+        Column {
+            id: actionsColumn
+            spacing: Theme.paddingLarge
+            height: childrenRect.height
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left; right: parent.right
+            }
+
+            InfoHintLabel {
+                id: infoLabel
+                //: Info label shown while selecting messages
+                //% "%1 message(s) selected"
+                defaultMessage: qsTrId("whisperfish-message-actions-info-label",
+                                       _selectedCount).arg(messages.selectedCount)
+            }
+
+            // IMPORTANT:
+            // - Both horizontal and vertical space may be very limited.
+            //   There should never be more than two rows, and each row should
+            //   contain at max. 4 icons at a time.
+            // - Icons should always keep the same position so users can tap without looking.
+            //   Entries may be hidden if they are at the sides and are seldomly used.
+            //   Nothing should take the place of a hidden entry but there must not be any gaps.
+            //   Entries that are conditionally unavailable should be deactivated, not hidden.
+            //
+            // TODO it may make sense to combine both rows into one in horizontal mode
+
+            Row {
+                spacing: Theme.paddingLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-clear"
+                    //: Message action description, shown if one or more messages are selected
+                    //% "Clear selection"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-clear-selection",
+                                                 _selectedCount))
+                    onClicked: messages.resetSelection()
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "../../icons/icon-m-copy.png"
+                    //: Message action description
+                    //% "Copy %1 message(s)"
+                    onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-copy",
+                                                                  _selectedCount).arg(_selectedCount))
+                    onClicked: messages.messageAction(messages.copySelected)
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-about"
+                    //: Message action description (only available if n==1)
+                    //% "Show message info"
+                    onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-info"))
+                    enabled: _selectedCount === 1
+                    onClicked: messages.messageAction(messages.showMessageInfo)
+                }
+            }
+            Row {
+                spacing: Theme.paddingLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-delete"
+                    //: Message action description
+                    //% "Delete %1 message(s) for me"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-delete-for-self",
+                                                 _selectedCount).arg(_selectedCount))
+                    onClicked: messages.messageAction(messages.deleteSelectedForSelf)
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "../../icons/icon-m-delete-all.png"
+                    //: Message action description
+                    //% "Delete %1 message(s) for all"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-delete-for-all",
+                                                 _selectedCount).arg(_selectedCount))
+                    onClicked: messages.messageAction(messages.deleteSelectedForAll)
+                    enabled: false // TODO enable once implemented
+                }
+
+                // TODO find a way to count failed messages in the current selection
+                IconButton {
+                    width: visible ? Theme.itemSizeSmall : 0; height: width
+                    icon.source: "image://theme/icon-m-refresh"
+                    //: Message action description
+                    //% "Retry sending (the) failed message(s)"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-resend", _selectedCount))
+                    visible: false // TODO show if at least one message is failed
+                                   // NOTE this action should be *hidden* if it is not applicable
+                    onClicked: messages.messageAction(messages.resendSelected)
                 }
             }
         }

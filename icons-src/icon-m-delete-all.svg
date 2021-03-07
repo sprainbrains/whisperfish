@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="svg8" width="64" height="64" version="1.1" viewBox="0 0 16.933 16.933" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <metadata id="metadata2">
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Mirian Margiani / Jolla</dc:title>
+     </cc:Agent>
+    </dc:creator>
+    <dc:date>2021</dc:date>
+    <cc:license rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
+    <dc:source>created after and adapted based on "icon-m-delete" by Jolla</dc:source>
+   </cc:Work>
+   <cc:License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+   </cc:License>
+  </rdf:RDF>
+ </metadata>
+ <path id="path855" d="m7.0258 3.8275c-0.39953 0-0.72342-0.32388-0.72342-0.72342 0-0.39953 0.32388-0.72342 0.72342-0.72342h5.8793c0.39953 0 0.72342 0.32388 0.72342 0.72342 0 0.39953-0.32388 0.72342-0.72342 0.72342z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width=".52916"/>
+ <path id="path861" d="m7.0784 3.8521v1.4124m3.9395 5.2995h1.2842c0.31609 0 0.57233-0.25108 0.57233-0.56081v-6.1449" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path863" d="m11.484 4.5626v4.7081" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path891" d="m4.0279 7.8442c-0.39953 0-0.72342-0.32388-0.72342-0.72342s0.32388-0.72342 0.72342-0.72342h5.8793c0.39953 0 0.72342 0.32388 0.72342 0.72342s-0.32388 0.72342-0.72342 0.72342z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width=".52916"/>
+ <path id="path893" d="m4.0802 7.8404v6.1511c0 0.30973 0.25624 0.56081 0.57233 0.56081h4.6514c0.31609 0 0.57233-0.25108 0.57233-0.56081v-6.1449" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path895" d="m8.4856 9.08v4.2073" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path899" d="m6.9833 9.08v4.2073" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path903" d="m5.481 9.08v4.2073" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path913" d="m9.9813 4.5626v0.70189" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+ <path id="path917" d="m8.4789 4.5626v0.70189" fill="none" stroke="#fff" stroke-linejoin="round" stroke-opacity=".50196" stroke-width=".52916"/>
+</svg>

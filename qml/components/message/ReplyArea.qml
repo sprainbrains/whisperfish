@@ -7,9 +7,9 @@ import Sailfish.Silica 1.0
 MouseArea {
     id: replyArea
     enabled: !isEmpty
-    property bool down: pressed && containsPress && !menuOpen
+    property bool down: (pressed && containsPress && !menuOpen) || isSelected
 
-    onPressAndHold: root.openMenu()
+    onPressAndHold: handleExternalPressAndHold(mouse)
     onClicked: {
         if (replySignal) replySignal(index, modelData)
         else console.error("reply requested but not signal specified")
@@ -23,6 +23,7 @@ MouseArea {
         anchors.verticalCenter: parent.verticalCenter
         opacity: replyHintBackground.opacity
         enabled: false
+        visible: down && !isSelected
         color: Theme.secondaryColor
         anchors.margins: Theme.horizontalPageMargin
     }

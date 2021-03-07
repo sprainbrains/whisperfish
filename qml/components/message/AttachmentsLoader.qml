@@ -23,8 +23,8 @@ Loader {
     readonly property int maxDetails: 2
     readonly property int maxThumbs: 5
 
-    signal _pressAndHold
-    on_PressAndHold: openMenu()
+    signal pressAndHold(var mouse)
+    onPressAndHold: handleExternalPressAndHold(mouse)
 
     // TODO adapt size to screen orientation, i.e. reduce in horizontal mode
     width: 2*Theme.itemSizeExtraLarge
@@ -82,22 +82,24 @@ Loader {
         AttachmentThumbnail {
             anchors.fill: parent
             attach: thumbsAttachments[0]
-            onPressAndHold: _pressAndHold()
+            onPressAndHold: root.pressAndHold(mouse)
+            enabled: !listView.isSelecting
         }
     }
 
     Component {
         id: mediaComponent_2
         Row {
+            enabled: !listView.isSelecting
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: thumbsAttachments[0]
-                onPressAndHold: _pressAndHold()
+                onPressAndHold: root.pressAndHold(mouse)
             }
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: thumbsAttachments[1]
-                onPressAndHold: _pressAndHold()
+                onPressAndHold: root.pressAndHold(mouse)
             }
         }
     }
@@ -105,10 +107,11 @@ Loader {
     Component {
         id: mediaComponent_3
         Row {
+            enabled: !listView.isSelecting
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: thumbsAttachments[0]
-                onPressAndHold: _pressAndHold()
+                onPressAndHold: root.pressAndHold(mouse)
             }
 
             Column {
@@ -116,12 +119,12 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[1]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[2]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
             }
         }
@@ -130,17 +133,18 @@ Loader {
     Component {
         id: mediaComponent_4
         Row {
+            enabled: !listView.isSelecting
             Column {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[0]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[1]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
             }
             Column {
@@ -148,12 +152,12 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[2]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: thumbsAttachments[3]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
             }
         }
@@ -162,17 +166,18 @@ Loader {
     Component {
         id: mediaComponent_5_plus
         Column {
+            enabled: !listView.isSelecting
             Row {
                 width: parent.width; height: parent.height/5*3
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
                     attach: thumbsAttachments[0]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
                     attach: thumbsAttachments[1]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
             }
             Row {
@@ -180,18 +185,18 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
                     attach: thumbsAttachments[2]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
                     attach: thumbsAttachments[3]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     id: showMoreThumb
                     width: parent.width/3; height: parent.height
                     attach: thumbsAttachments[4]
-                    onPressAndHold: _pressAndHold()
+                    onPressAndHold: root.pressAndHold(mouse)
 
                     OpacityRampEffect {
                         sourceItem: thumbsOverlay
@@ -225,6 +230,8 @@ Loader {
         id: detailComponent
         Column {
             id: detailColumn
+            enabled: !listView.isSelecting
+
             function componentForMime(mimeType) {
                 if (/^audio\//.test(mimeType)) return detail_audioComponent
                 else if (/^text\/(x-)?vcard/.test(mimeType)) return detail_contactComponent
@@ -289,7 +296,7 @@ Loader {
         id: detail_contactComponent
         AttachmentItemContact {
             attach: detailAttachments[currentAttachmentIndex]
-            onPressAndHold: _pressAndHold()
+            onPressAndHold: root.pressAndHold(mouse)
         }
     }
 
@@ -297,7 +304,7 @@ Loader {
         id: detail_audioComponent
         AttachmentItemAudio {
             attach: detailAttachments[currentAttachmentIndex]
-            onPressAndHold: _pressAndHold()
+            onPressAndHold: root.pressAndHold(mouse)
         }
     }
 
@@ -305,7 +312,7 @@ Loader {
         id: detail_fileComponent
         AttachmentItemFile {
             attach: detailAttachments[currentAttachmentIndex]
-            onPressAndHold: _pressAndHold()
+            onPressAndHold: root.pressAndHold(mouse)
         }
     }
 }
