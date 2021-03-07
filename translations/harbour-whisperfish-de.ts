@@ -331,13 +331,13 @@
         <location filename="../qml/components/MessagesView.qml" line="195"/>
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation>Löschen …</translation>
+        <translation>Löschen&#xa0;…</translation>
     </message>
     <message id="whisperfish-resend-message">
         <location filename="../qml/components/MessagesView.qml" line="205"/>
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation>Neuer Versand …</translation>
+        <translation>Neuer Versand&#xa0;…</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="237"/>
@@ -916,7 +916,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten …</translation>
+        <translation>Whisperfish neustarten&#xa0;…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
