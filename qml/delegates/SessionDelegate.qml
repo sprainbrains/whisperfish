@@ -142,7 +142,7 @@ ListItem {
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
             defaultLinkActions: false
-            onLinkActivated: {}
+            onLinkActivated: delegate.clicked(null)
         }
 
         Row {
