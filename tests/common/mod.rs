@@ -26,12 +26,12 @@ pub async fn get_in_memory_db() -> InMemoryDb {
 
 /// Setup helper for creating a session
 pub fn setup_session(in_memory_db: &Storage, new_session: &NewSession) -> usize {
-    use harbour_whisperfish::schema::session::dsl::*;
+    use harbour_whisperfish::schema::sessions::dsl::*;
 
     let db = in_memory_db.db.lock();
     let conn = db.unwrap();
 
-    let query = diesel::insert_into(session).values(new_session);
+    let query = diesel::insert_into(sessions).values(new_session);
 
     let res = match query.execute(&*conn) {
         Ok(rows_inserted) => rows_inserted,

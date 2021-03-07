@@ -3,7 +3,7 @@ use crate::actor::FetchSession;
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
 use crate::sfos::SailfishApp;
-use crate::store::{Session, Storage};
+use crate::store::{orm, Storage};
 
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -11,12 +11,14 @@ use qmetaobject::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-struct SessionsLoaded(Vec<Session>);
+struct SessionsLoaded(Vec<(orm::Session, orm::Message)>);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
+// XXX this should be called *per message* instead of per session,
+//     probably.
 pub struct MarkSessionRead {
-    pub sess: Session,
+    pub sid: i32,
     pub already_unread: bool,
 }
 
@@ -94,11 +96,16 @@ impl Handler<FetchSession> for SessionActor {
         FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let sess = self.storage.as_ref().unwrap().fetch_session(sid);
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_session(sess.expect("FIXME No session returned!"), mark_read);
+        let storage = self.storage.as_ref().unwrap();
+        let sess = storage.fetch_session_by_id(sid);
+        let message = storage
+            .fetch_last_message_by_session_id(sid)
+            .expect("> 0 messages per session");
+        self.inner.pinned().borrow_mut().handle_fetch_session(
+            sess.expect("existing session"),
+            message,
+            mark_read,
+        );
     }
 }
 
@@ -108,16 +115,16 @@ impl Handler<MarkSessionRead> for SessionActor {
     fn handle(
         &mut self,
         MarkSessionRead {
-            sess,
+            sid,
             already_unread,
         }: MarkSessionRead,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        self.storage.as_ref().unwrap().mark_session_read(&sess);
+        self.storage.as_ref().unwrap().mark_session_read(sid);
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_mark_session_read(sess, already_unread);
+            .handle_mark_session_read(sid, already_unread);
     }
 }
 
@@ -141,13 +148,28 @@ impl Handler<LoadAllSessions> for SessionActor {
     /// Panics when storage is not yet set.
     fn handle(&mut self, _: LoadAllSessions, ctx: &mut Self::Context) {
         let session_actor = ctx.address();
-        let db = self.storage.clone().unwrap().db;
+        let storage = self.storage.clone().unwrap();
+        let db = storage.db.clone();
 
         actix::spawn(async move {
             let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
                 let db = db.lock();
-                use crate::schema::session::dsl::*;
-                Ok(session.order_by(timestamp.desc()).load(&*db)?)
+                use crate::schema::messages::dsl::*;
+                let sessions: Vec<orm::Session> = storage.fetch_sessions();
+                let result = sessions
+                    .into_iter()
+                    .map(|session| {
+                        // XXX maybe at some point we want a system where sessions don't necessarily
+                        // contain a message.
+                        let last_message = messages
+                            .filter(session_id.eq(session.id))
+                            .order_by(server_timestamp.desc())
+                            .first(&*db)
+                            .expect("a message in a session");
+                        (session, last_message)
+                    })
+                    .collect();
+                Ok(result)
             })
             .await
             .unwrap();

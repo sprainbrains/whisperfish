@@ -75,7 +75,9 @@ async fn main() -> Result<(), Error> {
 
     // Check whether we can find the message that this attachment should be linked to.
     let mid = opt.message_id;
-    let msg = storage.fetch_message(mid).expect("find message by mid");
+    let msg = storage
+        .fetch_message_by_id(mid)
+        .expect("find message by mid");
     ensure!(
         msg.id == mid,
         "unreachable: Fetched message ID does not equal supplied mid"

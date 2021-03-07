@@ -135,7 +135,7 @@ CREATE TABLE messages (
 
     received_timestamp TIMESTAMP,
     sent_timestamp TIMESTAMP,
-    server_timestamp TIMESTAMP,
+    server_timestamp TIMESTAMP NOT NULL,
 
     -- This `is_read` flag indicates that the local user read the incoming message.
     is_read BOOLEAN DEFAULT FALSE NOT NULL,

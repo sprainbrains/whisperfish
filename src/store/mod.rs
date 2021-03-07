@@ -4,14 +4,11 @@ use std::sync::{Arc, Mutex};
 
 use parking_lot::ReentrantMutex;
 
-use crate::schema::message;
-use crate::schema::sentq;
-use crate::schema::session;
+use crate::schema;
 use crate::settings::SignalConfig;
 
 use chrono::prelude::*;
 use diesel::debug_query;
-use diesel::expression::sql_literal::sql;
 use diesel::prelude::*;
 
 use futures::io::AsyncRead;
@@ -21,30 +18,20 @@ use failure::*;
 mod protocol_store;
 use protocol_store::ProtocolStore;
 
+pub mod orm;
+
 embed_migrations!();
+
+no_arg_sql_function!(
+    last_insert_rowid,
+    diesel::sql_types::Integer,
+    "Represents the Sqlite last_insert_rowid() function"
+);
 
 /// Session as it relates to the schema
 #[derive(Queryable, Debug, Clone)]
 pub struct Session {
     pub id: i32,
-    pub source: String,
-    pub message: String,
-    pub timestamp: NaiveDateTime,
-    pub sent: bool,
-    pub received: bool,
-    pub unread: bool,
-    pub is_group: bool,
-    pub group_members: Option<String>,
-    #[allow(dead_code)]
-    pub group_id: Option<String>,
-    pub group_name: Option<String>,
-    pub has_attachment: bool,
-}
-
-/// ID-free Session model for insertions
-#[derive(Insertable, Debug)]
-#[table_name = "session"]
-pub struct NewSession {
     pub source: String,
     pub message: String,
     pub timestamp: NaiveDateTime,
@@ -78,8 +65,6 @@ pub struct Message {
 }
 
 /// ID-free Message model for insertions
-#[derive(Insertable)]
-#[table_name = "message"]
 pub struct NewMessage {
     pub session_id: Option<i32>,
     pub source: String,
@@ -87,6 +72,7 @@ pub struct NewMessage {
     pub timestamp: NaiveDateTime,
     pub sent: bool,
     pub received: bool,
+    pub is_read: bool,
     pub flags: i32,
     pub attachment: Option<String>,
     pub mime_type: Option<String>,
@@ -96,7 +82,7 @@ pub struct NewMessage {
 
 /// ID-free Group model for insertions
 #[derive(Clone, Debug)]
-pub struct NewGroup<'a> {
+pub struct NewGroupV1<'a> {
     pub id: &'a [u8],
     /// Group name
     pub name: String,
@@ -391,6 +377,39 @@ async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>
     Ok(contents)
 }
 
+/// Fetches an `orm::Session`, for which the supplied closure can impose constraints.
+///
+/// This *can* in principe be implemented with pure type constraints,
+/// but I'm not in the mood for digging a few hours through Diesel's traits.
+macro_rules! fetch_session {
+    ($db:expr, |$fragment:ident| $b:block ) => {{
+        let db = $db;
+        let query = {
+            let $fragment = schema::sessions::table
+                .left_join(schema::recipients::table)
+                .left_join(schema::group_v1s::table);
+            $b
+        };
+        let triple: Option<(orm::DbSession, Option<orm::Recipient>, Option<orm::GroupV1>)> =
+            query.first(&*db).ok();
+        triple.map(Into::into)
+    }};
+}
+macro_rules! fetch_sessions {
+    ($db:expr, |$fragment:ident| $b:block ) => {{
+        let db = $db;
+        let query = {
+            let $fragment = schema::sessions::table
+                .left_join(schema::recipients::table)
+                .left_join(schema::group_v1s::table);
+            $b
+        };
+        let triples: Vec<(orm::DbSession, Option<orm::Recipient>, Option<orm::GroupV1>)> =
+            query.load(&*db).unwrap();
+        triples.into_iter().map(orm::Session::from).collect()
+    }};
+}
+
 impl Storage {
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
@@ -605,220 +624,298 @@ impl Storage {
     pub fn process_message(
         &mut self,
         mut new_message: NewMessage,
-        group: Option<NewGroup<'_>>,
-        is_unread: bool,
-    ) -> (Message, Session) {
-        let db_session_res = if let Some(group) = group.as_ref() {
-            let group_hex_id = hex::encode(group.id);
-            self.fetch_session_by_group(&group_hex_id)
+        group: Option<NewGroupV1<'_>>,
+    ) -> (orm::Message, orm::Session) {
+        let session = if let Some(group) = group.as_ref() {
+            self.fetch_or_insert_session_by_group_v1(group)
         } else {
-            self.fetch_session_by_source(&new_message.source)
+            self.fetch_or_insert_session_by_e164(&new_message.source)
         };
 
-        // Initialize the session data to work with, modify it in case of a group
-        let mut session_data = NewSession {
-            source: new_message.source.clone(),
-            message: new_message.text.clone(),
-            timestamp: new_message.timestamp,
-            sent: new_message.sent,
-            received: new_message.received,
-            unread: is_unread,
-            has_attachment: new_message.has_attachment,
-            is_group: false,
-            group_id: None,
-            group_name: None,
-            group_members: None,
-        };
-
-        if let Some(group) = group.as_ref() {
-            let group_hex_id = hex::encode(group.id);
-            session_data.is_group = true;
-            session_data.source = group_hex_id.clone();
-            session_data.group_id = Some(group_hex_id);
-            session_data.group_name = Some(group.name.clone());
-            session_data.group_members = Some(group.members.join(","));
-        };
-
-        let db_session: Session = if let Some(db_sess) = db_session_res {
-            self.update_session(&db_sess, &session_data, is_unread);
-            db_sess
-        } else {
-            self.create_session(&session_data)
-                .expect("Unable to create session yet create_session() did not panic")
-        };
-
-        // XXX: Double-checking `is_none()` for this is considered reachable code,
-        // yet the type system should make it obvious it can never be `None`.
-        new_message.session_id = Some(db_session.id);
-
-        // With the prepared new_message in hand, see if it's an update or a new one
-        let update_msg_res = self.update_message_if_needed(&new_message);
-
-        let message = if let Some(update_message) = update_msg_res {
-            update_message
-        } else {
-            self.create_message(&new_message)
-        };
-
-        (message, db_session)
+        new_message.session_id = Some(session.id);
+        let message = self.create_message(&new_message);
+        (message, session)
     }
 
-    /// Create a new session. This was transparent within SaveSession in Go.
-    ///
-    /// It needs to be locked from the outside because sqlite sucks.
-    pub fn create_session(&self, new_session: &NewSession) -> Option<Session> {
-        use crate::schema::session::dsl as schema_dsl;
+    pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
+        use crate::schema::recipients::dsl::*;
 
         let db = self.db.lock();
 
-        log::trace!("Called create_session()");
-
-        let query = diesel::insert_into(schema_dsl::session).values(new_session);
-
-        let res = query.execute(&*db).expect("inserting a session");
-
-        // Then see if the session was inserted ok and what it was
-        let latest_session_res = self.fetch_latest_session();
-
-        if res != 1 || latest_session_res.is_none() {
-            panic!("Non-error non-insert!")
+        if let Some(recipient) = recipients.filter(e164.eq(new_e164)).first(&*db).ok() {
+            recipient
+        } else {
+            diesel::insert_into(recipients)
+                .values(e164.eq(new_e164))
+                .execute(&*db)
+                .expect("insert new recipient");
+            recipients
+                .filter(e164.eq(new_e164))
+                .first(&*db)
+                .expect("newly inserted recipient")
         }
-
-        let latest_session = latest_session_res.unwrap();
-
-        // XXX: This is checking that we got the latest one we expect,
-        //      because sqlite sucks and some other thread might have inserted
-        if latest_session.timestamp != new_session.timestamp
-            || latest_session.source != new_session.source
-        {
-            panic!(
-                "Could not match latest session to this one!
-                       latest.source {} == new.source {} | latest.tstamp {} == new.timestamp {}",
-                latest_session.source,
-                new_session.source,
-                latest_session.timestamp,
-                new_session.timestamp
-            );
-        }
-
-        // Better hope something panicked before now if something went wrong
-        Some(latest_session)
     }
 
-    /// Update an existing session. This was transparent within SaveSession in Go.
-    ///
-    /// It needs to be locked from the outside because sqlite sucks.
-    /// Also with better schema design this whole thing would be moot!
-    pub fn update_session(&self, db_session: &Session, new_session: &NewSession, is_unread: bool) {
+    pub fn fetch_last_message_by_session_id(&self, sid: i32) -> Option<orm::Message> {
+        use schema::messages::dsl::*;
         let db = self.db.lock();
 
-        log::trace!("Called update_session()");
+        messages
+            .filter(session_id.eq(sid))
+            .order_by(server_timestamp.desc())
+            .first(&*db)
+            .ok()
+    }
 
-        let query = diesel::update(session::table.filter(session::id.eq(db_session.id))).set((
-            session::message.eq(&new_session.message),
-            session::timestamp.eq(new_session.timestamp),
-            session::unread.eq(is_unread),
-            session::sent.eq(new_session.sent),
-            session::received.eq(new_session.received),
-            session::has_attachment.eq(new_session.has_attachment),
-        ));
-        query.execute(&*db).expect("updating session");
+    /// Marks the message with a certain timestamp as read by a certain person.
+    ///
+    /// This is e.g. called from Signal Desktop from a sync message
+    pub fn mark_message_read(
+        &self,
+        timestamp: NaiveDateTime,
+    ) -> Option<(orm::Session, orm::Message)> {
+        let db = self.db.lock();
 
-        if let Some(ref members) = &new_session.group_members {
-            if !members.is_empty() {
-                let query = diesel::update(session::table.filter(session::id.eq(db_session.id)))
-                    .set((
-                        session::group_members.eq(&new_session.group_members),
-                        session::is_group.eq(true),
-                    ));
-                query.execute(&*db).expect("updating group members");
-            }
-        }
+        use schema::messages::dsl::*;
+        diesel::update(messages)
+            .filter(server_timestamp.eq(timestamp))
+            .set(is_read.eq(true))
+            .execute(&*db)
+            .unwrap();
 
-        if let Some(ref name) = &new_session.group_name {
-            if !name.is_empty() {
-                let query = diesel::update(session::table.filter(session::id.eq(db_session.id)))
-                    .set((
-                        session::group_name.eq(&new_session.group_name),
-                        session::is_group.eq(true),
-                    ));
-                query.execute(&*db).expect("updating group name");
-            }
+        let message: Option<orm::Message> = messages
+            .filter(server_timestamp.eq(timestamp))
+            .first(&*db)
+            .ok();
+        if let Some(message) = message {
+            let session = self
+                .fetch_session_by_id(message.session_id)
+                .expect("foreignk key");
+            Some((session, message))
+        } else {
+            None
         }
     }
 
-    /// Marks the message with a certain timestamp as received.
+    /// Marks the message with a certain timestamp as received by a certain person.
     ///
     /// Copy from Go's MarkMessageReceived.
-    pub fn mark_message_received(&self, timestamp: NaiveDateTime) -> Option<(Session, Message)> {
-        let message = self.fetch_message_by_timestamp(timestamp)?;
-        log::trace!("mark_message_received: {:?}", message);
-        let session = self.fetch_session(message.sid)?;
-        log::trace!("mark_message_received: {:?}", session);
-
+    pub fn mark_message_received(
+        &self,
+        receiver_e164: Option<&str>,
+        receiver_uuid: Option<&str>,
+        timestamp: NaiveDateTime,
+    ) -> Option<(orm::Session, orm::Message)> {
         let db = self.db.lock();
-        db.transaction(|| -> Result<_, diesel::result::Error> {
-            diesel::update(message::table.filter(message::id.eq(&message.id)))
-                .set(message::received.eq(true))
-                .execute(&*db)?;
 
-            diesel::update(
-                session::table.filter(
-                    session::id
-                        .eq(&session.id)
-                        .and(session::timestamp.eq(timestamp)),
-                ),
+        // XXX: probably, the trigger for this method call knows a better time stamp.
+        let time = chrono::Utc::now().naive_utc();
+
+        // Find the recipient
+        let recipient_id: i32 = schema::recipients::table
+            .select(schema::recipients::id)
+            .filter(
+                schema::recipients::e164
+                    .eq(receiver_e164)
+                    .and(schema::recipients::e164.is_not_null())
+                    .or(schema::recipients::uuid
+                        .eq(receiver_uuid)
+                        .and(schema::recipients::uuid.is_not_null())),
             )
-            .set(session::received.eq(true))
-            .execute(&*db)?;
-            Ok(())
-        })
-        .expect("update received state");
+            .first(&*db)
+            .ok()?; // ? -> if unknown recipient, do not insert read status.
+        let message_id = schema::messages::table
+            .select(schema::messages::id)
+            .filter(schema::messages::server_timestamp.eq(timestamp))
+            .first(&*db)
+            .ok();
+        if message_id.is_none() {
+            log::warn!("Could not find message with timestamp {}", timestamp);
+            log::warn!(
+                "This probably indicates out-of-order receipt delivery. Please upvote issue #260"
+            );
+        }
+        let message_id = message_id?;
+
+        let insert = diesel::insert_into(schema::receipts::table)
+            .values((
+                schema::receipts::message_id.eq(message_id),
+                schema::receipts::recipient_id.eq(recipient_id),
+                schema::receipts::delivered.eq(time),
+            ))
+            // UPSERT in Diesel 2.0
+            // .on_conflict((schema::receipts::message_id, schema::receipts::recipient_id))
+            // .do_update()
+            // .set(delivered.eq(time))
+            .execute(&*db);
+
+        use diesel::result::DatabaseErrorKind;
+        use diesel::result::Error::DatabaseError;
+        match insert {
+            Ok(1) => {
+                let message = self.fetch_message_by_id(message_id)?;
+                let session = self.fetch_session_by_id(message.session_id)?;
+                return Some((session, message));
+            }
+            Ok(affected_rows) => {
+                // Reason can be a dupe receipt (=0).
+                log::warn!(
+                    "Read receipt had {} affected rows instead of expected 1.  Ignoring.",
+                    affected_rows
+                );
+            }
+            Err(DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+                log::trace!("receipt already exists, updating record");
+            }
+            Err(e) => {
+                log::error!("Could not insert receipt: {}. Continuing", e);
+                return None;
+            }
+        }
+        // As of here, insertion failed because of conflict. Use update instead (issue #101 for
+        // upsert).
+        let update = diesel::update(schema::receipts::table)
+            .filter(schema::receipts::message_id.eq(message_id))
+            .filter(schema::receipts::recipient_id.eq(recipient_id))
+            .set((schema::receipts::delivered.eq(time),))
+            .execute(&*db);
+        if let Err(e) = update {
+            log::error!("Could not update receipt: {}", e);
+        }
+        insert.ok();
+
+        let message = self.fetch_message_by_id(message_id)?;
+        let session = self.fetch_session_by_id(message.session_id)?;
 
         Some((session, message))
     }
 
-    /// This was implicit in Go, which probably didn't use threads.
+    /// Fetches the latest session by last_insert_rowid.
     ///
-    /// It needs to be locked from the outside because sqlite sucks.
-    pub fn fetch_latest_session(&self) -> Option<Session> {
-        let db = self.db.lock();
-
-        log::trace!("Called fetch_latest_session()");
-        session::table
-            .order_by(session::columns::id.desc())
-            .first(&*db)
-            .ok()
+    /// This only yields correct results when the last insertion was in fact a session.
+    pub fn fetch_latest_session(&self) -> Option<orm::Session> {
+        fetch_session!(self.db.lock(), |query| {
+            query.filter(schema::sessions::id.eq(last_insert_rowid))
+        })
     }
 
-    pub fn fetch_session(&self, sid: i32) -> Option<Session> {
-        let db = self.db.lock();
-
-        log::trace!("Called fetch_session({})", sid);
-        session::table
-            .filter(session::columns::id.eq(sid))
-            .first(&*db)
-            .ok()
+    /// Get all sessions in no particular order.
+    ///
+    /// Getting them ordered by timestamp would be nice,
+    /// but that requires table aliases or complex subqueries,
+    /// which are not really a thing in Diesel atm.
+    pub fn fetch_sessions(&self) -> Vec<orm::Session> {
+        fetch_sessions!(self.db.lock(), |query| { query })
     }
 
-    pub fn fetch_session_by_source(&self, source: &str) -> Option<Session> {
-        let db = self.db.lock();
-
-        log::trace!("Called fetch_session_by_source({})", source);
-        session::table
-            .filter(session::columns::source.eq(source))
-            .first(&*db)
-            .ok()
+    pub fn fetch_group_sessions(&self) -> Vec<orm::Session> {
+        fetch_sessions!(self.db.lock(), |query| {
+            query.filter(schema::sessions::group_v1_id.is_not_null())
+        })
     }
 
-    pub fn fetch_session_by_group(&self, group_id: &str) -> Option<Session> {
+    pub fn fetch_session_by_id(&self, sid: i32) -> Option<orm::Session> {
+        fetch_session!(self.db.lock(), |query| {
+            query.filter(schema::sessions::columns::id.eq(sid))
+        })
+    }
+
+    pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
+        log::trace!("Called fetch__session_by_e164({})", e164);
+        let db = self.db.lock();
+        fetch_session!(db, |query| {
+            query.filter(schema::recipients::e164.eq(e164))
+        })
+    }
+
+    pub fn fetch_attachments_for_message(&self, mid: i32) -> Vec<orm::Attachment> {
+        use schema::attachments::dsl::*;
+        let db = self.db.lock();
+        attachments
+            .filter(message_id.eq(mid))
+            .order_by(display_order.asc())
+            .load(&*db)
+            .unwrap()
+    }
+
+    pub fn fetch_group_members_by_group_v1_id(
+        &self,
+        id: &str,
+    ) -> Vec<(orm::GroupV1Member, orm::Recipient)> {
+        let db = self.db.lock();
+        schema::group_v1_members::table
+            .inner_join(schema::recipients::table)
+            .filter(schema::group_v1_members::group_v1_id.eq(id))
+            .load(&*db)
+            .unwrap()
+    }
+
+    pub fn fetch_or_insert_session_by_e164(&self, e164: &str) -> orm::Session {
+        log::trace!("Called fetch_or_insert_session_by_e164({})", e164);
+        let db = self.db.lock();
+        if let Some(session) = self.fetch_session_by_e164(e164) {
+            return session;
+        }
+
+        let recipient = self.fetch_or_insert_recipient_by_e164(e164);
+
+        use schema::sessions::dsl::*;
+        diesel::insert_into(sessions)
+            .values((direct_message_recipient_id.eq(recipient.id),))
+            .execute(&*db)
+            .unwrap();
+
+        self.fetch_latest_session()
+            .expect("a session has been inserted")
+    }
+
+    pub fn fetch_or_insert_session_by_group_v1(&self, group: &NewGroupV1<'_>) -> orm::Session {
         let db = self.db.lock();
 
-        log::trace!("Called fetch_session_by_group({})", group_id);
-        session::table
-            .filter(session::columns::group_id.eq(group_id))
-            .first(&*db)
-            .ok()
+        let group_id = hex::encode(&group.id);
+
+        log::trace!("Called fetch_or_insert_session_by_group_v1({})", group_id);
+
+        if let Some(session) = fetch_session!(self.db.lock(), |query| {
+            query.filter(schema::sessions::columns::group_v1_id.eq(&group_id))
+        }) {
+            return session;
+        }
+
+        let new_group = orm::GroupV1 {
+            id: group_id.clone(),
+            name: group.name.clone(),
+        };
+
+        // Group does not exist, insert first.
+        diesel::insert_into(schema::group_v1s::table)
+            .values(&new_group)
+            .execute(&*db)
+            .unwrap();
+
+        let now = chrono::Utc::now().naive_utc();
+        for member in &group.members {
+            use schema::group_v1_members::dsl::*;
+            let recipient = self.fetch_or_insert_recipient_by_e164(member);
+
+            diesel::insert_into(group_v1_members)
+                .values((
+                    group_v1_id.eq(&group_id),
+                    recipient_id.eq(recipient.id),
+                    member_since.eq(now),
+                ))
+                .execute(&*db)
+                .unwrap();
+        }
+
+        use schema::sessions::dsl::*;
+        diesel::insert_into(sessions)
+            .values((group_v1_id.eq(group_id),))
+            .execute(&*db)
+            .unwrap();
+
+        self.fetch_latest_session()
+            .expect("a session has been inserted")
     }
 
     pub fn delete_session(&self, id: i32) {
@@ -826,141 +923,25 @@ impl Storage {
 
         log::trace!("Called delete_session({})", id);
 
-        // Preserve the Go order of deleting things
-        db.transaction(|| -> Result<_, diesel::result::Error> {
-            // SessioN
-            // `delete from session where id = ?`
-            let query = diesel::delete(session::table.filter(session::columns::id.eq(id)));
-            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-            log::trace!("{:?}", debug);
-            query.execute(&*db)?;
+        let affected_rows =
+            diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(id)))
+                .execute(&*db)
+                .expect("delete session");
 
-            // SentQ
-            // `delete from sentq where message_id in (select id from message where session_id = ?)`
-            //
-            // XXX: I hate the for loop, but the below fight with Diesel
-            //      is not conductive to getting things actually done...
-
-            /*
-            let query = diesel::delete(sentq::table).filter(
-                sentq::message_id.eq_any(
-                    message::table
-                        .filter(message::columns::session_id.eq(id))
-                        .select(message::columns::session_id),
-                ),
-            );
-            */
-
-            for msg_id in message::table
-                .select(message::columns::id)
-                .filter(message::columns::session_id.eq(id))
-                .load::<i32>(&*db)
-                .unwrap()
-            {
-                let query =
-                    diesel::delete(sentq::table.filter(sentq::columns::message_id.eq(msg_id)));
-                let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-                log::trace!("{:?}", debug);
-                query.execute(&*db)?;
-            }
-
-            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-            log::trace!("{:?}", debug);
-            query.execute(&*db)?;
-
-            // Messages
-            // `delete from message where session_id = ?`
-            let query = diesel::delete(message::table.filter(message::columns::session_id.eq(id)));
-            let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-            log::trace!("{:?}", debug);
-            query.execute(&*db)?;
-
-            Ok(())
-        })
-        .expect("deleting session and its messages");
+        log::trace!("delete_session({}) affected {} rows", id, affected_rows);
     }
 
-    pub fn mark_session_read(&self, sess: &Session) {
+    pub fn mark_session_read(&self, sid: i32) {
         let db = self.db.lock();
 
-        log::trace!("Called mark_session_read({})", sess.id);
+        log::trace!("Called mark_session_read({})", sid);
 
-        diesel::update(session::table.filter(session::id.eq(sess.id)))
-            .set((session::unread.eq(false),))
+        use schema::messages::dsl::*;
+
+        diesel::update(messages.filter(session_id.eq(sid)))
+            .set((is_read.eq(true),))
             .execute(&*db)
-            .expect("Mark session read");
-    }
-
-    /// Check if message exists and explicitly update it if required
-    ///
-    /// This is because during development messages may come in partially
-    fn update_message_if_needed(&self, new_message: &NewMessage) -> Option<Message> {
-        let db = self.db.lock();
-
-        log::trace!(
-            "Called update_message_if_needed({})",
-            new_message.session_id.unwrap()
-        );
-
-        let mut msg: Message = message::table
-            .left_join(sentq::table)
-            .select((
-                message::columns::id,
-                message::columns::session_id,
-                message::columns::source,
-                message::columns::text,
-                message::columns::timestamp,
-                message::columns::sent,
-                message::columns::received,
-                message::columns::flags,
-                message::columns::attachment,
-                message::columns::mime_type,
-                message::columns::has_attachment,
-                message::columns::outgoing,
-                sql::<diesel::sql_types::Bool>(
-                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
-                ),
-            ))
-            .filter(message::columns::session_id.eq(new_message.session_id.unwrap()))
-            .filter(message::columns::timestamp.eq(new_message.timestamp))
-            .filter(message::columns::text.eq(&new_message.text))
-            .order_by(message::columns::id.desc())
-            .first(&*db)
-            .ok()?;
-
-        // Do not update `(session_id, timestamp, message)` because that's considered unique
-        // nor `source` which is correlated with `session_id`
-        if msg.sent != new_message.sent
-            || msg.received != new_message.received
-            || msg.flags != new_message.flags
-            || msg.attachment != new_message.attachment
-            || msg.mimetype != new_message.mime_type
-            || msg.hasattachment != new_message.has_attachment
-            || msg.outgoing != new_message.outgoing
-        {
-            let query = diesel::update(message::table.filter(message::id.eq(msg.id))).set((
-                message::sent.eq(new_message.sent),
-                message::received.eq(new_message.received),
-                message::flags.eq(new_message.flags),
-                message::attachment.eq(&new_message.attachment),
-                message::mime_type.eq(&new_message.mime_type),
-                message::has_attachment.eq(new_message.has_attachment),
-                message::outgoing.eq(new_message.outgoing),
-            ));
-
-            query.execute(&*db).expect("updating message");
-
-            // Also update the message we got from the db to match what was updated
-            msg.sent = new_message.sent;
-            msg.received = new_message.received;
-            msg.flags = new_message.flags;
-            msg.attachment = new_message.attachment.clone();
-            msg.mimetype = new_message.mime_type.clone();
-            msg.hasattachment = new_message.has_attachment;
-            msg.outgoing = new_message.outgoing;
-        }
-
-        Some(msg)
+            .expect("mark session read");
     }
 
     pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
@@ -968,52 +949,54 @@ impl Storage {
 
         let db = self.db.lock();
 
-        diesel::update(message::table.filter(message::id.eq(mid)))
-            .set((
-                message::mime_type.eq(mime_type),
-                message::has_attachment.eq(true),
-                message::attachment.eq(path),
+        diesel::insert_into(schema::attachments::table)
+            .values((
+                // XXX: many more things to store !
+                schema::attachments::message_id.eq(mid),
+                schema::attachments::content_type.eq(mime_type),
+                schema::attachments::attachment_path.eq(path),
             ))
             .execute(&*db)
-            .expect("set attachment");
+            .expect("insert attachment");
     }
 
     /// Create a new message. This was transparent within SaveMessage in Go.
-    pub fn create_message(&self, new_message: &NewMessage) -> Message {
-        use crate::schema::message::dsl as schema_dsl;
-
+    ///
+    /// Panics is new_message.session_id is None.
+    pub fn create_message(&self, new_message: &NewMessage) -> orm::Message {
         let db = self.db.lock();
+        use schema::messages::dsl::*;
 
-        log::trace!("Called create_message()");
+        let session = new_message.session_id.expect("session id");
 
-        let query = diesel::insert_into(schema_dsl::message).values(new_message);
+        log::trace!("Called create_message(..) for session {}", session);
 
-        let res = query.execute(&*db).expect("inserting a message");
+        let affected_rows = diesel::insert_into(messages)
+            .values((
+                session_id.eq(session),
+                text.eq(&new_message.text),
+                // XXX sender_recipient_id
+                received_timestamp.eq(chrono::Utc::now().naive_utc()),
+                server_timestamp.eq(new_message.timestamp),
+                is_read.eq(new_message.is_read),
+                is_outbound.eq(new_message.outgoing),
+                flags.eq(new_message.flags),
+            ))
+            .execute(&*db)
+            .expect("inserting a message");
+        // XXX newmessage could have an attachment
+
+        assert_eq!(
+            affected_rows, 1,
+            "Did not insert the message. Dazed and confused."
+        );
 
         // Then see if the message was inserted ok and what it was
-        let latest_message_res = self.fetch_latest_message();
-
-        if res != 1 || latest_message_res.is_none() {
-            panic!("Non-error non-insert!")
-        }
-
-        let latest_message = latest_message_res.unwrap();
-
-        // XXX: This is checking that we got the latest one we expect,
-        //      because sqlite sucks and some other thread might have inserted
-
-        if latest_message.timestamp != new_message.timestamp
-            || latest_message.source != new_message.source
-        {
-            panic!(
-                "Could not match latest message to this one!
-                       latest.source {} == new.source {} | latest.tstamp {} == new.timestamp {}",
-                latest_message.source,
-                new_message.source,
-                latest_message.timestamp,
-                new_message.timestamp
-            );
-        }
+        let latest_message = self.fetch_latest_message().expect("inserted message");
+        assert_eq!(
+            latest_message.session_id, session,
+            "message insert sanity test failed"
+        );
 
         log::trace!("Inserted message id {}", latest_message.id);
         latest_message
@@ -1022,59 +1005,20 @@ impl Storage {
     /// This was implicit in Go, which probably didn't use threads.
     ///
     /// It needs to be locked from the outside because sqlite sucks.
-    pub fn fetch_latest_message(&self) -> Option<Message> {
+    pub fn fetch_latest_message(&self) -> Option<orm::Message> {
         let db = self.db.lock();
 
-        log::trace!("Called fetch_latest_message()");
-        message::table
-            .left_join(sentq::table)
-            .select((
-                message::columns::id,
-                message::columns::session_id,
-                message::columns::source,
-                message::columns::text,
-                message::columns::timestamp,
-                message::columns::sent,
-                message::columns::received,
-                message::columns::flags,
-                message::columns::attachment,
-                message::columns::mime_type,
-                message::columns::has_attachment,
-                message::columns::outgoing,
-                sql::<diesel::sql_types::Bool>(
-                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
-                ),
-            ))
-            .order_by(message::columns::id.desc())
+        schema::messages::table
+            .filter(schema::messages::id.eq(last_insert_rowid))
             .first(&*db)
             .ok()
     }
 
-    pub fn fetch_message_by_timestamp(&self, ts: NaiveDateTime) -> Option<Message> {
+    pub fn fetch_message_by_timestamp(&self, ts: NaiveDateTime) -> Option<orm::Message> {
         let db = self.db.lock();
 
-        // Even a single message needs to know if it's queued to satisfy the `Message` trait
         log::trace!("Called fetch_message_by_timestamp({})", ts);
-        let query = message::table
-            .left_join(sentq::table)
-            .select((
-                message::columns::id,
-                message::columns::session_id,
-                message::columns::source,
-                message::columns::text,
-                message::columns::timestamp,
-                message::columns::sent,
-                message::columns::received,
-                message::columns::flags,
-                message::columns::attachment,
-                message::columns::mime_type,
-                message::columns::has_attachment,
-                message::columns::outgoing,
-                sql::<diesel::sql_types::Bool>(
-                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
-                ),
-            ))
-            .filter(message::columns::timestamp.eq(ts));
+        let query = schema::messages::table.filter(schema::messages::server_timestamp.eq(ts));
 
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
@@ -1082,68 +1026,41 @@ impl Storage {
         query.first(&*db).ok()
     }
 
-    pub fn fetch_message(&self, id: i32) -> Option<Message> {
+    pub fn fetch_recipient_by_id(&self, id: i32) -> Option<orm::Recipient> {
+        let db = self.db.lock();
+
+        log::trace!("Called fetch_recipient_by_id({})", id);
+        schema::recipients::table
+            .filter(schema::recipients::id.eq(id))
+            .first(&*db)
+            .ok()
+    }
+
+    pub fn fetch_message_by_id(&self, id: i32) -> Option<orm::Message> {
         let db = self.db.lock();
 
         // Even a single message needs to know if it's queued to satisfy the `Message` trait
-        log::trace!("Called fetch_message({})", id);
-        let query = message::table
-            .left_join(sentq::table)
-            .select((
-                message::columns::id,
-                message::columns::session_id,
-                message::columns::source,
-                message::columns::text,
-                message::columns::timestamp,
-                message::columns::sent,
-                message::columns::received,
-                message::columns::flags,
-                message::columns::attachment,
-                message::columns::mime_type,
-                message::columns::has_attachment,
-                message::columns::outgoing,
-                sql::<diesel::sql_types::Bool>(
-                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
-                ),
-            ))
-            .filter(message::columns::id.eq(id));
-
-        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-        log::trace!("{}", debug.to_string());
-
-        query.first(&*db).ok()
+        log::trace!("Called fetch_message_by_id({})", id);
+        schema::messages::table
+            .filter(schema::messages::id.eq(id))
+            .first(&*db)
+            .ok()
     }
 
-    pub fn fetch_all_messages(&self, sid: i32) -> Option<Vec<Message>> {
+    /// Returns a vector of tuples of messages with their sender.
+    ///
+    /// When the sender is None, it is a sent message, not a received message.
+    pub fn fetch_all_messages(&self, sid: i32) -> Vec<(orm::Message, Option<orm::Recipient>)> {
         let db = self.db.lock();
 
         log::trace!("Called fetch_all_messages({})", sid);
-        let query = message::table
-            .left_join(sentq::table)
-            .select((
-                message::columns::id,
-                message::columns::session_id,
-                message::columns::source,
-                message::columns::text,
-                message::columns::timestamp,
-                message::columns::sent,
-                message::columns::received,
-                message::columns::flags,
-                message::columns::attachment,
-                message::columns::mime_type,
-                message::columns::has_attachment,
-                message::columns::outgoing,
-                sql::<diesel::sql_types::Bool>(
-                    "CASE WHEN sentq.message_id > 0 THEN 1 ELSE 0 END AS queued",
-                ),
-            ))
-            .filter(message::columns::session_id.eq(sid))
-            .order_by(message::columns::id.desc());
-
-        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-        log::trace!("{}", debug.to_string());
-
-        query.load::<Message>(&*db).ok()
+        schema::messages::table
+            .filter(schema::messages::session_id.eq(sid))
+            .left_join(schema::recipients::table)
+            // XXX: order by timestamp?
+            .order_by(schema::messages::columns::id.desc())
+            .load(&*db)
+            .expect("database")
     }
 
     pub fn delete_message(&self, id: i32) -> Option<usize> {
@@ -1152,7 +1069,7 @@ impl Storage {
         log::trace!("Called delete_message({})", id);
 
         // XXX: Assume `sentq` has nothing pending, as the Go version does
-        let query = diesel::delete(message::table.filter(message::columns::id.eq(id)));
+        let query = diesel::delete(schema::messages::table.filter(schema::messages::id.eq(id)));
 
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
@@ -1160,50 +1077,14 @@ impl Storage {
         query.execute(&*db).ok()
     }
 
-    pub fn queue_message(&self, msg: &Message) {
+    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime) {
         let db = self.db.lock();
 
-        diesel::insert_into(sentq::table)
-            .values((
-                sentq::message_id.eq(msg.id),
-                sentq::timestamp.eq(msg.timestamp),
-            ))
+        diesel::update(schema::messages::table)
+            .filter(schema::messages::id.eq(mid))
+            .set(schema::messages::sent_timestamp.eq(sent_time))
             .execute(&*db)
             .unwrap();
-    }
-
-    pub fn dequeue_message(&self, mid: i32) {
-        let db = self.db.lock();
-
-        diesel::delete(sentq::table)
-            .filter(sentq::message_id.eq(mid))
-            .execute(&*db)
-            .unwrap();
-    }
-
-    pub fn refresh_session(&self, msg: &Message) {
-        log::debug!("[refresh_session] Fetching session");
-        let db_sess = self
-            .fetch_session_by_source(&msg.source)
-            .expect("No session found");
-
-        log::debug!("[refresh_session] {} {}", &msg.id, &msg.source);
-        let session_data = NewSession {
-            source: msg.source.clone(),
-            message: msg.message.clone(),
-            timestamp: msg.timestamp,
-            sent: msg.sent,
-            received: msg.received,
-            unread: false, // You sent the message, you read it
-            has_attachment: msg.hasattachment,
-            is_group: false,
-            group_id: db_sess.group_id.clone(),
-            group_name: db_sess.group_name.clone(),
-            group_members: db_sess.group_members.clone(),
-        };
-
-        self.update_session(&db_sess, &session_data, session_data.unread);
-        log::debug!("[refresh_session] Updated");
     }
 
     /// Returns a hex-encoded peer identity

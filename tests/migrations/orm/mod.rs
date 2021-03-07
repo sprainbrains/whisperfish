@@ -155,8 +155,6 @@ mod corrected_datatypes {
     }
 }
 
-pub mod current;
-
-// pub mod current {
-//     pub use harbour_whisperfish::store::{Message, NewMessage, NewSession, Session};
-// }
+pub mod current {
+    pub use harbour_whisperfish::store::orm::*;
+}

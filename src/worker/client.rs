@@ -12,7 +12,7 @@ use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
 use crate::model::DeviceModel;
 use crate::sfos::SailfishApp;
-use crate::store::{Session, Storage};
+use crate::store::{orm, Storage};
 
 use libsignal_protocol::Context;
 use libsignal_service::configuration::SignalServers;
@@ -187,6 +187,7 @@ impl ClientActor {
             received: false,  // This is set true by a receipt handler
             session_id: None, // Canary value checked later
             attachment: None,
+            is_read: is_sync_sent,
         };
 
         let group = if let Some(group) = msg.group.as_ref() {
@@ -200,7 +201,7 @@ impl ClientActor {
                 t => log::warn!("Unhandled group type {:?}", t),
             }
 
-            Some(crate::store::NewGroup {
+            Some(crate::store::NewGroupV1 {
                 id: group.id(),
                 name: group.name().to_string(),
                 members: group.members_e164.clone(),
@@ -209,8 +210,7 @@ impl ClientActor {
             None
         };
 
-        let is_unread = !new_message.sent;
-        let (message, session) = storage.process_message(new_message, group, is_unread);
+        let (message, session) = storage.process_message(new_message, group);
 
         if settings.get_bool("attachment_log") && !msg.attachments.is_empty() {
             log::trace!("Logging message to the attachment log");
@@ -248,17 +248,24 @@ impl ClientActor {
             .pinned()
             .borrow_mut()
             .messageReceived(session.id, message.id);
+
         // XXX If from ourselves, skip
         if settings.get_bool("enable_notify") && !is_sync_sent {
+            let name: &str = match &session.r#type {
+                orm::SessionType::GroupV1(group) => &group.name,
+                orm::SessionType::DirectMessage(recipient) => recipient
+                    .e164
+                    .as_deref()
+                    .or(recipient.profile_joined_name.as_deref())
+                    .or(recipient.uuid.as_deref())
+                    .expect("e164 or uuid"),
+            };
+
             self.inner.pinned().borrow_mut().notifyMessage(
                 session.id,
-                session
-                    .group_name
-                    .as_deref()
-                    .unwrap_or(&session.source)
-                    .into(),
-                message.message.into(),
-                session.group_id.is_some(),
+                name.into(),
+                message.text.as_deref().unwrap_or("").into(),
+                session.is_group_v1(),
             );
         }
     }
@@ -285,50 +292,43 @@ impl ClientActor {
                     use libsignal_service::sender::ContactDetails;
                     // In fact, we should query for registered contacts instead of sessions here.
                     // https://gitlab.com/rubdos/whisperfish/-/issues/133
-                    let sessions: Vec<Session> = {
-                        use crate::schema::session::dsl::*;
+                    let recipients: Vec<orm::Recipient> = {
+                        use crate::schema::recipients::dsl::*;
                         use diesel::prelude::*;
                         let db = storage.db
                             .lock();
-                        session.order_by(timestamp.desc()).load(&*db)?
+                        recipients.load(&*db)?
                     };
 
-                    let contacts = sessions.into_iter().filter_map(|session| {
-                        if session.is_group {
-                            return None;
-                        } else {
+                    let contacts = recipients.into_iter().filter_map(|recipient| {
                             Some(ContactDetails {
-                                number: Some(session.source.clone()),
-                                // XXX
-                                name: None,
+                                // XXX: expire timer from dm session
+                                number: recipient.e164.clone(),
+                                uuid: recipient.uuid.clone(),
+                                name: recipient.profile_joined_name.clone(),
+                                profile_key: recipient.profile_key.clone(),
+                                // XXX other profile stuff
                                 ..Default::default()
                             })
-                        }
                     });
 
                     sender.send_contact_details(&local_addr, None, contacts, false, true).await?;
                 },
                 Type::Groups => {
                     use libsignal_service::sender::GroupDetails;
-                    let sessions: Vec<Session> = {
-                        use crate::schema::session::dsl::*;
-                        use diesel::prelude::*;
-                        let db = storage.db
-                            .lock();
-                        session.order_by(timestamp.desc()).load(&*db)?
-                    };
+                    let sessions = storage.fetch_group_sessions();
 
-                    let groups = sessions.into_iter().filter_map(|session| {
-                        if session.is_group {
-                            Some(GroupDetails {
-                                name: session.group_name,
-                                members_e164: session.group_members.unwrap_or(String::new()).split(',').map(str::to_string).collect(),
-                                // avatar, active?, color, ..., many cool things to add here!
-                                // Tagging issue #204
-                                ..Default::default()
-                            })
-                        } else {
-                            return None;
+                    let groups = sessions.into_iter().map(|session| {
+                        let group = session.unwrap_group_v1();
+                        let members = storage.fetch_group_members_by_group_v1_id(&group.id);
+                        GroupDetails {
+                            name: Some(group.name.clone()),
+                            members_e164: members.iter().filter_map(|(_member, recipient)| recipient.e164.clone()).collect(),
+                            // XXX: update proto file and add more.
+                            // members: members.iter().filter_map(|(_member, recipient)| Member {e164: recipient.e164}).collect(),
+                            // avatar, active?, color, ..., many cool things to add here!
+                            // Tagging issue #204
+                            ..Default::default()
                         }
                     });
 
@@ -347,32 +347,6 @@ impl ClientActor {
 
             Ok::<_, failure::Error>(())
         }.map(|v| if let Err(e) = v {log::error!("{:?}", e)}));
-    }
-
-    fn process_receipt(&mut self, msg: Envelope) {
-        log::info!("Received receipt: {}", msg.timestamp());
-
-        // XXX: figure out edge cases in which these are *not* initialized.
-        let storage = self.storage.as_mut().expect("storage initialized");
-
-        // XXX: this should probably not be based on ts alone.
-        let ts = msg.timestamp();
-        let source = msg.source_e164();
-        // XXX should this not be encrypted and authenticated?
-        // Signal uses timestamps in milliseconds, chrono has nanoseconds
-        let ts = millis_to_naive_chrono(ts);
-        log::trace!(
-            "Marking message from {} at {} ({}) as received.",
-            source,
-            ts,
-            msg.timestamp()
-        );
-        if let Some((sess, msg)) = storage.mark_message_received(ts) {
-            self.inner
-                .pinned()
-                .borrow_mut()
-                .messageReceipt(sess.id, msg.id)
-        }
     }
 
     fn process_message(&mut self, msg: Envelope, ctx: &mut <Self as Actor>::Context) {
@@ -436,12 +410,12 @@ impl ClientActor {
                         // Signal uses timestamps in milliseconds, chrono has nanoseconds
                         let ts = millis_to_naive_chrono(ts);
                         log::trace!(
-                            "Marking message from {} at {} ({}) as received.",
+                            "Marking message from {} at {} ({}) as read.",
                             source,
                             ts,
                             read.timestamp()
                         );
-                        if let Some((sess, msg)) = storage.mark_message_received(ts) {
+                        if let Some((sess, msg)) = storage.mark_message_read(ts) {
                             self.inner
                                 .pinned()
                                 .borrow_mut()
@@ -461,9 +435,16 @@ impl ClientActor {
                 log::info!("{} received a message.", metadata.sender);
                 for &ts in &receipt.timestamp {
                     // Signal uses timestamps in milliseconds, chrono has nanoseconds
-                    if let Some((sess, msg)) =
-                        storage.mark_message_received(millis_to_naive_chrono(ts))
-                    {
+                    if let Some((sess, msg)) = storage.mark_message_received(
+                        metadata.sender.e164().as_deref(),
+                        metadata
+                            .sender
+                            .uuid
+                            .as_ref()
+                            .map(uuid::Uuid::to_string)
+                            .as_deref(),
+                        millis_to_naive_chrono(ts),
+                    ) {
                         self.inner
                             .pinned()
                             .borrow_mut()
@@ -623,14 +604,14 @@ impl Handler<SendMessage> for ClientActor {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let service = self.authenticated_service();
         let storage = self.storage.as_mut().unwrap();
-        let msg = storage.fetch_message(mid).unwrap();
+        let msg = storage.fetch_message_by_id(mid).unwrap();
 
         let mut sender =
             MessageSender::new(service, self.cipher.clone().unwrap(), DEFAULT_DEVICE_ID);
-        let session = storage.fetch_session(msg.sid).unwrap();
+        let session = storage.fetch_session_by_id(msg.session_id).unwrap();
 
-        if !msg.queued {
-            log::warn!("Message is not queued, refusing to transmit.");
+        if msg.sent_timestamp.is_some() {
+            log::warn!("Message already sent, refusing to retransmit.");
             return Box::pin(async {}.into_actor(self).map(|_, _, _| ()));
         }
 
@@ -641,26 +622,22 @@ impl Handler<SendMessage> for ClientActor {
         let storage = storage.clone();
         Box::pin(
             async move {
-                let group = if let Some(group_id) = session.group_id.as_ref() {
-                    if group_id != "" {
-                        Some(GroupContext {
-                            id: Some(hex::decode(group_id).expect("hex encoded group id")),
-                            r#type: Some(GroupType::Deliver.into()),
+                let group = if let orm::SessionType::GroupV1(group) = &session.r#type {
+                    Some(GroupContext {
+                        id: Some(hex::decode(&group.id).expect("hex encoded group id")),
+                        r#type: Some(GroupType::Deliver.into()),
 
-                            ..Default::default()
-                        })
-                    } else {
-                        None
-                    }
+                        ..Default::default()
+                    })
                 } else {
                     None
                 };
 
                 // XXX online status goes in that bool
                 let online = false;
-                let timestamp = msg.timestamp.timestamp_millis() as u64;
+                let timestamp = msg.server_timestamp.timestamp_millis() as u64;
                 let mut content = DataMessage {
-                    body: Some(msg.message.clone()),
+                    body: msg.text.clone(),
                     flags: None,
                     timestamp: Some(timestamp),
                     // XXX: depends on the features in the message!
@@ -674,9 +651,14 @@ impl Handler<SendMessage> for ClientActor {
                     log::warn!("End session unimplemented");
                 }
 
-                if let Some(ref attachment) = msg.attachment {
+                let attachments = storage.fetch_attachments_for_message(msg.id);
+
+                for attachment in &attachments {
                     use actix_threadpool::BlockingError;
-                    let attachment_path = attachment.clone();
+                    let attachment_path = attachment
+                        .attachment_path
+                        .clone()
+                        .expect("attachment path when uploading");
                     let contents = match actix_threadpool::run(move || {
                         std::fs::read(&attachment_path)
                     })
@@ -690,21 +672,22 @@ impl Handler<SendMessage> for ClientActor {
                         }
                         Ok(contents) => contents,
                     };
+                    let attachment_path = attachment.attachment_path.as_ref().unwrap();
                     let spec = AttachmentSpec {
-                        content_type: mime_guess::from_path(&attachment)
+                        content_type: mime_guess::from_path(&attachment_path)
                             .first()
                             .unwrap()
                             .essence_str()
                             .into(),
                         length: contents.len(),
-                        file_name: Path::new(&attachment)
+                        file_name: Path::new(&attachment_path)
                             .file_name()
                             .map(|f| f.to_string_lossy().into_owned()),
                         preview: None,
-                        voice_note: Some(false),
-                        borderless: Some(false),
-                        width: Some(0),
-                        height: Some(0),
+                        voice_note: Some(attachment.is_voice_note),
+                        borderless: Some(attachment.is_borderless),
+                        width: attachment.width.map(|x| x as u32),
+                        height: attachment.height.map(|x| x as u32),
                         caption: None,
                         blur_hash: None,
                     };
@@ -719,63 +702,50 @@ impl Handler<SendMessage> for ClientActor {
 
                 log::trace!("Transmitting {:?}", content);
 
-                if session.is_group {
-                    let members = session.group_members.as_ref().unwrap();
-                    // I'm gonna be *really* glad when this is strictly typed and handled by the DB.
-                    let members = members
-                        .split(',')
-                        .filter_map(|e164| {
-                            let member = ServiceAddress {
-                                phonenumber: Some(
-                                    phonenumber::parse(None, e164)
-                                        .expect("valid phone number in db"),
-                                ),
-                                relay: None,
-                                uuid: None,
-                            };
-                            if local_addr.matches(&member) {
-                                None
-                            } else {
-                                Some(member)
+                match &session.r#type {
+                    orm::SessionType::GroupV1(group) => {
+                        let members = storage.fetch_group_members_by_group_v1_id(&group.id);
+                        let members = members
+                            .iter()
+                            .filter_map(|(_member, recipient)| {
+                                let member = recipient.to_service_address();
+
+                                if local_addr.matches(&member) {
+                                    None
+                                } else {
+                                    Some(member)
+                                }
+                            })
+                            .collect::<Vec<_>>();
+                        // Clone + async closure means we can use an immutable borrow.
+                        let results = sender
+                            .send_message_to_group(&members, None, content, timestamp, online)
+                            .await;
+                        for result in results {
+                            if let Err(e) = result {
+                                // XXX maybe don't mark as sent
+                                log::error!("Error sending message: {}", e);
                             }
-                        })
-                        .collect::<Vec<_>>();
-                    // Clone + async closure means we can use an immutable borrow.
-                    let results = sender
-                        .send_message_to_group(&members, None, content, timestamp, online)
-                        .await;
-                    for result in results {
-                        if let Err(e) = result {
+                        }
+                    }
+                    orm::SessionType::DirectMessage(recipient) => {
+                        let recipient = recipient.to_service_address();
+
+                        if let Err(e) = sender
+                            .send_message(&recipient, None, content.clone(), timestamp, online)
+                            .await
+                        {
                             // XXX maybe don't mark as sent
                             log::error!("Error sending message: {}", e);
                         }
                     }
-                } else {
-                    let recipient = ServiceAddress {
-                        phonenumber: Some(
-                            phonenumber::parse(None, &session.source)
-                                .expect("only valid phone number in db"),
-                        ),
-                        relay: None,
-                        uuid: None,
-                    };
-
-                    if let Err(e) = sender
-                        .send_message(&recipient, None, content.clone(), timestamp, online)
-                        .await
-                    {
-                        // XXX maybe don't mark as sent
-                        log::error!("Error sending message: {}", e);
-                    }
                 }
 
                 // Mark as sent
-                storage.dequeue_message(mid);
+                storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
 
-                // Update session list for this message
-                storage.refresh_session(&msg);
-
-                Ok((session.id, mid, msg.message))
+                // XXX Qt should handle None, not us.
+                Ok((session.id, mid, msg.text.unwrap_or_else(String::new)))
             }
             .into_actor(self)
             .map(move |res, act, _ctx| match res {
@@ -954,11 +924,10 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
             }
         };
 
-        if msg.is_receipt() {
-            self.process_receipt(msg);
-        } else if msg.is_prekey_signal_message()
+        if msg.is_prekey_signal_message()
             || msg.is_signal_message()
             || msg.is_unidentified_sender()
+            || msg.is_receipt()
         {
             self.process_message(msg, ctx);
         } else {

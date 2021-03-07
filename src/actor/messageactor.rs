@@ -1,7 +1,7 @@
 use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
 use crate::sfos::SailfishApp;
-use crate::store::Storage;
+use crate::store::{orm, Storage};
 use crate::worker::ClientActor;
 
 use actix::prelude::*;
@@ -88,16 +88,16 @@ impl Handler<FetchSession> for MessageActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.as_ref().unwrap();
-        let mut sess = storage
-            .fetch_session(sid)
+        let sess = storage
+            .fetch_session_by_id(sid)
             .expect("FIXME No session returned!");
         if mark_read {
-            storage.mark_session_read(&sess);
-            sess.unread = false;
+            storage.mark_session_read(sess.id);
         }
 
-        let peer_identity = if !sess.source.trim().is_empty() {
-            match storage.peer_identity(&sess.source) {
+        let peer_identity = if let orm::SessionType::DirectMessage(recipient) = &sess.r#type {
+            // FIXME UUID
+            match storage.peer_identity(recipient.e164.as_deref().expect("fixme")) {
                 Ok(ident) => ident,
                 Err(e) => {
                     log::warn!(
@@ -122,11 +122,21 @@ impl Handler<FetchMessage> for MessageActor {
     type Result = ();
 
     fn handle(&mut self, FetchMessage(id): FetchMessage, _ctx: &mut Self::Context) -> Self::Result {
-        let message = self.storage.as_ref().unwrap().fetch_message(id);
+        let message = self
+            .storage
+            .as_ref()
+            .unwrap()
+            .fetch_message_by_id(id)
+            .expect(&format!("No message with id {}", id));
+        let recipient = if let Some(id) = message.sender_recipient_id {
+            self.storage.as_ref().unwrap().fetch_recipient_by_id(id)
+        } else {
+            None
+        };
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_message(message.expect("FIXME No message returned!"));
+            .handle_fetch_message(message, recipient);
     }
 }
 
@@ -142,7 +152,7 @@ impl Handler<FetchAllMessages> for MessageActor {
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_all_messages(messages.expect("FIXME No messages returned!"));
+            .handle_fetch_all_messages(messages);
     }
 }
 
@@ -200,12 +210,10 @@ impl Handler<QueueMessage> for MessageActor {
                 outgoing: true,
                 received: false,
                 sent: false,
+                is_read: true,
             },
             None,
-            false,
         );
-
-        storage.queue_message(&msg);
 
         self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }
@@ -233,12 +241,10 @@ impl Handler<EndSession> for MessageActor {
                 outgoing: true,
                 received: false,
                 sent: false,
+                is_read: true,
             },
             None,
-            false,
         );
-
-        storage.queue_message(&msg);
 
         self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }

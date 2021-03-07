@@ -4,18 +4,32 @@ use std::collections::HashMap;
 
 use crate::actor;
 use crate::model::*;
-use crate::store::Session;
+use crate::store::orm;
 
 use actix::prelude::*;
+use chrono::prelude::*;
 use futures::prelude::*;
 use qmetaobject::*;
+
+struct AugmentedSession {
+    session: orm::Session,
+    last_message: orm::Message,
+}
+
+impl std::ops::Deref for AugmentedSession {
+    type Target = orm::Session;
+
+    fn deref(&self) -> &orm::Session {
+        &self.session
+    }
+}
 
 #[derive(QObject, Default)]
 pub struct SessionModel {
     base: qt_base_class!(trait QAbstractListModel),
     pub actor: Option<Addr<actor::SessionActor>>,
 
-    content: Vec<Session>,
+    content: Vec<AugmentedSession>,
 
     count: qt_method!(fn(&self) -> usize),
     add: qt_method!(fn(&self, id: i32, mark_read: bool)),
@@ -106,13 +120,13 @@ impl SessionModel {
                     .as_ref()
                     .unwrap()
                     .send(actor::MarkSessionRead {
-                        sess: session.clone(),
-                        already_unread: session.unread,
+                        sid: session.id,
+                        already_unread: !session.last_message.is_read,
                     })
                     .map(Result::unwrap),
             );
 
-            session.unread = false;
+            session.last_message.is_read = true;
             let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
         }
@@ -130,26 +144,31 @@ impl SessionModel {
         // XXX: don't forget sync messages
     }
 
-    /// When a new message is received for a session,
-    /// it gets moved up the QML by this
-    pub fn set_session_first(&mut self, sess: Session) {
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
-        self.content.insert(0, sess);
-        (self as &mut dyn QAbstractListModel).end_insert_rows();
-    }
-
     // Event handlers below this line
 
     /// Handle loaded session
-    pub fn handle_sessions_loaded(&mut self, sessions: Vec<Session>) {
+    ///
+    /// The session is accompanied by the last message that was sent on this session.
+    pub fn handle_sessions_loaded(&mut self, sessions: Vec<(orm::Session, orm::Message)>) {
         // XXX: maybe this should be called before even accessing the db?
         (self as &mut dyn QAbstractListModel).begin_reset_model();
-        self.content = sessions;
+        self.content = sessions
+            .into_iter()
+            .map(|(session, message)| AugmentedSession {
+                session,
+                last_message: message,
+            })
+            .collect();
         (self as &mut dyn QAbstractListModel).end_reset_model();
     }
 
     /// Handle add-or-replace session
-    pub fn handle_fetch_session(&mut self, mut sess: Session, mark_read: bool) {
+    pub fn handle_fetch_session(
+        &mut self,
+        sess: orm::Session,
+        mut last_message: orm::Message,
+        mark_read: bool,
+    ) {
         let sid = sess.id;
         let mut already_unread = false;
 
@@ -159,8 +178,8 @@ impl SessionModel {
             .enumerate()
             .find(|(_i, s)| s.id == sess.id);
 
-        if let Some((idx, session)) = found {
-            if session.unread {
+        if let Some((idx, _session)) = found {
+            if !last_message.is_read {
                 already_unread = true;
             }
 
@@ -170,13 +189,13 @@ impl SessionModel {
             (self as &mut dyn QAbstractListModel).end_remove_rows();
         };
 
-        if sess.unread && mark_read {
+        if !last_message.is_read && mark_read {
             actix::spawn(
                 self.actor
                     .as_ref()
                     .unwrap()
                     .send(actor::MarkSessionRead {
-                        sess: sess.clone(),
+                        sid: sess.id,
                         already_unread,
                     })
                     .map(Result::unwrap),
@@ -186,10 +205,10 @@ impl SessionModel {
                 sid,
                 already_unread
             );
-            sess.unread = false;
+            last_message.is_read = true;
 
         // unimplemented!();
-        } else if sess.unread && !already_unread {
+        } else if last_message.is_read && !already_unread {
             // TODO: model.session.go:181
             // let count = self.unread() + 1;
 
@@ -200,14 +219,31 @@ impl SessionModel {
         log::trace!("Inserting the message back in qml");
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0 as i32, 0 as i32);
-        self.content.insert(0, sess);
+        self.content.insert(
+            0,
+            AugmentedSession {
+                session: sess,
+                last_message,
+            },
+        );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 
     /// When a session is marked as read and this handler called, implicitly
     /// the session will be set at the top of the QML list.
-    pub fn handle_mark_session_read(&mut self, mut sess: Session, already_unread: bool) {
-        sess.unread = false;
+    pub fn handle_mark_session_read(&mut self, sid: i32, already_unread: bool) {
+        if let Some((i, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.session.id == sid)
+        {
+            session.last_message.is_read = true;
+            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        } else {
+            log::warn!("Could not call data_changed for non-existing session!");
+        }
 
         if already_unread {
             // TODO: model.session.go:173
@@ -226,7 +262,53 @@ impl SessionModel {
     }
 }
 
-impl Session {
+impl AugmentedSession {
+    fn timestamp(&self) -> NaiveDateTime {
+        self.last_message.server_timestamp
+    }
+
+    fn group_name(&self) -> Option<&str> {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(group) => Some(&group.name),
+            orm::SessionType::DirectMessage(_) => None,
+        }
+    }
+
+    // FIXME we have them separated now... Get QML to understand it.
+    fn group_members(&self) -> Option<String> {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_group) => {
+                // FIXME
+                Some("some,group,members".into())
+            }
+            orm::SessionType::DirectMessage(_) => None,
+        }
+    }
+
+    fn sent(&self) -> bool {
+        self.last_message.sent_timestamp.is_some()
+    }
+
+    fn unread(&self) -> bool {
+        !self.last_message.is_read
+    }
+
+    fn source(&self) -> &str {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_group) => "",
+            orm::SessionType::DirectMessage(recipient) => recipient
+                .e164
+                .as_deref()
+                .or(recipient.uuid.as_deref())
+                .expect("e164 or uuid"),
+        }
+    }
+
+    fn has_attachment(&self) -> bool {
+        // FIXME
+        false
+    }
+
     fn section(&self) -> String {
         // XXX: stub
         let now = chrono::Utc::now();
@@ -234,14 +316,19 @@ impl Session {
             .ymd(now.year(), now.month(), now.day())
             .and_hms(0, 0, 0)
             .naive_utc();
-        let diff = today.signed_duration_since(self.timestamp);
+        let diff = today.signed_duration_since(self.last_message.server_timestamp);
 
         if diff.num_seconds() <= 0 {
             String::from("today")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
             String::from("yesterday")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
-            let wd = self.timestamp.weekday().number_from_monday() % 7;
+            let wd = self
+                .last_message
+                .server_timestamp
+                .weekday()
+                .number_from_monday()
+                % 7;
             wd.to_string()
         } else {
             String::from("older")
@@ -250,19 +337,21 @@ impl Session {
 }
 
 define_model_roles! {
-    enum SessionRoles for Session {
-        ID(id):                                              "id",
-        Source(source via QString::from):                    "source",
-        IsGroup(is_group):                                   "isGroup",
-        GroupName(group_name via qstring_from_option):       "groupName",
-        GroupMembers(group_members via qstring_from_option): "groupMembers",
-        Message(message via QString::from):                  "message",
-        Section(fn section(&self) via QString::from):        "section",
-        Timestamp(timestamp via qdatetime_from_naive):       "timestamp",
-        Unread(unread):                                      "unread",
-        Sent(sent):                                          "sent",
-        Received(received):                                  "received",
-        HasAttachment(has_attachment):                       "hasAttachment"
+    // FIXME: many of these are now functions because of backwards compatibility.
+    //        swap them around for real fields, and fixup QML instead.
+    enum SessionRoles for AugmentedSession {
+        ID(id):                                                            "id",
+        Source(fn source(&self) via QString::from):                        "source",
+        IsGroup(fn is_group_v1(&self)):                                    "isGroup",
+        GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
+        GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
+        Message(last_message.text via qstring_from_option):                "message",
+        Section(fn section(&self) via QString::from):                      "section",
+        Timestamp(fn timestamp(&self) via qdatetime_from_naive):           "timestamp",
+        Unread(fn unread(&self)):                                          "unread",
+        Sent(fn sent(&self)):                                              "sent",
+        // Received(received):                                             "received",
+        HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
     }
 }
 
