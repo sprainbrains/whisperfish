@@ -326,8 +326,8 @@ INSERT INTO group_v1_members (
     recipient_id
 )
 SELECT group_id, recipients.id
-FROM old_group_members, recipients
-WHERE old_group_members.group_member_e164 == recipients.e164;
+FROM old_group_members
+LEFT JOIN recipients ON old_group_members.group_member_e164 == recipients.e164;
 
 -- For sessions, too, we have two sources.
 -- They both come from old_session. 🐎 Hold your horses 🐎
@@ -336,9 +336,11 @@ INSERT INTO sessions (
     direct_message_recipient_id
 )
 SELECT recipients.id
-FROM recipients, old_session
-WHERE recipients.e164 == old_session.source
-    AND NOT old_session.is_group;
+FROM old_session
+-- left join will put NULL for recipient,
+-- which will fail the foreign key
+LEFT JOIN recipients ON recipients.e164 == old_session.source
+WHERE NOT old_session.is_group;
 -- - 🐎 groups have to be tied to the group_v1s table
 INSERT INTO sessions (
     group_v1_id
@@ -382,11 +384,12 @@ SELECT
     old_message.received,
     old_message.outgoing,
     old_message.flags
-FROM sessions, recipients, old_message, old_session
-WHERE sessions.direct_message_recipient_id == recipients.id
-    AND recipients.e164 == old_session.source
-    AND old_session.id == old_message.session_id
-    AND NOT old_session.is_group;
+FROM old_message
+-- Left join again ensures that we fail more foreign keys
+LEFT JOIN old_session ON old_session.id == old_message.session_id
+LEFT JOIN recipients ON recipients.e164 == old_session.source
+LEFT JOIN sessions ON sessions.direct_message_recipient_id == recipients.id
+WHERE NOT old_session.is_group;
 
 INSERT INTO messages (
     session_id,
@@ -428,12 +431,12 @@ SELECT
     old_message.received,
     old_message.outgoing,
     old_message.flags
-FROM sessions, old_message, old_session
+FROM old_message
 -- Use a LEFT JOIN , because when old_message.source = NULL or empty string, we still want the message.
 LEFT JOIN recipients ON recipients.e164 == old_message.source
-WHERE sessions.group_v1_id == old_session.group_id
-    AND old_session.id == old_message.session_id
-    AND old_session.is_group;
+LEFT JOIN old_session ON old_session.id == old_message.session_id
+LEFT JOIN sessions ON sessions.group_v1_id == old_session.group_id
+WHERE  old_session.is_group;
 
 INSERT INTO attachments (
     message_id,
