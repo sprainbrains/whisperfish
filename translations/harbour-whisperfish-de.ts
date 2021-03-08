@@ -400,7 +400,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
-        <translation type="unfinished">Kontakt anzeigen</translation>
+        <translation>Kontakt anzeigen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
@@ -1469,9 +1469,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="281"/>
         <source>Copy %1 message(s)</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 Nachricht kopieren</numerusform>
+            <numerusform>%1 Nachrichten kopieren</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -1484,9 +1484,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
         <source>Delete %1 message(s) for me</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 Nachricht für mich löschen</numerusform>
+            <numerusform>%1 Nachrichten für mich löschen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
