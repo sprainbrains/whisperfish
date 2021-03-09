@@ -330,18 +330,19 @@
     <message id="whisperfish-delete-message">
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation type="vanished">Löschen …</translation>
+        <translation type="vanished">Löschen&#xa0;…</translation>
     </message>
     <message id="whisperfish-resend-message">
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation type="vanished">Neuer Versand …</translation>
+        <translation type="vanished">Neuer Versand&#xa0;…</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
-        <source>Locally deleted %1 messages</source>
+        <source>Locally deleted %n message(s)</source>
+        <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation>Lokal gelöschte %1 Nachrichten</translation>
+        <translation type="unfinished">Lokal gelöschte %1 Nachrichten</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
@@ -943,7 +944,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten …</translation>
+        <translation>Whisperfish neustarten&#xa0;…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -1266,9 +1267,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="285"/>
-        <source>and %1 more</source>
+        <source>and %n more</source>
+        <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>und %1 mehr</numerusform>
             <numerusform>und %1 mehr</numerusform>
         </translation>
@@ -1449,9 +1451,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="248"/>
-        <source>%1 message(s) selected</source>
+        <source>%n message(s) selected</source>
+        <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%1 Nachricht ausgewählt</numerusform>
             <numerusform>%1 Nachrichten ausgewählt</numerusform>
         </translation>
@@ -1467,9 +1470,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="281"/>
-        <source>Copy %1 message(s)</source>
+        <source>Copy %n message(s)</source>
+        <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%1 Nachricht kopieren</numerusform>
             <numerusform>%1 Nachrichten kopieren</numerusform>
         </translation>
@@ -1482,16 +1486,18 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
-        <source>Delete %1 message(s) for me</source>
+        <source>Locally delete %n message(s)</source>
+        <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%1 Nachricht für mich löschen</numerusform>
             <numerusform>%1 Nachrichten für mich löschen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="314"/>
-        <source>Delete %1 message(s) for all</source>
+        <source>Delete %n message(s) for all</source>
+        <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
         <translation type="unfinished">
             <numerusform></numerusform>

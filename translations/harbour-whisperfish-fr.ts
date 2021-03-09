@@ -31,7 +31,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="140"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation>Brouillon : %1</translation>
+        <translation>Brouillon&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="259"/>
@@ -103,7 +103,7 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>ID version : %1</translation>
+        <translation>ID version&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
@@ -233,7 +233,7 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
         <source>Leaving group and removing ALL messages!</source>
         <extracomment>Leave group remorse message</extracomment>
-        <translation>Quitter le groupe et suppression de TOUS les messages !</translation>
+        <translation>Quitter le groupe et suppression de TOUS les messages&#xa0;!</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
@@ -322,13 +322,13 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation>Lié le : %1</translation>
+        <translation>Lié le&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="98"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation>Dernière activité : %1</translation>
+        <translation>Dernière activité&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="118"/>
@@ -345,7 +345,7 @@
     <message id="whisperfish-registration-complete">
         <source>Registration complete!</source>
         <extracomment>Registration complete remorse message</extracomment>
-        <translation type="vanished">Enregistrement terminé !</translation>
+        <translation type="vanished">Enregistrement terminé&#xa0;!</translation>
     </message>
     <message id="whisperfish-error-invalid-datastore">
         <source>ERROR - Failed to setup datastore</source>
@@ -420,9 +420,10 @@
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
-        <source>Locally deleted %1 messages</source>
+        <source>Locally deleted %n message(s)</source>
+        <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation>%1 messages supprimés localement</translation>
+        <translation type="unfinished">%1 messages supprimés localement</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
@@ -668,7 +669,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish stocke les clés d&apos;identité, l&apos;état de la session et les données de message local chiffrées sur disque. Le mot de passe que vous avez défini n&apos;est stocké nulle part et vous ne pourrez pas restaurer vos données si vous perdez votre mot de passe. Remarque : les pièces jointes sont actuellement stockées non chiffrées. Vous pouvez désactiver le stockage des pièces jointes dans la page Paramètres.</translation>
+        <translation>Whisperfish stocke les clés d&apos;identité, l&apos;état de la session et les données de message local chiffrées sur disque. Le mot de passe que vous avez défini n&apos;est stocké nulle part et vous ne pourrez pas restaurer vos données si vous perdez votre mot de passe. Remarque&#xa0;: les pièces jointes sont actuellement stockées non chiffrées. Vous pouvez désactiver le stockage des pièces jointes dans la page Paramètres.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -689,7 +690,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>ATTENTION : identité %1 corrompue. Appuyez sur Confirmer pour réinitialiser l&apos;identité de l&apos;interlocuteur.</translation>
+        <translation>ATTENTION&#xa0;: identité %1 corrompue. Appuyez sur Confirmer pour réinitialiser l&apos;identité de l&apos;interlocuteur.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <source>Register</source>
@@ -1258,9 +1259,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="285"/>
-        <source>and %1 more</source>
+        <source>and %n more</source>
+        <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
         </translation>
@@ -1312,7 +1314,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="49"/>
         <source>You joined the group “%1”.</source>
         <extracomment>Service message, %1 = group name</extracomment>
-        <translation>Vous avez rejoint le groupe « %1 ».</translation>
+        <translation>Vous avez rejoint le groupe «&#xa0;%1&#xa0;».</translation>
     </message>
     <message id="whisperfish-service-message-left-group-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="53"/>
@@ -1390,7 +1392,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="103"/>
         <source>This service message is not yet supported by Whisperfish. Please file a bug report. (Type: &apos;%1&apos;.)</source>
         <extracomment>Service message, %1 is an internal message type identifier</extracomment>
-        <translation>Ce message de service n’est pas encore pris en charge par Whisperfish. Veuillez déposer un rapport d’erreur. (Type : « %1 ».)</translation>
+        <translation>Ce message de service n’est pas encore pris en charge par Whisperfish. Veuillez déposer un rapport d’erreur. (Type&#xa0;: «&#xa0;%1&#xa0;».)</translation>
     </message>
     <message id="whisperfish-service-message-more-info">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
@@ -1441,9 +1443,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="248"/>
-        <source>%1 message(s) selected</source>
+        <source>%n message(s) selected</source>
+        <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%1 message sélectionné</numerusform>
             <numerusform>%1 messages sélectionnés</numerusform>
         </translation>
@@ -1459,9 +1462,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="281"/>
-        <source>Copy %1 message(s)</source>
+        <source>Copy %n message(s)</source>
+        <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>Copier %1 message</numerusform>
             <numerusform>Copier %1 messages</numerusform>
         </translation>
@@ -1474,18 +1478,20 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
-        <source>Delete %1 message(s) for me</source>
+        <source>Locally delete %n message(s)</source>
+        <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>Supprimer %1 message pour moi</numerusform>
             <numerusform>Supprimer %1 messages pour moi</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="314"/>
-        <source>Delete %1 message(s) for all</source>
+        <source>Delete %n message(s) for all</source>
+        <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation>
+        <translation type="unfinished">
             <numerusform>Supprimer %1 message pour tous</numerusform>
             <numerusform>Supprimer %1 messages pour tous</numerusform>
         </translation>
