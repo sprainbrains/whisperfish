@@ -281,7 +281,7 @@ Loader {
                     highlighted: (showMoreDetail.item && showMoreDetail.item.highlighted) ? true : undefined
                     anchors { fill: detailOverlay; margins: Theme.paddingMedium }
                     //: Note if some message attachments are hidden instead of being shown inline
-                    //% "and %1 more"
+                    //% "and %n more"
                     text: qsTrId("whisperfish-attachments-loader-show-more",
                                  detailAttachments.length-maxDetails+1).arg(detailAttachments.length-maxDetails+1)
                     fontSizeMode: Text.Fit

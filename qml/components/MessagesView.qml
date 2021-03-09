@@ -136,7 +136,7 @@ SilicaListView {
         hideSelected = true
 
         //: Remorse: *locally* deleted one or multiple message (past tense)
-        //% "Locally deleted %1 messages"
+        //% "Locally deleted %n message(s)"
         return Remorse.popupAction(
                     root, qsTrId("whisperfish-remorse-deleted-messages-locally"). arg(selectedCount),
                     function() {

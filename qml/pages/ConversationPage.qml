@@ -244,7 +244,7 @@ Page {
             InfoHintLabel {
                 id: infoLabel
                 //: Info label shown while selecting messages
-                //% "%1 message(s) selected"
+                //% "%n message(s) selected"
                 defaultMessage: qsTrId("whisperfish-message-actions-info-label",
                                        _selectedCount).arg(messages.selectedCount)
             }
@@ -277,7 +277,7 @@ Page {
                     width: Theme.itemSizeSmall; height: width
                     icon.source: "../../icons/icon-m-copy.png"
                     //: Message action description
-                    //% "Copy %1 message(s)"
+                    //% "Copy %n message(s)"
                     onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-copy",
                                                                   _selectedCount).arg(_selectedCount))
                     onClicked: messages.messageAction(messages.copySelected)
@@ -299,7 +299,7 @@ Page {
                     width: Theme.itemSizeSmall; height: width
                     icon.source: "image://theme/icon-m-delete"
                     //: Message action description
-                    //% "Delete %1 message(s) for me"
+                    //% "Locally delete %n message(s)"
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-self",
                                                  _selectedCount).arg(_selectedCount))
@@ -309,7 +309,7 @@ Page {
                     width: Theme.itemSizeSmall; height: width
                     icon.source: "../../icons/icon-m-delete-all.png"
                     //: Message action description
-                    //% "Delete %1 message(s) for all"
+                    //% "Delete %n message(s) for all"
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-all",
                                                  _selectedCount).arg(_selectedCount))
