@@ -1464,8 +1464,8 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Auswahl aufheben</numerusform>
+            <numerusform>Auswahl aufheben</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1499,9 +1499,9 @@ Settings page share contacts</extracomment>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Nachricht für alle löschen</numerusform>
+            <numerusform>%n Nachrichten für alle löschen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
