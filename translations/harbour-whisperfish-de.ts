@@ -1463,9 +1463,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="272"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
-        <translation type="unfinished">
-            <numerusform>Auswahl aufheben</numerusform>
-            <numerusform>Auswahl aufheben</numerusform>
+        <translation>
+            <numerusform>Auswahl löschen</numerusform>
+            <numerusform>Auswahl löschen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1473,7 +1473,7 @@ Settings page share contacts</extracomment>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%1 Nachricht kopieren</numerusform>
             <numerusform>%1 Nachrichten kopieren</numerusform>
         </translation>
@@ -1489,7 +1489,7 @@ Settings page share contacts</extracomment>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%1 Nachricht für mich löschen</numerusform>
             <numerusform>%1 Nachrichten für mich löschen</numerusform>
         </translation>
@@ -1508,9 +1508,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="327"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Versuchen, (die) fehlgeschlagene Nachricht erneut zu senden</numerusform>
+            <numerusform>Versuchen, (die) fehlgeschlagene(n) Nachrichten erneut zu senden</numerusform>
         </translation>
     </message>
 </context>
