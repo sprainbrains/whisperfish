@@ -307,7 +307,7 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">%1 messaggi eliminati localmente</translation>
+        <translation>%1 messaggi eliminati localmente</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
@@ -1161,7 +1161,7 @@ Settings page share contacts</extracomment>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
         </translation>
@@ -1345,7 +1345,7 @@ Settings page share contacts</extracomment>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%1 messaggio selezionato</numerusform>
             <numerusform>%1 messaggi selezionati</numerusform>
         </translation>
@@ -1364,7 +1364,7 @@ Settings page share contacts</extracomment>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Copia %1 messaggio</numerusform>
             <numerusform>Copia %1 messaggi</numerusform>
         </translation>
@@ -1380,7 +1380,7 @@ Settings page share contacts</extracomment>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Elimina %1 messaggio per me</numerusform>
             <numerusform>Elimina %1 messaggi per me</numerusform>
         </translation>
@@ -1390,7 +1390,7 @@ Settings page share contacts</extracomment>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Elimina %1 messaggio per tutti</numerusform>
             <numerusform>Elimina %1 messaggi per tutti</numerusform>
         </translation>
