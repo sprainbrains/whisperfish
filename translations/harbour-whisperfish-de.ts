@@ -330,19 +330,19 @@
     <message id="whisperfish-delete-message">
         <source>Deleting</source>
         <extracomment>Deleting message remorse</extracomment>
-        <translation type="vanished">Löschen&#xa0;…</translation>
+        <translation type="vanished">Löschen …</translation>
     </message>
     <message id="whisperfish-resend-message">
         <source>Resending</source>
         <extracomment>Resend message remorse</extracomment>
-        <translation type="vanished">Neuer Versand&#xa0;…</translation>
+        <translation type="vanished">Neuer Versand …</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">Lokal gelöschte %1 Nachrichten</translation>
+        <translation>%1 Nachrichten lokal gelöscht</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
@@ -366,7 +366,7 @@
         <location filename="../qml/components/MessagesView.qml" line="394"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
-        <translation type="unfinished">Wähle • mehr</translation>
+        <translation>Wähle • mehr</translation>
     </message>
     <message id="whisperfish-open-message-menu">
         <source>Open</source>
@@ -383,7 +383,7 @@
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation type="unfinished">Erneut senden</translation>
+        <translation>Erneut senden</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
@@ -944,7 +944,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten&#xa0;…</translation>
+        <translation>Whisperfish neustarten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -1270,7 +1270,7 @@ Settings page share contacts</extracomment>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>und %1 mehr</numerusform>
             <numerusform>und %1 mehr</numerusform>
         </translation>
@@ -1454,7 +1454,7 @@ Settings page share contacts</extracomment>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%1 Nachricht ausgewählt</numerusform>
             <numerusform>%1 Nachrichten ausgewählt</numerusform>
         </translation>
