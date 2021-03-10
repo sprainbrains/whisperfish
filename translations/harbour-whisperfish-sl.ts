@@ -7,19 +7,19 @@
         <location filename="../qml/cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nova</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Priponka</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="48"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Brisanje vseh sporočil</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="121"/>
@@ -31,340 +31,340 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="140"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Osnutek: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="259"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Izbriši pogovor</translation>
     </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../qml/harbour-whisperfish.qml" line="76"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Novo sporočilo</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
         <location filename="../qml/harbour-whisperfish.qml" line="150"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitev odjemalca Signal ni uspela</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="155"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitev shranjevanja podatkov ni uspela</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Danes</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../qml/pages/MainPage.qml" line="116"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Včeraj</translation>
     </message>
     <message id="whisperfish-session-section-older">
         <location filename="../qml/pages/MainPage.qml" line="121"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Starejši</translation>
     </message>
     <message id="whisperfish-about">
         <location filename="../qml/pages/About.qml" line="20"/>
         <source>About Whisperfish</source>
         <extracomment>Title for about page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>O Whisperfish</translation>
     </message>
     <message id="whisperfish-version">
         <location filename="../qml/pages/About.qml" line="33"/>
         <source>Whisperfish v%1</source>
         <extracomment>Whisperfish version string</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish v% 1</translation>
     </message>
     <message id="whisperfish-description">
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Signalni odjemalec za Sailfish OS</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ID gradnje:% 1</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="87"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Podpri na Liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="97"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Izvorna koda</translation>
     </message>
     <message id="whisperfish-bug-report">
         <location filename="../qml/pages/About.qml" line="107"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prijavi napako</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avtorske pravice</translation>
     </message>
     <message id="whisperfish-about-wiki-link">
         <location filename="../qml/pages/About.qml" line="117"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Obiščite Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="126"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dodatne avtorske pravice</translation>
     </message>
     <message id="whisperfish-add-confirm">
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj napravo</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/AddDevice.qml" line="43"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">URL naprave</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../qml/pages/AddDevice.qml" line="54"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Namestite Signal namizno aplikacijo. Z CodeReader aplikacijo odčitajte QR kodo prikazano na Signal namizni aplikaciji in tu prilepite URL.</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Izberite sliko</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
         <source>Add</source>
         <extracomment>Menu option to add new linked device</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Osveži</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Povezane naprave</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
         <source>Unlinking</source>
         <extracomment>Unlinking remorse info message for unlinking secondary devices.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preklic povezane naprave</translation>
     </message>
     <message id="whisperfish-current-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="65"/>
         <source>Current device (Whisperfish, %1)</source>
         <extracomment>Linked device title for current Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Trenutna naprava (Whisperfish, %1)</translation>
     </message>
     <message id="whisperfish-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="69"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Naprava% 1</translation>
     </message>
     <message id="whisperfish-device-link-date">
         <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Povezano: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="98"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zadnjič aktivna: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="118"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Odstrani</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="97"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Potegnite navzdol za začetek novega pogovora.</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../qml/pages/MainPage.qml" line="25"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>O Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="31"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nastavitve</translation>
     </message>
     <message id="whisperfish-new-group-menu">
         <location filename="../qml/pages/MainPage.qml" line="55"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nova skupina</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Novo sporočilo</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/MainPage.qml" line="89"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Potrebna registracija</translation>
     </message>
     <message id="whisperfish-locked-message">
         <location filename="../qml/pages/MainPage.qml" line="93"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zaklenjeno</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lokalno izbrisanih %n sporočil</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reagiraj</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="380"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kopiraj</translation>
     </message>
     <message id="whisperfish-forward-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="387"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Deli z</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="394"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Izberite • več</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="373"/>
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ponovno poizkusite poslati</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ponastavitev varne seje</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Resetting secure session</source>
         <extracomment>Reset secure session remorse message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ponastavljam varno sejo</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokaži stik</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Če želite preveriti zasebnost vaše komunikacije z uporabnikom/co %1, primerjajte gornje število s številom na njegovi/njeni napravi.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="59"/>
         <source>This phone number contains invalid characters.</source>
         <extracomment>invalid recipient phone number: invalid characters</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ta telefonska številka vsebuje neveljavne znake.</translation>
     </message>
     <message id="whisperfish-recipient-local-number-not-allowed">
         <location filename="../qml/pages/NewMessage.qml" line="64"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>V nastavitvah nastavite kodo države ali uporabite mednarodno obliko zapisa.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
         <location filename="../qml/pages/NewMessage.qml" line="68"/>
         <source>This phone number appears to be invalid.</source>
         <extracomment>invalid recipient phone number: failed to format</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zdi se, da je ta telefonska številka neveljavna.</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../qml/pages/NewMessage.qml" line="96"/>
         <source>New message</source>
         <extracomment>New message page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Novo sporočilo</translation>
     </message>
     <message id="whisperfish-new-group-title">
         <location filename="../qml/pages/NewGroup.qml" line="38"/>
         <source>New Group</source>
         <extracomment>New group page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nova skupina</translation>
     </message>
     <message id="whisperfish-group-name-label">
         <location filename="../qml/pages/NewGroup.qml" line="47"/>
         <source>Group Name</source>
         <extracomment>Group name label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ime skupine</translation>
     </message>
     <message id="whisperfish-group-name-placeholder">
         <location filename="../qml/pages/NewGroup.qml" line="50"/>
         <source>Group Name</source>
         <extracomment>Group name placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ime skupine</translation>
     </message>
     <message id="whisperfish-new-group-message-members">
         <location filename="../qml/pages/NewGroup.qml" line="69"/>
@@ -373,7 +373,7 @@
         <extracomment>New group message members label
 ----------
 Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Člani</translation>
     </message>
     <message id="whisperfish-new-message-recipient">
         <location filename="../qml/pages/NewMessage.qml" line="114"/>
@@ -382,31 +382,31 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>New message recipient label
 ----------
 Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prejemnik</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../qml/pages/NewGroup.qml" line="110"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prosimo, poimenujte skupino</translation>
     </message>
     <message id="whisperfish-error-invalid-group-members">
         <location filename="../qml/pages/NewGroup.qml" line="106"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Izberite člane skupine</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
         <location filename="../qml/pages/NewMessage.qml" line="174"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Neveljaven prejemnik</translation>
     </message>
     <message id="whisperfish-initial-setup-welcome-title">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="16"/>
         <source>Welcome to Whisperfish</source>
         <extracomment>welcome screen title when creating a new database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dobrodošli v Whisperfish</translation>
     </message>
     <message id="whisperfish-setup-password-prompt">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="20"/>
