@@ -342,7 +342,7 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">Místně odstraněné %1 zprávy</translation>
+        <translation>Místně odstraněné %n zprávy</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
@@ -501,7 +501,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="16"/>
         <source>Welcome to Whisperfish</source>
         <extracomment>welcome screen title when creating a new database</extracomment>
-        <translation type="unfinished">Vítejte na Whisperfish</translation>
+        <translation>Vítejte u Whisperfish</translation>
     </message>
     <message id="whisperfish-setup-password-prompt">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="20"/>
@@ -612,7 +612,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish ukládá klíče identity, stav relace a data místních zpráv šifrovaná na disku. Nastavené heslo není nikde uloženo a pokud ztratíte heslo, nebudete moci obnovit svá data. Poznámka: Přílohy jsou aktuálně uloženy nezašifrované. Ukládání příloh můžete deaktivovat na stránce Nastavení.</translation>
+        <translation>Whisperfish ukládá klíče identity, stav zasedání a data místních zpráv šifrovaná na disku. Nastavené heslo není nikde uloženo a pokud ztratíte heslo, nebudete moci obnovit svá data. Poznámka: Přílohy jsou aktuálně uloženy nezašifrované. Ukládání příloh můžete deaktivovat na stránce Nastavení.</translation>
     </message>
     <message id="whisperfish-register-accept">
         <source>Register</source>
@@ -675,7 +675,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="12"/>
         <source>Register</source>
         <extracomment>registration page title</extracomment>
-        <translation type="unfinished">Registrace</translation>
+        <translation>Registrace</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
         <location filename="../qml/pages/RegisterPage.qml" line="38"/>
@@ -907,7 +907,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation>Pokud je zapnutá, Whisperfish potlačí všechna oznámení z každé relace kromě prvního.</translation>
+        <translation>Pokud je zapnutá, Whisperfish ukáze jen první oznámení z každé zasedání.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
@@ -937,7 +937,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="323"/>
         <source>Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart.</source>
         <extracomment>Settings page incognito mode description</extracomment>
-        <translation type="unfinished">Anonymní režim zcela zakáže úložiště. Žádné přílohy ani zprávy nejsou uloženy, zprávy jsou viditelné až do restartování.</translation>
+        <translation>Anonymní režim zcela zakáže úložiště. Přílohy a zprávy nejsou uloženy, zprávy jsou viditelné až do restartování.</translation>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="331"/>
@@ -1003,7 +1003,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="402"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
-        <translation>Celkový počet relací</translation>
+        <translation>Celkový počet zasedání</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
         <location filename="../qml/pages/Settings.qml" line="408"/>
@@ -1113,7 +1113,7 @@ Settings page share contacts</extracomment>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished">Opustit</translation>
+        <translation>Opustit skupinu</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
@@ -1249,7 +1249,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="157"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="unfinished">Ahoj %1</translation>
+        <translation>Ahoj %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
         <location filename="../qml/components/ChatTextInput.qml" line="161"/>
@@ -1261,17 +1261,17 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="211"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
-        <translation type="unfinished">Vyberte přílohy</translation>
+        <translation>Vybrat přílohy</translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="285"/>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
-            <numerusform>a %1 další</numerusform>
-            <numerusform>a %1 další</numerusform>
-            <numerusform>a %1 dalších</numerusform>
+        <translation>
+            <numerusform>a %n další</numerusform>
+            <numerusform>a %n další</numerusform>
+            <numerusform>a %n dalších</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1290,7 +1290,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/message/InfoRow.qml" line="86"/>
         <source>show more</source>
         <extracomment>Hint for very long messages, while not expanded</extracomment>
-        <translation type="unfinished">Ukázat více</translation>
+        <translation>zobrazit více</translation>
     </message>
     <message id="whisperfish-sender-name-label-outgoing">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="98"/>
@@ -1303,13 +1303,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished">Příloha</translation>
+        <translation>Příloha</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="177"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
-        <translation type="unfinished">žádný odesílatel</translation>
+        <translation>žádný odesílatel</translation>
     </message>
     <message id="whisperfish-message-empty-note">
         <location filename="../qml/delegates/MessageDelegate.qml" line="232"/>
@@ -1327,19 +1327,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="53"/>
         <source>You left the group.</source>
         <extracomment>Service message</extracomment>
-        <translation type="unfinished">Opustili jste skupinu.</translation>
+        <translation>Opustil jsi skupinu.</translation>
     </message>
     <message id="whisperfish-service-message-joined-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="57"/>
         <source>%1 joined the group.</source>
         <extracomment>Service message, %1 is the new member&apos;s name</extracomment>
-        <translation type="unfinished">%1 se připojil ke skupině.</translation>
+        <translation>%1 se připojil ke skupině.</translation>
     </message>
     <message id="whisperfish-service-message-left-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="61"/>
         <source>%1 left the group.</source>
         <extracomment>Service message, %1 is is the lost member&apos;s name</extracomment>
-        <translation type="unfinished">%1 opustil skupinu.</translation>
+        <translation>%1 opustil skupinu.</translation>
     </message>
     <message id="whisperfish-service-message-missed-call-voice">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="65"/>
@@ -1357,13 +1357,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="73"/>
         <source>You called %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished">Volali jste %1.</translation>
+        <translation>Volal jsi %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-video-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="77"/>
         <source>You started a video call with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished">Zahájili jste videohovor s %1.</translation>
+        <translation>Zahájil jsi videohovor s %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="81"/>
@@ -1375,7 +1375,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="85"/>
         <source>%1 started a video call with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished">%1 s vámi zahájil videohovor.</translation>
+        <translation>%1 s tebou zahájil videohovor.</translation>
     </message>
     <message id="whisperfish-service-message-fingerprint-changed">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
@@ -1387,13 +1387,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="94"/>
         <source>You have reset the secure session with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished">Obnovili jste zabezpečenou relaci pomocí %1.</translation>
+        <translation>Obnovil jsi zabezpečené zasedání s %1.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="98"/>
         <source>%1 has reset the secure session with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished">%1 obnovil zabezpečenou relaci s vámi.</translation>
+        <translation>%1 obnovil s tebou zabezpečené zasedaní.</translation>
     </message>
     <message id="whisperfish-service-message-not-supported">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="103"/>
@@ -1404,19 +1404,19 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-service-message-more-info">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
         <source>more information</source>
-        <translation type="unfinished">Další informace</translation>
+        <translation>další informace</translation>
     </message>
     <message id="whisperfish-contact-card-page-save">
         <location filename="../qml/pages/ContactCardPage.qml" line="53"/>
         <source>Save to address book</source>
         <extracomment>Menu item to save a shared contact to the local address book</extracomment>
-        <translation type="unfinished">Uložit do adresáře</translation>
+        <translation>Uložit do adresáře</translation>
     </message>
     <message id="whisperfish-expanded-message-page-header">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
         <source>Full message</source>
         <extracomment>Page title for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished">Úplná zpráva</translation>
+        <translation>Celá zpráva</translation>
     </message>
     <message id="whisperfish-expanded-message-info-outbound">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="34"/>
@@ -1428,7 +1428,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="37"/>
         <source>from %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
-        <translation type="unfinished">od %1</translation>
+        <translation>od %1</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
         <location filename="../qml/pages/ViewImagePage.qml" line="242"/>
@@ -1440,13 +1440,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewImagePage.qml" line="252"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
-        <translation type="unfinished">Načtení se nezdařilo.</translation>
+        <translation>Načítání selhalo</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
         <location filename="../qml/pages/ViewVideoPage.qml" line="105"/>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
-        <translation type="unfinished">Přehrávání se nezdařilo</translation>
+        <translation>Přehrávání selhalo</translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="248"/>
@@ -1474,10 +1474,10 @@ Settings page share contacts</extracomment>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform>Kopírovat %1 zprávu</numerusform>
-            <numerusform>Kopírovat %1 zprávy</numerusform>
-            <numerusform>Kopírovat %1 zpráv</numerusform>
+        <translation>
+            <numerusform>Kopírovat %n zprávu</numerusform>
+            <numerusform>Kopírovat %n zprávy</numerusform>
+            <numerusform>Kopírovat %n zpráv</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -1491,10 +1491,10 @@ Settings page share contacts</extracomment>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform>Odstranit %1 zprávu</numerusform>
-            <numerusform>Odstranit %1 zprávy</numerusform>
-            <numerusform>Odstranit %1 zpráv</numerusform>
+        <translation>
+            <numerusform>Odstranit %n zprávu</numerusform>
+            <numerusform>Odstranit %n zprávy</numerusform>
+            <numerusform>Odstranit %n zpráv</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1502,10 +1502,10 @@ Settings page share contacts</extracomment>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform>Odstranit %1 zprávu pro všechny</numerusform>
-            <numerusform>Odstranit %1 zprávy pro všechny</numerusform>
-            <numerusform>Odstranit %1 zpráv pro všechny</numerusform>
+        <translation>
+            <numerusform>Odstranit %n zprávu pro vše</numerusform>
+            <numerusform>Odstranit %n zprávy pro vše</numerusform>
+            <numerusform>Odstranit %n zpráv pro vše</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">

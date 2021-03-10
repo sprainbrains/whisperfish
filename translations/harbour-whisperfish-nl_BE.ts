@@ -342,7 +342,7 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">%1 berichten lokaal verwijderd</translation>
+        <translation>%n bericht(en) lokaal verwijderd</translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
@@ -1264,9 +1264,9 @@ Settings page share contacts</extracomment>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>en nog eêntje meêr</numerusform>
-            <numerusform>en nog %1 meêr</numerusform>
+            <numerusform>en nog %n meêr</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1448,9 +1448,9 @@ Settings page share contacts</extracomment>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eên bericht geselecteerd</numerusform>
-            <numerusform>%1 berichten geselecteerd</numerusform>
+            <numerusform>%n berichten geselecteerd</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1467,9 +1467,9 @@ Settings page share contacts</extracomment>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eên bericht kopiëren</numerusform>
-            <numerusform>%1 berichten kopiëren</numerusform>
+            <numerusform>%n berichten kopiëren</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -1483,9 +1483,9 @@ Settings page share contacts</extracomment>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform>Eên bericht van mijne kant verwijderen</numerusform>
-            <numerusform>%1 berichten van mijne kant verwijderen</numerusform>
+        <translation>
+            <numerusform>Eên bericht lokaal verwijderen</numerusform>
+            <numerusform>%n berichten lokaal verwijderen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1493,9 +1493,9 @@ Settings page share contacts</extracomment>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Eên bericht bij iedereên verwijderen</numerusform>
-            <numerusform>%1 berichten bij iedereên verwijderen</numerusform>
+            <numerusform>%n berichten bij iedereên verwijderen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
