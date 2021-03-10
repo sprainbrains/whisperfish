@@ -858,7 +858,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Anhänge werden in %1 gespeichert. Wenn dies deaktiviert ist, funktionieren Anhänge nicht.</translation>
+        <translation>Anhänge werden in %1 gespeichert. Wenn dies deaktiviert ist, funktionieren Anhänge momentan gar nicht.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="232"/>
@@ -890,7 +890,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation>Wenn diese Funktion aktiviert ist, läuft Whisperfish im Hintergrund weiter und kann Benachrichtigungen senden, nachdem das App-Fenster geschlossen wurde.</translation>
+        <translation>Wenn diese Funktion aktiviert ist, läuft Whisperfish im Hintergrund weiter und kann Benachrichtigungen anzeigen, nachdem das App-Fenster geschlossen wurde.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="280"/>
@@ -908,7 +908,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation>Wenn diese Option aktiviert ist, minimiert Whisperfish alle Benachrichtigungen außer der ersten von jeder Sitzung.</translation>
+        <translation>Wenn diese Option aktiviert ist, zeigt Whisperfish nur die erste Benachrichtigung jeder Sitzung an.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
@@ -944,7 +944,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neustarten …</translation>
+        <translation>Whisperfish neu starten…</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
