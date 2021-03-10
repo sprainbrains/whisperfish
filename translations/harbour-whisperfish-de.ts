@@ -267,9 +267,9 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>%1 Nachricht lokal gelöscht</numerusform>
             <numerusform>%1 Nachrichten lokal gelöscht</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -820,7 +820,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neu starten&#xa0;…</translation>
+        <translation>Whisperfish neu starten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
