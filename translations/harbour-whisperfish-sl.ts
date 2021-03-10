@@ -268,7 +268,7 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation type="unfinished">
-            <numerusform>Lokalno izbrisanih %n sporočil</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
