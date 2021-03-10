@@ -160,31 +160,6 @@
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>Εγκαταστείστε το Signal Desktop. Χρησιμοποιείστε την εφαρμογή CodeReader για να σαρώσετε το QR code που εμφανίζεται στο Signal Desktop και κάνετε επικόλληση του συνδέσμου URL εδώ.</translation>
     </message>
-    <message id="whisperfish-attachment-from-self">
-        <source>Me</source>
-        <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
-        <translation type="vanished">Εγώ</translation>
-    </message>
-    <message id="whisperfish-attachment-from-contact">
-        <source>From %1</source>
-        <extracomment>Personalized placeholder showing the attachment is from contact</extracomment>
-        <translation type="vanished">Από %1</translation>
-    </message>
-    <message id="whisperfish-chatinput-contact">
-        <source>Hi %1</source>
-        <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="vanished">Γειά %1</translation>
-    </message>
-    <message id="whisperfish-chatinput-generic">
-        <source>Hi</source>
-        <extracomment>Generic placeholder for chat input</extracomment>
-        <translation type="vanished">Γειά</translation>
-    </message>
-    <message id="whisperfish-select-file">
-        <source>Select file</source>
-        <extracomment>Title for file picker page</extracomment>
-        <translation type="vanished">Επιλογή αρχείου</translation>
-    </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
@@ -287,21 +262,6 @@
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Κλειδωμένο</translation>
     </message>
-    <message id="whisperfish-group-label">
-        <source>Group: %1</source>
-        <extracomment>Group message label</extracomment>
-        <translation type="vanished">Ομάδα: %1</translation>
-    </message>
-    <message id="whisperfish-delete-message">
-        <source>Deleting</source>
-        <extracomment>Deleting message remorse</extracomment>
-        <translation type="vanished">Διαγραφή</translation>
-    </message>
-    <message id="whisperfish-resend-message">
-        <source>Resending</source>
-        <extracomment>Resend message remorse</extracomment>
-        <translation type="vanished">Επαναποστολή</translation>
-    </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
         <source>Locally deleted %n message(s)</source>
@@ -332,16 +292,6 @@
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
         <translation>Επιλογή • περισσότερα</translation>
-    </message>
-    <message id="whisperfish-open-message-menu">
-        <source>Open</source>
-        <extracomment>Open attachment message menu item</extracomment>
-        <translation type="vanished">Άνοιγμα</translation>
-    </message>
-    <message id="whisperfish-delete-message-menu">
-        <source>Delete</source>
-        <extracomment>Delete message menu item</extracomment>
-        <translation type="vanished">Διαγραφή</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="373"/>
@@ -990,12 +940,6 @@ Settings page share contacts</extracomment>
         <extracomment>Add group member menu item</extracomment>
         <translation>Προσθήκη μέλους</translation>
     </message>
-    <message id="whisperfish-group-add-member-remorse">
-        <source>Adding %1 to group</source>
-        <oldsource>%1 added to group</oldsource>
-        <extracomment>Add group member remorse message</extracomment>
-        <translation type="vanished">Προσθήκη %1 στην ομάδα</translation>
-    </message>
     <message id="whisperfish-unknown-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
         <source>Unknown</source>
@@ -1051,11 +995,6 @@ Settings page share contacts</extracomment>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Εσείς</translation>
-    </message>
-    <message id="whisperfish-group-members-title">
-        <source>Group members</source>
-        <extracomment>Group members</extracomment>
-        <translation type="vanished">Μέλη Ομάδας</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>

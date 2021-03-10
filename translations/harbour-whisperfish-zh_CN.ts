@@ -39,11 +39,6 @@
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>删除对话</translation>
     </message>
-    <message id="whisperfish-delete-session">
-        <source>Delete Conversation</source>
-        <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="vanished">删除对话</translation>
-    </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../qml/harbour-whisperfish.qml" line="76"/>
         <source>New Message</source>
@@ -165,36 +160,6 @@
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>安装 Signal 桌面端。使用 CodeReader 软件扫描显示在 Signal 桌面端的二维码然后复制并粘贴到此处。</translation>
     </message>
-    <message id="whisperfish-attachment-from-self">
-        <source>Me</source>
-        <extracomment>Personalized placeholder showing the attachment is from oneself</extracomment>
-        <translation type="vanished">我</translation>
-    </message>
-    <message id="whisperfish-attachment-from-contact">
-        <source>From %1</source>
-        <extracomment>Personalized placeholder showing the attachment is from contact</extracomment>
-        <translation type="vanished">来自 %1</translation>
-    </message>
-    <message id="whisperfish-chatinput-contact">
-        <source>Hi %1</source>
-        <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="vanished">你好 %1</translation>
-    </message>
-    <message id="whisperfish-chatinput-generic">
-        <source>Hi</source>
-        <extracomment>Generic placeholder for chat input</extracomment>
-        <translation type="vanished">你好</translation>
-    </message>
-    <message id="whisperfish-select-file">
-        <source>Select file</source>
-        <extracomment>Title for file picker page</extracomment>
-        <translation type="vanished">选择文件</translation>
-    </message>
-    <message id="whisperfish-choose-country-code">
-        <source>Choose Country Code</source>
-        <extracomment>Directions for choosing country code</extracomment>
-        <translation type="vanished">选择国家代码</translation>
-    </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
@@ -261,26 +226,6 @@
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>下拉以开始新对话。</translation>
     </message>
-    <message id="whisperfish-registration-complete">
-        <source>Registration complete!</source>
-        <extracomment>Registration complete remorse message</extracomment>
-        <translation type="vanished">已完成注册！</translation>
-    </message>
-    <message id="whisperfish-error-invalid-datastore">
-        <source>ERROR - Failed to setup datastore</source>
-        <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="vanished">出错—设置数据库失败</translation>
-    </message>
-    <message id="whisperfish-error-invalid-number">
-        <source>ERROR - Invalid phone number registered with Signal</source>
-        <extracomment>Invalid phone number error message</extracomment>
-        <translation type="vanished">出错—注册 Signal 的手机号无效</translation>
-    </message>
-    <message id="whisperfish-error-setup-client">
-        <source>ERROR - Failed to setup Signal client</source>
-        <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="vanished">出错—设置 Signal 客户端失败</translation>
-    </message>
     <message id="whisperfish-about-menu">
         <location filename="../qml/pages/MainPage.qml" line="25"/>
         <source>About Whisperfish</source>
@@ -305,11 +250,6 @@
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>新消息</translation>
     </message>
-    <message id="whisperfish-no-messages-found">
-        <source>No messages</source>
-        <extracomment>Whisperfish no messages found message</extracomment>
-        <translation type="vanished">暂无消息</translation>
-    </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/MainPage.qml" line="89"/>
         <source>Registration required</source>
@@ -321,21 +261,6 @@
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>已锁定</translation>
-    </message>
-    <message id="whisperfish-group-label">
-        <source>Group: %1</source>
-        <extracomment>Group message label</extracomment>
-        <translation type="vanished">群组:%1</translation>
-    </message>
-    <message id="whisperfish-delete-message">
-        <source>Deleting</source>
-        <extracomment>Deleting message remorse</extracomment>
-        <translation type="vanished">正在删除</translation>
-    </message>
-    <message id="whisperfish-resend-message">
-        <source>Resending</source>
-        <extracomment>Resend message remorse</extracomment>
-        <translation type="vanished">正在重新发送</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
@@ -367,16 +292,6 @@
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message id="whisperfish-open-message-menu">
-        <source>Open</source>
-        <extracomment>Open attachment message menu item</extracomment>
-        <translation type="vanished">打开</translation>
-    </message>
-    <message id="whisperfish-delete-message-menu">
-        <source>Delete</source>
-        <extracomment>Delete message menu item</extracomment>
-        <translation type="vanished">删除</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="373"/>
@@ -487,16 +402,6 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>Invalid recipient error</extracomment>
         <translation>接受消息无效</translation>
     </message>
-    <message id="whisperfish-enter-password">
-        <source>Enter your password</source>
-        <extracomment>Enter password prompt</extracomment>
-        <translation type="vanished">请输入你的密码</translation>
-    </message>
-    <message id="whisperfish-set-password">
-        <source>Set your password</source>
-        <extracomment>Set password prompt</extracomment>
-        <translation type="vanished">请设置你的密码</translation>
-    </message>
     <message id="whisperfish-initial-setup-welcome-title">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="16"/>
         <source>Welcome to Whisperfish</source>
@@ -598,26 +503,11 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>unlock button label</extracomment>
         <translation>解锁</translation>
     </message>
-    <message id="whisperfish-verify-password-label">
-        <source>Verify Password</source>
-        <extracomment>Verify Password label</extracomment>
-        <translation type="vanished">验证密码</translation>
-    </message>
-    <message id="whisperfish-verify-password-placeholder">
-        <source>Verify Password</source>
-        <extracomment>Verify Password label</extracomment>
-        <translation type="vanished">验证密码</translation>
-    </message>
     <message id="whisperfish-password-info">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
         <translation>Whisperfish在磁盘上存储加密的身份密钥、会话状态及本地消息数据。你设置的密码没有存储在任何地方，如果你丢失了密码，你将无法恢复你的数据。请注意:目前附件以未加密状态存储。你可以在设置页中禁用存储附件。</translation>
-    </message>
-    <message id="whisperfish-register-accept">
-        <source>Register</source>
-        <extracomment>Register accept text</extracomment>
-        <translation type="vanished">注册</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -625,18 +515,6 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <oldsource>Connect with Signal</oldsource>
         <extracomment>registration prompt text</extracomment>
         <translation>请输入想要用于注册 Signal 的手机号吗。</translation>
-    </message>
-    <message id="whisperfish-phone-number-input-label">
-        <source>International phone number</source>
-        <oldsource>Phone number (E.164 format)</oldsource>
-        <extracomment>Phone number input</extracomment>
-        <translation type="vanished">手机号码（E.164格式）</translation>
-    </message>
-    <message id="whisperfish-phone-number-input-placeholder">
-        <source>+18875550100</source>
-        <oldsource>18875550100</oldsource>
-        <extracomment>Phone number placeholder</extracomment>
-        <translation type="vanished">+8612345678910</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="160"/>
@@ -754,11 +632,6 @@ Settings page share contacts</extracomment>
         <source>Reconnect</source>
         <extracomment>Reconnect menu</extracomment>
         <translation>重新连接</translation>
-    </message>
-    <message id="whisperfish-settings-refresh-contacts-menu">
-        <source>Refresh Contacts</source>
-        <extracomment>Refresh contacts menu</extracomment>
-        <translation type="vanished">刷新联系人</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="49"/>
@@ -1054,38 +927,6 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>已禁用</translation>
     </message>
-    <message id="whisperfish-verify-code-accept">
-        <source>Verify</source>
-        <extracomment>Verify code accept</extracomment>
-        <translation type="vanished">验证</translation>
-    </message>
-    <message id="whisperfish-verify-code-title">
-        <source>Verify Device</source>
-        <extracomment>Verify code page title</extracomment>
-        <translation type="vanished">验证设备</translation>
-    </message>
-    <message id="whisperfish-verify-code-label">
-        <source>Code</source>
-        <extracomment>Verify code label</extracomment>
-        <translation type="vanished">验证码</translation>
-    </message>
-    <message id="whisperfish-verify-code-placeholder">
-        <source>123456</source>
-        <oldsource>Code</oldsource>
-        <extracomment>Verify code placeholder</extracomment>
-        <translation type="vanished">123456</translation>
-    </message>
-    <message id="whisperfish-voice-verify-code-instructions">
-        <source>Signal will call you with a 6-digit verification code. Please enter it here.</source>
-        <extracomment>Voice verification code instructions</extracomment>
-        <translation type="vanished">Signal 会以通话形式告知你6位验证码。请在此输入。</translation>
-    </message>
-    <message id="whisperfish-text-verify-code-instructions">
-        <source>Signal will text you a 6-digit verification code. Please enter it here, using only numbers.</source>
-        <oldsource>Signal will text you a 6-digit verification code. Please enter it here.</oldsource>
-        <extracomment>Text verification code instructions</extracomment>
-        <translation type="vanished">Signal 会以文本形式发送给你6位验证码。请在此输入。</translation>
-    </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="53"/>
         <source>Verify safety numbers</source>
@@ -1098,12 +939,6 @@ Settings page share contacts</extracomment>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>添加联系人</translation>
-    </message>
-    <message id="whisperfish-group-add-member-remorse">
-        <source>Adding %1 to group</source>
-        <oldsource>%1 added to group</oldsource>
-        <extracomment>Add group member remorse message</extracomment>
-        <translation type="vanished">正在添加 %1 到群组</translation>
     </message>
     <message id="whisperfish-unknown-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
@@ -1160,11 +995,6 @@ Settings page share contacts</extracomment>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message id="whisperfish-group-members-title">
-        <source>Group members</source>
-        <extracomment>Group members</extracomment>
-        <translation type="vanished">群组成员</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
