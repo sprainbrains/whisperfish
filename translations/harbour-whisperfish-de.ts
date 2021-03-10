@@ -19,7 +19,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="48"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
-        <translation>Alle Nachrichten löschen</translation>
+        <translation>Alle Nachrichten werden gelöscht</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="121"/>
@@ -163,7 +163,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="54"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation>Installiere Signal Desktop. Nutze einen QR-Code-Scanner, um die URL aus dem QR-Code hinzuzufügen.</translation>
+        <translation>Installiere Signal Desktop. Nutze einen QR-Code-Scanner, um die URL aus dem dort angezeigten QR-Code hinzuzufügen.</translation>
     </message>
     <message id="whisperfish-attachment-from-self">
         <source>Me</source>
@@ -253,7 +253,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="118"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
-        <translation>Entfernen</translation>
+        <translation>Trennen</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="97"/>
@@ -507,7 +507,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="20"/>
         <source>Set a new password to secure your conversations.</source>
         <extracomment>new password setup prompt</extracomment>
-        <translation>Legen Sie ein neues Passwort fest, um Ihre Unterhaltungen zu sichern.</translation>
+        <translation>Lege ein neues Passwort fest, um die Unterhaltungen abzusichern.</translation>
     </message>
     <message id="whisperfish-password-label-too-short">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="71"/>
@@ -527,7 +527,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="77"/>
         <source>Your new password</source>
         <extracomment>New password input placeholder</extracomment>
-        <translation>Ihr neues Passwort</translation>
+        <translation>Dein neues Passwort</translation>
     </message>
     <message id="whisperfish-password-repeated-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="95"/>
@@ -546,7 +546,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="107"/>
         <source>Repeat your new password</source>
         <extracomment>Repeated new password input placeholder</extracomment>
-        <translation>Wiederholen Sie Ihr neues Passwort</translation>
+        <translation>Wiederhole dein neues Passwort</translation>
     </message>
     <message id="whisperfish-skip-button-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="131"/>
@@ -570,7 +570,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/UnlockPage.qml" line="15"/>
         <source>Please enter your password to unlock your conversations.</source>
         <extracomment>unlock page password prompt</extracomment>
-        <translation>Bitte geben Sie Ihr Passwort ein, um Ihre Unterhaltungen zu entsperren.</translation>
+        <translation>Bitte gib dein Passwort ein, um deine Unterhaltungen zu entsperren.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/UnlockPage.qml" line="27"/>
@@ -741,7 +741,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>WARNUNG: %1 Identität wird nicht länger vertraut. Drücke Bestätigen um die Identität zurückzusetzen.</translation>
+        <translation>WARNUNG: %1 Identität wird nicht länger vertraut. Drücke &apos;Bestätigen&apos;, um die Identität zurückzusetzen.</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="24"/>
