@@ -1091,7 +1091,7 @@ Settings page share contacts</extracomment>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
-        <translation>Überprüfe Sicherheitsnummern</translation>
+        <translation>Sicherheitsnummern überprüfen</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="200"/>
@@ -1182,7 +1182,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/FatalErrorPage.qml" line="18"/>
         <source>Please restart Whisperfish. If the problem persists and appears to be an issue with Whisperfish, please report the issue.</source>
         <extracomment>generic hint on what to do after a fatal error occurred (error message will be shown separately)</extracomment>
-        <translation>Bitte starten Sie Whisperfish neu. Wenn das Problem weiterhin besteht und ein Problem mit Whisperfish zu sein scheint, melden Sie es bitte.</translation>
+        <translation>Bitte starte Whisperfish neu. Wenn das Problem weiterhin besteht und Whisperfish die Ursache zu sein scheint, melde es bitte.</translation>
     </message>
     <message id="whisperfish-startup-placeholder-title">
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
@@ -1200,7 +1200,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
         <source>Please enter the code you received from Signal.</source>
         <extracomment>verify registration prompt</extracomment>
-        <translation>Bitte geben Sie den Code ein, den Sie von Signal erhalten haben.</translation>
+        <translation>Bitte gib den Code ein, den du von Signal erhalten hast.</translation>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
@@ -1212,7 +1212,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
         <source>Signal should have sent you a 6-digit verification code via text message. Please wait a moment, or restart the process if you have not received a message.</source>
         <extracomment>verify registration instructions: text message</extracomment>
-        <translation>Signal sollte Ihnen einen 6-stelligen Verifizierungscode per SMS gesendet haben. Bitte warten Sie einen Moment oder starten Sie den Vorgang neu, wenn Sie keine Nachricht erhalten haben.</translation>
+        <translation>Signal sollte dir einen 6-stelligen Verifizierungscode per SMS gesendet haben. Bitte warte einen Moment oder starte den Vorgang neu, wenn du noch keine Nachricht erhalten hast.</translation>
     </message>
     <message id="whisperfish-verify-retry-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="43"/>
