@@ -262,12 +262,15 @@
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Bloqueado</translation>
     </message>
-    <message id="whisperfish-remorse-deleted-messages-locally">
+    <message id="whisperfish-remorse-deleted-messages-locally" numerus="yes">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">Localmente eliminado %n mensaje(s)</translation>
+        <translation type="unfinished">
+            <numerusform>Localmente eliminado %n mensaje(s)</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>

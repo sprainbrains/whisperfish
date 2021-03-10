@@ -135,18 +135,18 @@ SilicaListView {
         var selectedIndices = _getSelectedIndices()
         hideSelected = true
 
-        //: Remorse: *locally* deleted one or multiple message (past tense)
-        //% "Locally deleted %n message(s)"
         return Remorse.popupAction(
-                    root, qsTrId("whisperfish-remorse-deleted-messages-locally"). arg(selectedCount),
-                    function() {
-                        for (var i in selectedIndices) {
-                            console.log("Delete message:", selectedIndices[i])
-                            // TODO MessageModel.remove should take a message ID.
-                            // Rewrite this function to use IDs when that is fixed.
-                            MessageModel.remove(selectedIndices[i])
-                        }
-                    })
+            //: Remorse: *locally* deleted one or multiple message (past tense)
+            //% "Locally deleted %n message(s)"
+            root, qsTrId("whisperfish-remorse-deleted-messages-locally", selectedCount).arg(selectedCount),
+            function() {
+                for (var i in selectedIndices) {
+                    console.log("Delete message:", selectedIndices[i])
+                    // TODO MessageModel.remove should take a message ID.
+                    // Rewrite this function to use IDs when that is fixed.
+                    MessageModel.remove(selectedIndices[i])
+                }
+            })
     }
 
     function deleteSelectedForAll() { // call through messageAction()
