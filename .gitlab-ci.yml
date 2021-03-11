@@ -9,7 +9,7 @@ stages:
   - deploy
 
 .build-target: &build-target
-  image: registry.gitlab.com/rubdos/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:master
+  image: registry.gitlab.com/rubdos/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
   artifacts:
     paths:
@@ -202,7 +202,7 @@ translations:check:
   <<: *translations
   stage: test
   except:
-    - master
+    - $CI_DEFAULT_BRANCH
   script:
     - .ci/check-translations.sh
 
@@ -210,9 +210,9 @@ translations:update:
   <<: *translations
   stage: deploy
   only:
-    - master
+    - $CI_DEFAULT_BRANCH
   script:
-    - .ci/master-update-translations.sh
+    - .ci/update-translations.sh
 
 pages:
   dependencies:
@@ -221,7 +221,7 @@ pages:
     - build:host:nightly:docs
   stage: deploy
   only:
-    - master
+    - $CI_DEFAULT_BRANCH
   script:
     - mkdir -p public
     - mv target/doc public/

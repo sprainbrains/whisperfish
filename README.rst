@@ -15,11 +15,11 @@ Whisperfish would work for you.
 To install, you have two options:
 
 - Releases `from OpenRepos <https://openrepos.net/content/rubdos/whisperfish>`_
-- "Nightly" builds from the master branch.
+- "Nightly" builds from Git development commits.
   The most recent builds can be found in `the Gitlab Package Registry <https://gitlab.com/rubdos/whisperfish/-/packages>`_.
 
-There's no particular reason to install from the master branch directly.  We
-push regular updates to OpenRepos.
+There's no particular reason to install from Git directly.  We push regular updates
+to OpenRepos, when they make sense.
 
 Please mind that Whisperfish in still in *alpha condition*, which means that
 certain things do not work, other things make the application crash, and I've
