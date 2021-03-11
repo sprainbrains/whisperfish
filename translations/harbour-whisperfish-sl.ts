@@ -266,10 +266,10 @@
         <location filename="../qml/components/MessagesView.qml" line="141"/>
         <source>Locally deleted %n message(s)</source>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Lokalno izbrisano %n. sporočilo</numerusform>
+            <numerusform>Lokalno izbrisana %n. sporočila</numerusform>
+            <numerusform>Lokalno izbrisanih %n. sporočil</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
