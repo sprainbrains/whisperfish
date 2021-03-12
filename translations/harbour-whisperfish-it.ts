@@ -267,9 +267,9 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>%1 messaggio eliminato localmente</numerusform>
             <numerusform>%1 messaggi eliminati localmente</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
