@@ -14,12 +14,19 @@ Page {
 
     property bool shareDone: false
 
-    // This page is loaded by the transfer system. We impement the following
+    // Used by the share engine
+    property int accountId
+    property string accountName
+    property string displayName
+    property string methodId
+    property var shareEndDestination
+
+    // This page is loaded by the transfer system. We implement the following
     // procedure: When the page is ready, Whisperfish is called via dbus with
     // all relevant information to handle the sharing. When it is done,
     // Whisperfish will call us back so we can reactivate our window to not
-    // interrupt the users workflow. If the user returns earlier, we pretend
-    // the shareing is completed.
+    // interrupt the user's workflow. If the user returns earlier, we pretend
+    // the sharing is completed.
 
     Component.onCompleted: {
         whisperfishApp.call(
@@ -29,7 +36,7 @@ Page {
             function (error, message) {
                 console.log('Calling Whisperfish on DBus failed: ' + error + ' message: ' + message)
                 spinner.running = false
-                spinner.text = "Sharing Failed\n" + message
+                spinner.text = "Sharing failed\n" + message
             }
         );
     }

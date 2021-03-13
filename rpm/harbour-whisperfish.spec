@@ -62,6 +62,11 @@ rm -rf %{buildroot}
 # This block will be removed by build.rs when building with feature "harbour" enabled.
 %post
 systemctl-user daemon-reload
+if [ -e /etc/sailjail/permissions/Sharing.permission ] && ! grep "Whisperfish" /etc/sailjail/permissions/Sharing.permission; then
+	echo "" >> /etc/sailjail/permissions/Sharing.permission
+	echo "# Share to Whisperfish" >> /etc/sailjail/permissions/Sharing.permission
+	echo "include /usr/share/harbour-whisperfish/sailjail/WhisperfishSharing.permission" >> /etc/sailjail/permissions/Sharing.permission
+fi
 
 %preun
 systemctl-user disable harbour-whisperfish.service || true
@@ -79,5 +84,6 @@ systemctl-user disable harbour-whisperfish.service || true
 #[{{ NOT HARBOUR
 %{_exec_prefix}/lib/systemd/user/%{name}.service
 %{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
+%{_datadir}/nemo-transferengine/plugins/WhisperfishShare.qml
 %{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 #}}]

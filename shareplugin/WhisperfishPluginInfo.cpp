@@ -23,7 +23,7 @@ void WhisperfishPluginInfo::query()
     info.methodId = QLatin1String(PLUGIN_ID);
 	info.accountIcon = QLatin1String(APP_ICON);
 	info.shareUIPath = QLatin1String(
-			"/usr/share/harbour-whisperfish/qml/share-ui.qml");
+			"/usr/share/nemo-transferengine/plugins/WhisperfishShare.qml");
 
 	// TODO: Check if we should be more specific here - this is what depecher sets.
     info.capabilitities << QLatin1String("application/*")
