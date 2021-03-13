@@ -1306,8 +1306,8 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>%1 Nachricht kopieren</numerusform>
-            <numerusform>%1 Nachrichten kopieren</numerusform>
+            <numerusform>%n Nachricht kopieren</numerusform>
+            <numerusform>%n Nachrichten kopieren</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
