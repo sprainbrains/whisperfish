@@ -160,6 +160,23 @@ CREATE TABLE messages (
     FOREIGN KEY(session_id) REFERENCES sessions(id) ON DELETE CASCADE
 );
 
+CREATE TRIGGER validate_group_message_has_sender
+  BEFORE INSERT ON messages
+BEGIN
+  SELECT
+    RAISE (ABORT, 'sender of inbound group message is not set')
+  WHERE EXISTS (
+    SELECT
+      group_v1_id IS NOT NULL AS is_group,
+      NOT NEW.is_outbound AS is_inbound
+    FROM sessions
+    WHERE sessions.id = NEW.session_id
+      AND is_group
+      AND is_inbound
+      AND NEW.sender_recipient_id IS NULL
+  );
+END;
+
 -- Index the timestamps of message
 CREATE INDEX message_received ON messages(received_timestamp);
 CREATE INDEX message_sent ON messages(sent_timestamp);
