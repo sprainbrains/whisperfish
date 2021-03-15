@@ -154,6 +154,8 @@ joinable!(messages -> recipients (sender_recipient_id));
 joinable!(messages -> sessions (session_id));
 joinable!(reactions -> messages (message_id));
 joinable!(reactions -> recipients (author));
+joinable!(receipts -> messages (message_id));
+joinable!(receipts -> recipients (recipient_id));
 joinable!(sessions -> group_v1s (group_v1_id));
 joinable!(sessions -> recipients (direct_message_recipient_id));
 
