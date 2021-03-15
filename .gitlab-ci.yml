@@ -151,8 +151,8 @@ test:stable:
   except:
     - schedules
 
-test:nightly:diesel-schema:
-  <<: *rust-nightly
+test:stable:diesel-schema:
+  <<: *rust-stable
   stage: test
   needs: []
   script:
