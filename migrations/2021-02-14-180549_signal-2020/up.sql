@@ -75,6 +75,7 @@ CREATE INDEX recipient_uuid ON recipients(uuid);
 CREATE INDEX recipient_username ON recipients(username);
 CREATE INDEX recipient_email ON recipients(email);
 
+CREATE INDEX recipient_last_profile_fetch ON recipients(last_profile_fetch DESC);
 CREATE INDEX recipient_last_session_reset ON recipients(last_session_reset DESC);
 
 -- The `v1_group` table contains the spontaneous V1 groups.
@@ -93,6 +94,9 @@ CREATE TABLE group_v1_members (
     FOREIGN KEY(recipient_id) REFERENCES recipients(id), -- on delete RESTRICT because we shouldn't delete a group member because we don't like the receiver.
     PRIMARY KEY(group_v1_id, recipient_id)
 );
+
+-- If we want to list the groups that this recipient is a member of:
+CREATE INDEX group_v1_member_recipient_id ON group_v1_members(recipient_id DESC);
 
 -- The `sessions` table is a superclass of groupv1/groupv2/1:1 messages
 -- When GroupV2 gets implemented, this table will be replaces once again, because
@@ -123,6 +127,9 @@ CREATE TABLE sessions (
     -- Either a session is dm, gv1 or gv2
     CHECK (NOT(direct_message_recipient_id == NULL AND group_v1_id == NULL))
 );
+
+CREATE INDEX session_dm_recipient_id ON sessions(direct_message_recipient_id DESC);
+CREATE INDEX session_group_v1_id ON sessions(group_v1_id DESC);
 
 -- The actual messages
 CREATE TABLE messages (
@@ -181,6 +188,11 @@ END;
 CREATE INDEX message_received ON messages(received_timestamp);
 CREATE INDEX message_sent ON messages(sent_timestamp);
 CREATE INDEX message_server ON messages(server_timestamp);
+CREATE INDEX message_schedule ON messages(schedule_send_time);
+CREATE INDEX message_expiry ON messages(expiry_started);
+
+CREATE INDEX message_session_id ON messages(session_id);
+CREATE INDEX message_recipient_id ON messages(sender_recipient_id);
 
 CREATE TABLE attachments (
     id INTEGER PRIMARY KEY NOT NULL,
@@ -282,6 +294,8 @@ CREATE TABLE receipts (
     FOREIGN KEY (message_id) REFERENCES messages(id),
     FOREIGN KEY (recipient_id) REFERENCES recipients(id)
 );
+
+CREATE INDEX receipt_message ON receipts(message_id);
 
 ---
 -- 3. Copy over the data
