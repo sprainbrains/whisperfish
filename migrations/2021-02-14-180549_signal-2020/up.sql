@@ -438,7 +438,7 @@ SELECT
         ELSE NULL
     END,
     -- sent timestamp
-    CASE WHEN old_message.outgoing
+    CASE WHEN old_message.outgoing AND old_sentq.timestamp IS NULL
         THEN old_message.timestamp
         ELSE NULL
     END,
@@ -453,6 +453,7 @@ FROM old_message
 LEFT JOIN recipients ON recipients.e164 == old_message.source
 LEFT JOIN old_session ON old_session.id == old_message.session_id
 LEFT JOIN sessions ON sessions.group_v1_id == old_session.group_id
+LEFT JOIN old_sentq ON old_message.id == old_sentq.message_id
 WHERE  old_session.is_group;
 
 INSERT INTO attachments (
