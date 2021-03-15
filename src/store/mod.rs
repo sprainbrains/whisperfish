@@ -65,6 +65,7 @@ pub struct Message {
 }
 
 /// ID-free Message model for insertions
+#[derive(Clone, Debug)]
 pub struct NewMessage {
     pub session_id: Option<i32>,
     pub source: String,
@@ -620,9 +621,9 @@ impl Storage {
         load_file(self.keys, path).await
     }
 
-    /// Process message and store in database and update or create a session
+    /// Process message and store in database and update or create a session.
     pub fn process_message(
-        &mut self,
+        &self,
         mut new_message: NewMessage,
         group: Option<NewGroupV1<'_>>,
     ) -> (orm::Message, orm::Session) {
@@ -635,6 +636,14 @@ impl Storage {
         new_message.session_id = Some(session.id);
         let message = self.create_message(&new_message);
         (message, session)
+    }
+
+    pub fn fetch_recipient_by_e164(&self, new_e164: &str) -> Option<orm::Recipient> {
+        use crate::schema::recipients::dsl::*;
+
+        let db = self.db.lock();
+
+        recipients.filter(e164.eq(new_e164)).first(&*db).ok()
     }
 
     pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
@@ -793,7 +802,7 @@ impl Storage {
     /// Fetches the latest session by last_insert_rowid.
     ///
     /// This only yields correct results when the last insertion was in fact a session.
-    pub fn fetch_latest_session(&self) -> Option<orm::Session> {
+    fn fetch_latest_session(&self) -> Option<orm::Session> {
         fetch_session!(self.db.lock(), |query| {
             query.filter(schema::sessions::id.eq(last_insert_rowid))
         })
@@ -971,11 +980,15 @@ impl Storage {
 
         log::trace!("Called create_message(..) for session {}", session);
 
+        let sender = self
+            .fetch_recipient_by_e164(&new_message.source)
+            .map(|r| r.id);
+
         let affected_rows = diesel::insert_into(messages)
             .values((
                 session_id.eq(session),
                 text.eq(&new_message.text),
-                // XXX sender_recipient_id
+                sender_recipient_id.eq(sender),
                 received_timestamp.eq(chrono::Utc::now().naive_utc()),
                 server_timestamp.eq(new_message.timestamp),
                 is_read.eq(new_message.is_read),
@@ -1005,7 +1018,7 @@ impl Storage {
     /// This was implicit in Go, which probably didn't use threads.
     ///
     /// It needs to be locked from the outside because sqlite sucks.
-    pub fn fetch_latest_message(&self) -> Option<orm::Message> {
+    fn fetch_latest_message(&self) -> Option<orm::Message> {
         let db = self.db.lock();
 
         schema::messages::table
@@ -1050,6 +1063,7 @@ impl Storage {
     /// Returns a vector of tuples of messages with their sender.
     ///
     /// When the sender is None, it is a sent message, not a received message.
+    // XXX maybe this should be `Option<Vec<...>>`.
     pub fn fetch_all_messages(&self, sid: i32) -> Vec<(orm::Message, Option<orm::Recipient>)> {
         let db = self.db.lock();
 

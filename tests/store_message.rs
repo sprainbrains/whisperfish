@@ -1,158 +1,119 @@
-// use rstest::rstest;
+use std::future::Future;
+
+use rstest::rstest;
 
 use chrono::prelude::*;
 
-use harbour_whisperfish::store::{NewGroup, NewMessage, NewSession};
+use harbour_whisperfish::store::NewGroupV1;
+use harbour_whisperfish::store::NewMessage;
 
 mod common;
 use common::*;
 
+#[rstest]
 #[actix_rt::test]
-async fn test_fetch_session_none() {
-    let in_memory_db = get_in_memory_db().await;
-    let in_memory_db = in_memory_db.0;
+async fn fetch_session_none(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
-    let session = in_memory_db.fetch_session(1);
+    let session = storage.fetch_session_by_id(1);
     assert!(session.is_none());
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_fetch_group_session() {
-    let in_memory_db = get_in_memory_db().await;
-    let in_memory_db = in_memory_db.0;
-    let session_config = NewSession {
-        source: String::from("+358501234567"),
-        message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
-        timestamp: Utc::now().naive_utc(),
-        sent: true,
-        received: false,
-        unread: false,
-        is_group: true,
-        group_id: None,
-        group_name: Some(String::from("Spurdospärde")),
-        group_members: Some(String::from("Joni,Viljami,Make,Spurdoliina")),
-        has_attachment: false,
+async fn insert_and_fetch_dm(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
+
+    let e164 = "+358501234567";
+
+    let inserted = storage.fetch_or_insert_session_by_e164(e164);
+    assert_eq!(inserted.id, 1);
+
+    let session = storage.fetch_session_by_id(inserted.id).unwrap();
+    let recipient = session.unwrap_dm();
+
+    assert_eq!(session.id, inserted.id);
+    assert_eq!(recipient.e164, Some(e164.into()));
+}
+
+#[rstest]
+#[actix_rt::test]
+async fn insert_and_fetch_group_session(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
+
+    let group_id_hex = "1213dc10";
+    let group_id = hex::decode(group_id_hex).unwrap();
+
+    let group = NewGroupV1 {
+        id: &group_id,
+        name: "Spurdospärde".into(),
+        members: vec!["+32474".into(), "+32475".into()],
     };
 
-    setup_session(&in_memory_db, &session_config);
+    let inserted = storage.fetch_or_insert_session_by_group_v1(&group);
 
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_some());
+    let session = storage.fetch_session_by_id(inserted.id).unwrap();
+    let fetched_group = session.unwrap_group_v1();
 
-    let session = res.unwrap();
     assert_eq!(session.id, 1);
-    assert_eq!(session.source, String::from("+358501234567"));
-    assert_eq!(session.group_name, Some(String::from("Spurdospärde")));
+    assert_eq!(fetched_group.id, group_id_hex);
+    assert_eq!(fetched_group.name, group.name);
+
+    let mut members = storage.fetch_group_members_by_group_v1_id(&fetched_group.id);
+    members.sort_by_key(|(_member, recipient)| recipient.e164.clone());
+
+    assert_eq!(members.len(), group.members.len());
     assert_eq!(
-        session.message,
-        String::from("whisperfish on paras:DDDD ja signal:DDD")
+        members[0].1.e164.as_deref(),
+        Some(&group.members[0] as &str)
+    );
+    assert_eq!(
+        members[1].1.e164.as_deref(),
+        Some(&group.members[1] as &str)
     );
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_fetch_session_with_other() {
-    let in_memory_db = get_in_memory_db().await;
-    let in_memory_db = in_memory_db.0;
-    let session_config_1 = NewSession {
-        source: String::from("foo"),
-        message: String::from("first"),
-        timestamp: Utc::now().naive_utc(),
-        sent: true,
-        received: false,
-        unread: false,
-        is_group: false,
-        group_id: None,
-        group_name: Some(String::from("")),
-        group_members: Some(String::from("")),
-        has_attachment: false,
-    };
+async fn fetch_two_distinct_session(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
-    let session_config_2 = NewSession {
-        source: String::from("31337"),
-        message: String::from("31337"),
-        timestamp: Utc::now().naive_utc(),
-        sent: false,
-        received: true,
-        unread: false,
-        is_group: false,
-        group_id: None,
-        group_name: Some(String::from("")),
-        group_members: Some(String::from("")),
-        has_attachment: false,
-    };
+    let session_1_inserted = storage.fetch_or_insert_session_by_e164("+32474");
+    let session_2_inserted = storage.fetch_or_insert_session_by_e164("+32475");
 
-    setup_session(&in_memory_db, &session_config_1);
-    setup_session(&in_memory_db, &session_config_2);
+    assert_ne!(session_1_inserted.id, session_2_inserted.id);
 
     // Test retrieving the sessions in reverse order
-
-    let res = in_memory_db.fetch_session(2);
-    assert!(res.is_some());
-
-    let session = res.unwrap();
+    let session = storage.fetch_session_by_id(session_2_inserted.id).unwrap();
+    let recipient = session.unwrap_dm();
     assert_eq!(session.id, 2);
-    assert_eq!(session.source, String::from("31337"));
-    assert_eq!(session.message, String::from("31337"));
-    assert_eq!(session.group_name, Some(String::from("")));
+    assert_eq!(recipient.e164.as_deref(), Some("+32475"));
 
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_some());
-
-    let session = res.unwrap();
+    let session = storage.fetch_session_by_id(session_1_inserted.id).unwrap();
+    let recipient = session.unwrap_dm();
     assert_eq!(session.id, 1);
-    assert_eq!(session.source, String::from("foo"));
-    assert_eq!(session.message, String::from("first"));
-    assert_eq!(session.group_name, Some(String::from("")));
+    assert_eq!(recipient.e164.as_deref(), Some("+32474"));
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_fetch_all_messages_none() {
-    let in_memory_db = get_in_memory_db().await;
-    let in_memory_db = in_memory_db.0;
+async fn fetch_messages_without_session(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
-    let messages = in_memory_db.fetch_all_messages(1).unwrap();
+    let messages = storage.fetch_all_messages(1);
     assert_eq!(messages.len(), 0);
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_receive_messages_no_session() {
-    let in_memory_db = get_in_memory_db().await;
-    let in_memory_db = in_memory_db.0;
+async fn process_message_no_session_source(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
-    let mut new_messages: Vec<NewMessage> = Vec::new();
+    // First assert that session 1 does not exist.
+    let session = storage.fetch_session_by_id(1);
+    assert!(session.is_none());
 
-    for i in 1..4 {
-        new_messages.push(NewMessage {
-            session_id: Some(1),
-            source: String::from("a number"),
-            text: String::from(format!("MSG {}", i)),
-            timestamp: Utc::now().naive_utc(),
-            sent: false,
-            received: true,
-            flags: 0,
-            attachment: None,
-            mime_type: None,
-            has_attachment: false,
-            outgoing: false,
-        });
-    }
-
-    let inserted = setup_messages(&in_memory_db, new_messages);
-    assert_eq!(inserted, 3);
-
-    // Now testify SQLite sucks
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
-}
-
-#[actix_rt::test]
-async fn test_process_message_no_session_source() {
-    let in_memory_db = get_in_memory_db().await;
-    let mut in_memory_db = in_memory_db.0;
-
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
-
+    // Now try to add a message.
     let new_message = NewMessage {
         session_id: Some(1),
         source: String::from("a number"),
@@ -160,6 +121,7 @@ async fn test_process_message_no_session_source() {
         timestamp: Utc::now().naive_utc(),
         sent: false,
         received: true,
+        is_read: false,
         flags: 0,
         attachment: None,
         mime_type: None,
@@ -167,21 +129,26 @@ async fn test_process_message_no_session_source() {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, None, true);
+    let (msg_inserted, session_inserted) = storage.process_message(new_message.clone(), None);
 
     // Test a session was created
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_some());
+    let session_fetch = storage
+        .fetch_session_by_id(session_inserted.id)
+        .expect("session has been created");
+    assert_eq!(session_fetch.id, session_inserted.id);
 
-    // Test a message was created
-    let res = in_memory_db.fetch_latest_message();
-    assert!(res.is_some());
+    assert_eq!(
+        msg_inserted.text.as_deref(),
+        Some(&new_message.text as &str)
+    );
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_process_message_unresolved_session_source_resolved() {
-    let in_memory_db = get_in_memory_db().await;
-    let mut in_memory_db = in_memory_db.0;
+async fn process_message_unresolved_session_source_resolved(
+    storage: impl Future<Output = InMemoryDb>,
+) {
+    let (storage, _temp_dir) = storage.await;
 
     let new_message = NewMessage {
         session_id: None,
@@ -190,6 +157,7 @@ async fn test_process_message_unresolved_session_source_resolved() {
         timestamp: Utc::now().naive_utc(),
         sent: false,
         received: true,
+        is_read: true,
         flags: 0,
         attachment: None,
         mime_type: None,
@@ -197,42 +165,19 @@ async fn test_process_message_unresolved_session_source_resolved() {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, None, true);
+    let (_msg, session) = storage.process_message(new_message, None);
 
-    let messages = in_memory_db.fetch_all_messages(1).unwrap();
+    let messages = storage.fetch_all_messages(session.id);
     assert_eq!(messages.len(), 1);
-
-    let res = in_memory_db.fetch_latest_message();
-    assert!(res.is_some());
-
-    let msg = res.unwrap();
-    assert_eq!(msg.sid, 1);
+    assert_eq!(messages[0].0.session_id, session.id);
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_process_message_exists_session_source() {
-    let in_memory_db = get_in_memory_db().await;
-    let mut in_memory_db = in_memory_db.0;
-    let session_config = NewSession {
-        source: String::from("+358501234567"),
-        message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
-        timestamp: Utc.timestamp(0, 0).naive_utc(),
-        sent: true,
-        received: false,
-        unread: false,
-        is_group: false,
-        group_id: None,
-        group_name: None,
-        group_members: None,
-        has_attachment: false,
-    };
+async fn process_message_exists_session_source(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
-    setup_session(&in_memory_db, &session_config);
-
-    let sess1_res = in_memory_db.fetch_session(1);
-    assert!(sess1_res.is_some());
-    let sess1 = sess1_res.unwrap();
-    assert_eq!(sess1.timestamp, Utc.timestamp(0, 0).naive_utc());
+    let sess1 = storage.fetch_or_insert_session_by_e164("+358501234567");
 
     for second in 1..11 {
         let timestamp = Utc.timestamp(second, 0).naive_utc();
@@ -244,6 +189,7 @@ async fn test_process_message_exists_session_source() {
             timestamp,
             sent: false,
             received: true,
+            is_read: true,
             flags: 0,
             attachment: None,
             mime_type: None,
@@ -251,56 +197,38 @@ async fn test_process_message_exists_session_source() {
             outgoing: false,
         };
 
-        in_memory_db.process_message(new_message, None, true);
+        let (msg, session) = storage.process_message(new_message, None);
+        assert_eq!(session.id, sess1.id);
 
         // Test no extra session was created
-        let latest_sess_res = in_memory_db.fetch_latest_session();
-        assert!(latest_sess_res.is_some());
-        let latest_sess = latest_sess_res.unwrap();
+        let sessions = storage.fetch_sessions();
+        assert_eq!(sessions.len(), 1);
+        assert_eq!(sessions[0].id, sess1.id);
 
-        assert_eq!(latest_sess.id, sess1.id);
-        assert_eq!(latest_sess.timestamp, timestamp);
-
-        // Test a message was created
-        let res = in_memory_db.fetch_latest_message();
-        assert!(res.is_some());
-
-        let msg = res.unwrap();
-        assert_eq!(msg.timestamp, timestamp);
+        assert_eq!(msg.server_timestamp, timestamp);
     }
 }
 
 /// This tests code that may potentially be removed after release
 /// but it's important as long as we receive messages without ACK
+#[rstest]
+#[ignore]
 #[actix_rt::test]
-async fn test_dev_message_update() {
-    let in_memory_db = get_in_memory_db().await;
-    let mut in_memory_db = in_memory_db.0;
-    let session_config = NewSession {
-        source: String::from("+358501234567"),
-        message: String::from("whisperfish on paras:DDDD ja signal:DDD"),
-        timestamp: Utc::now().naive_utc(),
-        sent: true,
-        received: false,
-        unread: false,
-        is_group: false,
-        group_id: None,
-        group_name: None,
-        group_members: None,
-        has_attachment: false,
-    };
+async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
-    setup_session(&in_memory_db, &session_config);
+    let session = storage.fetch_or_insert_session_by_e164("+358501234567");
 
     let timestamp = Utc::now().naive_utc();
     // Receive basic message
     let new_message = NewMessage {
-        session_id: Some(1),
+        session_id: Some(session.id),
         source: String::from("+358501234567"),
         text: String::from("nyt joni ne velat!"),
         timestamp,
         sent: false,
         received: true,
+        is_read: true,
         flags: 0,
         attachment: None,
         mime_type: None,
@@ -308,22 +236,22 @@ async fn test_dev_message_update() {
         outgoing: false,
     };
 
-    in_memory_db.process_message(new_message, None, true);
+    storage.process_message(new_message, None);
 
     // Though this is tested in other cases, double-check a message exists
-    let db_messages_res = in_memory_db.fetch_all_messages(1);
-    let db_messages = db_messages_res.unwrap();
+    let db_messages = storage.fetch_all_messages(1);
     assert_eq!(db_messages.len(), 1);
 
     // However, there should have been an attachment
     // which the Go worker would do before `process_message`
     let other_message = NewMessage {
-        session_id: Some(1),
+        session_id: Some(session.id),
         source: String::from("+358501234567"),
         text: String::from("nyt joni ne velat!"),
         timestamp,
         sent: false,
         received: true,
+        is_read: true,
         flags: 0,
         attachment: Some(String::from("uuid-uuid-uuid-uuid")),
         mime_type: Some(String::from("text/plain")),
@@ -331,29 +259,27 @@ async fn test_dev_message_update() {
         outgoing: false,
     };
 
-    in_memory_db.process_message(other_message, None, true);
+    storage.process_message(other_message, None);
 
     // And all the messages should still be only one message
-    let db_messages_res = in_memory_db.fetch_all_messages(1);
-    let db_messages = db_messages_res.unwrap();
+    let db_messages = storage.fetch_all_messages(1);
     assert_eq!(db_messages.len(), 1);
 }
 
+#[rstest]
 #[actix_rt::test]
-async fn test_process_message_with_group() {
-    let in_memory_db = get_in_memory_db().await;
-    let mut in_memory_db = in_memory_db.0;
-
-    let res = in_memory_db.fetch_session(1);
-    assert!(res.is_none());
+#[should_panic]
+async fn process_inbound_group_message_without_sender(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
 
     let new_message = NewMessage {
-        session_id: Some(1),
-        source: String::from("a number"),
+        session_id: None,
+        source: String::from(""),
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
         sent: false,
         received: true,
+        is_read: true,
         flags: 0,
         attachment: None,
         mime_type: None,
@@ -363,7 +289,7 @@ async fn test_process_message_with_group() {
 
     // Here the client worker will have resolved a group exists
     let group_id = vec![42u8, 126u8, 71u8, 75u8];
-    let group = NewGroup {
+    let group = NewGroupV1 {
         id: &group_id,
         name: String::from("Spurdospärde"),
         members: vec![
@@ -373,23 +299,107 @@ async fn test_process_message_with_group() {
         ],
     };
 
-    in_memory_db.process_message(new_message, Some(group), true);
+    let (message_inserted, session_inserted) = storage.process_message(new_message, Some(group));
 
     // Test a session was created
-    let session = in_memory_db
-        .fetch_session(1)
-        .expect("Expected to find session");
-    assert!(session.is_group);
-    assert_eq!(session.group_name, Some(String::from("Spurdospärde")));
-    assert_eq!(session.group_id, Some(String::from("2a7e474b")));
-    assert_eq!(session.source, String::from("2a7e474b"));
+    let session = storage
+        .fetch_session_by_id(session_inserted.id)
+        .expect("created session");
+    let group = session.unwrap_group_v1();
+    assert_eq!(&group.name, ("Spurdospärde"));
+    assert_eq!(&group.id, ("2a7e474b"));
 
-    // Test a message was created
-    let message = in_memory_db
-        .fetch_latest_message()
-        .expect("Expected to find message");
-    assert_eq!(message.source, "a number");
-    assert_eq!(message.sid, session.id);
+    assert_eq!(message_inserted.session_id, session.id);
+}
+
+#[rstest]
+#[actix_rt::test]
+async fn process_outbound_group_message_without_sender(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
+
+    let new_message = NewMessage {
+        session_id: Some(1),
+        source: String::from(""),
+        text: String::from("MSG 1"),
+        timestamp: Utc::now().naive_utc(),
+        sent: false,
+        received: true,
+        is_read: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: true,
+    };
+
+    // Here the client worker will have resolved a group exists
+    let group_id = vec![42u8, 126u8, 71u8, 75u8];
+    let group = NewGroupV1 {
+        id: &group_id,
+        name: String::from("Spurdospärde"),
+        members: vec![
+            String::from("Joni"),
+            String::from("Make"),
+            String::from("Spurdoliina"),
+        ],
+    };
+
+    let (message_inserted, session_inserted) = storage.process_message(new_message, Some(group));
+
+    // Test a session was created
+    let session = storage
+        .fetch_session_by_id(session_inserted.id)
+        .expect("created session");
+    let group = session.unwrap_group_v1();
+    assert_eq!(&group.name, ("Spurdospärde"));
+    assert_eq!(&group.id, ("2a7e474b"));
+
+    assert_eq!(message_inserted.session_id, session.id);
+}
+
+#[rstest]
+#[actix_rt::test]
+async fn process_message_with_group(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
+
+    let new_message = NewMessage {
+        session_id: Some(1),
+        source: String::from("Joni"),
+        text: String::from("MSG 1"),
+        timestamp: Utc::now().naive_utc(),
+        sent: false,
+        received: true,
+        is_read: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: false,
+    };
+
+    // Here the client worker will have resolved a group exists
+    let group_id = vec![42u8, 126u8, 71u8, 75u8];
+    let group = NewGroupV1 {
+        id: &group_id,
+        name: String::from("Spurdospärde"),
+        members: vec![
+            String::from("Joni"),
+            String::from("Make"),
+            String::from("Spurdoliina"),
+        ],
+    };
+
+    let (message_inserted, session_inserted) = storage.process_message(new_message, Some(group));
+
+    // Test a session was created
+    let session = storage
+        .fetch_session_by_id(session_inserted.id)
+        .expect("created session");
+    let group = session.unwrap_group_v1();
+    assert_eq!(&group.name, ("Spurdospärde"));
+    assert_eq!(&group.id, ("2a7e474b"));
+
+    assert_eq!(message_inserted.session_id, session.id);
 }
 
 // XXX: These tests worked back when Storage had the message_handler implemented.
@@ -397,10 +407,10 @@ async fn test_process_message_with_group() {
 // https://gitlab.com/rubdos/whisperfish/-/issues/82
 
 // #[rstest]
-// fn test_message_handler_without_group(in_memory_db: InMemoryDb) {
-//     setup_db(&in_memory_db);
+// fn message_handler_without_group(storage: InMemoryDb) {
+//     setup_db(&storage);
 //
-//     let res = in_memory_db.fetch_session(1);
+//     let res = storage.fetch_session(1);
 //     assert!(res.is_none());
 //
 //     let msg = svcmodels::Message {
@@ -412,16 +422,16 @@ async fn test_process_message_with_group() {
 //         flags: 0u32,
 //     };
 //
-//     in_memory_db.message_handler(msg, false, 0);
+//     storage.message_handler(msg, false, 0);
 //
 //     // Test a session was created
-//     let session = in_memory_db
+//     let session = storage
 //         .fetch_session(1)
 //         .expect("Expected to find session");
 //     assert!(!session.is_group);
 //
 //     // Test a message was created
-//     let message = in_memory_db
+//     let message = storage
 //         .fetch_latest_message()
 //         .expect("Expected to find message");
 //     assert_eq!(message.source, "8483");
@@ -429,10 +439,10 @@ async fn test_process_message_with_group() {
 // }
 
 // #[rstest]
-// fn test_message_handler_leave_group(in_memory_db: InMemoryDb) {
-//     setup_db(&in_memory_db);
+// fn message_handler_leave_group(storage: InMemoryDb) {
+//     setup_db(&storage);
 //
-//     let res = in_memory_db.fetch_session(1);
+//     let res = storage.fetch_session(1);
 //     assert!(res.is_none());
 //
 //     let group_id = vec![42u8, 126u8, 71u8, 75u8];
@@ -458,16 +468,16 @@ async fn test_process_message_with_group() {
 //         flags: 0u32,
 //     };
 //
-//     in_memory_db.message_handler(msg, false, 0);
+//     storage.message_handler(msg, false, 0);
 //
 //     // Test a session was created
-//     let session = in_memory_db
+//     let session = storage
 //         .fetch_session(1)
 //         .expect("Expected to find session");
 //     assert!(session.is_group);
 //
 //     // Test a message was created
-//     let message = in_memory_db
+//     let message = storage
 //         .fetch_latest_message()
 //         .expect("Expected to find message");
 //     assert_eq!(message.source, "8483");
@@ -476,10 +486,10 @@ async fn test_process_message_with_group() {
 // }
 
 // #[rstest]
-// fn test_message_handler_join_group(in_memory_db: InMemoryDb) {
-//     setup_db(&in_memory_db);
+// fn message_handler_join_group(storage: InMemoryDb) {
+//     setup_db(&storage);
 //
-//     let res = in_memory_db.fetch_session(1);
+//     let res = storage.fetch_session(1);
 //     assert!(res.is_none());
 //
 //     let group_id = vec![42u8, 126u8, 71u8, 75u8];
@@ -501,16 +511,16 @@ async fn test_process_message_with_group() {
 //         flags: 0u32,
 //     };
 //
-//     in_memory_db.message_handler(msg, false, 0);
+//     storage.message_handler(msg, false, 0);
 //
 //     // Test a session was created
-//     let session = in_memory_db
+//     let session = storage
 //         .fetch_session(1)
 //         .expect("Expected to find session");
 //     assert!(session.is_group);
 //
 //     // Test a message was created
-//     let message = in_memory_db
+//     let message = storage
 //         .fetch_latest_message()
 //         .expect("Expected to find message");
 //     assert_eq!(message.source, "8483");
@@ -519,10 +529,10 @@ async fn test_process_message_with_group() {
 // }
 
 // #[rstest]
-// fn test_message_handler_group_attachment_no_save(in_memory_db: InMemoryDb) {
-//     setup_db(&in_memory_db);
+// fn message_handler_group_attachment_no_save(storage: InMemoryDb) {
+//     setup_db(&storage);
 //
-//     let res = in_memory_db.fetch_session(1);
+//     let res = storage.fetch_session(1);
 //     assert!(res.is_none());
 //
 //     let group_id = vec![42u8, 126u8, 71u8, 75u8];
@@ -553,16 +563,16 @@ async fn test_process_message_with_group() {
 //         flags: 0u32,
 //     };
 //
-//     in_memory_db.message_handler(msg, false, 0);
+//     storage.message_handler(msg, false, 0);
 //
 //     // Test a session was created
-//     let session = in_memory_db
+//     let session = storage
 //         .fetch_session(1)
 //         .expect("Expected to find session");
 //     assert!(session.is_group);
 //
 //     // Test a message was created
-//     let message = in_memory_db
+//     let message = storage
 //         .fetch_latest_message()
 //         .expect("Expected to find message");
 //     assert_eq!(message.source, "8483");
