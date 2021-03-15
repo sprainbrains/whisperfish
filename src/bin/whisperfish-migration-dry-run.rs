@@ -40,7 +40,6 @@ fn derive_db_key(password: &str, salt_path: &Path) -> Result<[u8; 32], failure::
     Ok(key)
 }
 
-// XXX print message counts separate for sent and received, split up in groups and dm.
 fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
     use schemas::original as schema;
 
