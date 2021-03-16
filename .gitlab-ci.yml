@@ -157,6 +157,7 @@ test:stable:diesel-schema:
   needs: []
   script:
     - cargo install -f diesel_cli
+    - rustup component add rustfmt
     - export PATH="$CARGO_HOME/bin:$PATH"
     - export DATABASE_URL=test_whisperfish.db
     - diesel setup
