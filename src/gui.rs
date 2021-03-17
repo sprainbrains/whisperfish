@@ -186,6 +186,7 @@ impl WhisperfishApp {
     }
 }
 
+#[cfg(feature = "sailfish")]
 fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
     let commit = env!("VERGEN_SHA_SHORT");
