@@ -52,10 +52,9 @@ impl ContactModel {
             .into()
     }
 
-    fn db(&self) -> SqliteConnection {
+    fn db(&self) -> Option<SqliteConnection> {
         let path = dirs::data_local_dir().expect("find data directory");
-        SqliteConnection::establish(path.join(DB_PATH).to_str().expect("UTF-8 path"))
-            .expect("open contact database")
+        SqliteConnection::establish(path.join(DB_PATH).to_str().expect("UTF-8 path")).ok()
     }
 
     fn name(&self, source: QString) -> QString {
@@ -68,7 +67,11 @@ impl ContactModel {
         let source = source.to_string();
         let source = source.trim();
 
-        let conn = self.db(); // This should maybe be established only once
+        let conn = if let Some(db) = self.db() {
+            db
+        } else {
+            return QString::from(source.clone());
+        }; // This should maybe be established only once
 
         // This will ensure the format to query is ok
         let e164_source = format_with_country_helper(&source, Mode::E164, &country_code)
@@ -117,7 +120,11 @@ impl ContactModel {
 
         let settings = crate::settings::Settings::default();
         let country_code = settings.get_string("country_code");
-        let db = self.db();
+        let db = if let Some(db) = self.db() {
+            db
+        } else {
+            return;
+        };
 
         let country = match phonenumber::country::Id::from_str(&country_code) {
             Ok(country) => Some(country),
