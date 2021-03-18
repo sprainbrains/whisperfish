@@ -1116,7 +1116,7 @@ dependencies = [
 
 [[package]]
 name = "harbour-whisperfish"
-version = "0.6.0-alpha.8"
+version = "0.6.0-alpha.9"
 dependencies = [
  "actix",
  "actix-rt",
