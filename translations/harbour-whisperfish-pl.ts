@@ -267,17 +267,17 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Lokalnie usunięta %n wiadomość</numerusform>
+            <numerusform>Lokalnie usunięte %n wiadomości</numerusform>
+            <numerusform>Lokalnie usunięte %n wiadomości</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zareaguj</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="380"/>
@@ -289,20 +289,20 @@
         <location filename="../qml/components/MessagesView.qml" line="387"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Przekaż</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="394"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz•więcej</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="373"/>
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation type="unfinished">Wyślij ponownie</translation>
+        <translation>Wyślij ponownie</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
@@ -320,7 +320,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż kontakt</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
@@ -735,7 +735,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation type="unfinished">Załączniki są przechowywane w %1</translation>
+        <translation>Załączniki są przechowywane w %1. Obecnie po wyłączeniu załączniki nie będą działać.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="232"/>
@@ -955,7 +955,7 @@ Settings page share contacts</extracomment>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
-        <translation type="unfinished">Opuść</translation>
+        <translation>Opuść tą grupę</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
@@ -1070,7 +1070,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/attachment/AttachmentItemContact.qml" line="22"/>
         <source>Shared contact</source>
         <extracomment>Placeholder shown as title for an attached contact in a message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kontakt udostępniony</translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
         <location filename="../qml/components/ChatTextInput.qml" line="149"/>
@@ -1086,7 +1086,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="157"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
-        <translation type="unfinished">Cześć, %1</translation>
+        <translation>Cześć, %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
         <location filename="../qml/components/ChatTextInput.qml" line="161"/>
@@ -1105,10 +1105,10 @@ Settings page share contacts</extracomment>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>i %1 więcej</numerusform>
             <numerusform>i %1 więcej</numerusform>
-            <numerusform></numerusform>
+            <numerusform>i %1 więcej</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1140,7 +1140,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished">Załącznik</translation>
+        <translation>Załącznik</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="177"/>
@@ -1290,20 +1290,20 @@ Settings page share contacts</extracomment>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>wybrano %n wiadomość</numerusform>
+            <numerusform>wybrano %n wiadomości</numerusform>
+            <numerusform>wybrano %n wiadomości</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="272"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Wyczyść wybór</numerusform>
+            <numerusform>Wyczyść wybór</numerusform>
+            <numerusform>Wyczyść wybór</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1311,27 +1311,27 @@ Settings page share contacts</extracomment>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Kopiuj %n wiadomość</numerusform>
+            <numerusform>Kopiuj %n wiadomości</numerusform>
+            <numerusform>Kopiuj %n wiadomości</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
         <location filename="../qml/pages/ConversationPage.qml" line="290"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż informacje o wiadomości</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Lokalnie usunięta %n wiadomość</numerusform>
+            <numerusform>Lokalnie usunięte %n wiadomości</numerusform>
+            <numerusform>Lokalnie usunięte %n wiadomości</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1339,20 +1339,20 @@ Settings page share contacts</extracomment>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Usuń %n wiadomość dla wszystkich</numerusform>
+            <numerusform>Usuń %n wiadomości dla wszystkich</numerusform>
+            <numerusform>Usuń %n wiadomości dla wszystkich</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="327"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ponów próbę wysłania wiadomości</numerusform>
+            <numerusform>Ponów próbę wysłania wiadomości</numerusform>
+            <numerusform>Ponów próbę wysłania wiadomości</numerusform>
         </translation>
     </message>
 </context>
