@@ -159,6 +159,13 @@ impl SessionModel {
                 last_message: message,
             })
             .collect();
+        // XXX This could be solved through a sub query.
+        self.content.sort_unstable_by(|a, b| {
+            a.last_message
+                .server_timestamp
+                .cmp(&b.last_message.server_timestamp)
+                .reverse()
+        });
         (self as &mut dyn QAbstractListModel).end_reset_model();
     }
 
