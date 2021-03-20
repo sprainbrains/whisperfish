@@ -964,6 +964,9 @@ impl Storage {
                 schema::attachments::message_id.eq(mid),
                 schema::attachments::content_type.eq(mime_type),
                 schema::attachments::attachment_path.eq(path),
+                schema::attachments::is_voice_note.eq(false),
+                schema::attachments::is_borderless.eq(false),
+                schema::attachments::is_quote.eq(false),
             ))
             .execute(&*db)
             .expect("insert attachment");
