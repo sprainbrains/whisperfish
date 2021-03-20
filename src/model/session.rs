@@ -11,10 +11,12 @@ use chrono::prelude::*;
 use futures::prelude::*;
 use qmetaobject::*;
 
+// XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {
     session: orm::Session,
     last_message: orm::Message,
     last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
+    last_message_attachments: Vec<orm::Attachment>,
 }
 
 impl std::ops::Deref for AugmentedSession {
@@ -155,6 +157,7 @@ impl SessionModel {
         sessions: Vec<(
             orm::Session,
             orm::Message,
+            Vec<orm::Attachment>,
             Vec<(orm::Receipt, orm::Recipient)>,
         )>,
     ) {
@@ -163,10 +166,13 @@ impl SessionModel {
         self.content = sessions
             .into_iter()
             .map(
-                |(session, last_message, last_message_receipts)| AugmentedSession {
-                    session,
-                    last_message,
-                    last_message_receipts,
+                |(session, last_message, last_message_attachments, last_message_receipts)| {
+                    AugmentedSession {
+                        session,
+                        last_message,
+                        last_message_attachments,
+                        last_message_receipts,
+                    }
                 },
             )
             .collect();
@@ -185,6 +191,7 @@ impl SessionModel {
         &mut self,
         sess: orm::Session,
         mut last_message: orm::Message,
+        last_message_attachments: Vec<orm::Attachment>,
         last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
         mark_read: bool,
     ) {
@@ -243,6 +250,7 @@ impl SessionModel {
             AugmentedSession {
                 session: sess,
                 last_message,
+                last_message_attachments,
                 last_message_receipts,
             },
         );
@@ -321,8 +329,7 @@ impl AugmentedSession {
     }
 
     fn has_attachment(&self) -> bool {
-        // FIXME
-        false
+        self.last_message_attachments.len() > 0
     }
 
     fn section(&self) -> String {

@@ -13,6 +13,7 @@ use qmetaobject::*;
 struct AugmentedMessage {
     inner: orm::Message,
     sender: Option<orm::Recipient>,
+    attachments: Vec<orm::Attachment>,
     receipts: Vec<(orm::Receipt, orm::Recipient)>,
 }
 
@@ -63,8 +64,22 @@ impl AugmentedMessage {
     }
 
     pub fn attachments(&self) -> u32 {
-        // FIXME
-        0
+        self.attachments.len() as _
+    }
+
+    pub fn first_attachment(&self) -> &str {
+        if self.attachments.len() == 0 {
+            return "";
+        }
+
+        self.attachments[0].attachment_path.as_deref().unwrap_or("")
+    }
+
+    pub fn first_attachment_mime_type(&self) -> &str {
+        if self.attachments.len() == 0 {
+            return "";
+        }
+        &self.attachments[0].content_type
     }
 }
 
@@ -86,6 +101,10 @@ define_model_roles! {
         Outgoing(is_outbound):                                "outgoing",
         // FIXME
         // Queued(queued):                                       "queued",
+
+        // FIXME issue #11 multiple attachments
+        Attachment(fn first_attachment(&self) via QString::from): "attachment",
+        AttachmentMimeType(fn first_attachment_mime_type(&self) via QString::from): "mimeType",
     }
 }
 
@@ -231,6 +250,8 @@ impl MessageModel {
             AugmentedMessage {
                 inner: msg,
                 sender: None,
+                // XXX
+                attachments: Vec::new(),
                 // No receipts yet.
                 receipts: Vec::new(),
             },
@@ -431,6 +452,7 @@ impl MessageModel {
         &mut self,
         message: orm::Message,
         recipient: Option<orm::Recipient>,
+        attachments: Vec<orm::Attachment>,
         receipts: Vec<(orm::Receipt, orm::Recipient)>,
     ) {
         log::trace!("handle_fetch_message({})", message.id);
@@ -441,6 +463,7 @@ impl MessageModel {
             AugmentedMessage {
                 inner: message,
                 sender: recipient,
+                attachments,
                 receipts,
             },
         );
@@ -452,6 +475,7 @@ impl MessageModel {
         messages: Vec<(
             orm::Message,
             Option<orm::Recipient>,
+            Vec<orm::Attachment>,
             Vec<(orm::Receipt, orm::Recipient)>,
         )>,
     ) {
@@ -463,16 +487,14 @@ impl MessageModel {
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
 
-        self.messages
-            .extend(
-                messages
-                    .into_iter()
-                    .map(|(message, sender, receipts)| AugmentedMessage {
-                        inner: message,
-                        sender,
-                        receipts,
-                    }),
-            );
+        self.messages.extend(messages.into_iter().map(
+            |(message, sender, attachments, receipts)| AugmentedMessage {
+                inner: message,
+                sender,
+                attachments,
+                receipts,
+            },
+        ));
 
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }

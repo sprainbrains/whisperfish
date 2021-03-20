@@ -14,6 +14,7 @@ struct SessionsLoaded(
     Vec<(
         orm::Session,
         orm::Message,
+        Vec<orm::Attachment>,
         Vec<(orm::Receipt, orm::Recipient)>,
     )>,
 );
@@ -107,9 +108,11 @@ impl Handler<FetchSession> for SessionActor {
             .fetch_last_message_by_session_id(sid)
             .expect("> 0 messages per session");
         let receipts = storage.fetch_message_receipts(message.id);
+        let attachments = storage.fetch_attachments_for_message(message.id);
         self.inner.pinned().borrow_mut().handle_fetch_session(
             sess.expect("existing session"),
             message,
+            attachments,
             receipts,
             mark_read,
         );
@@ -169,7 +172,14 @@ impl Handler<LoadAllSessions> for SessionActor {
                             .fetch_last_message_by_session_id(session.id)
                             .expect("a message in a session");
                         let last_message_receipts = storage.fetch_message_receipts(last_message.id);
-                        (session, last_message, last_message_receipts)
+                        let last_message_attachments =
+                            storage.fetch_attachments_for_message(last_message.id);
+                        (
+                            session,
+                            last_message,
+                            last_message_attachments,
+                            last_message_receipts,
+                        )
                     })
                     .collect();
                 Ok(result)
