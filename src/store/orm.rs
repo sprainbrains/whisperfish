@@ -152,6 +152,15 @@ pub struct Session {
     pub r#type: SessionType,
 }
 
+#[derive(Queryable, Debug, Clone)]
+pub struct Receipt {
+    pub message_id: i32,
+    pub recipient_id: i32,
+    pub delivered: Option<NaiveDateTime>,
+    pub read: Option<NaiveDateTime>,
+    pub viewed: Option<NaiveDateTime>,
+}
+
 impl Session {
     pub fn is_dm(&self) -> bool {
         self.r#type.is_dm()

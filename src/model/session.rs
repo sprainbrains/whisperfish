@@ -14,6 +14,7 @@ use qmetaobject::*;
 struct AugmentedSession {
     session: orm::Session,
     last_message: orm::Message,
+    last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
 }
 
 impl std::ops::Deref for AugmentedSession {
@@ -149,15 +150,25 @@ impl SessionModel {
     /// Handle loaded session
     ///
     /// The session is accompanied by the last message that was sent on this session.
-    pub fn handle_sessions_loaded(&mut self, sessions: Vec<(orm::Session, orm::Message)>) {
+    pub fn handle_sessions_loaded(
+        &mut self,
+        sessions: Vec<(
+            orm::Session,
+            orm::Message,
+            Vec<(orm::Receipt, orm::Recipient)>,
+        )>,
+    ) {
         // XXX: maybe this should be called before even accessing the db?
         (self as &mut dyn QAbstractListModel).begin_reset_model();
         self.content = sessions
             .into_iter()
-            .map(|(session, message)| AugmentedSession {
-                session,
-                last_message: message,
-            })
+            .map(
+                |(session, last_message, last_message_receipts)| AugmentedSession {
+                    session,
+                    last_message,
+                    last_message_receipts,
+                },
+            )
             .collect();
         // XXX This could be solved through a sub query.
         self.content.sort_unstable_by(|a, b| {
@@ -174,6 +185,7 @@ impl SessionModel {
         &mut self,
         sess: orm::Session,
         mut last_message: orm::Message,
+        last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
         mark_read: bool,
     ) {
         let sid = sess.id;
@@ -231,6 +243,7 @@ impl SessionModel {
             AugmentedSession {
                 session: sess,
                 last_message,
+                last_message_receipts,
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -296,10 +309,6 @@ impl AugmentedSession {
         self.last_message.sent_timestamp.is_some()
     }
 
-    fn unread(&self) -> bool {
-        !self.last_message.is_read
-    }
-
     fn source(&self) -> &str {
         match &self.session.r#type {
             orm::SessionType::GroupV1(_group) => "",
@@ -341,6 +350,27 @@ impl AugmentedSession {
             String::from("older")
         }
     }
+
+    fn delivered(&self) -> u32 {
+        self.last_message_receipts
+            .iter()
+            .filter(|(r, _)| r.delivered.is_some())
+            .count() as _
+    }
+
+    fn read(&self) -> u32 {
+        self.last_message_receipts
+            .iter()
+            .filter(|(r, _)| r.read.is_some())
+            .count() as _
+    }
+
+    fn viewed(&self) -> u32 {
+        self.last_message_receipts
+            .iter()
+            .filter(|(r, _)| r.viewed.is_some())
+            .count() as _
+    }
 }
 
 define_model_roles! {
@@ -355,9 +385,11 @@ define_model_roles! {
         Message(last_message.text via qstring_from_option):                "message",
         Section(fn section(&self) via QString::from):                      "section",
         Timestamp(fn timestamp(&self) via qdatetime_from_naive):           "timestamp",
-        Unread(fn unread(&self)):                                          "unread",
+        IsRead(last_message.is_read):                                      "read",
         Sent(fn sent(&self)):                                              "sent",
-        // Received(received):                                             "received",
+        Delivered(fn delivered(&self)):                                    "delivered",
+        Read(fn read(&self)):                                              "read",
+        Viewed(fn viewed(&self)):                                          "viewed",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
     }
 }

@@ -676,6 +676,17 @@ impl Storage {
             .ok()
     }
 
+    pub fn fetch_message_receipts(&self, mid: i32) -> Vec<(orm::Receipt, orm::Recipient)> {
+        use schema::{receipts, recipients};
+        let db = self.db.lock();
+
+        receipts::table
+            .inner_join(recipients::table)
+            .filter(receipts::message_id.eq(mid))
+            .load(&*db)
+            .expect("db")
+    }
+
     /// Marks the message with a certain timestamp as read by a certain person.
     ///
     /// This is e.g. called from Signal Desktop from a sync message

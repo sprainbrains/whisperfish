@@ -6,12 +6,17 @@ use crate::sfos::SailfishApp;
 use crate::store::{orm, Storage};
 
 use actix::prelude::*;
-use diesel::prelude::*;
 use qmetaobject::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-struct SessionsLoaded(Vec<(orm::Session, orm::Message)>);
+struct SessionsLoaded(
+    Vec<(
+        orm::Session,
+        orm::Message,
+        Vec<(orm::Receipt, orm::Recipient)>,
+    )>,
+);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
@@ -101,9 +106,11 @@ impl Handler<FetchSession> for SessionActor {
         let message = storage
             .fetch_last_message_by_session_id(sid)
             .expect("> 0 messages per session");
+        let receipts = storage.fetch_message_receipts(message.id);
         self.inner.pinned().borrow_mut().handle_fetch_session(
             sess.expect("existing session"),
             message,
+            receipts,
             mark_read,
         );
     }
@@ -149,24 +156,20 @@ impl Handler<LoadAllSessions> for SessionActor {
     fn handle(&mut self, _: LoadAllSessions, ctx: &mut Self::Context) {
         let session_actor = ctx.address();
         let storage = self.storage.clone().unwrap();
-        let db = storage.db.clone();
 
         actix::spawn(async move {
             let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
-                let db = db.lock();
-                use crate::schema::messages::dsl::*;
                 let sessions: Vec<orm::Session> = storage.fetch_sessions();
                 let result = sessions
                     .into_iter()
                     .map(|session| {
                         // XXX maybe at some point we want a system where sessions don't necessarily
                         // contain a message.
-                        let last_message = messages
-                            .filter(session_id.eq(session.id))
-                            .order_by(server_timestamp.desc())
-                            .first(&*db)
+                        let last_message = storage
+                            .fetch_last_message_by_session_id(session.id)
                             .expect("a message in a session");
-                        (session, last_message)
+                        let last_message_receipts = storage.fetch_message_receipts(last_message.id);
+                        (session, last_message, last_message_receipts)
                     })
                     .collect();
                 Ok(result)
