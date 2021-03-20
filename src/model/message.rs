@@ -159,7 +159,7 @@ pub struct MessageModel {
 impl MessageModel {
     #[allow(non_snake_case)]
     fn openAttachment(&mut self, idx: usize) {
-        let _msg = if let Some(msg) = self.messages.get(idx) {
+        let msg = if let Some(msg) = self.messages.get(idx) {
             msg
         } else {
             log::error!("[attachment] Message not found at index {}", idx);
@@ -167,11 +167,11 @@ impl MessageModel {
         };
 
         // XXX move this method to its own model.
-        let attachment = "";
+        let attachment = msg.first_attachment();
 
         log::debug!("[attachment] Open by index {:?}: {}", idx, &attachment);
 
-        match Command::new("xdg-open").arg(&attachment).status() {
+        match Command::new("xdg-open").arg(attachment).status() {
             Ok(status) => {
                 if !status.success() {
                     log::error!("[attachment] fail");
