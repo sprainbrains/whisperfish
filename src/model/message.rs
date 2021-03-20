@@ -8,6 +8,7 @@ use crate::worker::{ClientActor, SendMessage};
 
 use actix::prelude::*;
 use futures::prelude::*;
+use itertools::Itertools;
 use qmetaobject::*;
 
 struct AugmentedMessage {
@@ -28,11 +29,7 @@ impl std::ops::Deref for AugmentedMessage {
 impl AugmentedMessage {
     pub fn source(&self) -> &str {
         if let Some(sender) = &self.sender {
-            sender
-                .e164
-                .as_deref()
-                .or(sender.uuid.as_deref())
-                .expect("e164 or uuid")
+            sender.e164_or_uuid()
         } else {
             ""
         }
@@ -116,6 +113,7 @@ pub struct MessageModel {
     pub client_actor: Option<Addr<ClientActor>>,
 
     messages: Vec<AugmentedMessage>,
+    group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
 
     peerIdentity: qt_property!(QString; NOTIFY peerIdentityChanged),
     peerName: qt_property!(QString; NOTIFY peerNameChanged),
@@ -396,10 +394,17 @@ impl MessageModel {
     // Event handlers below this line
 
     /// Handle a fetched session from message's point of view
-    pub fn handle_fetch_session(&mut self, sess: orm::Session, peer_identity: String) {
+    pub fn handle_fetch_session(
+        &mut self,
+        sess: orm::Session,
+        group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+        peer_identity: String,
+    ) {
         log::trace!("handle_fetch_session({})", sess.id);
         self.sessionId = sess.id;
         self.sessionIdChanged();
+
+        self.group_members = group_members;
 
         match sess.r#type {
             orm::SessionType::GroupV1(group) => {
@@ -412,25 +417,23 @@ impl MessageModel {
                 self.peerName = QString::from(group.name.deref());
                 self.peerNameChanged();
 
-                self.groupMembers = QString::from("");
+                self.groupMembers = QString::from(
+                    self.group_members
+                        .iter()
+                        .map(|(_, r)| r.e164_or_uuid())
+                        .join(","),
+                );
                 self.groupMembersChanged();
             }
             orm::SessionType::DirectMessage(recipient) => {
+                self.group = false;
+                self.groupChanged();
+
                 self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
                 self.peerTelChanged();
 
-                self.peerName = QString::from(
-                    recipient
-                        .e164
-                        .as_deref()
-                        .or(recipient.uuid.as_deref())
-                        .expect("uuid or e164"),
-                );
+                self.peerName = QString::from(recipient.e164_or_uuid());
                 self.peerNameChanged();
-
-                // XXX
-                self.groupMembers = QString::from("group members here");
-                self.groupMembersChanged();
             }
         };
 

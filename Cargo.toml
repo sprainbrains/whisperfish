@@ -43,6 +43,7 @@ env_logger = "0.8"
 scrypt = { version = "0.6", default-features = false, features=["std"] }
 hex="0.4"
 phonenumber = "0.3"
+itertools = "0.10.0"
 
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 diesel_migrations = "1.4"

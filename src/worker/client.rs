@@ -253,12 +253,7 @@ impl ClientActor {
         if settings.get_bool("enable_notify") && !is_sync_sent {
             let name: &str = match &session.r#type {
                 orm::SessionType::GroupV1(group) => &group.name,
-                orm::SessionType::DirectMessage(recipient) => recipient
-                    .e164
-                    .as_deref()
-                    .or(recipient.profile_joined_name.as_deref())
-                    .or(recipient.uuid.as_deref())
-                    .expect("e164 or uuid"),
+                orm::SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
             };
 
             self.inner.pinned().borrow_mut().notifyMessage(

@@ -13,6 +13,7 @@ use qmetaobject::*;
 struct SessionsLoaded(
     Vec<(
         orm::Session,
+        Vec<(orm::GroupV1Member, orm::Recipient)>,
         orm::Message,
         Vec<orm::Attachment>,
         Vec<(orm::Receipt, orm::Recipient)>,
@@ -103,14 +104,23 @@ impl Handler<FetchSession> for SessionActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.as_ref().unwrap();
-        let sess = storage.fetch_session_by_id(sid);
+        let sess = storage.fetch_session_by_id(sid).expect("existing session");
         let message = storage
             .fetch_last_message_by_session_id(sid)
             .expect("> 0 messages per session");
         let receipts = storage.fetch_message_receipts(message.id);
         let attachments = storage.fetch_attachments_for_message(message.id);
+
+        let group_members = if sess.is_group_v1() {
+            let group = sess.unwrap_group_v1();
+            storage.fetch_group_members_by_group_v1_id(&group.id)
+        } else {
+            Vec::new()
+        };
+
         self.inner.pinned().borrow_mut().handle_fetch_session(
-            sess.expect("existing session"),
+            sess,
+            group_members,
             message,
             attachments,
             receipts,
@@ -174,8 +184,17 @@ impl Handler<LoadAllSessions> for SessionActor {
                         let last_message_receipts = storage.fetch_message_receipts(last_message.id);
                         let last_message_attachments =
                             storage.fetch_attachments_for_message(last_message.id);
+
+                        let group_members = if session.is_group_v1() {
+                            let group = session.unwrap_group_v1();
+                            storage.fetch_group_members_by_group_v1_id(&group.id)
+                        } else {
+                            Vec::new()
+                        };
+
                         (
                             session,
+                            group_members,
                             last_message,
                             last_message_attachments,
                             last_message_receipts,

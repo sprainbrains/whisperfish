@@ -91,6 +91,12 @@ impl Handler<FetchSession> for MessageActor {
         let sess = storage
             .fetch_session_by_id(sid)
             .expect("FIXME No session returned!");
+        let group_members = if sess.is_group_v1() {
+            let group = sess.unwrap_group_v1();
+            storage.fetch_group_members_by_group_v1_id(&group.id)
+        } else {
+            Vec::new()
+        };
         if mark_read {
             storage.mark_session_read(sess.id);
         }
@@ -114,7 +120,7 @@ impl Handler<FetchSession> for MessageActor {
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_session(sess, peer_identity);
+            .handle_fetch_session(sess, group_members, peer_identity);
     }
 }
 

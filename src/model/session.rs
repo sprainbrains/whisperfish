@@ -9,11 +9,13 @@ use crate::store::orm;
 use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
+use itertools::Itertools;
 use qmetaobject::*;
 
 // XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {
     session: orm::Session,
+    group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
     last_message: orm::Message,
     last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
     last_message_attachments: Vec<orm::Attachment>,
@@ -156,6 +158,7 @@ impl SessionModel {
         &mut self,
         sessions: Vec<(
             orm::Session,
+            Vec<(orm::GroupV1Member, orm::Recipient)>,
             orm::Message,
             Vec<orm::Attachment>,
             Vec<(orm::Receipt, orm::Recipient)>,
@@ -166,9 +169,16 @@ impl SessionModel {
         self.content = sessions
             .into_iter()
             .map(
-                |(session, last_message, last_message_attachments, last_message_receipts)| {
+                |(
+                    session,
+                    group_members,
+                    last_message,
+                    last_message_attachments,
+                    last_message_receipts,
+                )| {
                     AugmentedSession {
                         session,
+                        group_members,
                         last_message,
                         last_message_attachments,
                         last_message_receipts,
@@ -190,6 +200,7 @@ impl SessionModel {
     pub fn handle_fetch_session(
         &mut self,
         sess: orm::Session,
+        group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
         mut last_message: orm::Message,
         last_message_attachments: Vec<orm::Attachment>,
         last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
@@ -249,6 +260,7 @@ impl SessionModel {
             0,
             AugmentedSession {
                 session: sess,
+                group_members,
                 last_message,
                 last_message_attachments,
                 last_message_receipts,
@@ -305,10 +317,12 @@ impl AugmentedSession {
     // FIXME we have them separated now... Get QML to understand it.
     fn group_members(&self) -> Option<String> {
         match &self.session.r#type {
-            orm::SessionType::GroupV1(_group) => {
-                // FIXME
-                Some("some,group,members".into())
-            }
+            orm::SessionType::GroupV1(_group) => Some(
+                self.group_members
+                    .iter()
+                    .map(|(_, r)| r.e164_or_uuid())
+                    .join(","),
+            ),
             orm::SessionType::DirectMessage(_) => None,
         }
     }
@@ -320,11 +334,7 @@ impl AugmentedSession {
     fn source(&self) -> &str {
         match &self.session.r#type {
             orm::SessionType::GroupV1(_group) => "",
-            orm::SessionType::DirectMessage(recipient) => recipient
-                .e164
-                .as_deref()
-                .or(recipient.uuid.as_deref())
-                .expect("e164 or uuid"),
+            orm::SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
         }
     }
 
