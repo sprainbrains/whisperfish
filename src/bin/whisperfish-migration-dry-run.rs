@@ -73,6 +73,13 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .filter(schema::session::is_group.eq(false))
             .filter(outgoing)
             .first(db)?;
+        let non_group_receipt_count: i64 = message
+            .left_join(session_on_id)
+            .select(count(id))
+            .filter(schema::session::is_group.eq(false))
+            .filter(received)
+            .filter(outgoing)
+            .first(db)?;
         let non_group_received_count: i64 = message
             .left_join(session_on_id)
             .select(count(id))
@@ -91,6 +98,13 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .filter(schema::session::is_group)
             .filter(outgoing)
             .first(db)?;
+        let group_receipt_count: i64 = message
+            .left_join(session_on_id)
+            .select(count(id))
+            .filter(schema::session::is_group)
+            .filter(received)
+            .filter(outgoing)
+            .first(db)?;
         let group_received_count: i64 = message
             .left_join(session_on_id)
             .select(count(id))
@@ -103,9 +117,11 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
         println!("├ with an attachment: {}", attachment_count);
         println!("├ of which group messages: {}", group_message_count);
         println!("│ ├ of which you sent: {}", group_sent_count);
+        println!("│ │ └ of which are received: {}", group_receipt_count);
         println!("│ └ of which you received: {}", group_received_count);
         println!("└ of which direct messages: {}", non_group_message_count);
         println!("  ├ of which you sent: {}", non_group_sent_count);
+        println!("  │ └ of which they received: {}", non_group_receipt_count);
         println!("  └ of which you received: {}", non_group_received_count);
     }
     Ok(())
@@ -159,6 +175,14 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .filter(schema::sessions::group_v1_id.is_not_null())
             .filter(is_outbound)
             .first(db)?;
+        let group_v1_receipt_count: i64 = messages
+            .left_join(schema::sessions::table)
+            .inner_join(schema::receipts::table)
+            .select(count(id))
+            .filter(schema::sessions::group_v1_id.is_not_null())
+            .filter(is_outbound)
+            .filter(schema::receipts::delivered.is_not_null())
+            .first(db)?;
         let group_v1_received_count: i64 = messages
             .left_join(schema::sessions::table)
             .select(count(id))
@@ -177,6 +201,20 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .filter(schema::sessions::direct_message_recipient_id.is_not_null())
             .filter(is_outbound)
             .first(db)?;
+        // XXX We can amend this with the different receipt types:
+        // - delivered
+        // - read
+        // - viewed
+        // Whisperfish pre-2020 did only store delivery receipts,
+        // and group message delivery receipts were only stored once.
+        let direct_receipt_count: i64 = messages
+            .left_join(schema::sessions::table)
+            .inner_join(schema::receipts::table)
+            .select(count(id))
+            .filter(schema::sessions::direct_message_recipient_id.is_not_null())
+            .filter(is_outbound)
+            .filter(schema::receipts::delivered.is_not_null())
+            .first(db)?;
         let direct_received_count: i64 = messages
             .left_join(schema::sessions::table)
             .select(count(id))
@@ -187,9 +225,11 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
         println!("Message count: {}", message_count);
         println!("├ of which group v1 messages: {}", group_v1_message_count);
         println!("│ ├ of which you sent: {}", group_v1_sent_count);
+        println!("│ │ └ of which have a receipt: {}", group_v1_receipt_count);
         println!("│ └ of which you received: {}", group_v1_received_count);
         println!("├ of which direct messages: {}", direct_message_count);
         println!("│ ├ of which you sent: {}", direct_sent_count);
+        println!("│ │ └ of which have a receipt: {}", direct_receipt_count);
         println!("│ └ of which you received: {}", direct_received_count);
     }
     {

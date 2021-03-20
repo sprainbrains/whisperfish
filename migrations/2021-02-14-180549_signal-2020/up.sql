@@ -511,14 +511,36 @@ SELECT
         THEN '1970-01-01T00:00:00'
         ELSE NULL
     END
-
 FROM sessions, messages, recipients, old_message
 WHERE messages.server_timestamp == old_message.timestamp
     AND messages.session_id == sessions.id
     AND recipients.id == sessions.direct_message_recipient_id
     AND messages.is_outbound;
 
--- We don't care about group messages, since this is information we did not retain. Sorry!
+-- For outbound group messages, we have a single read-receipts.
+-- We just assume everyone has received it, and then move on.
+-- We don't have their date either, but we just set it on UNIX epoch as marker.
+INSERT OR IGNORE INTO receipts (
+    message_id,
+    recipient_id,
+
+    delivered -- we called this "received"
+    -- read receipts and view receipts weren't handled before.
+)
+SELECT
+    messages.id,
+    recipients.id,
+
+    CASE WHEN old_message.received
+        THEN '1970-01-01T00:00:00'
+        ELSE NULL
+    END
+FROM sessions, messages, old_message
+INNER JOIN group_v1_members ON sessions.group_v1_id == group_v1_members.group_v1_id
+INNER JOIN recipients ON group_v1_members.recipient_id == recipients.id
+WHERE messages.server_timestamp == old_message.timestamp
+    AND messages.session_id == sessions.id
+    AND messages.is_outbound;
 
 -- 4. Drop the old tables
 
