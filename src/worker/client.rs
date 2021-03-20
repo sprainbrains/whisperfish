@@ -744,16 +744,16 @@ impl Handler<SendMessage> for ClientActor {
                 // Mark as sent
                 storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
 
-                // XXX Qt should handle None, not us.
-                Ok((session.id, mid, msg.text.unwrap_or_else(String::new)))
+                Ok((session.id, mid, msg.text))
             }
             .into_actor(self)
             .map(move |res, act, _ctx| match res {
                 Ok((sid, mid, message)) => {
-                    act.inner
-                        .pinned()
-                        .borrow()
-                        .messageSent(sid, mid, message.into());
+                    act.inner.pinned().borrow().messageSent(
+                        sid,
+                        mid,
+                        message.unwrap_or_else(String::new).into(),
+                    );
 
                     actix::spawn(
                         act.inner
