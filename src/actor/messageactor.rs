@@ -122,12 +122,11 @@ impl Handler<FetchMessage> for MessageActor {
     type Result = ();
 
     fn handle(&mut self, FetchMessage(id): FetchMessage, _ctx: &mut Self::Context) -> Self::Result {
-        let message = self
-            .storage
-            .as_ref()
-            .unwrap()
+        let storage = self.storage.as_ref().unwrap();
+        let message = storage
             .fetch_message_by_id(id)
             .expect(&format!("No message with id {}", id));
+        let receipts = storage.fetch_message_receipts(message.id);
         let recipient = if let Some(id) = message.sender_recipient_id {
             self.storage.as_ref().unwrap().fetch_recipient_by_id(id)
         } else {
@@ -136,7 +135,7 @@ impl Handler<FetchMessage> for MessageActor {
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_message(message, recipient);
+            .handle_fetch_message(message, recipient, receipts);
     }
 }
 
@@ -148,7 +147,16 @@ impl Handler<FetchAllMessages> for MessageActor {
         FetchAllMessages(sid): FetchAllMessages,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let messages = self.storage.as_ref().unwrap().fetch_all_messages(sid);
+        let storage = self.storage.as_ref().unwrap();
+        let messages = storage.fetch_all_messages(sid);
+        let messages = messages
+            .into_iter()
+            .map(|(m, r): (orm::Message, _)| {
+                let receipts = storage.fetch_message_receipts(m.id);
+                (m, r, receipts)
+            })
+            .collect();
+
         self.inner
             .pinned()
             .borrow_mut()

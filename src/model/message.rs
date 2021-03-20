@@ -13,6 +13,7 @@ use qmetaobject::*;
 struct AugmentedMessage {
     inner: orm::Message,
     sender: Option<orm::Recipient>,
+    receipts: Vec<(orm::Receipt, orm::Recipient)>,
 }
 
 impl std::ops::Deref for AugmentedMessage {
@@ -40,9 +41,25 @@ impl AugmentedMessage {
         self.inner.sent_timestamp.is_some()
     }
 
-    pub fn received(&self) -> bool {
-        // FIXME
-        false
+    fn delivered(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.delivered.is_some())
+            .count() as _
+    }
+
+    fn read(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.read.is_some())
+            .count() as _
+    }
+
+    fn viewed(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.viewed.is_some())
+            .count() as _
     }
 
     pub fn attachments(&self) -> u32 {
@@ -58,8 +75,12 @@ define_model_roles! {
         Source(fn source(&self) via QString::from):           "source",
         Message(text via qstring_from_option):                "message",
         Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
+
+        Delivered(fn delivered(&self)):                       "delivered",
+        Read(fn read(&self)):                                 "read",
+        Viewed(fn viewed(&self)):                             "viewed",
+
         Sent(fn sent(&self)):                                 "sent",
-        Received(fn received(&self)):                         "received",
         Flags(flags):                                         "flags",
         Attachments(fn attachments(&self)):                   "attachments",
         Outgoing(is_outbound):                                "outgoing",
@@ -210,6 +231,8 @@ impl MessageModel {
             AugmentedMessage {
                 inner: msg,
                 sender: None,
+                // No receipts yet.
+                receipts: Vec::new(),
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -408,6 +431,7 @@ impl MessageModel {
         &mut self,
         message: orm::Message,
         recipient: Option<orm::Recipient>,
+        receipts: Vec<(orm::Receipt, orm::Recipient)>,
     ) {
         log::trace!("handle_fetch_message({})", message.id);
 
@@ -417,6 +441,7 @@ impl MessageModel {
             AugmentedMessage {
                 inner: message,
                 sender: recipient,
+                receipts,
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -424,7 +449,11 @@ impl MessageModel {
 
     pub fn handle_fetch_all_messages(
         &mut self,
-        messages: Vec<(orm::Message, Option<orm::Recipient>)>,
+        messages: Vec<(
+            orm::Message,
+            Option<orm::Recipient>,
+            Vec<(orm::Receipt, orm::Recipient)>,
+        )>,
     ) {
         log::trace!(
             "handle_fetch_all_messages({}) count {}",
@@ -434,14 +463,16 @@ impl MessageModel {
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
 
-        self.messages.extend(
-            messages
-                .into_iter()
-                .map(|(message, recipient)| AugmentedMessage {
-                    inner: message,
-                    sender: recipient,
-                }),
-        );
+        self.messages
+            .extend(
+                messages
+                    .into_iter()
+                    .map(|(message, sender, receipts)| AugmentedMessage {
+                        inner: message,
+                        sender,
+                        receipts,
+                    }),
+            );
 
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
