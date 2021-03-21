@@ -115,30 +115,36 @@ pub struct MessageModel {
     messages: Vec<AugmentedMessage>,
     group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
 
-    peerIdentity: qt_property!(QString; NOTIFY peerIdentityChanged),
-    peerName: qt_property!(QString; NOTIFY peerNameChanged),
-    peerTel: qt_property!(QString; NOTIFY peerTelChanged),
-    groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
     sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
+
+    peerIdentity: qt_property!(QString; NOTIFY peerIdentityChanged),
+    peerName: qt_property!(QString; NOTIFY peerChanged),
+    peerTel: qt_property!(QString; NOTIFY peerChanged),
+    peerUuid: qt_property!(QString; NOTIFY peerChanged),
+
+    groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
+    groupId: qt_property!(QString; NOTIFY groupChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
 
     peerIdentityChanged: qt_signal!(),
-    peerNameChanged: qt_signal!(),
-    peerTelChanged: qt_signal!(),
+    peerChanged: qt_signal!(),
     groupMembersChanged: qt_signal!(),
     sessionIdChanged: qt_signal!(),
     groupChanged: qt_signal!(),
 
     openAttachment: qt_method!(fn(&self, index: usize)),
-    createMessage: qt_method!(
+    createGroupMessage: qt_method!(
         fn(
             &self,
-            source: QString,
+            group_id: QString,
             message: QString,
             groupName: QString,
             attachment: QString,
             add: bool,
         ) -> i32
+    ),
+    createMessage: qt_method!(
+        fn(&self, source: QString, message: QString, attachment: QString, add: bool) -> i32
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
@@ -182,17 +188,46 @@ impl MessageModel {
     }
 
     #[allow(non_snake_case)]
-    fn createMessage(
+    fn createGroupMessage(
         &mut self,
-        source: QString,
+        group_id: QString,
         message: QString,
-        groupName: QString,
+        group_name: QString,
         attachment: QString,
         _add: bool,
     ) -> i32 {
-        let source = source.to_string();
+        let group_id = group_id.to_string();
+        let group_name = group_name.to_string();
         let message = message.to_string();
-        let group = groupName.to_string();
+        let attachment = attachment.to_string();
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::QueueGroupMessage {
+                    group_id,
+                    group_name,
+                    message,
+                    attachment,
+                })
+                .map(Result::unwrap),
+        );
+
+        // TODO: QML should *not* synchronously wait for a session ID to be returned.
+        -1
+    }
+
+    #[allow(non_snake_case)]
+    fn createMessage(
+        &mut self,
+        e164: QString,
+        message: QString,
+        attachment: QString,
+        _add: bool,
+    ) -> i32 {
+        let e164 = e164.to_string();
+        let message = message.to_string();
         let attachment = attachment.to_string();
 
         actix::spawn(
@@ -200,10 +235,9 @@ impl MessageModel {
                 .as_ref()
                 .unwrap()
                 .send(actor::QueueMessage {
-                    source,
+                    e164,
                     message,
                     attachment,
-                    group,
                 })
                 .map(Result::unwrap),
         );
@@ -408,14 +442,14 @@ impl MessageModel {
 
         match sess.r#type {
             orm::SessionType::GroupV1(group) => {
-                self.group = true;
-                self.groupChanged();
-
                 self.peerTel = QString::from("");
-                self.peerTelChanged();
-
+                self.peerUuid = QString::from("");
                 self.peerName = QString::from(group.name.deref());
-                self.peerNameChanged();
+                self.peerChanged();
+
+                self.group = true;
+                self.groupId = QString::from(group.id);
+                self.groupChanged();
 
                 self.groupMembers = QString::from(
                     self.group_members
@@ -427,13 +461,13 @@ impl MessageModel {
             }
             orm::SessionType::DirectMessage(recipient) => {
                 self.group = false;
+                self.groupId = QString::from("");
                 self.groupChanged();
 
                 self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
-                self.peerTelChanged();
-
+                self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
                 self.peerName = QString::from(recipient.e164_or_uuid());
-                self.peerNameChanged();
+                self.peerChanged();
             }
         };
 

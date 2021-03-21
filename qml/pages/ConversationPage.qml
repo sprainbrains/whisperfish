@@ -145,13 +145,21 @@ Page {
                 // TODO Support multiple attachments in the backend.
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
                 var sid = 0
-                sid = MessageModel.createMessage(MessageModel.peerTel, text, '', firstAttachedPath, true)
+                if (isGroup) {
+                    sid = MessageModel.createGroupMessage(MessageModel.groupId, text, '', firstAttachedPath, true)
+                } else {
+                    sid = MessageModel.createMessage(MessageModel.peerTel, text, firstAttachedPath, true)
+                }
                 if (sid > 0) SessionModel.add(sid, true) // update session model
 
                 // send remaining attachments in separate messages because the
                 // backend does not support sending multiple attachments at once
                 for (var i = 1; i < attachments.length; i++) {
-                    sid = MessageModel.createMessage(MessageModel.peerTel, '', '', attachments[i].data, true)
+                    if (isGroup) {
+                        sid = MessageModel.createGroupMessage(MessageModel.groupId, '', '', attachments[i].data, true)
+                    } else {
+                        sid = MessageModel.createMessage(MessageModel.peerTel, '', attachments[i].data, true)
+                    }
                     if (sid > 0) SessionModel.add(sid, true) // update session model
                 }
             }

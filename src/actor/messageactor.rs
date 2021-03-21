@@ -1,7 +1,7 @@
 use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
 use crate::sfos::SailfishApp;
-use crate::store::{orm, Storage};
+use crate::store::{orm, NewGroupV1, Storage};
 use crate::worker::ClientActor;
 
 use actix::prelude::*;
@@ -29,10 +29,18 @@ pub struct DeleteMessage(pub i32, pub usize);
 #[derive(actix::Message, Debug)]
 #[rtype(result = "()")]
 pub struct QueueMessage {
-    pub source: String,
+    pub e164: String,
     pub message: String,
     pub attachment: String,
-    pub group: String,
+}
+
+#[derive(actix::Message, Debug)]
+#[rtype(result = "()")]
+pub struct QueueGroupMessage {
+    pub group_id: String,
+    pub group_name: String,
+    pub message: String,
+    pub attachment: String,
 }
 
 #[derive(Message)]
@@ -191,12 +199,11 @@ impl Handler<DeleteMessage> for MessageActor {
     }
 }
 
-impl Handler<QueueMessage> for MessageActor {
+impl Handler<QueueGroupMessage> for MessageActor {
     type Result = ();
 
-    fn handle(&mut self, msg: QueueMessage, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: QueueGroupMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::trace!("MessageActor::handle({:?})", msg);
-        assert!(&msg.group == "", "Creating a new group is unimplemented");
 
         let storage = self.storage.as_mut().unwrap();
 
@@ -205,7 +212,56 @@ impl Handler<QueueMessage> for MessageActor {
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source: msg.source,
+                source: String::new(),
+                text: msg.message,
+                timestamp: chrono::Utc::now().naive_utc(),
+                has_attachment,
+                mime_type: if has_attachment {
+                    Some(
+                        mime_guess::from_path(&msg.attachment)
+                            .first_or_octet_stream()
+                            .essence_str()
+                            .into(),
+                    )
+                } else {
+                    None
+                },
+                attachment: if has_attachment {
+                    Some(msg.attachment)
+                } else {
+                    None
+                },
+                flags: 0,
+                outgoing: true,
+                received: false,
+                sent: false,
+                is_read: true,
+            },
+            // XXX this "API" is horrible.
+            Some(NewGroupV1 {
+                id: &hex::decode(msg.group_id).expect("valid group id"),
+                name: msg.group_name,
+                members: Vec::new(),
+            }),
+        );
+
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
+    }
+}
+
+impl Handler<QueueMessage> for MessageActor {
+    type Result = ();
+
+    fn handle(&mut self, msg: QueueMessage, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("MessageActor::handle({:?})", msg);
+        let storage = self.storage.as_mut().unwrap();
+
+        let has_attachment = !msg.attachment.is_empty();
+
+        let (msg, _session) = storage.process_message(
+            crate::store::NewMessage {
+                session_id: None,
+                source: msg.e164,
                 text: msg.message,
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
