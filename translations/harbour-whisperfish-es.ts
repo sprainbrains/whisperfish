@@ -1104,8 +1104,8 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>y %1 más</numerusform>
-            <numerusform>y %1 más</numerusform>
+            <numerusform>y %n más</numerusform>
+            <numerusform>y %n más</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
