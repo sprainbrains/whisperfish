@@ -235,6 +235,21 @@ translations:update:
   script:
     - .ci/update-translations.sh
 
+notify_matrix_build_ready:
+  image: debian
+  only: master
+  environment:
+    name: $MATRIX_HOME_SERVER
+  needs:
+    - build:armv7hl
+    - build:aarch64
+    - build:i466
+  before_script:
+    - apt-get update
+    - apt-get install --no-install-recommends -y git curl jq
+  script:
+    - .ci/send-matrix-build-notification.sh
+
 pages:
   dependencies:
     - build:host:nightly:docs
