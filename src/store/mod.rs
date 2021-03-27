@@ -78,7 +78,8 @@ pub struct Message {
 #[derive(Clone, Debug)]
 pub struct NewMessage {
     pub session_id: Option<i32>,
-    pub source: String,
+    pub source_e164: Option<String>,
+    pub source_uuid: Option<String>,
     pub text: String,
     pub timestamp: NaiveDateTime,
     pub sent: bool,
@@ -632,6 +633,8 @@ impl Storage {
     }
 
     /// Process message and store in database and update or create a session.
+    ///
+    /// This assumes that the metadata (source_e164 and source_uuid) are correct and verified.
     pub fn process_message(
         &self,
         mut new_message: NewMessage,
@@ -640,7 +643,12 @@ impl Storage {
         let session = if let Some(group) = group.as_ref() {
             self.fetch_or_insert_session_by_group_v1(group)
         } else {
-            self.fetch_or_insert_session_by_e164(&new_message.source)
+            let recipient = self.merge_and_fetch_recipient(
+                new_message.source_e164.as_deref(),
+                new_message.source_uuid.as_deref(),
+                TrustLevel::Certain,
+            );
+            self.fetch_or_insert_session_by_recipient_id(recipient.id)
         };
 
         new_message.session_id = Some(session.id);
@@ -659,17 +667,13 @@ impl Storage {
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
     pub fn merge_and_fetch_recipient(
         &self,
-        e164: Option<phonenumber::PhoneNumber>,
-        uuid: Option<uuid::Uuid>,
+        e164: Option<&str>,
+        uuid: Option<&str>,
         trust_level: TrustLevel,
-    ) -> Option<orm::Recipient> {
+    ) -> orm::Recipient {
         if e164.is_none() && uuid.is_none() {
-            log::error!("merge_and_fetch_recipient requires at least one of e164 or uuid");
-            return None;
+            panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
-
-        let e164 = e164.map(|e164| e164.format().mode(phonenumber::Mode::E164).to_string());
-        let uuid = uuid.map(|uuid| uuid.to_string());
 
         let db = self.db.lock();
         db.transaction(|| -> Result<orm::Recipient, diesel::result::Error> {
@@ -787,10 +791,7 @@ impl Storage {
                 }
             }
         })
-        .map_err(|e| {
-            log::error!("Database error {}", e);
-        })
-        .ok()
+        .expect("database")
     }
 
     fn merge_recipients(&self, a_id: i32, b_id: i32) -> orm::Recipient {
@@ -1034,6 +1035,12 @@ impl Storage {
         })
     }
 
+    pub fn fetch_session_by_recipient_id(&self, rid: i32) -> Option<orm::Session> {
+        log::trace!("Called fetch__session_by_recipient_id({})", rid);
+        let db = self.db.lock();
+        fetch_session!(db, |query| { query.filter(schema::recipients::id.eq(rid)) })
+    }
+
     pub fn fetch_attachments_for_message(&self, mid: i32) -> Vec<orm::Attachment> {
         use schema::attachments::dsl::*;
         let db = self.db.lock();
@@ -1068,6 +1075,24 @@ impl Storage {
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
             .values((direct_message_recipient_id.eq(recipient.id),))
+            .execute(&*db)
+            .unwrap();
+
+        self.fetch_latest_session()
+            .expect("a session has been inserted")
+    }
+
+    /// Fetches recipient's DM session, or creates the session.
+    pub fn fetch_or_insert_session_by_recipient_id(&self, rid: i32) -> orm::Session {
+        log::trace!("Called fetch_or_insert_session_by_recipient_id({})", rid);
+        let db = self.db.lock();
+        if let Some(session) = self.fetch_session_by_recipient_id(rid) {
+            return session;
+        }
+
+        use schema::sessions::dsl::*;
+        diesel::insert_into(sessions)
+            .values((direct_message_recipient_id.eq(rid),))
             .execute(&*db)
             .unwrap();
 
@@ -1181,9 +1206,11 @@ impl Storage {
 
         log::trace!("Called create_message(..) for session {}", session);
 
-        let sender = self
-            .fetch_recipient_by_e164(&new_message.source)
-            .map(|r| r.id);
+        let sender = self.merge_and_fetch_recipient(
+            new_message.source_e164.as_deref(),
+            new_message.source_uuid.as_deref(),
+            TrustLevel::Uncertain,
+        );
 
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
@@ -1195,7 +1222,7 @@ impl Storage {
                 .values((
                     session_id.eq(session),
                     text.eq(&new_message.text),
-                    sender_recipient_id.eq(sender),
+                    sender_recipient_id.eq(sender.id),
                     received_timestamp.eq(if !new_message.outgoing {
                         Some(chrono::Utc::now().naive_utc())
                     } else {

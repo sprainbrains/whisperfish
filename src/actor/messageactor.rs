@@ -212,7 +212,8 @@ impl Handler<QueueGroupMessage> for MessageActor {
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source: String::new(),
+                source_e164: None,
+                source_uuid: None,
                 text: msg.message,
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
@@ -261,7 +262,8 @@ impl Handler<QueueMessage> for MessageActor {
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source: msg.e164,
+                source_e164: Some(msg.e164),
+                source_uuid: None,
                 text: msg.message,
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
@@ -305,7 +307,8 @@ impl Handler<EndSession> for MessageActor {
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source: e164,
+                source_e164: Some(e164),
+                source_uuid: None,
                 text: "[Whisperfish] Reset secure session".into(),
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment: false,
