@@ -4,8 +4,8 @@ macro_rules! define_model_roles {
         $(let field = $via_fn(field);)*
         field.into()
     }};
-    (RETRIEVE $obj:ident $field:ident $(via $via_fn:path)*) => {{
-        let field = $obj.$field.clone();
+    (RETRIEVE $obj:ident $($field:ident).+ $(via $via_fn:path)*) => {{
+        let field = $obj.$($field).+.clone();
         $(let field = $via_fn(field);)*
         field.into()
     }};
@@ -85,13 +85,14 @@ fn qdatetime_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDateTime {
     QDateTime::from_date_time_local_timezone(date, time)
 }
 
-fn qdatetime_from_i64(timestamp: i64) -> QDateTime {
-    qdatetime_from_chrono(Utc.timestamp(timestamp / 1000, (timestamp % 1000) as u32))
+fn qdatetime_from_naive(timestamp: NaiveDateTime) -> QDateTime {
+    // Naive in model is Utc, naive displayed should be Local
+    qdatetime_from_chrono(DateTime::<Utc>::from_utc(timestamp, Utc))
 }
 
-fn qstring_from_option(opt: Option<String>) -> QVariant {
+fn qstring_from_option(opt: Option<impl AsRef<str>>) -> QVariant {
     match opt {
-        Some(s) => QString::from(s).into(),
+        Some(s) => QString::from(s.as_ref()).into(),
         None => QVariant::default(),
     }
 }

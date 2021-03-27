@@ -14,6 +14,9 @@ stages:
   artifacts:
     paths:
       - target/*/release/rpmbuild/RPMS/*/*.rpm
+      - target/*/release/whisperfish-migration-dry-run
+      - target/*/release/fetch-signal-attachment
+      - target/*/release/harbour-whisperfish
   cache:
     paths:
       - target
@@ -145,6 +148,24 @@ test:stable:
   script:
     - cargo test
     - cargo test --release
+  except:
+    - schedules
+
+test:stable:diesel-schema:
+  <<: *rust-stable
+  stage: test
+  needs: []
+  script:
+    - cargo install -f diesel_cli
+    - rustup component add rustfmt
+    - export PATH="$CARGO_HOME/bin:$PATH"
+    - export DATABASE_URL=test_whisperfish.db
+    - diesel setup
+    - diesel migration run
+    - diesel print-schema > src/schema.rs
+    - cargo fmt -- src/schema.rs
+    - git diff
+    - git diff --exit-code
   except:
     - schedules
 

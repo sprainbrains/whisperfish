@@ -1071,12 +1071,14 @@ dependencies = [
  "futures",
  "hex",
  "hmac",
+ "itertools 0.10.0",
  "libsignal-protocol",
  "libsignal-service",
  "libsignal-service-actix",
  "libsqlite3-sys",
  "log",
  "mime_guess",
+ "parking_lot",
  "pbkdf2",
  "phonenumber",
  "pin-utils",
@@ -1085,7 +1087,9 @@ dependencies = [
  "qmetaobject",
  "rand 0.8.3",
  "regex",
+ "rpassword",
  "rstest",
+ "rstest_reuse",
  "scrypt",
  "serde",
  "serde_yaml",
@@ -1204,6 +1208,15 @@ name = "itertools"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "284f18f85651fe11e8a991b2adb42cb078325c996ed026d994719efcfca1d54b"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37d572918e350e82412fe766d24b15e6682fb2ed2bbe018280caa810397cb319"
 dependencies = [
  "either",
 ]
@@ -1641,7 +1654,7 @@ dependencies = [
  "bincode",
  "either",
  "fnv",
- "itertools",
+ "itertools 0.9.0",
  "lazy_static",
  "nom",
  "quick-xml",
@@ -1790,7 +1803,7 @@ checksum = "32d3ebd75ac2679c2af3a92246639f9fcc8a442ee420719cc4fe195b98dd5fa3"
 dependencies = [
  "bytes",
  "heck",
- "itertools",
+ "itertools 0.9.0",
  "log",
  "multimap",
  "petgraph",
@@ -1807,7 +1820,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "169a15f3008ecb5160cba7d37bcd690a7601b6d30cfb87a117d45e59d52af5d4"
 dependencies = [
  "anyhow",
- "itertools",
+ "itertools 0.9.0",
  "proc-macro2",
  "quote",
  "syn",
@@ -2062,6 +2075,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rpassword"
+version = "5.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffc936cf8a7ea60c58f030fd36a612a48f440610214dc54bc36431f9ea0c3efb"
+dependencies = [
+ "libc",
+ "winapi",
+]
+
+[[package]]
 name = "rstest"
 version = "0.6.5"
 source = "git+https://github.com/la10736/rstest#ecbbd2eab10ef8a0cc7188143c714b4486ec3a34"
@@ -2070,6 +2093,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "rustc_version 0.2.3",
+ "syn",
+]
+
+[[package]]
+name = "rstest_reuse"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea58a205448b6b691df0025d0871882c60ce66b46ee8b26217d68f794eb0f965"
+dependencies = [
+ "quote",
  "syn",
 ]
 

@@ -3,27 +3,36 @@ use crate::actor::FetchSession;
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
 use crate::sfos::SailfishApp;
-use crate::store::{Session, Storage};
+use crate::store::{orm, Storage};
 
 use actix::prelude::*;
-use diesel::prelude::*;
 use qmetaobject::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-struct SessionsLoaded(Vec<Session>);
+struct SessionsLoaded(
+    Vec<(
+        orm::Session,
+        Vec<(orm::GroupV1Member, orm::Recipient)>,
+        orm::Message,
+        Vec<orm::Attachment>,
+        Vec<(orm::Receipt, orm::Recipient)>,
+    )>,
+);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
+// XXX this should be called *per message* instead of per session,
+//     probably.
 pub struct MarkSessionRead {
-    pub sess: Session,
+    pub sid: i32,
     pub already_unread: bool,
 }
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct DeleteSession {
-    pub id: i64,
+    pub id: i32,
     pub idx: usize,
 }
 
@@ -94,11 +103,29 @@ impl Handler<FetchSession> for SessionActor {
         FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let sess = self.storage.as_ref().unwrap().fetch_session(sid);
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_session(sess.expect("FIXME No session returned!"), mark_read);
+        let storage = self.storage.as_ref().unwrap();
+        let sess = storage.fetch_session_by_id(sid).expect("existing session");
+        let message = storage
+            .fetch_last_message_by_session_id(sid)
+            .expect("> 0 messages per session");
+        let receipts = storage.fetch_message_receipts(message.id);
+        let attachments = storage.fetch_attachments_for_message(message.id);
+
+        let group_members = if sess.is_group_v1() {
+            let group = sess.unwrap_group_v1();
+            storage.fetch_group_members_by_group_v1_id(&group.id)
+        } else {
+            Vec::new()
+        };
+
+        self.inner.pinned().borrow_mut().handle_fetch_session(
+            sess,
+            group_members,
+            message,
+            attachments,
+            receipts,
+            mark_read,
+        );
     }
 }
 
@@ -108,16 +135,16 @@ impl Handler<MarkSessionRead> for SessionActor {
     fn handle(
         &mut self,
         MarkSessionRead {
-            sess,
+            sid,
             already_unread,
         }: MarkSessionRead,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        self.storage.as_ref().unwrap().mark_session_read(&sess);
+        self.storage.as_ref().unwrap().mark_session_read(sid);
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_mark_session_read(sess, already_unread);
+            .handle_mark_session_read(sid, already_unread);
     }
 }
 
@@ -141,15 +168,40 @@ impl Handler<LoadAllSessions> for SessionActor {
     /// Panics when storage is not yet set.
     fn handle(&mut self, _: LoadAllSessions, ctx: &mut Self::Context) {
         let session_actor = ctx.address();
-        let db = self.storage.clone().unwrap().db;
+        let storage = self.storage.clone().unwrap();
 
         actix::spawn(async move {
             let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
-                let db = db
-                    .lock()
-                    .map_err(|_| failure::format_err!("Database mutex is poisoned."))?;
-                use crate::schema::session::dsl::*;
-                Ok(session.order_by(timestamp.desc()).load(&*db)?)
+                let sessions: Vec<orm::Session> = storage.fetch_sessions();
+                let result = sessions
+                    .into_iter()
+                    .map(|session| {
+                        // XXX maybe at some point we want a system where sessions don't necessarily
+                        // contain a message.
+                        let last_message = storage
+                            .fetch_last_message_by_session_id(session.id)
+                            .expect("a message in a session");
+                        let last_message_receipts = storage.fetch_message_receipts(last_message.id);
+                        let last_message_attachments =
+                            storage.fetch_attachments_for_message(last_message.id);
+
+                        let group_members = if session.is_group_v1() {
+                            let group = session.unwrap_group_v1();
+                            storage.fetch_group_members_by_group_v1_id(&group.id)
+                        } else {
+                            Vec::new()
+                        };
+
+                        (
+                            session,
+                            group_members,
+                            last_message,
+                            last_message_attachments,
+                            last_message_receipts,
+                        )
+                    })
+                    .collect();
+                Ok(result)
             })
             .await
             .unwrap();

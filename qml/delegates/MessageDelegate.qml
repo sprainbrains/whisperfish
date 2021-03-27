@@ -72,7 +72,7 @@ ListItem {
 
     readonly property bool hasData: modelData !== null && typeof modelData !== 'undefined'
     readonly property bool hasQuotedMessage: quotedMessageData !== null
-    readonly property bool hasAttachments: hasData && (modelData.hasAttachment === true)
+    readonly property bool hasAttachments: hasData && (modelData.attachments > 0)
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && _source !== ''
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)

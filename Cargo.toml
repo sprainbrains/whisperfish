@@ -14,6 +14,7 @@ actix = "0.11.0-beta"
 rand = "0.8"
 aes = "0.6.0"
 block-modes = "0.7.0"
+parking_lot = "0.11"
 dbus = "0.9"
 hmac = "0.10.0"
 sha2 = "0.9.0"
@@ -42,6 +43,7 @@ env_logger = "0.8"
 scrypt = { version = "0.6", default-features = false, features=["std"] }
 hex="0.4"
 phonenumber = "0.3"
+itertools = "0.10.0"
 
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 diesel_migrations = "1.4"
@@ -55,6 +57,8 @@ prost = "0.7"
 tempdir = "0.3.5"
 
 structopt = "0.3.16"
+
+rpassword = "5.0"
 
 [build-dependencies]
 cpp_build = "0.5"
@@ -70,6 +74,7 @@ version_check = "0.9"
 # Git version for async tests. 0.6.5 will contain this feature,
 # so revert to crates.io on release
 rstest = { version = "0.6.5", git = "https://github.com/la10736/rstest" }
+rstest_reuse = { version = "0.1.0" }
 
 # Smart dev mode: Compile most stuff in release mode, except for the things
 # that are actually maintained by our community
@@ -104,6 +109,7 @@ target = "armv7-unknown-linux-gnueabihf"
 
 [package.metadata.rpm.targets]
 harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }
+whisperfish-migration-dry-run = { path = "/usr/bin/whisperfish-migration-dry-run" }
 
 [package.metadata.rpm.files]
 "../harbour-whisperfish.desktop" = { path = "/usr/share/applications/harbour-whisperfish.desktop" }

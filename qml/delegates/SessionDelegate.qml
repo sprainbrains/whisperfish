@@ -11,14 +11,17 @@ ListItem {
     property bool isGroup: model.isGroup
     property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
-    property bool isUnread: model.unread // TODO investigate: is this really a bool?
+    property bool isRead: model.read // TODO investigate: is this really a bool?
+    property bool isUnread: !isRead // TODO investigate: is this really a bool?
     property bool isNoteToSelf: false // TODO implement in model (#138), e.g. SettingsBridge.stringValue("tel") === model.source
     property bool pinned: false // TODO implement in model
     property bool archived: false // TODO implement in model
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
     property string profilePicture: '' // TODO implement in model (#192)
-    property bool isPreviewReceived: model.received // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewDelivered: model.delivered > 0 // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewRead: model.read > 0 // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewViewed: model.viewed > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
     property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
@@ -155,7 +158,7 @@ ListItem {
             }
 
             HighlightImage {
-                source: isPreviewReceived
+                source: isPreviewDelivered
                         ? "../../icons/icon-s-received.png" :
                           (isPreviewSent ? "../../icons/icon-s-sent.png" : "")
                 color: Theme.primaryColor

@@ -1,7 +1,7 @@
 use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
 use crate::sfos::SailfishApp;
-use crate::store::Storage;
+use crate::store::{orm, NewGroupV1, Storage};
 use crate::worker::ClientActor;
 
 use actix::prelude::*;
@@ -10,7 +10,7 @@ use qmetaobject::*;
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct FetchSession {
-    pub id: i64,
+    pub id: i32,
     pub mark_read: bool,
 }
 
@@ -20,7 +20,7 @@ pub struct FetchMessage(pub i32);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-pub struct FetchAllMessages(pub i64);
+pub struct FetchAllMessages(pub i32);
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
@@ -29,10 +29,18 @@ pub struct DeleteMessage(pub i32, pub usize);
 #[derive(actix::Message, Debug)]
 #[rtype(result = "()")]
 pub struct QueueMessage {
-    pub source: String,
+    pub e164: String,
     pub message: String,
     pub attachment: String,
-    pub group: String,
+}
+
+#[derive(actix::Message, Debug)]
+#[rtype(result = "()")]
+pub struct QueueGroupMessage {
+    pub group_id: String,
+    pub group_name: String,
+    pub message: String,
+    pub attachment: String,
 }
 
 #[derive(Message)]
@@ -88,16 +96,22 @@ impl Handler<FetchSession> for MessageActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.as_ref().unwrap();
-        let mut sess = storage
-            .fetch_session(sid)
+        let sess = storage
+            .fetch_session_by_id(sid)
             .expect("FIXME No session returned!");
+        let group_members = if sess.is_group_v1() {
+            let group = sess.unwrap_group_v1();
+            storage.fetch_group_members_by_group_v1_id(&group.id)
+        } else {
+            Vec::new()
+        };
         if mark_read {
-            storage.mark_session_read(&sess);
-            sess.unread = false;
+            storage.mark_session_read(sess.id);
         }
 
-        let peer_identity = if !sess.source.trim().is_empty() {
-            match storage.peer_identity(&sess.source) {
+        let peer_identity = if let orm::SessionType::DirectMessage(recipient) = &sess.r#type {
+            // FIXME UUID
+            match storage.peer_identity(recipient.e164.as_deref().expect("fixme")) {
                 Ok(ident) => ident,
                 Err(e) => {
                     log::warn!(
@@ -114,7 +128,7 @@ impl Handler<FetchSession> for MessageActor {
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_session(sess, peer_identity);
+            .handle_fetch_session(sess, group_members, peer_identity);
     }
 }
 
@@ -122,11 +136,23 @@ impl Handler<FetchMessage> for MessageActor {
     type Result = ();
 
     fn handle(&mut self, FetchMessage(id): FetchMessage, _ctx: &mut Self::Context) -> Self::Result {
-        let message = self.storage.as_ref().unwrap().fetch_message(id);
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_message(message.expect("FIXME No message returned!"));
+        let storage = self.storage.as_ref().unwrap();
+        let message = storage
+            .fetch_message_by_id(id)
+            .expect(&format!("No message with id {}", id));
+        let receipts = storage.fetch_message_receipts(message.id);
+        let attachments = storage.fetch_attachments_for_message(message.id);
+        let recipient = if let Some(id) = message.sender_recipient_id {
+            self.storage.as_ref().unwrap().fetch_recipient_by_id(id)
+        } else {
+            None
+        };
+        self.inner.pinned().borrow_mut().handle_fetch_message(
+            message,
+            recipient,
+            attachments,
+            receipts,
+        );
     }
 }
 
@@ -138,11 +164,21 @@ impl Handler<FetchAllMessages> for MessageActor {
         FetchAllMessages(sid): FetchAllMessages,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let messages = self.storage.as_ref().unwrap().fetch_all_messages(sid);
+        let storage = self.storage.as_ref().unwrap();
+        let messages = storage.fetch_all_messages(sid);
+        let messages = messages
+            .into_iter()
+            .map(|(m, r): (orm::Message, _)| {
+                let receipts = storage.fetch_message_receipts(m.id);
+                let attachments = storage.fetch_attachments_for_message(m.id);
+                (m, r, attachments, receipts)
+            })
+            .collect();
+
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_all_messages(messages.expect("FIXME No messages returned!"));
+            .handle_fetch_all_messages(messages);
     }
 }
 
@@ -163,12 +199,11 @@ impl Handler<DeleteMessage> for MessageActor {
     }
 }
 
-impl Handler<QueueMessage> for MessageActor {
+impl Handler<QueueGroupMessage> for MessageActor {
     type Result = ();
 
-    fn handle(&mut self, msg: QueueMessage, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: QueueGroupMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::trace!("MessageActor::handle({:?})", msg);
-        assert!(&msg.group == "", "Creating a new group is unimplemented");
 
         let storage = self.storage.as_mut().unwrap();
 
@@ -177,9 +212,9 @@ impl Handler<QueueMessage> for MessageActor {
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source: msg.source,
+                source: String::new(),
                 text: msg.message,
-                timestamp: chrono::Utc::now().timestamp_millis(),
+                timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
                 mime_type: if has_attachment {
                     Some(
@@ -200,12 +235,59 @@ impl Handler<QueueMessage> for MessageActor {
                 outgoing: true,
                 received: false,
                 sent: false,
+                is_read: true,
             },
-            None,
-            false,
+            // XXX this "API" is horrible.
+            Some(NewGroupV1 {
+                id: &hex::decode(msg.group_id).expect("valid group id"),
+                name: msg.group_name,
+                members: Vec::new(),
+            }),
         );
 
-        storage.queue_message(&msg);
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
+    }
+}
+
+impl Handler<QueueMessage> for MessageActor {
+    type Result = ();
+
+    fn handle(&mut self, msg: QueueMessage, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("MessageActor::handle({:?})", msg);
+        let storage = self.storage.as_mut().unwrap();
+
+        let has_attachment = !msg.attachment.is_empty();
+
+        let (msg, _session) = storage.process_message(
+            crate::store::NewMessage {
+                session_id: None,
+                source: msg.e164,
+                text: msg.message,
+                timestamp: chrono::Utc::now().naive_utc(),
+                has_attachment,
+                mime_type: if has_attachment {
+                    Some(
+                        mime_guess::from_path(&msg.attachment)
+                            .first_or_octet_stream()
+                            .essence_str()
+                            .into(),
+                    )
+                } else {
+                    None
+                },
+                attachment: if has_attachment {
+                    Some(msg.attachment)
+                } else {
+                    None
+                },
+                flags: 0,
+                outgoing: true,
+                received: false,
+                sent: false,
+                is_read: true,
+            },
+            None,
+        );
 
         self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }
@@ -225,7 +307,7 @@ impl Handler<EndSession> for MessageActor {
                 session_id: None,
                 source: e164,
                 text: "[Whisperfish] Reset secure session".into(),
-                timestamp: chrono::Utc::now().timestamp_millis(),
+                timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment: false,
                 mime_type: None,
                 attachment: None,
@@ -233,12 +315,10 @@ impl Handler<EndSession> for MessageActor {
                 outgoing: true,
                 received: false,
                 sent: false,
+                is_read: true,
             },
             None,
-            false,
         );
-
-        storage.queue_message(&msg);
 
         self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }

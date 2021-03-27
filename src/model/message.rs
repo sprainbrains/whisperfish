@@ -3,28 +3,105 @@ use std::process::Command;
 
 use crate::actor;
 use crate::model::*;
-use crate::store;
+use crate::store::orm;
 use crate::worker::{ClientActor, SendMessage};
 
 use actix::prelude::*;
 use futures::prelude::*;
+use itertools::Itertools;
 use qmetaobject::*;
 
+struct AugmentedMessage {
+    inner: orm::Message,
+    sender: Option<orm::Recipient>,
+    attachments: Vec<orm::Attachment>,
+    receipts: Vec<(orm::Receipt, orm::Recipient)>,
+}
+
+impl std::ops::Deref for AugmentedMessage {
+    type Target = orm::Message;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl AugmentedMessage {
+    pub fn source(&self) -> &str {
+        if let Some(sender) = &self.sender {
+            sender.e164_or_uuid()
+        } else {
+            ""
+        }
+    }
+
+    pub fn sent(&self) -> bool {
+        self.inner.sent_timestamp.is_some()
+    }
+
+    fn delivered(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.delivered.is_some())
+            .count() as _
+    }
+
+    fn read(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.read.is_some())
+            .count() as _
+    }
+
+    fn viewed(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.viewed.is_some())
+            .count() as _
+    }
+
+    pub fn attachments(&self) -> u32 {
+        self.attachments.len() as _
+    }
+
+    pub fn first_attachment(&self) -> &str {
+        if self.attachments.len() == 0 {
+            return "";
+        }
+
+        self.attachments[0].attachment_path.as_deref().unwrap_or("")
+    }
+
+    pub fn first_attachment_mime_type(&self) -> &str {
+        if self.attachments.len() == 0 {
+            return "";
+        }
+        &self.attachments[0].content_type
+    }
+}
+
 define_model_roles! {
-    enum MessageRoles for store::Message {
-        ID(id):                                         "id",
-        SID(sid):                                       "sid",
-        Source(source via QString::from):               "source",
-        Message(message via QString::from):             "message",
-        Timestamp(timestamp via qdatetime_from_i64):    "timestamp",
-        Sent(sent):                                     "sent",
-        Received(received):                             "received",
-        Flags(flags):                                   "flags",
-        Attachment(attachment via qstring_from_option): "attachment",
-        MimeType(mimetype via qstring_from_option):     "mimeType",
-        HasAttachment(hasattachment):                   "hasAttachment",
-        Outgoing(outgoing):                             "outgoing",
-        Queued(queued):                                 "queued",
+    enum MessageRoles for AugmentedMessage {
+        ID(id):                                               "id",
+        SID(session_id):                                      "sid",
+        Source(fn source(&self) via QString::from):           "source",
+        Message(text via qstring_from_option):                "message",
+        Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
+
+        Delivered(fn delivered(&self)):                       "delivered",
+        Read(fn read(&self)):                                 "read",
+        Viewed(fn viewed(&self)):                             "viewed",
+
+        Sent(fn sent(&self)):                                 "sent",
+        Flags(flags):                                         "flags",
+        Attachments(fn attachments(&self)):                   "attachments",
+        Outgoing(is_outbound):                                "outgoing",
+        // FIXME
+        // Queued(queued):                                       "queued",
+
+        // FIXME issue #11 multiple attachments
+        Attachment(fn first_attachment(&self) via QString::from): "attachment",
+        AttachmentMimeType(fn first_attachment_mime_type(&self) via QString::from): "mimeType",
     }
 }
 
@@ -35,38 +112,45 @@ pub struct MessageModel {
     pub actor: Option<Addr<actor::MessageActor>>,
     pub client_actor: Option<Addr<ClientActor>>,
 
-    messages: Vec<store::Message>,
+    messages: Vec<AugmentedMessage>,
+    group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+
+    sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
 
     peerIdentity: qt_property!(QString; NOTIFY peerIdentityChanged),
-    peerName: qt_property!(QString; NOTIFY peerNameChanged),
-    peerTel: qt_property!(QString; NOTIFY peerTelChanged),
+    peerName: qt_property!(QString; NOTIFY peerChanged),
+    peerTel: qt_property!(QString; NOTIFY peerChanged),
+    peerUuid: qt_property!(QString; NOTIFY peerChanged),
+
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
-    sessionId: qt_property!(i64; NOTIFY sessionIdChanged),
+    groupId: qt_property!(QString; NOTIFY groupChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
 
     peerIdentityChanged: qt_signal!(),
-    peerNameChanged: qt_signal!(),
-    peerTelChanged: qt_signal!(),
+    peerChanged: qt_signal!(),
     groupMembersChanged: qt_signal!(),
     sessionIdChanged: qt_signal!(),
     groupChanged: qt_signal!(),
 
     openAttachment: qt_method!(fn(&self, index: usize)),
-    createMessage: qt_method!(
+    createGroupMessage: qt_method!(
         fn(
             &self,
-            source: QString,
+            group_id: QString,
             message: QString,
             groupName: QString,
             attachment: QString,
             add: bool,
-        ) -> i64
+        ) -> i32
+    ),
+    createMessage: qt_method!(
+        fn(&self, source: QString, message: QString, attachment: QString, add: bool) -> i32
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
     endSession: qt_method!(fn(&self, e164: QString)),
 
-    load: qt_method!(fn(&self, sid: i64, peer_name: QString)),
+    load: qt_method!(fn(&self, sid: i32, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(fn(&self, id: usize /* FIXME the implemented method takes an *index* but should take a message ID */)),
 
@@ -86,14 +170,12 @@ impl MessageModel {
             return;
         };
 
-        let attachment = msg
-            .attachment
-            .as_ref()
-            .expect("downloaded attachment with path in db");
+        // XXX move this method to its own model.
+        let attachment = msg.first_attachment();
 
         log::debug!("[attachment] Open by index {:?}: {}", idx, &attachment);
 
-        match Command::new("xdg-open").arg(&attachment).status() {
+        match Command::new("xdg-open").arg(attachment).status() {
             Ok(status) => {
                 if !status.success() {
                     log::error!("[attachment] fail");
@@ -106,17 +188,46 @@ impl MessageModel {
     }
 
     #[allow(non_snake_case)]
-    fn createMessage(
+    fn createGroupMessage(
         &mut self,
-        source: QString,
+        group_id: QString,
         message: QString,
-        groupName: QString,
+        group_name: QString,
         attachment: QString,
         _add: bool,
-    ) -> i64 {
-        let source = source.to_string();
+    ) -> i32 {
+        let group_id = group_id.to_string();
+        let group_name = group_name.to_string();
         let message = message.to_string();
-        let group = groupName.to_string();
+        let attachment = attachment.to_string();
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::QueueGroupMessage {
+                    group_id,
+                    group_name,
+                    message,
+                    attachment,
+                })
+                .map(Result::unwrap),
+        );
+
+        // TODO: QML should *not* synchronously wait for a session ID to be returned.
+        -1
+    }
+
+    #[allow(non_snake_case)]
+    fn createMessage(
+        &mut self,
+        e164: QString,
+        message: QString,
+        attachment: QString,
+        _add: bool,
+    ) -> i32 {
+        let e164 = e164.to_string();
+        let message = message.to_string();
         let attachment = attachment.to_string();
 
         actix::spawn(
@@ -124,10 +235,9 @@ impl MessageModel {
                 .as_ref()
                 .unwrap()
                 .send(actor::QueueMessage {
-                    source,
+                    e164,
                     message,
                     attachment,
-                    group,
                 })
                 .map(Result::unwrap),
         );
@@ -160,19 +270,29 @@ impl MessageModel {
         );
     }
 
-    pub fn handle_queue_message(&mut self, msg: crate::store::Message) {
+    pub fn handle_queue_message(&mut self, msg: orm::Message) {
         self.sendMessage(msg.id);
 
         // TODO: Go version modified the `self` model appropriately,
         //       with the `add`/`_add` parameter from createMessage.
         // if add {
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
-        self.messages.insert(0, msg);
+        self.messages.insert(
+            0,
+            AugmentedMessage {
+                inner: msg,
+                sender: None,
+                // XXX
+                attachments: Vec::new(),
+                // No receipts yet.
+                receipts: Vec::new(),
+            },
+        );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
         // }
     }
 
-    fn load(&mut self, sid: i64, _peer_name: QString) {
+    fn load(&mut self, sid: i32, _peer_name: QString) {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
 
         self.messages.clear();
@@ -278,7 +398,7 @@ impl MessageModel {
             return;
         }
 
-        if let Some((i, msg)) = self
+        if let Some((i, mut msg)) = self
             .messages
             .iter_mut()
             .enumerate()
@@ -287,12 +407,13 @@ impl MessageModel {
             if mark_sent {
                 log::trace!("Mark message {} sent '{}'", id, mark_sent);
 
-                msg.sent = true;
-                msg.queued = false;
+                // XXX
+                msg.inner.sent_timestamp = Some(chrono::Utc::now().naive_utc());
             } else if mark_received {
                 log::trace!("Mark message {} received '{}'", id, mark_received);
 
-                msg.received = true;
+                // XXX needs something more in AugmentedMessage
+                // msg.received = true;
             }
             // In fact, we should only update the necessary roles, but qmetaobject, in its current
             // state, does not allow this.
@@ -309,27 +430,48 @@ impl MessageModel {
     // Event handlers below this line
 
     /// Handle a fetched session from message's point of view
-    pub fn handle_fetch_session(&mut self, sess: store::Session, peer_identity: String) {
-        log::trace!("handle_fetch_session({})", sess.message);
+    pub fn handle_fetch_session(
+        &mut self,
+        sess: orm::Session,
+        group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+        peer_identity: String,
+    ) {
+        log::trace!("handle_fetch_session({})", sess.id);
         self.sessionId = sess.id;
         self.sessionIdChanged();
 
-        self.group = sess.is_group;
-        self.groupChanged();
+        self.group_members = group_members;
 
-        let group_name = sess.group_name.unwrap_or_else(String::new);
-        if sess.is_group && group_name != "" {
-            self.peerName = QString::from(group_name);
-        } else {
-            self.peerName = QString::from(sess.source.clone());
-        }
-        self.peerNameChanged();
+        match sess.r#type {
+            orm::SessionType::GroupV1(group) => {
+                self.peerTel = QString::from("");
+                self.peerUuid = QString::from("");
+                self.peerName = QString::from(group.name.deref());
+                self.peerChanged();
 
-        self.peerTel = QString::from(sess.source);
-        self.peerTelChanged();
+                self.group = true;
+                self.groupId = QString::from(group.id);
+                self.groupChanged();
 
-        self.groupMembers = QString::from(sess.group_members.unwrap_or_else(String::new));
-        self.groupMembersChanged();
+                self.groupMembers = QString::from(
+                    self.group_members
+                        .iter()
+                        .map(|(_, r)| r.e164_or_uuid())
+                        .join(","),
+                );
+                self.groupMembersChanged();
+            }
+            orm::SessionType::DirectMessage(recipient) => {
+                self.group = false;
+                self.groupId = QString::from("");
+                self.groupChanged();
+
+                self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
+                self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
+                self.peerName = QString::from(recipient.e164_or_uuid());
+                self.peerChanged();
+            }
+        };
 
         self.peerIdentity = peer_identity.into();
         self.peerIdentityChanged();
@@ -345,24 +487,53 @@ impl MessageModel {
         log::trace!("Dispatched actor::FetchAllMessages({})", sess.id);
     }
 
-    pub fn handle_fetch_message(&mut self, message: store::Message) {
+    pub fn handle_fetch_message(
+        &mut self,
+        message: orm::Message,
+        recipient: Option<orm::Recipient>,
+        attachments: Vec<orm::Attachment>,
+        receipts: Vec<(orm::Receipt, orm::Recipient)>,
+    ) {
         log::trace!("handle_fetch_message({})", message.id);
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
-        self.messages.insert(0, message);
+        self.messages.insert(
+            0,
+            AugmentedMessage {
+                inner: message,
+                sender: recipient,
+                attachments,
+                receipts,
+            },
+        );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 
-    pub fn handle_fetch_all_messages(&mut self, messages: Vec<store::Message>) {
+    pub fn handle_fetch_all_messages(
+        &mut self,
+        messages: Vec<(
+            orm::Message,
+            Option<orm::Recipient>,
+            Vec<orm::Attachment>,
+            Vec<(orm::Receipt, orm::Recipient)>,
+        )>,
+    ) {
         log::trace!(
             "handle_fetch_all_messages({}) count {}",
-            messages[0].sid,
+            messages[0].0.session_id,
             messages.len()
         );
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
 
-        self.messages.extend(messages);
+        self.messages.extend(messages.into_iter().map(
+            |(message, sender, attachments, receipts)| AugmentedMessage {
+                inner: message,
+                sender,
+                attachments,
+                receipts,
+            },
+        ));
 
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
