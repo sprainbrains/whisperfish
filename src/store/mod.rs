@@ -29,6 +29,15 @@ no_arg_sql_function!(
     "Represents the Sqlite last_insert_rowid() function"
 );
 
+/// How much trust you put into the correctness of the data.
+#[derive(Clone, Eq, Debug, PartialEq)]
+pub enum TrustLevel {
+    /// Set to Certain if the supplied information is from a trusted source,
+    /// such as an envelope.
+    Certain,
+    Uncertain,
+}
+
 /// Session as it relates to the schema
 #[derive(Queryable, Debug, Clone)]
 pub struct Session {
@@ -647,6 +656,173 @@ impl Storage {
         recipients.filter(e164.eq(new_e164)).first(&*db).ok()
     }
 
+    /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
+    pub fn merge_and_fetch_recipient(
+        &self,
+        e164: Option<phonenumber::PhoneNumber>,
+        uuid: Option<uuid::Uuid>,
+        trust_level: TrustLevel,
+    ) -> Option<orm::Recipient> {
+        if e164.is_none() && uuid.is_none() {
+            log::error!("merge_and_fetch_recipient requires at least one of e164 or uuid");
+            return None;
+        }
+
+        let e164 = e164.map(|e164| e164.format().mode(phonenumber::Mode::E164).to_string());
+        let uuid = uuid.map(|uuid| uuid.to_string());
+
+        let db = self.db.lock();
+        db.transaction(|| -> Result<orm::Recipient, diesel::result::Error> {
+            use schema::recipients;
+            let by_e164: Option<orm::Recipient> = e164
+                .as_deref()
+                .map(|e164| {
+                    recipients::table
+                        .filter(recipients::e164.eq(e164))
+                        .first(&*db)
+                        .optional()
+                })
+                .transpose()?
+                .flatten();
+            let by_uuid: Option<orm::Recipient> = uuid
+                .as_deref()
+                .map(|uuid| {
+                    recipients::table
+                        .filter(recipients::uuid.eq(uuid))
+                        .first(&*db)
+                        .optional()
+                })
+                .transpose()?
+                .flatten();
+
+            match (by_e164, by_uuid) {
+                (Some(by_e164), Some(by_uuid)) if by_e164.id == by_uuid.id => {
+                    // Both are equal, easy.
+                    Ok(by_uuid)
+                }
+                (Some(by_e164), Some(by_uuid)) => {
+                    log::warn!(
+                        "Conflicting results for {} and {}. Finding a resolution.",
+                        by_e164.e164.as_ref().unwrap(),
+                        by_uuid.uuid.as_ref().unwrap()
+                    );
+                    match (by_e164.uuid, trust_level) {
+                        (Some(_uuid), TrustLevel::Certain) => {
+                            log::info!("Differing UUIDs, high trust, likely case of reregistration. Stripping the old account, updating new.");
+                            // Strip the old one
+                            diesel::update(recipients::table)
+                                .set(recipients::e164.eq::<Option<String>>(None))
+                                .filter(recipients::id.eq(by_e164.id))
+                                .execute(&*db)?;
+                            // Set the new one
+                            diesel::update(recipients::table)
+                                .set(recipients::e164.eq(e164))
+                                .filter(recipients::id.eq(by_uuid.id))
+                                .execute(&*db)?;
+                            // Fetch again for the update
+                            Ok(self.fetch_recipient_by_id(by_uuid.id).expect("existing updated recipient"))
+                        }
+                        (Some(_uuid), TrustLevel::Uncertain) => {
+                            log::info!("Differing UUIDs, low trust, likely case of reregistration. Doing absolutely nothing. Sorry.");
+                            Ok(by_uuid)
+                        }
+                        (None, TrustLevel::Certain) => {
+                            log::info!("Merging contacts: one with e164, the other only uuid, high trust.");
+                            Ok(self.merge_recipients(by_e164.id, by_uuid.id))
+                        }
+                        (None, TrustLevel::Uncertain) => {
+                            log::info!("Not merging contacts: one with e164, the other only uuid, low trust.");
+                            Ok(by_uuid)
+                        }
+                    }
+                }
+                (None, Some(by_uuid)) => {
+                    if let Some(e164) = e164 {
+                        match trust_level {
+                            TrustLevel::Certain => {
+                                log::info!("Found phone number {} for contact {}. High trust, so updating.", e164, by_uuid.uuid.as_ref().unwrap());
+                                diesel::update(recipients::table)
+                                    .set(recipients::e164.eq(e164))
+                                    .filter(recipients::id.eq(by_uuid.id))
+                                    .execute(&*db)?;
+                                Ok(self.fetch_recipient_by_id(by_uuid.id).expect("existing updated recipient"))
+                            }
+                            TrustLevel::Uncertain => {
+                                log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
+                                Ok(by_uuid)
+                            }
+                        }
+                    } else {
+                        Ok(by_uuid)
+                    }
+                }
+                (Some(by_e164), None) => {
+                    if let Some(uuid) = uuid {
+                        match trust_level {
+                            TrustLevel::Certain => {
+                                log::info!("Found UUID {} for contact {}. High trust, so updating.", uuid, by_e164.e164.unwrap());
+                                diesel::update(recipients::table)
+                                    .set(recipients::uuid.eq(uuid))
+                                    .filter(recipients::id.eq(by_e164.id))
+                                    .execute(&*db)?;
+                                Ok(self.fetch_recipient_by_id(by_e164.id).expect("existing updated recipient"))
+                            }
+                            TrustLevel::Uncertain => {
+                                log::info!("Found UUID {} for contact {}. Low trust, creating a new contact.", uuid, by_e164.e164.unwrap());
+                                Ok(self.fetch_or_insert_recipient_by_uuid(&uuid))
+                            }
+                        }
+                    } else {
+                        Ok(by_e164)
+                    }
+                }
+                (None, None) => {
+                    let insert_e164 = (trust_level == TrustLevel::Certain) || uuid.is_none();
+                    diesel::insert_into(recipients::table)
+                        .values((recipients::e164.eq(if insert_e164 {e164} else {None}), recipients::uuid.eq(uuid)))
+                        .execute(&*db)
+                        .expect("insert new recipient");
+
+                    Ok(self.fetch_latest_recipient().expect("inserted recipient"))
+                }
+            }
+        })
+        .map_err(|e| {
+            log::error!("Database error {}", e);
+        })
+        .ok()
+    }
+
+    fn merge_recipients(&self, a_id: i32, b_id: i32) -> orm::Recipient {
+        // XXX not yet merging, I'm lazy/have too much other stuff to do :-)
+        log::warn!(
+            "Merge of contacts {} and {} not implemented. Just returning {}",
+            a_id,
+            b_id,
+            b_id
+        );
+        self.fetch_recipient_by_id(b_id).expect("existing contact")
+    }
+
+    pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
+        use crate::schema::recipients::dsl::*;
+
+        let db = self.db.lock();
+
+        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(&*db) {
+            recipient
+        } else {
+            diesel::insert_into(recipients)
+                .values(uuid.eq(new_uuid))
+                .execute(&*db)
+                .expect("insert new recipient");
+            recipients
+                .filter(uuid.eq(new_uuid))
+                .first(&*db)
+                .expect("newly inserted recipient")
+        }
+    }
+
     pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
@@ -809,6 +985,15 @@ impl Storage {
         let session = self.fetch_session_by_id(message.session_id)?;
 
         Some((session, message))
+    }
+
+    /// Fetches the latest session by last_insert_rowid.
+    ///
+    /// This only yields correct results when the last insertion was in fact a session.
+    fn fetch_latest_recipient(&self) -> Option<orm::Recipient> {
+        use schema::recipients::dsl::*;
+        let db = self.db.lock();
+        recipients.filter(id.eq(last_insert_rowid)).first(&*db).ok()
     }
 
     /// Fetches the latest session by last_insert_rowid.
