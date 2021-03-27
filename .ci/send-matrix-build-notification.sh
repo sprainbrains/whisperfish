@@ -12,7 +12,7 @@ JQ_FORMAT_LIST="
     | select(.file_name | test(\"$GIT_REF\"))
     | \"<li><a href=\\\"$CI_PROJECT_URL/-/package_files/\"+(.id|tostring)+\"/download\\\">\"+.file_name+\"</a></li>\"
 "
-DOWNLOAD_LIST=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID?page=$PAGES" | jq -r $JQ_FORMAT_LIST)
+DOWNLOAD_LIST=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID?page=$PAGES" | jq -r "$JQ_FORMAT_LIST")
 
 FORMATTED="🆕 New builds🧱 ($VERSION) are ready at https://gitlab.com/rubdos/whisperfish/-/packages 🥳 <ul>$DOWNLOAD_LIST</ul>"
 MSG="{\"msgtype\":\"m.text\", \"body\":\"New builds are ready at https://gitlab.com/rubdos/whisperfish/-/packages\", \"formatted_body\": \"$FORMATTED\"}"
