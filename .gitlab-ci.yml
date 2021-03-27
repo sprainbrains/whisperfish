@@ -181,6 +181,7 @@ test:nightly:
 
 fmt:nightly:
   <<: *rust-nightly
+  allow_failure: false
   stage: test
   needs: []
   script:
