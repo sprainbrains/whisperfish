@@ -236,6 +236,7 @@ translations:update:
     - .ci/update-translations.sh
 
 notify_matrix_build_ready:
+  stage: deploy
   image: debian
   only: master
   environment:
