@@ -219,6 +219,7 @@ ApplicationWindow
 
             shareClientId = clientId
             activate()
+            pageStack.push(Qt.resolvedUrl("pages/ShareDestination.qml"), {source: source, content: JSON.parse(content)})
         }
     }
     DBusInterface {
