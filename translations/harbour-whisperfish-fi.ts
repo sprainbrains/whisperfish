@@ -267,16 +267,16 @@
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Poistettu laitteelta %n viesti</numerusform>
+            <numerusform>Poistettu laitteelta %n viestiä</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="366"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reagoi</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="380"/>
@@ -288,20 +288,20 @@
         <location filename="../qml/components/MessagesView.qml" line="387"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lähetä eteenpäin</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="394"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Valitse • lisävalikko</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="373"/>
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation type="unfinished">Lähetä uudelleen</translation>
+        <translation>Yritä lähettää viesti uudelleen</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
@@ -319,7 +319,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Näytä kontaktin tiedot</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
@@ -593,7 +593,7 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="136"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <translation>Signal ilmoittaa sinulle viestitse 6-numeroisen varmennuskoodin.</translation>
+        <translation>Signal ilmoittaa sinulle viestillä 6-numeroisen vahvistuskoodin.</translation>
     </message>
     <message id="whisperfish-continue-button-label">
         <location filename="../qml/pages/RegisterPage.qml" line="176"/>
@@ -1103,9 +1103,9 @@ Settings page share contacts</extracomment>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
-        <translation type="unfinished">
-            <numerusform>ja %1 muu</numerusform>
-            <numerusform>ja %1 muuta</numerusform>
+        <translation>
+            <numerusform>ja %n muu</numerusform>
+            <numerusform>ja %n muuta</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1215,25 +1215,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
         <source>Your safety number with %1 has changed. Swipe right to verify the new number.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Turvanumero käyttäjän %1 kanssa on vaihtunut. Pyyhkäise oikealle varmistaaksesi uuden numeron.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="94"/>
         <source>You have reset the secure session with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alustit suojatun istunnon käyttäjän %1 kanssa.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="98"/>
         <source>%1 has reset the secure session with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 alusti suojatun istunnon kanssasi.</translation>
     </message>
     <message id="whisperfish-service-message-not-supported">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="103"/>
         <source>This service message is not yet supported by Whisperfish. Please file a bug report. (Type: &apos;%1&apos;.)</source>
         <extracomment>Service message, %1 is an internal message type identifier</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish ei tue vielä tätä järjestelmäviestiä. Ole hyvä ja tee vikailmoitus. (Viestitunniste: &apos;%1&apos;)</translation>
     </message>
     <message id="whisperfish-service-message-more-info">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
@@ -1280,25 +1280,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewVideoPage.qml" line="105"/>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
-        <translation>Videon toisto epäonnistui.</translation>
+        <translation>Videon toisto epäonnistui</translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="248"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n viesti valittuna</numerusform>
+            <numerusform>%n viestiä valittuna</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="272"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Tyhjennä valinta</numerusform>
+            <numerusform>Tyhjennä valinnat</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1306,25 +1306,25 @@ Settings page share contacts</extracomment>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Kopioi %n viesti</numerusform>
+            <numerusform>Kopioi %n viestiä</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
         <location filename="../qml/pages/ConversationPage.qml" line="290"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Näytä viestin tiedot</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="304"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Poista laitteelta %n viesti</numerusform>
+            <numerusform>Poista laitteelta %n viestiä</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1332,18 +1332,18 @@ Settings page share contacts</extracomment>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Poista kaikilta %n viesti</numerusform>
+            <numerusform>Poista kaikilta %n viestiä</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="327"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Yritä viestin lähettämistä uudelleen</numerusform>
+            <numerusform>Yritä viestien lähettämistä uudelleen</numerusform>
         </translation>
     </message>
 </context>

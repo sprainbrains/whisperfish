@@ -98,7 +98,7 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>Version-ID: %1</translation>
+        <translation>Erstellungsprozess-ID: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
@@ -1306,8 +1306,8 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>%1 Nachricht kopieren</numerusform>
-            <numerusform>%1 Nachrichten kopieren</numerusform>
+            <numerusform>%n Nachricht kopieren</numerusform>
+            <numerusform>%n Nachrichten kopieren</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
