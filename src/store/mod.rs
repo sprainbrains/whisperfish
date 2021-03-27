@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 
 use parking_lot::ReentrantMutex;
 
+use crate::millis_to_naive_chrono;
 use crate::schema;
 use crate::settings::SignalConfig;
 
@@ -999,6 +1000,10 @@ impl Storage {
             .fetch_recipient_by_e164(&new_message.source)
             .map(|r| r.id);
 
+        // The server time needs to be the rounded-down version;
+        // chrono does nanoseconds.
+        let server_time = millis_to_naive_chrono(new_message.timestamp.timestamp_millis() as u64);
+
         let affected_rows = {
             use schema::messages::dsl::*;
             diesel::insert_into(messages)
@@ -1006,8 +1011,17 @@ impl Storage {
                     session_id.eq(session),
                     text.eq(&new_message.text),
                     sender_recipient_id.eq(sender),
-                    received_timestamp.eq(chrono::Utc::now().naive_utc()),
-                    server_timestamp.eq(new_message.timestamp),
+                    received_timestamp.eq(if !new_message.outgoing {
+                        Some(chrono::Utc::now().naive_utc())
+                    } else {
+                        None
+                    }),
+                    sent_timestamp.eq(if new_message.outgoing && new_message.sent {
+                        Some(new_message.timestamp)
+                    } else {
+                        None
+                    }),
+                    server_timestamp.eq(server_time),
                     is_read.eq(new_message.is_read),
                     is_outbound.eq(new_message.outgoing),
                     flags.eq(new_message.flags),
