@@ -20,7 +20,7 @@ echo "Checking only page $PAGES"
 JQ_FORMAT_LIST="
 .[]
     | select(.file_name | test(\"$GIT_REF\"))
-    | \"<li><a href=\\\"$CI_PROJECT_URL/-/package_files/\"+(.id|tostring)+\"/download\\\">\"+.file_name+\"</a></li>\"
+    | \"<li><a href=\\\\\"$CI_PROJECT_URL/-/package_files/\"+(.id|tostring)+\"/download\\\\\">\"+.file_name+\"</a></li>\"
 "
 DOWNLOAD_LIST=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID/package_files?page=$PAGES")
 echo "Contents of page"
