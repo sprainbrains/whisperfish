@@ -152,7 +152,12 @@ pub struct MessageModel {
 
     load: qt_method!(fn(&self, sid: i32, peer_name: QString)),
     add: qt_method!(fn(&self, id: i32)),
-    remove: qt_method!(fn(&self, id: usize /* FIXME the implemented method takes an *index* but should take a message ID */)),
+    remove: qt_method!(
+        fn(
+            &self,
+            id: usize, /* FIXME the implemented method takes an *index* but should take a message ID */
+        )
+    ),
 
     numericFingerprint: qt_method!(fn(&self, localId: QString, remoteId: QString) -> QString),
 
