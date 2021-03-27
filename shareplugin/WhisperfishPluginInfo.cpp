@@ -25,14 +25,13 @@ void WhisperfishPluginInfo::query()
 	info.shareUIPath = QLatin1String(
 			"/usr/share/nemo-transferengine/plugins/WhisperfishShare.qml");
 
-	// TODO: Check if we should be more specific here - this is what depecher sets.
+	// We just allow everything and hope for bug reports where special handling is needed.
     info.capabilitities << QLatin1String("application/*")
                  << QLatin1String("image/*")
                  << QLatin1String("audio/*")
                  << QLatin1String("video/*")
-                 << QLatin1String("text/plain")
-                 << QLatin1String("text/x-url")
-                 << QLatin1String("text/vcard");
+                 << QLatin1String("text/*")
+                 << QLatin1String("*/*");
 
     infoList.clear();
     infoList << info;
