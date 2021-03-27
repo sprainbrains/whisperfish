@@ -17,7 +17,7 @@ JQ_FORMAT_LIST="
 DOWNLOAD_LIST=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID/package_files?page=$PAGES" | jq -r "$JQ_FORMAT_LIST")
 
 FORMATTED="🆕 New builds🧱 ($VERSION) are ready at https://gitlab.com/rubdos/whisperfish/-/packages 🥳 <ul>$DOWNLOAD_LIST</ul>"
-MSG="{\"msgtype\":\"m.text\", \"body\":\"New builds are ready at https://gitlab.com/rubdos/whisperfish/-/packages\", \"formatted_body\": \"$FORMATTED\"}"
+MSG="{\"msgtype\":\"m.text\", \"format\": \"org.matrix.custom.html\", \"body\":\"New builds are ready at https://gitlab.com/rubdos/whisperfish/-/packages\", \"formatted_body\": \"$FORMATTED\"}"
 echo Sending $MSG
 
 curl -XPOST -d "$MSG" "$MATRIX_HOME_SERVER/_matrix/client/r0/rooms/$MATRIX_ROOM/send/m.room.message?access_token=$MATRIX_ACCESS_TOKEN"
