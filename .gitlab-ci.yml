@@ -238,7 +238,8 @@ translations:update:
 notify_matrix_build_ready:
   stage: deploy
   image: debian
-  only: master
+  only:
+    - master
   environment:
     name: $MATRIX_HOME_SERVER
   needs:
