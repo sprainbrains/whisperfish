@@ -23,7 +23,7 @@ JQ_FORMAT_LIST="
     | \"<li><a href=\\\"$CI_PROJECT_URL/-/package_files/\"+(.id|tostring)+\"/download\\\">\"+.file_name+\"</a></li>\"
 "
 DOWNLOAD_LIST=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID/package_files?page=$PAGES")
-echo "Contents of page ("$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID/package_files?page=$PAGES") $PAGES"
+echo "Contents of page"
 echo $DOWNLOAD_LIST
 DOWNLOAD_LIST=$(echo "$DOWNLOAD_LIST" | jq -r "$JQ_FORMAT_LIST")
 
