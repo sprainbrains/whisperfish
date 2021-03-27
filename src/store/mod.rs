@@ -987,8 +987,9 @@ impl Storage {
     ///
     /// Panics is new_message.session_id is None.
     pub fn create_message(&self, new_message: &NewMessage) -> orm::Message {
+        // XXX Storing the message with its attachments should happen in a transaction.
+        // Meh.
         let db = self.db.lock();
-        use schema::messages::dsl::*;
 
         let session = new_message.session_id.expect("session id");
 
@@ -998,20 +999,22 @@ impl Storage {
             .fetch_recipient_by_e164(&new_message.source)
             .map(|r| r.id);
 
-        let affected_rows = diesel::insert_into(messages)
-            .values((
-                session_id.eq(session),
-                text.eq(&new_message.text),
-                sender_recipient_id.eq(sender),
-                received_timestamp.eq(chrono::Utc::now().naive_utc()),
-                server_timestamp.eq(new_message.timestamp),
-                is_read.eq(new_message.is_read),
-                is_outbound.eq(new_message.outgoing),
-                flags.eq(new_message.flags),
-            ))
-            .execute(&*db)
-            .expect("inserting a message");
-        // XXX newmessage could have an attachment
+        let affected_rows = {
+            use schema::messages::dsl::*;
+            diesel::insert_into(messages)
+                .values((
+                    session_id.eq(session),
+                    text.eq(&new_message.text),
+                    sender_recipient_id.eq(sender),
+                    received_timestamp.eq(chrono::Utc::now().naive_utc()),
+                    server_timestamp.eq(new_message.timestamp),
+                    is_read.eq(new_message.is_read),
+                    is_outbound.eq(new_message.outgoing),
+                    flags.eq(new_message.flags),
+                ))
+                .execute(&*db)
+                .expect("inserting a message")
+        };
 
         assert_eq!(
             affected_rows, 1,
@@ -1026,6 +1029,29 @@ impl Storage {
         );
 
         log::trace!("Inserted message id {}", latest_message.id);
+
+        if let Some(path) = &new_message.attachment {
+            let affected_rows = {
+                use schema::attachments::dsl::*;
+                diesel::insert_into(attachments)
+                    .values((
+                        message_id.eq(latest_message.id),
+                        content_type.eq(new_message.mime_type.as_ref().unwrap()),
+                        attachment_path.eq(path),
+                        is_voice_note.eq(false),
+                        is_borderless.eq(false),
+                        is_quote.eq(false),
+                    ))
+                    .execute(&*db)
+                    .expect("Insert attachment")
+            };
+
+            assert_eq!(
+                affected_rows, 1,
+                "Did not insert the attachment. Dazed and confused."
+            );
+        }
+
         latest_message
     }
 
