@@ -35,7 +35,7 @@ Page {
         }
         footer: Item { width: parent.width; height: Theme.paddingMedium }
 
-        property var recipients: []
+        property var recipients: ({})
 
         delegate: ListItem {
             id: conversation
@@ -51,15 +51,15 @@ Page {
             contentHeight: Theme.fontSizeMedium+4*Theme.paddingMedium+2*Theme.paddingSmall
 
             onClicked: {
-                var index = sessionList.recipients.indexOf(model.source);
-                if (index > -1) {
-                    sessionList.recipients.splice(index, 1)
+                var index = 's_' + model.id
+                if (index in sessionList.recipients) {
+                    delete sessionList.recipients[index]
                     selected = false
                 } else {
-                    sessionList.recipients.push(model.source)
+                    sessionList.recipients[index] = { source: model.isGroup ? model.groupId : model.source, isGroup: model.isGroup }
                     selected = true
                 }
-                textInput.enableSending = sessionList.recipients.length > 0
+                textInput.enableSending = Object.keys(sessionList.recipients).length > 0
             }
 
             Item {
@@ -142,12 +142,17 @@ Page {
         }
 
         onSendMessage: {
-            for (var r = 0; r < sessionList.recipients.length; r++) {
+            for (var r in sessionList.recipients) {
                 var recp = sessionList.recipients[r]
 
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
                 var sid = 0
-                sid = MessageModel.createMessage(recp, text, '', firstAttachedPath, true)
+
+                if (recp.isGroup) {
+                    sid = MessageModel.createGroupMessage(recp.source, text, '', firstAttachedPath, true)
+                } else {
+                    sid = MessageModel.createMessage(recp.source, text, firstAttachedPath, true)
+                }
                 if (sid > 0) SessionModel.add(sid, true) // update session model
             }
             pageStack.pop()

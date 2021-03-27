@@ -316,6 +316,14 @@ impl AugmentedSession {
         }
     }
 
+    fn group_id(&self) -> Option<&str> {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(group) => Some(&group.id),
+            orm::SessionType::GroupV2(group) => Some(&group.id),
+            orm::SessionType::DirectMessage(_) => None,
+        }
+    }
+
     // FIXME we have them separated now... Get QML to understand it.
     fn group_members(&self) -> Option<String> {
         match &self.session.r#type {
@@ -407,6 +415,7 @@ define_model_roles! {
         Source(fn source(&self) via QString::from):                        "source",
         IsGroup(fn is_group(&self)):                                       "isGroup",
         IsGroupV2(fn is_group_v2(&self)):                                  "isGroupV2",
+        GroupId(fn group_id(&self) via qstring_from_option):               "groupId",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
         Message(last_message.text via qstring_from_option):                "message",
