@@ -247,7 +247,7 @@ notify_matrix_build_ready:
     - build:i486
   before_script:
     - apt-get update
-    - apt-get install --no-install-recommends -y git curl jq
+    - apt-get install --no-install-recommends -y git curl jq ca-certificates
   script:
     - .ci/send-matrix-build-notification.sh
 
