@@ -23,7 +23,7 @@ DOWNLOAD_LIST=$(echo "$DOWNLOAD_LIST" | jq -r "$JQ_FORMAT_LIST")
 
 UNFORMATTED="Builds of $VERSION are ready at https://gitlab.com/rubdos/whisperfish/-/packages"
 FORMATTED="🆕 builds of <code>$VERSION</code> are ready at https://gitlab.com/rubdos/whisperfish/-/packages 🥳 <ul>$DOWNLOAD_LIST</ul>"
-MSG="{\"msgtype\":\"m.text\", \"format\": \"org.matrix.custom.html\", \"body\":\"$UNFORMATTED\", \"formatted_body\": \"$FORMATTED\"}"
+MSG="{\"msgtype\":\"m.notice\", \"format\": \"org.matrix.custom.html\", \"body\":\"$UNFORMATTED\", \"formatted_body\": \"$FORMATTED\"}"
 echo Sending $MSG
 
 curl -XPOST -d "$MSG" "$MATRIX_HOME_SERVER/_matrix/client/r0/rooms/$MATRIX_ROOM/send/m.room.message?access_token=$MATRIX_ACCESS_TOKEN"
