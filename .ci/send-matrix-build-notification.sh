@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*\)"/\1/')"
 GIT_REF="$(git rev-parse --short HEAD)"
 VERSION="$CARGO_VERSION.b$CI_PIPELINE_IID.$GIT_REF"
