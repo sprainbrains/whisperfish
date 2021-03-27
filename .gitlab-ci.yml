@@ -245,7 +245,7 @@ notify_matrix_build_ready:
   needs:
     - build:armv7hl
     - build:aarch64
-    - build:i466
+    - build:i486
   before_script:
     - apt-get update
     - apt-get install --no-install-recommends -y git curl jq
