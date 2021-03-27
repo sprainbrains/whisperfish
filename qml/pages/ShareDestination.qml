@@ -110,7 +110,7 @@ Page {
         showSeparator: true
         enableAttachments: false
         attachments: root.source != '' ? [ { data: root.source.replace(/^file:\/\//, ''), type: '*/*' } ] : []
-        enableSending: sessionList.recipients.length > 0
+        enableSending: Object.keys(sessionList.recipients).length > 0
 
         Component.onCompleted: {
             if ('type' in root.content) {
