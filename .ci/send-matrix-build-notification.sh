@@ -6,7 +6,7 @@ CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*\)"/
 GIT_REF="$(git rev-parse --short HEAD)"
 VERSION="$CARGO_VERSION.b$CI_PIPELINE_IID.$GIT_REF"
 
-PACKAGE_ID=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages?package_name=harbour-whisperfish" | jq '.[] | select(.version == "$CARGO_VERSION") | .id')
+PACKAGE_ID=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages?package_name=harbour-whisperfish" | jq ".[] | select(.version == \"$CARGO_VERSION\") | .id")
 PAGES=$(curl -si -XHEAD "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID/package_files" |grep x-total-pages | sed -e 's/x-total-pages: //')
 
 echo "Checking only page $PAGES"
