@@ -163,9 +163,7 @@ test:stable:diesel-schema:
     - diesel setup
     - diesel migration run
     - diesel print-schema > src/schema.rs
-    - cargo fmt -- src/schema.rs
-    - git diff
-    - git diff --exit-code
+    - cargo fmt -- --check src/schema.rs
   except:
     - schedules
 
