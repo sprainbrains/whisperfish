@@ -664,6 +664,43 @@ impl Storage {
         recipients.filter(e164.eq(new_e164)).first(&*db).ok()
     }
 
+    pub fn fetch_recipient(
+        &self,
+        e164: Option<&str>,
+        uuid: Option<&str>,
+    ) -> Option<orm::Recipient> {
+        if e164.is_none() && uuid.is_none() {
+            log::trace!("fetch_recipient requires at least one of e164 or uuid");
+            return None;
+        }
+
+        let db = self.db.lock();
+        use schema::recipients;
+        let by_e164: Option<orm::Recipient> = e164
+            .as_deref()
+            .map(|e164| {
+                recipients::table
+                    .filter(recipients::e164.eq(e164))
+                    .first(&*db)
+                    .optional()
+            })
+            .transpose()
+            .expect("db")
+            .flatten();
+        let by_uuid: Option<orm::Recipient> = uuid
+            .as_deref()
+            .map(|uuid| {
+                recipients::table
+                    .filter(recipients::uuid.eq(uuid))
+                    .first(&*db)
+                    .optional()
+            })
+            .transpose()
+            .expect("db")
+            .flatten();
+        by_uuid.or(by_e164)
+    }
+
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
     pub fn merge_and_fetch_recipient(
         &self,
@@ -1362,11 +1399,12 @@ impl Storage {
 
         log::trace!("Called create_message(..) for session {}", session);
 
-        let sender = self.merge_and_fetch_recipient(
-            new_message.source_e164.as_deref(),
-            new_message.source_uuid.as_deref(),
-            TrustLevel::Uncertain,
-        );
+        let sender_id = self
+            .fetch_recipient(
+                new_message.source_e164.as_deref(),
+                new_message.source_uuid.as_deref(),
+            )
+            .map(|r| r.id);
 
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
@@ -1378,7 +1416,7 @@ impl Storage {
                 .values((
                     session_id.eq(session),
                     text.eq(&new_message.text),
-                    sender_recipient_id.eq(sender.id),
+                    sender_recipient_id.eq(sender_id),
                     received_timestamp.eq(if !new_message.outgoing {
                         Some(chrono::Utc::now().naive_utc())
                     } else {
