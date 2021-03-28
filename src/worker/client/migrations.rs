@@ -8,6 +8,11 @@ use super::*;
 mod whoami;
 use whoami::*;
 
+/// Migration to move files in `storage/sessions` and `storage/identity` to their
+/// UUID-based counterparts.
+mod e164_to_uuid;
+use e164_to_uuid::*;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct Migrations;
@@ -16,5 +21,6 @@ impl Handler<Migrations> for ClientActor {
     type Result = ();
     fn handle(&mut self, _: Migrations, ctx: &mut Self::Context) {
         ctx.notify(WhoAmI);
+        ctx.notify(E164ToUuid);
     }
 }

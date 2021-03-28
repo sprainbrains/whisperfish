@@ -664,6 +664,11 @@ impl Storage {
         recipients.filter(e164.eq(new_e164)).first(&*db).ok()
     }
 
+    pub fn fetch_recipients(&self) -> Vec<orm::Recipient> {
+        let db = self.db.lock();
+        schema::recipients::table.load(&*db).expect("db")
+    }
+
     pub fn fetch_recipient(
         &self,
         e164: Option<&str>,
