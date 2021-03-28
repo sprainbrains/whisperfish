@@ -36,7 +36,7 @@ dirs = "3.0"
 failure = "0.1.6"
 thiserror = "1"
 libsignal-protocol = { git = "https://github.com/Michael-F-Bryan/libsignal-protocol-rs" }
-libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master", features = ["prefer-e164"] }
+libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 log = "0.4.8"
 env_logger = "0.8"
