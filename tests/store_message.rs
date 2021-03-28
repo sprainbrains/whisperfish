@@ -116,7 +116,8 @@ async fn process_message_no_session_source(storage: impl Future<Output = InMemor
     // Now try to add a message.
     let new_message = NewMessage {
         session_id: Some(1),
-        source_e164: String::from("a number"),
+        source_e164: Some(String::from("a number")),
+        source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
         sent: false,
@@ -152,7 +153,8 @@ async fn process_message_unresolved_session_source_resolved(
 
     let new_message = NewMessage {
         session_id: None,
-        source_e164: String::from("a number"),
+        source_e164: Some(String::from("a number")),
+        source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
         sent: false,
@@ -184,7 +186,8 @@ async fn process_message_exists_session_source(storage: impl Future<Output = InM
 
         let new_message = NewMessage {
             session_id: Some(1),
-            source_e164: String::from("+358501234567"),
+            source_e164: Some(String::from("+358501234567")),
+            source_uuid: None,
             text: String::from("nyt joni ne velat!"),
             timestamp,
             sent: false,
@@ -223,7 +226,8 @@ async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
     // Receive basic message
     let new_message = NewMessage {
         session_id: Some(session.id),
-        source_e164: String::from("+358501234567"),
+        source_e164: Some(String::from("+358501234567")),
+        source_uuid: None,
         text: String::from("nyt joni ne velat!"),
         timestamp,
         sent: false,
@@ -246,7 +250,8 @@ async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
     // which the Go worker would do before `process_message`
     let other_message = NewMessage {
         session_id: Some(session.id),
-        source_e164: String::from("+358501234567"),
+        source_e164: Some(String::from("+358501234567")),
+        source_uuid: None,
         text: String::from("nyt joni ne velat!"),
         timestamp,
         sent: false,
@@ -274,7 +279,8 @@ async fn process_inbound_group_message_without_sender(storage: impl Future<Outpu
 
     let new_message = NewMessage {
         session_id: None,
-        source_e164: String::from(""),
+        source_e164: None,
+        source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
         sent: false,
@@ -319,7 +325,8 @@ async fn process_outbound_group_message_without_sender(storage: impl Future<Outp
 
     let new_message = NewMessage {
         session_id: Some(1),
-        source_e164: String::from(""),
+        source_e164: None,
+        source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
         sent: false,
@@ -364,7 +371,8 @@ async fn process_message_with_group(storage: impl Future<Output = InMemoryDb>) {
 
     let new_message = NewMessage {
         session_id: Some(1),
-        source_e164: String::from("Joni"),
+        source_e164: Some(String::from("Joni")),
+        source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
         sent: false,
