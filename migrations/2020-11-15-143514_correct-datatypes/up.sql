@@ -7,11 +7,6 @@
 -- In principe, datatypes do not matter.  They do matter to us though, since Diesel uses them
 -- to infer the schema.rs file.
 --
--- Additionally, we introduce FOREIGN KEY constrains on the relevant fields;
--- SQLite does *not* by default enforce these, but Diesel uses them to infer automatic joins.
--- At a later time, we can make Whisperfish manually do constraint checking, cleaning,
--- and as of then enforcement.
-
 -- BEGIN table session --
 
 -- diff: message -> TEXT, many NOT NULLs, introduction of BOOLEAN
@@ -54,9 +49,7 @@ CREATE TABLE new_message (
     attachment TEXT,
     mime_type TEXT,
     has_attachment BOOLEAN DEFAULT 0 NOT NULL,
-    outgoing BOOLEAN DEFAULT 0 NOT NULL,
-
-    FOREIGN KEY(session_id) REFERENCES session(id)
+    outgoing BOOLEAN DEFAULT 0 NOT NULL
 );
 
 INSERT INTO new_message(
@@ -74,9 +67,7 @@ ALTER TABLE new_message RENAME TO message;
 -- diff: NOT NULL
 CREATE TABLE new_sentq (
     message_id INTEGER PRIMARY KEY NOT NULL,
-    timestamp TIMESTAMP NOT NULL,
-
-    FOREIGN KEY(message_id) REFERENCES message(id)
+    timestamp TIMESTAMP NOT NULL
 );
 
 INSERT INTO new_sentq(message_id, timestamp)
