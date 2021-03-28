@@ -806,6 +806,10 @@ impl Storage {
 
         let db = self.db.lock();
         db.transaction(|| -> Result<(), diesel::result::Error> {
+            // Defer constraints, we're moving a lot of data, inside of a transaction,
+            // and if we have a bug it definitely needs more research anyway.
+            db.execute("PRAGMA defer_foreign_keys = ON;")?;
+
             // 1. Merge messages senders.
             let message_count = diesel::update(messages::table)
                 .filter(messages::sender_recipient_id.eq(source_id))
