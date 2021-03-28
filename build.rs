@@ -244,7 +244,13 @@ fn prepare_rpm_build() {
         std::fs::remove_dir_all(&rpm_extra_dir)
             .unwrap_or_else(|_| panic!("Could not remove {:?} for cleanup", rpm_extra_dir));
     }
-    let cond_folder: &[&str] = &["systemd", "transferplugin", "transferui", "sailjail", "dbus"];
+    let cond_folder: &[&str] = &[
+        "systemd",
+        "transferplugin",
+        "transferui",
+        "sailjail",
+        "dbus",
+    ];
     for d in cond_folder.iter() {
         let nd = rpm_extra_dir.join(d);
         std::fs::create_dir_all(&nd).unwrap_or_else(|_| panic!("Could not create {:?}", &nd));
@@ -259,11 +265,7 @@ fn prepare_rpm_build() {
                 "transferplugin",
                 true,
             ),
-            (
-                "shareplugin/WhisperfishShare.qml",
-                "transferui",
-                false,
-            ),
+            ("shareplugin/WhisperfishShare.qml", "transferui", false),
             (
                 "shareplugin/WhisperfishSharing.permission",
                 "sailjail",
