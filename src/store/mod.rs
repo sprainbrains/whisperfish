@@ -794,15 +794,167 @@ impl Storage {
         .expect("database")
     }
 
-    fn merge_recipients(&self, a_id: i32, b_id: i32) -> orm::Recipient {
-        // XXX not yet merging, I'm lazy/have too much other stuff to do :-)
-        log::warn!(
-            "Merge of contacts {} and {} not implemented. Just returning {}",
-            a_id,
-            b_id,
-            b_id
+    fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
+        log::info!(
+            "Merge of contacts {} and {}. Will move all into {}",
+            source_id,
+            dest_id,
+            dest_id
         );
-        self.fetch_recipient_by_id(b_id).expect("existing contact")
+
+        use schema::*;
+
+        let db = self.db.lock();
+        db.transaction(|| -> Result<(), diesel::result::Error> {
+            // 1. Merge messages senders.
+            let message_count = diesel::update(messages::table)
+                .filter(messages::sender_recipient_id.eq(source_id))
+                .set(messages::sender_recipient_id.eq(dest_id))
+                .execute(&*db)?;
+            log::trace!("Merging messages: {}", message_count);
+
+            // 2. Merge group V1 membership:
+            //    - Delete duplicate memberships.
+            //      We fetch the dest_id group memberships,
+            //      and delete the source_id memberships that have the same group.
+            //      Ideally, this would be a single self-join query,
+            //      but Diesel doesn't like that yet.
+            let target_memberships_v1: Vec<String> = group_v1_members::table
+                .select(group_v1_members::group_v1_id)
+                .filter(group_v1_members::recipient_id.eq(dest_id))
+                .load(&*db)?;
+            let deleted_memberships_v1 = diesel::delete(group_v1_members::table)
+                .filter(
+                    group_v1_members::group_v1_id
+                        .eq_any(&target_memberships_v1)
+                        .and(group_v1_members::recipient_id.eq(source_id)),
+                )
+                .execute(&*db)?;
+            //    - Update the rest
+            let updated_memberships_v1 = diesel::update(group_v1_members::table)
+                .filter(group_v1_members::recipient_id.eq(source_id))
+                .set(group_v1_members::recipient_id.eq(dest_id))
+                .execute(&*db)?;
+            log::trace!(
+                "Merging Group V1 memberships: deleted duplicate {}/{}, moved {}/{}.",
+                deleted_memberships_v1,
+                target_memberships_v1.len(),
+                updated_memberships_v1,
+                target_memberships_v1.len()
+            );
+
+            // 3. Merge sessions:
+            let source_session: Option<orm::DbSession> = sessions::table
+                .filter(sessions::direct_message_recipient_id.eq(source_id))
+                .first(&*db)
+                .optional()?;
+            let target_session: Option<orm::DbSession> = sessions::table
+                .filter(sessions::direct_message_recipient_id.eq(dest_id))
+                .first(&*db)
+                .optional()?;
+            match (source_session, target_session) {
+                (Some(source_session), Some(target_session)) => {
+                    // Both recipients have a session.
+                    // Move the source session's messages to the target session,
+                    // then drop the source session.
+                    let updated_message_count = diesel::update(messages::table)
+                        .filter(messages::session_id.eq(source_session.id))
+                        .set(messages::session_id.eq(target_session.id))
+                        .execute(&*db)?;
+                    let dropped_session_count = diesel::delete(sessions::table)
+                        .filter(sessions::id.eq(source_session.id))
+                        .execute(&*db)?;
+
+                    assert_eq!(dropped_session_count, 1, "Drop the single source session.");
+
+                    log::trace!(
+                        "Updating source session's messages ({} total). Dropped source session.",
+                        updated_message_count
+                    );
+                }
+                (Some(source_session), None) => {
+                    log::info!("Strange, no session for the target_id. Updating source.");
+                    let updated_session = diesel::update(sessions::table)
+                        .filter(sessions::id.eq(source_session.id))
+                        .set(sessions::direct_message_recipient_id.eq(dest_id))
+                        .execute(&*db)?;
+                    assert_eq!(updated_session, 1, "Update source session");
+                }
+                (None, Some(_target_session)) => {
+                    log::info!("Strange, no session for the source_id. Continuing.");
+                }
+                (None, None) => {
+                    log::warn!("Strange, neither recipient has a session. Continuing.");
+                }
+            }
+
+            // 4. Merge reactions
+            //    This too would benefit from a subquery or self-join.
+            let target_reactions: Vec<i32> = reactions::table
+                .select(reactions::reaction_id)
+                .filter(reactions::author.eq(dest_id))
+                .load(&*db)?;
+            // Delete duplicates from source.
+            // We're not going to merge based on receive time,
+            // although that would be the "right" thing to do.
+            // Let's hope we never really take this path.
+            let deleted_reactions = diesel::delete(reactions::table)
+                .filter(
+                    reactions::author
+                        .eq(source_id)
+                        .and(reactions::message_id.eq_any(target_reactions)),
+                )
+                .execute(&*db)?;
+            log::log!(
+                if deleted_reactions > 0 {
+                    log::Level::Warn
+                } else {
+                    log::Level::Trace
+                },
+                "Deleted {} reactions. Please file an issue if > 0",
+                deleted_reactions
+            );
+            let updated_reactions = diesel::update(reactions::table)
+                .filter(reactions::author.eq(source_id))
+                .set(reactions::author.eq(dest_id))
+                .execute(&*db)?;
+            log::trace!("Updated {} reactions", updated_reactions);
+
+            // 5. Update receipts
+            //    Same thing: delete the duplicates (although merging would be better),
+            //    and update the rest.
+            let target_receipts: Vec<i32> = receipts::table
+                .select(receipts::message_id)
+                .filter(receipts::recipient_id.eq(dest_id))
+                .load(&*db)?;
+            let deleted_receipts = diesel::delete(receipts::table)
+                .filter(
+                    receipts::recipient_id
+                        .eq(source_id)
+                        .and(receipts::message_id.eq_any(target_receipts)),
+                )
+                .execute(&*db)?;
+            log::log!(
+                if deleted_receipts > 0 {
+                    log::Level::Warn
+                } else {
+                    log::Level::Trace
+                },
+                "Deleted {} receipts. Please file an issue if > 0",
+                deleted_receipts
+            );
+            let updated_receipts = diesel::update(receipts::table)
+                .filter(receipts::recipient_id.eq(source_id))
+                .set(receipts::recipient_id.eq(dest_id))
+                .execute(&*db)?;
+            log::trace!("Updated {} receipts", updated_receipts);
+            Ok(())
+        })
+        .expect("consistent migration");
+        log::trace!("Contact merge comitted.");
+
+        self.fetch_recipient_by_id(dest_id)
+            .expect("existing contact")
     }
 
     pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
