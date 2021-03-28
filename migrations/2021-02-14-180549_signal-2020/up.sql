@@ -299,6 +299,7 @@ CREATE INDEX receipt_message ON receipts(message_id);
 
 ---
 -- 3. Copy over the data
+PRAGMA defer_foreign_keys = ON;
 
 -- Create a view for the group members.
 -- The TEMPORARY view is automatically destroyed
