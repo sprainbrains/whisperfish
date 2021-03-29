@@ -1226,7 +1226,7 @@ impl Storage {
     }
 
     pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
-        log::trace!("Called fetch__session_by_e164({})", e164);
+        log::trace!("Called fetch_session_by_e164({})", e164);
         let db = self.db.lock();
         fetch_session!(db, |query| {
             query.filter(schema::recipients::e164.eq(e164))
