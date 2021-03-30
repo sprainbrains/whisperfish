@@ -22,7 +22,7 @@ use failure::*;
 use vergen::*;
 
 fn qmake_query(var: &str) -> String {
-    let qmake = std::env::var("QMAKE").unwrap_or("qmake".to_string());
+    let qmake = std::env::var("QMAKE").unwrap_or_else(|_| "qmake".to_string());
     String::from_utf8(
         Command::new(qmake)
             .env("QT_SELECT", "qt5")
@@ -104,7 +104,7 @@ fn install_mer_hacks() -> (String, bool) {
 
     let mer_target = std::env::var("MER_TARGET")
         .ok()
-        .unwrap_or("SailfishOS-latest".into());
+        .unwrap_or_else(|| "SailfishOS-latest".into());
 
     let arch = match &std::env::var("CARGO_CFG_TARGET_ARCH").unwrap() as &str {
         "arm" => "armv7hl",
@@ -176,7 +176,7 @@ fn install_mer_hacks() -> (String, bool) {
 
 fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
     let path = qt_include_path.join("QtCore").join("qconfig.h");
-    let f = std::fs::File::open(&path).expect(&format!("Cannot open `{:?}`", path));
+    let f = std::fs::File::open(&path).unwrap_or_else(|_| panic!("Cannot open `{:?}`", path));
     let b = BufReader::new(f);
 
     // append qconfig-64.h or config-32.h, depending on TARGET_POINTER_WIDTH
@@ -236,12 +236,12 @@ fn prepare_rpm_build() {
     let rpm_extra_dir = std::path::PathBuf::from(".rpm/tmp_feature_files");
     if rpm_extra_dir.exists() {
         std::fs::remove_dir_all(&rpm_extra_dir)
-            .expect(&format!("Could not remove {:?} for cleanup", rpm_extra_dir));
+            .unwrap_or_else(|_| panic!("Could not remove {:?} for cleanup", rpm_extra_dir));
     }
     let cond_folder: &[&str] = &["systemd"];
     for d in cond_folder.iter() {
         let nd = rpm_extra_dir.join(d);
-        std::fs::create_dir_all(&nd).expect(&format!("Could not create {:?}", &nd));
+        std::fs::create_dir_all(&nd).unwrap_or_else(|_| panic!("Could not create {:?}", &nd));
     }
     let cond_files: &[(&str, &str)] = if env::var("CARGO_FEATURE_HARBOUR").is_err() {
         &[("harbour-whisperfish.service", "systemd")]
@@ -251,11 +251,12 @@ fn prepare_rpm_build() {
     for (file, dest) in cond_files.iter() {
         let dest_dir = rpm_extra_dir.join(dest);
         if !dest_dir.exists() {
-            std::fs::create_dir_all(&dest_dir).expect(&format!("Could not create {:?}", dest_dir));
+            std::fs::create_dir_all(&dest_dir)
+                .unwrap_or_else(|_| panic!("Could not create {:?}", dest_dir));
         }
         let dest_file = dest_dir.join(file);
         std::fs::copy(Path::new(file), &dest_file)
-            .expect(&format!("failed to copy {} to {:?}", file, dest_file));
+            .unwrap_or_else(|_| panic!("failed to copy {} to {:?}", file, dest_file));
         println!("cargo:rerun-if-changed={}", file);
     }
 
@@ -346,7 +347,7 @@ fn build_sqlcipher(mer_target_root: &str) {
 
     println!("cargo:lib_dir={}", env::var("OUT_DIR").unwrap());
     println!("cargo:rustc-link-lib=static=sqlcipher");
-    println!("cargo:rerun-if-changed={}", "sqlcipher/sqlite3.c");
+    println!("cargo:rerun-if-changed=sqlcipher/sqlite3.c");
 }
 
 fn main() {

@@ -1,5 +1,4 @@
 #![recursion_limit = "512"]
-#![deny(rust_2018_idioms)]
 
 #[macro_use]
 extern crate cpp;
@@ -24,8 +23,8 @@ pub mod settings;
 pub mod gui;
 pub mod store;
 
-fn millis_to_naive_chrono(ts: u64) -> chrono::NaiveDateTime {
-    chrono::NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1000_000) as u32)
+pub fn millis_to_naive_chrono(ts: u64) -> chrono::NaiveDateTime {
+    chrono::NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1_000_000) as u32)
 }
 
 pub fn conf_dir() -> std::path::PathBuf {

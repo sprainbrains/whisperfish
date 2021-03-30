@@ -293,16 +293,16 @@ impl ClientActor {
                         recipients.load(&*db)?
                     };
 
-                    let contacts = recipients.into_iter().filter_map(|recipient| {
-                            Some(ContactDetails {
+                    let contacts = recipients.into_iter().map(|recipient| {
+                            ContactDetails {
                                 // XXX: expire timer from dm session
                                 number: recipient.e164.clone(),
                                 uuid: recipient.uuid.clone(),
                                 name: recipient.profile_joined_name.clone(),
-                                profile_key: recipient.profile_key.clone(),
+                                profile_key: recipient.profile_key,
                                 // XXX other profile stuff
                                 ..Default::default()
-                            })
+                            }
                     });
 
                     sender.send_contact_details(&local_addr, None, contacts, false, true).await?;
@@ -527,7 +527,7 @@ impl Handler<FetchAttachment> for ClientActor {
                         Err(ServiceError::Timeout{ .. }) => {
                             log::warn!("get_attachment timed out, retrying")
                         },
-                        Err(e) => Err(e)?,
+                        Err(e) => return Err(e.into()),
                     }
                 };
                 log::info!("Downloading attachment");
@@ -619,7 +619,6 @@ impl Handler<SendMessage> for ClientActor {
                     Some(GroupContext {
                         id: Some(hex::decode(&group.id).expect("hex encoded group id")),
                         r#type: Some(GroupType::Deliver.into()),
-
                         ..Default::default()
                     })
                 } else {
@@ -1040,7 +1039,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
 
         let mut push_service = self.authenticated_service_with_credentials(Credentials {
             uuid: None,
-            phonenumber: phonenumber,
+            phonenumber,
             password: Some(password),
             signaling_key: None,
             device_id: None, // !77

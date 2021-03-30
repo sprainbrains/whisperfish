@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use std::collections::HashMap;
 use std::process::Command;
 
@@ -65,7 +67,7 @@ impl AugmentedMessage {
     }
 
     pub fn first_attachment(&self) -> &str {
-        if self.attachments.len() == 0 {
+        if self.attachments.is_empty() {
             return "";
         }
 
@@ -73,7 +75,7 @@ impl AugmentedMessage {
     }
 
     pub fn first_attachment_mime_type(&self) -> &str {
-        if self.attachments.len() == 0 {
+        if self.attachments.is_empty() {
             return "";
         }
         &self.attachments[0].content_type
@@ -82,8 +84,8 @@ impl AugmentedMessage {
 
 define_model_roles! {
     enum MessageRoles for AugmentedMessage {
-        ID(id):                                               "id",
-        SID(session_id):                                      "sid",
+        Id(id):                                               "id",
+        Sid(session_id):                                      "sid",
         Source(fn source(&self) via QString::from):           "source",
         Message(text via qstring_from_option):                "message",
         Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
@@ -106,7 +108,6 @@ define_model_roles! {
 }
 
 #[derive(QObject, Default)]
-#[allow(non_snake_case)] // XXX: QML expects these as-is; consider changing later
 pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
     pub actor: Option<Addr<actor::MessageActor>>,
@@ -166,7 +167,6 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
-    #[allow(non_snake_case)]
     fn openAttachment(&mut self, idx: usize) {
         let msg = if let Some(msg) = self.messages.get(idx) {
             msg
@@ -192,7 +192,6 @@ impl MessageModel {
         }
     }
 
-    #[allow(non_snake_case)]
     fn createGroupMessage(
         &mut self,
         group_id: QString,
@@ -223,7 +222,6 @@ impl MessageModel {
         -1
     }
 
-    #[allow(non_snake_case)]
     fn createMessage(
         &mut self,
         e164: QString,
@@ -251,7 +249,6 @@ impl MessageModel {
         -1
     }
 
-    #[allow(non_snake_case)]
     /// Called when a message should be queued to be sent to OWS
     fn sendMessage(&mut self, mid: i32) {
         actix::spawn(
@@ -263,7 +260,6 @@ impl MessageModel {
         );
     }
 
-    #[allow(non_snake_case)]
     /// Called when a message should be queued to be sent to OWS
     fn endSession(&mut self, e164: QString) {
         actix::spawn(
@@ -359,7 +355,6 @@ impl MessageModel {
         log::trace!("Dispatched actor::DeleteMessage({}, {})", msg.id, idx);
     }
 
-    #[allow(non_snake_case)]
     fn numericFingerprint(&self, _localId: QString, _remoteId: QString) -> QString {
         // XXX
         "unimplemented".into()
@@ -372,7 +367,6 @@ impl MessageModel {
     /// simply wrap the real workhorse.
     ///
     /// Note that the id argument was i64 in Go.
-    #[allow(non_snake_case)] // XXX: QML expects these as-is; consider changing later]
     fn markSent(&mut self, id: i32) {
         self.mark(id, true, false)
     }
@@ -384,7 +378,6 @@ impl MessageModel {
     /// simply wrap the real workhorse.
     ///
     /// Note that the id argument was i64 in Go.
-    #[allow(non_snake_case)] // XXX: QML expects these as-is; consider changing later]
     fn markReceived(&mut self, id: i32) {
         self.mark(id, false, true)
     }
@@ -514,6 +507,7 @@ impl MessageModel {
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 
+    #[allow(clippy::type_complexity)]
     pub fn handle_fetch_all_messages(
         &mut self,
         messages: Vec<(

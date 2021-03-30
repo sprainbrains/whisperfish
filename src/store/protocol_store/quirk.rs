@@ -141,7 +141,7 @@ fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec
         sess.pending_pre_key
             .as_mut()
             .map(|ppk| std::iter::once(ppk.base_key.as_mut()))
-            .unwrap_or(std::iter::once(None)),
+            .unwrap_or_else(|| std::iter::once(None)),
     )
     .chain(chains)
     .filter_map(|x| x) // Undo Option<_>

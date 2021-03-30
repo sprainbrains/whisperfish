@@ -1,4 +1,3 @@
----
 variables: &variables
   SFOS_VERSION: 3.4.0.24
   CARGO_HOME: $CI_PROJECT_DIR/cargo
@@ -6,6 +5,7 @@ variables: &variables
 stages:
   - build
   - test
+  - format
   - deploy
 
 .build-target: &build-target
@@ -74,7 +74,7 @@ build:aarch64:
       - $CARGO_HOME/git/db/
   before_script:
     - apt-get update
-    - apt-get install -y libsqlcipher-dev qtbase5-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler libdbus-1-dev
+    - apt-get install -y --no-install-recommends libsqlcipher-dev qtbase5-dev qtbase5-private-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler libdbus-1-dev libqt5opengl5-dev 
     - cargo --version
     - rustc --version
 
@@ -97,7 +97,7 @@ build:aarch64:
     key:
       files:
         - Cargo.lock
-      prefix: rust-stable
+      prefix: rust-nightly
 
 build:host:stable:
   <<: *rust-stable
@@ -105,7 +105,6 @@ build:host:stable:
   needs: []
   script:
     - cargo build
-    - cargo build --release
   except:
     - schedules
 
@@ -115,7 +114,6 @@ build:host:nightly:
   needs: []
   script:
     - cargo build
-    - cargo build --release
   except:
     - schedules
 
@@ -133,7 +131,7 @@ build:host:nightly:docs:
 
 qmllint:
   <<: *rust
-  stage: test
+  stage: format
   image: rust
   cache: {}
   script:
@@ -144,17 +142,18 @@ qmllint:
 test:stable:
   <<: *rust-stable
   stage: test
-  needs: []
+  needs:
+    - build:host:stable
   script:
     - cargo test
-    - cargo test --release
   except:
     - schedules
 
 test:stable:diesel-schema:
   <<: *rust-stable
   stage: test
-  needs: []
+  needs:
+    - build:host:stable
   script:
     - cargo install -f diesel_cli
     - rustup component add rustfmt
@@ -170,18 +169,19 @@ test:stable:diesel-schema:
 test:nightly:
   <<: *rust-nightly
   stage: test
-  needs: []
+  needs:
+    - build:host:nightly
   script:
     - cargo test
-    - cargo test --release
   except:
     - schedules
 
 fmt:nightly:
   <<: *rust-nightly
   allow_failure: false
-  stage: test
-  needs: []
+  stage: format
+  needs:
+    - test:nightly
   script:
     - cargo fmt -- --check
   except:
@@ -190,22 +190,32 @@ fmt:nightly:
 coverage:nightly:
   <<: *rust-nightly
   image: xd009642/tarpaulin:develop-nightly
-  stage: test
+  stage: format
   needs: []
   script:
     - export PATH="$CARGO_HOME/bin:$PATH"
     - cargo tarpaulin -v --exclude-files cargo/*
+  # tarpaulin needs its own cage
+  cache:
+    <<: *rust-cache
+    key:
+      files:
+        - Cargo.lock
+      prefix: rust-nightly-coverage
   except:
     - schedules
 
 clippy:
-  <<: *rust-nightly
-  stage: test
-  needs: []
-  allow_failure: true
+  <<: *rust-stable
+  allow_failure: false
+  stage: format
+  needs:
+    - test:stable
   script:
     - rustup component add clippy
-    - cargo clippy
+    # the following command should be used but needs sailfish SDK
+    # - cargo clippy --all-targets --all-features -- -D warnings
+    - cargo clippy --all-targets -- -D warnings
   except:
     - schedules
 

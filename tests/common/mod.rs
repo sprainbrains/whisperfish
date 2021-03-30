@@ -8,6 +8,7 @@ pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
 
 /// We do not want to test on a live db, use temporary dir
 #[fixture]
+#[allow(clippy::manual_async_fn)]
 pub fn storage() -> impl Future<Output = InMemoryDb> {
     async {
         let temp = temp();

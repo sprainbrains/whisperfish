@@ -139,7 +139,7 @@ impl Handler<FetchMessage> for MessageActor {
         let storage = self.storage.as_ref().unwrap();
         let message = storage
             .fetch_message_by_id(id)
-            .expect(&format!("No message with id {}", id));
+            .unwrap_or_else(|| panic!("No message with id {}", id));
         let receipts = storage.fetch_message_receipts(message.id);
         let attachments = storage.fetch_attachments_for_message(message.id);
         let recipient = if let Some(id) = message.sender_recipient_id {

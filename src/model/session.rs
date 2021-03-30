@@ -154,6 +154,7 @@ impl SessionModel {
     /// Handle loaded session
     ///
     /// The session is accompanied by the last message that was sent on this session.
+    #[allow(clippy::type_complexity)]
     pub fn handle_sessions_loaded(
         &mut self,
         sessions: Vec<(
@@ -255,7 +256,7 @@ impl SessionModel {
 
         log::trace!("Inserting the message back in qml");
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0 as i32, 0 as i32);
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
         self.content.insert(
             0,
             AugmentedSession {
@@ -339,7 +340,7 @@ impl AugmentedSession {
     }
 
     fn has_attachment(&self) -> bool {
-        self.last_message_attachments.len() > 0
+        !self.last_message_attachments.is_empty()
     }
 
     fn section(&self) -> String {
@@ -394,7 +395,7 @@ define_model_roles! {
     // FIXME: many of these are now functions because of backwards compatibility.
     //        swap them around for real fields, and fixup QML instead.
     enum SessionRoles for AugmentedSession {
-        ID(id):                                                            "id",
+        Id(id):                                                            "id",
         Source(fn source(&self) via QString::from):                        "source",
         IsGroup(fn is_group_v1(&self)):                                    "isGroup",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",

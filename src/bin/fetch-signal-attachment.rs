@@ -47,7 +47,8 @@ struct Opt {
 
 fn read_config() -> Result<SignalConfig, Error> {
     // XXX non-existing file?
-    let conf_dir = dirs::config_dir().ok_or(format_err!("Could not find config directory."))?;
+    let conf_dir =
+        dirs::config_dir().ok_or_else(|| format_err!("Could not find config directory."))?;
     let signal_config_file = conf_dir.join("harbour-whisperfish").join("config.yml");
     let signal_config_file = std::fs::File::open(signal_config_file)?;
 
