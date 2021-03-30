@@ -622,7 +622,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>ADVERTENCIA: la identidad de %1 ya no es de confianza. Toque &quot;Confirmar&quot; para reiniciar la identidad de su interlocutor.</translation>
+        <translation>ADVERTENCIA: la identidad de %1 ya no es de confianza. Toque «Confirmar» para reiniciar la identidad de su interlocutor.</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="24"/>
