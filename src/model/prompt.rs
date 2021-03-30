@@ -29,7 +29,7 @@ impl Prompt {
     #[allow(non_snake_case)]
     fn phoneNumber(&mut self, phone_number: QString) {
         for listener in self.phone_number_listeners.drain(..) {
-            if let Err(_) = listener.send(phone_number.clone()) {
+            if listener.send(phone_number.clone()).is_err() {
                 log::warn!("Request for phone number fulfilled, but nobody listens.");
             }
         }
@@ -38,7 +38,7 @@ impl Prompt {
     #[allow(non_snake_case)]
     fn verificationCode(&mut self, code: QString) {
         for listener in self.code_listeners.drain(..) {
-            if let Err(_) = listener.send(code.clone()) {
+            if listener.send(code.clone()).is_err() {
                 log::warn!("Request for verification code fulfilled, but nobody listens.");
             }
         }

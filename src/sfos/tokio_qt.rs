@@ -22,6 +22,7 @@ enum QSocketNotifierType {
     Exception = 2,
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<Interest> for QSocketNotifierType {
     fn into(self) -> Interest {
         use QSocketNotifierType::*;
@@ -158,6 +159,7 @@ impl TokioQEventDispatcherPriv {
             std::thread::current().id()
         );
 
+        #[allow(clippy::match_single_binding)]
         match AsyncFd::with_interest(fd, notifier.notifier_type().into()) {
             Ok(reg) => self.socket_registrations().push((raw_notifier, reg)),
             Err(e) => match e.kind() {
@@ -461,11 +463,11 @@ impl TokioQEventDispatcher {
     pub fn poll(&mut self, ctx: &mut Context<'_>) -> Poll<()> {
         self.m_priv_mut().set_waker(ctx.waker());
 
-        if let Poll::Ready(_) = self.m_priv_mut().poll_sockets(ctx) {
+        if self.m_priv_mut().poll_sockets(ctx).is_ready() {
             return Poll::Ready(());
         }
 
-        if let Poll::Ready(_) = self.m_priv_mut().poll_timers(ctx) {
+        if self.m_priv_mut().poll_timers(ctx).is_ready() {
             return Poll::Ready(());
         }
 

@@ -133,13 +133,13 @@ fn migrations() -> MigrationList {
 
 #[fixture]
 fn original_go_db(empty_db: SqliteConnection) -> SqliteConnection {
-    let message = r#"create table if not exists message 
+    let message = r#"create table if not exists message
             (id integer primary key, session_id integer, source text, message string, timestamp integer,
-    sent integer default 0, received integer default 0, flags integer default 0, attachment text, 
+    sent integer default 0, received integer default 0, flags integer default 0, attachment text,
             mime_type string, has_attachment integer default 0, outgoing integer default 0)"#;
     let sentq = r#"create table if not exists sentq
 		(message_id integer primary key, timestamp timestamp)"#;
-    let session = r#"create table if not exists session 
+    let session = r#"create table if not exists session
 		(id integer primary key, source text, message string, timestamp integer,
 		 sent integer default 0, received integer default 0, unread integer default 0,
          is_group integer default 0, group_members text, group_id text, group_name text,
@@ -195,6 +195,7 @@ fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
     assert!(!diesel_migrations::any_pending_migrations(&db).unwrap());
 }
 
+#[allow(clippy::type_complexity)]
 fn load_sessions(
     db: &SqliteConnection,
 ) -> Vec<(
@@ -623,7 +624,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
     for _ in 0..count {
         let ts: u64 = rng.gen_range(0..1614425253000);
         message.timestamp = ts as i64;
-        let ts = NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1000_000) as u32);
+        let ts = harbour_whisperfish::millis_to_naive_chrono(ts);
         timestamps.push(ts);
 
         diesel::insert_into(message::table)

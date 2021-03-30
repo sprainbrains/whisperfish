@@ -74,8 +74,8 @@ impl SetupWorker {
 
         log::debug!("config: {:?}", config);
         // XXX: nice formatting?
-        this.borrow_mut().phoneNumber = config.tel.unwrap_or("".into()).into();
-        this.borrow_mut().uuid = config.uuid.unwrap_or("".into()).into();
+        this.borrow_mut().phoneNumber = config.tel.unwrap_or_else(|| String::from("")).into();
+        this.borrow_mut().uuid = config.uuid.unwrap_or_else(|| String::from("")).into();
 
         if !this.borrow().registered {
             if let Err(e) = SetupWorker::register(app.clone()).await {
@@ -85,12 +85,10 @@ impl SetupWorker {
             }
             this.borrow_mut().registered = true;
             this.borrow().setupChanged();
-        } else {
-            if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
-                log::error!("Error setting up storage: {}", e);
-                this.borrow().clientFailed();
-                return;
-            }
+        } else if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
+            log::error!("Error setting up storage: {}", e);
+            this.borrow().clientFailed();
+            return;
         }
 
         app.storage_ready().await;
@@ -219,7 +217,7 @@ impl SetupWorker {
             .borrow_mut()
             .ask_password()
             .await
-            .ok_or(format_err!("No password code provided"))?
+            .ok_or_else(|| format_err!("No password code provided"))?
             .into();
 
         let number = loop {
@@ -229,7 +227,7 @@ impl SetupWorker {
                 .borrow_mut()
                 .ask_phone_number()
                 .await
-                .ok_or(format_err!("No phone number provided"))?
+                .ok_or_else(|| format_err!("No phone number provided"))?
                 .into();
 
             match phonenumber::parse(None, number) {
@@ -269,7 +267,7 @@ impl SetupWorker {
                 .borrow_mut()
                 .ask_captcha()
                 .await
-                .ok_or(format_err!("No captcha result provided"))?
+                .ok_or_else(|| format_err!("No captcha result provided"))?
                 .into();
             res = app
                 .client_actor
@@ -288,7 +286,7 @@ impl SetupWorker {
             .borrow_mut()
             .ask_verification_code()
             .await
-            .ok_or(format_err!("No verification code provided"))?
+            .ok_or_else(|| format_err!("No verification code provided"))?
             .into();
         let code = code.parse()?;
 

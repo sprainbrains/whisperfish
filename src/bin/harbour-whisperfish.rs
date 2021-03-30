@@ -1,12 +1,10 @@
-#![deny(rust_2018_idioms)]
-
 use actix::prelude::*;
 use harbour_whisperfish::*;
 
 use dbus::blocking::Connection;
 use std::time::Duration;
 
-fn main() -> Result<(), failure::Error> {
+fn main() {
     let mut autostart = false;
     let mut verbose = false;
     let mut ignored = 0;
@@ -36,10 +34,10 @@ fn main() -> Result<(), failure::Error> {
     }
 
     if let Ok(()) = try_dbus_show_app() {
-        return Ok(());
+        return;
     }
 
-    run_main_app(autostart)
+    run_main_app(autostart);
 }
 
 fn try_dbus_show_app() -> Result<(), dbus::Error> {
@@ -55,7 +53,7 @@ fn try_dbus_show_app() -> Result<(), dbus::Error> {
     proxy.method_call("be.rubdos.whisperfish.app", "show", ())
 }
 
-fn run_main_app(is_autostart: bool) -> Result<(), failure::Error> {
+fn run_main_app(is_autostart: bool) {
     log::info!("Start main app (with autostart = {})", is_autostart);
 
     let sys = System::new();
@@ -71,6 +69,4 @@ fn run_main_app(is_autostart: bool) -> Result<(), failure::Error> {
     });
 
     log::info!("Shut down.");
-
-    Ok(())
 }

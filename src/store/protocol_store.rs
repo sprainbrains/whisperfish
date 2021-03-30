@@ -141,7 +141,7 @@ impl Storage {
                     id.parse().ok()
                 })
                 .collect();
-        pre_key_ids.sort();
+        pre_key_ids.sort_unstable();
 
         let mut signed_pre_key_ids: Vec<u32> =
             std::fs::read_dir(self.path.join("storage").join("signed_prekeys"))
@@ -163,7 +163,7 @@ impl Storage {
                     id.parse().ok()
                 })
                 .collect();
-        signed_pre_key_ids.sort();
+        signed_pre_key_ids.sort_unstable();
 
         let next_pre_key_id = if pre_key_ids.is_empty() {
             0
@@ -376,7 +376,7 @@ impl SessionStore for Storage {
                 }
 
                 if &name[..addr.len()] == addr {
-                    if name[addr.len()] != '_' as u8 {
+                    if name[addr.len()] != b'_' {
                         log::warn!("Weird session directory entry: {:?}. Skipping", entry);
                         return None;
                     }

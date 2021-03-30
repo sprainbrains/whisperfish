@@ -258,7 +258,7 @@ fn main() -> Result<(), failure::Error> {
     let db = SqliteConnection::establish(db_location.to_str().unwrap())?;
     println!("The copy of the database has been opened.");
 
-    if let Err(_) = db.execute("SELECT count(*) FROM sqlite_master;") {
+    if db.execute("SELECT count(*) FROM sqlite_master;").is_err() {
         println!("We now ask you your Whisperfish password.");
         let password =
             rpassword::read_password_from_tty(Some("Whisperfish storage password: ")).unwrap();
@@ -300,7 +300,7 @@ fn main() -> Result<(), failure::Error> {
         .load(&db)
         .unwrap();
 
-    if violations.len() > 0 {
+    if !violations.is_empty() {
         println!(
             "In worse news: there are foreign key violations. Here the are: {:?}",
             violations

@@ -125,6 +125,7 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
                    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
                    curl \
                    qtbase5-dev \
+                   qtbase5-private-dev \
                    qt5-qmake \
                    qtdeclarative5-dev \
                    qttools5-dev-tools qtchooser qt5-default \

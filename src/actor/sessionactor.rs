@@ -10,6 +10,7 @@ use qmetaobject::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
+#[allow(clippy::type_complexity)]
 struct SessionsLoaded(
     Vec<(
         orm::Session,

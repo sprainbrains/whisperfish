@@ -652,7 +652,7 @@ impl Storage {
 
         let db = self.db.lock();
 
-        if let Some(recipient) = recipients.filter(e164.eq(new_e164)).first(&*db).ok() {
+        if let Ok(recipient) = recipients.filter(e164.eq(new_e164)).first(&*db) {
             recipient
         } else {
             diesel::insert_into(recipients)
@@ -1162,7 +1162,7 @@ impl Storage {
         let addr = Address::new(e164, 1);
         let ident = self
             .get_identity(addr)?
-            .ok_or(failure::format_err!("No such identity"))?;
+            .ok_or_else(|| failure::format_err!("No such identity"))?;
         Ok(hex::encode_upper(ident.as_slice()))
     }
 }
@@ -1172,22 +1172,12 @@ mod tests {
     use super::*;
     use rstest::rstest;
 
-    #[rstest(
-        mime_type,
-        ext,
-        case("video/mp4", "mp4"),
-        case("image/jpg", "jpg"),
-        case("image/jpeg", "jpg"),
-        case("image/png", "png"),
-        case("text/plain", "txt")
-    )]
+    #[rstest(ext, case("mp4"), case("jpg"), case("jpg"), case("png"), case("txt"))]
     #[actix_rt::test]
-    async fn test_save_attachment(mime_type: &str, ext: &str) {
+    async fn test_save_attachment(ext: &str) {
         use std::env;
         use std::fs;
         use std::path::Path;
-
-        drop(mime_type); // This is used in client-worker, consider droppin g this argument.
 
         let dirname = env::temp_dir().to_str().expect("Temp dir fail").to_string();
         let dir = Path::new(&dirname);
@@ -1285,7 +1275,7 @@ mod tests {
 
                 Result::<_, Error>::Ok(())
             }};
-        };
+        }
 
         tests!(storage)?;
         drop(storage);

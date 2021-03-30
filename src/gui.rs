@@ -53,7 +53,7 @@ impl AppState {
     }
 
     #[allow(non_snake_case)]
-    fn isClosed(&mut self) -> bool {
+    pub fn isClosed(&self) -> bool {
         self.closed
     }
 
@@ -123,6 +123,7 @@ impl AppState {
         cfg!(feature = "harbour")
     }
 
+    #[cfg(feature = "sailfish")]
     fn new() -> Self {
         Self {
             base: Default::default(),
