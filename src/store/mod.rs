@@ -774,7 +774,14 @@ impl Storage {
                         }
                         (None, TrustLevel::Certain) => {
                             log::info!("Merging contacts: one with e164, the other only uuid, high trust.");
-                            Ok(self.merge_recipients(by_e164.id, by_uuid.id))
+                            let merged = self.merge_recipients(by_e164.id, by_uuid.id);
+                            // XXX probably more recipient identifiers should be moved
+                            diesel::update(recipients::table)
+                                .set(recipients::e164.eq(e164))
+                                .filter(recipients::id.eq(merged.id))
+                                .execute(&*db)?;
+
+                            Ok(self.fetch_recipient_by_id(merged.id).expect("updated recipient"))
                         }
                         (None, TrustLevel::Uncertain) => {
                             log::info!("Not merging contacts: one with e164, the other only uuid, low trust.");
@@ -994,6 +1001,12 @@ impl Storage {
                 .set(receipts::recipient_id.eq(dest_id))
                 .execute(&*db)?;
             log::trace!("Updated {} receipts", updated_receipts);
+
+            let deleted = diesel::delete(recipients::table)
+                .filter(recipients::id.eq(source_id))
+                .execute(&*db)?;
+            log::trace!("Deleted {} recipient", deleted);
+            assert_eq!(deleted, 1, "delete only one recipient");
             Ok(())
         })
         .expect("consistent migration");
