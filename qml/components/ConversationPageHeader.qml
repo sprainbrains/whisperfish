@@ -83,7 +83,7 @@ SilicaItem {
         width: Math.min(implicitWidth, parent.width - extraContent.width -
                         Theme.paddingMedium - leftMargin - rightMargin)
         truncationMode: TruncationMode.Fade
-        color: highlighted ? palette.primaryColor : palette.highlightColor
+        color: highlighted ? Theme.primaryColor : Theme.highlightColor
         // align first line with page indicator
         y: Math.floor(_preferredHeight/2 - metrics.height/2)
         anchors { right: parent.right; rightMargin: pageHeader.rightMargin }
@@ -107,7 +107,7 @@ SilicaItem {
             left: extraContent.right; leftMargin: Theme.paddingMedium
         }
         font.pixelSize: Theme.fontSizeSmall
-        color: highlighted ? palette.secondaryColor : palette.secondaryHighlightColor
+        color: highlighted ? Theme.secondaryColor : Theme.secondaryHighlightColor
         horizontalAlignment: wrapMode === Text.NoWrap && implicitWidth > width ?
                                  Text.AlignLeft : Text.AlignRight
         truncationMode: TruncationMode.Fade
