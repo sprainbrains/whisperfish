@@ -675,8 +675,7 @@ impl Storage {
         uuid: Option<&str>,
     ) -> Option<orm::Recipient> {
         if e164.is_none() && uuid.is_none() {
-            log::trace!("fetch_recipient requires at least one of e164 or uuid");
-            return None;
+            panic!("fetch_recipient requires at least one of e164 or uuid");
         }
 
         let db = self.db.lock();
@@ -1470,12 +1469,16 @@ impl Storage {
 
         log::trace!("Called create_message(..) for session {}", session);
 
-        let sender_id = self
-            .fetch_recipient(
+        let has_source = new_message.source_e164.is_some() || new_message.source_uuid.is_some();
+        let sender_id = if has_source {
+            self.fetch_recipient(
                 new_message.source_e164.as_deref(),
                 new_message.source_uuid.as_deref(),
             )
-            .map(|r| r.id);
+            .map(|r| r.id)
+        } else {
+            None
+        };
 
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
