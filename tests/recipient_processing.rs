@@ -32,6 +32,28 @@ fn storage_with_uuid_recipient(
     })
 }
 
+#[rstest]
+#[actix_rt::test]
+async fn insert_then_fetch_by_e164(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
+
+    let recipient1 = storage.fetch_or_insert_recipient_by_e164(E164);
+    let recipient2 = storage.fetch_or_insert_recipient_by_e164(E164);
+    assert_eq!(recipient1.id, recipient2.id);
+    assert_eq!(recipient1.e164.as_deref(), Some(E164));
+}
+
+#[rstest]
+#[actix_rt::test]
+async fn insert_then_fetch_by_uuid(storage: impl Future<Output = InMemoryDb>) {
+    let (storage, _temp_dir) = storage.await;
+
+    let recipient1 = storage.fetch_or_insert_recipient_by_uuid(UUID);
+    let recipient2 = storage.fetch_or_insert_recipient_by_uuid(UUID);
+    assert_eq!(recipient1.id, recipient2.id);
+    assert_eq!(recipient1.uuid.as_deref(), Some(UUID));
+}
+
 mod merge_and_fetch {
     use super::*;
     use harbour_whisperfish::store::TrustLevel;
