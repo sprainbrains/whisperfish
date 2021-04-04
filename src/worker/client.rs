@@ -143,7 +143,8 @@ impl ClientActor {
     pub fn handle_message(
         &mut self,
         ctx: &mut <Self as Actor>::Context,
-        source: String,
+        source_e164: Option<String>,
+        source_uuid: Option<String>,
         msg: DataMessage,
         is_sync_sent: bool,
         timestamp: u64,
@@ -154,8 +155,21 @@ impl ClientActor {
 
         if msg.flags() & DataMessageFlags::EndSession as u32 != 0 {
             use libsignal_protocol::stores::SessionStore;
-            if let Err(e) = storage.delete_all_sessions(source.as_bytes()) {
-                log::error!("End session requested, but could not end session: {:?}", e);
+            if let Some(e164) = source_e164.as_ref() {
+                if let Err(e) = storage.delete_all_sessions(e164.as_bytes()) {
+                    log::error!(
+                        "End session (e164) requested, but could not end session: {:?}",
+                        e
+                    );
+                }
+            }
+            if let Some(uuid) = source_uuid.as_ref() {
+                if let Err(e) = storage.delete_all_sessions(uuid.as_bytes()) {
+                    log::error!(
+                        "End session (uuid) requested, but could not end session: {:?}",
+                        e
+                    );
+                }
             }
         }
 
@@ -170,7 +184,8 @@ impl ClientActor {
         };
 
         let mut new_message = crate::store::NewMessage {
-            source,
+            source_e164,
+            source_uuid,
             text: msg.body.clone().unwrap_or(alt_body),
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
@@ -366,16 +381,11 @@ impl ClientActor {
         );
 
         match body {
-            ContentBody::DataMessage(message) => self.handle_message(
-                ctx,
-                metadata
-                    .sender
-                    .e164()
-                    .expect("valid e164 in ServiceAddress. Whisperfish issue #80"),
-                message,
-                false,
-                metadata.timestamp,
-            ),
+            ContentBody::DataMessage(message) => {
+                let e164 = metadata.sender.e164();
+                let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
+                self.handle_message(ctx, e164, uuid, message, false, metadata.timestamp)
+            }
             ContentBody::SynchronizeMessage(message) => {
                 if let Some(sent) = message.sent {
                     log::trace!("Sync sent message");
@@ -386,7 +396,8 @@ impl ClientActor {
                         ctx,
                         // Empty string mainly when groups,
                         // but maybe needs a check. TODO
-                        sent.destination_e164.unwrap_or_else(|| String::from("")),
+                        sent.destination_e164,
+                        sent.destination_uuid,
                         message,
                         true,
                         0,

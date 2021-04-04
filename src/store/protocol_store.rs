@@ -177,6 +177,12 @@ impl Storage {
         };
         (next_signed_pre_key_id, next_pre_key_id)
     }
+
+    pub fn delete_identity(&self, addr: Address) -> Result<(), SignalProtocolError> {
+        let path = self.identity_path(&addr);
+        std::fs::remove_file(path).unwrap();
+        Ok(())
+    }
 }
 
 impl IdentityKeyStore for Storage {

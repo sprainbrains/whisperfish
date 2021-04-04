@@ -29,6 +29,15 @@ no_arg_sql_function!(
     "Represents the Sqlite last_insert_rowid() function"
 );
 
+/// How much trust you put into the correctness of the data.
+#[derive(Clone, Eq, Debug, PartialEq)]
+pub enum TrustLevel {
+    /// Set to Certain if the supplied information is from a trusted source,
+    /// such as an envelope.
+    Certain,
+    Uncertain,
+}
+
 /// Session as it relates to the schema
 #[derive(Queryable, Debug, Clone)]
 pub struct Session {
@@ -69,7 +78,8 @@ pub struct Message {
 #[derive(Clone, Debug)]
 pub struct NewMessage {
     pub session_id: Option<i32>,
-    pub source: String,
+    pub source_e164: Option<String>,
+    pub source_uuid: Option<String>,
     pub text: String,
     pub timestamp: NaiveDateTime,
     pub sent: bool,
@@ -623,6 +633,8 @@ impl Storage {
     }
 
     /// Process message and store in database and update or create a session.
+    ///
+    /// This assumes that the metadata (source_e164 and source_uuid) are correct and verified.
     pub fn process_message(
         &self,
         mut new_message: NewMessage,
@@ -631,7 +643,12 @@ impl Storage {
         let session = if let Some(group) = group.as_ref() {
             self.fetch_or_insert_session_by_group_v1(group)
         } else {
-            self.fetch_or_insert_session_by_e164(&new_message.source)
+            let recipient = self.merge_and_fetch_recipient(
+                new_message.source_e164.as_deref(),
+                new_message.source_uuid.as_deref(),
+                TrustLevel::Certain,
+            );
+            self.fetch_or_insert_session_by_recipient_id(recipient.id)
         };
 
         new_message.session_id = Some(session.id);
@@ -645,6 +662,429 @@ impl Storage {
         let db = self.db.lock();
 
         recipients.filter(e164.eq(new_e164)).first(&*db).ok()
+    }
+
+    pub fn fetch_recipients(&self) -> Vec<orm::Recipient> {
+        let db = self.db.lock();
+        schema::recipients::table.load(&*db).expect("db")
+    }
+
+    pub fn fetch_recipient(
+        &self,
+        e164: Option<&str>,
+        uuid: Option<&str>,
+    ) -> Option<orm::Recipient> {
+        if e164.is_none() && uuid.is_none() {
+            panic!("fetch_recipient requires at least one of e164 or uuid");
+        }
+
+        let db = self.db.lock();
+        use schema::recipients;
+        let by_e164: Option<orm::Recipient> = e164
+            .as_deref()
+            .map(|e164| {
+                recipients::table
+                    .filter(recipients::e164.eq(e164))
+                    .first(&*db)
+                    .optional()
+            })
+            .transpose()
+            .expect("db")
+            .flatten();
+        let by_uuid: Option<orm::Recipient> = uuid
+            .as_deref()
+            .map(|uuid| {
+                recipients::table
+                    .filter(recipients::uuid.eq(uuid))
+                    .first(&*db)
+                    .optional()
+            })
+            .transpose()
+            .expect("db")
+            .flatten();
+        by_uuid.or(by_e164)
+    }
+
+    /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
+    pub fn merge_and_fetch_recipient(
+        &self,
+        e164: Option<&str>,
+        uuid: Option<&str>,
+        trust_level: TrustLevel,
+    ) -> orm::Recipient {
+        let db = self.db.lock();
+        db.transaction(|| -> Result<orm::Recipient, diesel::result::Error> {
+            self.merge_and_fetch_recipient_inner(e164, uuid, trust_level)
+        })
+        .expect("database")
+    }
+
+    // Inner method because the coverage report is then sensible.
+    fn merge_and_fetch_recipient_inner(
+        &self,
+        e164: Option<&str>,
+        uuid: Option<&str>,
+        trust_level: TrustLevel,
+    ) -> Result<orm::Recipient, diesel::result::Error> {
+        if e164.is_none() && uuid.is_none() {
+            panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
+        }
+
+        let db = self.db.lock();
+
+        use schema::recipients;
+        let by_e164: Option<orm::Recipient> = e164
+            .as_deref()
+            .map(|e164| {
+                recipients::table
+                    .filter(recipients::e164.eq(e164))
+                    .first(&*db)
+                    .optional()
+            })
+            .transpose()?
+            .flatten();
+        let by_uuid: Option<orm::Recipient> = uuid
+            .as_deref()
+            .map(|uuid| {
+                recipients::table
+                    .filter(recipients::uuid.eq(uuid))
+                    .first(&*db)
+                    .optional()
+            })
+            .transpose()?
+            .flatten();
+
+        match (by_e164, by_uuid) {
+            (Some(by_e164), Some(by_uuid)) if by_e164.id == by_uuid.id => {
+                // Both are equal, easy.
+                Ok(by_uuid)
+            }
+            (Some(by_e164), Some(by_uuid)) => {
+                log::warn!(
+                    "Conflicting results for {} and {}. Finding a resolution.",
+                    by_e164.e164.as_ref().unwrap(),
+                    by_uuid.uuid.as_ref().unwrap()
+                );
+                match (by_e164.uuid, trust_level) {
+                    (Some(_uuid), TrustLevel::Certain) => {
+                        log::info!("Differing UUIDs, high trust, likely case of reregistration. Stripping the old account, updating new.");
+                        // Strip the old one
+                        diesel::update(recipients::table)
+                            .set(recipients::e164.eq::<Option<String>>(None))
+                            .filter(recipients::id.eq(by_e164.id))
+                            .execute(&*db)?;
+                        // Set the new one
+                        diesel::update(recipients::table)
+                            .set(recipients::e164.eq(e164))
+                            .filter(recipients::id.eq(by_uuid.id))
+                            .execute(&*db)?;
+                        // Fetch again for the update
+                        Ok(self
+                            .fetch_recipient_by_id(by_uuid.id)
+                            .expect("existing updated recipient"))
+                    }
+                    (Some(_uuid), TrustLevel::Uncertain) => {
+                        log::info!("Differing UUIDs, low trust, likely case of reregistration. Doing absolutely nothing. Sorry.");
+                        Ok(by_uuid)
+                    }
+                    (None, TrustLevel::Certain) => {
+                        log::info!(
+                            "Merging contacts: one with e164, the other only uuid, high trust."
+                        );
+                        let merged = self.merge_recipients(by_e164.id, by_uuid.id);
+                        // XXX probably more recipient identifiers should be moved
+                        diesel::update(recipients::table)
+                            .set(recipients::e164.eq(e164))
+                            .filter(recipients::id.eq(merged.id))
+                            .execute(&*db)?;
+
+                        Ok(self
+                            .fetch_recipient_by_id(merged.id)
+                            .expect("updated recipient"))
+                    }
+                    (None, TrustLevel::Uncertain) => {
+                        log::info!(
+                            "Not merging contacts: one with e164, the other only uuid, low trust."
+                        );
+                        Ok(by_uuid)
+                    }
+                }
+            }
+            (None, Some(by_uuid)) => {
+                if let Some(e164) = e164 {
+                    match trust_level {
+                        TrustLevel::Certain => {
+                            log::info!(
+                                "Found phone number {} for contact {}. High trust, so updating.",
+                                e164,
+                                by_uuid.uuid.as_ref().unwrap()
+                            );
+                            diesel::update(recipients::table)
+                                .set(recipients::e164.eq(e164))
+                                .filter(recipients::id.eq(by_uuid.id))
+                                .execute(&*db)?;
+                            Ok(self
+                                .fetch_recipient_by_id(by_uuid.id)
+                                .expect("existing updated recipient"))
+                        }
+                        TrustLevel::Uncertain => {
+                            log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
+                            Ok(by_uuid)
+                        }
+                    }
+                } else {
+                    Ok(by_uuid)
+                }
+            }
+            (Some(by_e164), None) => {
+                if let Some(uuid) = uuid {
+                    match trust_level {
+                        TrustLevel::Certain => {
+                            log::info!(
+                                "Found UUID {} for contact {}. High trust, so updating.",
+                                uuid,
+                                by_e164.e164.unwrap()
+                            );
+                            diesel::update(recipients::table)
+                                .set(recipients::uuid.eq(uuid))
+                                .filter(recipients::id.eq(by_e164.id))
+                                .execute(&*db)?;
+                            Ok(self
+                                .fetch_recipient_by_id(by_e164.id)
+                                .expect("existing updated recipient"))
+                        }
+                        TrustLevel::Uncertain => {
+                            log::info!(
+                                "Found UUID {} for contact {}. Low trust, creating a new contact.",
+                                uuid,
+                                by_e164.e164.unwrap()
+                            );
+                            Ok(self.fetch_or_insert_recipient_by_uuid(&uuid))
+                        }
+                    }
+                } else {
+                    Ok(by_e164)
+                }
+            }
+            (None, None) => {
+                let insert_e164 = (trust_level == TrustLevel::Certain) || uuid.is_none();
+                diesel::insert_into(recipients::table)
+                    .values((
+                        recipients::e164.eq(if insert_e164 { e164 } else { None }),
+                        recipients::uuid.eq(uuid),
+                    ))
+                    .execute(&*db)
+                    .expect("insert new recipient");
+
+                Ok(self.fetch_latest_recipient().expect("inserted recipient"))
+            }
+        }
+    }
+
+    /// Merge source_id into dest_id.
+    ///
+    /// Executes `merge_recipient_inner` inside a transaction, and then returns the result.
+    fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
+        let db = self.db.lock();
+        db.transaction(|| -> Result<(), diesel::result::Error> {
+            // Defer constraints, we're moving a lot of data, inside of a transaction,
+            // and if we have a bug it definitely needs more research anyway.
+            db.execute("PRAGMA defer_foreign_keys = ON;")?;
+            self.merge_recipient_inner(source_id, dest_id)
+        })
+        .expect("consistent migration");
+
+        log::trace!("Contact merge comitted.");
+
+        self.fetch_recipient_by_id(dest_id)
+            .expect("existing contact")
+    }
+
+    // Inner method because the coverage report is then sensible.
+    fn merge_recipient_inner(
+        &self,
+        source_id: i32,
+        dest_id: i32,
+    ) -> Result<(), diesel::result::Error> {
+        log::info!(
+            "Merge of contacts {} and {}. Will move all into {}",
+            source_id,
+            dest_id,
+            dest_id
+        );
+
+        use schema::*;
+
+        let db = self.db.lock();
+
+        // 1. Merge messages senders.
+        let message_count = diesel::update(messages::table)
+            .filter(messages::sender_recipient_id.eq(source_id))
+            .set(messages::sender_recipient_id.eq(dest_id))
+            .execute(&*db)?;
+        log::trace!("Merging messages: {}", message_count);
+
+        // 2. Merge group V1 membership:
+        //    - Delete duplicate memberships.
+        //      We fetch the dest_id group memberships,
+        //      and delete the source_id memberships that have the same group.
+        //      Ideally, this would be a single self-join query,
+        //      but Diesel doesn't like that yet.
+        let target_memberships_v1: Vec<String> = group_v1_members::table
+            .select(group_v1_members::group_v1_id)
+            .filter(group_v1_members::recipient_id.eq(dest_id))
+            .load(&*db)?;
+        let deleted_memberships_v1 = diesel::delete(group_v1_members::table)
+            .filter(
+                group_v1_members::group_v1_id
+                    .eq_any(&target_memberships_v1)
+                    .and(group_v1_members::recipient_id.eq(source_id)),
+            )
+            .execute(&*db)?;
+        //    - Update the rest
+        let updated_memberships_v1 = diesel::update(group_v1_members::table)
+            .filter(group_v1_members::recipient_id.eq(source_id))
+            .set(group_v1_members::recipient_id.eq(dest_id))
+            .execute(&*db)?;
+        log::trace!(
+            "Merging Group V1 memberships: deleted duplicate {}/{}, moved {}/{}.",
+            deleted_memberships_v1,
+            target_memberships_v1.len(),
+            updated_memberships_v1,
+            target_memberships_v1.len()
+        );
+
+        // 3. Merge sessions:
+        let source_session: Option<orm::DbSession> = sessions::table
+            .filter(sessions::direct_message_recipient_id.eq(source_id))
+            .first(&*db)
+            .optional()?;
+        let target_session: Option<orm::DbSession> = sessions::table
+            .filter(sessions::direct_message_recipient_id.eq(dest_id))
+            .first(&*db)
+            .optional()?;
+        match (source_session, target_session) {
+            (Some(source_session), Some(target_session)) => {
+                // Both recipients have a session.
+                // Move the source session's messages to the target session,
+                // then drop the source session.
+                let updated_message_count = diesel::update(messages::table)
+                    .filter(messages::session_id.eq(source_session.id))
+                    .set(messages::session_id.eq(target_session.id))
+                    .execute(&*db)?;
+                let dropped_session_count = diesel::delete(sessions::table)
+                    .filter(sessions::id.eq(source_session.id))
+                    .execute(&*db)?;
+
+                assert_eq!(dropped_session_count, 1, "Drop the single source session.");
+
+                log::trace!(
+                    "Updating source session's messages ({} total). Dropped source session.",
+                    updated_message_count
+                );
+            }
+            (Some(source_session), None) => {
+                log::info!("Strange, no session for the target_id. Updating source.");
+                let updated_session = diesel::update(sessions::table)
+                    .filter(sessions::id.eq(source_session.id))
+                    .set(sessions::direct_message_recipient_id.eq(dest_id))
+                    .execute(&*db)?;
+                assert_eq!(updated_session, 1, "Update source session");
+            }
+            (None, Some(_target_session)) => {
+                log::info!("Strange, no session for the source_id. Continuing.");
+            }
+            (None, None) => {
+                log::warn!("Strange, neither recipient has a session. Continuing.");
+            }
+        }
+
+        // 4. Merge reactions
+        //    This too would benefit from a subquery or self-join.
+        let target_reactions: Vec<i32> = reactions::table
+            .select(reactions::reaction_id)
+            .filter(reactions::author.eq(dest_id))
+            .load(&*db)?;
+        // Delete duplicates from source.
+        // We're not going to merge based on receive time,
+        // although that would be the "right" thing to do.
+        // Let's hope we never really take this path.
+        let deleted_reactions = diesel::delete(reactions::table)
+            .filter(
+                reactions::author
+                    .eq(source_id)
+                    .and(reactions::message_id.eq_any(target_reactions)),
+            )
+            .execute(&*db)?;
+        log::log!(
+            if deleted_reactions > 0 {
+                log::Level::Warn
+            } else {
+                log::Level::Trace
+            },
+            "Deleted {} reactions. Please file an issue if > 0",
+            deleted_reactions
+        );
+        let updated_reactions = diesel::update(reactions::table)
+            .filter(reactions::author.eq(source_id))
+            .set(reactions::author.eq(dest_id))
+            .execute(&*db)?;
+        log::trace!("Updated {} reactions", updated_reactions);
+
+        // 5. Update receipts
+        //    Same thing: delete the duplicates (although merging would be better),
+        //    and update the rest.
+        let target_receipts: Vec<i32> = receipts::table
+            .select(receipts::message_id)
+            .filter(receipts::recipient_id.eq(dest_id))
+            .load(&*db)?;
+        let deleted_receipts = diesel::delete(receipts::table)
+            .filter(
+                receipts::recipient_id
+                    .eq(source_id)
+                    .and(receipts::message_id.eq_any(target_receipts)),
+            )
+            .execute(&*db)?;
+        log::log!(
+            if deleted_receipts > 0 {
+                log::Level::Warn
+            } else {
+                log::Level::Trace
+            },
+            "Deleted {} receipts. Please file an issue if > 0",
+            deleted_receipts
+        );
+        let updated_receipts = diesel::update(receipts::table)
+            .filter(receipts::recipient_id.eq(source_id))
+            .set(receipts::recipient_id.eq(dest_id))
+            .execute(&*db)?;
+        log::trace!("Updated {} receipts", updated_receipts);
+
+        let deleted = diesel::delete(recipients::table)
+            .filter(recipients::id.eq(source_id))
+            .execute(&*db)?;
+        log::trace!("Deleted {} recipient", deleted);
+        assert_eq!(deleted, 1, "delete only one recipient");
+        Ok(())
+    }
+
+    pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
+        use crate::schema::recipients::dsl::*;
+
+        let db = self.db.lock();
+
+        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(&*db) {
+            recipient
+        } else {
+            diesel::insert_into(recipients)
+                .values(uuid.eq(new_uuid))
+                .execute(&*db)
+                .expect("insert new recipient");
+            recipients
+                .filter(uuid.eq(new_uuid))
+                .first(&*db)
+                .expect("newly inserted recipient")
+        }
     }
 
     pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
@@ -814,6 +1254,15 @@ impl Storage {
     /// Fetches the latest session by last_insert_rowid.
     ///
     /// This only yields correct results when the last insertion was in fact a session.
+    fn fetch_latest_recipient(&self) -> Option<orm::Recipient> {
+        use schema::recipients::dsl::*;
+        let db = self.db.lock();
+        recipients.filter(id.eq(last_insert_rowid)).first(&*db).ok()
+    }
+
+    /// Fetches the latest session by last_insert_rowid.
+    ///
+    /// This only yields correct results when the last insertion was in fact a session.
     fn fetch_latest_session(&self) -> Option<orm::Session> {
         fetch_session!(self.db.lock(), |query| {
             query.filter(schema::sessions::id.eq(last_insert_rowid))
@@ -842,11 +1291,17 @@ impl Storage {
     }
 
     pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
-        log::trace!("Called fetch__session_by_e164({})", e164);
+        log::trace!("Called fetch_session_by_e164({})", e164);
         let db = self.db.lock();
         fetch_session!(db, |query| {
             query.filter(schema::recipients::e164.eq(e164))
         })
+    }
+
+    pub fn fetch_session_by_recipient_id(&self, rid: i32) -> Option<orm::Session> {
+        log::trace!("Called fetch__session_by_recipient_id({})", rid);
+        let db = self.db.lock();
+        fetch_session!(db, |query| { query.filter(schema::recipients::id.eq(rid)) })
     }
 
     pub fn fetch_attachments_for_message(&self, mid: i32) -> Vec<orm::Attachment> {
@@ -883,6 +1338,24 @@ impl Storage {
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
             .values((direct_message_recipient_id.eq(recipient.id),))
+            .execute(&*db)
+            .unwrap();
+
+        self.fetch_latest_session()
+            .expect("a session has been inserted")
+    }
+
+    /// Fetches recipient's DM session, or creates the session.
+    pub fn fetch_or_insert_session_by_recipient_id(&self, rid: i32) -> orm::Session {
+        log::trace!("Called fetch_or_insert_session_by_recipient_id({})", rid);
+        let db = self.db.lock();
+        if let Some(session) = self.fetch_session_by_recipient_id(rid) {
+            return session;
+        }
+
+        use schema::sessions::dsl::*;
+        diesel::insert_into(sessions)
+            .values((direct_message_recipient_id.eq(rid),))
             .execute(&*db)
             .unwrap();
 
@@ -996,9 +1469,16 @@ impl Storage {
 
         log::trace!("Called create_message(..) for session {}", session);
 
-        let sender = self
-            .fetch_recipient_by_e164(&new_message.source)
-            .map(|r| r.id);
+        let has_source = new_message.source_e164.is_some() || new_message.source_uuid.is_some();
+        let sender_id = if has_source {
+            self.fetch_recipient(
+                new_message.source_e164.as_deref(),
+                new_message.source_uuid.as_deref(),
+            )
+            .map(|r| r.id)
+        } else {
+            None
+        };
 
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
@@ -1010,7 +1490,7 @@ impl Storage {
                 .values((
                     session_id.eq(session),
                     text.eq(&new_message.text),
-                    sender_recipient_id.eq(sender),
+                    sender_recipient_id.eq(sender_id),
                     received_timestamp.eq(if !new_message.outgoing {
                         Some(chrono::Utc::now().naive_utc())
                     } else {
