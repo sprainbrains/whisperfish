@@ -89,6 +89,11 @@ mod merge_and_fetch {
         assert_eq!(recipient_e164.uuid.as_deref(), None);
 
         assert_eq!(storage.fetch_recipients().len(), 2);
+
+        let recipient_uuid = storage
+            .fetch_recipient(None, Some(UUID))
+            .expect("uuid still in db");
+        assert_eq!(recipient.id, recipient_uuid.id);
     }
 
     #[rstest]
