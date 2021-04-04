@@ -194,7 +194,7 @@ coverage:nightly:
   needs: []
   script:
     - export PATH="$CARGO_HOME/bin:$PATH"
-    - cargo tarpaulin -v --exclude-files cargo/*
+    - cargo tarpaulin -v --exclude-files cargo/* --out Xml
   # tarpaulin needs its own cage
   cache:
     <<: *rust-cache
@@ -202,6 +202,10 @@ coverage:nightly:
       files:
         - Cargo.lock
       prefix: rust-nightly-coverage
+  artifacts:
+    name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
+    reports:
+      cobertura: cobertura.xml
   except:
     - schedules
 
