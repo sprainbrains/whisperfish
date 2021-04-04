@@ -90,4 +90,33 @@ mod merge_and_fetch {
 
         assert_eq!(storage.fetch_recipients().len(), 2);
     }
+
+    #[rstest]
+    #[actix_rt::test]
+    async fn trusted_amend_uuid(storage_with_uuid_recipient: impl Future<Output = InMemoryDb>) {
+        let (storage, _temp_dir) = storage_with_uuid_recipient.await;
+
+        let recipient =
+            storage.merge_and_fetch_recipient(Some(E164), Some(UUID), TrustLevel::Certain);
+        assert_eq!(recipient.e164.as_deref(), Some(E164));
+        assert_eq!(recipient.uuid.as_deref(), Some(UUID));
+
+        assert_eq!(storage.fetch_recipients().len(), 1);
+    }
+
+    #[rstest]
+    #[actix_rt::test]
+    async fn untrusted_amend_uuid(storage_with_uuid_recipient: impl Future<Output = InMemoryDb>) {
+        let (storage, _temp_dir) = storage_with_uuid_recipient.await;
+
+        let recipient =
+            storage.merge_and_fetch_recipient(Some(E164), Some(UUID), TrustLevel::Uncertain);
+        assert_eq!(recipient.e164.as_deref(), None);
+        assert_eq!(recipient.uuid.as_deref(), Some(UUID));
+
+        // Now check that the e164 does not exist separately.
+        assert!(storage.fetch_recipient(Some(E164), None).is_none());
+
+        assert_eq!(storage.fetch_recipients().len(), 1);
+    }
 }
