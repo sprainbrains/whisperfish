@@ -45,6 +45,13 @@ mod merge_and_fetch {
             storage.merge_and_fetch_recipient(Some(E164), Some(UUID), TrustLevel::Certain);
         assert_eq!(recipient.e164.as_deref(), Some(E164));
         assert_eq!(recipient.uuid.as_deref(), Some(UUID));
+
+        // Second call should be a no-op
+        let recipient_check =
+            storage.merge_and_fetch_recipient(Some(E164), Some(UUID), TrustLevel::Certain);
+        assert_eq!(recipient.e164.as_deref(), Some(E164));
+        assert_eq!(recipient.uuid.as_deref(), Some(UUID));
+        assert_eq!(recipient_check.id, recipient.id);
     }
 
     #[rstest]
