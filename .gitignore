@@ -26,3 +26,5 @@ sqlcipher/LICENSE
 releases
 whisperfish.wiki
 .rpm
+cobertura.xml
+tarpaulin-report.html
