@@ -6,6 +6,22 @@ These represent the views of the authors and are not officially supported
 by the Whisperfish project. Corrections, additions and suggestions welcome!
 
 -------------------------------------------------------------------------------
+Rust protips
+-------------------------------------------------------------------------------
+
+If you want to build locally against local changes to
+`<service> https://github.com/Michael-F-Bryan/libsignal-service-rs`_
+or `<protocol> https://github.com/Michael-F-Bryan/libsignal-protocol-rs`_
+you should edit ``Cargo.toml`` where applicable::
+
+        [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
+        libsignal-service = { path = "/PATH/TO/GIT/CLONE/libsignal-service-rs/libsignal-service" }
+        libsignal-service-actix = { path = "PATH/TO/GIT/CLONE/libsignal-service-rs/libsignal-service-actix" }
+
+        [patch."https://github.com/Michael-F-Bryan/libsignal-protocol-rs"]
+        libsignal-protocol = { path = "/PATH/TO/GIT/CLONE/libsignal-protocol-rs/libsignal-protocol" }
+
+-------------------------------------------------------------------------------
 ZSH
 -------------------------------------------------------------------------------
 
