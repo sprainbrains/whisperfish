@@ -195,7 +195,7 @@ coverage:nightly:
   script:
     - export PATH="$CARGO_HOME/bin:$PATH"
     - cargo tarpaulin -v --exclude-files cargo/* --out Xml
-  # tarpaulin needs its own cage
+  # tarpaulin needs its own cache
   cache:
     <<: *rust-cache
     key:
