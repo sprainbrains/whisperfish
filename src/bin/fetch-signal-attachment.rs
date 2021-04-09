@@ -1,8 +1,7 @@
 use std::path::Path;
 
-use failure::{ensure, format_err, Error};
+use failure::{ensure, Error};
 use futures::io::AsyncReadExt;
-use harbour_whisperfish::settings::SignalConfig;
 use harbour_whisperfish::store::{self, Storage};
 use structopt::StructOpt;
 
@@ -45,25 +44,14 @@ struct Opt {
     mime_type: String,
 }
 
-fn read_config() -> Result<SignalConfig, Error> {
-    // XXX non-existing file?
-    let conf_dir =
-        dirs::config_dir().ok_or_else(|| format_err!("Could not find config directory."))?;
-    let signal_config_file = conf_dir.join("harbour-whisperfish").join("config.yml");
-    let signal_config_file = std::fs::File::open(signal_config_file)?;
-
-    Ok(serde_yaml::from_reader(signal_config_file)?)
-}
-
 #[actix_rt::main]
 async fn main() -> Result<(), Error> {
     env_logger::init();
 
     let opt = Opt::from_args();
 
-    let config = read_config()?;
-    let settings = harbour_whisperfish::settings::Settings::default();
-    let dir = settings.get_string("attachment_dir");
+    let config = harbour_whisperfish::config::SignalConfig::read_from_file()?;
+    let dir = config.get_attachment_dir();
     let dest = Path::new(&dir);
 
     let mut storage = Storage::open(&store::default_location()?, opt.password).await?;
@@ -86,8 +74,8 @@ async fn main() -> Result<(), Error> {
 
     // Connection details for OWS servers
     // XXX: https://gitlab.com/rubdos/whisperfish/-/issues/80
-    let phonenumber = phonenumber::parse(None, config.tel.expect("phone number")).unwrap();
-    let uuid = config.uuid.map(|u| u.parse().expect("valid UUID"));
+    let phonenumber = phonenumber::parse(None, config.get_tel_clone()).unwrap();
+    let uuid = uuid::Uuid::parse_str(&config.get_uuid_clone()).ok();
     let e164 = phonenumber
         .format()
         .mode(phonenumber::Mode::E164)

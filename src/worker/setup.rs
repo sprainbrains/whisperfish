@@ -4,8 +4,7 @@ use failure::*;
 use qmetaobject::*;
 
 use crate::gui::WhisperfishApp;
-use crate::settings::SignalConfig;
-use crate::store::{self, Storage};
+use crate::store::Storage;
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -31,25 +30,17 @@ pub struct SetupWorker {
 
     /// Emitted when any of the properties change.
     setupChanged: qt_signal!(),
-
-    pub config: Option<SignalConfig>,
 }
 
 impl SetupWorker {
     const MAX_PASSWORD_ENTER_ATTEMPTS: i8 = 3;
 
-    pub async fn run(app: Rc<WhisperfishApp>) {
+    pub async fn run(app: Rc<WhisperfishApp>, config: std::sync::Arc<crate::config::SignalConfig>) {
         log::info!("SetupWorker::run");
         let this = app.setup_worker.pinned();
 
-        let identity_path = crate::store::default_location()
-            .unwrap()
-            .join("storage")
-            .join("identity")
-            .join("identity_key");
-
         // Check registration
-        if identity_path.is_file() {
+        if config.get_identity_dir().is_file() {
             log::info!("identity_key found, assuming registered");
             this.borrow_mut().registered = true;
         } else {
@@ -58,34 +49,28 @@ impl SetupWorker {
         }
         this.borrow().setupChanged();
 
-        this.borrow_mut().config = match SetupWorker::read_config(app.clone()).await {
-            Ok(config) => Some(config),
-            Err(e) => {
-                log::error!("Error reading config: {:?}", e);
-                this.borrow().clientFailed();
-                return;
-            }
-        };
-
         // Defaults does not override unset settings
         app.settings.pinned().borrow_mut().defaults();
 
-        let config = this.borrow().config.as_ref().unwrap().clone();
-
-        log::debug!("config: {:?}", config);
         // XXX: nice formatting?
-        this.borrow_mut().phoneNumber = config.tel.unwrap_or_else(|| String::from("")).into();
-        this.borrow_mut().uuid = config.uuid.unwrap_or_else(|| String::from("")).into();
+        this.borrow_mut().phoneNumber = config.get_tel_clone().into();
+        this.borrow_mut().uuid = config.get_uuid_clone().into();
 
         if !this.borrow().registered {
-            if let Err(e) = SetupWorker::register(app.clone()).await {
+            if let Err(e) = SetupWorker::register(app.clone(), &config).await {
                 log::error!("Error in registration: {}", e);
                 this.borrow().clientFailed();
                 return;
             }
             this.borrow_mut().registered = true;
             this.borrow().setupChanged();
-        } else if let Err(e) = SetupWorker::setup_storage(app.clone()).await {
+            // change fields in config struct
+            config.set_tel(this.borrow().phoneNumber.to_string());
+            config.set_uuid(this.borrow().uuid.to_string());
+            // write changed config to file here
+            // XXX handle return value here appropriately !!!
+            config.write_to_file().expect("cannot write to config file");
+        } else if let Err(e) = SetupWorker::setup_storage(app.clone(), &config).await {
             log::error!("Error setting up storage: {}", e);
             this.borrow().clientFailed();
             return;
@@ -103,67 +88,13 @@ impl SetupWorker {
         this.borrow().setupComplete();
     }
 
-    async fn read_config(app: Rc<WhisperfishApp>) -> Result<SignalConfig, Error> {
-        let signal_config_file = crate::conf_dir().join("config.yml");
-
-        let settings = app.settings.pinned();
-        if settings
-            .borrow()
-            .get_string("attachment_dir")
-            .trim()
-            .is_empty()
-        {
-            settings.borrow_mut().set_string(
-                "attachment_dir",
-                crate::store::default_location()
-                    .expect("default location")
-                    .join("storage")
-                    .join("attachments")
-                    .to_str()
-                    .expect("utf8 path"),
-            );
-        }
-
-        if let Err(e) =
-            std::fs::create_dir_all(settings.borrow().get_string("attachment_dir").trim())
-        {
-            if e.kind() != std::io::ErrorKind::AlreadyExists {
-                log::warn!("Could not create attachment dir: {}", e);
-            }
-        }
-
-        if let Ok(file) = std::fs::File::open(&signal_config_file) {
-            Ok(serde_yaml::from_reader(file)?)
-        } else {
-            let contents = SignalConfig {
-                tel: None,
-                uuid: None,
-                // XXX
-                server: None,
-                root_ca: None,
-                proxy_server: None,
-                storage_dir: "".into(),
-                storage_password: "".into(),
-                log_level: "debug".into(),
-                user_agent: "Whisperfish".into(),
-                always_trust_peer_id: false,
-            };
-            Self::write_config(app, &contents).await?;
-            Ok(contents)
-        }
-    }
-
-    async fn write_config(_app: Rc<WhisperfishApp>, contents: &SignalConfig) -> Result<(), Error> {
-        let signal_config_file = crate::conf_dir().join("config.yml");
-        let file = std::fs::File::create(signal_config_file)?;
-        serde_yaml::to_writer(file, &contents)?;
-        Ok(())
-    }
-
-    async fn open_storage(app: Rc<WhisperfishApp>) -> Result<Storage, Error> {
-        let res = Storage::open(&store::default_location()?, None).await;
-        if let Ok(storage) = res {
-            return Ok(storage);
+    async fn open_storage(
+        app: Rc<WhisperfishApp>,
+        config: &crate::config::SignalConfig,
+    ) -> Result<Storage, Error> {
+        let res = Storage::open(&config.get_share_dir().to_owned().into(), None).await;
+        if res.is_ok() {
+            return res;
         }
 
         app.app_state
@@ -181,7 +112,7 @@ impl SetupWorker {
                 .ok_or_else(|| format_err!("No password provided"))?
                 .into();
 
-            match Storage::open(&store::default_location()?, Some(password)).await {
+            match Storage::open(&config.get_share_dir().to_owned().into(), Some(password)).await {
                 Ok(storage) => return Ok(storage),
                 Err(error) => log::error!(
                     "Attempt {} of opening encrypted storage failed: {}",
@@ -195,15 +126,21 @@ impl SetupWorker {
         res
     }
 
-    async fn setup_storage(app: Rc<WhisperfishApp>) -> Result<(), Error> {
-        let storage = SetupWorker::open_storage(app.clone()).await?;
+    async fn setup_storage(
+        app: Rc<WhisperfishApp>,
+        config: &crate::config::SignalConfig,
+    ) -> Result<(), Error> {
+        let storage = SetupWorker::open_storage(app.clone(), config).await?;
 
         *app.storage.borrow_mut() = Some(storage);
 
         Ok(())
     }
 
-    async fn register(app: Rc<WhisperfishApp>) -> Result<(), Error> {
+    async fn register(
+        app: Rc<WhisperfishApp>,
+        config: &crate::config::SignalConfig,
+    ) -> Result<(), Error> {
         let this = app.setup_worker.pinned();
 
         app.app_state
@@ -308,9 +245,6 @@ impl SetupWorker {
         log::info!("Registration result: {:?}", res);
 
         let mut this = this.borrow_mut();
-        let mut cfg = this.config.as_mut().unwrap();
-        cfg.uuid = Some(res.uuid.clone());
-        cfg.tel = Some(e164);
 
         let storage_password = if storage_password.is_empty() {
             None
@@ -318,12 +252,11 @@ impl SetupWorker {
             Some(storage_password)
         };
 
-        Self::write_config(app.clone(), cfg).await?;
         this.uuid = res.uuid.into();
 
         // Install storage
         let storage = Storage::new(
-            &store::default_location()?,
+            &config.get_share_dir().to_owned().into(),
             storage_password.as_deref(),
             regid,
             &password,

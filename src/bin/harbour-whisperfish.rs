@@ -5,39 +5,44 @@ use dbus::blocking::Connection;
 use std::time::Duration;
 
 fn main() {
-    let mut autostart = false;
-    let mut verbose = false;
-    let mut ignored = 0;
-    for arg in std::env::args() {
-        if arg == "autostart" {
-            autostart = true;
-        } else if arg == "-v" || arg == "--verbose" {
-            verbose = true;
-        } else {
-            ignored += 1;
+    // Read config file or get a default config
+    let mut config = match config::SignalConfig::read_from_file() {
+        Ok(x) => x,
+        Err(e) => {
+            eprintln!("Config file not found: {}", e);
+            config::SignalConfig::default()
         }
+    };
+
+    // Write config to initialize a default config
+    if let Err(e) = config.write_to_file() {
+        eprintln!("{}", e);
+        std::process::exit(1);
     }
 
-    if !verbose {
-        env_logger::init()
-    } else {
-        use log::LevelFilter::Trace;
+    // Then, handle command line arguments and overwrite settings from config file if necessary
+    config::Args::check_args(&mut config);
+
+    // Initiate logger facility
+    if config.verbose {
         env_logger::Builder::from_default_env()
-            .filter_module("libsignal_service_actix", Trace)
-            .filter_module("libsignal_service", Trace)
-            .filter_module("harbour_whisperfish", Trace)
+            .filter_module("libsignal_service_actix", log::LevelFilter::Trace)
+            .filter_module("libsignal_service", log::LevelFilter::Trace)
+            .filter_module("harbour_whisperfish", log::LevelFilter::Trace)
             .init()
+    } else {
+        env_logger::init()
     }
 
-    if ignored > 1 {
-        log::warn!("{} console arguments ignored", ignored - 1);
+    match try_dbus_show_app() {
+        Ok(_) => return,
+        Err(e) => log::error!("{}", e),
     }
 
-    if let Ok(()) = try_dbus_show_app() {
-        return;
+    if let Err(e) = run_main_app(config) {
+        log::error!("Fatal error: {}", e);
+        std::process::exit(1);
     }
-
-    run_main_app(autostart);
 }
 
 fn try_dbus_show_app() -> Result<(), dbus::Error> {
@@ -53,20 +58,31 @@ fn try_dbus_show_app() -> Result<(), dbus::Error> {
     proxy.method_call("be.rubdos.whisperfish.app", "show", ())
 }
 
-fn run_main_app(is_autostart: bool) {
-    log::info!("Start main app (with autostart = {})", is_autostart);
+fn run_main_app(config: config::SignalConfig) -> Result<(), failure::Error> {
+    log::info!("Start main app (with autostart = {})", config.autostart);
 
-    let sys = System::new();
+    // Initialise storage here
+    // Right now, we only create the attachment (and storage) directory if necessary
+    // With more refactoring there should be probably more initialization here
+    // Not creating the storage/attachment directory is fatal and we return here.
+    if !config.get_attachment_dir().exists() {
+        std::fs::create_dir_all(&config.get_attachment_dir())?;
+        // XXX add with anyhow:
+        // with context: "Could not create attachment dir: {}"
+    }
 
     sfos::TokioQEventDispatcher::install();
 
+    let sys = System::new();
     sys.block_on(async {
         // Currently not possible, default QmlEngine does not run asynchronous.
         // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
 
         #[cfg(feature = "sailfish")]
-        gui::run(is_autostart).await.unwrap();
+        gui::run(config).await.unwrap();
     });
 
     log::info!("Shut down.");
+
+    Ok(())
 }

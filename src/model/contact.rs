@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::settings::*;
+use crate::config::Settings;
 
 use phonenumber::Mode;
 use qmetaobject::*;

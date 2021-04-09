@@ -79,6 +79,7 @@ pub struct ClientActor {
     storage: Option<Storage>,
     cipher: Option<ServiceCipher>,
     context: Context,
+    config: std::sync::Arc<crate::config::SignalConfig>,
 
     start_time: DateTime<Local>,
     store_context: Option<libsignal_protocol::StoreContext>,
@@ -88,6 +89,7 @@ impl ClientActor {
     pub fn new(
         app: &mut SailfishApp,
         session_actor: Addr<SessionActor>,
+        config: std::sync::Arc<crate::config::SignalConfig>,
     ) -> Result<Self, failure::Error> {
         let inner = QObjectBox::new(ClientWorker::default());
         let device_model = QObjectBox::new(DeviceModel::default());
@@ -106,6 +108,7 @@ impl ClientActor {
             storage: None,
             cipher: None,
             context: Context::new(crypto)?,
+            config,
 
             start_time: Local::now(),
             store_context: None,
@@ -149,7 +152,7 @@ impl ClientActor {
         is_sync_sent: bool,
         timestamp: u64,
     ) {
-        let settings = crate::settings::Settings::default();
+        let settings = crate::config::Settings::default();
 
         let storage = self.storage.as_mut().expect("storage");
 
@@ -246,7 +249,7 @@ impl ClientActor {
                 // in this method, as well as the generated path.
                 // We have this function that returns a filesystem path, so we can
                 // set it ourselves.
-                let dir = settings.get_string("attachment_dir");
+                let dir = self.config.get_attachment_dir();
                 let dest = Path::new(&dir);
 
                 ctx.notify(FetchAttachment {
@@ -791,24 +794,21 @@ impl Handler<AttachmentDownloaded> for ClientActor {
 impl Handler<StorageReady> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
-    fn handle(
-        &mut self,
-        StorageReady(storage, config): StorageReady,
-        _ctx: &mut Self::Context,
-    ) -> Self::Result {
-        self.storage = Some(storage.clone());
+    fn handle(&mut self, storageready: StorageReady, _ctx: &mut Self::Context) -> Self::Result {
+        self.storage = Some(storageready.storage.clone());
+        let tel = self.config.get_tel_clone();
+        let uuid = self.config.get_uuid_clone();
 
         let context = self.context.clone();
-        let storage_for_password = storage.clone();
+        let storage_for_password = storageready.storage.clone();
         let request_password = async move {
             // Web socket
-            let phonenumber = phonenumber::parse(None, config.tel.expect("phone number")).unwrap();
-            let uuid = config.uuid.clone();
-            let uuid = if let Some(uuid) = uuid {
+            let phonenumber = phonenumber::parse(None, tel).unwrap();
+            let uuid = if !uuid.is_empty() {
                 match uuid::Uuid::parse_str(&uuid) {
                     Ok(uuid) => Some(uuid),
                     Err(e) => {
-                        log::error!("Could not parse uuid {}. Try removing the uuid field in config.yaml and restart Whisperfish. {}", uuid, e);
+                        log::error!("Could not parse uuid {}. Try removing the uuid field in config.yaml and restart Whisperfish. {}", &uuid, e);
                         None
                     }
                 }
@@ -842,10 +842,10 @@ impl Handler<StorageReady> for ClientActor {
                 let store_context = libsignal_protocol::store_context(
                     &context,
                     // Storage is a pointer-to-shared-storage
-                    storage.clone(),
-                    storage.clone(),
-                    storage.clone(),
-                    storage.clone(),
+                    storageready.storage.clone(),
+                    storageready.storage.clone(),
+                    storageready.storage.clone(),
+                    storageready.storage.clone(),
                 )
                 .expect("initialized storage");
                 let local_addr = ServiceAddress {

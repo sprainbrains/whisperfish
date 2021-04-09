@@ -69,12 +69,8 @@ impl Actor for SessionActor {
 impl Handler<StorageReady> for SessionActor {
     type Result = ();
 
-    fn handle(
-        &mut self,
-        StorageReady(storage, _config): StorageReady,
-        ctx: &mut Self::Context,
-    ) -> Self::Result {
-        self.storage = Some(storage);
+    fn handle(&mut self, storageready: StorageReady, ctx: &mut Self::Context) -> Self::Result {
+        self.storage = Some(storageready.storage);
         log::trace!("SessionActor has a registered storage");
 
         ctx.notify(LoadAllSessions);
