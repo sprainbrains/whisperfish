@@ -248,7 +248,6 @@ fn prepare_rpm_build() {
         "systemd",
         "transferplugin",
         "transferui",
-        "sailjail",
         "dbus",
     ];
     for d in cond_folder.iter() {
@@ -266,11 +265,6 @@ fn prepare_rpm_build() {
                 true,
             ),
             ("shareplugin/WhisperfishShare.qml", "transferui", false),
-            (
-                "shareplugin/WhisperfishSharing.permission",
-                "sailjail",
-                false,
-            ),
         ]
     } else {
         &[]

@@ -125,7 +125,6 @@ whisperfish-migration-dry-run = { path = "/usr/bin/whisperfish-migration-dry-run
 "tmp_feature_files/systemd/" = { path = "/usr/lib/systemd/user/" }
 "tmp_feature_files/transferplugin/" = { path = "/usr/lib/nemo-transferengine/plugins/" }
 "tmp_feature_files/transferui/" = { path = "/usr/share/nemo-transferengine/plugins/" }
-"tmp_feature_files/sailjail/" = { path = "/usr/share/harbour-whisperfish/sailjail/" }
 "tmp_feature_files/dbus/" = { path = "/usr/share/dbus-1/services/" }
 
 
