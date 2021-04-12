@@ -45,7 +45,7 @@ pub struct MessageModel {
     pub client_actor: Option<Addr<ClientActor>>,
 
     messages: Vec<AugmentedMessage>,
-    group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+    group_members: Vec<orm::Recipient>,
 
     sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
 
@@ -369,7 +369,7 @@ impl MessageModel {
     pub fn handle_fetch_session(
         &mut self,
         sess: orm::Session,
-        group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+        group_members: Vec<orm::Recipient>,
         peer_identity: String,
     ) {
         log::trace!("handle_fetch_session({})", sess.id);
@@ -392,7 +392,7 @@ impl MessageModel {
                 self.groupMembers = QString::from(
                     self.group_members
                         .iter()
-                        .map(|(_, r)| r.e164_or_uuid())
+                        .map(|r| r.e164_or_uuid())
                         .join(","),
                 );
                 self.groupMembersChanged();
@@ -410,7 +410,7 @@ impl MessageModel {
                 self.groupMembers = QString::from(
                     self.group_members
                         .iter()
-                        .map(|(_, r)| r.e164_or_uuid())
+                        .map(|r| r.e164_or_uuid())
                         .join(","),
                 );
                 self.groupMembersChanged();
