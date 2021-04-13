@@ -57,6 +57,8 @@ pub struct MessageModel {
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
     groupId: qt_property!(QString; NOTIFY groupChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
+    groupV1: qt_property!(bool; NOTIFY groupChanged),
+    groupV2: qt_property!(bool; NOTIFY groupChanged),
 
     peerIdentityChanged: qt_signal!(),
     peerChanged: qt_signal!(),
@@ -386,6 +388,8 @@ impl MessageModel {
                 self.peerChanged();
 
                 self.group = true;
+                self.groupV1 = true;
+                self.groupV2 = false;
                 self.groupId = QString::from(group.id);
                 self.groupChanged();
 
@@ -404,6 +408,8 @@ impl MessageModel {
                 self.peerChanged();
 
                 self.group = true;
+                self.groupV1 = false;
+                self.groupV2 = true;
                 self.groupId = QString::from(group.id);
                 self.groupChanged();
 
@@ -417,6 +423,8 @@ impl MessageModel {
             }
             orm::SessionType::DirectMessage(recipient) => {
                 self.group = false;
+                self.groupV1 = false;
+                self.groupV2 = false;
                 self.groupId = QString::from("");
                 self.groupChanged();
 
