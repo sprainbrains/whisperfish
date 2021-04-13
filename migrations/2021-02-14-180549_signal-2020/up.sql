@@ -461,7 +461,10 @@ SELECT
     old_message.timestamp,
 
     old_message.received,
-    old_message.outgoing,
+    CASE WHEN NOT old_message.outgoing AND recipients.id IS NULL
+        THEN 1
+        ELSE old_message.outgoing
+    END,
     old_message.flags
 FROM old_message
 -- Use a LEFT JOIN , because when old_message.source = NULL or empty string, we still want the message.

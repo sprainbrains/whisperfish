@@ -111,6 +111,12 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .filter(schema::session::is_group)
             .filter(outgoing.eq(false))
             .first(db)?;
+        let group_ghost_count: i64 = message
+            .left_join(session_on_id)
+            .select(count(id))
+            .filter(schema::session::is_group)
+            .filter(outgoing.eq(false).and(source.eq("")))
+            .first(db)?;
 
         let attachment_count: i64 = message.select(count(id)).filter(has_attachment).first(db)?;
         println!("Message count: {}", message_count);
@@ -118,7 +124,8 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
         println!("├ of which group messages: {}", group_message_count);
         println!("│ ├ of which you sent: {}", group_sent_count);
         println!("│ │ └ of which are received: {}", group_receipt_count);
-        println!("│ └ of which you received: {}", group_received_count);
+        println!("│ ├ of which you received: {}", group_received_count);
+        println!("│ └ of which are ghost messages: {}", group_ghost_count);
         println!("└ of which direct messages: {}", non_group_message_count);
         println!("  ├ of which you sent: {}", non_group_sent_count);
         println!("  │ └ of which they received: {}", non_group_receipt_count);
