@@ -580,6 +580,70 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
 }
 
 #[rstest]
+// https://gitlab.com/rubdos/whisperfish/-/issues/319
+fn group_message_without_sender_nor_recipient(original_go_db: SqliteConnection) {
+    use orm::original::*;
+    use schemas::original::*;
+
+    use original_data::*;
+
+    let db = original_go_db;
+
+    let sessions = vec![group1()];
+
+    let count = sessions.len();
+    assert_eq!(
+        diesel::insert_into(session::table)
+            .values(sessions)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    assert_eq!(ids.len(), count);
+
+    let messages = vec![NewMessage {
+        session_id: Some(ids[0]),
+        source: "".into(),
+        text: "Hoh.".into(),
+        timestamp: NaiveDate::from_ymd(2016, 7, 9)
+            .and_hms_milli(9, 10, 11, 325)
+            .timestamp_millis(),
+        sent: false,
+        received: true,
+        flags: 0,
+        attachment: None,
+        mime_type: None,
+        has_attachment: false,
+        outgoing: false,
+    }];
+
+    let count = messages.len();
+    assert_eq!(
+        diesel::insert_into(message::table)
+            .values(messages)
+            .execute(&db)
+            .unwrap(),
+        count
+    );
+
+    embedded_migrations::run(&db).unwrap();
+
+    let messages: Vec<orm::current::Message> = {
+        use schemas::current::messages::dsl::*;
+
+        messages
+            .filter(session_id.eq(ids[0] as i32))
+            .load(&db)
+            .unwrap()
+    };
+    assert_eq!(messages.len(), 1);
+    // Our workaround inverts the message sender.
+    assert!(messages[0].is_outbound);
+}
+
+#[rstest]
 /// A test that creates a single session and 10^5 random messages and timestamps.
 fn timestamp_conversion(original_go_db: SqliteConnection) {
     use orm::original::*;
