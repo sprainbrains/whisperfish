@@ -165,15 +165,7 @@ impl Handler<FetchAllMessages> for MessageActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.as_ref().unwrap();
-        let messages = storage.fetch_all_messages(sid);
-        let messages = messages
-            .into_iter()
-            .map(|(m, r): (orm::Message, _)| {
-                let receipts = storage.fetch_message_receipts(m.id);
-                let attachments = storage.fetch_attachments_for_message(m.id);
-                (m, r, attachments, receipts)
-            })
-            .collect();
+        let messages = storage.fetch_all_messages_augmented(sid);
 
         self.inner
             .pinned()

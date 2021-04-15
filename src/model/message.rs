@@ -439,31 +439,17 @@ impl MessageModel {
     }
 
     #[allow(clippy::type_complexity)]
-    pub fn handle_fetch_all_messages(
-        &mut self,
-        messages: Vec<(
-            orm::Message,
-            Option<orm::Recipient>,
-            Vec<orm::Attachment>,
-            Vec<(orm::Receipt, orm::Recipient)>,
-        )>,
-    ) {
+    pub fn handle_fetch_all_messages(&mut self, messages: Vec<orm::AugmentedMessage>) {
         log::trace!(
             "handle_fetch_all_messages({}) count {}",
-            messages[0].0.session_id,
+            // XXX What if no messages?
+            messages[0].session_id,
             messages.len()
         );
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
 
-        self.messages.extend(messages.into_iter().map(
-            |(message, sender, attachments, receipts)| AugmentedMessage {
-                inner: message,
-                sender,
-                attachments,
-                receipts,
-            },
-        ));
+        self.messages.extend(messages);
 
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }

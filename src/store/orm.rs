@@ -17,7 +17,7 @@ pub struct GroupV1Member {
     pub member_since: Option<NaiveDateTime>,
 }
 
-#[derive(Queryable, Debug, Clone)]
+#[derive(Queryable, Debug, Clone, PartialEq, Eq)]
 pub struct Message {
     pub id: i32,
     pub session_id: i32,
