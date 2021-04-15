@@ -17,7 +17,7 @@ pub struct GroupV1Member {
     pub member_since: Option<NaiveDateTime>,
 }
 
-#[derive(Queryable, Debug, Clone)]
+#[derive(Queryable, Debug, Clone, PartialEq, Eq)]
 pub struct Message {
     pub id: i32,
     pub session_id: i32,
@@ -272,5 +272,77 @@ impl SessionType {
             Self::GroupV1(g) => g,
             _ => unreachable!(),
         }
+    }
+}
+
+// Some extras
+
+/// [`Message`] augmented with its sender, attachments and receipts.
+pub struct AugmentedMessage {
+    pub inner: Message,
+    pub sender: Option<Recipient>,
+    pub attachments: Vec<Attachment>,
+    pub receipts: Vec<(Receipt, Recipient)>,
+}
+
+impl std::ops::Deref for AugmentedMessage {
+    type Target = Message;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl AugmentedMessage {
+    pub fn source(&self) -> &str {
+        if let Some(sender) = &self.sender {
+            sender.e164_or_uuid()
+        } else {
+            ""
+        }
+    }
+
+    pub fn sent(&self) -> bool {
+        self.inner.sent_timestamp.is_some()
+    }
+
+    pub fn delivered(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.delivered.is_some())
+            .count() as _
+    }
+
+    pub fn read(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.read.is_some())
+            .count() as _
+    }
+
+    pub fn viewed(&self) -> u32 {
+        self.receipts
+            .iter()
+            .filter(|(r, _)| r.viewed.is_some())
+            .count() as _
+    }
+
+    pub fn attachments(&self) -> u32 {
+        self.attachments.len() as _
+    }
+
+    pub fn first_attachment(&self) -> &str {
+        if self.attachments.is_empty() {
+            return "";
+        }
+
+        self.attachments[0].attachment_path.as_deref().unwrap_or("")
+    }
+
+    pub fn first_attachment_mime_type(&self) -> &str {
+        if self.attachments.is_empty() {
+            return "";
+        }
+        &self.attachments[0].content_type
     }
 }

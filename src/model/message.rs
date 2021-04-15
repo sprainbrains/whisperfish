@@ -5,82 +5,13 @@ use std::process::Command;
 
 use crate::actor;
 use crate::model::*;
-use crate::store::orm;
+use crate::store::orm::{self, AugmentedMessage};
 use crate::worker::{ClientActor, SendMessage};
 
 use actix::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
 use qmetaobject::*;
-
-struct AugmentedMessage {
-    inner: orm::Message,
-    sender: Option<orm::Recipient>,
-    attachments: Vec<orm::Attachment>,
-    receipts: Vec<(orm::Receipt, orm::Recipient)>,
-}
-
-impl std::ops::Deref for AugmentedMessage {
-    type Target = orm::Message;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl AugmentedMessage {
-    pub fn source(&self) -> &str {
-        if let Some(sender) = &self.sender {
-            sender.e164_or_uuid()
-        } else {
-            ""
-        }
-    }
-
-    pub fn sent(&self) -> bool {
-        self.inner.sent_timestamp.is_some()
-    }
-
-    fn delivered(&self) -> u32 {
-        self.receipts
-            .iter()
-            .filter(|(r, _)| r.delivered.is_some())
-            .count() as _
-    }
-
-    fn read(&self) -> u32 {
-        self.receipts
-            .iter()
-            .filter(|(r, _)| r.read.is_some())
-            .count() as _
-    }
-
-    fn viewed(&self) -> u32 {
-        self.receipts
-            .iter()
-            .filter(|(r, _)| r.viewed.is_some())
-            .count() as _
-    }
-
-    pub fn attachments(&self) -> u32 {
-        self.attachments.len() as _
-    }
-
-    pub fn first_attachment(&self) -> &str {
-        if self.attachments.is_empty() {
-            return "";
-        }
-
-        self.attachments[0].attachment_path.as_deref().unwrap_or("")
-    }
-
-    pub fn first_attachment_mime_type(&self) -> &str {
-        if self.attachments.is_empty() {
-            return "";
-        }
-        &self.attachments[0].content_type
-    }
-}
 
 define_model_roles! {
     enum MessageRoles for AugmentedMessage {
@@ -508,31 +439,17 @@ impl MessageModel {
     }
 
     #[allow(clippy::type_complexity)]
-    pub fn handle_fetch_all_messages(
-        &mut self,
-        messages: Vec<(
-            orm::Message,
-            Option<orm::Recipient>,
-            Vec<orm::Attachment>,
-            Vec<(orm::Receipt, orm::Recipient)>,
-        )>,
-    ) {
+    pub fn handle_fetch_all_messages(&mut self, messages: Vec<orm::AugmentedMessage>) {
         log::trace!(
             "handle_fetch_all_messages({}) count {}",
-            messages[0].0.session_id,
+            // XXX What if no messages?
+            messages[0].session_id,
             messages.len()
         );
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
 
-        self.messages.extend(messages.into_iter().map(
-            |(message, sender, attachments, receipts)| AugmentedMessage {
-                inner: message,
-                sender,
-                attachments,
-                receipts,
-            },
-        ));
+        self.messages.extend(messages);
 
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }

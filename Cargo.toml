@@ -7,7 +7,9 @@ build = "build.rs"
 license = "AGPL-3.0-or-later"
 description = "Private messaging using Signal for SailfishOS."
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bench]]
+name = "storage"
+harness = false
 
 [dependencies]
 actix = "0.11.0-beta"
@@ -73,6 +75,7 @@ version_check = "0.9"
 [dev-dependencies]
 # Git version for async tests. 0.6.5 will contain this feature,
 # so revert to crates.io on release
+criterion = "0.3"
 rstest = { version = "0.6.5", git = "https://github.com/la10736/rstest" }
 rstest_reuse = { version = "0.1.0" }
 

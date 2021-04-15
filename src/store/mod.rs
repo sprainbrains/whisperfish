@@ -11,6 +11,7 @@ use crate::settings::SignalConfig;
 use chrono::prelude::*;
 use diesel::debug_query;
 use diesel::prelude::*;
+use itertools::Itertools;
 
 use futures::io::AsyncRead;
 
@@ -1609,6 +1610,81 @@ impl Storage {
             .order_by(schema::messages::columns::id.desc())
             .load(&*db)
             .expect("database")
+    }
+
+    /// Returns a vector of tuples of messages with their sender.
+    ///
+    /// When the sender is None, it is a sent message, not a received message.
+    // XXX maybe this should be `Option<Vec<...>>`.
+    pub fn fetch_all_messages_augmented(&self, sid: i32) -> Vec<orm::AugmentedMessage> {
+        let db = self.db.lock();
+
+        // XXX double/aliased-join would be very useful.
+        // Our strategy is to fetch as much as possible, and to augment with as few additional
+        // queries as possible. We chose to not join `sender`, and instead use a loop for that
+        // part.
+        log::trace!("Called fetch_all_messages_augmented({})", sid);
+        let messages = self.fetch_all_messages(sid);
+
+        let attachments: Vec<orm::Attachment> = schema::attachments::table
+            .select(schema::attachments::all_columns)
+            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
+            .filter(schema::sessions::id.eq(sid))
+            .order_by(schema::attachments::message_id.desc())
+            .load(&*db)
+            .expect("db");
+
+        let receipts: Vec<(orm::Receipt, orm::Recipient)> = schema::receipts::table
+            .inner_join(schema::recipients::table)
+            .select((
+                schema::receipts::all_columns,
+                schema::recipients::all_columns,
+            ))
+            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
+            .filter(schema::sessions::id.eq(sid))
+            .order_by(schema::receipts::message_id.desc())
+            .load(&*db)
+            .expect("db");
+
+        let attachments = attachments
+            .into_iter()
+            .group_by(|attachment| attachment.message_id);
+        let mut attachments = attachments.into_iter().peekable();
+        let receipts = receipts
+            .into_iter()
+            .group_by(|(receipt, _recipient)| receipt.message_id);
+        let mut receipts = receipts.into_iter().peekable();
+
+        let mut aug_messages = Vec::with_capacity(messages.len());
+        for (message, sender) in messages {
+            let attachments = if attachments
+                .peek()
+                .map(|(id, _)| *id == message.id)
+                .unwrap_or(false)
+            {
+                let (_, attachments) = attachments.next().unwrap();
+                attachments.collect_vec()
+            } else {
+                vec![]
+            };
+            let receipts = if receipts
+                .peek()
+                .map(|(id, _)| *id == message.id)
+                .unwrap_or(false)
+            {
+                let (_, receipts) = receipts.next().unwrap();
+                receipts.collect_vec()
+            } else {
+                vec![]
+            };
+            aug_messages.push(orm::AugmentedMessage {
+                inner: message,
+                sender,
+                attachments,
+                receipts,
+            });
+        }
+        aug_messages
     }
 
     pub fn delete_message(&self, id: i32) -> Option<usize> {
