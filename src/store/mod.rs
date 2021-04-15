@@ -1625,17 +1625,23 @@ impl Storage {
         // part.
         log::trace!("Called fetch_all_messages_augmented({})", sid);
         let messages = self.fetch_all_messages(sid);
-        let message_ids: Vec<i32> = messages.iter().map(|(m, _r)| m.id).collect();
 
         let attachments: Vec<orm::Attachment> = schema::attachments::table
-            .filter(schema::attachments::message_id.eq_any(&message_ids))
+            .select(schema::attachments::all_columns)
+            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
+            .filter(schema::sessions::id.eq(sid))
             .order_by(schema::attachments::message_id.desc())
             .load(&*db)
             .expect("db");
 
         let receipts: Vec<(orm::Receipt, orm::Recipient)> = schema::receipts::table
             .inner_join(schema::recipients::table)
-            .filter(schema::receipts::message_id.eq_any(&message_ids))
+            .select((
+                schema::receipts::all_columns,
+                schema::recipients::all_columns,
+            ))
+            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
+            .filter(schema::sessions::id.eq(sid))
             .order_by(schema::receipts::message_id.desc())
             .load(&*db)
             .expect("db");
