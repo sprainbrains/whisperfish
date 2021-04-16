@@ -9,18 +9,15 @@ pub struct WhoAmI;
 impl Handler<WhoAmI> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
     fn handle(&mut self, _: WhoAmI, _ctx: &mut Self::Context) -> Self::Result {
-        let storage = self.storage.clone().unwrap();
-        let cfg = storage.read_config().expect("read config");
-
         let mut service = self.authenticated_service();
+        let config = std::sync::Arc::clone(&self.config);
+        let config2 = std::sync::Arc::clone(&self.config);
 
         Box::pin(
             async move {
-                if let Some(uuid) = cfg.uuid {
-                    if !uuid.trim().is_empty() {
-                        log::trace!("UUID is already set: {}", uuid);
-                        return Ok(None);
-                    }
+                if !config.get_uuid_clone().is_empty() {
+                    log::trace!("UUID is already set: {}", config.get_uuid_clone());
+                    return Ok(None);
                 }
 
                 let response = service.whoami().await?;
@@ -47,9 +44,8 @@ impl Handler<WhoAmI> for ClientActor {
 
                 if let Some(credentials) = act.credentials.as_mut() {
                     credentials.uuid = Some(uuid);
-                    let mut cfg = storage.read_config().expect("read config");
-                    cfg.uuid = Some(uuid.to_string());
-                    storage.write_config(cfg).expect("write config");
+                    config2.set_uuid(uuid.to_string());
+                    config2.write_to_file().expect("write config");
                 } else {
                     log::error!("Credentials was none while setting UUID");
                 }

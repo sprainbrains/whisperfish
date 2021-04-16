@@ -83,12 +83,8 @@ impl Actor for MessageActor {
 impl Handler<StorageReady> for MessageActor {
     type Result = ();
 
-    fn handle(
-        &mut self,
-        StorageReady(storage, _config): StorageReady,
-        _ctx: &mut Self::Context,
-    ) -> Self::Result {
-        self.storage = Some(storage);
+    fn handle(&mut self, storageready: StorageReady, _ctx: &mut Self::Context) -> Self::Result {
+        self.storage = Some(storageready.storage);
         log::trace!("MessageActor has a registered storage");
     }
 }

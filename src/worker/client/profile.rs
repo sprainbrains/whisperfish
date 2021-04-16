@@ -35,10 +35,11 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
             DEFAULT_DEVICE_ID,
         );
         let local_addr = self.local_addr.clone().unwrap();
+        let config = self.config.clone();
 
         Box::pin(async move {
             let self_recipient = storage
-                .fetch_self_recipient()
+                .fetch_self_recipient(&config)
                 .expect("self recipient should be set by now");
 
             use libsignal_service::sender::ContactDetails;
@@ -69,11 +70,13 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
         let service = self.authenticated_service();
         let context = libsignal_protocol::Context::default();
         let client = ctx.address();
+        let config = self.config.clone();
+        let uuid = config.get_uuid_clone();
+        let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
 
         Box::pin(async move {
-            let uuid = storage.self_uuid().expect("self uuid");
             let self_recipient = storage
-                .fetch_self_recipient()
+                .fetch_self_recipient(&config)
                 .expect("self recipient should be set by now");
             if let Some(key) = self_recipient.profile_key {
                 log::trace!(
@@ -111,9 +114,12 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
         let registration_id = storage.protocol_store.lock().unwrap().regid;
         let service = self.authenticated_service();
         let context = libsignal_protocol::Context::default();
+        let config = self.config.clone();
 
         Box::pin(async move {
-            let self_recipient = storage.fetch_self_recipient().expect("self set by now");
+            let self_recipient = storage
+                .fetch_self_recipient(&config)
+                .expect("self set by now");
 
             let mut am = AccountManager::new(context, service, self_recipient.profile_key());
             am.set_account_attributes(

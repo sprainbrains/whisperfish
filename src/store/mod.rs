@@ -5,9 +5,8 @@ use std::sync::{Arc, Mutex};
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use parking_lot::ReentrantMutex;
 
-use crate::millis_to_naive_chrono;
 use crate::schema;
-use crate::settings::SignalConfig;
+use crate::{config::SignalConfig, millis_to_naive_chrono};
 
 use chrono::prelude::*;
 use diesel::debug_query;
@@ -476,19 +475,6 @@ impl Storage {
         &self.path
     }
 
-    pub fn read_config(&self) -> Result<SignalConfig, Error> {
-        let signal_config_file = crate::conf_dir().join("config.yml");
-        let file = std::fs::File::open(&signal_config_file)?;
-        Ok(serde_yaml::from_reader(file)?)
-    }
-
-    pub fn write_config(&self, cfg: SignalConfig) -> Result<(), Error> {
-        let signal_config_file = crate::conf_dir().join("config.yml");
-        let file = std::fs::File::create(signal_config_file)?;
-        serde_yaml::to_writer(file, &cfg)?;
-        Ok(())
-    }
-
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), Error> {
         let root = root.as_ref();
 
@@ -718,29 +704,22 @@ impl Storage {
         (message, session)
     }
 
-    pub fn self_uuid(&self) -> Option<uuid::Uuid> {
-        let cfg = self.read_config().expect("config");
-        let uuid_str = if let Some(uuid) = cfg.uuid.as_deref() {
-            uuid
-        } else {
-            log::warn!("No uuid set.");
-            return None;
-        };
-
-        Some(uuid::Uuid::parse_str(uuid_str).expect("parsable self uuid"))
-    }
-
-    pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
-        let cfg = self.read_config().expect("config");
-        let e164 = if let Some(e164) = cfg.tel.as_deref() {
-            e164
-        } else {
+    pub fn fetch_self_recipient(&self, cfg: &SignalConfig) -> Option<orm::Recipient> {
+        let e164 = cfg.get_tel_clone();
+        let uuid = cfg.get_uuid_clone();
+        let e164 = if e164.is_empty() {
             log::warn!("No e164 set, cannot fetch self.");
             return None;
+        } else {
+            Some(e164.as_str())
         };
-        let uuid = self.self_uuid();
-        let uuid = uuid.map(|x| x.to_string());
-        Some(self.merge_and_fetch_recipient(Some(e164), uuid.as_deref(), TrustLevel::Certain))
+        let uuid = if uuid.is_empty() {
+            log::warn!("No uuid set. Continuing with only e164");
+            None
+        } else {
+            Some(uuid.as_str())
+        };
+        Some(self.merge_and_fetch_recipient(e164, uuid, TrustLevel::Certain))
     }
 
     pub fn fetch_recipient_by_e164(&self, new_e164: &str) -> Option<orm::Recipient> {

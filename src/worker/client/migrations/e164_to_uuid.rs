@@ -12,6 +12,7 @@ impl Handler<E164ToUuid> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: E164ToUuid, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
+        let config = std::sync::Arc::clone(&self.config);
 
         // Stuff to migrate:
         // 1. The session with yourself.
@@ -19,14 +20,10 @@ impl Handler<E164ToUuid> for ClientActor {
         // 2. The identities with all e164-known recipients.
 
         Box::pin(async move {
-            let cfg = storage.read_config().expect("read config");
-            let _our_uuid = match cfg.uuid {
-                Some(uuid) if !uuid.trim().is_empty() => uuid,
-                _ => {
-                    log::error!("We don't have our own UUID yet. Let's retry at the next start.");
-                    return;
-                }
-            };
+            if config.get_uuid_clone().is_empty() {
+                log::error!("We don't have our own UUID yet. Let's retry at the next start.");
+                return;
+            }
 
             let recipients = storage.fetch_recipients();
             for recipient in recipients {

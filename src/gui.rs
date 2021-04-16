@@ -11,19 +11,16 @@ use std::{
 
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
-use crate::{
-    actor, model,
-    settings::{Settings, SignalConfig},
-    sfos::SailfishApp,
-    worker,
-};
+use crate::{actor, config::Settings, model, sfos::SailfishApp, worker};
 
 use actix::prelude::*;
 use qmetaobject::*;
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
-pub struct StorageReady(pub Storage, pub SignalConfig);
+pub struct StorageReady {
+    pub storage: crate::store::Storage,
+}
 
 #[derive(QObject)]
 #[allow(non_snake_case)]
@@ -161,8 +158,7 @@ pub struct WhisperfishApp {
 impl WhisperfishApp {
     pub async fn storage_ready(&self) {
         let storage = self.storage.borrow().as_ref().unwrap().clone();
-        let config = self.setup_worker.pinned().borrow().config.clone().unwrap();
-        let msg = StorageReady(storage, config);
+        let msg = StorageReady { storage };
 
         futures::join! {
             async {
@@ -204,7 +200,10 @@ fn long_version() -> String {
 }
 
 #[cfg(feature = "sailfish")]
-pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
+pub async fn run(config: crate::config::SignalConfig) -> Result<(), failure::Error> {
+    // XXX this arc thing should be removed in the future and refactored
+    let config = std::sync::Arc::new(config);
+
     let mut app = SailfishApp::application("harbour-whisperfish".into());
     let long_version: QString = long_version().into();
     log::info!("SailfishApp::application loaded - version {}", long_version);
@@ -215,7 +214,12 @@ pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
 
     // XXX Spaghetti
     let session_actor = actor::SessionActor::new(&mut app).start();
-    let client_actor = worker::ClientActor::new(&mut app, session_actor.clone())?.start();
+    let client_actor = worker::ClientActor::new(
+        &mut app,
+        session_actor.clone(),
+        std::sync::Arc::clone(&config),
+    )?
+    .start();
     let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
     let whisperfish = Rc::new(WhisperfishApp {
@@ -234,7 +238,10 @@ pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
         storage: RefCell::new(None),
     });
 
-    actix::spawn(worker::SetupWorker::run(whisperfish.clone()));
+    actix::spawn(worker::SetupWorker::run(
+        whisperfish.clone(),
+        std::sync::Arc::clone(&config),
+    ));
 
     app.set_property("AppVersion".into(), version.into());
     app.set_property("LongAppVersion".into(), long_version.into());
@@ -251,7 +258,7 @@ pub async fn run(is_autostart: bool) -> Result<(), failure::Error> {
 
     app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
 
-    if is_autostart
+    if config.autostart
         && !whisperfish
             .settings
             .pinned()

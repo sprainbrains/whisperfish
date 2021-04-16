@@ -36,6 +36,8 @@ qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-
 cstr = "0.2.0"
 cpp = "0.5"
 dirs = "3.0"
+# XXX failure is depreceted, move to anyhow!
+#anyhow = "1.0"
 failure = "0.1.6"
 thiserror = "1"
 libsignal-protocol = { git = "https://github.com/Michael-F-Bryan/libsignal-protocol-rs" }
