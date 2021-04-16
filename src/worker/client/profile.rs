@@ -27,13 +27,37 @@ pub struct RefreshProfileAttributes;
 impl Handler<MultideviceSyncProfile> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: MultideviceSyncProfile, _ctx: &mut Self::Context) -> Self::Result {
-        let _storage = self.storage.clone().unwrap();
-        let _cfg = _storage.read_config().expect("read config");
-        let _service = self.authenticated_service();
-        let _context = libsignal_protocol::Context::default();
+        let storage = self.storage.clone().unwrap();
+
+        let mut sender = MessageSender::new(
+            self.authenticated_service(),
+            self.cipher.clone().unwrap(),
+            DEFAULT_DEVICE_ID,
+        );
+        let local_addr = self.local_addr.clone().unwrap();
 
         Box::pin(async move {
-            // STUB
+            let self_recipient = storage
+                .fetch_self_recipient()
+                .expect("self recipient should be set by now");
+
+            use libsignal_service::sender::ContactDetails;
+
+            let contacts = std::iter::once(ContactDetails {
+                number: self_recipient.e164.clone(),
+                uuid: self_recipient.uuid.clone(),
+                name: self_recipient.profile_joined_name.clone(),
+                profile_key: self_recipient.profile_key,
+                // XXX other profile stuff
+                ..Default::default()
+            });
+
+            if let Err(e) = sender
+                .send_contact_details(&local_addr, None, contacts, false, false)
+                .await
+            {
+                log::warn!("Could not sync profile key: {}", e);
+            }
         })
     }
 }
@@ -74,8 +98,8 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
                 TrustLevel::Certain,
             );
 
-            client.send(MultideviceSyncProfile).await.unwrap();
             client.send(RefreshProfileAttributes).await.unwrap();
+            client.send(MultideviceSyncProfile).await.unwrap();
         })
     }
 }
