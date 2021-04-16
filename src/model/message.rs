@@ -45,7 +45,7 @@ pub struct MessageModel {
     pub client_actor: Option<Addr<ClientActor>>,
 
     messages: Vec<AugmentedMessage>,
-    group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+    group_members: Vec<orm::Recipient>,
 
     sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
 
@@ -57,6 +57,8 @@ pub struct MessageModel {
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
     groupId: qt_property!(QString; NOTIFY groupChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
+    groupV1: qt_property!(bool; NOTIFY groupChanged),
+    groupV2: qt_property!(bool; NOTIFY groupChanged),
 
     peerIdentityChanged: qt_signal!(),
     peerChanged: qt_signal!(),
@@ -127,12 +129,11 @@ impl MessageModel {
         &mut self,
         group_id: QString,
         message: QString,
-        group_name: QString,
+        _group_name: QString,
         attachment: QString,
         _add: bool,
     ) -> i32 {
         let group_id = group_id.to_string();
-        let group_name = group_name.to_string();
         let message = message.to_string();
         let attachment = attachment.to_string();
 
@@ -140,11 +141,19 @@ impl MessageModel {
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::QueueGroupMessage {
-                    group_id,
-                    group_name,
-                    message,
-                    attachment,
+                // XXX hackermannnnnn
+                .send(match group_id.len() {
+                    32 => actor::QueueGroupMessage::GroupV1Message {
+                        group_id,
+                        message,
+                        attachment,
+                    },
+                    64 => actor::QueueGroupMessage::GroupV2Message {
+                        group_id,
+                        message,
+                        attachment,
+                    },
+                    _ => unreachable!("Illegal group ID"),
                 })
                 .map(Result::unwrap),
         );
@@ -362,7 +371,7 @@ impl MessageModel {
     pub fn handle_fetch_session(
         &mut self,
         sess: orm::Session,
-        group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+        group_members: Vec<orm::Recipient>,
         peer_identity: String,
     ) {
         log::trace!("handle_fetch_session({})", sess.id);
@@ -379,19 +388,43 @@ impl MessageModel {
                 self.peerChanged();
 
                 self.group = true;
+                self.groupV1 = true;
+                self.groupV2 = false;
                 self.groupId = QString::from(group.id);
                 self.groupChanged();
 
                 self.groupMembers = QString::from(
                     self.group_members
                         .iter()
-                        .map(|(_, r)| r.e164_or_uuid())
+                        .map(|r| r.e164_or_uuid())
+                        .join(","),
+                );
+                self.groupMembersChanged();
+            }
+            orm::SessionType::GroupV2(group) => {
+                self.peerTel = QString::from("");
+                self.peerUuid = QString::from("");
+                self.peerName = QString::from(group.name.deref());
+                self.peerChanged();
+
+                self.group = true;
+                self.groupV1 = false;
+                self.groupV2 = true;
+                self.groupId = QString::from(group.id);
+                self.groupChanged();
+
+                self.groupMembers = QString::from(
+                    self.group_members
+                        .iter()
+                        .map(|r| r.e164_or_uuid())
                         .join(","),
                 );
                 self.groupMembersChanged();
             }
             orm::SessionType::DirectMessage(recipient) => {
                 self.group = false;
+                self.groupV1 = false;
+                self.groupV2 = false;
                 self.groupId = QString::from("");
                 self.groupChanged();
 

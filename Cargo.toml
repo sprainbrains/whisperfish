@@ -12,6 +12,7 @@ name = "storage"
 harness = false
 
 [dependencies]
+bincode = "1.2.1"
 actix = "0.11.0-beta"
 rand = "0.8"
 aes = "0.6.0"
@@ -40,6 +41,7 @@ thiserror = "1"
 libsignal-protocol = { git = "https://github.com/Michael-F-Bryan/libsignal-protocol-rs" }
 libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
+zkgroup = { git = "https://github.com/signalapp/zkgroup" }
 log = "0.4.8"
 env_logger = "0.8"
 scrypt = { version = "0.6", default-features = false, features=["std"] }
@@ -129,6 +131,10 @@ whisperfish-migration-dry-run = { path = "/usr/bin/whisperfish-migration-dry-run
 [features]
 sailfish = []
 harbour = []
+
+[patch."https://github.com/signalapp/zkgroup"]
+zkgroup = { git = "https://gitlab.com/rubdos/zkgroup-whisperfish", branch = "whisperfork" }
+
 #
 # [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
 # libsignal-service = { path = "/var/run/user/1000/gvfs/sftp:host=nas.rubdos.be/home/rsmet/src/libsignal-service-rs/libsignal-service" }

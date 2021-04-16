@@ -149,8 +149,13 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .select(count(id))
             .filter(uuid.is_not_null())
             .first(db)?;
+        let profile_key_count: i64 = recipients
+            .select(count(id))
+            .filter(profile_key.is_not_null())
+            .first(db)?;
         println!("├ of which have a phone number: {}", e164_count);
-        println!("└ of which have a uuid: {}", uuid_count);
+        println!("├ of which have a uuid: {}", uuid_count);
+        println!("└ of which have a profile key: {}", profile_key_count);
     }
     {
         use schema::sessions::dsl::*;
@@ -159,12 +164,17 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .select(count(id))
             .filter(group_v1_id.is_not_null())
             .first(db)?;
+        let group_v2_session_count: i64 = sessions
+            .select(count(id))
+            .filter(group_v2_id.is_not_null())
+            .first(db)?;
         let dm_session_count: i64 = sessions
             .select(count(id))
             .filter(direct_message_recipient_id.is_not_null())
             .first(db)?;
         println!("Session count: {}", session_count);
         println!("├ of which group v1: {}", group_v1_session_count);
+        println!("├ of which group v2: {}", group_v2_session_count);
         println!("└ of which direct sessions: {}", dm_session_count);
     }
 
@@ -194,6 +204,32 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
             .left_join(schema::sessions::table)
             .select(count(id))
             .filter(schema::sessions::group_v1_id.is_not_null())
+            .filter(is_outbound.eq(false))
+            .first(db)?;
+
+        let group_v2_message_count: i64 = messages
+            .left_join(schema::sessions::table)
+            .select(count(id))
+            .filter(schema::sessions::group_v2_id.is_not_null())
+            .first(db)?;
+        let group_v2_sent_count: i64 = messages
+            .left_join(schema::sessions::table)
+            .select(count(id))
+            .filter(schema::sessions::group_v2_id.is_not_null())
+            .filter(is_outbound)
+            .first(db)?;
+        let group_v2_receipt_count: i64 = messages
+            .left_join(schema::sessions::table)
+            .inner_join(schema::receipts::table)
+            .select(count(id))
+            .filter(schema::sessions::group_v2_id.is_not_null())
+            .filter(is_outbound)
+            .filter(schema::receipts::delivered.is_not_null())
+            .first(db)?;
+        let group_v2_received_count: i64 = messages
+            .left_join(schema::sessions::table)
+            .select(count(id))
+            .filter(schema::sessions::group_v2_id.is_not_null())
             .filter(is_outbound.eq(false))
             .first(db)?;
 
@@ -234,6 +270,10 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
         println!("│ ├ of which you sent: {}", group_v1_sent_count);
         println!("│ │ └ of which have a receipt: {}", group_v1_receipt_count);
         println!("│ └ of which you received: {}", group_v1_received_count);
+        println!("├ of which group v2 messages: {}", group_v2_message_count);
+        println!("│ ├ of which you sent: {}", group_v2_sent_count);
+        println!("│ │ └ of which have a receipt: {}", group_v2_receipt_count);
+        println!("│ └ of which you received: {}", group_v2_received_count);
         println!("├ of which direct messages: {}", direct_message_count);
         println!("│ ├ of which you sent: {}", direct_sent_count);
         println!("│ │ └ of which have a receipt: {}", direct_receipt_count);
@@ -303,7 +343,8 @@ fn main() -> Result<(), failure::Error> {
     println!("Here above, the dry run should have produced at least two sets of statistics of your data.");
     println!("These should give a decent indication to whether some data has been lost. Please report a bug if so.");
 
-    let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA foreign_key_check;")
+    db.execute("PRAGMA foreign_keys = ON;").unwrap();
+    let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA main.foreign_key_check;")
         .load(&db)
         .unwrap();
 

@@ -2,6 +2,7 @@ use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use parking_lot::ReentrantMutex;
 
 use crate::millis_to_naive_chrono;
@@ -16,6 +17,7 @@ use itertools::Itertools;
 use futures::io::AsyncRead;
 
 use failure::*;
+use zkgroup::api::groups::GroupSecretParams;
 
 mod protocol_store;
 use protocol_store::ProtocolStore;
@@ -31,7 +33,7 @@ no_arg_sql_function!(
 );
 
 /// How much trust you put into the correctness of the data.
-#[derive(Clone, Eq, Debug, PartialEq)]
+#[derive(Clone, Copy, Eq, Debug, PartialEq)]
 pub enum TrustLevel {
     /// Set to Certain if the supplied information is from a trusted source,
     /// such as an envelope.
@@ -93,14 +95,48 @@ pub struct NewMessage {
     pub outgoing: bool,
 }
 
+#[derive(Clone, Debug)]
+#[allow(clippy::large_enum_variant)]
+pub enum GroupContext {
+    GroupV1(GroupV1),
+    GroupV2(GroupV2),
+}
+
+impl From<GroupV1> for GroupContext {
+    fn from(v1: GroupV1) -> GroupContext {
+        GroupContext::GroupV1(v1)
+    }
+}
+
+impl From<GroupV2> for GroupContext {
+    fn from(v2: GroupV2) -> GroupContext {
+        GroupContext::GroupV2(v2)
+    }
+}
+
 /// ID-free Group model for insertions
 #[derive(Clone, Debug)]
-pub struct NewGroupV1<'a> {
-    pub id: &'a [u8],
+pub struct GroupV1 {
+    pub id: Vec<u8>,
     /// Group name
     pub name: String,
     /// List of E164
     pub members: Vec<String>,
+}
+
+#[derive(Clone)]
+pub struct GroupV2 {
+    pub secret: GroupSecretParams,
+    pub revision: u32,
+}
+
+impl std::fmt::Debug for GroupV2 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GroupV2")
+            .field("id", &self.secret.get_group_identifier())
+            .field("revision", &self.revision)
+            .finish()
+    }
 }
 
 /// Saves a given attachment into a random-generated path. Returns the path.
@@ -205,7 +241,8 @@ pub struct Storage {
     pub db: Arc<AssertUnwindSafe<ReentrantMutex<SqliteConnection>>>,
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
-    protocol_store: Arc<Mutex<ProtocolStore>>,
+    pub(crate) protocol_store: Arc<Mutex<ProtocolStore>>,
+    credential_cache: Arc<Mutex<InMemoryCredentialsCache>>,
     path: PathBuf,
 }
 
@@ -400,11 +437,16 @@ macro_rules! fetch_session {
         let query = {
             let $fragment = schema::sessions::table
                 .left_join(schema::recipients::table)
-                .left_join(schema::group_v1s::table);
+                .left_join(schema::group_v1s::table)
+                .left_join(schema::group_v2s::table);
             $b
         };
-        let triple: Option<(orm::DbSession, Option<orm::Recipient>, Option<orm::GroupV1>)> =
-            query.first(&*db).ok();
+        let triple: Option<(
+            orm::DbSession,
+            Option<orm::Recipient>,
+            Option<orm::GroupV1>,
+            Option<orm::GroupV2>,
+        )> = query.first(&*db).ok();
         triple.map(Into::into)
     }};
 }
@@ -414,11 +456,16 @@ macro_rules! fetch_sessions {
         let query = {
             let $fragment = schema::sessions::table
                 .left_join(schema::recipients::table)
-                .left_join(schema::group_v1s::table);
+                .left_join(schema::group_v1s::table)
+                .left_join(schema::group_v2s::table);
             $b
         };
-        let triples: Vec<(orm::DbSession, Option<orm::Recipient>, Option<orm::GroupV1>)> =
-            query.load(&*db).unwrap();
+        let triples: Vec<(
+            orm::DbSession,
+            Option<orm::Recipient>,
+            Option<orm::GroupV1>,
+            Option<orm::GroupV2>,
+        )> = query.load(&*db).unwrap();
         triples.into_iter().map(orm::Session::from).collect()
     }};
 }
@@ -537,6 +584,7 @@ impl Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             keys,
             protocol_store: Arc::new(Mutex::new(protocol_store)),
+            credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
             path: path.to_path_buf(),
         })
     }
@@ -563,6 +611,7 @@ impl Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             keys,
             protocol_store: Arc::new(Mutex::new(protocol_store)),
+            credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
             path: path.to_path_buf(),
         })
     }
@@ -594,8 +643,22 @@ impl Storage {
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
 
-        // Run migrations
-        embedded_migrations::run(&db)?;
+        // Run migrations.
+        // We execute the transactions without foreign key checking enabled.
+        // This is because foreign_keys=OFF implies that foreign key references are
+        // not renamed when their parent table is renamed on *old SQLite version*.
+        // https://stackoverflow.com/questions/67006159/how-to-re-parent-a-table-foreign-key-in-sqlite-after-recreating-the-parent
+        // We can very probably do normal foreign_key checking again when we are on a more recent
+        // SQLite.
+        // That said, our check_foreign_keys() does output more useful information for when things
+        // go haywire, albeit a bit later.
+        db.execute("PRAGMA foreign_keys = OFF;").unwrap();
+        db.transaction(|| -> Result<(), failure::Error> {
+            embedded_migrations::run(&db)?;
+            crate::check_foreign_keys(&db)?;
+            Ok(())
+        })?;
+        db.execute("PRAGMA foreign_keys = ON;").unwrap();
 
         Ok(db)
     }
@@ -639,22 +702,45 @@ impl Storage {
     pub fn process_message(
         &self,
         mut new_message: NewMessage,
-        group: Option<NewGroupV1<'_>>,
+        session: Option<orm::Session>,
     ) -> (orm::Message, orm::Session) {
-        let session = if let Some(group) = group.as_ref() {
-            self.fetch_or_insert_session_by_group_v1(group)
-        } else {
+        let session = session.unwrap_or_else(|| {
             let recipient = self.merge_and_fetch_recipient(
                 new_message.source_e164.as_deref(),
                 new_message.source_uuid.as_deref(),
                 TrustLevel::Certain,
             );
             self.fetch_or_insert_session_by_recipient_id(recipient.id)
-        };
+        });
 
         new_message.session_id = Some(session.id);
         let message = self.create_message(&new_message);
         (message, session)
+    }
+
+    pub fn self_uuid(&self) -> Option<uuid::Uuid> {
+        let cfg = self.read_config().expect("config");
+        let uuid_str = if let Some(uuid) = cfg.uuid.as_deref() {
+            uuid
+        } else {
+            log::warn!("No uuid set.");
+            return None;
+        };
+
+        Some(uuid::Uuid::parse_str(uuid_str).expect("parsable self uuid"))
+    }
+
+    pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
+        let cfg = self.read_config().expect("config");
+        let e164 = if let Some(e164) = cfg.tel.as_deref() {
+            e164
+        } else {
+            log::warn!("No e164 set, cannot fetch self.");
+            return None;
+        };
+        let uuid = self.self_uuid();
+        let uuid = uuid.map(|x| x.to_string());
+        Some(self.merge_and_fetch_recipient(Some(e164), uuid.as_deref(), TrustLevel::Certain))
     }
 
     pub fn fetch_recipient_by_e164(&self, new_e164: &str) -> Option<orm::Recipient> {
@@ -704,6 +790,39 @@ impl Storage {
             .expect("db")
             .flatten();
         by_uuid.or(by_e164)
+    }
+
+    pub fn update_profile_key(
+        &self,
+        e164: Option<&str>,
+        uuid: Option<&str>,
+        new_profile_key: &[u8],
+        trust_level: TrustLevel,
+    ) -> orm::Recipient {
+        // XXX check profile_key length
+        let recipient = self.merge_and_fetch_recipient(e164, uuid, trust_level);
+
+        let is_unset = recipient.profile_key.is_none()
+            || recipient.profile_key.as_ref().map(Vec::len) == Some(0);
+
+        if is_unset || trust_level == TrustLevel::Certain {
+            if recipient.profile_key.as_deref() == Some(new_profile_key) {
+                log::trace!("Profile key up-to-date");
+                return recipient;
+            }
+
+            use crate::schema::recipients::dsl::*;
+            let db = self.db.lock();
+            diesel::update(recipients)
+                .set(profile_key.eq(new_profile_key))
+                .filter(id.eq(recipient.id))
+                .execute(&*db)
+                .expect("existing record updated");
+            log::info!("Updated profile key for {}", recipient.e164_or_uuid());
+        }
+        // Re-fetch recipient with updated key
+        self.fetch_recipient_by_id(recipient.id)
+            .expect("fetch existing record")
     }
 
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
@@ -1327,6 +1446,31 @@ impl Storage {
             .unwrap()
     }
 
+    pub fn group_v2_exists(&self, group: &GroupV2) -> bool {
+        let group_id = group.secret.get_group_identifier();
+        let group_id_hex = hex::encode(group_id);
+
+        let db = self.db.lock();
+        let group: Option<orm::GroupV2> = schema::group_v2s::table
+            .filter(schema::group_v2s::id.eq(group_id_hex))
+            .first(&*db)
+            .optional()
+            .expect("db");
+        group.is_some()
+    }
+
+    pub fn fetch_group_members_by_group_v2_id(
+        &self,
+        id: &str,
+    ) -> Vec<(orm::GroupV2Member, orm::Recipient)> {
+        let db = self.db.lock();
+        schema::group_v2_members::table
+            .inner_join(schema::recipients::table)
+            .filter(schema::group_v2_members::group_v2_id.eq(id))
+            .load(&*db)
+            .unwrap()
+    }
+
     pub fn fetch_or_insert_session_by_e164(&self, e164: &str) -> orm::Session {
         log::trace!("Called fetch_or_insert_session_by_e164({})", e164);
         let db = self.db.lock();
@@ -1364,12 +1508,15 @@ impl Storage {
             .expect("a session has been inserted")
     }
 
-    pub fn fetch_or_insert_session_by_group_v1(&self, group: &NewGroupV1<'_>) -> orm::Session {
+    pub fn fetch_or_insert_session_by_group_v1(&self, group: &GroupV1) -> orm::Session {
         let db = self.db.lock();
 
         let group_id = hex::encode(&group.id);
 
-        log::trace!("Called fetch_or_insert_session_by_group_v1({})", group_id);
+        log::trace!(
+            "Called fetch_or_insert_session_by_group_v1({}[..])",
+            &group_id[..8]
+        );
 
         if let Some(session) = fetch_session!(self.db.lock(), |query| {
             query.filter(schema::sessions::columns::group_v1_id.eq(&group_id))
@@ -1380,6 +1527,7 @@ impl Storage {
         let new_group = orm::GroupV1 {
             id: group_id.clone(),
             name: group.name.clone(),
+            expected_v2_id: None,
         };
 
         // Group does not exist, insert first.
@@ -1411,6 +1559,123 @@ impl Storage {
 
         self.fetch_latest_session()
             .expect("a session has been inserted")
+    }
+
+    pub fn fetch_session_by_group_v1_id(&self, group_id_hex: &str) -> Option<orm::Session> {
+        if group_id_hex.len() != 32 {
+            log::warn!(
+                "Trying to fetch GV1 with ID of {} != 32 chars",
+                group_id_hex.len()
+            );
+            return None;
+        }
+        fetch_session!(self.db.lock(), |query| {
+            query.filter(schema::sessions::columns::group_v1_id.eq(&group_id_hex))
+        })
+    }
+
+    pub fn fetch_session_by_group_v2_id(&self, group_id_hex: &str) -> Option<orm::Session> {
+        if group_id_hex.len() != 64 {
+            log::warn!(
+                "Trying to fetch GV2 with ID of {} != 64 chars",
+                group_id_hex.len()
+            );
+            return None;
+        }
+        fetch_session!(self.db.lock(), |query| {
+            query.filter(schema::sessions::columns::group_v2_id.eq(&group_id_hex))
+        })
+    }
+
+    pub fn fetch_or_insert_session_by_group_v2(&self, group: &GroupV2) -> orm::Session {
+        let db = self.db.lock();
+
+        let group_id = group.secret.get_group_identifier();
+        let group_id_hex = hex::encode(group_id);
+
+        log::trace!(
+            "Called fetch_or_insert_session_by_group_v2({})",
+            group_id_hex
+        );
+
+        if let Some(session) = fetch_session!(self.db.lock(), |query| {
+            query.filter(schema::sessions::columns::group_v2_id.eq(&group_id_hex))
+        }) {
+            return session;
+        }
+
+        let master_key =
+            bincode::serialize(&group.secret.get_master_key()).expect("serialized master key");
+        let new_group = orm::GroupV2 {
+            id: group_id_hex,
+            // XXX qTr?
+            name: "New V2 group (updating)".into(),
+            master_key: hex::encode(master_key),
+            revision: 0,
+
+            invite_link_password: None,
+
+            // We don't know the ACL levels.
+            // 0 means UNKNOWN
+            access_required_for_attributes: 0,
+            access_required_for_members: 0,
+            access_required_for_add_from_invite_link: 0,
+        };
+
+        // Group does not exist, insert first.
+        diesel::insert_into(schema::group_v2s::table)
+            .values(&new_group)
+            .execute(&*db)
+            .unwrap();
+
+        // XXX somehow schedule this group for member list/name updating.
+
+        // Two things could have happened by now:
+        // - Migration: there is an existing session for a groupv1 with this V2 id.
+        // - New group
+
+        let migration_v1_session: Option<(orm::GroupV1, Option<orm::DbSession>)> =
+            schema::group_v1s::table
+                .filter(schema::group_v1s::expected_v2_id.eq(&new_group.id))
+                .left_join(schema::sessions::table)
+                .first(&*db)
+                .optional()
+                .expect("db");
+
+        use schema::sessions::dsl::*;
+        match migration_v1_session {
+            Some((_group, Some(session))) => {
+                log::info!(
+                    "Group V2 migration detected. Updating session to point to the new group."
+                );
+                // XXX this probably needs to influence the GUI too...
+                let count = diesel::update(sessions)
+                    .set((
+                        group_v1_id.eq::<Option<String>>(None),
+                        group_v2_id.eq(&new_group.id),
+                    ))
+                    .filter(id.eq(session.id))
+                    .execute(&*db)
+                    .expect("session updated");
+                // XXX consider removing the group_v1
+                assert_eq!(count, 1, "session should have been updated");
+                // Refetch session because the info therein is stale.
+                self.fetch_session_by_id(session.id)
+                    .expect("existing session")
+            }
+            Some((_group, None)) => {
+                unreachable!("Former group V1 found.  We expect the branch above to have returned a session for it.");
+            }
+            None => {
+                diesel::insert_into(sessions)
+                    .values((group_v2_id.eq(&new_group.id),))
+                    .execute(&*db)
+                    .unwrap();
+
+                self.fetch_latest_session()
+                    .expect("a session has been inserted")
+            }
+        }
     }
 
     pub fn delete_session(&self, id: i32) {
@@ -1720,6 +1985,10 @@ impl Storage {
             .get_identity(addr)?
             .ok_or_else(|| failure::format_err!("No such identity"))?;
         Ok(hex::encode_upper(ident.as_slice()))
+    }
+
+    pub fn credential_cache(&self) -> std::sync::MutexGuard<InMemoryCredentialsCache> {
+        self.credential_cache.lock().expect("mutex")
     }
 }
 

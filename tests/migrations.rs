@@ -99,10 +99,14 @@ mod original_data {
     }
 }
 
+fn assert_foreign_keys(db: &SqliteConnection) {
+    harbour_whisperfish::check_foreign_keys(db).expect("foreign keys intact");
+}
+
 #[fixture]
 fn empty_db() -> SqliteConnection {
     let conn = SqliteConnection::establish(":memory:").unwrap();
-    conn.execute("PRAGMA foreign_keys = ON;").unwrap();
+    conn.execute("PRAGMA foreign_keys = OFF;").unwrap();
 
     conn
 }
@@ -166,6 +170,7 @@ fn fixed_go_db(empty_db: SqliteConnection, mut migrations: MigrationList) -> Sql
         &mut std::io::stdout(),
     )
     .unwrap();
+    assert_foreign_keys(&empty_db);
     empty_db
 }
 
@@ -183,6 +188,7 @@ fn initial_dbs(db: SqliteConnection) {}
 #[apply(initial_dbs)]
 fn run_plain_migrations(db: SqliteConnection) {
     embedded_migrations::run(&db).unwrap();
+    assert_foreign_keys(&db);
 }
 
 #[apply(initial_dbs)]
@@ -190,6 +196,7 @@ fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
     for (migration_name, migration) in migrations {
         dbg!(migration_name);
         diesel_migrations::run_migrations(&db, vec![migration], &mut std::io::stdout()).unwrap();
+        assert_foreign_keys(&db);
     }
 
     assert!(!diesel_migrations::any_pending_migrations(&db).unwrap());
@@ -201,6 +208,7 @@ fn load_sessions(
 ) -> Vec<(
     orm::current::Session,
     Option<Vec<(orm::current::GroupV1Member, orm::current::Recipient)>>,
+    Option<Vec<(orm::current::GroupV2Member, orm::current::Recipient)>>,
 )> {
     use orm::current::*;
     use schemas::current::sessions;
@@ -215,6 +223,11 @@ fn load_sessions(
         let group = session.group_v1_id.as_ref().map(|g_id| {
             use schemas::current::group_v1s::dsl::*;
             group_v1s.filter(id.eq(g_id)).first(db).unwrap()
+        });
+
+        let group_v2 = session.group_v2_id.as_ref().map(|g_id| {
+            use schemas::current::group_v2s::dsl::*;
+            group_v2s.filter(id.eq(g_id)).first(db).unwrap()
         });
 
         let recipient = session.direct_message_recipient_id.as_ref().map(|r_id| {
@@ -232,13 +245,30 @@ fn load_sessions(
                 .unwrap()
         });
 
+        let members_v2 = session.group_v2_id.as_ref().map(|g_id| {
+            use schemas::current::group_v2_members::dsl::*;
+            use schemas::current::recipients::dsl::recipients;
+            group_v2_members
+                .inner_join(recipients)
+                .filter(group_v2_id.eq(g_id))
+                .load(db)
+                .unwrap()
+        });
+
         if let Some(group) = group.as_ref() {
             dbg!(group);
+        }
+        if let Some(group_v2) = group_v2.as_ref() {
+            dbg!(group_v2);
         }
         if let Some(recipient) = recipient.as_ref() {
             dbg!(recipient);
         }
-        result.push((Session::from((session, recipient, group)), members));
+        result.push((
+            Session::from((session, recipient, group, group_v2)),
+            members,
+            members_v2,
+        ));
     }
 
     result
@@ -299,7 +329,8 @@ fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
 
     let sessions = load_sessions(&db);
     assert_eq!(sessions.len(), session_tests.len());
-    for ((session, members), test) in sessions.into_iter().zip(&session_tests) {
+    for ((session, members, members_v2), test) in sessions.into_iter().zip(&session_tests) {
+        assert!(members_v2.is_none());
         test(session, members);
     }
 }
@@ -324,6 +355,7 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
     );
 
     embedded_migrations::run(&db).unwrap();
+    assert_foreign_keys(&db);
     assert_bunch_of_empty_sessions(db);
 }
 
@@ -333,7 +365,7 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
 
     let sessions = load_sessions(&db);
     assert_eq!(sessions.len(), 1);
-    let (session, _members) = &sessions[0];
+    let (session, _members, _members_v2) = &sessions[0];
     assert!(_members.is_none());
     let recipient = session.unwrap_dm();
     assert_eq!(recipient.e164.as_deref(), Some("+32475"));
@@ -457,6 +489,7 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
     );
 
     embedded_migrations::run(&db).unwrap();
+    assert_foreign_keys(&db);
     assert_direct_session_with_messages(db);
 }
 
@@ -465,9 +498,9 @@ fn assert_group_sessions_with_messages(db: SqliteConnection) {
 
     let sessions = load_sessions(&db);
     assert_eq!(sessions.len(), 2);
-    let (session1, _members) = &sessions[0];
+    let (session1, _members, _members_v2) = &sessions[0];
     assert!(_members.is_some());
-    let (session2, _members) = &sessions[1];
+    let (session2, _members, _members_v2) = &sessions[1];
     assert!(_members.is_some());
 
     assert!(session1.is_group_v1());
@@ -576,6 +609,7 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
     );
 
     embedded_migrations::run(&db).unwrap();
+    assert_foreign_keys(&db);
     assert_group_sessions_with_messages(db);
 }
 
@@ -698,6 +732,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
     }
 
     embedded_migrations::run(&db).unwrap();
+    assert_foreign_keys(&db);
 
     for (i, ts) in timestamps.into_iter().enumerate() {
         use orm::current::*;

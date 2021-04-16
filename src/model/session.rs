@@ -15,7 +15,7 @@ use qmetaobject::*;
 // XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {
     session: orm::Session,
-    group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+    group_members: Vec<orm::Recipient>,
     last_message: orm::Message,
     last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
     last_message_attachments: Vec<orm::Attachment>,
@@ -159,7 +159,7 @@ impl SessionModel {
         &mut self,
         sessions: Vec<(
             orm::Session,
-            Vec<(orm::GroupV1Member, orm::Recipient)>,
+            Vec<orm::Recipient>,
             orm::Message,
             Vec<orm::Attachment>,
             Vec<(orm::Receipt, orm::Recipient)>,
@@ -201,7 +201,7 @@ impl SessionModel {
     pub fn handle_fetch_session(
         &mut self,
         sess: orm::Session,
-        group_members: Vec<(orm::GroupV1Member, orm::Recipient)>,
+        group_members: Vec<orm::Recipient>,
         mut last_message: orm::Message,
         last_message_attachments: Vec<orm::Attachment>,
         last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
@@ -311,6 +311,7 @@ impl AugmentedSession {
     fn group_name(&self) -> Option<&str> {
         match &self.session.r#type {
             orm::SessionType::GroupV1(group) => Some(&group.name),
+            orm::SessionType::GroupV2(group) => Some(&group.name),
             orm::SessionType::DirectMessage(_) => None,
         }
     }
@@ -321,7 +322,13 @@ impl AugmentedSession {
             orm::SessionType::GroupV1(_group) => Some(
                 self.group_members
                     .iter()
-                    .map(|(_, r)| r.e164_or_uuid())
+                    .map(|r| r.e164_or_uuid())
+                    .join(","),
+            ),
+            orm::SessionType::GroupV2(_group) => Some(
+                self.group_members
+                    .iter()
+                    .map(|r| r.e164_or_uuid())
                     .join(","),
             ),
             orm::SessionType::DirectMessage(_) => None,
@@ -335,6 +342,7 @@ impl AugmentedSession {
     fn source(&self) -> &str {
         match &self.session.r#type {
             orm::SessionType::GroupV1(_group) => "",
+            orm::SessionType::GroupV2(_group) => "",
             orm::SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
         }
     }
@@ -397,7 +405,8 @@ define_model_roles! {
     enum SessionRoles for AugmentedSession {
         Id(id):                                                            "id",
         Source(fn source(&self) via QString::from):                        "source",
-        IsGroup(fn is_group_v1(&self)):                                    "isGroup",
+        IsGroup(fn is_group(&self)):                                       "isGroup",
+        IsGroupV2(fn is_group_v2(&self)):                                  "isGroupV2",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
         Message(last_message.text via qstring_from_option):                "message",
