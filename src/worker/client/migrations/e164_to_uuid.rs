@@ -73,7 +73,7 @@ impl Handler<E164ToUuid> for ClientActor {
                                 .expect("storage")
                                 .is_some()
                             {
-                                log::error!("Already found an identity for {}. Refusing to overwrite. Please file a bug report.", uuid);
+                                log::error!("Already found an identity for {}. Refusing to overwrite. Please upvote issue #326.", uuid);
                                 continue;
                             }
                             storage
