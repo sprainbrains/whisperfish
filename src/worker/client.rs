@@ -190,13 +190,15 @@ impl ClientActor {
             }
         }
 
-        if let Some(key) = msg.profile_key.as_deref() {
-            storage.update_profile_key(
-                source_e164.as_deref(),
-                source_uuid.as_deref(),
-                key,
-                crate::store::TrustLevel::Certain,
-            );
+        if sender_e164.is_some() || sender_uuid.is_some() {
+            if let Some(key) = msg.profile_key.as_deref() {
+                storage.update_profile_key(
+                    source_e164.as_deref(),
+                    source_uuid.as_deref(),
+                    key,
+                    crate::store::TrustLevel::Certain,
+                );
+            }
         }
 
         let alt_body = if let Some(reaction) = &msg.reaction {
