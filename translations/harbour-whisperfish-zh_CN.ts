@@ -1274,13 +1274,13 @@ Settings page share contacts</extracomment>
         <translation>从 %1</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
-        <location filename="../qml/pages/ViewImagePage.qml" line="242"/>
+        <location filename="../qml/pages/ViewImagePage.qml" line="249"/>
         <source>Loading image</source>
         <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
         <translation>正在加载消息</translation>
     </message>
     <message id="whisperfish-view-image-page-error">
-        <location filename="../qml/pages/ViewImagePage.qml" line="252"/>
+        <location filename="../qml/pages/ViewImagePage.qml" line="259"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
         <translation>加载失败</translation>
