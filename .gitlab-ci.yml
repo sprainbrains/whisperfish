@@ -252,7 +252,8 @@ notify_matrix_build_ready:
   only:
     - master
   environment:
-    name: $MATRIX_HOME_SERVER
+    name: Whisperfish Matrix channel
+    url: $MATRIX_HOME_SERVER
   needs:
     - build:armv7hl
     - build:aarch64
