@@ -235,16 +235,16 @@ clippy:
 translations:check:
   <<: *translations
   stage: test
-  except:
-    - $CI_DEFAULT_BRANCH
+  rules:
+    if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
   script:
     - .ci/check-translations.sh
 
 translations:update:
   <<: *translations
   stage: deploy
-  only:
-    - $CI_DEFAULT_BRANCH
+  rules:
+    if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
     - .ci/update-translations.sh
 
