@@ -3,7 +3,7 @@
 TRANSLATION_WARNING="
 ⚠️ This commit will trigger a change in the 🌐 translation 🌐 files. ⚠️
 
-Make sure to [trigger a Weblate commit](https://hosted.weblate.org/commit/whisperfish/whisperfish-application/) and to [merge the outstanding Weblate merge request](https://gitlab.com/rubdos/whisperfish/-/merge_requests/) before pulling in this merge request.
+Make sure to [trigger a Weblate commit](https://hosted.weblate.org/commit/whisperfish/whisperfish-application/) and to [merge the outstanding Weblate merge request](https://gitlab.com/whisperfish/whisperfish/-/merge_requests/) before pulling in this merge request.
 
 Updating the translations will happen *outside* of any merge request, in order to avoid conflicts with Weblate.
 "

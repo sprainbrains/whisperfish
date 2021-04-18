@@ -6,7 +6,7 @@ mkdir -p $CARGO_HOME
 cp .ci/cargo.toml $CARGO_HOME/config
 
 echo "Building for $SFOS_VERSION"
-echo "Configuring cargo-rpm (cfr https://gitlab.com/rubdos/whisperfish/-/issues/24)"
+echo "Configuring cargo-rpm (cfr https://gitlab.com/whisperfish/whisperfish/-/issues/24)"
 
 if [ -z "$CI_COMMIT_TAG" ]; then
     CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"

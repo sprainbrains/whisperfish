@@ -28,8 +28,8 @@ echo "Contents of page"
 echo $DOWNLOAD_LIST
 DOWNLOAD_LIST=$(echo "$DOWNLOAD_LIST" | jq -r "$JQ_FORMAT_LIST")
 
-UNFORMATTED="Builds of $VERSION are ready at https://gitlab.com/rubdos/whisperfish/-/packages"
-FORMATTED="🆕 builds of <code>$VERSION</code> are ready at https://gitlab.com/rubdos/whisperfish/-/packages 🥳 <ul>$DOWNLOAD_LIST</ul>"
+UNFORMATTED="Builds of $VERSION are ready at https://gitlab.com/whisperfish/whisperfish/-/packages"
+FORMATTED="🆕 builds of <code>$VERSION</code> are ready at https://gitlab.com/whisperfish/whisperfish/-/packages 🥳 <ul>$DOWNLOAD_LIST</ul>"
 MSG="{\"msgtype\":\"m.notice\", \"format\": \"org.matrix.custom.html\", \"body\":\"$UNFORMATTED\", \"formatted_body\": \"$FORMATTED\"}"
 echo "Sending $MSG"
 
