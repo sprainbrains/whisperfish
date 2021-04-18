@@ -234,7 +234,7 @@ translations:check:
   <<: *translations
   stage: test
   rules:
-    if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
   script:
     - .ci/check-translations.sh
 
@@ -242,7 +242,7 @@ translations:update:
   <<: *translations
   stage: deploy
   rules:
-    if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
     - .ci/update-translations.sh
 
