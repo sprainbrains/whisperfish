@@ -39,7 +39,7 @@ pub fn conf_dir() -> std::path::PathBuf {
 }
 
 /// Checks if the db contains foreign key violations.
-pub fn check_foreign_keys(db: &diesel::SqliteConnection) -> Result<(), failure::Error> {
+pub fn check_foreign_keys(db: &diesel::SqliteConnection) -> Result<(), anyhow::Error> {
     use diesel::prelude::*;
     use diesel::sql_types::*;
 
@@ -61,7 +61,7 @@ pub fn check_foreign_keys(db: &diesel::SqliteConnection) -> Result<(), failure::
         .unwrap();
 
     if !violations.is_empty() {
-        failure::bail!(
+        anyhow::bail!(
             "There are foreign key violations. Here the are: {:?}",
             violations
         );

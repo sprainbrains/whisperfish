@@ -97,7 +97,7 @@ impl ClientActor {
         app: &mut SailfishApp,
         session_actor: Addr<SessionActor>,
         config: std::sync::Arc<crate::config::SignalConfig>,
-    ) -> Result<Self, failure::Error> {
+    ) -> Result<Self, anyhow::Error> {
         let inner = QObjectBox::new(ClientWorker::default());
         let device_model = QObjectBox::new(DeviceModel::default());
         app.set_object_property("ClientWorker".into(), inner.pinned());
@@ -397,17 +397,17 @@ impl ClientActor {
                     sender.send_groups_details(&local_addr, None, groups, false).await?;
                 }
                 Type::Blocked => {
-                    failure::bail!("Unimplemented {:?}", req.r#type());
+                    anyhow::bail!("Unimplemented {:?}", req.r#type());
                 }
                 Type::Configuration => {
-                    failure::bail!("Unimplemented {:?}", req.r#type());
+                    anyhow::bail!("Unimplemented {:?}", req.r#type());
                 }
                 Type::Keys => {
-                    failure::bail!("Unimplemented {:?}", req.r#type());
+                    anyhow::bail!("Unimplemented {:?}", req.r#type());
                 }
             };
 
-            Ok::<_, failure::Error>(())
+            Ok::<_, anyhow::Error>(())
         }.map(|v| if let Err(e) = v {log::error!("{:?}", e)}));
     }
 
@@ -641,7 +641,7 @@ impl Handler<FetchAttachment> for ClientActor {
                 Ok(())
             }
             .into_actor(self)
-            .map(move |r: Result<(), failure::Error>, act, _ctx| {
+            .map(move |r: Result<(), anyhow::Error>, act, _ctx| {
                 // Synchronise on the actor, to log the error to attachment.log
                 if let Err(e) = r {
                     let e = format!("Error fetching attachment for message with ID `{}` {:?}: {:?}", mid, ptr2, e);
@@ -737,10 +737,10 @@ impl Handler<SendMessage> for ClientActor {
                     .await
                     {
                         Err(BlockingError::Canceled) => {
-                            failure::bail!("Threadpool Canceled");
+                            anyhow::bail!("Threadpool Canceled");
                         }
                         Err(BlockingError::Error(e)) => {
-                            failure::bail!("Could not read attachment: {}", e);
+                            anyhow::bail!("Could not read attachment: {}", e);
                         }
                         Ok(contents) => contents,
                     };
@@ -766,7 +766,7 @@ impl Handler<SendMessage> for ClientActor {
                     let ptr = match sender.upload_attachment(spec, contents).await {
                         Ok(v) => v,
                         Err(e) => {
-                            failure::bail!("Failed to upload attachment: {}", e);
+                            anyhow::bail!("Failed to upload attachment: {}", e);
                         }
                     };
                     content.attachments.push(ptr);
@@ -1065,7 +1065,7 @@ impl From<SmsVerificationCodeResponse> for RegistrationResponse {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<RegistrationResponse, failure::Error>")]
+#[rtype(result = "Result<RegistrationResponse, anyhow::Error>")]
 pub struct Register {
     pub phonenumber: PhoneNumber,
     pub password: String,
@@ -1074,7 +1074,7 @@ pub struct Register {
 }
 
 impl Handler<Register> for ClientActor {
-    type Result = ResponseActFuture<Self, Result<RegistrationResponse, failure::Error>>;
+    type Result = ResponseActFuture<Self, Result<RegistrationResponse, anyhow::Error>>;
 
     fn handle(&mut self, reg: Register, _ctx: &mut Self::Context) -> Self::Result {
         let Register {
@@ -1116,7 +1116,7 @@ impl Handler<Register> for ClientActor {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<(u32, ConfirmCodeResponse), failure::Error>")]
+#[rtype(result = "Result<(u32, ConfirmCodeResponse), anyhow::Error>")]
 pub struct ConfirmRegistration {
     pub phonenumber: PhoneNumber,
     pub password: String,
@@ -1125,7 +1125,7 @@ pub struct ConfirmRegistration {
 }
 
 impl Handler<ConfirmRegistration> for ClientActor {
-    type Result = ResponseActFuture<Self, Result<(u32, ConfirmCodeResponse), failure::Error>>;
+    type Result = ResponseActFuture<Self, Result<(u32, ConfirmCodeResponse), anyhow::Error>>;
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
         let ConfirmRegistration {

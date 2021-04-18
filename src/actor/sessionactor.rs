@@ -179,7 +179,7 @@ impl Handler<LoadAllSessions> for SessionActor {
         let storage = self.storage.clone().unwrap();
 
         actix::spawn(async move {
-            let sessions = actix_threadpool::run(move || -> Result<_, failure::Error> {
+            let sessions = actix_threadpool::run(move || -> Result<_, anyhow::Error> {
                 let sessions: Vec<orm::Session> = storage.fetch_sessions();
                 let result = sessions
                     .into_iter()

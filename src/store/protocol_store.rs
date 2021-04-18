@@ -29,7 +29,7 @@ impl ProtocolStore {
         path: &Path,
         regid: u32,
         identity_key_pair: IdentityKeyPair,
-    ) -> Result<Self, failure::Error> {
+    ) -> Result<Self, anyhow::Error> {
         // Identity
         let identity_path = path.join("storage").join("identity");
 
@@ -67,7 +67,7 @@ impl ProtocolStore {
     pub async fn open_with_key(
         keys: Option<[u8; 16 + 20]>,
         path: &Path,
-    ) -> Result<Self, failure::Error> {
+    ) -> Result<Self, anyhow::Error> {
         // Identity
         let identity_path = path.join("storage").join("identity");
 

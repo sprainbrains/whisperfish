@@ -98,7 +98,7 @@ impl Handler<LinkDevice> for ClientActor {
             // Without `async move`, service would be borrowed instead of encapsulated in a Future.
             async move {
                 let url = tsurl.parse()?;
-                Ok::<_, failure::Error>(account_manager.link_device(url, store, credentials).await?)
+                Ok::<_, anyhow::Error>(account_manager.link_device(url, store, credentials).await?)
             }
             .into_actor(self)
             .map(move |result, _act, ctx| {

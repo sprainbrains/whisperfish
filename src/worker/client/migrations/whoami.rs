@@ -22,7 +22,7 @@ impl Handler<WhoAmI> for ClientActor {
 
                 let response = service.whoami().await?;
 
-                Ok::<_, failure::Error>(Some(response.uuid))
+                Ok::<_, anyhow::Error>(Some(response.uuid))
             }
             .into_actor(self)
             .map(move |result: Result<Option<String>, _>, act, _ctx| {

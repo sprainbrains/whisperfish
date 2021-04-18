@@ -2,6 +2,8 @@ use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+use anyhow::Context;
+
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use parking_lot::ReentrantMutex;
 
@@ -15,7 +17,6 @@ use itertools::Itertools;
 
 use futures::io::AsyncRead;
 
-use failure::*;
 use zkgroup::api::groups::GroupSecretParams;
 
 mod protocol_store;
@@ -199,9 +200,8 @@ pub fn temp() -> StorageLocation<tempdir::TempDir> {
     StorageLocation::Path(tempdir::TempDir::new("harbour-whisperfish-temp").unwrap())
 }
 
-pub fn default_location() -> Result<StorageLocation<PathBuf>, Error> {
-    let data_dir =
-        dirs::data_local_dir().ok_or_else(|| format_err!("Could not find data directory."))?;
+pub fn default_location() -> Result<StorageLocation<PathBuf>, anyhow::Error> {
+    let data_dir = dirs::data_local_dir().context("Could not find data directory.")?;
 
     Ok(StorageLocation::Path(data_dir.join("harbour-whisperfish")))
 }
@@ -217,7 +217,7 @@ impl<P: AsRef<Path>> std::ops::Deref for StorageLocation<P> {
 }
 
 impl<P: AsRef<Path>> StorageLocation<P> {
-    fn open_db(&self) -> Result<SqliteConnection, Error> {
+    fn open_db(&self) -> Result<SqliteConnection, anyhow::Error> {
         let database_url = match self {
             StorageLocation::Memory => ":memory:".into(),
             StorageLocation::Path(p) => p
@@ -225,9 +225,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
                 .join("db")
                 .join("harbour-whisperfish.db")
                 .to_str()
-                .ok_or_else(|| {
-                    format_err!("path to db contains a non-UTF8 character, please file a bug.")
-                })?
+                .context("path to db contains a non-UTF8 character, please file a bug.")?
                 .to_string(),
         };
 
@@ -246,14 +244,17 @@ pub struct Storage {
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
-async fn derive_storage_key(password: String, salt_path: PathBuf) -> Result<[u8; 16 + 20], Error> {
+async fn derive_storage_key(
+    password: String,
+    salt_path: PathBuf,
+) -> Result<[u8; 16 + 20], anyhow::Error> {
     use actix_threadpool::BlockingError;
     use std::io::Read;
 
-    actix_threadpool::run(move || -> Result<_, failure::Error> {
-        let mut salt_file = std::fs::File::open(salt_path)?;
+    actix_threadpool::run(move || -> Result<_, anyhow::Error> {
+        let mut salt_file = std::fs::File::open(salt_path).context("Cannot open salt file")?;
         let mut salt = [0u8; 8];
-        ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
+        anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
 
         let mut key = [0u8; 16 + 20];
         // Please don't blame me, I'm only the implementer.
@@ -264,20 +265,20 @@ async fn derive_storage_key(password: String, salt_path: PathBuf) -> Result<[u8;
     })
     .await
     .map_err(|e| match e {
-        BlockingError::Canceled => format_err!("Threadpool Canceled"),
+        BlockingError::Canceled => anyhow::anyhow!("Threadpool Canceled"),
         BlockingError::Error(e) => e,
     })
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
-async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], Error> {
+async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], anyhow::Error> {
     use actix_threadpool::BlockingError;
     use std::io::Read;
 
-    actix_threadpool::run(move || -> Result<_, failure::Error> {
+    actix_threadpool::run(move || -> Result<_, anyhow::Error> {
         let mut salt_file = std::fs::File::open(salt_path)?;
         let mut salt = [0u8; 8];
-        ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
+        anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
 
         let params = scrypt::Params::new(14, 8, 1)?;
         let mut key = [0u8; 32];
@@ -287,12 +288,12 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
     })
     .await
     .map_err(|e| match e {
-        BlockingError::Canceled => format_err!("Threadpool Canceled"),
+        BlockingError::Canceled => anyhow::anyhow!("Threadpool Canceled"),
         BlockingError::Error(e) => e,
     })
 }
 
-fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), Error> {
+fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), anyhow::Error> {
     log::trace!("Writing unencrypted file {:?}", path);
 
     use std::io::Write;
@@ -306,7 +307,7 @@ fn write_file_sync_encrypted(
     keys: [u8; 16 + 20],
     path: PathBuf,
     contents: &[u8],
-) -> Result<(), Error> {
+) -> Result<(), anyhow::Error> {
     log::trace!("Writing encrypted file {:?}", path);
 
     // Generate random IV
@@ -319,8 +320,8 @@ fn write_file_sync_encrypted(
     use block_modes::block_padding::Pkcs7;
     use block_modes::{BlockMode, Cbc};
     let ciphertext = {
-        let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
-            .map_err(|_| format_err!("CBC initialization error"))?;
+        let cipher =
+            Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv).context("CBC initialization error")?;
         cipher.encrypt_vec(contents)
     };
 
@@ -329,7 +330,7 @@ fn write_file_sync_encrypted(
         use sha2::Sha256;
         // Verify HMAC SHA256, 32 last bytes
         let mut mac = Hmac::<Sha256>::new_varkey(&keys[16..])
-            .map_err(|_| format_err!("MAC keylength error"))?;
+            .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
         mac.update(&iv);
         mac.update(&ciphertext);
         mac.finalize().into_bytes()
@@ -349,7 +350,7 @@ fn write_file_sync(
     keys: Option<[u8; 16 + 20]>,
     path: PathBuf,
     contents: &[u8],
-) -> Result<(), Error> {
+) -> Result<(), anyhow::Error> {
     match keys {
         Some(keys) => write_file_sync_encrypted(keys, path, &contents),
         None => write_file_sync_unencrypted(path, &contents),
@@ -360,12 +361,12 @@ async fn write_file(
     keys: Option<[u8; 16 + 20]>,
     path: PathBuf,
     contents: Vec<u8>,
-) -> Result<(), Error> {
+) -> Result<(), anyhow::Error> {
     actix_threadpool::run(move || write_file_sync(keys, path, &contents)).await?;
     Ok(())
 }
 
-fn load_file_sync_unencrypted(path: PathBuf) -> Result<Vec<u8>, Error> {
+fn load_file_sync_unencrypted(path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
     log::trace!("Opening unencrypted file {:?}", path);
     let contents = std::fs::read(&path)?;
     let count = contents.len();
@@ -373,7 +374,7 @@ fn load_file_sync_unencrypted(path: PathBuf) -> Result<Vec<u8>, Error> {
     Ok(contents)
 }
 
-fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, Error> {
+fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
     // XXX This is *full* of bad practices.
     // Let's try to migrate to nacl or something alike in the future.
 
@@ -382,7 +383,7 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
     let count = contents.len();
 
     log::trace!("Read {:?}, {} bytes", path, count);
-    ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
+    anyhow::ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
 
     let (iv, contents) = contents.split_at_mut(16);
     let count = count - 16;
@@ -393,34 +394,34 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
         use sha2::Sha256;
         // Verify HMAC SHA256, 32 last bytes
         let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
-            .map_err(|_| format_err!("MAC keylength error"))?;
+            .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
         verifier.update(&iv);
         verifier.update(contents);
         verifier
             .verify(&mac)
-            .map_err(|_| format_err!("MAC error"))?;
+            .map_err(|_| anyhow::anyhow!("MAC error"))?;
     }
 
     use aes::Aes128;
     use block_modes::block_padding::Pkcs7;
     use block_modes::{BlockMode, Cbc};
     // Decrypt password
-    let cipher = Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv)
-        .map_err(|_| format_err!("CBC initialization error"))?;
+    let cipher =
+        Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv).context("CBC initialization error")?;
     Ok(cipher
         .decrypt(contents)
-        .map_err(|_| format_err!("AES CBC decryption error"))?
+        .context("AES CBC decryption error")?
         .to_owned())
 }
 
-fn load_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, Error> {
+fn load_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
     match keys {
         Some(keys) => load_file_sync_encrypted(keys, path),
         None => load_file_sync_unencrypted(path),
     }
 }
 
-async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, Error> {
+async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
     let contents = actix_threadpool::run(move || load_file_sync(keys, path)).await?;
 
     Ok(contents)
@@ -475,7 +476,7 @@ impl Storage {
         &self.path
     }
 
-    fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), Error> {
+    fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), anyhow::Error> {
         let root = root.as_ref();
 
         let directories = [
@@ -495,7 +496,7 @@ impl Storage {
                 if dir.is_dir() {
                     continue;
                 } else {
-                    failure::bail!(
+                    anyhow::bail!(
                         "Trying to create directory {:?}, but already exists as non-directory.",
                         dir
                     );
@@ -513,7 +514,7 @@ impl Storage {
         regid: u32,
         http_password: &str,
         signaling_key: [u8; 52],
-    ) -> Result<Storage, Error> {
+    ) -> Result<Storage, anyhow::Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
 
         log::info!("Creating directory structure");
@@ -578,7 +579,7 @@ impl Storage {
     pub async fn open<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
         password: Option<String>,
-    ) -> Result<Storage, Error> {
+    ) -> Result<Storage, anyhow::Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
 
         let db = Self::open_db(&db_path, &path, password.as_deref()).await?;
@@ -606,7 +607,7 @@ impl Storage {
         db_path: &StorageLocation<T>,
         path: &Path,
         password: Option<&str>,
-    ) -> Result<SqliteConnection, Error> {
+    ) -> Result<SqliteConnection, anyhow::Error> {
         log::info!("Opening DB");
         let db = db_path.open_db()?;
 
@@ -639,7 +640,7 @@ impl Storage {
         // That said, our check_foreign_keys() does output more useful information for when things
         // go haywire, albeit a bit later.
         db.execute("PRAGMA foreign_keys = OFF;").unwrap();
-        db.transaction(|| -> Result<(), failure::Error> {
+        db.transaction(|| -> Result<(), anyhow::Error> {
             embedded_migrations::run(&db)?;
             crate::check_foreign_keys(&db)?;
             Ok(())
@@ -650,7 +651,7 @@ impl Storage {
     }
 
     /// Asynchronously loads the signal HTTP password from storage and decrypts it.
-    pub async fn signal_password(&self) -> Result<String, Error> {
+    pub async fn signal_password(&self) -> Result<String, anyhow::Error> {
         let contents = self
             .load_file(
                 self.path
@@ -663,7 +664,7 @@ impl Storage {
     }
 
     /// Asynchronously loads the base64 encoded signaling key.
-    pub async fn signaling_key(&self) -> Result<[u8; 52], Error> {
+    pub async fn signaling_key(&self) -> Result<[u8; 52], anyhow::Error> {
         let v = self
             .load_file(
                 self.path
@@ -672,13 +673,13 @@ impl Storage {
                     .join("http_signaling_key"),
             )
             .await?;
-        ensure!(v.len() == 52, "Signaling key is 52 bytes");
+        anyhow::ensure!(v.len() == 52, "Signaling key is 52 bytes");
         let mut out = [0u8; 52];
         out.copy_from_slice(&v);
         Ok(out)
     }
 
-    async fn load_file(&self, path: PathBuf) -> Result<Vec<u8>, Error> {
+    async fn load_file(&self, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
         load_file(self.keys, path).await
     }
 
@@ -1270,9 +1271,7 @@ impl Storage {
         let db = self.db.lock();
 
         // XXX: probably, the trigger for this method call knows a better time stamp.
-        let delivered_at = delivered_at
-            .unwrap_or_else(|| chrono::Utc::now())
-            .naive_utc();
+        let delivered_at = delivered_at.unwrap_or_else(chrono::Utc::now).naive_utc();
 
         // Find the recipient
         let recipient =
@@ -1949,13 +1948,11 @@ impl Storage {
     }
 
     /// Returns a hex-encoded peer identity
-    pub fn peer_identity(&self, e164: &str) -> Result<String, failure::Error> {
+    pub fn peer_identity(&self, e164: &str) -> Result<String, anyhow::Error> {
         use libsignal_protocol::stores::IdentityKeyStore;
         use libsignal_protocol::Address;
         let addr = Address::new(e164, 1);
-        let ident = self
-            .get_identity(addr)?
-            .ok_or_else(|| failure::format_err!("No such identity"))?;
+        let ident = self.get_identity(addr)?.context("No such identity")?;
         Ok(hex::encode_upper(ident.as_slice()))
     }
 
@@ -1997,7 +1994,7 @@ mod tests {
     }
 
     #[test]
-    fn encrypt_and_decrypt_file() -> Result<(), Error> {
+    fn encrypt_and_decrypt_file() -> Result<(), anyhow::Error> {
         let contents = "The funny horse jumped over a river.";
 
         // Key full of ones.
@@ -2016,17 +2013,19 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn create_and_open_encrypted_storage() -> Result<(), Error> {
+    async fn create_and_open_encrypted_storage() -> Result<(), anyhow::Error> {
         let pass = "Hello, world! I'm the passphrase";
         test_create_and_open_storage(Some(pass.to_string())).await
     }
 
     #[actix_rt::test]
-    async fn create_and_open_unencrypted_storage() -> Result<(), Error> {
+    async fn create_and_open_unencrypted_storage() -> Result<(), anyhow::Error> {
         test_create_and_open_storage(None).await
     }
 
-    async fn test_create_and_open_storage(storage_password: Option<String>) -> Result<(), Error> {
+    async fn test_create_and_open_storage(
+        storage_password: Option<String>,
+    ) -> Result<(), anyhow::Error> {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
 
@@ -2070,7 +2069,7 @@ mod tests {
                 assert_eq!(0, signed);
                 assert_eq!(0, unsigned);
 
-                Result::<_, Error>::Ok(())
+                Result::<_, anyhow::Error>::Ok(())
             }};
         }
 

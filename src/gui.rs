@@ -200,7 +200,7 @@ fn long_version() -> String {
 }
 
 #[cfg(feature = "sailfish")]
-pub async fn run(config: crate::config::SignalConfig) -> Result<(), failure::Error> {
+pub async fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     // XXX this arc thing should be removed in the future and refactored
     let config = std::sync::Arc::new(config);
 
