@@ -1,10 +1,8 @@
-use std::rc::Rc;
-
-use failure::*;
-use qmetaobject::*;
-
 use crate::gui::WhisperfishApp;
 use crate::store::Storage;
+use anyhow::Context;
+use qmetaobject::*;
+use std::rc::Rc;
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -91,7 +89,7 @@ impl SetupWorker {
     async fn open_storage(
         app: Rc<WhisperfishApp>,
         config: &crate::config::SignalConfig,
-    ) -> Result<Storage, Error> {
+    ) -> Result<Storage, anyhow::Error> {
         let res = Storage::open(&config.get_share_dir().to_owned().into(), None).await;
         if res.is_ok() {
             return res;
@@ -109,7 +107,7 @@ impl SetupWorker {
                 .borrow_mut()
                 .ask_password()
                 .await
-                .ok_or_else(|| format_err!("No password provided"))?
+                .context("No password provided")?
                 .into();
 
             match Storage::open(&config.get_share_dir().to_owned().into(), Some(password)).await {
@@ -129,7 +127,7 @@ impl SetupWorker {
     async fn setup_storage(
         app: Rc<WhisperfishApp>,
         config: &crate::config::SignalConfig,
-    ) -> Result<(), Error> {
+    ) -> Result<(), anyhow::Error> {
         let storage = SetupWorker::open_storage(app.clone(), config).await?;
 
         *app.storage.borrow_mut() = Some(storage);
@@ -140,7 +138,7 @@ impl SetupWorker {
     async fn register(
         app: Rc<WhisperfishApp>,
         config: &crate::config::SignalConfig,
-    ) -> Result<(), Error> {
+    ) -> Result<(), anyhow::Error> {
         let this = app.setup_worker.pinned();
 
         app.app_state
@@ -154,7 +152,7 @@ impl SetupWorker {
             .borrow_mut()
             .ask_password()
             .await
-            .ok_or_else(|| format_err!("No password code provided"))?
+            .context("No password code provided")?
             .into();
 
         let number = loop {
@@ -164,7 +162,7 @@ impl SetupWorker {
                 .borrow_mut()
                 .ask_phone_number()
                 .await
-                .ok_or_else(|| format_err!("No phone number provided"))?
+                .context("No phone number provided")?
                 .into();
 
             match phonenumber::parse(None, number) {
@@ -204,7 +202,7 @@ impl SetupWorker {
                 .borrow_mut()
                 .ask_captcha()
                 .await
-                .ok_or_else(|| format_err!("No captcha result provided"))?
+                .context("No captcha result provided")?
                 .into();
             res = app
                 .client_actor
@@ -223,7 +221,7 @@ impl SetupWorker {
             .borrow_mut()
             .ask_verification_code()
             .await
-            .ok_or_else(|| format_err!("No verification code provided"))?
+            .context("No verification code provided")?
             .into();
         let code = code.parse()?;
 

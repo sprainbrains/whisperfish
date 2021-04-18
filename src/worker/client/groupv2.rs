@@ -209,7 +209,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
 
                 // XXX there's more stuff to store from the DecryptedGroup.
 
-                Ok::<_, failure::Error>(group)
+                Ok::<_, anyhow::Error>(group)
             }
             .into_actor(self)
             .map(|result, _act, _ctx| {

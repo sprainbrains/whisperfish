@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use failure::{ensure, Error};
 use futures::io::AsyncReadExt;
 use harbour_whisperfish::store::{self, Storage};
 use structopt::StructOpt;
@@ -45,7 +44,7 @@ struct Opt {
 }
 
 #[actix_rt::main]
-async fn main() -> Result<(), Error> {
+async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
     let opt = Opt::from_args();
@@ -57,7 +56,7 @@ async fn main() -> Result<(), Error> {
     let mut storage = Storage::open(&store::default_location()?, opt.password).await?;
 
     let key_material = hex::decode(opt.key)?;
-    ensure!(
+    anyhow::ensure!(
         key_material.len() == 64,
         "Attachment key should have 64 bytes"
     );
@@ -67,7 +66,7 @@ async fn main() -> Result<(), Error> {
     let msg = storage
         .fetch_message_by_id(mid)
         .expect("find message by mid");
-    ensure!(
+    anyhow::ensure!(
         msg.id == mid,
         "unreachable: Fetched message ID does not equal supplied mid"
     );

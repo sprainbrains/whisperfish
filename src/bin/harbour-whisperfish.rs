@@ -1,6 +1,7 @@
 use actix::prelude::*;
 use harbour_whisperfish::*;
 
+use anyhow::Context;
 use dbus::blocking::Connection;
 use std::time::Duration;
 
@@ -58,7 +59,7 @@ fn try_dbus_show_app() -> Result<(), dbus::Error> {
     proxy.method_call("be.rubdos.whisperfish.app", "show", ())
 }
 
-fn run_main_app(config: config::SignalConfig) -> Result<(), failure::Error> {
+fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     log::info!("Start main app (with autostart = {})", config.autostart);
 
     // Initialise storage here
@@ -66,9 +67,12 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), failure::Error> {
     // With more refactoring there should be probably more initialization here
     // Not creating the storage/attachment directory is fatal and we return here.
     if !config.get_attachment_dir().exists() {
-        std::fs::create_dir_all(&config.get_attachment_dir())?;
-        // XXX add with anyhow:
-        // with context: "Could not create attachment dir: {}"
+        std::fs::create_dir_all(&config.get_attachment_dir()).with_context(|| {
+            format!(
+                "Could not create attachment dir: {}",
+                config.get_attachment_dir().display()
+            )
+        })?;
     }
 
     sfos::TokioQEventDispatcher::install();

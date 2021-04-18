@@ -1307,6 +1307,7 @@ dependencies = [
  "actix-threadpool",
  "actix_derive",
  "aes",
+ "anyhow",
  "bincode",
  "block-modes",
  "cc",

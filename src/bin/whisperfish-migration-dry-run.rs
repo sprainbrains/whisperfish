@@ -28,10 +28,10 @@ pub struct ForeignKeyViolation {
 
 embed_migrations!();
 
-fn derive_db_key(password: &str, salt_path: &Path) -> Result<[u8; 32], failure::Error> {
+fn derive_db_key(password: &str, salt_path: &Path) -> Result<[u8; 32], anyhow::Error> {
     let mut salt_file = std::fs::File::open(salt_path)?;
     let mut salt = [0u8; 8];
-    failure::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
+    anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
 
     let params = scrypt::Params::new(14, 8, 1)?;
     let mut key = [0u8; 32];
@@ -40,7 +40,7 @@ fn derive_db_key(password: &str, salt_path: &Path) -> Result<[u8; 32], failure::
     Ok(key)
 }
 
-fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
+fn print_original_stats(db: &SqliteConnection) -> Result<(), anyhow::Error> {
     use schemas::original as schema;
 
     {
@@ -134,7 +134,7 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
     Ok(())
 }
 
-fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
+fn print_current_stats(db: &SqliteConnection) -> Result<(), anyhow::Error> {
     use schemas::current as schema;
 
     {
@@ -287,7 +287,7 @@ fn print_current_stats(db: &SqliteConnection) -> Result<(), failure::Error> {
     Ok(())
 }
 
-fn main() -> Result<(), failure::Error> {
+fn main() -> Result<(), anyhow::Error> {
     println!("This utility will test whether the Whisperfish database will successfully get migrated to the most recent format.");
     println!("It is a *dry-run*, which practically means we will work on a copy of the original database.");
 

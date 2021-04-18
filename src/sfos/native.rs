@@ -4,8 +4,6 @@ use std::os::raw::*;
 use qmetaobject::qttypes::*;
 use qmetaobject::{QObject, QObjectPinned};
 
-use failure::{bail, Error};
-
 use super::tokio_qt::*;
 
 use crate::gui::AppState;
@@ -272,7 +270,7 @@ impl SailfishApp {
         }
     }
 
-    pub fn install_default_translator(&mut self) -> Result<(), Error> {
+    pub fn install_default_translator(&mut self) -> Result<(), anyhow::Error> {
         let result = unsafe {
             cpp!([self as "SfosApplicationHolder*"] -> u32 as "int" {
                 const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
@@ -298,7 +296,7 @@ impl SailfishApp {
                 log::info!("Default translator loaded.");
                 Ok(())
             }
-            2 => bail!("No translators found"),
+            2 => anyhow::bail!("No translators found"),
             _ => unreachable!("Impossible return code from C++"),
         }
     }

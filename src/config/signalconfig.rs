@@ -1,3 +1,5 @@
+use anyhow::Context;
+
 /// Global Config
 ///
 /// This struct holds the global configuration of the whisperfish app.
@@ -45,24 +47,21 @@ impl Default for SignalConfig {
 }
 
 impl SignalConfig {
-    pub fn read_from_file() -> Result<Self, failure::Error> {
+    pub fn read_from_file() -> Result<Self, anyhow::Error> {
         let path = dirs::config_dir()
-            // XXX use anyhow::context here
-            .expect("Could not get xdg config directory path")
+            .context("Could not get xdg config directory path")?
             .join("harbour-whisperfish")
             .join("config.yml");
 
-        // XXX use anyhow::with_context here:
-        // .with_context(|| format!("Could not open config file: {}", &path.display()))?;
-        let fd = std::fs::File::open(&path)?;
-        // XXX use anyhow::with_context here:
-        // .with_context(|| format!("Could not read config file: {}", &path.display()))?;
-        let ret = serde_yaml::from_reader(fd)?;
+        let fd = std::fs::File::open(&path)
+            .with_context(|| format!("Could not open config file: {}", &path.display()))?;
+        let ret = serde_yaml::from_reader(fd)
+            .with_context(|| format!("Could not read config file: {}", &path.display()))?;
 
         Ok(ret)
     }
 
-    pub fn write_to_file(&self) -> Result<(), failure::Error> {
+    pub fn write_to_file(&self) -> Result<(), anyhow::Error> {
         let path = dirs::config_dir()
             // XXX use anyhow context here
             .expect("No config directory found")
@@ -70,19 +69,17 @@ impl SignalConfig {
 
         // create config directory if it does not exist
         if !path.exists() {
-            // XXX use anyhow with context here
-            // std::fs::create_dir(&path).with_context(|| {
-            //     format!("Could not create config directory: {}", &path.display())
-            // })?;
-            std::fs::create_dir(&path)?;
+            std::fs::create_dir(&path).with_context(|| {
+                format!("Could not create config directory: {}", &path.display())
+            })?;
         }
 
         // write to config file
         let path = path.join("config.yml");
-        let fd = std::fs::File::create(&path)?;
-        // XXX use anyhow with context here
-        // .with_context(|| format!("Could not write config file: {}", &path.display()))?;
-        serde_yaml::to_writer(fd, &self)?;
+        let fd = std::fs::File::create(&path)
+            .with_context(|| format!("Could not open config file to write: {}", &path.display()))?;
+        serde_yaml::to_writer(fd, &self)
+            .with_context(|| format!("Could not write config file: {}", &path.display()))?;
 
         Ok(())
     }
