@@ -10,31 +10,31 @@
         <translation>新消息</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="36"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>附件</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="48"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="51"/>
         <source>Deleting all messages</source>
         <extracomment>Delete all messages from session</extracomment>
         <translation>正在删除全部信息</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="121"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>自己记下</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="140"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>草稿 :%1</translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="259"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>删除对话</translation>
@@ -937,7 +937,7 @@ Settings page share contacts</extracomment>
         <translation>验证 %1</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="200"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>添加联系人</translation>
@@ -948,52 +948,64 @@ Settings page share contacts</extracomment>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>位置</translation>
     </message>
+    <message id="whisperfish-group-updated-to-groupv2">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
+        <source>Updated to the new group format</source>
+        <extracomment>Indicator for updated groups</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-not-updated-to-groupv2">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="81"/>
+        <source>Not updated to the new group format</source>
+        <extracomment>Indicator for not yet updated groups</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-group-leave-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="172"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>离开此群</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="180"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
         <source>Leaving group and removing ALL messages!</source>
         <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
         <extracomment>Leave group remorse message</extracomment>
         <translation>离开群组并移除全部信息！</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>创建邀请链接</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="227"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>发送消息给 %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>添加到联系人</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="258"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>验证安全码</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="272"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>移出该群</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="292"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="307"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>你</translation>
@@ -1280,7 +1292,7 @@ Settings page share contacts</extracomment>
         <translation>播放失败</translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="248"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="256"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
@@ -1289,7 +1301,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="272"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="280"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
@@ -1297,7 +1309,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="281"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="289"/>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1306,13 +1318,13 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="290"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="298"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation>显示消息信息</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="304"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="312"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1321,7 +1333,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="314"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="322"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1330,7 +1342,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="327"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="335"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
