@@ -1259,36 +1259,30 @@ impl Storage {
 
     /// Marks the message with a certain timestamp as received by a certain person.
     ///
-    /// Copy from Go's MarkMessageReceived.
+    /// Should only be called if the relation between the e164 and uuid is certain.
     pub fn mark_message_received(
         &self,
         receiver_e164: Option<&str>,
         receiver_uuid: Option<&str>,
         timestamp: NaiveDateTime,
+        delivered_at: Option<chrono::DateTime<Utc>>,
     ) -> Option<(orm::Session, orm::Message)> {
         let db = self.db.lock();
 
         // XXX: probably, the trigger for this method call knows a better time stamp.
-        let time = chrono::Utc::now().naive_utc();
+        let delivered_at = delivered_at
+            .unwrap_or_else(|| chrono::Utc::now())
+            .naive_utc();
 
         // Find the recipient
-        let recipient_id: i32 = schema::recipients::table
-            .select(schema::recipients::id)
-            .filter(
-                schema::recipients::e164
-                    .eq(receiver_e164)
-                    .and(schema::recipients::e164.is_not_null())
-                    .or(schema::recipients::uuid
-                        .eq(receiver_uuid)
-                        .and(schema::recipients::uuid.is_not_null())),
-            )
-            .first(&*db)
-            .ok()?; // ? -> if unknown recipient, do not insert read status.
+        let recipient =
+            self.merge_and_fetch_recipient(receiver_e164, receiver_uuid, TrustLevel::Certain);
         let message_id = schema::messages::table
             .select(schema::messages::id)
             .filter(schema::messages::server_timestamp.eq(timestamp))
             .first(&*db)
-            .ok();
+            .optional()
+            .expect("db");
         if message_id.is_none() {
             log::warn!("Could not find message with timestamp {}", timestamp);
             log::warn!(
@@ -1300,8 +1294,8 @@ impl Storage {
         let insert = diesel::insert_into(schema::receipts::table)
             .values((
                 schema::receipts::message_id.eq(message_id),
-                schema::receipts::recipient_id.eq(recipient_id),
-                schema::receipts::delivered.eq(time),
+                schema::receipts::recipient_id.eq(recipient.id),
+                schema::receipts::delivered.eq(delivered_at),
             ))
             // UPSERT in Diesel 2.0
             // .on_conflict((schema::receipts::message_id, schema::receipts::recipient_id))
@@ -1336,13 +1330,12 @@ impl Storage {
         // upsert).
         let update = diesel::update(schema::receipts::table)
             .filter(schema::receipts::message_id.eq(message_id))
-            .filter(schema::receipts::recipient_id.eq(recipient_id))
-            .set((schema::receipts::delivered.eq(time),))
+            .filter(schema::receipts::recipient_id.eq(recipient.id))
+            .set((schema::receipts::delivered.eq(delivered_at),))
             .execute(&*db);
         if let Err(e) = update {
             log::error!("Could not update receipt: {}", e);
         }
-        insert.ok();
 
         let message = self.fetch_message_by_id(message_id)?;
         let session = self.fetch_session_by_id(message.session_id)?;

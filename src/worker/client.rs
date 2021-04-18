@@ -491,6 +491,7 @@ impl ClientActor {
             }
             ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender);
+                // XXX dispatch on receipt.type
                 for &ts in &receipt.timestamp {
                     // Signal uses timestamps in milliseconds, chrono has nanoseconds
                     if let Some((sess, msg)) = storage.mark_message_received(
@@ -502,6 +503,7 @@ impl ClientActor {
                             .map(uuid::Uuid::to_string)
                             .as_deref(),
                         millis_to_naive_chrono(ts),
+                        None,
                     ) {
                         self.inner
                             .pinned()
