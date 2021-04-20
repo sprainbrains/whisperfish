@@ -78,7 +78,7 @@ version_check = "0.9"
 # Git version for async tests. 0.6.5 will contain this feature,
 # so revert to crates.io on release
 criterion = "0.3"
-rstest = { version = "0.6.5", git = "https://github.com/la10736/rstest" }
+rstest = { version = "0.7.1", git = "https://github.com/la10736/rstest" }
 rstest_reuse = { version = "0.1.0" }
 
 # Smart dev mode: Compile most stuff in release mode, except for the things
