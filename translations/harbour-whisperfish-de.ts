@@ -819,7 +819,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neu starten&#xa0;…</translation>
+        <translation>Whisperfish neu starten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -952,13 +952,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
         <source>Updated to the new group format</source>
         <extracomment>Indicator for updated groups</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Auf das neue Gruppenformat aktualisiert</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
         <location filename="../qml/pages/GroupProfilePage.qml" line="81"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nicht auf das neue Gruppenformat aktualisiert</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
