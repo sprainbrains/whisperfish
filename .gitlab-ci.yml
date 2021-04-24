@@ -39,8 +39,6 @@ build:armv7hl:
     CC_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
     CXX_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
   <<: *build-target
-  except:
-    - schedules
 
 build:i486:
   variables:
@@ -50,8 +48,6 @@ build:i486:
     CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
     CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
   <<: *build-target
-  except:
-    - schedules
 
 build:aarch64:
   variables:
@@ -61,8 +57,6 @@ build:aarch64:
     CC_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-gcc
     CXX_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-g++
   <<: *build-target
-  except:
-    - schedules
 
 .rust: &rust
   cache: &rust-cache
@@ -105,8 +99,6 @@ build:host:stable:
   needs: []
   script:
     - cargo build
-  except:
-    - schedules
 
 build:host:nightly:
   <<: *rust-nightly
@@ -114,8 +106,6 @@ build:host:nightly:
   needs: []
   script:
     - cargo build
-  except:
-    - schedules
 
 build:host:nightly:docs:
   <<: *rust-nightly
@@ -126,8 +116,6 @@ build:host:nightly:docs:
   artifacts:
     paths:
       - target/doc
-  except:
-    - schedules
 
 qmllint:
   <<: *rust
@@ -136,8 +124,6 @@ qmllint:
   cache: {}
   script:
     - "qmllint qml/**/*.qml"
-  except:
-    - schedules
 
 test:stable:
   <<: *rust-stable
@@ -146,8 +132,6 @@ test:stable:
     - build:host:stable
   script:
     - cargo test
-  except:
-    - schedules
 
 test:stable:diesel-schema:
   <<: *rust-stable
@@ -163,8 +147,6 @@ test:stable:diesel-schema:
     - diesel migration run
     - diesel print-schema > src/schema.rs
     - cargo fmt -- --check src/schema.rs
-  except:
-    - schedules
 
 test:nightly:
   <<: *rust-nightly
@@ -173,8 +155,6 @@ test:nightly:
     - build:host:nightly
   script:
     - cargo test
-  except:
-    - schedules
 
 fmt:nightly:
   <<: *rust-nightly
@@ -184,8 +164,6 @@ fmt:nightly:
     - test:nightly
   script:
     - cargo fmt -- --check
-  except:
-    - schedules
 
 coverage:nightly:
   <<: *rust-nightly
@@ -206,8 +184,6 @@ coverage:nightly:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
     reports:
       cobertura: cobertura.xml
-  except:
-    - schedules
 
 clippy:
   <<: *rust-stable
@@ -220,8 +196,6 @@ clippy:
     # the following command should be used but needs sailfish SDK
     # - cargo clippy --all-targets --all-features -- -D warnings
     - cargo clippy --all-targets -- -D warnings
-  except:
-    - schedules
 
 .translations: &translations
   image: debian
@@ -249,8 +223,8 @@ translations:update:
 notify_matrix_build_ready:
   stage: deploy
   image: debian
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   environment:
     name: Whisperfish Matrix channel
     url: $MATRIX_HOME_SERVER
@@ -270,16 +244,14 @@ pages:
   needs:
     - build:host:nightly:docs
   stage: deploy
-  only:
-    - $CI_DEFAULT_BRANCH
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
     - mkdir -p public
     - mv target/doc public/
   artifacts:
     paths:
       - public
-  except:
-    - schedules
 
 # Awesome OpenRepos script by @nobodyinperson/Yann Büchau
 include:
@@ -321,8 +293,6 @@ dry-run:triage:
     - gitlab-triage --help
     - gitlab-triage --dry-run --token $PRIVATE_TOKEN --source projects --source-id $CI_PROJECT_PATH
   when: manual
-  except:
-    - schedules
 
 policy:run:
   stage: deploy
@@ -331,8 +301,6 @@ policy:run:
     - gem install gitlab-triage
     - gitlab-triage --token $PRIVATE_TOKEN --source projects --source-id $CI_PROJECT_PATH
   when: manual
-  except:
-    - schedules
 
 schedule:policyrun:
   stage: deploy
