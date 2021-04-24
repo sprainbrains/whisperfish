@@ -47,7 +47,10 @@ Label {
     property alias shortenUrl: linkedTextProxy.shortenUrl
     property alias proxy: linkedTextProxy
 
-    readonly property var emojiStyle: Emoji.Style['openmoji'] // TODO Make emoji style configurable
+    // TODO Emoji handling and configuration should be abstracted in /
+    // updated from / shared with sailor-emoji (the emoji keyboard patch):
+    // https://openrepos.net/content/ichthyosaurus/patch-stock-emoji-keyboard-colors
+    readonly property var emojiStyle: Emoji.Style[mainWindow.emojiStyle]
     readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
     readonly property int plainCharactersCount: _parsedCountData !== null ?
                                                     _parsedCountData.plainCount : plainText.length
@@ -61,8 +64,7 @@ Label {
                                                     1.0*font.pixelSize :
                                                     emojiSizeMult*font.pixelSize
     property var _parsedEmojiData: enableEmojis ? Emoji.parse(linkedTextProxy.text,
-                                                              _effectiveEmojiSize,
-                                                              emojiStyle) : null
+                                                              _effectiveEmojiSize, emojiStyle) : null
     property string _effectiveText: (enableEmojis && _parsedEmojiData !== null) ?
                                         _parsedEmojiData.text :
                                         linkedTextProxy.text
