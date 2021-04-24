@@ -414,9 +414,9 @@ define_model_roles! {
         Timestamp(fn timestamp(&self) via qdatetime_from_naive):           "timestamp",
         IsRead(last_message.is_read):                                      "read",
         Sent(fn sent(&self)):                                              "sent",
-        Delivered(fn delivered(&self)):                                    "delivered",
-        Read(fn read(&self)):                                              "read",
-        Viewed(fn viewed(&self)):                                          "viewed",
+        Delivered(fn delivered(&self)):                                    "deliveryCount",
+        Read(fn read(&self)):                                              "readCount",
+        Viewed(fn viewed(&self)):                                          "viewCount",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
     }
 }

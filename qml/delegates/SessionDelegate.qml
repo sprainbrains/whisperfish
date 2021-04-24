@@ -19,9 +19,9 @@ ListItem {
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
     property string profilePicture: '' // TODO implement in model (#192)
-    property bool isPreviewDelivered: model.delivered > 0 // TODO investigate: not updated for new message (#151, #55?)
-    property bool isPreviewRead: model.read > 0 // TODO investigate: not updated for new message (#151, #55?)
-    property bool isPreviewViewed: model.viewed > 0 // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewDelivered: model.deliveryCount > 0 // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewRead: model.readCount > 0 // TODO investigate: not updated for new message (#151, #55?)
+    property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
     property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
