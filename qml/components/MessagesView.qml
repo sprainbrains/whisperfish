@@ -138,7 +138,7 @@ SilicaListView {
         return Remorse.popupAction(
             //: Remorse: *locally* deleted one or multiple message (past tense)
             //% "Locally deleted %n message(s)"
-            root, qsTrId("whisperfish-remorse-deleted-messages-locally", selectedCount).arg(selectedCount),
+            root, qsTrId("whisperfish-remorse-deleted-messages-locally", selectedCount),
             function() {
                 for (var i in selectedIndices) {
                     console.log("Delete message:", selectedIndices[i])

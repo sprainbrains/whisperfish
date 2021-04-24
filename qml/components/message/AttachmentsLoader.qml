@@ -215,7 +215,9 @@ Loader {
                         Label {
                             highlighted: showMoreThumb.highlighted
                             anchors.fill: parent
-                            text: "+%1".arg(thumbsAttachments.length-maxThumbs) // translate?
+                            //: Label hinting at more attachments than are currently shown. Read as "and %n more".
+                            //% "+%n"
+                            text: qsTrId("whisperfish-attachments-plus-n", thumbsAttachments.length-maxThumbs)
                             fontSizeMode: Text.Fit
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
@@ -283,7 +285,7 @@ Loader {
                     //: Note if some message attachments are hidden instead of being shown inline
                     //% "and %n more"
                     text: qsTrId("whisperfish-attachments-loader-show-more",
-                                 detailAttachments.length-maxDetails+1).arg(detailAttachments.length-maxDetails+1)
+                                 detailAttachments.length-maxDetails+1)
                     fontSizeMode: Text.Fit
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
