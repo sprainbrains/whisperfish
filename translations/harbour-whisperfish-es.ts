@@ -953,13 +953,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
         <source>Updated to the new group format</source>
         <extracomment>Indicator for updated groups</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Actualizado al nuevo formato de grupo</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
         <location filename="../qml/pages/GroupProfilePage.qml" line="81"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>No actualizado al nuevo formato de grupo</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
