@@ -25,13 +25,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Melding til meg selv</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kladd: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
@@ -49,14 +49,14 @@
         <location filename="../qml/harbour-whisperfish.qml" line="156"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Klarte ikke å sette opp Signal-klient</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="161"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke sette opp datalager</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -128,7 +128,7 @@
         <location filename="../qml/pages/About.qml" line="117"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Besøk wiki-en</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="126"/>
@@ -319,7 +319,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vis kontakt</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
