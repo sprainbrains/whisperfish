@@ -1112,8 +1112,18 @@ Settings page share contacts</extracomment>
         <extracomment>Attachment picker page title</extracomment>
         <translation>Wybierz załączniki</translation>
     </message>
+    <message id="whisperfish-attachments-plus-n" numerus="yes">
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="220"/>
+        <source>+%n</source>
+        <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
-        <location filename="../qml/components/message/AttachmentsLoader.qml" line="285"/>
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="287"/>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
@@ -1330,13 +1340,13 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="298"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="297"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation>Pokaż informacje o wiadomości</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="312"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="311"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1347,7 +1357,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="322"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="320"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1358,7 +1368,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="335"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="332"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
