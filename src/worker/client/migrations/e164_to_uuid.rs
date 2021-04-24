@@ -50,14 +50,14 @@ impl Handler<E164ToUuid> for ClientActor {
                                 .contains_session(uuid_addr.clone())
                                 .expect("storage")
                             {
-                                log::error!("Already found a session for {}. Refusing to overwrite. Please file a bug report.", uuid);
-                                continue;
+                                log::error!("Already found a session for {}_{}. Refusing to overwrite. Please file a bug report.", uuid, sub_device_session);
+                            } else {
+                                storage
+                                    .store_session(uuid_addr.clone(), e164_session)
+                                    .expect("storage");
+                                SessionStore::delete_session(&storage, e164_addr.clone())
+                                    .expect("storage");
                             }
-                            storage
-                                .store_session(uuid_addr.clone(), e164_session)
-                                .expect("storage");
-                            SessionStore::delete_session(&storage, e164_addr.clone())
-                                .expect("storage");
                         }
 
                         if let Some(e164_identity) =
@@ -74,12 +74,12 @@ impl Handler<E164ToUuid> for ClientActor {
                                 .is_some()
                             {
                                 log::error!("Already found an identity for {}. Refusing to overwrite. Please upvote issue #326.", uuid);
-                                continue;
+                            } else {
+                                storage
+                                    .save_identity(uuid_addr, e164_identity.as_slice())
+                                    .expect("storage");
+                                storage.delete_identity(e164_addr).expect("storage");
                             }
-                            storage
-                                .save_identity(uuid_addr, e164_identity.as_slice())
-                                .expect("storage");
-                            storage.delete_identity(e164_addr).expect("storage");
                         }
                     }
                 }
