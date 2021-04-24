@@ -819,7 +819,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="331"/>
         <source>Restart Whisperfish...</source>
         <extracomment>Restart whisperfish message</extracomment>
-        <translation>Whisperfish neu starten&#xa0;…</translation>
+        <translation>Whisperfish neu starten …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -1113,9 +1113,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="220"/>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1124,8 +1124,8 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>und %1 mehr</numerusform>
-            <numerusform>und %1 mehr</numerusform>
+            <numerusform>und %n mehr</numerusform>
+            <numerusform>und %n mehr</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1308,8 +1308,8 @@ Settings page share contacts</extracomment>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
-            <numerusform>%1 Nachricht ausgewählt</numerusform>
-            <numerusform>%1 Nachrichten ausgewählt</numerusform>
+            <numerusform>%n Nachricht ausgewählt</numerusform>
+            <numerusform>%n Nachrichten ausgewählt</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1343,8 +1343,8 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>%1 Nachricht für mich löschen</numerusform>
-            <numerusform>%1 Nachrichten für mich löschen</numerusform>
+            <numerusform>%n Nachricht für mich löschen</numerusform>
+            <numerusform>%n Nachrichten für mich löschen</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1362,8 +1362,8 @@ Settings page share contacts</extracomment>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Versuchen, (die) fehlgeschlagene Nachricht erneut zu senden</numerusform>
-            <numerusform>Versuchen, (die) fehlgeschlagene(n) Nachrichten erneut zu senden</numerusform>
+            <numerusform>Versuchen, die fehlgeschlagene Nachricht erneut zu senden</numerusform>
+            <numerusform>Versuchen, die fehlgeschlagenen Nachrichten erneut zu senden</numerusform>
         </translation>
     </message>
 </context>
