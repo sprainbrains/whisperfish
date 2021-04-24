@@ -68,18 +68,29 @@ impl Handler<E164ToUuid> for ClientActor {
                                 e164,
                                 uuid
                             );
-                            if storage
-                                .get_identity(uuid_addr.clone())
-                                .expect("storage")
-                                .is_some()
+                            if let Some(uuid_identity) =
+                                storage.get_identity(uuid_addr.clone()).expect("storage")
                             {
-                                log::error!("Already found an identity for {}. Refusing to overwrite. Please upvote issue #326.", uuid);
+                                if uuid_identity == e164_identity {
+                                    log::trace!(
+                                        "Found equal identities for {}/{}. Dropping E164.",
+                                        e164,
+                                        uuid
+                                    );
+                                } else {
+                                    log::warn!("Found unequal identities for {}/{}. Refusing to overwrite; dropping E164.", e164, uuid);
+                                }
                             } else {
+                                log::trace!(
+                                    "Found no UUID identity for {}. Moving to {}.",
+                                    e164,
+                                    uuid
+                                );
                                 storage
                                     .save_identity(uuid_addr, e164_identity.as_slice())
                                     .expect("storage");
-                                storage.delete_identity(e164_addr).expect("storage");
                             }
+                            storage.delete_identity(e164_addr).expect("storage");
                         }
                     }
                 }
