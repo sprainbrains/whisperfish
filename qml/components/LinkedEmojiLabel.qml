@@ -3,7 +3,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Sailfish.TextLinking 1.0
-import "../js/emoji.js" as Emoji
+import "." // for Emojify singleton
 
 /*!
   This component is a Silica label which can optionally parse text
@@ -47,10 +47,6 @@ Label {
     property alias shortenUrl: linkedTextProxy.shortenUrl
     property alias proxy: linkedTextProxy
 
-    // TODO Emoji handling and configuration should be abstracted in /
-    // updated from / shared with sailor-emoji (the emoji keyboard patch):
-    // https://openrepos.net/content/ichthyosaurus/patch-stock-emoji-keyboard-colors
-    readonly property var emojiStyle: Emoji.Style[mainWindow.emojiStyle]
     readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
     readonly property int plainCharactersCount: _parsedCountData !== null ?
                                                     _parsedCountData.plainCount : plainText.length
@@ -63,8 +59,8 @@ Label {
     readonly property real _effectiveEmojiSize: _elideEnabled ?
                                                     1.0*font.pixelSize :
                                                     emojiSizeMult*font.pixelSize
-    property var _parsedEmojiData: enableEmojis ? Emoji.parseAsMarkup(linkedTextProxy.text,
-                                                                      _effectiveEmojiSize, emojiStyle) : null
+    property var _parsedEmojiData: enableEmojis ? Emojify.parse(linkedTextProxy.text,
+                                                              _effectiveEmojiSize) : null
     property string _effectiveText: (enableEmojis && _parsedEmojiData !== null) ?
                                         _parsedEmojiData.text :
                                         linkedTextProxy.text
@@ -75,7 +71,7 @@ Label {
     // We also have to parse the full plain text instead of the elided text
     // to avoid a binding loop through elideFixProxy.font.
     property var _parsedCountData: (enableEmojis && enableCounts) ?
-                                       Emoji.parseAsMarkup(plainText, 0, emojiStyle) : null
+                                       Emojify.parse(plainText, 0) : null
 
     // shadow elide settings; there is no way to ensure they are set to ...None
     readonly property int truncationMode: 0

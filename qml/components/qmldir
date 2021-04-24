@@ -1,0 +1,3 @@
+# Not all QML components have to be listed here.
+singleton Emojify 1.0 Emojify.qml
+LinkedEmojiLabel 1.0 LinkedEmojiLabel.qml
