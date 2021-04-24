@@ -283,7 +283,7 @@ Loader {
                     //: Note if some message attachments are hidden instead of being shown inline
                     //% "and %n more"
                     text: qsTrId("whisperfish-attachments-loader-show-more",
-                                 detailAttachments.length-maxDetails+1).arg(detailAttachments.length-maxDetails+1)
+                                 detailAttachments.length-maxDetails+1)
                     fontSizeMode: Text.Fit
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter

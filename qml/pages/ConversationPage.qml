@@ -254,7 +254,7 @@ Page {
                 //: Info label shown while selecting messages
                 //% "%n message(s) selected"
                 defaultMessage: qsTrId("whisperfish-message-actions-info-label",
-                                       _selectedCount).arg(messages.selectedCount)
+                                       _selectedCount)
             }
 
             // IMPORTANT:
@@ -277,8 +277,7 @@ Page {
                     //: Message action description, shown if one or more messages are selected
                     //% "Clear selection"
                     onPressedChanged: infoLabel.toggleHint(
-                                          qsTrId("whisperfish-message-action-clear-selection",
-                                                 _selectedCount))
+                                          qsTrId("whisperfish-message-action-clear-selection", _selectedCount))
                     onClicked: messages.resetSelection()
                 }
                 IconButton {
@@ -286,8 +285,8 @@ Page {
                     icon.source: "../../icons/icon-m-copy.png"
                     //: Message action description
                     //% "Copy %n message(s)"
-                    onPressedChanged: infoLabel.toggleHint(qsTrId("whisperfish-message-action-copy",
-                                                                  _selectedCount).arg(_selectedCount))
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-copy", _selectedCount))
                     onClicked: messages.messageAction(messages.copySelected)
                 }
                 IconButton {
@@ -309,8 +308,7 @@ Page {
                     //: Message action description
                     //% "Locally delete %n message(s)"
                     onPressedChanged: infoLabel.toggleHint(
-                                          qsTrId("whisperfish-message-action-delete-for-self",
-                                                 _selectedCount).arg(_selectedCount))
+                                          qsTrId("whisperfish-message-action-delete-for-self", _selectedCount))
                     onClicked: messages.messageAction(messages.deleteSelectedForSelf)
                 }
                 IconButton {
@@ -319,8 +317,7 @@ Page {
                     //: Message action description
                     //% "Delete %n message(s) for all"
                     onPressedChanged: infoLabel.toggleHint(
-                                          qsTrId("whisperfish-message-action-delete-for-all",
-                                                 _selectedCount).arg(_selectedCount))
+                                          qsTrId("whisperfish-message-action-delete-for-all", _selectedCount))
                     onClicked: messages.messageAction(messages.deleteSelectedForAll)
                     enabled: false // TODO enable once implemented
                 }
