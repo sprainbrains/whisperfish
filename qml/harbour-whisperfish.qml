@@ -57,24 +57,30 @@ ApplicationWindow
            return
         }
 
-        if (SettingsBridge.boolValue("minimise_notify") && (sid in notificationMap)) {
-            return
-        }
-
         var m
         if(SettingsBridge.boolValue("show_notify_message")) {
             m = messageNotification.createObject(null)
             m.body = message
+            m.itemCount = 1
         } else {
             if (sid in notificationMap) {
                 m = notificationMap[sid][0]
+                m.itemCount++
             } else {
                 m = messageNotification.createObject(null)
+                m.itemCount = 1
             }
             //: Default label for new message notification
             //% "New Message"
             m.body = qsTrId("whisperfish-notification-default-message")
         }
+
+        if (SettingsBridge.boolValue("minimise_notify") && (sid in notificationMap)) {
+            var first_message = notificationMap[sid][0]
+            m.replacesId = first_message.replacesId
+            m.itemCount = first_message.itemCount + 1
+        }
+
         m.category = "harbour-whisperfish-message"
         m.previewSummary = name
         m.previewBody = m.body
