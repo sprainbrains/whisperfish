@@ -47,7 +47,10 @@ Label {
     property alias shortenUrl: linkedTextProxy.shortenUrl
     property alias proxy: linkedTextProxy
 
-    readonly property var emojiStyle: Emoji.Style['openmoji'] // TODO Make emoji style configurable
+    // TODO Emoji handling and configuration should be abstracted in /
+    // updated from / shared with sailor-emoji (the emoji keyboard patch):
+    // https://openrepos.net/content/ichthyosaurus/patch-stock-emoji-keyboard-colors
+    readonly property var emojiStyle: Emoji.Style[mainWindow.emojiStyle]
     readonly property int emojiCount: _parsedCountData !== null ? _parsedCountData.emojiCount : 0
     readonly property int plainCharactersCount: _parsedCountData !== null ?
                                                     _parsedCountData.plainCount : plainText.length
@@ -60,9 +63,8 @@ Label {
     readonly property real _effectiveEmojiSize: _elideEnabled ?
                                                     1.0*font.pixelSize :
                                                     emojiSizeMult*font.pixelSize
-    property var _parsedEmojiData: enableEmojis ? Emoji.parse(linkedTextProxy.text,
-                                                              _effectiveEmojiSize,
-                                                              emojiStyle) : null
+    property var _parsedEmojiData: enableEmojis ? Emoji.parseAsMarkup(linkedTextProxy.text,
+                                                                      _effectiveEmojiSize, emojiStyle) : null
     property string _effectiveText: (enableEmojis && _parsedEmojiData !== null) ?
                                         _parsedEmojiData.text :
                                         linkedTextProxy.text
@@ -73,7 +75,7 @@ Label {
     // We also have to parse the full plain text instead of the elided text
     // to avoid a binding loop through elideFixProxy.font.
     property var _parsedCountData: (enableEmojis && enableCounts) ?
-                                       Emoji.parse(plainText, 0, emojiStyle) : null
+                                       Emoji.parseAsMarkup(plainText, 0, emojiStyle) : null
 
     // shadow elide settings; there is no way to ensure they are set to ...None
     readonly property int truncationMode: 0

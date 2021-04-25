@@ -45,25 +45,31 @@
 // TODO: handle missing icons/characters instead of showing an empty space
 // TODO: Is there a way to include official Signal emojis?
 
+// NOTE This version string must be updated with each change to the script.
+// We strictly follow Semantic Versioning 2.0.0, https://semver.org/.
+// While at version < 1.0.0, the public API may change at any time.
+var version = '0.1.0'
+
 // Data directories: emojis are by default located in StandardPaths.data/emojis,
 // which is typically $HOME/.local/share/sailor-emoji. The base directory has to
 // be initialized from QML, as this script cannot access the StandardPaths object.
-var dataBaseDirectory = '' // base path to emoji sources
+var dataBaseDirectory = '' // e.g. /home/nemo/.local/share; base path to emoji sources
 var emojiSubDirectory = 'sailor-emoji' // subdirectory below DataBaseDirectory
 
 // Emoji styles: emojis can be in raster or vector format. Raster emojis are
 // required in multiple resolutions.
 // Path: base/subdir/<style>/<version>/[<resolution>/]<codepoint>.<ext>
 var Style = { // could be initialized on startup with user-configured values
-    'openmoji': { dir: 'openmoji/13.0.0', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
-    'twemoji': { dir: 'twemoji/13.0.1', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
-    'whatsapp': { dir: 'whatsapp/2.20.206.24', ext: 'png', type: 'r' }, // proprietary
-    'system': { type: 's' }
+    'openmoji': { name: 'OpenMoji', dir: 'openmoji/13.0.0', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
+    'twemoji': { name: 'Twemoji', dir: 'twemoji/13.0.1', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
+    'whatsapp': { name: 'Whatsapp', dir: 'whatsapp/2.20.206.24', ext: 'png', type: 'r' }, // proprietary
+    'system': { name: 'System', dir: '', ext: '', type: 's' }
 }
 
 // Required raster resolutions: Qt cannot scale inline images up, only down.
 // Sizes available from Emojipedia: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
-var rasterSizes = [144, 72] // decreasing
+//var rasterSizes = [144, 120, 72, 60] // decreasing
+var rasterSizes = [144, 72, 60] // decreasing
 var rasterSizesCache = {}
 
 // Styles are checked once (raster styles once per resolution) and the results
@@ -71,10 +77,34 @@ var rasterSizesCache = {}
 // i.e. the system font will be used. Emojis are always counted, though.
 var styleStatusCache = {}
 
-function checkStyle(path, style) {
+// Check if a style is installed.
+// Return:
+// - <0 = not installed
+// -  0 = fully installed
+// - >0 = incomplete, i.e. raster sizes are missing
+function isInstalled(style, noCache) {
+    if (style.type === 's') return 0
+    var status = 0, check = {}
+    if (style.type === 'r') {
+        for (var i in rasterSizes) {
+            check = getParseSettings(style, rasterSizes[i], rasterSizes[i], true, noCache)
+            if (check.useSystem === true) status += 1
+        }
+        if (status === rasterSizes.length) {
+            // no sizes found, i.e. not installed
+            status = -1
+        }
+    } else {
+        check = getParseSettings(style, rasterSizes[i], rasterSizes[i], true, noCache)
+        if (check.useSystem === true) status = -1
+    }
+    return status
+}
+
+function checkStyle(path, style, noCache) {
   // TODO This is a hack and should be implemented in rust for better checks
   // and better performance. Ideally we should check if a set is complete...
-  if (styleStatusCache.hasOwnProperty(path)) {
+  if ((!noCache) && styleStatusCache.hasOwnProperty(path)) {
     return styleStatusCache[path];
   }
   if (style.dir === '') { // use system font
@@ -92,6 +122,67 @@ function checkStyle(path, style) {
   if (!success) console.error("failed to load emoji style at", cleanPath+'/2764.'+style.ext);
   styleStatusCache[path] = success;
   return success;
+}
+
+function getParseSettings(style, size, maxRasterSize, noGrow, noCache) {
+    var sourceSize = -1, stylePath = '', useSystem = false, effectiveSize = 0;
+    if (noGrow === true) {
+      effectiveSize = Math.round(size);
+    } else {
+      effectiveSize = Math.round(1.15*size);
+    }
+
+    if (style.type === 'r' /* raster */) {
+      if (maxRasterSize > 0) {
+        effectiveSize = maxRasterSize
+      }
+
+      // We have to choose the best source resolution for raster emojis.
+      // Qt only supports downscaling of inline images, so we select the
+      // closest resolution above the desired size.
+
+      var cached = (!!noCache) ? undefined : rasterSizesCache[effectiveSize]
+      if (cached !== undefined) {
+        sourceSize = cached.source
+        stylePath = cached.path
+        effectiveSize = cached.effective
+      } else {
+        var key = effectiveSize
+        // Reset the desired size to the largest available size.
+        if (effectiveSize > rasterSizes[0]) effectiveSize = rasterSizes[0]
+
+        for (var i in rasterSizes) {
+          // Select the new size if it is >= the desired size.
+          if (rasterSizes[i] >= effectiveSize) sourceSize = rasterSizes[i]
+        }
+
+        // Reset the source size to the smallest available size if none was found.
+        // Reset the effective size if the fallback resolution too small.
+        if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
+        if (effectiveSize > sourceSize) effectiveSize = sourceSize
+
+        stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
+                                             style.dir, '/', sourceSize))
+
+        // cache the result using the original effectiveSize as key
+        rasterSizesCache[key] = {source: sourceSize, effective: effectiveSize, path: stylePath}
+      }
+    } else if (style.type === 's') {
+      useSystem = true
+    } else {
+      stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
+                                           style.dir))
+    }
+
+    if (!useSystem && !checkStyle(stylePath, style, noCache)) {
+        useSystem = true;
+    }
+
+    return {
+        useSystem: useSystem,
+        stylePath: stylePath,
+        effectiveSize: effectiveSize,
+    }
 }
 // +++ WF: ↑↑ Whisperfish configuration
 
@@ -149,14 +240,14 @@ function parseString(str, options) {
   var emojiCount = 0, plainCount = 0; // +++ WF: added
   var ret = replace(str, function (rawText) { // +++ WF: don't return immediately
     var
-      ret = rawText,
+      ret = options.includePlain ? rawText : '',
       iconId = grabTheRightIcon(rawText),
       src = options.callback(iconId, options);
     if (iconId && src) {
       // recycle the match string replacing the emoji
       // with its image counter part
       // +++ WF: Replaced injected HTML code.
-      ret = '<img '.concat(
+      ret = options.asMarkup ? '<img '.concat(
         'src="',
         src,
         '" align="middle" width="',
@@ -164,7 +255,7 @@ function parseString(str, options) {
         '" height="',
         options.size,
         '"/>'
-      );
+      ) : src;
       // +++ WF: Removed extra attributes handling
       emojiCount++; // +++ WF: added counting
     } else {
@@ -173,7 +264,7 @@ function parseString(str, options) {
     return ret;
   });
   plainCount = String(str).replace(re, '').length; // +++ WF: remove emojis
-  return { 'emojiCount': emojiCount, 'plainCount': plainCount, 'text': ret}; // +++ WF: added
+  return { 'emojiCount': emojiCount, 'plainCount': plainCount, 'text': ret }; // +++ WF: added
 }
 
 // +++ WF: unchanged
@@ -197,58 +288,24 @@ function toCodePoint(unicodeSurrogates, sep) {
   return r.join(sep || '-');
 }
 
+function parseAsMarkup(what, size, style, noGrow, maxRasterSize) {
+    return parse(what, size, style, noGrow, maxRasterSize, true, true)
+}
+
+function parseSingleUrl(what, size, style, noGrow, maxRasterSize) {
+    return parse(what, size, style, noGrow, maxRasterSize, false, false)
+}
+
 // +++ WF: Adapted from the original parse(what, how) function.
-function parse(what, size, style) {
-  var effectiveSize = Math.round(1.15*size);
-  var sourceSize = -1, stylePath = '', useSystem = false;
-
-  if (style.type === 'r' /* raster */) {
-    // We have to choose the best source resolution for raster emojis.
-    // Qt only supports downscaling of inline images, so we select the
-    // closest resolution above the desired size.
-
-    var cached = rasterSizesCache[effectiveSize]
-    if (cached !== undefined) {
-      sourceSize = cached.source
-      stylePath = cached.path
-      effectiveSize = cached.effective
-    } else {
-      var key = effectiveSize
-      // Reset the desired size to the largest available size.
-      if (effectiveSize > rasterSizes[0]) effectiveSize = rasterSizes[0]
-
-      for (var i in rasterSizes) {
-        // Select the new size if it is >= the desired size.
-        if (rasterSizes[i] >= effectiveSize) sourceSize = rasterSizes[i]
-      }
-
-      // Reset the source size to the smallest available size if none was found.
-      // Reset the effective size if the fallback resolution too small.
-      if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
-      if (effectiveSize > sourceSize) effectiveSize = sourceSize
-
-      stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
-                                           style.dir, '/', sourceSize))
-
-      // cache the result using the original effectiveSize as key
-      rasterSizesCache[key] = {source: sourceSize, effective: effectiveSize, path: stylePath}
-    }
-  } else if (style.type === 's') {
-    useSystem = true
-  } else {
-    stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
-                                         style.dir))
-  }
-
-  if (!useSystem && !checkStyle(stylePath, style)) {
-      useSystem = true;
-  }
-
+function parse(what, size, style, noGrow, maxRasterSize, includePlain, asMarkup) {
+  var settings = getParseSettings(style, size, maxRasterSize, noGrow)
   return parseString(what, {
     callback: function(icon, options) {
-      if (useSystem) return null
-      else return ''.concat(stylePath, '/', icon, '.', style.ext)
+      if (settings.useSystem) return null
+      else return ''.concat(settings.stylePath, '/', icon, '.', style.ext)
     },
-    size: effectiveSize
+    size: settings.effectiveSize,
+    includePlain: (includePlain !== false),
+    asMarkup: (asMarkup !== false)
   });
 }
