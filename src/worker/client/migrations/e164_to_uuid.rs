@@ -50,14 +50,39 @@ impl Handler<E164ToUuid> for ClientActor {
                                 .contains_session(uuid_addr.clone())
                                 .expect("storage")
                             {
-                                log::error!("Already found a session for {}. Refusing to overwrite. Please file a bug report.", uuid);
-                                continue;
+                                // XXX At this point, we are not necessarily connected to the
+                                // websocket.
+                                // This means that we cannot programmatically trigger an EndSession
+                                // from here.  Whenever we figure out to *correctly* queue
+                                // messages
+                                // (https://gitlab.com/whisperfish/whisperfish/-/issues/282), we
+                                // can actually trigger a full session reset here.
+                                //
+                                // Our workaround consists of logging a warning, writing a "pseudo
+                                // message" in the session, and keeping the issue open.
+                                log::error!("Already found a session for {}_{}. This is a problem and may mean losing messages. Use the \"End session\" functionality in a direct message with {}, and upvote issue #336.", uuid, sub_device_session, e164);
+                                storage.process_message(crate::store::NewMessage {
+                                    attachment: None,
+                                    flags: 0, // TODO: make this EndSession
+                                    has_attachment: false,
+                                    session_id: None,
+                                    source_e164: Some(e164.clone()),
+                                    source_uuid: Some(uuid.clone()),
+                                    text: "[Whisperfish WARN] You somehow got issue #336 (https://gitlab.com/whisperfish/whisperfish/-/issues/336). Use the \"End session\" functionality in this session; you may otherwise fail to send or receive messages with this person.  This message will be repeated on every start of Whisperfish.".into(),
+                                    timestamp: chrono::Utc::now().naive_utc(),
+                                    sent: false,
+                                    received: true,
+                                    is_read: false,
+                                    mime_type: None,
+                                    outgoing: false,
+                                }, None);
+                            } else {
+                                storage
+                                    .store_session(uuid_addr.clone(), e164_session)
+                                    .expect("storage");
+                                SessionStore::delete_session(&storage, e164_addr.clone())
+                                    .expect("storage");
                             }
-                            storage
-                                .store_session(uuid_addr.clone(), e164_session)
-                                .expect("storage");
-                            SessionStore::delete_session(&storage, e164_addr.clone())
-                                .expect("storage");
                         }
 
                         if let Some(e164_identity) =
@@ -68,17 +93,28 @@ impl Handler<E164ToUuid> for ClientActor {
                                 e164,
                                 uuid
                             );
-                            if storage
-                                .get_identity(uuid_addr.clone())
-                                .expect("storage")
-                                .is_some()
+                            if let Some(uuid_identity) =
+                                storage.get_identity(uuid_addr.clone()).expect("storage")
                             {
-                                log::error!("Already found an identity for {}. Refusing to overwrite. Please upvote issue #326.", uuid);
-                                continue;
+                                if uuid_identity == e164_identity {
+                                    log::trace!(
+                                        "Found equal identities for {}/{}. Dropping E164.",
+                                        e164,
+                                        uuid
+                                    );
+                                } else {
+                                    log::warn!("Found unequal identities for {}/{}. Refusing to overwrite; dropping E164.", e164, uuid);
+                                }
+                            } else {
+                                log::trace!(
+                                    "Found no UUID identity for {}. Moving to {}.",
+                                    e164,
+                                    uuid
+                                );
+                                storage
+                                    .save_identity(uuid_addr, e164_identity.as_slice())
+                                    .expect("storage");
                             }
-                            storage
-                                .save_identity(uuid_addr, e164_identity.as_slice())
-                                .expect("storage");
                             storage.delete_identity(e164_addr).expect("storage");
                         }
                     }
