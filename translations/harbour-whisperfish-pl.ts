@@ -954,13 +954,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
         <source>Updated to the new group format</source>
         <extracomment>Indicator for updated groups</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zaktualizowano do nowego formatu grupy</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
         <location filename="../qml/pages/GroupProfilePage.qml" line="81"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nie zaktualizowano do nowego formatu grupy</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
@@ -1116,10 +1116,10 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="220"/>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>i +%n więcej</numerusform>
+            <numerusform>i +%n więcej</numerusform>
+            <numerusform>i +%n więcej</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
