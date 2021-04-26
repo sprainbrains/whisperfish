@@ -327,7 +327,7 @@ Page {
                     if(checked != SettingsBridge.boolValue("incognito")) {
                         remorse.execute(
                             //: Restart whisperfish remorse timer message (past tense)
-                            //% "Whisperfish restarted"
+                            //% "Restarting Whisperfish"
                             qsTrId("whisperfish-settings-restarting-message"),
                             function() {
                                 SettingsBridge.boolSet("incognito", checked)
