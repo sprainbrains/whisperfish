@@ -40,19 +40,19 @@
         <translation>Elimina la conversazione</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="89"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="90"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nuovo messaggio</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="170"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="172"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Impossibile configurare il cliente Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="175"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="177"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
