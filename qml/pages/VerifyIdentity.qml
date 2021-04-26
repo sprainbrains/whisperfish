@@ -20,7 +20,7 @@ Page {
                 enabled: MessageModel.peerIdentity.length > 0
                 onClicked: {
                     //: Reset secure session remorse message (past tense)
-                    //% "Secure session reseted"
+                    //% "Secure session reset"
                     remorse.execute(qsTrId("whisperfish-reset-session-message"),
                         function() {
                             console.log("Resetting secure session: "+MessageModel.peerTel)
