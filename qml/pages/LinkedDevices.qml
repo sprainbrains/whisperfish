@@ -44,8 +44,8 @@ Page {
             menu: deviceContextMenu
 
             function remove(contentItem) {
-                //: Unlinking remorse info message for unlinking secondary devices.
-                //% "Unlinking"
+                //: Unlinking remorse info message for unlinking secondary devices (past tense)
+                //% "Unlinked"
                 contentItem.remorseAction(qsTrId("whisperfish-device-unlink-message"),
                     function() {
                         console.log("Unlink device: ", model)
