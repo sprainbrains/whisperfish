@@ -17,8 +17,9 @@
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="51"/>
-        <source>Deleting all messages</source>
-        <extracomment>Delete all messages from session</extracomment>
+        <source>All messages deleted</source>
+        <oldsource>Deleting all messages</oldsource>
+        <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation type="unfinished">Slett alle meldinger</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
@@ -186,8 +187,9 @@
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
-        <source>Unlinking</source>
-        <extracomment>Unlinking remorse info message for unlinking secondary devices.</extracomment>
+        <source>Unlinked</source>
+        <oldsource>Unlinking</oldsource>
+        <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
         <translation type="unfinished">Oppheving av lenking</translation>
     </message>
     <message id="whisperfish-current-device-name">
@@ -311,9 +313,10 @@
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
-        <source>Resetting secure session</source>
-        <extracomment>Reset secure session remorse message</extracomment>
-        <translation>Tilbakestiller sikker økt</translation>
+        <source>Secure session reset</source>
+        <oldsource>Resetting secure session</oldsource>
+        <extracomment>Reset secure session remorse message (past tense)</extracomment>
+        <translation type="unfinished">Tilbakestiller sikker økt</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -818,8 +821,9 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="331"/>
-        <source>Restart Whisperfish...</source>
-        <extracomment>Restart whisperfish message</extracomment>
+        <source>Restarting Whisperfish</source>
+        <oldsource>Restart Whisperfish...</oldsource>
+        <extracomment>Restart whisperfish remorse timer message (past tense)</extracomment>
         <translation type="unfinished">Omstart av Whisperfish …</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
@@ -970,10 +974,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
-        <source>Leaving group and removing ALL messages!</source>
-        <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
-        <extracomment>Leave group remorse message</extracomment>
-        <translation>Forlater gruppe og fjerner ALLE meldinger!</translation>
+        <source>Left group and deleted all messages</source>
+        <oldsource>Leaving group and removing ALL messages!</oldsource>
+        <extracomment>Leave group remorse message (past tense)</extracomment>
+        <translation type="unfinished">Forlater gruppe og fjerner ALLE meldinger!</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>

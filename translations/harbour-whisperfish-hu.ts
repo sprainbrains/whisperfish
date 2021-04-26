@@ -17,9 +17,10 @@
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="51"/>
-        <source>Deleting all messages</source>
-        <extracomment>Delete all messages from session</extracomment>
-        <translation>Minden üzenet törlése</translation>
+        <source>All messages deleted</source>
+        <oldsource>Deleting all messages</oldsource>
+        <extracomment>Delete all messages from session (past tense)</extracomment>
+        <translation type="unfinished">Minden üzenet törlése</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
@@ -186,9 +187,10 @@
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
-        <source>Unlinking</source>
-        <extracomment>Unlinking remorse info message for unlinking secondary devices.</extracomment>
-        <translation>Elkülönítés</translation>
+        <source>Unlinked</source>
+        <oldsource>Unlinking</oldsource>
+        <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
+        <translation type="unfinished">Elkülönítés</translation>
     </message>
     <message id="whisperfish-current-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="65"/>
@@ -310,9 +312,10 @@
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
-        <source>Resetting secure session</source>
-        <extracomment>Reset secure session remorse message</extracomment>
-        <translation>Biztonságos munkamenet visszaállítása</translation>
+        <source>Secure session reset</source>
+        <oldsource>Resetting secure session</oldsource>
+        <extracomment>Reset secure session remorse message (past tense)</extracomment>
+        <translation type="unfinished">Biztonságos munkamenet visszaállítása</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -817,9 +820,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-restarting-message">
         <location filename="../qml/pages/Settings.qml" line="331"/>
-        <source>Restart Whisperfish...</source>
-        <extracomment>Restart whisperfish message</extracomment>
-        <translation>A Whisperfish újraindítása...</translation>
+        <source>Restarting Whisperfish</source>
+        <oldsource>Restart Whisperfish...</oldsource>
+        <extracomment>Restart whisperfish remorse timer message (past tense)</extracomment>
+        <translation type="unfinished">A Whisperfish újraindítása...</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -969,10 +973,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-group-leave-remorse">
         <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
-        <source>Leaving group and removing ALL messages!</source>
-        <oldsource>Leaving group. This will permanently remove ALL group messages!</oldsource>
-        <extracomment>Leave group remorse message</extracomment>
-        <translation>Kilépés a csoportból és az ÖSSZES üzenet törlése!</translation>
+        <source>Left group and deleted all messages</source>
+        <oldsource>Leaving group and removing ALL messages!</oldsource>
+        <extracomment>Leave group remorse message (past tense)</extracomment>
+        <translation type="unfinished">Kilépés a csoportból és az ÖSSZES üzenet törlése!</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
