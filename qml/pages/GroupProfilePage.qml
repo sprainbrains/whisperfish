@@ -190,8 +190,8 @@ Page {
                     //      Two different destructive actions should require two different
                     //      inputs and two confirmations.
                     //      Is it enough to remove the 'removeById' line?
-                    //: Leave group remorse message
-                    //% "Leaving group and removing ALL messages!"
+                    //: Leave group remorse message (past tense)
+                    //% "Left group and deleted all messages"
                     remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
                                     function() {
                                         console.log("Leaving group")

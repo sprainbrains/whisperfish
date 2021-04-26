@@ -46,8 +46,8 @@ ListItem {
     ListView.onRemove: animateRemoval(delegate)
 
     function remove(contentItem) {
-        //: Delete all messages from session
-        //% "Deleting all messages"
+        //: Delete all messages from session (past tense)
+        //% "All messages deleted"
         contentItem.remorseAction(qsTrId("whisperfish-session-delete-all"),
             function() {
                 console.log("Deleting all messages for session: "+model.id)
