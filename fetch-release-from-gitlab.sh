@@ -6,7 +6,7 @@ archs="aarch64 i486 armv7hl"
 # Download
 for arch in $archs; do
     [ -e "$version-$arch.zip" ] && continue
-    curl -LvJO "https://gitlab.com/rubdos/whisperfish/-/jobs/artifacts/$version/download?job=build:$arch"
+    curl -LvJO "https://gitlab.com/whisperfish/whisperfish/-/jobs/artifacts/$version/download?job=build:$arch"
     mv artifacts.zip $version-$arch.zip
 done
 
