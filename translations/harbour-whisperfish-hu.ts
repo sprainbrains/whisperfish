@@ -269,7 +269,6 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>%n üzenet törölve helyileg</numerusform>
-            <numerusform>%n üzenet törölve helyileg</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -1089,7 +1088,6 @@ Settings page share contacts</extracomment>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
             <numerusform>%n csatolmány</numerusform>
-            <numerusform>%n csatolmány</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1116,7 +1114,6 @@ Settings page share contacts</extracomment>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
-            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1125,7 +1122,6 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>és még %n</numerusform>
             <numerusform>és még %n</numerusform>
         </translation>
     </message>
@@ -1310,7 +1306,6 @@ Settings page share contacts</extracomment>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
             <numerusform>%n üzenet kijelölve</numerusform>
-            <numerusform>%n üzenet kijelölve</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1319,7 +1314,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
             <numerusform>Kijelölt törlése</numerusform>
-            <numerusform>Kijelöltek törlése</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1328,7 +1322,6 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>%n üzenet másolása</numerusform>
             <numerusform>%n üzenet másolása</numerusform>
         </translation>
     </message>
@@ -1345,7 +1338,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>%n üzenet törlése helyileg</numerusform>
-            <numerusform>%n üzenet törlése helyileg</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1355,7 +1347,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>%n üzenet törlése mindenki számára</numerusform>
-            <numerusform>%n üzenet törlése mindenki számára</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1364,7 +1355,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Próbálja újraküldeni a sikertelen üzenetet</numerusform>
-            <numerusform>Próbálja újraküldeni a sikertelen üzeneteket</numerusform>
         </translation>
     </message>
 </context>
