@@ -61,9 +61,10 @@ ApplicationWindow
         MessageModel.load(sid, name)
     }
 
-    function newMessageNotification(sid, source, message, isGroup) {
-        var contact = resolvePeopleModel.personByPhoneNumber(source);
-        var name = contact ? contact.displayLabel : source;
+    function newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup) {
+        var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier);
+        var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
+        var contactName = contact ? contact.displayLabel : senderIdentifier;
 
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
@@ -99,11 +100,12 @@ ApplicationWindow
         m.previewSummary = name
         m.previewBody = m.body
         m.summary = name
+        m.subText = contactName
         m.clicked.connect(function() {
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
-            mainWindow.activateSession(sid, name, source)
+            mainWindow.activateSession(sid, name, sessionName)
             pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), {}, PageStackAction.Immediate)
         })
         // This is needed to call default action
@@ -145,7 +147,7 @@ ApplicationWindow
             }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, source, message, isGroup)
+            newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup)
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {

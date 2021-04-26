@@ -60,7 +60,13 @@ pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
     messageReceived: qt_signal!(sid: i32, mid: i32),
     messageReceipt: qt_signal!(sid: i32, mid: i32),
-    notifyMessage: qt_signal!(sid: i32, source: QString, message: QString, isGroup: bool),
+    notifyMessage: qt_signal!(
+        sid: i32,
+        sessionName: QString,
+        senderIdentifier: QString,
+        message: QString,
+        isGroup: bool
+    ),
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
 
@@ -169,6 +175,11 @@ impl ClientActor {
         let settings = crate::config::Settings::default();
 
         let storage = self.storage.as_mut().expect("storage");
+        let sender_recipient = storage.merge_and_fetch_recipient(
+            source_e164.as_deref(),
+            source_uuid.as_deref(),
+            crate::store::TrustLevel::Certain,
+        );
 
         if msg.flags() & DataMessageFlags::EndSession as u32 != 0 {
             use libsignal_protocol::stores::SessionStore;
@@ -317,7 +328,7 @@ impl ClientActor {
 
         // XXX If from ourselves, skip
         if settings.get_bool("enable_notify") && !is_sync_sent {
-            let name: &str = match &session.r#type {
+            let session_name: &str = match &session.r#type {
                 orm::SessionType::GroupV1(group) => &group.name,
                 orm::SessionType::GroupV2(group) => &group.name,
                 orm::SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
@@ -325,9 +336,10 @@ impl ClientActor {
 
             self.inner.pinned().borrow_mut().notifyMessage(
                 session.id,
-                name.into(),
+                session_name.into(),
+                sender_recipient.e164_or_uuid().into(),
                 message.text.as_deref().unwrap_or("").into(),
-                session.is_group_v1(),
+                session.is_group(),
             );
         }
     }
