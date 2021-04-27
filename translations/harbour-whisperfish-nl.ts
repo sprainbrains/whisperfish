@@ -99,7 +99,7 @@
         <location filename="../qml/pages/About.qml" line="54"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation>Serienummer: %1</translation>
+        <translation>Versie: %1</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
