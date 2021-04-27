@@ -175,11 +175,15 @@ impl ClientActor {
         let settings = crate::config::Settings::default();
 
         let storage = self.storage.as_mut().expect("storage");
-        let sender_recipient = storage.merge_and_fetch_recipient(
-            source_e164.as_deref(),
-            source_uuid.as_deref(),
-            crate::store::TrustLevel::Certain,
-        );
+        let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {
+            Some(storage.merge_and_fetch_recipient(
+                source_e164.as_deref(),
+                source_uuid.as_deref(),
+                crate::store::TrustLevel::Certain,
+            ))
+        } else {
+            None
+        };
 
         if msg.flags() & DataMessageFlags::EndSession as u32 != 0 {
             use libsignal_protocol::stores::SessionStore;
@@ -337,7 +341,9 @@ impl ClientActor {
             self.inner.pinned().borrow_mut().notifyMessage(
                 session.id,
                 session_name.into(),
-                sender_recipient.e164_or_uuid().into(),
+                sender_recipient
+                    .map(|x| x.e164_or_uuid().into())
+                    .unwrap_or("".into()),
                 message.text.as_deref().unwrap_or("").into(),
                 session.is_group(),
             );
