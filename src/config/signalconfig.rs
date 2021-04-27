@@ -93,7 +93,7 @@ impl SignalConfig {
         self.share_dir.join("storage")
     }
 
-    pub fn get_attachment_dir(&self) -> std::path::PathBuf {
+    pub fn default_attachment_dir(&self) -> std::path::PathBuf {
         self.share_dir.join("storage").join("attachments")
     }
 

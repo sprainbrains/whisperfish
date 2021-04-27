@@ -163,7 +163,7 @@ impl Settings {
             "attachment_dir",
             // XXX this has to be adapted to current config struct
             &crate::config::SignalConfig::default()
-                .get_attachment_dir()
+                .default_attachment_dir()
                 .to_string_lossy(),
         );
     }

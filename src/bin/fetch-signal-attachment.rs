@@ -50,7 +50,8 @@ async fn main() -> Result<(), anyhow::Error> {
     let opt = Opt::from_args();
 
     let config = harbour_whisperfish::config::SignalConfig::read_from_file()?;
-    let dir = config.get_attachment_dir();
+    let settings = harbour_whisperfish::config::Settings::default();
+    let dir = settings.get_string("attachment_dir");
     let dest = Path::new(&dir);
 
     let mut storage = Storage::open(&store::default_location()?, opt.password).await?;

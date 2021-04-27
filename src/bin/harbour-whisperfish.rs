@@ -66,13 +66,12 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     // Right now, we only create the attachment (and storage) directory if necessary
     // With more refactoring there should be probably more initialization here
     // Not creating the storage/attachment directory is fatal and we return here.
-    if !config.get_attachment_dir().exists() {
-        std::fs::create_dir_all(&config.get_attachment_dir()).with_context(|| {
-            format!(
-                "Could not create attachment dir: {}",
-                config.get_attachment_dir().display()
-            )
-        })?;
+    let settings = crate::config::Settings::default();
+    let dir = settings.get_string("attachment_dir");
+    let path = std::path::Path::new(dir.trim());
+    if !path.exists() {
+        std::fs::create_dir_all(path)
+            .with_context(|| format!("Could not create attachment dir: {}", path.display()))?;
     }
 
     sfos::TokioQEventDispatcher::install();

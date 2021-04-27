@@ -310,7 +310,7 @@ impl ClientActor {
                 // in this method, as well as the generated path.
                 // We have this function that returns a filesystem path, so we can
                 // set it ourselves.
-                let dir = self.config.get_attachment_dir();
+                let dir = settings.get_string("attachment_dir");
                 let dest = Path::new(&dir);
 
                 ctx.notify(FetchAttachment {
