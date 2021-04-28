@@ -2,6 +2,13 @@ variables: &variables
   SFOS_VERSION: 3.4.0.24
   CARGO_HOME: $CI_PROJECT_DIR/cargo
 
+include:
+  # Awesome OpenRepos script by @nobodyinperson/Yann Büchau
+  - https://gitlab.com/nobodyinperson/python3-openrepos-webclient/-/raw/master/openrepos-upload-rpm.gitlab-ci.yml
+  # The MergeRequest-Pipelines template makes your pipelines run for the default branch, tags, and all types of merge request pipelines.
+  # Use this template if you use any of the the pipelines for merge requests features. 
+  - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
+
 stages:
   - build
   - test
@@ -252,10 +259,6 @@ pages:
   artifacts:
     paths:
       - public
-
-# Awesome OpenRepos script by @nobodyinperson/Yann Büchau
-include:
-  - https://gitlab.com/nobodyinperson/python3-openrepos-webclient/-/raw/master/openrepos-upload-rpm.gitlab-ci.yml
 
 openrepos-deploy:
   stage: deploy
