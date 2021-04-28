@@ -9,7 +9,7 @@ stages:
   - deploy
 
 .build-target: &build-target
-  image: registry.gitlab.com/rubdos/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:latest
+  image: registry.gitlab.com/whisperfish/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
   artifacts:
     paths:
