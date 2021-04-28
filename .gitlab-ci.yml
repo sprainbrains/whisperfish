@@ -264,6 +264,7 @@ openrepos-deploy:
     OPENREPOS_UPLOAD_RPM_APPNAME:  Whisperfish
     OPENREPOS_UPLOAD_RPM_PLATFORM: SailfishOS
     OPENREPOS_UPLOAD_RPM_CATEGORY: Applications
+    OPENREPOS_ACTION_DELAY: 3
   environment:
       name: OpenRepos
       url: https://openrepos.net/content/rubdos/whisperfish
