@@ -133,7 +133,7 @@ sailfish = []
 harbour = []
 
 [patch."https://github.com/signalapp/zkgroup"]
-zkgroup = { git = "https://gitlab.com/rubdos/zkgroup-whisperfish", branch = "whisperfork" }
+zkgroup = { git = "https://gitlab.com/whisperfish/zkgroup-whisperfish", branch = "whisperfork" }
 
 #
 # [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
