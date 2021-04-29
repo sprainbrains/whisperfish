@@ -343,7 +343,7 @@ impl ClientActor {
                 session_name.into(),
                 sender_recipient
                     .map(|x| x.e164_or_uuid().into())
-                    .unwrap_or("".into()),
+                    .unwrap_or_else(|| "".into()),
                 message.text.as_deref().unwrap_or("").into(),
                 session.is_group(),
             );
