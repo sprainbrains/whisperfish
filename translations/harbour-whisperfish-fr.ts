@@ -1311,8 +1311,8 @@ Settings page share contacts</extracomment>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
-            <numerusform>%1 message sélectionné</numerusform>
-            <numerusform>%1 messages sélectionnés</numerusform>
+            <numerusform>%n message sélectionné</numerusform>
+            <numerusform>%n messages sélectionnés</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1330,8 +1330,8 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Copier %1 message</numerusform>
-            <numerusform>Copier %1 messages</numerusform>
+            <numerusform>Copier %n message</numerusform>
+            <numerusform>Copier %n messages</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -1346,8 +1346,8 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Supprimer %1 message pour moi</numerusform>
-            <numerusform>Supprimer %1 messages pour moi</numerusform>
+            <numerusform>Supprimer %n message pour moi</numerusform>
+            <numerusform>Supprimer %n messages pour moi</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1356,8 +1356,8 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Supprimer %1 message pour tous</numerusform>
-            <numerusform>Supprimer %1 messages pour tous</numerusform>
+            <numerusform>Supprimer %n message pour tous</numerusform>
+            <numerusform>Supprimer %n messages pour tous</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
