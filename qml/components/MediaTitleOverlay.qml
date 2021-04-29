@@ -12,7 +12,10 @@ Item {
     id: overlay
     z: 100
     anchors.fill: parent
-    property alias title: titleLabel.text
+    property alias title: _titleLabel.text
+    property alias subtitle: _subtitleLabel.text
+    property alias titleItem: _titleLabel
+    property alias subtitleItem: _subtitleLabel
 
     property bool shown: true
     opacity: shown ? 1.0 : 0.0; visible: opacity != 0.0
@@ -23,7 +26,10 @@ Item {
 
     Rectangle {
         anchors.top: parent.top
-        height: Theme.itemSizeLarge
+        height: Math.max(Theme.itemSizeLarge,
+                         _titleLabel.height+_subtitleLabel.height +
+                         2*Theme.horizontalPageMargin +
+                         Theme.paddingMedium)
         width: parent.width
 
         gradient: Gradient {
@@ -32,11 +38,32 @@ Item {
         }
 
         Label {
-            id: titleLabel
-            anchors.fill: parent
-            anchors.margins: Theme.horizontalPageMargin
+            id: _titleLabel
+            anchors {
+                top: parent.top
+                margins: Theme.horizontalPageMargin
+                left: parent.left
+                right: parent.right
+            }
             color: Theme.highlightColor
-            font.pixelSize: Theme.fontSizeLarge
+            font.pixelSize: subtitle === '' ? Theme.fontSizeLarge :
+                                              Theme.fontSizeMedium
+            elide: Text.ElideNone
+            truncationMode: TruncationMode.Fade
+            horizontalAlignment: Text.AlignRight
+        }
+
+        Label {
+            id: _subtitleLabel
+            anchors {
+                top: _titleLabel.baseline
+                topMargin: Theme.paddingMedium
+                left: _titleLabel.left
+                right: _titleLabel.right
+            }
+            color: _titleLabel.color
+            font.pixelSize: Theme.fontSizeSmall
+            elide: Text.ElideNone
             truncationMode: TruncationMode.Fade
             horizontalAlignment: Text.AlignRight
         }
