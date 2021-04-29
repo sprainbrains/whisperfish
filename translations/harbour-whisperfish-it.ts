@@ -20,7 +20,7 @@
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation type="unfinished">Eliminazione di tutti i messaggi</translation>
+        <translation>Messaggi tutti eliminati</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
@@ -190,7 +190,7 @@
         <source>Unlinked</source>
         <oldsource>Unlinking</oldsource>
         <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
-        <translation type="unfinished">Scollegamento</translation>
+        <translation>Scollegato</translation>
     </message>
     <message id="whisperfish-current-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="65"/>
@@ -316,7 +316,7 @@
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
-        <translation type="unfinished">Reimpostazione della sessione sicura</translation>
+        <translation>Sessione sicura reimpostata</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -824,7 +824,7 @@ Settings page share contacts</extracomment>
         <source>Restarting Whisperfish</source>
         <oldsource>Restart Whisperfish...</oldsource>
         <extracomment>Restart whisperfish remorse timer message (past tense)</extracomment>
-        <translation type="unfinished">Riavvia Whisperfish…</translation>
+        <translation>Riavvio di Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -977,7 +977,7 @@ Settings page share contacts</extracomment>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
-        <translation type="unfinished">Lascia il gruppo e rimuovi TUTTI i messaggi!</translation>
+        <translation>Gruppo lasciato e messaggi tutti eliminati</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
@@ -1118,9 +1118,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/message/AttachmentsLoader.qml" line="220"/>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
