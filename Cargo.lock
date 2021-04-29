@@ -3407,7 +3407,7 @@ checksum = "4756f7db3f7b5574938c3eb1c117038b8e07f95ee6718c0efad4ac21508f1efd"
 [[package]]
 name = "zkgroup"
 version = "0.7.2"
-source = "git+https://gitlab.com/rubdos/zkgroup-whisperfish?branch=whisperfork#873af13879ca914f3f38b6d2893a9168a0a8bb44"
+source = "git+https://gitlab.com/whisperfish/zkgroup-whisperfish?branch=whisperfork#873af13879ca914f3f38b6d2893a9168a0a8bb44"
 dependencies = [
  "aead",
  "aes-gcm-siv",
