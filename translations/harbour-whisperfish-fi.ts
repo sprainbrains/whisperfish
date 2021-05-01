@@ -20,7 +20,7 @@
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation type="unfinished">Poistetaan kaikki viestit</translation>
+        <translation>Kaikki viestit poistettu</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
@@ -190,7 +190,7 @@
         <source>Unlinked</source>
         <oldsource>Unlinking</oldsource>
         <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
-        <translation type="unfinished">Poistetaan linkitys</translation>
+        <translation>Linkitys poistettu</translation>
     </message>
     <message id="whisperfish-current-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="65"/>
@@ -316,7 +316,7 @@
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
-        <translation type="unfinished">Alustetaan salattu istunto</translation>
+        <translation>Salattu istunto alustettu</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -824,7 +824,7 @@ Settings page share contacts</extracomment>
         <source>Restarting Whisperfish</source>
         <oldsource>Restart Whisperfish...</oldsource>
         <extracomment>Restart whisperfish remorse timer message (past tense)</extracomment>
-        <translation type="unfinished">Käynnistä Whisperfish uudelleen...</translation>
+        <translation>Whisperfish uudelleenkäynnistyy</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
         <location filename="../qml/pages/Settings.qml" line="344"/>
@@ -977,7 +977,7 @@ Settings page share contacts</extracomment>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
-        <translation type="unfinished">Poistutaan ryhmästä ja poistetaan KAIKKI viestit!</translation>
+        <translation>Ryhmästä poistuttu ja kaikki viestit poistettu</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
