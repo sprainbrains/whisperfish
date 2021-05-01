@@ -1356,7 +1356,7 @@ dependencies = [
  "prost",
  "prost-build",
  "qmetaobject",
- "rand 0.8.3",
+ "rand 0.7.3",
  "regex",
  "rpassword",
  "rstest",
