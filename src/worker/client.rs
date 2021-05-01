@@ -926,7 +926,7 @@ impl Handler<StorageReady> for ClientActor {
         let tel = self.config.get_tel_clone();
         let uuid = self.config.get_uuid_clone();
 
-        let storage_for_password = storageready.storage.clone();
+        let storage_for_password = storageready.storage;
         let request_password = async move {
             // Web socket
             let phonenumber = phonenumber::parse(None, tel).unwrap();
