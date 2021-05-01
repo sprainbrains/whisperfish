@@ -53,7 +53,7 @@ var version = '0.1.0'
 // Data directories: emojis are by default located in StandardPaths.data/emojis,
 // which is typically $HOME/.local/share/sailor-emoji. The base directory has to
 // be initialized from QML, as this script cannot access the StandardPaths object.
-var dataBaseDirectory = '' // e.g. /home/nemo/.local/share; base path to emoji sources
+var dataBaseDirectory = '' // e.g. $HOME/.local/share; base path to emoji sources
 var emojiSubDirectory = 'sailor-emoji' // subdirectory below DataBaseDirectory
 
 // Emoji styles: emojis can be in raster or vector format. Raster emojis are
