@@ -12,6 +12,7 @@ name = "storage"
 harness = false
 
 [dependencies]
+async-trait = "0.1"
 bincode = "1.2.1"
 actix = "0.11.0-beta"
 rand = "0.7"

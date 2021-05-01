@@ -5,6 +5,8 @@ use std::sync::{Arc, Mutex};
 use anyhow::Context;
 
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
+use libsignal_service::prelude::protocol::*;
+use libsignal_service::prelude::*;
 use parking_lot::ReentrantMutex;
 
 use crate::schema;
@@ -148,7 +150,6 @@ pub async fn save_attachment(
     mut attachment: impl AsyncRead + Unpin,
 ) -> PathBuf {
     use std::fs::File;
-    use uuid::Uuid;
 
     let fname = Uuid::new_v4().to_simple();
     let fname_formatted = format!("{}", fname);
@@ -546,8 +547,7 @@ impl Storage {
             Some(pass) => Some(derive_storage_key(pass.to_string(), storage_salt_path).await?),
         };
 
-        let context = libsignal_protocol::Context::default();
-        let identity_key_pair = libsignal_protocol::generate_identity_key_pair(&context).unwrap();
+        let identity_key_pair = protocol::IdentityKeyPair::generate(&mut rand::thread_rng());
 
         let protocol_store =
             ProtocolStore::store_with_key(keys, path, regid, identity_key_pair).await?;
@@ -1948,12 +1948,13 @@ impl Storage {
     }
 
     /// Returns a hex-encoded peer identity
-    pub fn peer_identity(&self, e164: &str) -> Result<String, anyhow::Error> {
-        use libsignal_protocol::stores::IdentityKeyStore;
-        use libsignal_protocol::Address;
-        let addr = Address::new(e164, 1);
-        let ident = self.get_identity(addr)?.context("No such identity")?;
-        Ok(hex::encode_upper(ident.as_slice()))
+    pub async fn peer_identity(&self, e164: String) -> Result<String, anyhow::Error> {
+        let addr = ProtocolAddress::new(e164, 1);
+        let ident = self
+            .get_identity(&addr, None)
+            .await?
+            .context("No such identity")?;
+        Ok(hex::encode_upper(ident.serialize()))
     }
 
     pub fn credential_cache(&self) -> std::sync::MutexGuard<InMemoryCredentialsCache> {
@@ -2035,8 +2036,7 @@ mod tests {
         let rng = rand::thread_rng();
 
         // Signaling password for REST API
-        let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
-        let password = std::str::from_utf8(&password)?;
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
 
         // Signaling key that decrypts the incoming Signal messages
         let mut rng = rand::thread_rng();
@@ -2058,11 +2058,11 @@ mod tests {
 
         macro_rules! tests {
             ($storage:ident) => {{
-                use libsignal_protocol::stores::IdentityKeyStore;
+                use libsignal_service::prelude::protocol::IdentityKeyStore;
                 // TODO: assert that tables exist
                 assert_eq!(password, $storage.signal_password().await?);
                 assert_eq!(signaling_key, $storage.signaling_key().await?);
-                assert_eq!(regid, $storage.local_registration_id()?);
+                assert_eq!(regid, $storage.get_local_registration_id(None).await?);
 
                 let (signed, unsigned) = $storage.next_pre_key_ids();
                 // Unstarted client will have no pre-keys.

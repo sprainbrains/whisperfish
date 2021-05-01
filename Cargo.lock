@@ -1325,6 +1325,7 @@ dependencies = [
  "actix_derive",
  "aes",
  "anyhow",
+ "async-trait",
  "bincode",
  "block-modes",
  "cc",

@@ -1,20 +1,23 @@
-use std::io::{self, Write};
+use std::io;
 use std::path::Path;
 
-use libsignal_protocol::keys::IdentityKeyPair;
-use libsignal_protocol::stores::SerializedSession;
-use libsignal_protocol::stores::{IdentityKeyStore, PreKeyStore, SessionStore, SignedPreKeyStore};
-use libsignal_protocol::Error as SignalProtocolError;
-use libsignal_protocol::InternalError;
-use libsignal_protocol::{Address, Buffer};
+use libsignal_service::prelude::protocol::{self, Context};
+use protocol::IdentityKeyPair;
+use protocol::SignalProtocolError;
 
 mod quirk;
 
 use super::*;
 
 pub struct ProtocolStore {
-    pub(crate) identity_key: Vec<u8>,
+    pub(crate) identity_key_pair: IdentityKeyPair,
     pub(crate) regid: u32,
+}
+
+fn convert_io_error(e: io::Error) -> SignalProtocolError {
+    // XXX can probably be better, but currently this is only used in session_delete and
+    // identity_delete
+    SignalProtocolError::SessionNotFound(e.to_string())
 }
 
 fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a str {
@@ -33,15 +36,14 @@ impl ProtocolStore {
         // Identity
         let identity_path = path.join("storage").join("identity");
 
+        // XXX move to quirk
         let mut identity_key = Vec::new();
-        let public = identity_key_pair.public().to_bytes()?;
-        let public = public.as_slice();
+        let public = identity_key_pair.public_key().serialize();
         assert_eq!(public.len(), 32 + 1);
         assert_eq!(public[0], quirk::DJB_TYPE);
         identity_key.extend(&public[1..]);
 
-        let private = identity_key_pair.private().to_bytes()?;
-        let private = private.as_slice();
+        let private = identity_key_pair.private_key().serialize();
         assert_eq!(private.len(), 32);
         identity_key.extend(private);
 
@@ -51,15 +53,10 @@ impl ProtocolStore {
             format!("{}", regid).into_bytes(),
         )
         .await?;
-        write_file(
-            keys,
-            identity_path.join("identity_key"),
-            identity_key.clone(),
-        )
-        .await?;
+        write_file(keys, identity_path.join("identity_key"), identity_key).await?;
 
         Ok(Self {
-            identity_key,
+            identity_key_pair,
             regid,
         })
     }
@@ -74,19 +71,25 @@ impl ProtocolStore {
         let regid = load_file(keys, identity_path.join("regid")).await?;
         let regid = String::from_utf8(regid)?;
         let regid = regid.parse()?;
-        let identity_key = load_file(keys, identity_path.join("identity_key")).await?;
+        let identity_key_pair = {
+            use std::convert::TryFrom;
+            let mut buf = load_file(keys, identity_path.join("identity_key")).await?;
+            buf.insert(0, quirk::DJB_TYPE);
+            let public = IdentityKey::decode(&buf[0..33])?;
+            let private = PrivateKey::try_from(&buf[33..])?;
+            IdentityKeyPair::new(public, private)
+        };
 
         Ok(Self {
-            identity_key,
+            identity_key_pair,
             regid,
         })
     }
 }
 
 impl Storage {
-    fn session_path(&self, addr: &Address) -> PathBuf {
-        let addr_str = addr.as_str().unwrap();
-        let recipient_id = addr_to_path_component(addr_str);
+    fn session_path(&self, addr: &ProtocolAddress) -> PathBuf {
+        let recipient_id = addr_to_path_component(addr.name());
 
         self.path.join("storage").join("sessions").join(format!(
             "{}_{}",
@@ -95,9 +98,8 @@ impl Storage {
         ))
     }
 
-    fn identity_path(&self, addr: &Address) -> PathBuf {
-        let addr_str = addr.as_str().unwrap();
-        let recipient_id = addr_to_path_component(addr_str);
+    fn identity_path(&self, addr: &ProtocolAddress) -> PathBuf {
+        let recipient_id = addr_to_path_component(addr.name());
 
         self.path
             .join("storage")
@@ -178,81 +180,104 @@ impl Storage {
         (next_signed_pre_key_id, next_pre_key_id)
     }
 
-    pub fn delete_identity(&self, addr: Address) -> Result<(), SignalProtocolError> {
-        let path = self.identity_path(&addr);
-        std::fs::remove_file(path).unwrap();
+    pub async fn delete_identity(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
+        let path = self.identity_path(addr);
+        std::fs::remove_file(path).map_err(convert_io_error)?;
         Ok(())
     }
 }
 
-impl IdentityKeyStore for Storage {
-    fn identity_key_pair(&self) -> Result<(Buffer, Buffer), SignalProtocolError> {
+#[async_trait::async_trait(?Send)]
+impl protocol::IdentityKeyStore for Storage {
+    async fn get_identity_key_pair(
+        &self,
+        _: Context,
+    ) -> Result<IdentityKeyPair, SignalProtocolError> {
         log::trace!("identity_key_pair");
         let protocol_store = self.protocol_store.lock().expect("mutex");
-        // (public, private)
-        let mut public = Buffer::new();
-        public.append(&[quirk::DJB_TYPE]);
-        public.append(&protocol_store.identity_key[..32]);
-        Ok((public, Buffer::from(&protocol_store.identity_key[32..])))
+        Ok(protocol_store.identity_key_pair)
     }
 
-    fn local_registration_id(&self) -> Result<u32, SignalProtocolError> {
+    async fn get_local_registration_id(&self, _: Context) -> Result<u32, SignalProtocolError> {
         Ok(self.protocol_store.lock().expect("mutex").regid)
     }
 
-    fn is_trusted_identity(&self, addr: Address, key: &[u8]) -> Result<bool, SignalProtocolError> {
+    async fn is_trusted_identity(
+        &self,
+        addr: &ProtocolAddress,
+        key: &IdentityKey,
+        // XXX
+        _direction: Direction,
+        ctx: Context,
+    ) -> Result<bool, SignalProtocolError> {
         let path = self.identity_path(&addr);
         if !path.is_file() {
             // TOFU
             Ok(true)
         } else {
             // check contents with key
-            let contents = load_file_sync(self.keys, path).expect("identity");
-            Ok(contents == key)
+            let trusted_key = self
+                .get_identity(addr, ctx)
+                .await?
+                .expect("identity exists");
+            Ok(trusted_key == *key)
         }
     }
 
-    fn save_identity(&self, addr: Address, key: &[u8]) -> Result<(), SignalProtocolError> {
-        let path = self.identity_path(&addr);
-        write_file_sync(self.keys, path, key).expect("save identity key");
-        Ok(())
+    /// Should return true when the older key, if present, is different from the new one.
+    /// False otherwise.
+    async fn save_identity(
+        &mut self,
+        addr: &ProtocolAddress,
+        key: &IdentityKey,
+        _: Context,
+    ) -> Result<bool, SignalProtocolError> {
+        let path = self.identity_path(addr);
+        write_file_sync(self.keys, path, &key.serialize()).expect("save identity key");
+        // XXX (this result is currently unused in libsignal-client, but may become used in the
+        // future.)
+        Ok(true)
     }
 
-    fn get_identity(&self, addr: Address) -> Result<Option<Buffer>, SignalProtocolError> {
-        let path = self.identity_path(&addr);
+    async fn get_identity(
+        &self,
+        addr: &ProtocolAddress,
+        _: Context,
+    ) -> Result<Option<IdentityKey>, SignalProtocolError> {
+        let path = self.identity_path(addr);
         if path.is_file() {
             let buf = load_file_sync(self.keys, path).expect("read identity key");
-            Ok(Some(Buffer::from(buf)))
+            Ok(Some(IdentityKey::decode(&buf)?))
         } else {
             Ok(None)
         }
     }
 }
 
-impl PreKeyStore for Storage {
-    fn load(&self, id: u32, writer: &mut dyn Write) -> Result<(), io::Error> {
+#[async_trait::async_trait(?Send)]
+impl protocol::PreKeyStore for Storage {
+    async fn get_pre_key(&self, id: u32, _: Context) -> Result<PreKeyRecord, SignalProtocolError> {
         log::trace!("Loading prekey {}", id);
         let path = self.prekey_path(id);
         let contents = load_file_sync(self.keys, path).unwrap();
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
-        writer.write_all(&contents)?;
-        Ok(())
+        Ok(PreKeyRecord::deserialize(&contents)?)
     }
 
-    fn store(&self, id: u32, body: &[u8]) -> Result<(), SignalProtocolError> {
+    async fn save_pre_key(
+        &mut self,
+        id: u32,
+        body: &PreKeyRecord,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
         let path = self.prekey_path(id);
-        let contents = quirk::pre_key_to_0_5(body).unwrap();
+        let contents = quirk::pre_key_to_0_5(&body.serialize()?).unwrap();
         write_file_sync(self.keys, path, &contents).expect("written file");
         Ok(())
     }
 
-    fn contains(&self, id: u32) -> bool {
-        log::trace!("Checking for prekey {}", id);
-        self.prekey_path(id).is_file()
-    }
-
-    fn remove(&self, id: u32) -> Result<(), SignalProtocolError> {
+    async fn remove_pre_key(&mut self, id: u32, _: Context) -> Result<(), SignalProtocolError> {
         log::trace!("Removing prekey {}", id);
         let path = self.prekey_path(id);
         std::fs::remove_file(path).unwrap();
@@ -260,32 +285,67 @@ impl PreKeyStore for Storage {
     }
 }
 
-impl SessionStore for Storage {
-    fn load_session(
+impl Storage {
+    // XXX Rewrite in terms of get_pre_key
+    #[allow(dead_code)]
+    async fn contains_pre_key(&self, id: u32) -> bool {
+        log::trace!("Checking for prekey {}", id);
+        self.prekey_path(id).is_file()
+    }
+}
+
+#[async_trait::async_trait(?Send)]
+impl protocol::SessionStore for Storage {
+    async fn load_session(
         &self,
-        addr: Address,
-    ) -> Result<Option<SerializedSession>, SignalProtocolError> {
+        addr: &ProtocolAddress,
+        _: Context,
+    ) -> Result<Option<SessionRecord>, SignalProtocolError> {
         let path = self.session_path(&addr);
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
 
         let buf = if let Ok(buf) = load_file_sync(self.keys, path) {
-            buf
+            quirk::session_from_0_5(&buf)?
         } else {
             return Ok(None);
         };
 
-        Ok(Some(SerializedSession {
-            session: Buffer::from(&quirk::session_from_0_5(&buf)? as &[u8]),
-            extra_data: None,
-        }))
+        Ok(Some(SessionRecord::deserialize(&buf)?))
     }
 
-    fn get_sub_device_sessions(&self, addr: &[u8]) -> Result<Vec<i32>, InternalError> {
-        log::trace!(
-            "Looking for sub_device sessions for {}",
-            String::from_utf8_lossy(addr)
-        );
+    async fn store_session(
+        &mut self,
+        addr: &ProtocolAddress,
+        session: &protocol::SessionRecord,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
+        let path = self.session_path(&addr);
+
+        log::trace!("Storing session for {:?} at {:?}", addr, path);
+
+        let quirked = quirk::session_to_0_5(&session.serialize()?)?;
+        write_file_sync(self.keys, path, &quirked).unwrap();
+        Ok(())
+    }
+}
+
+impl Storage {
+    #[allow(dead_code)]
+    async fn contains_session(
+        &self,
+        addr: &ProtocolAddress,
+        _: Context,
+    ) -> Result<bool, SignalProtocolError> {
+        let path = self.session_path(&addr);
+        Ok(path.is_file())
+    }
+}
+
+#[async_trait::async_trait(?Send)]
+impl protocol::SessionStoreExt for Storage {
+    async fn get_sub_device_sessions(&self, addr: &str) -> Result<Vec<u32>, SignalProtocolError> {
+        log::trace!("Looking for sub_device sessions for {}", addr);
         let addr = addr_to_path_component(addr).as_bytes();
 
         let session_dir = self.path.join("storage").join("sessions");
@@ -326,36 +386,14 @@ impl SessionStore for Storage {
         Ok(ids)
     }
 
-    fn contains_session(&self, addr: Address) -> Result<bool, SignalProtocolError> {
-        let path = self.session_path(&addr);
-        Ok(path.is_file())
-    }
-
-    fn store_session(
-        &self,
-        addr: Address,
-        session: libsignal_protocol::stores::SerializedSession,
-    ) -> Result<(), InternalError> {
-        let path = self.session_path(&addr);
-
-        log::trace!("Storing session for {:?} at {:?}", addr, path);
-
-        let quirked = quirk::session_to_0_5(&session.session.as_slice())?;
-        write_file_sync(self.keys, path, &quirked).unwrap();
-        Ok(())
-    }
-
-    fn delete_session(&self, addr: Address) -> Result<(), SignalProtocolError> {
-        let path = self.session_path(&addr);
+    async fn delete_session(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
+        let path = self.session_path(addr);
         std::fs::remove_file(path).unwrap();
         Ok(())
     }
 
-    fn delete_all_sessions(&self, addr: &[u8]) -> Result<usize, SignalProtocolError> {
-        log::warn!(
-            "Deleting all sessions for {}",
-            String::from_utf8_lossy(addr)
-        );
+    async fn delete_all_sessions(&self, addr: &str) -> Result<usize, SignalProtocolError> {
+        log::warn!("Deleting all sessions for {}", addr);
         let addr = addr_to_path_component(addr).as_bytes();
 
         let session_dir = self.path.join("storage").join("sessions");
@@ -398,7 +436,7 @@ impl SessionStore for Storage {
 
         let mut count = 0;
         for entry in entries {
-            std::fs::remove_file(entry)?;
+            std::fs::remove_file(entry).map_err(convert_io_error)?;
             count += 1;
         }
 
@@ -406,35 +444,49 @@ impl SessionStore for Storage {
     }
 }
 
-impl SignedPreKeyStore for Storage {
-    fn load(&self, id: u32, writer: &mut dyn Write) -> Result<(), io::Error> {
+#[async_trait::async_trait(?Send)]
+impl protocol::SignedPreKeyStore for Storage {
+    async fn get_signed_pre_key(
+        &self,
+        id: u32,
+        _: Context,
+    ) -> Result<SignedPreKeyRecord, SignalProtocolError> {
         log::trace!("Loading signed prekey {}", id);
         let path = self.signed_prekey_path(id);
 
         let contents = load_file_sync(self.keys, path).unwrap();
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 
-        writer.write_all(&contents)?;
-        Ok(())
+        Ok(SignedPreKeyRecord::deserialize(&contents)?)
     }
 
-    fn store(&self, id: u32, body: &[u8]) -> Result<(), SignalProtocolError> {
+    async fn save_signed_pre_key(
+        &mut self,
+        id: u32,
+        body: &SignedPreKeyRecord,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
         let path = self.signed_prekey_path(id);
-        let contents = quirk::signed_pre_key_to_0_5(body).unwrap();
+        let contents = quirk::signed_pre_key_to_0_5(&body.serialize()?).unwrap();
         write_file_sync(self.keys, path, &contents).expect("written file");
         Ok(())
     }
+}
 
-    fn contains(&self, id: u32) -> bool {
-        log::trace!("Checking for signed prekey {}", id);
-        self.signed_prekey_path(id).is_file()
-    }
-
-    fn remove(&self, id: u32) -> Result<(), SignalProtocolError> {
+impl Storage {
+    #[allow(dead_code)]
+    async fn remove_signed_pre_key(&self, id: u32) -> Result<(), SignalProtocolError> {
         log::trace!("Removing signed prekey {}", id);
         let path = self.signed_prekey_path(id);
         std::fs::remove_file(path).unwrap();
         Ok(())
+    }
+
+    // XXX rewrite in terms of get_signed_pre_key
+    #[allow(dead_code)]
+    async fn contains_signed_pre_key(&self, id: u32) -> bool {
+        log::trace!("Checking for signed prekey {}", id);
+        self.signed_prekey_path(id).is_file()
     }
 }

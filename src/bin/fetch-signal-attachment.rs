@@ -90,11 +90,13 @@ async fn main() -> Result<(), anyhow::Error> {
         device_id: None, // !77
     };
 
-    let service_cfg = SignalServers::Production.into();
-
     // Connect to OWS
     let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
-    let mut service = AwcPushService::new(service_cfg, Some(credentials.clone()), &useragent);
+    let mut service = AwcPushService::new(
+        SignalServers::Production,
+        Some(credentials.clone()),
+        useragent,
+    );
 
     // Download the attachment
     let mut stream = service

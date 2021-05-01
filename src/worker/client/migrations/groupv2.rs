@@ -13,7 +13,6 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: ComputeGroupV2ExpectedIds, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let context = libsignal_protocol::Context::default();
 
         Box::pin(async move {
             use crate::schema::group_v1s::dsl::*;
@@ -35,7 +34,6 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
 
                 let master_key =
                     libsignal_service::groups_v2::utils::derive_v2_migration_master_key(
-                        &context,
                         &pending_v1_id,
                     )
                     .expect("signal protocol library");

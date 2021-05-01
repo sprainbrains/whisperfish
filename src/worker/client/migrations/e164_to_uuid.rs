@@ -1,6 +1,7 @@
 use actix::prelude::*;
-use libsignal_protocol::stores::{IdentityKeyStore, SessionStore};
-use libsignal_protocol::Address;
+use libsignal_service::prelude::protocol::{
+    IdentityKeyStore, ProtocolAddress, SessionStore, SessionStoreExt,
+};
 
 use super::*;
 
@@ -11,7 +12,7 @@ pub struct E164ToUuid;
 impl Handler<E164ToUuid> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: E164ToUuid, _ctx: &mut Self::Context) -> Self::Result {
-        let storage = self.storage.clone().unwrap();
+        let mut storage = self.storage.clone().unwrap();
         let config = std::sync::Arc::clone(&self.config);
 
         // Stuff to migrate:
@@ -30,16 +31,19 @@ impl Handler<E164ToUuid> for ClientActor {
                 if let (Some(e164), Some(uuid)) = (recipient.e164, recipient.uuid) {
                     // Look for sessions based on this e164
                     for sub_device_session in storage
-                        .get_sub_device_sessions(e164.as_bytes())
+                        .get_sub_device_sessions(&e164)
+                        .await
                         .expect("storage")
                         .into_iter()
                         .chain(std::iter::once(1))
                     {
-                        let e164_addr = Address::new(&e164, sub_device_session);
-                        let uuid_addr = Address::new(&uuid, sub_device_session);
+                        let e164_addr = ProtocolAddress::new(e164.clone(), sub_device_session);
+                        let uuid_addr = ProtocolAddress::new(uuid.clone(), sub_device_session);
 
-                        if let Some(e164_session) =
-                            storage.load_session(e164_addr.clone()).expect("storage")
+                        if let Some(e164_session) = storage
+                            .load_session(&e164_addr, None)
+                            .await
+                            .expect("storage")
                         {
                             log::info!(
                                 "Found an old E164-style session for {}. Migrating to {}",
@@ -47,8 +51,10 @@ impl Handler<E164ToUuid> for ClientActor {
                                 uuid
                             );
                             if storage
-                                .contains_session(uuid_addr.clone())
+                                .load_session(&uuid_addr, None)
+                                .await
                                 .expect("storage")
+                                .is_some()
                             {
                                 // XXX At this point, we are not necessarily connected to the
                                 // websocket.
@@ -78,23 +84,29 @@ impl Handler<E164ToUuid> for ClientActor {
                                 }, None);
                             } else {
                                 storage
-                                    .store_session(uuid_addr.clone(), e164_session)
+                                    .store_session(&uuid_addr, &e164_session, None)
+                                    .await
                                     .expect("storage");
-                                SessionStore::delete_session(&storage, e164_addr.clone())
+                                SessionStoreExt::delete_session(&storage, &e164_addr)
+                                    .await
                                     .expect("storage");
                             }
                         }
 
-                        if let Some(e164_identity) =
-                            storage.get_identity(e164_addr.clone()).expect("storage")
+                        if let Some(e164_identity) = storage
+                            .get_identity(&e164_addr, None)
+                            .await
+                            .expect("storage")
                         {
                             log::info!(
                                 "Found an old E164-style identity for {}. Migrating to {}",
                                 e164,
                                 uuid
                             );
-                            if let Some(uuid_identity) =
-                                storage.get_identity(uuid_addr.clone()).expect("storage")
+                            if let Some(uuid_identity) = storage
+                                .get_identity(&uuid_addr, None)
+                                .await
+                                .expect("storage")
                             {
                                 if uuid_identity == e164_identity {
                                     log::trace!(
@@ -112,10 +124,11 @@ impl Handler<E164ToUuid> for ClientActor {
                                     uuid
                                 );
                                 storage
-                                    .save_identity(uuid_addr, e164_identity.as_slice())
+                                    .save_identity(&uuid_addr, &e164_identity, None)
+                                    .await
                                     .expect("storage");
                             }
-                            storage.delete_identity(e164_addr).expect("storage");
+                            storage.delete_identity(&e164_addr).await.expect("storage");
                         }
                     }
                 }

@@ -90,15 +90,19 @@ impl Handler<LinkDevice> for ClientActor {
 
         let service = self.authenticated_service();
         // XXX add profile key when #192 implemneted
-        let mut account_manager = AccountManager::new(self.context.clone(), service, None);
-        let store = self.store_context.clone().unwrap();
+        let mut account_manager = AccountManager::new(service, None);
         let credentials = self.credentials.clone().unwrap();
+        let store = self.storage.clone().unwrap();
 
         Box::pin(
             // Without `async move`, service would be borrowed instead of encapsulated in a Future.
             async move {
                 let url = tsurl.parse()?;
-                Ok::<_, anyhow::Error>(account_manager.link_device(url, store, credentials).await?)
+                Ok::<_, anyhow::Error>(
+                    account_manager
+                        .link_device(url, &store, credentials)
+                        .await?,
+                )
             }
             .into_actor(self)
             .map(move |result, _act, ctx| {

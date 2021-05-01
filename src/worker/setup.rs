@@ -182,8 +182,9 @@ impl SetupWorker {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
         let rng = rand::thread_rng();
-        let password: Vec<u8> = rng.sample_iter(&Alphanumeric).take(24).collect();
-        let password = std::str::from_utf8(&password)?.to_string();
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+        // XXX in rand 0.8, this needs to be a Vec<u8> and be converted afterwards.
+        // let password = std::str::from_utf8(&password)?.to_string();
 
         let mut res = app
             .client_actor
@@ -195,7 +196,7 @@ impl SetupWorker {
             })
             .await??;
 
-        while res == super::client::RegistrationResponse::CaptchaRequired {
+        while res == super::client::VerificationCodeResponse::CaptchaRequired {
             let captcha: String = app
                 .prompt
                 .pinned()
@@ -250,7 +251,7 @@ impl SetupWorker {
             Some(storage_password)
         };
 
-        this.uuid = res.uuid.into();
+        this.uuid = res.uuid.to_string().into();
 
         // Install storage
         let storage = Storage::new(
