@@ -1288,19 +1288,19 @@ Settings page share contacts</extracomment>
         <translation>van %1</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
-        <location filename="../qml/pages/ViewImagePage.qml" line="249"/>
+        <location filename="../qml/pages/ViewImagePage.qml" line="251"/>
         <source>Loading image</source>
         <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
         <translation>’t Fotooke wordt geladen</translation>
     </message>
     <message id="whisperfish-view-image-page-error">
-        <location filename="../qml/pages/ViewImagePage.qml" line="259"/>
+        <location filename="../qml/pages/ViewImagePage.qml" line="261"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
         <translation>’t Laden is mislukt</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
-        <location filename="../qml/pages/ViewVideoPage.qml" line="105"/>
+        <location filename="../qml/pages/ViewVideoPage.qml" line="107"/>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
         <translation>’t Afspelen is mislukt</translation>
