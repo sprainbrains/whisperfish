@@ -91,6 +91,14 @@ pub struct ClientActor {
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
+    // XXX The cipher should be behind a Mutex.
+    // By considering the session that needs to be accessed,
+    // we could lock only a single session to enforce serialized access.
+    // That's a lot of code though, and it should probably happen *inside* the ServiceCipher
+    // instead.
+    // Having ServiceCipher implement `Clone` is imo. a problem, now that everything is `async`.
+    // Putting in behind a Mutex is a lot of work now though,
+    // especially considering this should be *internal* to ServiceCipher.
     cipher: Option<
         ServiceCipher<
             crate::store::Storage,
