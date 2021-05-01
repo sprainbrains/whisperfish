@@ -1592,7 +1592,7 @@ dependencies = [
 [[package]]
 name = "libsignal-protocol"
 version = "0.1.0"
-source = "git+https://github.com/signalapp/libsignal-client#87f205e80cc21ce0b1aa1a0e81f1a291d62fba49"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#2e794917238201cbe84a6dc0609d2d000442b432"
 dependencies = [
  "aes",
  "arrayref",
@@ -2802,7 +2802,7 @@ dependencies = [
 [[package]]
 name = "signal-crypto"
 version = "0.1.0"
-source = "git+https://github.com/signalapp/libsignal-client#87f205e80cc21ce0b1aa1a0e81f1a291d62fba49"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#2e794917238201cbe84a6dc0609d2d000442b432"
 dependencies = [
  "aes-soft",
  "aesni",
