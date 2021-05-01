@@ -24,6 +24,7 @@
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
+        <location filename="../qml/pages/ShareDestination.qml" line="97"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Megjegyzés magamnak</translation>
@@ -41,19 +42,19 @@
         <translation>Beszélgetés törlése</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="90"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="92"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Új üzenet</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="172"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="174"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Nem sikerült beállítani a Signal klienst</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="177"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="179"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
@@ -1262,7 +1263,7 @@ Settings page share contacts</extracomment>
         <translation>további információ</translation>
     </message>
     <message id="whisperfish-contact-card-page-save">
-        <location filename="../qml/pages/ContactCardPage.qml" line="53"/>
+        <location filename="../qml/pages/ContactCardPage.qml" line="52"/>
         <source>Save to address book</source>
         <extracomment>Menu item to save a shared contact to the local address book</extracomment>
         <translation>Mentés a címjegyzékbe</translation>
@@ -1360,6 +1361,12 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Próbálja újraküldeni a sikertelen üzenetet</numerusform>
         </translation>
+    </message>
+    <message id="whisperfish-share-page-title">
+        <location filename="../qml/pages/ShareDestination.qml" line="34"/>
+        <source>Share contents</source>
+        <extracomment>Title of the page to select recipients and send a shared file</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
