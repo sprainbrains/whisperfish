@@ -239,7 +239,7 @@ pub struct Storage {
     pub db: Arc<AssertUnwindSafe<ReentrantMutex<SqliteConnection>>>,
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
-    pub(crate) protocol_store: Arc<Mutex<ProtocolStore>>,
+    pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<Mutex<InMemoryCredentialsCache>>,
     path: PathBuf,
 }
@@ -570,7 +570,7 @@ impl Storage {
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             keys,
-            protocol_store: Arc::new(Mutex::new(protocol_store)),
+            protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
             path: path.to_path_buf(),
         })
@@ -597,7 +597,7 @@ impl Storage {
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             keys,
-            protocol_store: Arc::new(Mutex::new(protocol_store)),
+            protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
             path: path.to_path_buf(),
         })
@@ -2064,7 +2064,7 @@ mod tests {
                 assert_eq!(signaling_key, $storage.signaling_key().await?);
                 assert_eq!(regid, $storage.get_local_registration_id(None).await?);
 
-                let (signed, unsigned) = $storage.next_pre_key_ids();
+                let (signed, unsigned) = $storage.next_pre_key_ids().await;
                 // Unstarted client will have no pre-keys.
                 assert_eq!(0, signed);
                 assert_eq!(0, unsigned);

@@ -1206,12 +1206,11 @@ impl Handler<RefreshPreKeys> for ClientActor {
         let service = self.authenticated_service();
         // XXX add profile key when #192 implemneted
         let mut am = AccountManager::new(service, None);
-
-        let (next_signed_pre_key_id, pre_keys_offset_id) =
-            self.storage.as_ref().unwrap().next_pre_key_ids();
-
         let storage = self.storage.clone().unwrap();
+
         let proc = async move {
+            let (next_signed_pre_key_id, pre_keys_offset_id) = storage.next_pre_key_ids().await;
+
             am.update_pre_key_bundle(
                 &storage.clone(),
                 &mut storage.clone(),

@@ -114,11 +114,12 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: RefreshProfileAttributes, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let registration_id = storage.protocol_store.lock().unwrap().regid;
+        let protocol_store = storage.protocol_store.clone();
         let service = self.authenticated_service();
         let config = self.config.clone();
 
         Box::pin(async move {
+            let registration_id = protocol_store.read().await.regid;
             let self_recipient = storage
                 .fetch_self_recipient(&config)
                 .expect("self set by now");

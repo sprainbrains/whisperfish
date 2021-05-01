@@ -122,7 +122,9 @@ impl Storage {
     }
 
     /// Returns a tuple of the next free signed pre-key ID and the next free pre-key ID
-    pub fn next_pre_key_ids(&self) -> (u32, u32) {
+    pub async fn next_pre_key_ids(&self) -> (u32, u32) {
+        let _lock = self.protocol_store.read().await;
+
         let mut pre_key_ids: Vec<u32> =
             std::fs::read_dir(self.path.join("storage").join("prekeys"))
                 .expect("initialized storage")
@@ -181,6 +183,8 @@ impl Storage {
     }
 
     pub async fn delete_identity(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
+        let _lock = self.protocol_store.write().await;
+
         let path = self.identity_path(addr);
         std::fs::remove_file(path).map_err(convert_io_error)?;
         Ok(())
@@ -194,12 +198,12 @@ impl protocol::IdentityKeyStore for Storage {
         _: Context,
     ) -> Result<IdentityKeyPair, SignalProtocolError> {
         log::trace!("identity_key_pair");
-        let protocol_store = self.protocol_store.lock().expect("mutex");
+        let protocol_store = self.protocol_store.read().await;
         Ok(protocol_store.identity_key_pair)
     }
 
     async fn get_local_registration_id(&self, _: Context) -> Result<u32, SignalProtocolError> {
-        Ok(self.protocol_store.lock().expect("mutex").regid)
+        Ok(self.protocol_store.read().await.regid)
     }
 
     async fn is_trusted_identity(
@@ -210,17 +214,15 @@ impl protocol::IdentityKeyStore for Storage {
         _direction: Direction,
         ctx: Context,
     ) -> Result<bool, SignalProtocolError> {
-        let path = self.identity_path(&addr);
-        if !path.is_file() {
+        // We don't lock here, because get_identity locks,
+        // and reentrant read locks can deadlock.
+        // let _lock = self.protocol_store.read().await;
+
+        if let Some(trusted_key) = self.get_identity(addr, ctx).await? {
+            Ok(trusted_key == *key)
+        } else {
             // TOFU
             Ok(true)
-        } else {
-            // check contents with key
-            let trusted_key = self
-                .get_identity(addr, ctx)
-                .await?
-                .expect("identity exists");
-            Ok(trusted_key == *key)
         }
     }
 
@@ -232,6 +234,8 @@ impl protocol::IdentityKeyStore for Storage {
         key: &IdentityKey,
         _: Context,
     ) -> Result<bool, SignalProtocolError> {
+        let _lock = self.protocol_store.write().await;
+
         let path = self.identity_path(addr);
         write_file(self.keys, path, key.serialize().into())
             .await
@@ -246,6 +250,8 @@ impl protocol::IdentityKeyStore for Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<Option<IdentityKey>, SignalProtocolError> {
+        let _lock = self.protocol_store.read().await;
+
         let path = self.identity_path(addr);
         if path.is_file() {
             let buf = load_file(self.keys, path).await.expect("read identity key");
@@ -260,6 +266,8 @@ impl protocol::IdentityKeyStore for Storage {
 impl protocol::PreKeyStore for Storage {
     async fn get_pre_key(&self, id: u32, _: Context) -> Result<PreKeyRecord, SignalProtocolError> {
         log::trace!("Loading prekey {}", id);
+        let _lock = self.protocol_store.read().await;
+
         let path = self.prekey_path(id);
         let contents = load_file(self.keys, path).await.unwrap();
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
@@ -273,6 +281,8 @@ impl protocol::PreKeyStore for Storage {
         _: Context,
     ) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
+        let _lock = self.protocol_store.write().await;
+
         let path = self.prekey_path(id);
         let contents = quirk::pre_key_to_0_5(&body.serialize()?).unwrap();
         write_file(self.keys, path, contents)
@@ -283,6 +293,8 @@ impl protocol::PreKeyStore for Storage {
 
     async fn remove_pre_key(&mut self, id: u32, _: Context) -> Result<(), SignalProtocolError> {
         log::trace!("Removing prekey {}", id);
+        let _lock = self.protocol_store.write().await;
+
         let path = self.prekey_path(id);
         std::fs::remove_file(path).unwrap();
         Ok(())
@@ -294,6 +306,8 @@ impl Storage {
     #[allow(dead_code)]
     async fn contains_pre_key(&self, id: u32) -> bool {
         log::trace!("Checking for prekey {}", id);
+        let _lock = self.protocol_store.read().await;
+
         self.prekey_path(id).is_file()
     }
 }
@@ -308,6 +322,7 @@ impl protocol::SessionStore for Storage {
         let path = self.session_path(&addr);
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
+        let _lock = self.protocol_store.read().await;
 
         let buf = if let Ok(buf) = load_file(self.keys, path).await {
             quirk::session_from_0_5(&buf)?
@@ -327,6 +342,7 @@ impl protocol::SessionStore for Storage {
         let path = self.session_path(&addr);
 
         log::trace!("Storing session for {:?} at {:?}", addr, path);
+        let _lock = self.protocol_store.write().await;
 
         let quirked = quirk::session_to_0_5(&session.serialize()?)?;
         write_file(self.keys, path, quirked).await.unwrap();
@@ -341,6 +357,8 @@ impl Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<bool, SignalProtocolError> {
+        let _lock = self.protocol_store.read().await;
+
         let path = self.session_path(&addr);
         Ok(path.is_file())
     }
@@ -350,6 +368,8 @@ impl Storage {
 impl protocol::SessionStoreExt for Storage {
     async fn get_sub_device_sessions(&self, addr: &str) -> Result<Vec<u32>, SignalProtocolError> {
         log::trace!("Looking for sub_device sessions for {}", addr);
+        let _lock = self.protocol_store.read().await;
+
         let addr = addr_to_path_component(addr).as_bytes();
 
         let session_dir = self.path.join("storage").join("sessions");
@@ -391,6 +411,8 @@ impl protocol::SessionStoreExt for Storage {
     }
 
     async fn delete_session(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
+        let _lock = self.protocol_store.write().await;
+
         let path = self.session_path(addr);
         std::fs::remove_file(path).unwrap();
         Ok(())
@@ -398,6 +420,8 @@ impl protocol::SessionStoreExt for Storage {
 
     async fn delete_all_sessions(&self, addr: &str) -> Result<usize, SignalProtocolError> {
         log::warn!("Deleting all sessions for {}", addr);
+        let _lock = self.protocol_store.write().await;
+
         let addr = addr_to_path_component(addr).as_bytes();
 
         let session_dir = self.path.join("storage").join("sessions");
@@ -456,6 +480,8 @@ impl protocol::SignedPreKeyStore for Storage {
         _: Context,
     ) -> Result<SignedPreKeyRecord, SignalProtocolError> {
         log::trace!("Loading signed prekey {}", id);
+        let _lock = self.protocol_store.read().await;
+
         let path = self.signed_prekey_path(id);
 
         let contents = load_file(self.keys, path).await.unwrap();
@@ -471,6 +497,8 @@ impl protocol::SignedPreKeyStore for Storage {
         _: Context,
     ) -> Result<(), SignalProtocolError> {
         log::trace!("Storing prekey {}", id);
+        let _lock = self.protocol_store.write().await;
+
         let path = self.signed_prekey_path(id);
         let contents = quirk::signed_pre_key_to_0_5(&body.serialize()?).unwrap();
         write_file(self.keys, path, contents)
@@ -484,6 +512,8 @@ impl Storage {
     #[allow(dead_code)]
     async fn remove_signed_pre_key(&self, id: u32) -> Result<(), SignalProtocolError> {
         log::trace!("Removing signed prekey {}", id);
+        let _lock = self.protocol_store.write().await;
+
         let path = self.signed_prekey_path(id);
         std::fs::remove_file(path).unwrap();
         Ok(())
@@ -493,6 +523,8 @@ impl Storage {
     #[allow(dead_code)]
     async fn contains_signed_pre_key(&self, id: u32) -> bool {
         log::trace!("Checking for signed prekey {}", id);
+        let _lock = self.protocol_store.read().await;
+
         self.signed_prekey_path(id).is_file()
     }
 }

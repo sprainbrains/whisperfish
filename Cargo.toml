@@ -30,7 +30,7 @@ actix-threadpool = "0.3"
 actix-rt = "2.0.0-beta"
 actix_derive = "0.6.0-beta.1"
 chrono = "0.4"
-tokio = {version="1.1", features=["time", "io-util", "net"]}
+tokio = {version="1.1", features=["time", "io-util", "net", "sync"]}
 futures = "0.3"
 pin-utils = "0.1"
 qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-sfos-rs", branch = "sailfishos" }
