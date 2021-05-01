@@ -233,7 +233,9 @@ impl protocol::IdentityKeyStore for Storage {
         _: Context,
     ) -> Result<bool, SignalProtocolError> {
         let path = self.identity_path(addr);
-        write_file_sync(self.keys, path, &key.serialize()).expect("save identity key");
+        write_file(self.keys, path, key.serialize().into())
+            .await
+            .expect("save identity key");
         // XXX (this result is currently unused in libsignal-client, but may become used in the
         // future.)
         Ok(true)
@@ -246,7 +248,7 @@ impl protocol::IdentityKeyStore for Storage {
     ) -> Result<Option<IdentityKey>, SignalProtocolError> {
         let path = self.identity_path(addr);
         if path.is_file() {
-            let buf = load_file_sync(self.keys, path).expect("read identity key");
+            let buf = load_file(self.keys, path).await.expect("read identity key");
             Ok(Some(IdentityKey::decode(&buf)?))
         } else {
             Ok(None)
@@ -259,7 +261,7 @@ impl protocol::PreKeyStore for Storage {
     async fn get_pre_key(&self, id: u32, _: Context) -> Result<PreKeyRecord, SignalProtocolError> {
         log::trace!("Loading prekey {}", id);
         let path = self.prekey_path(id);
-        let contents = load_file_sync(self.keys, path).unwrap();
+        let contents = load_file(self.keys, path).await.unwrap();
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
         Ok(PreKeyRecord::deserialize(&contents)?)
     }
@@ -273,7 +275,9 @@ impl protocol::PreKeyStore for Storage {
         log::trace!("Storing prekey {}", id);
         let path = self.prekey_path(id);
         let contents = quirk::pre_key_to_0_5(&body.serialize()?).unwrap();
-        write_file_sync(self.keys, path, &contents).expect("written file");
+        write_file(self.keys, path, contents)
+            .await
+            .expect("written file");
         Ok(())
     }
 
@@ -305,7 +309,7 @@ impl protocol::SessionStore for Storage {
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
 
-        let buf = if let Ok(buf) = load_file_sync(self.keys, path) {
+        let buf = if let Ok(buf) = load_file(self.keys, path).await {
             quirk::session_from_0_5(&buf)?
         } else {
             return Ok(None);
@@ -325,7 +329,7 @@ impl protocol::SessionStore for Storage {
         log::trace!("Storing session for {:?} at {:?}", addr, path);
 
         let quirked = quirk::session_to_0_5(&session.serialize()?)?;
-        write_file_sync(self.keys, path, &quirked).unwrap();
+        write_file(self.keys, path, quirked).await.unwrap();
         Ok(())
     }
 }
@@ -454,7 +458,7 @@ impl protocol::SignedPreKeyStore for Storage {
         log::trace!("Loading signed prekey {}", id);
         let path = self.signed_prekey_path(id);
 
-        let contents = load_file_sync(self.keys, path).unwrap();
+        let contents = load_file(self.keys, path).await.unwrap();
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 
         Ok(SignedPreKeyRecord::deserialize(&contents)?)
@@ -469,7 +473,9 @@ impl protocol::SignedPreKeyStore for Storage {
         log::trace!("Storing prekey {}", id);
         let path = self.signed_prekey_path(id);
         let contents = quirk::signed_pre_key_to_0_5(&body.serialize()?).unwrap();
-        write_file_sync(self.keys, path, &contents).expect("written file");
+        write_file(self.keys, path, contents)
+            .await
+            .expect("written file");
         Ok(())
     }
 }
