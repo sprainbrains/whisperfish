@@ -16,17 +16,21 @@ MouseArea {
     onClicked: {
         if (!_hasAttach) {
             return
-        } else if (_isVideo) {
-            pageStack.push('../../pages/ViewVideoPage.qml', {
-                               'title': MessageModel.peerName,
-                               'path': attach.data,
-                           })
         } else if (_isAnimatedPaused && animationLoader.item) {
             _isAnimatedPaused = false
             animationLoader.item.paused = false
         } else {
-            pageStack.push('../../pages/ViewImagePage.qml', {
+            var _debugMode = SettingsBridge.boolValue("debug_mode")
+            var _viewPage = '../../pages/ViewImagePage.qml'
+            if (_isVideo) _viewPage = '../../pages/ViewVideoPage.qml'
+
+            pageStack.push(_viewPage, {
                                'title': MessageModel.peerName,
+                               // TODO don't show the file path once attachments work reliably (#many)
+                               //      and attachments are saved in a WF-controlled directory (#253)
+                               'subtitle': attach.data,
+                               // when not in debug mode, it is ok to fade the file path if it is too long
+                               'titleOverlay.subtitleItem.wrapMode': _debugMode ? Text.Wrap : Text.NoWrap,
                                'path': attach.data,
                                'isAnimated': _isAnimated,
                            })
