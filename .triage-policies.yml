@@ -1,6 +1,108 @@
+.ui_silica_implies_sailfishos: &ui_silica_implies_sailfishos
+  conditions:
+    state: opened
+    labels:
+      - "UI::Silica"
+    forbidden_labels:
+      - "platform::SailfishOS"
+  actions:
+    labels:
+      - "platform::SailfishOS"
+.ui_kirigami_implies_plasma: &ui_kirigami_implies_plasma
+  conditions:
+    state: opened
+    labels:
+      - "UI::Kirigami"
+    forbidden_labels:
+      - "platform::Plasma Mobile"
+  actions:
+    labels:
+      - "platform::Plasma Mobile"
+
+.platform_sfos_in_title: &platform_sfos_in_title
+  conditions:
+    state: opened
+    labels:
+      - "platform::SailfishOS"
+    ruby: not resource['title'].downcase.match(/^\[.*sailfish.*\]/)
+  actions:
+    comment: |
+      /title [SailfishOS] #{resource['title']}
+.platform_sfos_in_title: &sfos_in_title_implies_label
+  conditions:
+    state: opened
+    forbidden_labels:
+      - "platform::SailfishOS"
+    ruby: resource['title'].downcase.match(/^\[.*sailfish.*\]/)
+  actions:
+    labels:
+      - "platform::SailfishOS"
+
+.platform_plasma_in_title: &platform_plasma_in_title
+  conditions:
+    state: opened
+    labels:
+      - "platform::Plasma Mobile"
+    ruby: not resource['title'].downcase.match(/^\[.*plasma.*\]/)
+  actions:
+    comment: |
+      /title [Plasma Mobile] #{resource['title']}
+.platform_plasma_in_title: &plasma_in_title_implies_label
+  conditions:
+    state: opened
+    forbidden_labels:
+      - "platform::Plasma Mobile"
+    ruby: resource['title'].downcase.match(/^\[.*plasma.*\]/)
+  actions:
+    labels:
+      - "platform::Plasma Mobile"
+
+.merge_two_tags: &merge_title_tags
+  conditions:
+    state: opened
+    ruby: resource['title'].match(/^\[.*\]\s\[.*\]/)
+  actions:
+    comment: |
+      /title [#{resource['title'].match(/^\[(.*)\]\s\[.*\]/)[1]}/#{resource['title'].match(/^\[.*\]\s\[(.*)\]/)[1]}] #{resource['title'].match(/^\[.*\]\s\[.*\]\s(.*)/)[1]}
+
+
 resource_rules:
+  epics:
+    rules: []
+    # Epics still seem quite buggy.
+      # - name: Epic with UI::Silica gets platform::SailfishOS
+      #   <<: *ui_silica_implies_sailfishos
+      # - name: Epic with UI::Kirigami gets platform::Plasma Mobile
+      #   <<: *ui_kirigami_implies_plasma
+      #
+      # - name: Epic with platform::SailfishOS gets [SailfishOS]
+      #   <<: *platform_sfos_in_title
+      # - name: Epic with platform::Plasma Mobile gets [Plasma Mobile]
+      #   <<: *platform_plasma_in_title
+      # - name: Epic with [SailfishOS] gets platform::SailfishOS
+      #   <<: *sfos_in_title_implies_label
+      # - name: Epic with [Plasma Mobile] gets platform::Plasma Mobile
+      #   <<: *plasma_in_title_implies_label
+      # - name: Merge multiple tags in epic title
+      #   <<: *merge_title_tags
   issues:
     rules:
+      - name: Issue with UI::Silica gets platform::SailfishOS
+        <<: *ui_silica_implies_sailfishos
+      - name: Issue with UI::Kirigami gets platform::Plasma Mobile
+        <<: *ui_kirigami_implies_plasma
+
+      - name: Issue with platform::SailfishOS gets [SailfishOS]
+        <<: *platform_sfos_in_title
+      - name: Issue with platform::Plasma Mobile gets [Plasma Mobile]
+        <<: *platform_plasma_in_title
+      - name: Issue with [SailfishOS] gets platform::SailfishOS
+        <<: *sfos_in_title_implies_label
+      - name: Issue with [Plasma Mobile] gets platform::Plasma Mobile
+        <<: *plasma_in_title_implies_label
+      - name: Merge multiple tags in issue title
+        <<: *merge_title_tags
+
       - name: Unlabeled issues get ~"triage::needs attention"
         conditions:
           state: opened
