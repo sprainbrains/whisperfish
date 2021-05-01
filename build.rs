@@ -244,12 +244,7 @@ fn prepare_rpm_build() {
         std::fs::remove_dir_all(&rpm_extra_dir)
             .unwrap_or_else(|_| panic!("Could not remove {:?} for cleanup", rpm_extra_dir));
     }
-    let cond_folder: &[&str] = &[
-        "systemd",
-        "transferplugin",
-        "transferui",
-        "dbus",
-    ];
+    let cond_folder: &[&str] = &["systemd", "transferplugin", "transferui", "dbus"];
     for d in cond_folder.iter() {
         let nd = rpm_extra_dir.join(d);
         std::fs::create_dir_all(&nd).unwrap_or_else(|_| panic!("Could not create {:?}", &nd));
@@ -275,11 +270,11 @@ fn prepare_rpm_build() {
             std::fs::create_dir_all(&dest_dir)
                 .unwrap_or_else(|_| panic!("Could not create {:?}", dest_dir));
         }
-        let dest_file = dest_dir.join(file);
+        let dest_file = dest_dir.join(Path::new(file).file_name().unwrap());
         std::fs::copy(Path::new(file), &dest_file)
             .unwrap_or_else(|_| panic!("failed to copy {} to {:?}", file, dest_file));
         if !gen {
-            println!("cargo:rerun-if-changed={}", file.to_str().unwrap());
+            println!("cargo:rerun-if-changed={}", file);
         }
     }
 
