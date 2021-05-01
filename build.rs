@@ -334,7 +334,7 @@ fn needs_rerun(dest: &str, sources: &[&str]) -> bool {
         }
     }
 
-    return false;
+    false
 }
 
 fn build_share_plugin(mer_target_root: &str, qt_include_path: &str) {
