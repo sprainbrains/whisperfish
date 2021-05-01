@@ -38,7 +38,6 @@ cpp = "0.5"
 dirs = "3.0"
 anyhow = "1.0"
 thiserror = "1"
-libsignal-protocol = { git = "https://github.com/signalapp/libsignal-client" }
 libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 zkgroup = { git = "https://github.com/signalapp/zkgroup" }

@@ -1344,7 +1344,6 @@ dependencies = [
  "hex",
  "hmac 0.10.1",
  "itertools 0.10.0",
- "libsignal-protocol",
  "libsignal-service",
  "libsignal-service-actix",
  "libsqlite3-sys",
