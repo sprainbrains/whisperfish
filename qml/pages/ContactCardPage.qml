@@ -29,7 +29,6 @@ Page {
 
     SailfishContacts.ContactCard {
         id: contactCard
-        readOnly: true
 
         PullDownMenu {
             // TODO investigate why sharing crashes Whisperfish

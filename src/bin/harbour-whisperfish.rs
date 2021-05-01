@@ -5,6 +5,8 @@ use anyhow::Context;
 use dbus::blocking::Connection;
 use std::time::Duration;
 
+use single_instance::SingleInstance;
+
 fn main() {
     // Read config file or get a default config
     let mut config = match config::SignalConfig::read_from_file() {
@@ -35,9 +37,12 @@ fn main() {
         env_logger::init()
     }
 
-    match try_dbus_show_app() {
-        Ok(_) => return,
-        Err(e) => log::error!("{}", e),
+    let instance_lock = SingleInstance::new("whisperfish").unwrap();
+    if !instance_lock.is_single() {
+        if let Err(e) = dbus_show_app() {
+            log::error!("{}", e);
+        }
+        return;
     }
 
     if let Err(e) = run_main_app(config) {
@@ -46,14 +51,14 @@ fn main() {
     }
 }
 
-fn try_dbus_show_app() -> Result<(), dbus::Error> {
-    log::info!("Try calling app.show() on DBus.");
+fn dbus_show_app() -> Result<(), dbus::Error> {
+    log::info!("Calling app.show() on DBus.");
 
     let c = Connection::new_session()?;
     let proxy = c.with_proxy(
-        "be.rubdos.whisperfish.app",
-        "/be/rubdos/whisperfish",
-        Duration::from_millis(1000),
+        "be.rubdos.whisperfish",
+        "/be/rubdos/whisperfish/app",
+        Duration::from_millis(20000),
     );
 
     proxy.method_call("be.rubdos.whisperfish.app", "show", ())
