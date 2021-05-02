@@ -6,7 +6,7 @@
 //!
 //! This module maps on https://gitlab.com/rubdos/whisperfish/-/issues/74.
 
-use libsignal_protocol::InternalError;
+use libsignal_service::prelude::protocol::SignalProtocolError;
 use prost::Message;
 
 include!(concat!(env!("OUT_DIR"), "/textsecure.rs"));
@@ -14,8 +14,8 @@ include!(concat!(env!("OUT_DIR"), "/textsecure.rs"));
 pub const DJB_TYPE: u8 = 0x05;
 
 /// Removes quirks to the session data format that are apparent in Whisperfish 0.5
-pub fn session_from_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
-    let mut obj = RecordStructure::decode(input).map_err(|_| InternalError::InvalidProtoBuf)?;
+pub fn session_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = RecordStructure::decode(input)?;
 
     // begin unquirking
     obj.current_session
@@ -28,14 +28,13 @@ pub fn session_from_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
     // end unquirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
-    obj.encode(&mut out)
-        .map_err(|_| InternalError::SerializationError)?;
+    obj.encode(&mut out)?;
     Ok(out)
 }
 
 /// Adds quirks to the session data format that are apparent in Whisperfish 0.5
-pub fn session_to_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
-    let mut obj = RecordStructure::decode(input).map_err(|_| InternalError::InvalidProtoBuf)?;
+pub fn session_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = RecordStructure::decode(input)?;
 
     // begin quirking
     obj.current_session
@@ -48,68 +47,59 @@ pub fn session_to_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
-    obj.encode(&mut out)
-        .map_err(|_| InternalError::SerializationError)?;
+    obj.encode(&mut out)?;
     Ok(out)
 }
 
 /// Removes quirks to the pre key data format that are apparent in Whisperfish 0.5
-pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
-    let mut obj =
-        PreKeyRecordStructure::decode(input).map_err(|_| InternalError::InvalidProtoBuf)?;
+pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = PreKeyRecordStructure::decode(input)?;
 
     // begin quirking
     obj.public_key.as_mut().map(unquirk_identity).transpose()?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
-    obj.encode(&mut out)
-        .map_err(|_| InternalError::SerializationError)?;
+    obj.encode(&mut out)?;
     Ok(out)
 }
 
 /// Adds quirks to the pre key data format that are apparent in Whisperfish 0.5
-pub fn pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
-    let mut obj =
-        PreKeyRecordStructure::decode(input).map_err(|_| InternalError::InvalidProtoBuf)?;
+pub fn pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = PreKeyRecordStructure::decode(input)?;
 
     // begin quirking
     obj.public_key.as_mut().map(quirk_identity).transpose()?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
-    obj.encode(&mut out)
-        .map_err(|_| InternalError::SerializationError)?;
+    obj.encode(&mut out)?;
     Ok(out)
 }
 
 /// Removes quirks to the signed pre key data format that are apparent in Whisperfish 0.5
-pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
-    let mut obj =
-        SignedPreKeyRecordStructure::decode(input).map_err(|_| InternalError::InvalidProtoBuf)?;
+pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = SignedPreKeyRecordStructure::decode(input)?;
 
     // begin quirking
     obj.public_key.as_mut().map(unquirk_identity).transpose()?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
-    obj.encode(&mut out)
-        .map_err(|_| InternalError::SerializationError)?;
+    obj.encode(&mut out)?;
     Ok(out)
 }
 
 /// Adds quirks to the signed pre key data format that are apparent in Whisperfish 0.5
-pub fn signed_pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, InternalError> {
-    let mut obj =
-        SignedPreKeyRecordStructure::decode(input).map_err(|_| InternalError::InvalidProtoBuf)?;
+pub fn signed_pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = SignedPreKeyRecordStructure::decode(input)?;
 
     // begin quirking
     obj.public_key.as_mut().map(quirk_identity).transpose()?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
-    obj.encode(&mut out)
-        .map_err(|_| InternalError::SerializationError)?;
+    obj.encode(&mut out)?;
     Ok(out)
 }
 
@@ -147,7 +137,7 @@ fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec
     .filter_map(|x| x) // Undo Option<_>
 }
 
-fn quirk_session_structure(sess: &mut SessionStructure) -> Result<(), InternalError> {
+fn quirk_session_structure(sess: &mut SessionStructure) -> Result<(), SignalProtocolError> {
     for identity in quirky_keys_mut(sess) {
         quirk_identity(identity)?;
     }
@@ -155,7 +145,7 @@ fn quirk_session_structure(sess: &mut SessionStructure) -> Result<(), InternalEr
     Ok(())
 }
 
-fn unquirk_session_structure(sess: &mut SessionStructure) -> Result<(), InternalError> {
+fn unquirk_session_structure(sess: &mut SessionStructure) -> Result<(), SignalProtocolError> {
     for identity in quirky_keys_mut(sess) {
         unquirk_identity(identity)?;
     }
@@ -163,7 +153,7 @@ fn unquirk_session_structure(sess: &mut SessionStructure) -> Result<(), Internal
     Ok(())
 }
 
-fn quirk_identity(id: &mut Vec<u8>) -> Result<(), InternalError> {
+fn quirk_identity(id: &mut Vec<u8>) -> Result<(), SignalProtocolError> {
     if id.len() == 32 {
         log::warn!("Not quirking input key of 32 bytes!");
         Ok(())
@@ -171,17 +161,19 @@ fn quirk_identity(id: &mut Vec<u8>) -> Result<(), InternalError> {
         let removed = id.remove(0);
         if removed != DJB_TYPE {
             log::error!("Unknown input key type {}, not quirking.", removed);
-            Err(InternalError::InvalidKey)
+            Err(SignalProtocolError::InternalError("Unknown key type"))
         } else {
             Ok(())
         }
     } else {
         log::error!("Invalid input key of length {}", id.len());
-        Err(InternalError::InvalidKey)
+        Err(SignalProtocolError::InternalError(
+            "Invalid identity key length",
+        ))
     }
 }
 
-fn unquirk_identity(id: &mut Vec<u8>) -> Result<(), InternalError> {
+fn unquirk_identity(id: &mut Vec<u8>) -> Result<(), SignalProtocolError> {
     if id.len() == 33 {
         log::warn!(
             "Not unquirking input key of 33 bytes! Its tarts with {}.",
@@ -193,6 +185,8 @@ fn unquirk_identity(id: &mut Vec<u8>) -> Result<(), InternalError> {
         Ok(())
     } else {
         log::error!("Invalid input key of length {}, cannot unquirk", id.len());
-        Err(InternalError::InvalidKey)
+        Err(SignalProtocolError::InternalError(
+            "Invalid identity key length",
+        ))
     }
 }

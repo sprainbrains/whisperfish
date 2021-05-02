@@ -28,13 +28,17 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: MultideviceSyncProfile, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
+        let local_addr = self.local_addr.clone().unwrap();
 
         let mut sender = MessageSender::new(
             self.authenticated_service(),
             self.cipher.clone().unwrap(),
+            rand::thread_rng(),
+            storage.clone(),
+            storage.clone(),
+            local_addr.clone(),
             DEFAULT_DEVICE_ID,
         );
-        let local_addr = self.local_addr.clone().unwrap();
         let config = self.config.clone();
 
         Box::pin(async move {
@@ -68,7 +72,6 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
     fn handle(&mut self, _: GenerateEmptyProfileIfNeeded, ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
-        let context = libsignal_protocol::Context::default();
         let client = ctx.address();
         let config = self.config.clone();
         let uuid = config.get_uuid_clone();
@@ -88,7 +91,7 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
 
             log::info!("Generating profile key");
             let profile_key = ProfileKey::generate(rand::thread_rng().gen());
-            let mut am = AccountManager::new(context, service, Some(profile_key.get_bytes()));
+            let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
             am.upload_versioned_profile_without_avatar(uuid, ProfileName::empty(), None, None)
                 .await
                 .expect("upload profile");
@@ -111,17 +114,17 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: RefreshProfileAttributes, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let registration_id = storage.protocol_store.lock().unwrap().regid;
+        let protocol_store = storage.protocol_store.clone();
         let service = self.authenticated_service();
-        let context = libsignal_protocol::Context::default();
         let config = self.config.clone();
 
         Box::pin(async move {
+            let registration_id = protocol_store.read().await.regid;
             let self_recipient = storage
                 .fetch_self_recipient(&config)
                 .expect("self set by now");
 
-            let mut am = AccountManager::new(context, service, self_recipient.profile_key());
+            let mut am = AccountManager::new(service, self_recipient.profile_key());
             am.set_account_attributes(
                 None,            // signaling key
                 registration_id, // regid

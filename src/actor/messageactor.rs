@@ -122,18 +122,20 @@ impl Handler<FetchSession> for MessageActor {
             storage.mark_session_read(sess.id);
         }
 
-        let peer_identity = if let orm::SessionType::DirectMessage(recipient) = &sess.r#type {
+        let peer_identity = if let orm::SessionType::DirectMessage(_recipient) = &sess.r#type {
+            log::info!("STUB requested peer identity for {:?}; #303", _recipient);
             // FIXME UUID
-            match storage.peer_identity(recipient.e164.as_deref().expect("fixme")) {
-                Ok(ident) => ident,
-                Err(e) => {
-                    log::warn!(
-                        "FetchSession: returning empty string for peer_ident because {:?}",
-                        e
-                    );
-                    String::new()
-                }
-            }
+            String::new()
+            // match storage.peer_identity(recipient.e164.as_deref().expect("fixme")) {
+            //     Ok(ident) => ident,
+            //     Err(e) => {
+            //         log::warn!(
+            //             "FetchSession: returning empty string for peer_ident because {:?}",
+            //             e
+            //         );
+            //         String::new()
+            //     }
+            // }
         } else {
             String::new()
         };

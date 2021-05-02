@@ -14,7 +14,6 @@ use crate::model::DeviceModel;
 use crate::sfos::SailfishApp;
 use crate::store::{orm, Storage};
 
-use libsignal_protocol::Context;
 use libsignal_service::configuration::SignalServers;
 use libsignal_service::content::sync_message::Request as SyncRequest;
 use libsignal_service::content::DataMessageFlags;
@@ -22,14 +21,16 @@ use libsignal_service::content::{
     sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContext, GroupContextV2,
     GroupType, Metadata,
 };
+use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
-pub use libsignal_service::push_service::{ConfirmCodeResponse, DeviceInfo};
-use libsignal_service::push_service::{SmsVerificationCodeResponse, VoiceVerificationCodeResponse};
+pub use libsignal_service::provisioning::VerificationCodeResponse;
+use libsignal_service::provisioning::{ConfirmCodeResponse, ProvisioningManager};
+pub use libsignal_service::push_service::DeviceInfo;
 
 mod migrations;
 use migrations::*;
@@ -90,12 +91,26 @@ pub struct ClientActor {
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
-    cipher: Option<ServiceCipher>,
-    context: Context,
+    // XXX The cipher should be behind a Mutex.
+    // By considering the session that needs to be accessed,
+    // we could lock only a single session to enforce serialized access.
+    // That's a lot of code though, and it should probably happen *inside* the ServiceCipher
+    // instead.
+    // Having ServiceCipher implement `Clone` is imo. a problem, now that everything is `async`.
+    // Putting in behind a Mutex is a lot of work now though,
+    // especially considering this should be *internal* to ServiceCipher.
+    cipher: Option<
+        ServiceCipher<
+            crate::store::Storage,
+            crate::store::Storage,
+            crate::store::Storage,
+            crate::store::Storage,
+            rand::rngs::ThreadRng,
+        >,
+    >,
     config: std::sync::Arc<crate::config::SignalConfig>,
 
     start_time: DateTime<Local>,
-    store_context: Option<libsignal_protocol::StoreContext>,
 }
 
 impl ClientActor {
@@ -112,19 +127,15 @@ impl ClientActor {
         inner.pinned().borrow_mut().session_actor = Some(session_actor);
         inner.pinned().borrow_mut().device_model = Some(device_model);
 
-        let crypto = libsignal_protocol::crypto::DefaultCrypto::default();
-
         Ok(Self {
             inner,
             credentials: None,
             local_addr: None,
             storage: None,
             cipher: None,
-            context: Context::new(crypto)?,
             config,
 
             start_time: Local::now(),
-            store_context: None,
         })
     }
 
@@ -132,25 +143,50 @@ impl ClientActor {
         self.credentials.as_ref().and_then(|c| c.uuid)
     }
 
+    fn user_agent(&self) -> String {
+        format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"))
+    }
+
     fn unauthenticated_service(&self) -> AwcPushService {
-        let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
-        AwcPushService::new(service_cfg, None, &useragent)
+        AwcPushService::new(service_cfg, None, self.user_agent())
     }
 
     fn authenticated_service_with_credentials(
         &self,
         credentials: ServiceCredentials,
     ) -> AwcPushService {
-        let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
         let service_cfg = self.service_cfg();
 
-        AwcPushService::new(service_cfg, Some(credentials), &useragent)
+        AwcPushService::new(service_cfg, Some(credentials), self.user_agent())
     }
 
     /// Panics if no authentication credentials are set.
     fn authenticated_service(&self) -> AwcPushService {
         self.authenticated_service_with_credentials(self.credentials.clone().unwrap())
+    }
+
+    fn message_sender(
+        &self,
+    ) -> MessageSender<
+        AwcPushService,
+        crate::store::Storage,
+        crate::store::Storage,
+        crate::store::Storage,
+        crate::store::Storage,
+        rand::rngs::ThreadRng,
+    > {
+        let storage = self.storage.clone().unwrap();
+        let service = self.authenticated_service();
+        MessageSender::new(
+            service,
+            self.cipher.clone().unwrap(),
+            rand::thread_rng(),
+            storage.clone(),
+            storage,
+            self.local_addr.clone().unwrap(),
+            DEFAULT_DEVICE_ID,
+        )
     }
 
     fn service_cfg(&self) -> ServiceConfiguration {
@@ -186,23 +222,27 @@ impl ClientActor {
         };
 
         if msg.flags() & DataMessageFlags::EndSession as u32 != 0 {
-            use libsignal_protocol::stores::SessionStore;
-            if let Some(e164) = source_e164.as_ref() {
-                if let Err(e) = storage.delete_all_sessions(e164.as_bytes()) {
-                    log::error!(
-                        "End session (e164) requested, but could not end session: {:?}",
-                        e
-                    );
+            let storage = storage.clone();
+            let source_e164 = source_e164.clone();
+            let source_uuid = source_uuid.clone();
+            actix::spawn(async move {
+                if let Some(e164) = source_e164.as_ref() {
+                    if let Err(e) = storage.delete_all_sessions(&e164).await {
+                        log::error!(
+                            "End session (e164) requested, but could not end session: {:?}",
+                            e
+                        );
+                    }
                 }
-            }
-            if let Some(uuid) = source_uuid.as_ref() {
-                if let Err(e) = storage.delete_all_sessions(uuid.as_bytes()) {
-                    log::error!(
-                        "End session (uuid) requested, but could not end session: {:?}",
-                        e
-                    );
+                if let Some(uuid) = source_uuid.as_ref() {
+                    if let Err(e) = storage.delete_all_sessions(&uuid).await {
+                        log::error!(
+                            "End session (uuid) requested, but could not end session: {:?}",
+                            e
+                        );
+                    }
                 }
-            }
+            });
         }
 
         if source_e164.is_some() || source_uuid.is_some() {
@@ -356,11 +396,7 @@ impl ClientActor {
 
         let local_addr = self.local_addr.clone().unwrap();
         let storage = self.storage.clone().unwrap();
-        let mut sender = MessageSender::new(
-            self.authenticated_service(),
-            self.cipher.clone().unwrap(),
-            DEFAULT_DEVICE_ID,
-        );
+        let mut sender = self.message_sender();
 
         actix::spawn(async move {
             match req.r#type() {
@@ -429,28 +465,12 @@ impl ClientActor {
         }.map(|v| if let Err(e) = v {log::error!("{:?}", e)}));
     }
 
-    fn process_message(&mut self, msg: Envelope, ctx: &mut <Self as Actor>::Context) {
-        // XXX: figure out edge cases in which these are *not* initialized.
+    fn process_envelope(
+        &mut self,
+        Content { body, metadata }: Content,
+        ctx: &mut <Self as Actor>::Context,
+    ) {
         let storage = self.storage.as_mut().expect("storage initialized");
-        let cipher = self.cipher.as_mut().expect("cipher initialized");
-
-        let Content { body, metadata } = match cipher.open_envelope(msg) {
-            Ok(Some(content)) => content,
-            Ok(None) => {
-                log::info!("Empty envelope");
-                return;
-            }
-            Err(e) => {
-                log::error!("Error opening envelope: {:?}", e);
-                return;
-            }
-        };
-
-        log::trace!(
-            "Opened envelope Content {{ body: {:?}, metadata: {:?} }}",
-            body,
-            metadata
-        );
 
         match body {
             ContentBody::DataMessage(message) => {
@@ -680,12 +700,10 @@ impl Handler<SendMessage> for ClientActor {
     // Equiv of worker/send.go
     fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
-        let service = self.authenticated_service();
+        let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
         let msg = storage.fetch_message_by_id(mid).unwrap();
 
-        let mut sender =
-            MessageSender::new(service, self.cipher.clone().unwrap(), DEFAULT_DEVICE_ID);
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
 
         if msg.sent_timestamp.is_some() {
@@ -908,8 +926,7 @@ impl Handler<StorageReady> for ClientActor {
         let tel = self.config.get_tel_clone();
         let uuid = self.config.get_uuid_clone();
 
-        let context = self.context.clone();
-        let storage_for_password = storageready.storage.clone();
+        let storage_for_password = storageready.storage;
         let request_password = async move {
             // Web socket
             let phonenumber = phonenumber::parse(None, tel).unwrap();
@@ -948,32 +965,23 @@ impl Handler<StorageReady> for ClientActor {
                 // end store credentials
 
                 // Signal service context
-                let store_context = libsignal_protocol::store_context(
-                    &context,
-                    // Storage is a pointer-to-shared-storage
-                    storageready.storage.clone(),
-                    storageready.storage.clone(),
-                    storageready.storage.clone(),
-                    storageready.storage.clone(),
-                )
-                .expect("initialized storage");
                 let local_addr = ServiceAddress {
                     uuid,
                     phonenumber: Some(phonenumber),
                     relay: None,
                 };
-                let cipher = ServiceCipher::from_context(
-                    context.clone(),
-                    store_context.clone(),
-                    local_addr.clone(),
-                    service_cfg
-                        .credentials_validator(&context)
-                        .expect("trust root"),
+                let storage = act.storage.clone().unwrap();
+                let cipher = ServiceCipher::new(
+                    storage.clone(),
+                    storage.clone(),
+                    storage.clone(),
+                    storage,
+                    rand::thread_rng(),
+                    service_cfg.credentials_validator().expect("trust root"),
                 );
                 // end signal service context
                 act.cipher = Some(cipher);
                 act.local_addr = Some(local_addr);
-                act.store_context = Some(store_context);
 
                 ctx.notify(Restart);
 
@@ -1036,12 +1044,38 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
             }
         };
 
+        let mut cipher = self.cipher.clone().expect("cipher initialized");
+
         if msg.is_prekey_signal_message()
             || msg.is_signal_message()
             || msg.is_unidentified_sender()
             || msg.is_receipt()
         {
-            self.process_message(msg, ctx);
+            ctx.spawn(
+                async move {
+                    let content = match cipher.open_envelope(msg).await {
+                        Ok(Some(content)) => content,
+                        Ok(None) => {
+                            log::info!("Empty envelope");
+                            return None;
+                        }
+                        Err(e) => {
+                            log::error!("Error opening envelope: {:?}", e);
+                            return None;
+                        }
+                    };
+
+                    log::trace!("Opened envelope: {:?}", content);
+
+                    Some(content)
+                }
+                .into_actor(self)
+                .map(|content, act, ctx| {
+                    if let Some(content) = content {
+                        act.process_envelope(content, ctx);
+                    }
+                }),
+            );
         } else {
             log::warn!("Unknown envelope type {:?}", msg.r#type());
         }
@@ -1058,32 +1092,8 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
     }
 }
 
-#[derive(Clone, Eq, PartialEq)]
-pub enum RegistrationResponse {
-    Ok,
-    CaptchaRequired,
-}
-
-impl From<VoiceVerificationCodeResponse> for RegistrationResponse {
-    fn from(response: VoiceVerificationCodeResponse) -> RegistrationResponse {
-        match response {
-            VoiceVerificationCodeResponse::CaptchaRequired => RegistrationResponse::CaptchaRequired,
-            VoiceVerificationCodeResponse::CallIssued => RegistrationResponse::Ok,
-        }
-    }
-}
-
-impl From<SmsVerificationCodeResponse> for RegistrationResponse {
-    fn from(response: SmsVerificationCodeResponse) -> RegistrationResponse {
-        match response {
-            SmsVerificationCodeResponse::CaptchaRequired => RegistrationResponse::CaptchaRequired,
-            SmsVerificationCodeResponse::SmsSent => RegistrationResponse::Ok,
-        }
-    }
-}
-
 #[derive(Message)]
-#[rtype(result = "Result<RegistrationResponse, anyhow::Error>")]
+#[rtype(result = "Result<VerificationCodeResponse, anyhow::Error>")]
 pub struct Register {
     pub phonenumber: PhoneNumber,
     pub password: String,
@@ -1092,7 +1102,7 @@ pub struct Register {
 }
 
 impl Handler<Register> for ClientActor {
-    type Result = ResponseActFuture<Self, Result<RegistrationResponse, anyhow::Error>>;
+    type Result = ResponseActFuture<Self, Result<VerificationCodeResponse, anyhow::Error>>;
 
     fn handle(&mut self, reg: Register, _ctx: &mut Self::Context) -> Self::Result {
         let Register {
@@ -1102,24 +1112,30 @@ impl Handler<Register> for ClientActor {
             captcha,
         } = reg;
 
-        let push_service = self.authenticated_service_with_credentials(ServiceCredentials {
-            uuid: None,
-            phonenumber: phonenumber.clone(),
-            password: Some(password),
-            signaling_key: None,
-            device_id: None, // !77
-        });
+        // XXX https://github.com/Michael-F-Bryan/libsignal-service-rs/pull/93
+        // let push_service = self.authenticated_service_with_credentials(ServiceCredentials {
+        //     uuid: None,
+        //     phonenumber: phonenumber.clone(),
+        //     password: Some(password),
+        //     signaling_key: None,
+        //     device_id: None, // !77
+        // });
         // XXX add profile key when #192 implemneted
-        let mut account_manager = AccountManager::new(self.context.clone(), push_service, None);
+        let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
+            self.service_cfg(),
+            self.user_agent(),
+            phonenumber,
+            password,
+        );
         let registration_procedure = async move {
             if use_voice {
-                account_manager
-                    .request_voice_verification_code(phonenumber, captcha.as_deref(), None)
+                provisioning_manager
+                    .request_voice_verification_code(captcha.as_deref(), None)
                     .await
                     .map(Into::into)
             } else {
-                account_manager
-                    .request_sms_verification_code(phonenumber, captcha.as_deref(), None)
+                provisioning_manager
+                    .request_sms_verification_code(captcha.as_deref(), None)
                     .await
                     .map(Into::into)
             }
@@ -1146,6 +1162,8 @@ impl Handler<ConfirmRegistration> for ClientActor {
     type Result = ResponseActFuture<Self, Result<(u32, ConfirmCodeResponse), anyhow::Error>>;
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
+        use libsignal_service::provisioning::*;
+
         let ConfirmRegistration {
             phonenumber,
             password,
@@ -1153,23 +1171,25 @@ impl Handler<ConfirmRegistration> for ClientActor {
             signaling_key,
         } = confirm;
 
-        let registration_id =
-            libsignal_protocol::generate_registration_id(&self.context, 0).unwrap();
+        let registration_id = generate_registration_id(&mut rand::thread_rng());
         log::trace!("registration_id: {}", registration_id);
 
-        let mut push_service = self.authenticated_service_with_credentials(ServiceCredentials {
-            uuid: None,
+        let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
+            self.service_cfg(),
+            self.user_agent(),
             phonenumber,
-            password: Some(password),
-            signaling_key: None,
-            device_id: None, // !77
-        });
+            password,
+        );
         let confirmation_procedure = async move {
-            push_service.confirm_verification_code(confirm_code,
-                libsignal_service::push_service::ConfirmCodeMessage::new_without_unidentified_access (
-                    signaling_key.to_vec(),
-                    registration_id,
-                )).await
+            provisioning_manager
+                .confirm_verification_code(
+                    confirm_code,
+                    ConfirmCodeMessage::new_without_unidentified_access(
+                        signaling_key.to_vec(),
+                        registration_id,
+                    ),
+                )
+                .await
         };
 
         Box::pin(
@@ -1193,15 +1213,17 @@ impl Handler<RefreshPreKeys> for ClientActor {
 
         let service = self.authenticated_service();
         // XXX add profile key when #192 implemneted
-        let mut am = AccountManager::new(self.context.clone(), service, None);
+        let mut am = AccountManager::new(service, None);
+        let storage = self.storage.clone().unwrap();
 
-        let (next_signed_pre_key_id, pre_keys_offset_id) =
-            self.storage.as_ref().unwrap().next_pre_key_ids();
-
-        let store_context = self.store_context.clone().unwrap();
         let proc = async move {
+            let (next_signed_pre_key_id, pre_keys_offset_id) = storage.next_pre_key_ids().await;
+
             am.update_pre_key_bundle(
-                store_context,
+                &storage.clone(),
+                &mut storage.clone(),
+                &mut storage.clone(),
+                &mut rand::thread_rng(),
                 next_signed_pre_key_id,
                 pre_keys_offset_id,
                 false,

@@ -25,19 +25,12 @@ impl Handler<WhoAmI> for ClientActor {
                 Ok::<_, anyhow::Error>(Some(response.uuid))
             }
             .into_actor(self)
-            .map(move |result: Result<Option<String>, _>, act, _ctx| {
+            .map(move |result: Result<Option<uuid::Uuid>, _>, act, _ctx| {
                 let uuid = match result {
                     Ok(Some(uuid)) => uuid,
                     Ok(None) => return,
                     Err(e) => {
                         log::error!("fetching UUID: {}", e);
-                        return;
-                    }
-                };
-                let uuid = match uuid.parse() {
-                    Ok(uuid) => uuid,
-                    Err(e) => {
-                        log::error!("Could not parse received Uuid: {}", e);
                         return;
                     }
                 };
