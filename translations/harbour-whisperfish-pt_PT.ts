@@ -423,13 +423,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewMessage.qml" line="59"/>
         <source>This phone number contains invalid characters.</source>
         <extracomment>invalid recipient phone number: invalid characters</extracomment>
-        <translation>Este número contém carateres ilegais.</translation>
+        <translation>Este número de telefone contém carateres inválidos.</translation>
     </message>
     <message id="whisperfish-recipient-local-number-not-allowed">
         <location filename="../qml/pages/NewMessage.qml" line="64"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
-        <translation>Sff define o indicativo nas definições ou utiliza o formato internacional.</translation>
+        <translation>Por favor define um indicativo nas definições ou utiliza o format internacional.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
         <location filename="../qml/pages/NewMessage.qml" line="68"/>
@@ -771,7 +771,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="168"/>
         <source>none</source>
         <extracomment>settings page country code selection: nothing selected</extracomment>
-        <translation>Nenhum</translation>
+        <translation>nenhum</translation>
     </message>
     <message id="whisperfish-settings-save-attachments">
         <location filename="../qml/pages/Settings.qml" line="195"/>
