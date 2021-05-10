@@ -429,7 +429,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewMessage.qml" line="64"/>
         <source>Please set a country code in the settings, or use the international format.</source>
         <extracomment>invalid recipient phone number: local numbers are not allowed</extracomment>
-        <translation>Por favor define um indicativo nas definições ou utiliza o format internacional.</translation>
+        <translation>Por favor define um indicativo do país nas definições ou utiliza o formato internacional.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-unspecified">
         <location filename="../qml/pages/NewMessage.qml" line="68"/>
