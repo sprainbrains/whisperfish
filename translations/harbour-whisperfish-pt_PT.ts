@@ -563,7 +563,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>O Whisperfish guarda as chaves de identificação, o estado da sessão, e os dados das mensagens encriptadas no dispositivo. A senha que definires não é guardada em nenhum local e não será possível recuperar os teus dados caso percas a senha. Nota: atualmente, os ficheiros anexados são guardados sem encriptação. Podes desativar o arquivo de anexos nas Definições.</translation>
+        <translation>O Whisperfish guarda as chaves de identificação, o estado da sessão, e os dados das mensagens encriptadas no dispositivo. A senha que definires não é guardada em nenhum local e não será possível recuperar os teus dados caso percas a senha. Nota: atualmente, os ficheiros anexados são guardados sem encriptação. Podes desativar o armazenamento de anexos nas Definições.</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
