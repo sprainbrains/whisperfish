@@ -1051,13 +1051,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
         <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation>O Signal devia de te ter telefonado com um código de verificação de 6 dígitos. Por favor espera um pouco ou reinicia o processo se não recebeste a chamada.</translation>
+        <translation>Deverias ter recebido uma chamada do Signal com um código de verificação de 6 dígitos. Por favor espera um pouco, ou reinicia o processo se não recebeste a chamada.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
         <source>Signal should have sent you a 6-digit verification code via text message. Please wait a moment, or restart the process if you have not received a message.</source>
         <extracomment>verify registration instructions: text message</extracomment>
-        <translation>Signal devia de ter enviado uma mensagem de texto com um código de verificação de 6 dígitos. Espera um pouco, ou, se não recebeste uma mensagem, reinicia o processo.</translation>
+        <translation>Deverias ter recebido uma mensagem de texto do Signal com um código de verificação de 6 dígitos. Espera um pouco, ou reinicia o processo se não recebeste a mensagem.</translation>
     </message>
     <message id="whisperfish-verify-retry-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="43"/>
