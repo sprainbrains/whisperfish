@@ -584,7 +584,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>AVISO: a identidade de %1 deixou de ser confiável. Toca Confirmar para repôr a identidade de pares.</translation>
+        <translation>AVISO: a identidade de %1 deixou de ser confiável. Toca Confirmar para repor a identidade de pares.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
