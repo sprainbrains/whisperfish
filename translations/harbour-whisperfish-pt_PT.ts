@@ -1027,7 +1027,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/FatalErrorPage.qml" line="18"/>
         <source>Please restart Whisperfish. If the problem persists and appears to be an issue with Whisperfish, please report the issue.</source>
         <extracomment>generic hint on what to do after a fatal error occurred (error message will be shown separately)</extracomment>
-        <translation>Sff reinicirar o Whisperfish. Se o problema presitir e aparentar ser um problema do Whisperfish, sff reportar.</translation>
+        <translation>Reinicia o Whisperfish. Se o problema persitir e aparentar se rum problema com o Whisperfish, sff reporta.</translation>
     </message>
     <message id="whisperfish-startup-placeholder-title">
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
