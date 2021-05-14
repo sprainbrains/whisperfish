@@ -1354,8 +1354,8 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Apagar %n mesagem em todos os locais</numerusform>
-            <numerusform>Apagar %n mesagens em todos os locais</numerusform>
+            <numerusform>Apagar %n mensagem em todos os locais</numerusform>
+            <numerusform>Apagar %n mensagens em todos os locais</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
