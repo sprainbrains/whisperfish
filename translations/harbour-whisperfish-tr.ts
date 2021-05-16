@@ -1366,7 +1366,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ShareDestination.qml" line="34"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>İçerik paylaş</translation>
     </message>
 </context>
 </TS>

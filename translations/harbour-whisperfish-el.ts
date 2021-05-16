@@ -1093,7 +1093,7 @@ Settings page share contacts</extracomment>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
-            <numerusform>%n συννημένο</numerusform>
+            <numerusform>%n συνημμένο</numerusform>
             <numerusform>%n συννημένα</numerusform>
         </translation>
     </message>
@@ -1314,8 +1314,8 @@ Settings page share contacts</extracomment>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
-            <numerusform>% επιλεγμένο μήνυμα</numerusform>
-            <numerusform>% επιλεγμένα μηνύματα</numerusform>
+            <numerusform>%n επιλεγμένο μήνυμα</numerusform>
+            <numerusform>%n επιλεγμένα μηνύματα</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1376,7 +1376,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ShareDestination.qml" line="34"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Διαμοιρασμός αρχείων</translation>
     </message>
 </context>
 </TS>
