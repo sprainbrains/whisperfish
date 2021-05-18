@@ -414,7 +414,8 @@ impl protocol::SessionStoreExt for Storage {
         let _lock = self.protocol_store.write().await;
 
         let path = self.session_path(addr);
-        std::fs::remove_file(path).unwrap();
+        std::fs::remove_file(path)
+            .map_err(|e| SignalProtocolError::SessionNotFound(addr.to_string()))?;
         Ok(())
     }
 
