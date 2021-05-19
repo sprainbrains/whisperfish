@@ -11,7 +11,7 @@ use std::{
 
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
-use crate::{actor, config::Settings, model, sfos::QmlApp, worker};
+use crate::{actor, config::Settings, model, qmlapp::QmlApp, worker};
 
 use actix::prelude::*;
 use qmetaobject::*;

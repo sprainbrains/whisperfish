@@ -10,7 +10,7 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 pub mod config;
-pub mod sfos;
+pub mod qmlapp;
 
 pub mod actor;
 pub mod model;
