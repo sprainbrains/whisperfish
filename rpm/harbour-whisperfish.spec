@@ -5,8 +5,8 @@
 Name: harbour-whisperfish
 Summary: Private messaging using Signal for SailfishOS.
 
-Version: @@VERSION@@
-Release: @@RELEASE@@
+Version: 0.6.0
+Release: 0
 License: GPLv3+
 Group: Qt/Qt
 URL: https://gitlab.com/rubdos/whisperfish/
@@ -27,23 +27,70 @@ Requires:   dbus
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
 Requires:   sailfish-version >= 3.3
 
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:  rust >= 1.48
+# > 1.48
+BuildRequires:  rust-std-static
+BuildRequires:  cargo
+# BuildRequires:  rust-cross
+BuildRequires:  git
+BuildRequires:  protobuf-compiler
+BuildRequires:  libnemotransferengine-qt5-devel
+BuildRequires:  qt5-qtwebsockets-devel
+BuildRequires:  openssl-devel
+BuildRequires:  dbus-devel
+BuildRequires:  gcc-c++
+# TODO: remove before merge
+BuildRequires:  sqlcipher-devel
+
+%{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
+%{!?qtc_make:%define qtc_make make}
 
 %description
 %{summary}
 
 %prep
-%setup -q
+# %setup -q
 
 %build
-for filename in .%{_datadir}/%{name}/translations/*.ts; do
-    base="${filename%.*}"
-    lrelease -idbased "$base.ts" -qm "$base.qm";
-done
-rm .%{_datadir}/%{name}/translations/*.ts
+
+# https://git.sailfishos.org/mer-core/gecko-dev/blob/master/rpm/xulrunner-qt5.spec#L224
+# When cross-compiling under SB2 rust needs to know what arch to emit
+# when nothing is specified on the command line. That usually defaults
+# to "whatever rust was built as" but in SB2 rust is accelerated and
+# would produce x86 so this is how it knows differently. Not needed
+# for native x86 builds
+%ifarch %arm
+export SB2_RUST_TARGET_TRIPLE=armv7-unknown-linux-gnueabihf
+export CFLAGS_armv7_unknown_linux_gnueabihf=$CFLAGS
+export CXXFLAGS_armv7_unknown_linux_gnueabihf=$CXXFLAGS
+%endif
+%ifarch aarch64
+export SB2_RUST_TARGET_TRIPLE=aarch64-unknown-linux-gnu
+export CFLAGS_aarch64_unknown_linux_gnu=$CFLAGS
+export CXXFLAGS_aarch64_unknown_linux_gnu=$CXXFLAGS
+%endif
+export CFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -fmessage-length=0"
+export CXXFLAGS=$CFLAGS
+# This avoids a malloc hang in sb2 gated calls to execvp/dup2/chdir
+# during fork/exec. It has no effect outside sb2 so doesn't hurt
+# native builds.
+export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
+export SB2_RUST_USE_REAL_EXECVP=Yes
+export SB2_RUST_USE_REAL_FN=Yes
+
+export CC_i686_unknown_linux_gnu=host-cc
+export CXX_i686_unknown_linux_gnu=host-cxx
+
+export QMAKE=%{_sourcedir}/../rpm/qmake-sailfish
+cargo build --verbose --release --manifest-path %{_sourcedir}/../Cargo.toml
+# for filename in .%{_datadir}/%{name}/translations/*.ts; do
+#     base="${filename%.*}"
+#     lrelease -idbased "$base.ts" -qm "$base.qm";
+# done
+# rm .%{_datadir}/%{name}/translations/*.ts
 
 #[{{ HARBOUR
-rm .%{_bindir}/whisperfish-migration-dry-run
+# rm .%{_bindir}/whisperfish-migration-dry-run
 #}}]
 
 %install

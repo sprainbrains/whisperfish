@@ -5,8 +5,8 @@ use crate::model::session::SessionModel;
 use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 
+use crate::qmetaobject_prelude::*;
 use actix::prelude::*;
-use qmetaobject::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]

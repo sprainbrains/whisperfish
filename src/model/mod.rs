@@ -20,7 +20,7 @@ macro_rules! define_model_roles {
         impl $enum_name {
             #[allow(unused_assignments)]
             #[allow(dead_code)]
-            fn role_names() -> HashMap<i32, QByteArray> {
+            fn role_names() -> HashMap<i32, qmetaobject::QByteArray> {
                 let mut hm = HashMap::new();
 
                 let mut i = 0;
@@ -32,7 +32,7 @@ macro_rules! define_model_roles {
                 hm
             }
 
-            fn get(&self, obj: &$diesel_model) -> QVariant {
+            fn get(&self, obj: &$diesel_model) -> qmetaobject::QVariant {
                 match self {
                     $(
                         Self::$role => define_model_roles!(RETRIEVE obj $($retrieval)*),
@@ -64,8 +64,8 @@ pub use session::*;
 pub use filepicker::*;
 pub use prompt::*;
 
+use crate::qmetaobject_prelude::*;
 use chrono::prelude::*;
-use qmetaobject::*;
 
 fn qdate_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDate {
     let dt = dt.with_timezone(&Local).naive_local();

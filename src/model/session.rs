@@ -6,11 +6,11 @@ use crate::actor;
 use crate::model::*;
 use crate::store::orm;
 
+use crate::qmetaobject_prelude::*;
 use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
-use qmetaobject::*;
 
 // XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {

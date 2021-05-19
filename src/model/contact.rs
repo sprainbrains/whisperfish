@@ -2,8 +2,8 @@ use std::str::FromStr;
 
 use crate::config::Settings;
 
+use crate::qmetaobject_prelude::*;
 use phonenumber::Mode;
-use qmetaobject::*;
 
 #[derive(QObject, Default)]
 pub struct ContactModel {

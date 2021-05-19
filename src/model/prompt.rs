@@ -1,6 +1,6 @@
 use std::future::Future;
 
-use qmetaobject::*;
+use crate::qmetaobject_prelude::*;
 
 // XXX code duplication.
 
