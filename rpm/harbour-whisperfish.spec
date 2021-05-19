@@ -35,6 +35,8 @@ BuildRequires:  cargo
 BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  libnemotransferengine-qt5-devel
+BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
+BuildRequires:  qtmozembed-qt5-devel
 BuildRequires:  qt5-qtwebsockets-devel
 BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
@@ -77,12 +79,32 @@ export CXXFLAGS=$CFLAGS
 export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
 export SB2_RUST_USE_REAL_EXECVP=Yes
 export SB2_RUST_USE_REAL_FN=Yes
+export SB2_RUST_NO_SPAWNVP=Yes
 
+%ifnarch %ix86
 export CC_i686_unknown_linux_gnu=host-cc
 export CXX_i686_unknown_linux_gnu=host-cxx
+%endif
 
+# Set meego cross compilers
+export PATH=/opt/cross/bin/:$PATH
+export CC_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-gcc
+export CXX_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-g++
+export CC_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-gcc
+export CXX_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-g++
+
+# Hack for qmetaobject on QT_SELECT=5 platforms
 export QMAKE=%{_sourcedir}/../rpm/qmake-sailfish
-cargo build --verbose --release --manifest-path %{_sourcedir}/../Cargo.toml
+
+# Hack for cross linking against dbus
+export PKG_CONFIG_ALLOW_CROSS_i686_unknown_linux_gnu=1
+export PKG_CONFIG_ALLOW_CROSS_armv7_unknown_linux_gnueabihf=1
+export PKG_CONFIG_ALLOW_CROSS_aarch64_unknown_linux_gnu=1
+cargo build \
+          --verbose \
+          --release \
+          --features sailfish \
+          --manifest-path %{_sourcedir}/../Cargo.toml
 # for filename in .%{_datadir}/%{name}/translations/*.ts; do
 #     base="${filename%.*}"
 #     lrelease -idbased "$base.ts" -qm "$base.qm";

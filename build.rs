@@ -114,6 +114,7 @@ fn main() {
 
     // This is kinda hacky. Sorry.
     cfg.include(&qt_include_path)
+        .include("/usr/include/sailfishapp/")
         .include(format!("{}/QtCore", qt_include_path))
         // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
         // It is annoying to look at while developing, and we cannot do anything about it
@@ -147,7 +148,7 @@ fn main() {
     }
 
     let sailfish_libs: &[&str] = if cfg!(feature = "sailfish") {
-        &["nemonotifications", "sailfishapp", "qt5embedwidget"]
+        &["sailfishapp", "qt5embedwidget"]
     } else {
         &[]
     };
