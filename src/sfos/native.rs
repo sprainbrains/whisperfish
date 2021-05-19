@@ -23,14 +23,14 @@ cpp! {{
 
     #include <sailfishapp.h>
 
-    struct SfosSingleApplicationGuard {
-        SfosSingleApplicationGuard() {
+    struct QmlSingleApplicationGuard {
+        QmlSingleApplicationGuard() {
             rust!(Rust_SfosApplicationHolder_ctor[] {
                 HAS_ENGINE.compare_exchange(false, true, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
                         .expect("There can only be one QmlEngine in the process");
             });
         }
-        ~SfosSingleApplicationGuard() {
+        ~QmlSingleApplicationGuard() {
             rust!(Rust_SfosApplicationHolder_dtor[] {
                 HAS_ENGINE.compare_exchange(true, false, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
                     .unwrap();
@@ -38,7 +38,7 @@ cpp! {{
         }
     };
 
-    struct SfosApplicationHolder : SfosSingleApplicationGuard {
+    struct SfosApplicationHolder : QmlSingleApplicationGuard {
         std::unique_ptr<QGuiApplication> app;
         std::unique_ptr<QQuickView> view;
 
