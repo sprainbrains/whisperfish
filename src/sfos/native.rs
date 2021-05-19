@@ -79,7 +79,7 @@ cpp_class! (
     pub unsafe struct QmlApp as "QmlApplicationHolder"
 );
 
-struct SfosApplicationFuture<'a> {
+struct QmlApplicationFuture<'a> {
     app: QmlApp,
     close_event_filter: *mut CloseEventFilter,
     app_state: QObjectPinned<'a, AppState>,
@@ -87,7 +87,7 @@ struct SfosApplicationFuture<'a> {
 
 use std::task::{Context, Poll};
 
-impl Future for SfosApplicationFuture<'_> {
+impl Future for QmlApplicationFuture<'_> {
     type Output = ();
     fn poll(mut self: std::pin::Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
         let dispatch = self.app.event_dispatcher_mut().unwrap();
@@ -239,7 +239,7 @@ impl QmlApp {
                 return f;
             })
         };
-        SfosApplicationFuture {
+        QmlApplicationFuture {
             app: self,
             close_event_filter,
             app_state,
