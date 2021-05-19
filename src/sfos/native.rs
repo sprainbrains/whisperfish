@@ -76,11 +76,11 @@ cpp_class!(
 );
 
 cpp_class! (
-    pub unsafe struct SailfishApp as "QmlApplicationHolder"
+    pub unsafe struct QmlApp as "QmlApplicationHolder"
 );
 
 struct SfosApplicationFuture<'a> {
-    app: SailfishApp,
+    app: QmlApp,
     close_event_filter: *mut CloseEventFilter,
     app_state: QObjectPinned<'a, AppState>,
 }
@@ -122,8 +122,8 @@ impl Future for SfosApplicationFuture<'_> {
     }
 }
 
-impl SailfishApp {
-    pub fn application(name: String) -> SailfishApp {
+impl QmlApp {
+    pub fn application(name: String) -> QmlApp {
         use std::ffi::CString;
 
         let mut arguments: Vec<*mut c_char> = std::iter::once(name)
@@ -146,7 +146,7 @@ impl SailfishApp {
 
                 #include <sailfishapp.h>
             }}
-            cpp!([argc as "int", argv as "char**"] -> SailfishApp as "QmlApplicationHolder" {
+            cpp!([argc as "int", argv as "char**"] -> QmlApp as "QmlApplicationHolder" {
                 static int _argc  = argc;
                 static char **_argv = nullptr;
                 if (_argv == nullptr) {

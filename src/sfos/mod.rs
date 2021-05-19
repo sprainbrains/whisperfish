@@ -8,4 +8,4 @@ mod native;
 pub use native::*;
 
 #[cfg(not(feature = "sailfish"))]
-pub type SailfishApp = qmetaobject::QmlEngine;
+pub type QmlApp = qmetaobject::QmlEngine;

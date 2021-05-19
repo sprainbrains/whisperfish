@@ -11,7 +11,7 @@ use std::{
 
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
-use crate::{actor, config::Settings, model, sfos::SailfishApp, worker};
+use crate::{actor, config::Settings, model, sfos::QmlApp, worker};
 
 use actix::prelude::*;
 use qmetaobject::*;
@@ -204,9 +204,9 @@ pub async fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Erro
     // XXX this arc thing should be removed in the future and refactored
     let config = std::sync::Arc::new(config);
 
-    let mut app = SailfishApp::application("harbour-whisperfish".into());
+    let mut app = QmlApp::application("harbour-whisperfish".into());
     let long_version: QString = long_version().into();
-    log::info!("SailfishApp::application loaded - version {}", long_version);
+    log::info!("QmlApp::application loaded - version {}", long_version);
     let version: QString = env!("CARGO_PKG_VERSION").into();
     app.set_title("Whisperfish".into());
     app.set_application_version(version.clone());
@@ -256,7 +256,7 @@ pub async fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Erro
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
     app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
 
-    app.set_source(SailfishApp::path_to("qml/harbour-whisperfish.qml".into()));
+    app.set_source(QmlApp::path_to("qml/harbour-whisperfish.qml".into()));
 
     if config.autostart
         && !whisperfish
