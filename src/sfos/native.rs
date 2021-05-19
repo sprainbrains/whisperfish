@@ -25,24 +25,24 @@ cpp! {{
 
     struct QmlSingleApplicationGuard {
         QmlSingleApplicationGuard() {
-            rust!(Rust_SfosApplicationHolder_ctor[] {
+            rust!(Rust_QmlApplicationHolder_ctor[] {
                 HAS_ENGINE.compare_exchange(false, true, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
                         .expect("There can only be one QmlEngine in the process");
             });
         }
         ~QmlSingleApplicationGuard() {
-            rust!(Rust_SfosApplicationHolder_dtor[] {
+            rust!(Rust_QmlApplicationHolder_dtor[] {
                 HAS_ENGINE.compare_exchange(true, false, std::sync::atomic::Ordering::SeqCst, std::sync::atomic::Ordering::SeqCst)
                     .unwrap();
             });
         }
     };
 
-    struct SfosApplicationHolder : QmlSingleApplicationGuard {
+    struct QmlApplicationHolder : QmlSingleApplicationGuard {
         std::unique_ptr<QGuiApplication> app;
         std::unique_ptr<QQuickView> view;
 
-        SfosApplicationHolder(int &argc, char **argv)
+        QmlApplicationHolder(int &argc, char **argv)
             : app(SailfishApp::application(argc, argv))
             , view(SailfishApp::createView()) {
                 QObject::connect(
@@ -76,7 +76,7 @@ cpp_class!(
 );
 
 cpp_class! (
-    pub unsafe struct SailfishApp as "SfosApplicationHolder"
+    pub unsafe struct SailfishApp as "QmlApplicationHolder"
 );
 
 struct SfosApplicationFuture<'a> {
@@ -146,7 +146,7 @@ impl SailfishApp {
 
                 #include <sailfishapp.h>
             }}
-            cpp!([argc as "int", argv as "char**"] -> SailfishApp as "SfosApplicationHolder" {
+            cpp!([argc as "int", argv as "char**"] -> SailfishApp as "QmlApplicationHolder" {
                 static int _argc  = argc;
                 static char **_argv = nullptr;
                 if (_argv == nullptr) {
@@ -159,7 +159,7 @@ impl SailfishApp {
                         strcpy(_argv[i], argv[i]);
                     }
                 }
-                return SfosApplicationHolder(_argc, _argv);
+                return QmlApplicationHolder(_argc, _argv);
             })
         };
 
@@ -178,7 +178,7 @@ impl SailfishApp {
     /// Sets a property for this QML context (calls QQmlEngine::rootContext()->setContextProperty)
     pub fn set_property(&mut self, name: QString, value: QVariant) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*", name as "QString", value as "QVariant"] {
+            cpp!([self as "QmlApplicationHolder*", name as "QString", value as "QVariant"] {
                 self->view->engine()->rootContext()->setContextProperty(name, value);
             })
         }
@@ -193,7 +193,7 @@ impl SailfishApp {
         obj: QObjectPinned<'_, T>,
     ) {
         let obj_ptr = obj.get_or_create_cpp_object();
-        cpp!(unsafe [self as "SfosApplicationHolder*", name as "QString", obj_ptr as "QObject*"] {
+        cpp!(unsafe [self as "QmlApplicationHolder*", name as "QString", obj_ptr as "QObject*"] {
             self->view->engine()->rootContext()->setContextProperty(name, obj_ptr);
         })
     }
@@ -209,7 +209,7 @@ impl SailfishApp {
     #[allow(dead_code)]
     pub fn exec(&self) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*"] {
+            cpp!([self as "QmlApplicationHolder*"] {
                 self->app->exec();
             })
         }
@@ -217,7 +217,7 @@ impl SailfishApp {
 
     pub fn event_dispatcher_mut(&mut self) -> Option<&mut TokioQEventDispatcher> {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*"] -> *mut TokioQEventDispatcher as "TokioQEventDispatcher*" {
+            cpp!([self as "QmlApplicationHolder*"] -> *mut TokioQEventDispatcher as "TokioQEventDispatcher*" {
                 QAbstractEventDispatcher *dispatch = self->app->eventDispatcher();
                 TokioQEventDispatcher *tqed = dynamic_cast<TokioQEventDispatcher *>(dispatch);
                 return tqed;
@@ -233,7 +233,7 @@ impl SailfishApp {
         // XXX: implement Drop to deregister the filter.
         let app: &mut Self = &mut self;
         let close_event_filter = unsafe {
-            cpp!([app as "SfosApplicationHolder*"] -> *mut CloseEventFilter as "CloseEventFilter *" {
+            cpp!([app as "QmlApplicationHolder*"] -> *mut CloseEventFilter as "CloseEventFilter *" {
                 CloseEventFilter *f = new CloseEventFilter();
                 app->view->installEventFilter(f);
                 return f;
@@ -248,7 +248,7 @@ impl SailfishApp {
 
     pub fn set_source(&mut self, src: QUrl) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*", src as "QUrl"] {
+            cpp!([self as "QmlApplicationHolder*", src as "QUrl"] {
                 self->view->setSource(src);
             })
         }
@@ -256,7 +256,7 @@ impl SailfishApp {
 
     pub fn set_title(&mut self, title: QString) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*", title as "QString"] {
+            cpp!([self as "QmlApplicationHolder*", title as "QString"] {
                 self->view->setTitle(title);
             })
         }
@@ -264,7 +264,7 @@ impl SailfishApp {
 
     pub fn set_application_version(&mut self, version: QString) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*", version as "QString"] {
+            cpp!([self as "QmlApplicationHolder*", version as "QString"] {
                 self->app->setApplicationVersion(version);
             })
         }
@@ -272,7 +272,7 @@ impl SailfishApp {
 
     pub fn install_default_translator(&mut self) -> Result<(), anyhow::Error> {
         let result = unsafe {
-            cpp!([self as "SfosApplicationHolder*"] -> u32 as "int" {
+            cpp!([self as "QmlApplicationHolder*"] -> u32 as "int" {
                 const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
                 const QString appName = qApp->applicationName();
                 QTranslator translator(qApp);
@@ -303,7 +303,7 @@ impl SailfishApp {
 
     pub fn show(&self) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*"] {
+            cpp!([self as "QmlApplicationHolder*"] {
                 self->view->show();
             })
         }
@@ -311,7 +311,7 @@ impl SailfishApp {
 
     pub fn show_full_screen(&self) {
         unsafe {
-            cpp!([self as "SfosApplicationHolder*"] {
+            cpp!([self as "QmlApplicationHolder*"] {
                 self->view->showFullScreen();
             })
         }
