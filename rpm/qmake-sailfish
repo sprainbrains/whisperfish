@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+
+QT_SELECT=5 qmake ${@}
