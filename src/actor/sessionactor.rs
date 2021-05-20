@@ -2,7 +2,7 @@ use crate::actor::FetchSession;
 
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
-use crate::sfos::SailfishApp;
+use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 
 use actix::prelude::*;
@@ -47,7 +47,7 @@ pub struct SessionActor {
 }
 
 impl SessionActor {
-    pub fn new(app: &mut SailfishApp) -> Self {
+    pub fn new(app: &mut QmlApp) -> Self {
         let inner = QObjectBox::new(SessionModel::default());
         app.set_object_property("SessionModel".into(), inner.pinned());
 

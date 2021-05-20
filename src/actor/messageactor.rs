@@ -1,6 +1,6 @@
 use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
-use crate::sfos::SailfishApp;
+use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 use crate::worker::ClientActor;
 
@@ -60,7 +60,7 @@ pub struct MessageActor {
 }
 
 impl MessageActor {
-    pub fn new(app: &mut SailfishApp, client: Addr<ClientActor>) -> Self {
+    pub fn new(app: &mut QmlApp, client: Addr<ClientActor>) -> Self {
         let inner = QObjectBox::new(MessageModel::default());
         app.set_object_property("MessageModel".into(), inner.pinned());
         inner.pinned().borrow_mut().client_actor = Some(client);

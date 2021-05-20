@@ -499,10 +499,10 @@ fn main() {
         .build("src/lib.rs");
 
     let contains_cpp = [
-        "sfos/mod.rs",
-        "sfos/tokio_qt.rs",
+        "qmlapp/mod.rs",
+        "qmlapp/tokio_qt.rs",
         "settings.rs",
-        "sfos/native.rs",
+        "qmlapp/native.rs",
     ];
     for f in &contains_cpp {
         println!("cargo:rerun-if-changed=src/{}", f);

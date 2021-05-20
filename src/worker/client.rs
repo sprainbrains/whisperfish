@@ -11,7 +11,7 @@ use qmetaobject::*;
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
 use crate::model::DeviceModel;
-use crate::sfos::SailfishApp;
+use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 
 use libsignal_service::configuration::SignalServers;
@@ -115,7 +115,7 @@ pub struct ClientActor {
 
 impl ClientActor {
     pub fn new(
-        app: &mut SailfishApp,
+        app: &mut QmlApp,
         session_actor: Addr<SessionActor>,
         config: std::sync::Arc<crate::config::SignalConfig>,
     ) -> Result<Self, anyhow::Error> {
