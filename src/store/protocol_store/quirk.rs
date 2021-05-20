@@ -105,7 +105,7 @@ pub fn signed_pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolErro
 
 fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec<u8>> {
     let chains = std::iter::once(sess.sender_chain.as_mut())
-        .filter_map(|x| x) // filter out Option<_>
+        .flatten() // filter out Option<_>
         .chain(sess.receiver_chains.iter_mut())
         .map(|chain| chain.sender_ratchet_key.as_mut());
 
@@ -134,7 +134,7 @@ fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec
             .unwrap_or_else(|| std::iter::once(None)),
     )
     .chain(chains)
-    .filter_map(|x| x) // Undo Option<_>
+    .flatten() // Undo Option<_>
 }
 
 fn quirk_session_structure(sess: &mut SessionStructure) -> Result<(), SignalProtocolError> {

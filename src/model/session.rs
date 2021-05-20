@@ -181,8 +181,8 @@ impl SessionModel {
                         session,
                         group_members,
                         last_message,
-                        last_message_attachments,
                         last_message_receipts,
+                        last_message_attachments,
                     }
                 },
             )
