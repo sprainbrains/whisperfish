@@ -79,6 +79,12 @@ export SB2_RUST_TARGET_TRIPLE=aarch64-unknown-linux-gnu
 export CFLAGS_aarch64_unknown_linux_gnu=$CFLAGS
 export CXXFLAGS_aarch64_unknown_linux_gnu=$CXXFLAGS
 %endif
+%ifarch %ix86
+export SB2_RUST_TARGET_TRIPLE=i686-unknown-linux-gnu
+export CFLAGS_i686_unknown_linux_gnu=$CFLAGS
+export CXXFLAGS_i686_unknown_linux_gnu=$CXXFLAGS
+%endif
+
 export CFLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -fmessage-length=0"
 export CXXFLAGS=$CFLAGS
 # This avoids a malloc hang in sb2 gated calls to execvp/dup2/chdir
