@@ -501,8 +501,8 @@ fn main() {
     let contains_cpp = [
         "qmlapp/mod.rs",
         "qmlapp/tokio_qt.rs",
-        "settings.rs",
         "qmlapp/native.rs",
+        "config/settings.rs",
     ];
     for f in &contains_cpp {
         println!("cargo:rerun-if-changed=src/{}", f);
