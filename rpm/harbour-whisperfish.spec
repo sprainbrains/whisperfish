@@ -98,8 +98,10 @@ export CXX_i686_unknown_linux_gnu=host-cxx
 export PATH=/opt/cross/bin/:$PATH
 export CC_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-gcc
 export CXX_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-g++
+export AR_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-ar
 export CC_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-gcc
 export CXX_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-g++
+export AR_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-ar
 
 # Hack for qmetaobject on QT_SELECT=5 platforms
 export QMAKE=%{_sourcedir}/../rpm/qmake-sailfish
@@ -121,49 +123,79 @@ cargo build \
           --release \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
-# for filename in .%{_datadir}/%{name}/translations/*.ts; do
-#     base="${filename%.*}"
-#     lrelease -idbased "$base.ts" -qm "$base.qm";
-# done
-# rm .%{_datadir}/%{name}/translations/*.ts
-
-#[{{ HARBOUR
-# rm .%{_bindir}/whisperfish-migration-dry-run
-#}}]
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}
-cp -a * %{buildroot}
 
-desktop-file-install --delete-original       \
-  --dir %{buildroot}%{_datadir}/applications             \
-   %{buildroot}%{_datadir}/applications/*.desktop
+%ifarch %arm
+targetdir=%{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release/
+%endif
+%ifarch aarch64
+targetdir=%{_sourcedir}/../target/aarch64-unknown-linux-gnu/release/
+%endif
+%ifarch %ix86
+targetdir=%{_sourcedir}/../target/release/
+%endif
+
+install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
+for filename in %{_sourcedir}/../translations/*.ts; do
+    base=$(basename -s .ts $filename)
+    lrelease \
+        -idbased "%{_sourcedir}/../translations/$base.ts" \
+        -qm "%{buildroot}%{_datadir}/harbour-whisperfish/translations/$base.qm";
+done
+
+install -D $targetdir/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
+%if %{without harbour}
+install -D $targetdir/fetch-signal-attachment %{buildroot}%{_bindir}/fetch-signal-attachment
+install -D $targetdir/whisperfish-migration-dry-run %{buildroot}%{_bindir}/whisperfish-migration-dry-run
+%endif
+
+desktop-file-install \
+  --dir %{buildroot}%{_datadir}/applications \
+   %{_sourcedir}/../harbour-whisperfish.desktop
+
+install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
+    %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
+install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
+    %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-whisperfish-message.conf
+
+# Application icon
+install -Dm 644 %{_sourcedir}/../icons/86x86/harbour-whisperfish.png \
+    %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/harbour-whisperfish.png
+
+# QML & icons
+(cd %{_sourcedir}/../ && find ./qml ./icons \
+    -type f \
+    -exec \
+        install -Dm 644 "{}" "%{buildroot}%{_datadir}/harbour-whisperfish/{}" \; )
 
 %clean
 rm -rf %{buildroot}
 
-#[{{ NOT HARBOUR
-# This block will be removed by build.rs when building with feature "harbour" enabled.
+%if %{without harbour}
 %post
 systemctl-user daemon-reload
+%endif
 
+%if %{without harbour}
 %preun
 systemctl-user disable harbour-whisperfish.service || true
-# end removable block
-#}}]
+%endif
 
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
 %{_datadir}/%{name}
+%{_datadir}/%{name}/qml/
+%{_datadir}/%{name}/qml/%{name}.qml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/mapplauncherd/privileges.d/%{name}.privileges
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/lipstick/notificationcategories/%{name}-message.conf
-#[{{ NOT HARBOUR
+
+%if %{without harbour}
 %{_exec_prefix}/lib/systemd/user/%{name}.service
 %{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
 %{_datadir}/nemo-transferengine/plugins/WhisperfishShare.qml
 %{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
-#}}]
+%endif
