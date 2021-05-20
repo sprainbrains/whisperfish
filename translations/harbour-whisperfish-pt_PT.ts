@@ -20,14 +20,14 @@
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation>Todas as mensagens apagadas</translation>
+        <translation>Todas as mensagens foram apagadas</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
         <location filename="../qml/pages/ShareDestination.qml" line="97"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation>Apontamento ao próprio</translation>
+        <translation>Nota pessoal</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
@@ -160,13 +160,13 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
         <source>Updated to the new group format</source>
         <extracomment>Indicator for updated groups</extracomment>
-        <translation>Atualizar para o novo formato de grupo</translation>
+        <translation>Grupo atualizado para o novo formato</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
         <location filename="../qml/pages/GroupProfilePage.qml" line="81"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
-        <translation>Não atualizou para o novo formato de grupo</translation>
+        <translation>Grupo não atualizado para o novo formato</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
@@ -180,13 +180,13 @@
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
-        <translation>Saiste do grupo e apagaste todas as mensagens</translation>
+        <translation>Saíste do grupo e todas as mensagens do grupo foram apagadas</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
-        <translation>Criar link de convite</translation>
+        <translation>Criar ligação de convite</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
@@ -345,8 +345,8 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
-            <numerusform>%n foi apagada localmente</numerusform>
-            <numerusform>%n foram apagadas localmente</numerusform>
+            <numerusform>%n mensagem foi apagada localmente</numerusform>
+            <numerusform>%n mensagens foram apagadas localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -435,7 +435,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewMessage.qml" line="68"/>
         <source>This phone number appears to be invalid.</source>
         <extracomment>invalid recipient phone number: failed to format</extracomment>
-        <translation>Este número de telefone aparenta ser inválido.</translation>
+        <translation>Este número de telefone parece ser inválido.</translation>
     </message>
     <message id="whisperfish-new-message-title">
         <location filename="../qml/pages/NewMessage.qml" line="96"/>
@@ -462,7 +462,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="16"/>
         <source>Welcome to Whisperfish</source>
         <extracomment>welcome screen title when creating a new database</extracomment>
-        <translation>Bemvindo ao Whisperfish</translation>
+        <translation>Bem-vindo ao Whisperfish</translation>
     </message>
     <message id="whisperfish-setup-password-prompt">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="20"/>
@@ -747,7 +747,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="121"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>Se desactivada, o Whisperfish só irá mostrar o remetente da mensagem, não o conteúdo.</translation>
+        <translation>Se desativada, o Whisperfish só irá mostrar o remetente da mensagem, não o conteúdo.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="153"/>
@@ -784,7 +784,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Anexos são guardados em %1. Porenquanto, quando desativado, anexos não funcionam de todo.</translation>
+        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando está opção é desativada.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="232"/>
@@ -815,7 +815,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation>Quando ativado, o Whisperfish continua a funcionar em segundo plano e pode enviar notificações depois da janela da app ter sido fechada.</translation>
+        <translation>Quando ativado, o Whisperfish continua a funcionar em segundo plano e pode enviar notificações depois da janela da aplicação ter sido fechada.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="280"/>
@@ -833,19 +833,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation>Ativado, o Whisperfish só mostra a primeira mensagem de cada sessão.</translation>
+        <translation>Quando ativada, o Whisperfish só mostra a primeira mensagem de cada sessão.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation>Quando ativado, o Whisperfish arranca automaticamente a cada arranque. Se a encriptação do armazenamento estiver ativa, ou o modo de segundo plano estiver desligado, a interface aparcerá, caso contrário a app arranca em segundo plano.</translation>
+        <translation>Quando ativada, o Whisperfish inicia automaticamente depois de cada arranque. Se a encriptação do armazenamento estiver ativa, ou o modo de segundo plano estiver desligado, a interface aparecerá, caso contrário a aplicação arranca em segundo plano.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="300"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
-        <translation>Terminar Whisperfish</translation>
+        <translation>Fechar o Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
         <location filename="../qml/pages/Settings.qml" line="313"/>
@@ -1033,7 +1033,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
         <source>Welcome</source>
         <extracomment>welcome text shown when startup takes a long time</extracomment>
-        <translation>Bemvindo</translation>
+        <translation>Bem-vindo</translation>
     </message>
     <message id="whisperfish-verify-page-title">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="10"/>
@@ -1182,7 +1182,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="53"/>
         <source>You left the group.</source>
         <extracomment>Service message</extracomment>
-        <translation>Saiste do grupo.</translation>
+        <translation>Saíste do grupo.</translation>
     </message>
     <message id="whisperfish-service-message-joined-group-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="57"/>
@@ -1206,19 +1206,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="69"/>
         <source>You missed a video call from %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation>Perdeste uma chamada vídeo de %1.</translation>
+        <translation>Perdeste uma vídeochamada de %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="73"/>
         <source>You called %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation>Tu chamaste %1.</translation>
+        <translation>Telefonaste para %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-video-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="77"/>
         <source>You started a video call with %1.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation>Tu iniciaste uma vídeochamada com %1.</translation>
+        <translation>Iniciaste uma vídeochamada com %1.</translation>
     </message>
     <message id="whisperfish-service-message-call-voice-peer">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="81"/>
@@ -1230,7 +1230,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="85"/>
         <source>%1 started a video call with you.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation>%1 iniciou uma vídeochamda contigo.</translation>
+        <translation>%1 iniciou uma vídeochamada contigo.</translation>
     </message>
     <message id="whisperfish-service-message-fingerprint-changed">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
@@ -1254,7 +1254,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="103"/>
         <source>This service message is not yet supported by Whisperfish. Please file a bug report. (Type: &apos;%1&apos;.)</source>
         <extracomment>Service message, %1 is an internal message type identifier</extracomment>
-        <translation>Esta mensagem de serviço ainda não é suportada pelo Whisperfish. Sff reporta um bug. (Tipo: &apos;%1&apos;.)</translation>
+        <translation>Esta mensagem de serviço ainda não é suportada pelo Whisperfish. Por favor reporta um erro. (Tipo: &apos;%1&apos;.)</translation>
     </message>
     <message id="whisperfish-service-message-more-info">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="160"/>
@@ -1265,7 +1265,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ContactCardPage.qml" line="52"/>
         <source>Save to address book</source>
         <extracomment>Menu item to save a shared contact to the local address book</extracomment>
-        <translation>Guardar no livro de endereços</translation>
+        <translation>Guardar na lista de contactos</translation>
     </message>
     <message id="whisperfish-expanded-message-page-header">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
@@ -1309,8 +1309,8 @@ Settings page share contacts</extracomment>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
-            <numerusform>%n mensagem delecionada</numerusform>
-            <numerusform>%n mensagens delecionadas</numerusform>
+            <numerusform>%n mensagem selecionada</numerusform>
+            <numerusform>%n mensagens selecionadas</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
