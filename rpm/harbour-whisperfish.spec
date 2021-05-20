@@ -2,6 +2,14 @@
 %define __os_install_post %{_dbpath}/brp-compress
 %define debug_package %{nil}
 
+%bcond_with harbour
+
+%if %{with harbour}
+%define builddir target/sailfishos-harbour/%{_target_cpu}
+%else
+%define builddir target/sailfishos/%{_target_cpu}
+%endif
+
 Name: harbour-whisperfish
 Summary: Private messaging using Signal for SailfishOS.
 
@@ -51,7 +59,7 @@ BuildRequires:  sqlcipher-devel
 %{summary}
 
 %prep
-# %setup -q
+%setup -q -n %{?with_harbour:harbour-}whisperfish
 
 %build
 
@@ -100,10 +108,18 @@ export QMAKE=%{_sourcedir}/../rpm/qmake-sailfish
 export PKG_CONFIG_ALLOW_CROSS_i686_unknown_linux_gnu=1
 export PKG_CONFIG_ALLOW_CROSS_armv7_unknown_linux_gnueabihf=1
 export PKG_CONFIG_ALLOW_CROSS_aarch64_unknown_linux_gnu=1
+
+%if %{without harbour}
+FEATURES=sailfish
+%endif
+%if %{with harbour}
+FEATURES="sailfish,harbour"
+%endif
+
 cargo build \
           --verbose \
           --release \
-          --features sailfish \
+          --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 # for filename in .%{_datadir}/%{name}/translations/*.ts; do
 #     base="${filename%.*}"
