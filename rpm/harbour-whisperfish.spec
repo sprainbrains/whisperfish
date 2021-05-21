@@ -49,6 +49,7 @@ BuildRequires:  gcc-c++
 
 # For vendored sqlcipher
 BuildRequires:  tcl
+BuildRequires:  automake
 
 %if %{without harbour}
 BuildRequires:  libnemotransferengine-qt5-devel

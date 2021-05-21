@@ -14,6 +14,7 @@ sha256sum -c v3.4.1.tar.gz.sha256sum
 
 tar xzf "v${SQLCIPHER_VERSION}.tar.gz" --strip-components=1 -C "$SCRIPT_DIR/sqlcipher.src"
 cd "$SCRIPT_DIR/sqlcipher.src"
+cp /usr/share/automake-1.*/config.guess config.guess
 ./configure --with-crypto-lib=none
 make sqlite3.c
 cp -a sqlite3.c sqlite3.h sqlite3ext.h LICENSE -t "$SCRIPT_DIR"
