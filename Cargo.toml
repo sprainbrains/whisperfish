@@ -104,8 +104,10 @@ opt-level = 0
 # lto = "fat"
 
 [features]
-sailfish = []
-harbour = []
+# This feature requires setting RUSTFLAGS="-C link-args=-Wl,-lcrypto"
+bundled-sqlcipher = []
+sailfish = ["bundled-sqlcipher"]
+harbour = ["sailfish"]
 
 [patch."https://github.com/signalapp/zkgroup"]
 zkgroup = { git = "https://gitlab.com/whisperfish/zkgroup-whisperfish", branch = "whisperfork" }

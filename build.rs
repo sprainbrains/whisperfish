@@ -64,6 +64,70 @@ fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
     bail!("Could not detect Qt version");
 }
 
+#[cfg(feature = "bundled-sqlcipher")]
+// static sqlcipher handling. Needed for compatibility with
+// sailfish-components-webview.
+// This may become obsolete with an sqlcipher upgrade from jolla or when
+// https://gitlab.com/rubdos/whisperfish/-/issues/227 is implemented.
+fn build_sqlcipher() {
+    // `cc` currently does not ship incremental compilation:
+    // https://github.com/alexcrichton/cc-rs/issues/230
+    let before = std::fs::metadata("sqlcipher/sqlite3.c")
+        .map(|x| x.modified().unwrap())
+        .ok();
+
+    // Download and prepare sqlcipher source
+    let stat = Command::new("sqlcipher/get-sqlcipher.sh")
+        .status()
+        .expect("Failed to download sqlcipher");
+    assert!(stat.success());
+
+    let after = std::fs::metadata("sqlcipher/sqlite3.c")
+        .map(|x| x.modified().unwrap())
+        .unwrap();
+
+    // If sqlite3.c changed, we recompile
+    let needs_rerun = before.map(|before| before != after).unwrap_or(true);
+
+    if needs_rerun {
+        // Build static sqlcipher
+        cc::Build::new()
+            .file("sqlcipher/sqlite3.c")
+            .warnings(false)
+            .include("/usr/include/openssl/")
+            .flag("-Wno-stringop-overflow")
+            .flag("-Wno-return-local-addr")
+            .flag("-DSQLITE_CORE")
+            .flag("-DSQLITE_DEFAULT_FOREIGN_KEYS=1")
+            .flag("-DSQLITE_ENABLE_API_ARMOR")
+            .flag("-DSQLITE_HAS_CODEC")
+            .flag("-DSQLITE_TEMP_STORE=2")
+            .flag("-DHAVE_ISNAN")
+            .flag("-DHAVE_LOCALTIME_R")
+            .flag("-DSQLITE_ENABLE_COLUMN_METADATA")
+            .flag("-DSQLITE_ENABLE_DBSTAT_VTAB")
+            .flag("-DSQLITE_ENABLE_FTS3")
+            .flag("-DSQLITE_ENABLE_FTS3_PARENTHESIS")
+            .flag("-DSQLITE_ENABLE_FTS5")
+            .flag("-DSQLITE_ENABLE_JSON1")
+            .flag("-DSQLITE_ENABLE_LOAD_EXTENSION=1")
+            .flag("-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
+            .flag("-DSQLITE_ENABLE_RTREE")
+            .flag("-DSQLITE_ENABLE_STAT2")
+            .flag("-DSQLITE_ENABLE_STAT4")
+            .flag("-DSQLITE_SOUNDEX")
+            .flag("-DSQLITE_THREADSAFE=1")
+            .flag("-DSQLITE_USE_URI")
+            .flag("-DHAVE_USLEEP=1")
+            .compile("sqlcipher");
+    } else {
+        println!("cargo:lib_dir={}", std::env::var("OUT_DIR").unwrap());
+        println!("cargo:rustc-link-lib=static=sqlcipher");
+        println!("cargo:rerun-if-changed=sqlcipher/sqlite3.c");
+        println!("cargo:rerun-if-changed=sqlcipher/get-sqlcipher.sh");
+    }
+}
+
 fn protobuf() -> Result<(), Error> {
     let protobuf = Path::new("protobuf").to_owned();
 
@@ -156,6 +220,9 @@ fn main() {
     for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
+
+    #[cfg(feature = "bundled-sqlcipher")]
+    build_sqlcipher();
 
     // vergen
     let flags = ConstantsFlags::all();

@@ -48,8 +48,7 @@ BuildRequires:  qt5-qtwebsockets-devel
 BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
-# TODO: remove before merge
-BuildRequires:  sqlcipher-devel
+BuildRequires:  tcl
 
 %if %{without harbour}
 BuildRequires:  libnemotransferengine-qt5-devel
@@ -126,6 +125,8 @@ FEATURES=sailfish
 %if %{with harbour}
 FEATURES="sailfish,harbour"
 %endif
+
+export RUSTFLAGS="-C link-args=-Wl,-lcrypto"
 
 cargo build \
           --verbose \
