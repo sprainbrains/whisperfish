@@ -36,10 +36,8 @@ Requires:   dbus
 Requires:   sailfish-version >= 3.3
 
 BuildRequires:  rust >= 1.48
-# > 1.48
 BuildRequires:  rust-std-static
 BuildRequires:  cargo
-# BuildRequires:  rust-cross
 BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
@@ -48,6 +46,8 @@ BuildRequires:  qt5-qtwebsockets-devel
 BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
+
+# For vendored sqlcipher
 BuildRequires:  tcl
 
 %if %{without harbour}
