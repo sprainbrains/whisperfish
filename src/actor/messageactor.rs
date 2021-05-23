@@ -4,8 +4,8 @@ use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 use crate::worker::ClientActor;
 
-use crate::qmetaobject_prelude::*;
 use actix::prelude::*;
+use qmetaobject::prelude::*;
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]

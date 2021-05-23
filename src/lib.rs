@@ -22,14 +22,6 @@ pub mod schema;
 pub mod gui;
 pub mod store;
 
-pub mod qmetaobject_prelude {
-    pub use qmetaobject::{
-        lazy_static, qmetaobject_lazy_static, qt_base_class, qt_method, qt_property, qt_signal,
-        QAbstractListModel, QByteArray, QDate, QDateTime, QModelIndex, QObject, QObjectBox,
-        QString, QTime, QVariant,
-    };
-}
-
 pub fn user_agent() -> String {
     format!("Whisperfish/{}", env!("CARGO_PKG_VERSION"))
 }

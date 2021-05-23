@@ -13,8 +13,8 @@ use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
 use crate::{actor, config::Settings, model, qmlapp::QmlApp, worker};
 
-use crate::qmetaobject_prelude::*;
 use actix::prelude::*;
+use qmetaobject::prelude::*;
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]

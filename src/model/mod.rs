@@ -64,8 +64,8 @@ pub use session::*;
 pub use filepicker::*;
 pub use prompt::*;
 
-use crate::qmetaobject_prelude::*;
 use chrono::prelude::*;
+use qmetaobject::prelude::*;
 
 fn qdate_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDate {
     let dt = dt.with_timezone(&Local).naive_local();
