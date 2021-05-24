@@ -2,11 +2,9 @@
 
 set -e
 
-mkdir -p $CARGO_HOME
-cp .ci/cargo.toml $CARGO_HOME/config
-
 echo "Building for $SFOS_VERSION"
-echo "Configuring cargo-rpm (cfr https://gitlab.com/whisperfish/whisperfish/-/issues/24)"
+# For i486, we lie.
+# https://gitlab.com/whisperfish/whisperfish/-/issues/24
 
 if [ -z "$CI_COMMIT_TAG" ]; then
     CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
@@ -18,27 +16,14 @@ else
 fi
 
 # Configure Cargo.toml
-sed -ie "s/armv7hl/$MER_ARCH/" Cargo.toml
 sed -ie "s/# lto/lto/" Cargo.toml
 sed -ie "s/^version\s\?=\s\?\".*\"/version = \"$VERSION\"/" Cargo.toml
 cat Cargo.toml
 
-# Set env
-export MER_TARGET="SailfishOS-$SFOS_VERSION"
-export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
-
-# https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md
-export PKG_CONFIG_SYSROOT_DIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/"
-export PKG_CONFIG_PATH="$PKG_CONFIG_SYSROOT_DIR/usr/lib/pkgconfig:$PKG_CONFIG_SYSROOT_DIR/usr/lib64/pkgconfig"
-
-rustc --version
-cargo --version
-
 # -f to ignore non-existent files
-rm -f target/*/release/rpmbuild/RPMS/*/*.rpm
+rm -f RPMS/*.rpm
 
-cargo-rpm --help
-cargo rpm build --verbose --target $RUST_ARCH
+mb2 build
 
 # Only upload on tags or master
 if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
