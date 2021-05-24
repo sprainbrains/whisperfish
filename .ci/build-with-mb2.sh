@@ -15,6 +15,14 @@ else
     VERSION=$(echo "$CI_COMMIT_TAG" | sed -e 's/^v//g')
 fi
 
+# The MB2 image comes with a default user.
+# We need to copy the source over, because of that.
+
+mkdir -p ~/whisperfish-build
+cp -ar .git* * ~/whisperfish-build
+sudo chown $(id -un):$(id -gn) -R ~/whisperfish-build
+pushd ~/whisperfish-build
+
 # Configure Cargo.toml
 sed -ie "s/# lto/lto/" Cargo.toml
 sed -ie "s/^version\s\?=\s\?\".*\"/version = \"$VERSION\"/" Cargo.toml
@@ -24,6 +32,12 @@ cat Cargo.toml
 rm -f RPMS/*.rpm
 
 mb2 build
+
+# Copy everything useful back
+popd
+mkdir RPMS target
+sudo cp -ar ~/whisperfish-build/RPMS RPMS/
+sudo cp -ar ~/whisperfish-build/target target/
 
 # Only upload on tags or master
 if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
