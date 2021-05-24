@@ -66,6 +66,9 @@ BuildRequires:  libnemotransferengine-qt5-devel
 
 %build
 
+rustc --version
+cargo --version
+
 # https://git.sailfishos.org/mer-core/gecko-dev/blob/master/rpm/xulrunner-qt5.spec#L224
 # When cross-compiling under SB2 rust needs to know what arch to emit
 # when nothing is specified on the command line. That usually defaults
