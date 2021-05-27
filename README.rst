@@ -8,7 +8,7 @@ the jolla-messages application written by Jolla Ltd.
 
 It is currently mostly working state.  Join our development channel on Matrix
 (`#whisperfish:rubdos.be <https://matrix.to/#/#whisperfish:rubdos.be>`_) or
-Freenode (#whisperfish) to get in touch, and check
+Libera.Chat (#whisperfish) to get in touch, and check
 `our wiki <https://gitlab.com/rubdos/whisperfish/-/wikis/home>`_ to see whether
 Whisperfish would work for you.
 
