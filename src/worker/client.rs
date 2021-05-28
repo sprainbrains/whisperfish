@@ -55,6 +55,10 @@ pub struct SendMessage(pub i32);
 #[rtype(result = "()")]
 struct AttachmentDownloaded(i32);
 
+#[derive(Message)]
+#[rtype(result = "usize")]
+pub struct CompressDb(usize);
+
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
 pub struct ClientWorker {
@@ -82,6 +86,7 @@ pub struct ClientWorker {
     link_device: qt_method!(fn(&self, tsurl: String)),
     unlink_device: qt_method!(fn(&self, id: i64)),
     reload_linked_devices: qt_method!(fn(&self)),
+    compress_db: qt_method!(fn(&self)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -1239,5 +1244,29 @@ impl Handler<RefreshPreKeys> for ClientActor {
                 log::trace!("Successfully refreshed prekeys");
             }
         }))
+    }
+}
+
+// methods called from Qt
+impl ClientWorker {
+    pub fn compress_db(&self) {
+        let actor = self.actor.clone().unwrap();
+        actix::spawn(async move {
+            if let Err(e) = actor.send(CompressDb(0)).await {
+                log::error!("{:?}", e);
+            }
+        });
+    }
+}
+
+impl Handler<CompressDb> for ClientActor {
+    type Result = usize;
+
+    fn handle(&mut self, _: CompressDb, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(CompressDb)");
+        let store = self.storage.clone().unwrap();
+        let res = store.compress_db();
+        log::trace!("  res = {}", res);
+        res
     }
 }
