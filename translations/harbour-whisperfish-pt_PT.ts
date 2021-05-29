@@ -808,7 +808,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Autostart after boot</source>
         <extracomment>Settings page enable autostart</extracomment>
-        <translation>Arranque automático no arranque</translation>
+        <translation>Iniciar automaticamente no arranque</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="283"/>
