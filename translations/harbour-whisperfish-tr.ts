@@ -130,7 +130,7 @@
         <location filename="../qml/pages/About.qml" line="117"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Wiki&apos;yi Ziyaret Et</translation>
+        <translation>Wiki Sayfasını Ziyaret Et</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="126"/>
@@ -854,7 +854,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="379"/>
         <source>Compress database</source>
         <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Veri tabanını sıkıştır</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
