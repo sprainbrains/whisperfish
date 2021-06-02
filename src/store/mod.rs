@@ -731,6 +731,11 @@ impl Storage {
         recipients.filter(e164.eq(new_e164)).first(&*db).ok()
     }
 
+    pub fn compress_db(&self) -> usize {
+        let db = self.db.lock();
+        db.execute("VACUUM;").unwrap()
+    }
+
     pub fn fetch_recipients(&self) -> Vec<orm::Recipient> {
         let db = self.db.lock();
         schema::recipients::table.load(&*db).expect("db")
