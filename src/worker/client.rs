@@ -149,7 +149,7 @@ impl ClientActor {
     }
 
     fn user_agent(&self) -> String {
-        format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"))
+        crate::user_agent()
     }
 
     fn unauthenticated_service(&self) -> AwcPushService {

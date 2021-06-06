@@ -22,6 +22,10 @@ pub mod schema;
 pub mod gui;
 pub mod store;
 
+pub fn user_agent() -> String {
+    format!("Whisperfish/{}", env!("CARGO_PKG_VERSION"))
+}
+
 pub fn millis_to_naive_chrono(ts: u64) -> chrono::NaiveDateTime {
     chrono::NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1_000_000) as u32)
 }

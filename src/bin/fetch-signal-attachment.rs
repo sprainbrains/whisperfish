@@ -91,11 +91,10 @@ async fn main() -> Result<(), anyhow::Error> {
     };
 
     // Connect to OWS
-    let useragent = format!("Whisperfish-{}", env!("CARGO_PKG_VERSION"));
     let mut service = AwcPushService::new(
         SignalServers::Production,
         Some(credentials.clone()),
-        useragent,
+        harbour_whisperfish::user_agent(),
     );
 
     // Download the attachment
