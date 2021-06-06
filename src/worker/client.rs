@@ -836,8 +836,7 @@ impl Handler<SendMessage> for ClientActor {
                             .await;
                         for result in results {
                             if let Err(e) = result {
-                                // XXX maybe don't mark as sent
-                                log::error!("Error sending message: {}", e);
+                                anyhow::bail!("Error sending message: {}", e);
                             }
                         }
                     }
@@ -861,8 +860,7 @@ impl Handler<SendMessage> for ClientActor {
                             .await;
                         for result in results {
                             if let Err(e) = result {
-                                // XXX maybe don't mark as sent
-                                log::error!("Error sending message: {}", e);
+                                anyhow::bail!("Error sending message: {}", e);
                             }
                         }
                     }
@@ -873,8 +871,7 @@ impl Handler<SendMessage> for ClientActor {
                             .send_message(&recipient, None, content.clone(), timestamp, online)
                             .await
                         {
-                            // XXX maybe don't mark as sent
-                            log::error!("Error sending message: {}", e);
+                            anyhow::bail!("Error sending message: {}", e);
                         }
                     }
                 }
@@ -1117,22 +1114,20 @@ impl Handler<Register> for ClientActor {
             captcha,
         } = reg;
 
-        // XXX https://github.com/Michael-F-Bryan/libsignal-service-rs/pull/93
-        // let push_service = self.authenticated_service_with_credentials(ServiceCredentials {
-        //     uuid: None,
-        //     phonenumber: phonenumber.clone(),
-        //     password: Some(password),
-        //     signaling_key: None,
-        //     device_id: None, // !77
-        // });
+        let mut push_service = self.authenticated_service_with_credentials(ServiceCredentials {
+            uuid: None,
+            phonenumber: phonenumber.clone(),
+            password: Some(password.clone()),
+            signaling_key: None,
+            device_id: None, // !77
+        });
         // XXX add profile key when #192 implemneted
-        let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
-            self.service_cfg(),
-            self.user_agent(),
-            phonenumber,
-            password,
-        );
         let registration_procedure = async move {
+            let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
+                &mut push_service,
+                phonenumber,
+                password,
+            );
             if use_voice {
                 provisioning_manager
                     .request_voice_verification_code(captcha.as_deref(), None)
@@ -1179,13 +1174,19 @@ impl Handler<ConfirmRegistration> for ClientActor {
         let registration_id = generate_registration_id(&mut rand::thread_rng());
         log::trace!("registration_id: {}", registration_id);
 
-        let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
-            self.service_cfg(),
-            self.user_agent(),
-            phonenumber,
-            password,
-        );
+        let mut push_service = self.authenticated_service_with_credentials(ServiceCredentials {
+            uuid: None,
+            phonenumber: phonenumber.clone(),
+            password: Some(password.clone()),
+            signaling_key: None,
+            device_id: None, // !77
+        });
         let confirmation_procedure = async move {
+            let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
+                &mut push_service,
+                phonenumber,
+                password,
+            );
             provisioning_manager
                 .confirm_verification_code(
                     confirm_code,
