@@ -56,7 +56,7 @@ pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
     let mut obj = PreKeyRecordStructure::decode(input)?;
 
     // begin quirking
-    obj.public_key.as_mut().map(unquirk_identity).transpose()?;
+    unquirk_identity(&mut obj.public_key)?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
@@ -69,7 +69,7 @@ pub fn pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
     let mut obj = PreKeyRecordStructure::decode(input)?;
 
     // begin quirking
-    obj.public_key.as_mut().map(quirk_identity).transpose()?;
+    quirk_identity(&mut obj.public_key)?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
@@ -82,7 +82,7 @@ pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolEr
     let mut obj = SignedPreKeyRecordStructure::decode(input)?;
 
     // begin quirking
-    obj.public_key.as_mut().map(unquirk_identity).transpose()?;
+    unquirk_identity(&mut obj.public_key)?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
@@ -95,7 +95,7 @@ pub fn signed_pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolErro
     let mut obj = SignedPreKeyRecordStructure::decode(input)?;
 
     // begin quirking
-    obj.public_key.as_mut().map(quirk_identity).transpose()?;
+    quirk_identity(&mut obj.public_key)?;
     // end quirking
 
     let mut out = Vec::with_capacity(obj.encoded_len());
@@ -107,7 +107,7 @@ fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec
     let chains = std::iter::once(sess.sender_chain.as_mut())
         .flatten() // filter out Option<_>
         .chain(sess.receiver_chains.iter_mut())
-        .map(|chain| chain.sender_ratchet_key.as_mut());
+        .map(|chain| &mut chain.sender_ratchet_key);
 
     vec![
         sess.local_identity_public.as_mut(),
@@ -116,25 +116,12 @@ fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec
     ]
     .into_iter()
     .chain(
-        sess.pending_key_exchange
-            .as_mut()
-            .map(|kex| {
-                vec![
-                    kex.local_base_key.as_mut(),
-                    kex.local_ratchet_key.as_mut(),
-                    kex.local_identity_key.as_mut(),
-                ]
-            })
-            .unwrap_or_else(Vec::new),
-    )
-    .chain(
         sess.pending_pre_key
             .as_mut()
-            .map(|ppk| std::iter::once(ppk.base_key.as_mut()))
-            .unwrap_or_else(|| std::iter::once(None)),
+            .into_iter()
+            .map(|ppk| ppk.base_key.as_mut()),
     )
     .chain(chains)
-    .flatten() // Undo Option<_>
 }
 
 fn quirk_session_structure(sess: &mut SessionStructure) -> Result<(), SignalProtocolError> {
