@@ -255,7 +255,18 @@ impl protocol::IdentityKeyStore for Storage {
         let path = self.identity_path(addr);
         if path.is_file() {
             let buf = load_file(self.keys, path).await.expect("read identity key");
-            Ok(Some(IdentityKey::decode(&buf)?))
+            match buf.len() {
+                // Old format
+                32 => Ok(Some(
+                    protocol::PublicKey::from_djb_public_key_bytes(&buf)?.into(),
+                )),
+                // New format
+                33 => Ok(Some(IdentityKey::decode(&buf)?)),
+                _ => Err(SignalProtocolError::InvalidArgument(format!(
+                    "Identity key has length {}, expected 32 or 33",
+                    buf.len()
+                ))),
+            }
         } else {
             Ok(None)
         }
