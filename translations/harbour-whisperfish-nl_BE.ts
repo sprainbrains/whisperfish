@@ -514,7 +514,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Let op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
+        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Past op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -536,7 +536,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Geeft Signal toegank tot uwen telefoonboek voôr andere Signalgebruikers te kunnen vinden.</translation>
+        <translation>Geeft Signal toegank tot uwen telefonboek voôr andere Signalgebruikers te kunnen vinden.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/RegisterPage.qml" line="129"/>
@@ -604,7 +604,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
-        <translation>Vèrder</translation>
+        <translation>Voôrt</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -637,7 +637,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="33"/>
         <source>Reconnect</source>
         <extracomment>Reconnect menu</extracomment>
-        <translation>Herverbinden</translation>
+        <translation>Herconnecteren</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="49"/>
@@ -698,7 +698,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="121"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>As ge dees afzet toônt Whisperfish in meldingen alleên maar den afzender ni’ den inhoud van ’t bericht.</translation>
+        <translation>As ge dees afzet toônt Whisperfish in meldingen alleên maar den afzender, ni’ den inhoud van ’t bericht.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="153"/>
@@ -716,7 +716,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="164"/>
         <source>The selected country code determines what happens when a local phone number is entered.</source>
         <extracomment>Settings page country code description</extracomment>
-        <translation>’t Land waarmee da ne lokale gsm-numero moet geassocieerd worden.</translation>
+        <translation>’t Land waarmee da ne lokalen telefonnumero moet geassocieerd worden.</translation>
     </message>
     <message id="whisperfish-settings-country-code-empty">
         <location filename="../qml/pages/Settings.qml" line="168"/>
@@ -852,7 +852,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="379"/>
         <source>Compress database</source>
         <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Database comprimeren</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
@@ -876,7 +876,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="402"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
-        <translation>Verbinding verbroken</translation>
+        <translation>Connectie verbroken</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
         <location filename="../qml/pages/Settings.qml" line="407"/>
@@ -1244,7 +1244,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
         <source>Your safety number with %1 has changed. Swipe right to verify the new number.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation>Uwe veiligheidsnumero me %1 is veranderd. Veegt naar rechts voôr de nieve numero te verifiëren.</translation>
+        <translation>Uwe veiligheidsnumero me %1 is veranderd. Vaagt naar rechts voôr de nieve numero te verifiëren.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="94"/>
@@ -1379,7 +1379,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ShareDestination.qml" line="34"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inhoud dêlen</translation>
     </message>
 </context>
 </TS>
