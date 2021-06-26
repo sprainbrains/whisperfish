@@ -186,7 +186,7 @@ impl WhisperfishApp {
 #[cfg(feature = "sailfish")]
 fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
-    let commit = env!("VERGEN_SHA_SHORT");
+    let commit = env!("VERGEN_GIT_SHA_SHORT");
 
     // if not CI, append [commit]-dirty
     // CI changes the version name, because of RPM, so we can just use that.

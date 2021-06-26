@@ -546,7 +546,9 @@ fn main() {
     }
 
     // vergen
-    let flags = ConstantsFlags::all();
-    // Generate the 'cargo:' key output
-    generate_cargo_keys(flags).expect("Unable to generate the cargo keys!");
+    let mut cfg = vergen::Config::default();
+    *cfg.git_mut().enabled_mut() = true;
+    *cfg.git_mut().sha_mut() = true;
+    *cfg.git_mut().sha_kind_mut() = vergen::ShaKind::Short;
+    vergen(cfg).expect("vergen setup");
 }
