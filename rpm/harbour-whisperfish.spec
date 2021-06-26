@@ -36,7 +36,7 @@ Requires:   dbus
 Requires:   sailfish-version >= 3.3
 
 BuildRequires:  rust >= 1.48
-BuildRequires:  rust-std-static
+BuildRequires:  rust-std-static >= 1.48
 BuildRequires:  cargo
 BuildRequires:  git
 BuildRequires:  protobuf-compiler
