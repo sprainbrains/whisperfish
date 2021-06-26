@@ -2,6 +2,20 @@
 
 set -e
 
+echo "Installing Rust repository"
+# First on host
+sdk-manage tooling list
+sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
+    rpm --import rubdos.key
+sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
+    zypper ar --gpgcheck-allow-unsigned -f https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+sdk-manage tooling package-install SailfishOS-$SFOS_VERSION \
+    rust cargo rust-std-static-aarch64-unknown-linux-gnu rust-std-static-armv7-unknown-linux-gnueabihf rust-std-static-i686-unknown-linux-gnu
+
+# Then in SB2
+sb2 -m sdk-install -R \
+    zypper ar --gpgcheck-allow-unsigned -f https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+
 echo "Building for $SFOS_VERSION"
 # For i486, we lie.
 # https://gitlab.com/whisperfish/whisperfish/-/issues/24
