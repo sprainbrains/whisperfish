@@ -1,6 +1,6 @@
 variables: &variables
   SFOS_VERSION: 4.1.0.23
-  CARGO_HOME: $CI_PROJECT_DIR/cargo
+  CARGO_HOME: $HOME/cargo
   GIT_FETCH_EXTRA_FLAGS: --tags
 
 include:
