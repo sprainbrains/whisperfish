@@ -17,7 +17,7 @@ stages:
   - deploy
 
 .build-sailfishos: &build-sailfishos
-  image: coderus/sailfishos-platform-sdk-$MER_ARCH:$SFOS_VERSION
+  image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
   artifacts:
     paths:
