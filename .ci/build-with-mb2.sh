@@ -33,6 +33,8 @@ rm -f RPMS/*.rpm
 
 mb2 build
 
+[ -e "RPMS/*.rpm" ] || exit 1
+
 # Copy everything useful back
 popd
 mkdir RPMS target
