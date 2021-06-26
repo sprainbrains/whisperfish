@@ -874,6 +874,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "crypto-mac"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25fab6889090c8133f3deb8f73ba3c65a7f456f66436fc012a1b1e272b1e103e"
+dependencies = [
+ "generic-array 0.14.4",
+ "subtle 2.4.0",
+]
+
+[[package]]
 name = "cstr"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1425,11 +1435,11 @@ dependencies = [
  "actix-rt",
  "actix-threadpool",
  "actix_derive",
- "aes 0.6.0",
+ "aes 0.7.4",
  "anyhow",
  "async-trait",
  "bincode",
- "block-modes 0.7.0",
+ "block-modes 0.8.1",
  "cc",
  "chrono",
  "cpp",
@@ -1445,7 +1455,7 @@ dependencies = [
  "failure",
  "futures",
  "hex",
- "hmac 0.10.1",
+ "hmac 0.11.0",
  "itertools 0.10.1",
  "libsignal-service",
  "libsignal-service-actix",
@@ -1537,6 +1547,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1441c6b1e930e2817404b5046f1f989899143a12bf92de603b69f4e0aee1e15"
 dependencies = [
  "crypto-mac 0.10.0",
+ "digest 0.9.0",
+]
+
+[[package]]
+name = "hmac"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a2a2320eb7ec0ebe8da8f744d7812d9fc4cb4d09344ac01898dbcb6a20ae69b"
+dependencies = [
+ "crypto-mac 0.11.0",
  "digest 0.9.0",
 ]
 
@@ -2135,12 +2155,13 @@ dependencies = [
 
 [[package]]
 name = "password-hash"
-version = "0.1.4"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54986aa4bfc9b98c6a5f40184223658d187159d7b3c6af33f2b2aa25ae1db0fa"
+checksum = "c1a5d4e9c205d2c1ae73b84aab6240e98218c0e72e63b50422cfb2d1ca952282"
 dependencies = [
  "base64ct",
  "rand_core 0.6.3",
+ "subtle 2.4.0",
 ]
 
 [[package]]
@@ -2151,11 +2172,11 @@ checksum = "acbf547ad0c65e31259204bd90935776d1c693cec2f4ff7abb7a1bbbd40dfe58"
 
 [[package]]
 name = "pbkdf2"
-version = "0.7.5"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf916dd32dd26297907890d99dc2740e33f6bd9073965af4ccff2967962f5508"
+checksum = "d95f5254224e617595d2cc3cc73ff0a5eaf2637519e25f03388154e9378b6ffa"
 dependencies = [
- "crypto-mac 0.10.0",
+ "crypto-mac 0.11.0",
 ]
 
 [[package]]
@@ -2768,11 +2789,11 @@ checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
 
 [[package]]
 name = "salsa20"
-version = "0.7.2"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "399f290ffc409596022fce5ea5d4138184be4784f2b28c62c59f0d8389059a15"
+checksum = "1c7c5f10864beba947e1a1b43f3ef46c8cc58d1c2ae549fa471713e8ff60787a"
 dependencies = [
- "cipher 0.2.5",
+ "cipher 0.3.0",
 ]
 
 [[package]]
@@ -2792,11 +2813,11 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scrypt"
-version = "0.6.5"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19230d10daad7f163d8c1fc8edf84fbe52ac71c2ebe5adf3f763aa1557b843e3"
+checksum = "879588d8f90906e73302547e20fffefdd240eb3e0e744e142321f5d49dea0518"
 dependencies = [
- "hmac 0.10.1",
+ "hmac 0.11.0",
  "password-hash",
  "pbkdf2",
  "salsa20",

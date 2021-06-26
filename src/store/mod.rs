@@ -321,8 +321,8 @@ fn write_file_sync_encrypted(
     use block_modes::block_padding::Pkcs7;
     use block_modes::{BlockMode, Cbc};
     let ciphertext = {
-        let cipher =
-            Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv).context("CBC initialization error")?;
+        let cipher = Cbc::<Aes128, Pkcs7>::new_from_slices(&keys[0..16], &iv)
+            .context("CBC initialization error")?;
         cipher.encrypt_vec(contents)
     };
 
@@ -330,7 +330,7 @@ fn write_file_sync_encrypted(
         use hmac::{Hmac, Mac, NewMac};
         use sha2::Sha256;
         // Verify HMAC SHA256, 32 last bytes
-        let mut mac = Hmac::<Sha256>::new_varkey(&keys[16..])
+        let mut mac = Hmac::<Sha256>::new_from_slice(&keys[16..])
             .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
         mac.update(&iv);
         mac.update(&ciphertext);
@@ -394,7 +394,7 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
         use hmac::{Hmac, Mac, NewMac};
         use sha2::Sha256;
         // Verify HMAC SHA256, 32 last bytes
-        let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
+        let mut verifier = Hmac::<Sha256>::new_from_slice(&keys[16..])
             .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
         verifier.update(&iv);
         verifier.update(contents);
@@ -407,8 +407,8 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
     use block_modes::block_padding::Pkcs7;
     use block_modes::{BlockMode, Cbc};
     // Decrypt password
-    let cipher =
-        Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv).context("CBC initialization error")?;
+    let cipher = Cbc::<Aes128, Pkcs7>::new_from_slices(&keys[0..16], &iv)
+        .context("CBC initialization error")?;
     Ok(cipher
         .decrypt(contents)
         .context("AES CBC decryption error")?
