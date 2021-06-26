@@ -1,6 +1,6 @@
 variables: &variables
   SFOS_VERSION: 4.1.0.23
-  CARGO_HOME: $HOME/cargo
+  CARGO_HOME: /home/nemo/cargo
   GIT_FETCH_EXTRA_FLAGS: --tags
 
 include:
