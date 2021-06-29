@@ -2018,17 +2018,12 @@ mod tests {
         Ok(())
     }
 
+    #[rstest(
+        storage_password,
+        case(Some(String::from("some password"))),
+        case(None)
+    )]
     #[actix_rt::test]
-    async fn create_and_open_encrypted_storage() -> Result<(), anyhow::Error> {
-        let pass = "Hello, world! I'm the passphrase";
-        test_create_and_open_storage(Some(pass.to_string())).await
-    }
-
-    #[actix_rt::test]
-    async fn create_and_open_unencrypted_storage() -> Result<(), anyhow::Error> {
-        test_create_and_open_storage(None).await
-    }
-
     async fn test_create_and_open_storage(
         storage_password: Option<String>,
     ) -> Result<(), anyhow::Error> {
