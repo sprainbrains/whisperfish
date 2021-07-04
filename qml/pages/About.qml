@@ -127,17 +127,7 @@ Page {
             }
 
             Label {
-                text: "libsignal-protocol-c by Signal"
-                anchors.horizontalCenter: parent.horizontalCenter
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignLeft
-                x: Theme.paddingLarge
-            }
-
-            Label {
-                text: "libsignal-protocol-rs by Ruben De Smet, Gabriel Féron, Michael Bryan, and Shady Khalifa"
+                text: "libsignal-client by Signal"
                 anchors.horizontalCenter: parent.horizontalCenter
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 width: (parent ? parent.width : Screen.width) - Theme.paddingLarge * 2

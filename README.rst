@@ -35,8 +35,8 @@ Project Status
 -------------------------------------------------------------------------------
 
 This project started from a now outdated Go-based SailfishOS client for Signal.
-This version, 0.6 and onwards, is a complete rewrite, and uses `libsignal-c-protocol
-<https://github.com/signalapp/libsignal-protocol-c>`_ instead.
+This version, 0.6 and onwards, is a complete rewrite, and uses `libsignal-client
+<https://github.com/signalapp/libsignal-client>`_ instead.
 This means we aim for better maintainability.
 It also means the whole SailfishOS app had to be rewritten, and you may want
 to make a back-up of your current files if you still come from 0.5. Specifically:
