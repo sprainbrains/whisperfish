@@ -855,7 +855,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="379"/>
         <source>Compress database</source>
         <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Comprimir base de datos</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
@@ -984,7 +984,7 @@ Settings page share contacts</extracomment>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
-        <translation>¡Grupo abandonado y todos los mensajes eliminados!</translation>
+        <translation>Abandonó el grupo y borró todos los mensajes</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>

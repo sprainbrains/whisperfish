@@ -852,7 +852,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="379"/>
         <source>Compress database</source>
         <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Database comprimeren</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
@@ -1379,7 +1379,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ShareDestination.qml" line="34"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inhoud delen</translation>
     </message>
 </context>
 </TS>
