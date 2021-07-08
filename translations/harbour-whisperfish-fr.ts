@@ -51,7 +51,7 @@
         <location filename="../qml/harbour-whisperfish.qml" line="174"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Échec de la configuration du client Signal</translation>
+        <translation>Échec de configuration du client Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="179"/>
@@ -904,7 +904,7 @@ Settings page share contacts</extracomment>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished">Compresser la base de données</translation>
+        <translation>Compresser la base de données</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
