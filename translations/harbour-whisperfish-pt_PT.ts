@@ -898,9 +898,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="379"/>
-        <source>Compress database</source>
-        <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation>Comprimir base de dados</translation>
+        <source>Compact database</source>
+        <oldsource>Compress database</oldsource>
+        <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
+        <translation type="unfinished">Comprimir base de dados</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
