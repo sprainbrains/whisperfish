@@ -57,7 +57,7 @@ struct AttachmentDownloaded(i32);
 
 #[derive(Message)]
 #[rtype(result = "usize")]
-pub struct CompressDb(usize);
+pub struct CompactDb(usize);
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -1253,18 +1253,18 @@ impl ClientWorker {
     pub fn compress_db(&self) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
-            if let Err(e) = actor.send(CompressDb(0)).await {
+            if let Err(e) = actor.send(CompactDb(0)).await {
                 log::error!("{:?}", e);
             }
         });
     }
 }
 
-impl Handler<CompressDb> for ClientActor {
+impl Handler<CompactDb> for ClientActor {
     type Result = usize;
 
-    fn handle(&mut self, _: CompressDb, _ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("handle(CompressDb)");
+    fn handle(&mut self, _: CompactDb, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(CompactDb)");
         let store = self.storage.clone().unwrap();
         let res = store.compress_db();
         log::trace!("  res = {}", res);
