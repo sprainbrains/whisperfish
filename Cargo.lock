@@ -1650,7 +1650,7 @@ dependencies = [
 [[package]]
 name = "libsignal-protocol"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#eb983187ec079c446bf92f4b1920bbdb353801c0"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#8e54c5d2d2821c308d273ba395c6af8c8f022116"
 dependencies = [
  "aes",
  "aes-gcm-siv",
