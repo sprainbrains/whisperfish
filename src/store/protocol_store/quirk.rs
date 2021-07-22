@@ -27,7 +27,7 @@ pub fn session_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
     }
     // end unquirking
 
-    Ok(obj.encode_to_vec()?)
+    Ok(obj.encode_to_vec())
 }
 
 /// Adds quirks to the session data format that are apparent in Whisperfish 0.5
@@ -44,7 +44,7 @@ pub fn session_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
     }
     // end quirking
 
-    Ok(obj.encode_to_vec()?)
+    Ok(obj.encode_to_vec())
 }
 
 /// Removes quirks to the pre key data format that are apparent in Whisperfish 0.5
@@ -55,7 +55,7 @@ pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
     unquirk_identity(&mut obj.public_key)?;
     // end quirking
 
-    Ok(obj.encode_to_vec()?)
+    Ok(obj.encode_to_vec())
 }
 
 /// Adds quirks to the pre key data format that are apparent in Whisperfish 0.5
@@ -66,7 +66,7 @@ pub fn pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
     quirk_identity(&mut obj.public_key)?;
     // end quirking
 
-    Ok(obj.encode_to_vec()?)
+    Ok(obj.encode_to_vec())
 }
 
 /// Removes quirks to the signed pre key data format that are apparent in Whisperfish 0.5
@@ -77,7 +77,7 @@ pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolEr
     unquirk_identity(&mut obj.public_key)?;
     // end quirking
 
-    Ok(obj.encode_to_vec()?)
+    Ok(obj.encode_to_vec())
 }
 
 /// Adds quirks to the signed pre key data format that are apparent in Whisperfish 0.5
@@ -88,7 +88,7 @@ pub fn signed_pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolErro
     quirk_identity(&mut obj.public_key)?;
     // end quirking
 
-    Ok(obj.encode_to_vec()?)
+    Ok(obj.encode_to_vec())
 }
 
 fn quirky_keys_mut(sess: &mut SessionStructure) -> impl Iterator<Item = &mut Vec<u8>> {
