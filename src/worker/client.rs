@@ -348,7 +348,7 @@ impl ClientActor {
                 ctx.notify(RequestGroupV2Info(store_v2.clone()));
             } else if !storage.group_v2_exists(&store_v2) {
                 log::info!(
-                    "We don't know this group. We'll request it's structure from the serve."
+                    "We don't know this group. We'll request it's structure from the server."
                 );
                 ctx.notify(RequestGroupV2Info(store_v2.clone()));
             }
