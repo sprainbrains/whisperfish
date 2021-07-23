@@ -855,7 +855,7 @@ Settings page share contacts</extracomment>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished">Veri tabanını sıkıştır</translation>
+        <translation>Veri tabanını sıkıştır</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
