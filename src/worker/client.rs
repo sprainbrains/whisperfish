@@ -271,25 +271,32 @@ impl ClientActor {
 
         if msg.flags() & DataMessageFlags::ProfileKeyUpdate as u32 != 0 {
             log::info!("Message was ProfileKeyUpdate; not inserting.");
-            return;
         }
 
         let alt_body = if let Some(reaction) = &msg.reaction {
-            format!(
+            Some(format!(
                 "R@{}:{}",
                 reaction.target_sent_timestamp(),
                 reaction.emoji()
-            )
+            ))
         } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
-            format!("Expiration timer has been requested, but unimplemented.")
+            Some(format!("Expiration timer has been changed ({:?} seconds), but unimplemented in Whisperfish.", msg.expire_timer))
         } else {
-            "".into()
+            None
+        };
+
+        let body = msg.body.clone().or(alt_body);
+        let text = if let Some(body) = body {
+            body
+        } else {
+            log::debug!("Message without (alt) body, not inserting");
+            return;
         };
 
         let mut new_message = crate::store::NewMessage {
             source_e164,
             source_uuid,
-            text: msg.body.clone().unwrap_or(alt_body),
+            text,
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
             sent: is_sync_sent,
