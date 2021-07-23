@@ -250,6 +250,14 @@ impl ClientActor {
             });
         }
 
+        if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
+            // XXX Update expiration timer and notify UI
+        }
+
+        if msg.flags() & DataMessageFlags::ProfileKeyUpdate as u32 != 0 {
+            // XXX Update profile key (which happens just below); don't insert this message.
+        }
+
         if source_e164.is_some() || source_uuid.is_some() {
             if let Some(key) = msg.profile_key.as_deref() {
                 storage.update_profile_key(
@@ -261,12 +269,19 @@ impl ClientActor {
             }
         }
 
+        if msg.flags() & DataMessageFlags::ProfileKeyUpdate as u32 != 0 {
+            log::info!("Message was ProfileKeyUpdate; not inserting.");
+            return;
+        }
+
         let alt_body = if let Some(reaction) = &msg.reaction {
             format!(
                 "R@{}:{}",
                 reaction.target_sent_timestamp(),
                 reaction.emoji()
             )
+        } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
+            format!("Expiration timer has been requested, but unimplemented.")
         } else {
             "".into()
         };
