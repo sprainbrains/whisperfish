@@ -1659,12 +1659,17 @@ impl Storage {
 
         log::trace!("Called delete_session({})", id);
 
+        let affected_messages =
+            diesel::delete(schema::messages::table.filter(schema::messages::session_id.eq(id)))
+                .execute(&*db)
+                .expect("delete messages by session_id");
+
         let affected_rows =
             diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(id)))
                 .execute(&*db)
                 .expect("delete session");
 
-        log::trace!("delete_session({}) affected {} rows", id, affected_rows);
+        log::trace!("delete_session({}) affected {} rows and {} messages", id, affected_rows, affected_messages);
     }
 
     pub fn mark_session_read(&self, sid: i32) {
