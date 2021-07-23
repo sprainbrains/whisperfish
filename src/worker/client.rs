@@ -281,6 +281,18 @@ impl ClientActor {
             ))
         } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
             Some(format!("Expiration timer has been changed ({:?} seconds), but unimplemented in Whisperfish.", msg.expire_timer))
+        } else if let Some(GroupContextV2 {
+            group_change: Some(ref _group_change),
+            ..
+        }) = msg.group_v2
+        {
+            Some(format!(
+                "Group changed by {}",
+                source_e164
+                    .as_deref()
+                    .or(source_uuid.as_deref())
+                    .unwrap_or("nobody")
+            ))
         } else {
             None
         };
