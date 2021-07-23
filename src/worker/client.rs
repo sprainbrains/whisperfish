@@ -290,7 +290,7 @@ impl ClientActor {
                 "Group changed by {}",
                 source_e164
                     .as_deref()
-                    .or(source_uuid.as_deref())
+                    .or_else(|| source_uuid.as_deref())
                     .unwrap_or("nobody")
             ))
         } else {
