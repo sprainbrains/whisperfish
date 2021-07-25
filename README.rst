@@ -160,9 +160,9 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
 
    The ``harbour-whisperfish`` executable resides in ``target/[target]/release``.
    You can also use ``cargo rpm`` to build an RPM package,
-   note that you need ``rpmtools`` installed on the host system::
+   note that you need ``rpmtools`` installed on the host system. Note that version 0.8.0 **does not work here** and you must manually build `cargo-rpm <https://github.com/iqlusioninc/cargo-rpm>`_ from master instead.
+   Once you built and setup cargo-rpm you can run::
 
-    $ cargo install cargo-rpm
     $ cargo rpm build
 
    The generated RPM can be found in ``target/[target]/release/rpmbuild/RPMS/armv7hl/``.
