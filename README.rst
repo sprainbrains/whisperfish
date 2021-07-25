@@ -107,7 +107,7 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
    After that, `install the relevant targets <https://sailfishos.org/wiki/Platform_SDK_Target_Installation>`_ for the device you are building for,
    e.g.::
 
-    sdk-assistant create SailfishOS-latest-armv7hl http://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
+    sdk-assistant create SailfishOS-latest-armv7hl https://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
 
 4. Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency, together with some other headers::
 
@@ -177,7 +177,7 @@ The ``run.sh`` script will will source the ``.env`` file and run the build on yo
 Development environment tips, tricks and hacks
 -------------------------------------------------------------------------------
 
-See doc: `Cool hacks for development <doc/dev-env-hacks>`_
+See doc: `Cool hacks for development <doc/dev-env-hacks.rst>`_
 
 -------------------------------------------------------------------------------
 i18n Translations (help wanted)
