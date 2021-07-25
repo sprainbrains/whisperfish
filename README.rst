@@ -102,16 +102,16 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
 
     $ git clone https://gitlab.com/rubdos/whisperfish
 
-2. Whisperfish is built from the `Platform SDK <https://sailfishos.org/wiki/Platform_SDK>`, outside of the classic ``sb2`` and ``mb2`` environments.
+2. Whisperfish is built from the `Platform SDK <https://sailfishos.org/wiki/Platform_SDK>`_, outside of the classic ``sb2`` and ``mb2`` environments.
    Refer to the Platform SDK page for installation instructions.
-   After that, `install the relevant targets <https://sailfishos.org/wiki/Platform_SDK_Target_Installation>` for the device you are building for,
+   After that, `install the relevant targets <https://sailfishos.org/wiki/Platform_SDK_Target_Installation>`_ for the device you are building for,
    e.g.::
 
-    sdk-assistant create SailfishOS-latest-armv7hl http://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
+    sdk-assistant create SailfishOS-latest-armv7hl https://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
 
 4. Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency, together with some other headers::
 
-   sdk-manage develpkg install SailfishOS-latest-armv7hl sailfish-components-webview-qt5 qt5-qtwebsockets-devel openssl-devel dbus-devel libnemotransferengine-qt5-devel
+    sdk-manage develpkg install SailfishOS-latest-armv7hl sailfish-components-webview-qt5 qt5-qtwebsockets-devel openssl-devel dbus-devel libnemotransferengine-qt5-devel
 
 5. Make a copy of ``dotenv.example`` to ``.env``, adapt it to your configuration and source it.
    Note you can make the ``run.sh`` script log to a file by following the example instructions,
@@ -160,9 +160,9 @@ By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Ru
 
    The ``harbour-whisperfish`` executable resides in ``target/[target]/release``.
    You can also use ``cargo rpm`` to build an RPM package,
-   note that you need ``rpmtools`` installed on the host system::
+   note that you need ``rpmtools`` installed on the host system. Note that version 0.8.0 **does not work here** and you must manually build `cargo-rpm <https://github.com/iqlusioninc/cargo-rpm>`_ from master instead.
+   Once you built and setup cargo-rpm you can run::
 
-    $ cargo install cargo-rpm
     $ cargo rpm build
 
    The generated RPM can be found in ``target/[target]/release/rpmbuild/RPMS/armv7hl/``.
@@ -177,7 +177,7 @@ The ``run.sh`` script will will source the ``.env`` file and run the build on yo
 Development environment tips, tricks and hacks
 -------------------------------------------------------------------------------
 
-See :doc:`Cool hacks for development <doc/dev-env-hacks>`_
+See doc: `Cool hacks for development <doc/dev-env-hacks.rst>`_
 
 -------------------------------------------------------------------------------
 i18n Translations (help wanted)
