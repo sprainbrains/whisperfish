@@ -1669,7 +1669,12 @@ impl Storage {
                 .execute(&*db)
                 .expect("delete session");
 
-        log::trace!("delete_session({}) affected {} rows and {} messages", id, affected_rows, affected_messages);
+        log::trace!(
+            "delete_session({}) affected {} rows and {} messages",
+            id,
+            affected_rows,
+            affected_messages
+        );
     }
 
     pub fn mark_session_read(&self, sid: i32) {
