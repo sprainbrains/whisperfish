@@ -293,6 +293,18 @@ impl ClientActor {
                     .or_else(|| source_uuid.as_deref())
                     .unwrap_or("nobody")
             ))
+        } else if !msg.attachments.empty() {
+            log::trace!("Received an attachment without body, replacing with empty text.");
+            Some("".into())
+        } else if msg.sticker.is_some() {
+            log::warn!("Received a sticker, but inserting empty message.");
+            Some("".into())
+        } else if msg.payment.is_some()
+            || msg.delete.is_some()
+            || msg.group_call_update.is_some()
+            || msg.contact.is_some()
+        {
+            Some("Unimplemented message type".into())
         } else {
             None
         };
