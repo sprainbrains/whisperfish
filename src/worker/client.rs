@@ -87,6 +87,8 @@ pub struct ClientWorker {
     unlink_device: qt_method!(fn(&self, id: i64)),
     reload_linked_devices: qt_method!(fn(&self)),
     compress_db: qt_method!(fn(&self)),
+
+    refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -1303,6 +1305,18 @@ impl ClientWorker {
                 log::error!("{:?}", e);
             }
         });
+    }
+
+    fn refresh_group_v2(&self, session_id: usize) {
+        log::trace!("Request to refresh group v2 by session id = {}", session_id);
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(RequestGroupV2InfoBySessionId(session_id as _))
+                .map(Result::unwrap),
+        );
     }
 }
 

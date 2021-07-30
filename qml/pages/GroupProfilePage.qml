@@ -182,6 +182,15 @@ Page {
 
         PullDownMenu {
             MenuItem {
+                //: Refresh group menu item
+                //% "Refresh group"
+                text: qsTrId("whisperfish-group-refresh")
+                onClicked: {
+                    console.log("Refreshing group")
+                    ClientWorker.refresh_group_v2(MessageModel.sessionId)
+                }
+            }
+            MenuItem {
                 //: Leave group menu item
                 //% "Leave this group"
                 text: qsTrId("whisperfish-group-leave-menu")
