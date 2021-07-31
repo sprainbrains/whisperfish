@@ -1306,18 +1306,6 @@ impl ClientWorker {
             }
         });
     }
-
-    fn refresh_group_v2(&self, session_id: usize) {
-        log::trace!("Request to refresh group v2 by session id = {}", session_id);
-
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(RequestGroupV2InfoBySessionId(session_id as _))
-                .map(Result::unwrap),
-        );
-    }
 }
 
 impl Handler<CompactDb> for ClientActor {

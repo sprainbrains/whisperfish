@@ -17,6 +17,20 @@ pub struct RequestGroupV2InfoBySessionId(pub i32);
 /// Request group v2 metadata from server
 pub struct RequestGroupV2Info(pub GroupV2);
 
+impl ClientWorker {
+    pub fn refresh_group_v2(&self, session_id: usize) {
+        log::trace!("Request to refresh group v2 by session id = {}", session_id);
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(RequestGroupV2InfoBySessionId(session_id as _))
+                .map(Result::unwrap),
+        );
+    }
+}
+
 impl Handler<RequestGroupV2Info> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
