@@ -3,7 +3,10 @@ use diesel::prelude::*;
 
 use libsignal_service::groups_v2::*;
 
-use crate::store::{GroupV2, TrustLevel};
+use crate::{
+    actor::FetchSession,
+    store::{GroupV2, TrustLevel},
+};
 
 use super::*;
 
@@ -21,13 +24,21 @@ impl ClientWorker {
     pub fn refresh_group_v2(&self, session_id: usize) {
         log::trace!("Request to refresh group v2 by session id = {}", session_id);
 
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
+        let client = self.actor.clone().unwrap();
+        let session = self.session_actor.clone().unwrap();
+        actix::spawn(async move {
+            client
                 .send(RequestGroupV2InfoBySessionId(session_id as _))
-                .map(Result::unwrap),
-        );
+                .await
+                .unwrap();
+            session
+                .send(FetchSession {
+                    id: session_id as _,
+                    mark_read: false,
+                })
+                .await
+                .unwrap();
+        });
     }
 }
 
