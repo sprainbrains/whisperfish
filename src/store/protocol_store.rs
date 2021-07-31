@@ -141,7 +141,7 @@ impl Storage {
                     let name = name.as_os_str().as_bytes();
 
                     log::trace!("parsing {:?}", entry);
-                    let id = std::str::from_utf8(&name).ok()?;
+                    let id = std::str::from_utf8(name).ok()?;
                     id.parse().ok()
                 })
                 .collect();
@@ -163,7 +163,7 @@ impl Storage {
                     let name = name.as_os_str().as_bytes();
 
                     log::trace!("parsing {:?}", entry);
-                    let id = std::str::from_utf8(&name).ok()?;
+                    let id = std::str::from_utf8(name).ok()?;
                     id.parse().ok()
                 })
                 .collect();
@@ -328,7 +328,7 @@ impl protocol::SessionStore for Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<Option<SessionRecord>, SignalProtocolError> {
-        let path = self.session_path(&addr);
+        let path = self.session_path(addr);
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
         let _lock = self.protocol_store.read().await;
@@ -348,7 +348,7 @@ impl protocol::SessionStore for Storage {
         session: &protocol::SessionRecord,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
-        let path = self.session_path(&addr);
+        let path = self.session_path(addr);
 
         log::trace!("Storing session for {:?} at {:?}", addr, path);
         let _lock = self.protocol_store.write().await;
@@ -368,7 +368,7 @@ impl Storage {
     ) -> Result<bool, SignalProtocolError> {
         let _lock = self.protocol_store.read().await;
 
-        let path = self.session_path(&addr);
+        let path = self.session_path(addr);
         Ok(path.is_file())
     }
 }

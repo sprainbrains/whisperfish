@@ -232,7 +232,7 @@ impl ClientActor {
             let source_uuid = source_uuid.clone();
             actix::spawn(async move {
                 if let Some(e164) = source_e164.as_ref() {
-                    if let Err(e) = storage.delete_all_sessions(&e164).await {
+                    if let Err(e) = storage.delete_all_sessions(e164).await {
                         log::error!(
                             "End session (e164) requested, but could not end session: {:?}",
                             e
@@ -240,7 +240,7 @@ impl ClientActor {
                     }
                 }
                 if let Some(uuid) = source_uuid.as_ref() {
-                    if let Err(e) = storage.delete_all_sessions(&uuid).await {
+                    if let Err(e) = storage.delete_all_sessions(uuid).await {
                         log::error!(
                             "End session (uuid) requested, but could not end session: {:?}",
                             e
@@ -357,7 +357,7 @@ impl ClientActor {
             )
         } else if let Some(group) = msg.group_v2.as_ref() {
             let mut key_stack = [0u8; zkgroup::GROUP_MASTER_KEY_LEN];
-            key_stack.clone_from_slice(&group.master_key.as_ref().expect("group message with key"));
+            key_stack.clone_from_slice(group.master_key.as_ref().expect("group message with key"));
             let key = GroupMasterKey::new(key_stack);
             let secret = GroupSecretParams::derive_from_master_key(key);
 
@@ -709,7 +709,7 @@ impl Handler<FetchAttachment> for ClientActor {
                     "key material for attachments is ought to be 64 bytes"
                 );
                 let mut key = [0u8; 64];
-                key.copy_from_slice(&key_material);
+                key.copy_from_slice(key_material);
 
                 decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
                 if let Some(size) = ptr.size {

@@ -359,7 +359,7 @@ fn build_share_plugin(mer_target_root: &str, qt_include_path: &str) {
         .cpp(true)
         .flag(&format!("--sysroot={}", mer_target_root))
         .flag("-isysroot")
-        .flag(&mer_target_root)
+        .flag(mer_target_root)
         .include(format!("{}/usr/include/", mer_target_root))
         .include(&qt_include_path)
         .include(format!("{}/QtCore", qt_include_path))
@@ -412,7 +412,7 @@ fn build_sqlcipher(mer_target_root: &str) {
     cc::Build::new()
         .flag(&format!("--sysroot={}", mer_target_root))
         .flag("-isysroot")
-        .flag(&mer_target_root)
+        .flag(mer_target_root)
         .include(format!("{}/usr/include/", mer_target_root))
         .include(format!("{}/usr/include/openssl", mer_target_root))
         .file("sqlcipher/sqlite3.c")
@@ -534,7 +534,7 @@ fn main() {
     }
 
     if env::var("CARGO_FEATURE_HARBOUR").is_err() && cross_compile {
-        build_share_plugin(&mer_target_root, &qt_include_path);
+        build_share_plugin(&mer_target_root, qt_include_path);
     }
 
     if cross_compile {
