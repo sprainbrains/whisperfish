@@ -1857,8 +1857,7 @@ impl Storage {
         schema::messages::table
             .filter(schema::messages::session_id.eq(sid))
             .left_join(schema::recipients::table)
-            // XXX: order by timestamp?
-            .order_by(schema::messages::columns::id.desc())
+            .order_by(schema::messages::columns::server_timestamp.desc())
             .load(&*db)
             .expect("database")
     }
