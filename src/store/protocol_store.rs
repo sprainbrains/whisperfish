@@ -966,16 +966,13 @@ mod tests {
             .expect("Overwrite session");
 
         // Get all device ids for the same address
-        let mut ids = storage
-            .get_sub_device_sessions(&addr3.name())
-            .await
-            .unwrap();
+        let mut ids = storage.get_sub_device_sessions(addr3.name()).await.unwrap();
         ids.sort_unstable();
         assert_eq!(ids[0], std::cmp::min(addr3.device_id(), addr4.device_id()));
         assert_eq!(ids[1], std::cmp::max(addr3.device_id(), addr4.device_id()));
 
         // If we call delete all sessions, all sessions of one person/address should be removed
-        assert_eq!(storage.delete_all_sessions(&addr3.name()).await.unwrap(), 2);
+        assert_eq!(storage.delete_all_sessions(addr3.name()).await.unwrap(), 2);
         assert!(storage.load_session(&addr3, None).await.unwrap().is_none());
         assert!(storage.load_session(&addr4, None).await.unwrap().is_none());
 
