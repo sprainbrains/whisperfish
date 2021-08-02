@@ -947,7 +947,7 @@ Settings page share contacts</extracomment>
         <translation>Veiligheidsnummers verifiëren</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Lid toevoegen</translation>
@@ -970,52 +970,58 @@ Settings page share contacts</extracomment>
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Niet bijgewerkt naar het nieuwe groepformaat</translation>
     </message>
-    <message id="whisperfish-group-leave-menu">
+    <message id="whisperfish-group-refresh">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
+        <source>Refresh group</source>
+        <extracomment>Refresh group menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-leave-menu">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Deze groep verlaten</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="204"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>Groep verlaten en alle berichten verwijderd</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Uitnodigingslink aanmaken</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Bericht aan %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Toevoegen aan contacten</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="258"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="267"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Veiligheidsnummer verifiëren</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="272"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="281"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Verwijderen uit deze groep</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="307"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Jijzelf</translation>
