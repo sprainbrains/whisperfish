@@ -87,6 +87,8 @@ pub struct ClientWorker {
     unlink_device: qt_method!(fn(&self, id: i64)),
     reload_linked_devices: qt_method!(fn(&self)),
     compress_db: qt_method!(fn(&self)),
+
+    refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
 }
 
 /// ClientActor keeps track of the connection state.
