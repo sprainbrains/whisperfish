@@ -102,7 +102,9 @@ ApplicationWindow
         m.previewSummary = name
         m.previewBody = m.body
         m.summary = name
-        m.subText = contactName
+        if(typeof m.subText !== "undefined") {
+            m.subText = contactName
+        }
         m.clicked.connect(function() {
             console.log("Activating session: "+sid)
             mainWindow.activate()
