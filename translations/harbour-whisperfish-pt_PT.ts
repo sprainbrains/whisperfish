@@ -172,7 +172,7 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Atualizar grupo</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
@@ -907,7 +907,7 @@ Settings page share contacts</extracomment>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished">Comprimir base de dados</translation>
+        <translation>Comprimir base de dados</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
