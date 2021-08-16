@@ -686,7 +686,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="105"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation>As ge dees afzet krijgde geen meldingen ni meêr van Whisperfish</translation>
+        <translation>As ge dees afzet krijgde geên meldingen ni meêr van Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="118"/>
@@ -974,7 +974,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Groep vernieven</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
