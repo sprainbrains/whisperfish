@@ -107,11 +107,15 @@ opt-level = 0
 # DOES NOT get overwritten through `cargo rpm build --target xxx`,
 # means we can *lie* to RPM for issue #24.
 target_architecture = "armv7hl"
+#target_architecture = "aarch64"
+#target_architecture = "i486"
 
 [package.metadata.rpm.cargo]
 buildflags = ["--release"]
 # Gets overwritten through `cargo rpm build --target xxx`
 target = "armv7-unknown-linux-gnueabihf"
+#target = "aarch64-unknown-linux-gnu"
+#target = "i686-unknown-linux-gnu"
 
 [package.metadata.rpm.targets]
 harbour-whisperfish = { path = "/usr/bin/harbour-whisperfish" }

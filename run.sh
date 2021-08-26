@@ -25,6 +25,7 @@ case "${TARGET_ARCH}" in
 	armv7-*-gnueabihf) RPM_ARCH=armv7hl ;;
 	armv7-*-gnueabi)   RPM_ARCH=armv7   ;;
 	x86-*)             RPM_ARCH=i486    ;;
+	i686-*)            RPM_ARCH=i486    ;;
 
 	*)
 		echo "Unrecognized target architecture ${TARGET_ARCH}! Please edit ./run.sh and submit your changes." >&2
