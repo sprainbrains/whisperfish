@@ -101,6 +101,7 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
+    #[qmeta_async::with_executor]
     fn openAttachment(&mut self, idx: usize) {
         let msg = if let Some(msg) = self.messages.get(idx) {
             msg
@@ -126,6 +127,7 @@ impl MessageModel {
         }
     }
 
+    #[qmeta_async::with_executor]
     fn createGroupMessage(
         &mut self,
         group_id: QString,
@@ -163,6 +165,7 @@ impl MessageModel {
         -1
     }
 
+    #[qmeta_async::with_executor]
     fn createMessage(
         &mut self,
         e164: QString,
@@ -191,6 +194,7 @@ impl MessageModel {
     }
 
     /// Called when a message should be queued to be sent to OWS
+    #[qmeta_async::with_executor]
     fn sendMessage(&mut self, mid: i32) {
         actix::spawn(
             self.client_actor
@@ -202,6 +206,7 @@ impl MessageModel {
     }
 
     /// Called when a message should be queued to be sent to OWS
+    #[qmeta_async::with_executor]
     fn endSession(&mut self, e164: QString) {
         actix::spawn(
             self.actor
@@ -234,6 +239,7 @@ impl MessageModel {
         // }
     }
 
+    #[qmeta_async::with_executor]
     fn load(&mut self, sid: i32, _peer_name: QString) {
         (self as &mut dyn QAbstractListModel).begin_reset_model();
 
@@ -259,6 +265,7 @@ impl MessageModel {
     /// This retrieves a `Message` by the given id and adds it to the UI.
     ///
     /// Note that the id argument was i64 in Go.
+    #[qmeta_async::with_executor]
     fn add(&mut self, id: i32) {
         actix::spawn(
             self.actor
@@ -277,6 +284,7 @@ impl MessageModel {
     /// main thread.
     ///
     /// FIXME Take a message ID instead of an index.
+    #[qmeta_async::with_executor]
     pub fn remove(&self, idx: usize) {
         let msg = if let Some(msg) = self.messages.get(idx) {
             msg
@@ -296,6 +304,7 @@ impl MessageModel {
         log::trace!("Dispatched actor::DeleteMessage({}, {})", msg.id, idx);
     }
 
+    #[qmeta_async::with_executor]
     fn numericFingerprint(&self, _localId: QString, _remoteId: QString) -> QString {
         // XXX
         "unimplemented".into()
@@ -308,6 +317,7 @@ impl MessageModel {
     /// simply wrap the real workhorse.
     ///
     /// Note that the id argument was i64 in Go.
+    #[qmeta_async::with_executor]
     fn markSent(&mut self, id: i32) {
         self.mark(id, true, false)
     }
@@ -319,6 +329,7 @@ impl MessageModel {
     /// simply wrap the real workhorse.
     ///
     /// Note that the id argument was i64 in Go.
+    #[qmeta_async::with_executor]
     fn markReceived(&mut self, id: i32) {
         self.mark(id, false, true)
     }
@@ -326,6 +337,7 @@ impl MessageModel {
     /// Mark a message sent or received in QML. No database involved.
     ///
     /// Note that the id argument was i64 in Go.
+    #[qmeta_async::with_executor]
     fn mark(&mut self, id: i32, mark_sent: bool, mark_received: bool) {
         if mark_sent && mark_received {
             log::trace!("Cannot mark message both sent and received");
