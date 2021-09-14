@@ -21,11 +21,22 @@ export MER_ARCH=armv7hl
 #export MER_ARCH=aarch64
 #export MER_ARCH=i486
 
+# Configure qmetaobject-rs
+case "${MER_ARCH}" in
+    armv7hl) export LIBDIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib" ;;
+    i486) export LIBDIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib" ;;
+    aarch64) export LIBDIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64" ;;
+    *) echo "MER_ARCH=$MER_ARCH unrecognised."
+esac
+export QT_INCLUDE_PATH="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/include/qt5"
+export QT_LIBRARY_PATH="$LIBDIR"
+
 # For now, this is also put in the environment.
 # After https://github.com/rust-lang/cargo/pull/7811 is in nightly,
 # we can generate these flags in build.rs
 # We also need RUSTFLAGS for the bundled sqlcipher build:
 #   https://gitlab.com/rubdos/whisperfish/-/issues/227
+export CXXFLAGS="-isysroot=$MERSDK/targets/$MER_TARGET-$MER_ARCH --sysroot=$MERSDK/targets/$MER_TARGET-$MER_ARCH -I$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/include"
 export RUSTFLAGS="-C link-args=-Wl,--sysroot=$MERSDK/targets/$MER_TARGET-$MER_ARCH,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
 
 # https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md

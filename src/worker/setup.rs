@@ -1,7 +1,7 @@
 use crate::gui::WhisperfishApp;
 use crate::store::Storage;
 use anyhow::Context;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 use std::rc::Rc;
 
 #[derive(QObject, Default)]

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use libsignal_service::push_service::DeviceInfo;
 
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 use super::*;
 

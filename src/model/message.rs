@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use std::collections::HashMap;
+use std::ops::Deref;
 use std::process::Command;
 
 use crate::actor;
@@ -11,7 +12,7 @@ use crate::worker::{ClientActor, SendMessage};
 use actix::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 define_model_roles! {
     enum MessageRoles for AugmentedMessage {

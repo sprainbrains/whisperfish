@@ -1,4 +1,4 @@
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 cpp! {{
     #include <QtCore/QSettings>
