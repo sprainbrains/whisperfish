@@ -15,7 +15,7 @@ use crate::{actor, config::Settings, model, qmlapp::QmlApp, worker};
 
 use actix::prelude::*;
 use qmetaobject::prelude::*;
-use tokio::{runtime::Runtime, task::LocalSet};
+use tokio::{runtime::Handle, runtime::Runtime, task::LocalSet};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -214,31 +214,31 @@ fn long_version() -> String {
 
 std::thread_local! {
     static LOCALSET: RefCell<LocalSet> = RefCell::new(tokio::task::LocalSet::new());
-    static RUNTIME: Runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_io()
-        .enable_time()
-        .build()
-        .unwrap();
+    static RUNTIME: RefCell<Option<Handle>> = RefCell::default();
     static WAKER: RefCell<Option<Waker>> = RefCell::default();
 }
 
-pub fn with_executor<R, F: FnOnce() -> R>(f: F) -> R {
-    log::info!("Entering executor");
+fn with_runtime<R, F: FnOnce(&Handle) -> R>(f: F) -> R {
     RUNTIME.with(|rt| {
+        let rt = rt.borrow();
+        f(rt.as_ref().expect("active runtime"))
+    })
+}
+
+pub fn with_executor<R, F: FnOnce() -> R>(f: F) -> R {
+    with_runtime(|rt| {
         LOCALSET.with(|ls| {
-            log::info!("Entered executor");
             let ret = match ls.try_borrow_mut() {
                 Ok(mut ls) => {
                     let ls = &mut *ls;
-                    ls.block_on(rt, async move { f() })
+                    rt.block_on(ls.run_until(async move { f() }))
                 }
                 // Reentrant call
                 Err(_borrow_mut_error) => {
-                    log::warn!("Reentrant with_executor");
+                    log::debug!("Reentrant with_executor");
                     f()
                 }
             };
-            log::info!("Leaving executor");
 
             WAKER.with(|waker| {
                 let w = waker.borrow();
@@ -252,8 +252,21 @@ pub fn with_executor<R, F: FnOnce() -> R>(f: F) -> R {
     })
 }
 
+fn init_runtime() -> Runtime {
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_io()
+        .enable_time()
+        .build()
+        .unwrap();
+    let handle = rt.handle();
+    let prev = RUNTIME.with(|rt| rt.borrow_mut().replace(handle.clone()));
+    assert!(prev.is_none(), "Runtime was already initialized.");
+    rt
+}
+
 #[cfg(feature = "sailfish")]
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
+    let runtime = init_runtime();
     let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
         // XXX this arc thing should be removed in the future and refactored
         let config = std::sync::Arc::new(config);
@@ -331,15 +344,14 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     })?;
 
     qmetaobject::future::execute_async(futures::future::poll_fn(move |cx| {
-        RUNTIME.with(|r| {
-            let _guard = r.enter();
+        with_runtime(|rt| {
+            let _guard = rt.enter();
             LOCALSET.with(|ls| {
                 WAKER.with(|waker| {
                     *waker.borrow_mut() = Some(cx.waker().clone());
                 });
 
                 let mut ls = ls.borrow_mut();
-                log::info!("Polling localset");
 
                 // If the localset is "ready", the queue is empty.
                 let _rdy = futures::ready!(futures::Future::poll(std::pin::Pin::new(&mut *ls), cx));
@@ -350,10 +362,24 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
         })
     }));
 
-    RUNTIME.with(|r| {
-        let _guard = r.enter();
+    // Spawn the TOkio I/O loop on a separate thread.
+    // The first thread to call `block_on` drives the I/O loop; the I/O that gets spawned by other
+    // threads gets polled on this "main" thread.
+    let (tx, rx) = futures::channel::oneshot::channel();
+    let driver = std::thread::Builder::new()
+        .name("Tokio I/O driver".to_string())
+        .spawn(move || {
+            runtime.block_on(async move {
+                rx.await.unwrap();
+            });
+        })?;
+
+    with_runtime(|rt| {
+        let _guard = rt.enter();
         app.exec();
+        tx.send(()).unwrap();
     });
+    driver.join().unwrap();
 
     Ok(())
 }
