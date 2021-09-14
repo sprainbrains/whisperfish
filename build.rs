@@ -87,7 +87,10 @@ fn build_sqlcipher() {
         .unwrap();
 
     // If sqlite3.c changed, we recompile
-    let needs_rerun = before.map(|before| before != after).unwrap_or(true);
+    let exists = std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap())
+        .join("libsqlcipher.a")
+        .is_file();
+    let needs_rerun = !exists || before.map(|before| before != after).unwrap_or(true);
 
     if needs_rerun {
         // Build static sqlcipher
