@@ -6,7 +6,7 @@ use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 
 use actix::prelude::*;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]

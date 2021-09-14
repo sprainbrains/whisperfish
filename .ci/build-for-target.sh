@@ -25,6 +25,15 @@ cat Cargo.toml
 
 # Set env
 export MER_TARGET="SailfishOS-$SFOS_VERSION"
+case "${MER_ARCH}" in
+    armv7hl) export LIBDIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib" ;;
+    i486) export LIBDIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib" ;;
+    aarch64) export LIBDIR="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64" ;;
+    *) echo "MER_ARCH=$MER_ARCH unrecognised."
+esac
+export QT_INCLUDE_PATH="$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/include/qt5"
+export QT_LIBRARY_PATH="$LIBDIR"
+export CXXFLAGS="-isysroot=$MERSDK/targets/$MER_TARGET-$MER_ARCH --sysroot=$MERSDK/targets/$MER_TARGET-$MER_ARCH -I$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/include"
 export RUSTFLAGS="-C link-args=-Wl,-lcrypto,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib64/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/usr/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib/,-rpath-link,$MERSDK/targets/$MER_TARGET-$MER_ARCH/lib64/"
 
 # https://github.com/diwic/dbus-rs/blob/master/libdbus-sys/cross_compile.md

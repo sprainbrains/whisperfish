@@ -10,7 +10,7 @@ use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 // XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {

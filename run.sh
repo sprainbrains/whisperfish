@@ -5,6 +5,7 @@ cd "$(dirname -- "$(type greadlink >/dev/null 2>&1 && greadlink -f -- "$0" || re
 # Source .env for SSH_TARGET
 [ -e ".env" ] && source ./.env
 : ${TARGET_ARCH?Please update your .env file to include the TARGET_ARCH export}
+: ${LIBDIR?Please update your .env file to contain the QT_INCLUDE_PATH, QT_LIBRARY_PATH, LIBDIR, and CXXFLAGS blocks.}
 
 qmllint qml/**/*.qml
 

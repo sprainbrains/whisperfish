@@ -3,7 +3,7 @@ use std::str::FromStr;
 use crate::config::Settings;
 
 use phonenumber::Mode;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 #[derive(QObject, Default)]
 pub struct ContactModel {

@@ -193,6 +193,10 @@ coverage:stable:
   stage: format
   needs:
     - test:stable
+  variables:
+    <<: *variables
+    # Not needed anymore after the Tarpaulin image is on Debian Bullseye
+    QT_SELECT: qt5
   script:
     # Add --all-features and --all-targets some time in the future. Tarpaulin
     # runs only at linux-x86 and would need the whisperfish sdk to build all

@@ -14,7 +14,7 @@ use crate::store::Storage;
 use crate::{actor, config::Settings, model, qmlapp::QmlApp, worker};
 
 use actix::prelude::*;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]

@@ -6,7 +6,7 @@ use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
 use phonenumber::PhoneNumber;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;

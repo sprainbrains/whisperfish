@@ -2338,24 +2338,39 @@ dependencies = [
 
 [[package]]
 name = "qmetaobject"
-version = "0.1.4"
-source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#85d30cf40775d440aeb65b6365b77116412ceb49"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9481b95ec08592b015440628956123ef9229c38e291840130d9331e622c9925f"
 dependencies = [
  "cpp",
  "cpp_build",
  "lazy_static",
+ "log",
  "qmetaobject_impl",
- "semver 0.9.0",
+ "qttypes",
+ "semver 1.0.3",
 ]
 
 [[package]]
 name = "qmetaobject_impl"
-version = "0.1.4"
-source = "git+https://gitlab.com/rubdos/qmetaobject-sfos-rs?branch=sailfishos#85d30cf40775d440aeb65b6365b77116412ceb49"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5849bf843ce108a482855097d69540e8ca8e49230e97f262d490f995b58f998a"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "qttypes"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0431d1f607ab0d66b5aa196ff541d945e629b7a2cae0583a79b3509c5e69b3ee"
+dependencies = [
+ "cpp",
+ "cpp_build",
+ "semver 1.0.3",
 ]
 
 [[package]]
