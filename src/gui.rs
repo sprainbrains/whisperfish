@@ -254,7 +254,7 @@ pub fn with_executor<R, F: FnOnce() -> R>(f: F) -> R {
 
 #[cfg(feature = "sailfish")]
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
-    let app = with_executor(|| -> anyhow::Result<_> {
+    let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
         // XXX this arc thing should be removed in the future and refactored
         let config = std::sync::Arc::new(config);
 
@@ -327,7 +327,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             std::sync::Arc::clone(&config),
         ));
 
-        Ok(app)
+        Ok((app, whisperfish))
     })?;
 
     qmetaobject::future::execute_async(futures::future::poll_fn(move |cx| {
