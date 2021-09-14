@@ -305,7 +305,7 @@ impl protocol::PreKeyStore for Storage {
         let _lock = self.protocol_store.write().await;
 
         let path = self.prekey_path(id);
-        std::fs::remove_file(path).unwrap();
+        std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
         Ok(())
     }
 }
@@ -535,7 +535,7 @@ impl Storage {
         let _lock = self.protocol_store.write().await;
 
         let path = self.signed_prekey_path(id);
-        std::fs::remove_file(path).unwrap();
+        std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
         Ok(())
     }
 
