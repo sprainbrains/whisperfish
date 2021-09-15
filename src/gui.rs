@@ -252,6 +252,10 @@ pub fn with_executor<R, F: FnOnce() -> R>(f: F) -> R {
     })
 }
 
+// On non-Sailfish targets, this is dead code.
+// The Sailfish-decoupling work (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/185)
+// should fix this.
+#[allow(dead_code)]
 fn init_runtime() -> Runtime {
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_io()
