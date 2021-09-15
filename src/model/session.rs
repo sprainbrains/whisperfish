@@ -48,11 +48,13 @@ pub struct SessionModel {
 }
 
 impl SessionModel {
+    #[qmeta_async::with_executor]
     fn count(&self) -> usize {
         self.content.len()
     }
 
     /// Add or replace a Session in the model.
+    #[qmeta_async::with_executor]
     fn add(&self, id: i32, mark_read: bool) {
         actix::spawn(
             self.actor
@@ -66,6 +68,7 @@ impl SessionModel {
 
     /// Removes session at index. This removes the session from the list model and
     /// deletes it from the database.
+    #[qmeta_async::with_executor]
     fn remove(&mut self, idx: usize) {
         if idx > self.content.len() - 1 {
             log::error!("Invalid index for session model");
@@ -86,6 +89,7 @@ impl SessionModel {
 
     /// Removes session by id. This removes the session from the list model and
     /// deletes it from the database.
+    #[qmeta_async::with_executor]
     fn removeById(&self, id: i32) {
         let idx = self
             .content
@@ -103,6 +107,7 @@ impl SessionModel {
         log::trace!("Dispatched actor::DeleteSession({})", idx);
     }
 
+    #[qmeta_async::with_executor]
     fn reload(&self) {
         actix::spawn(
             self.actor
@@ -113,6 +118,7 @@ impl SessionModel {
         );
     }
 
+    #[qmeta_async::with_executor]
     fn markRead(&mut self, id: usize) {
         if let Some((idx, session)) = self
             .content
@@ -139,11 +145,13 @@ impl SessionModel {
         // XXX: don't forget sync messages
     }
 
+    #[qmeta_async::with_executor]
     fn markReceived(&self, _id: usize) {
         log::trace!("STUB: Mark received called");
         // XXX: don't forget sync messages
     }
 
+    #[qmeta_async::with_executor]
     fn markSent(&self, _id: usize, _message: QString) {
         log::trace!("STUB: Mark sent called");
         // XXX: don't forget sync messages
