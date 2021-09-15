@@ -4,8 +4,6 @@ use std::os::raw::*;
 use qmetaobject::qttypes::*;
 use qmetaobject::{QObject, QObjectPinned};
 
-use super::tokio_qt::*;
-
 use crate::gui::AppState;
 
 /// Qt is not thread safe, and the engine can only be created once and in one thread.
@@ -18,7 +16,6 @@ cpp! {{
     #include <QtCore/QDebug>
     #include <QtWidgets/QApplication>
     #include <QtQml/QQmlComponent>
-    #include <QtGui/qpa/qwindowsysteminterface.h>
     #include <QtQuick/QQuickWindow>
 
     #include <sailfishapp.h>
@@ -54,73 +51,11 @@ cpp! {{
                 );
             }
     };
-
-    struct CloseEventFilter : public QObject {
-        CloseEventFilter(QObject *parent=nullptr): QObject(parent), isClosed(false) {}
-        virtual ~CloseEventFilter() {}
-
-        bool isClosed;
-
-    protected:
-        bool eventFilter(QObject *obj, QEvent *event) override {
-            if (event->type() == QEvent::Close) {
-                isClosed = true;
-            }
-            return QObject::eventFilter(obj, event);
-        }
-    };
 }}
-
-cpp_class!(
-    unsafe struct CloseEventFilter as "CloseEventFilter"
-);
 
 cpp_class! (
     pub unsafe struct QmlApp as "QmlApplicationHolder"
 );
-
-struct QmlApplicationFuture<'a> {
-    app: QmlApp,
-    close_event_filter: *mut CloseEventFilter,
-    app_state: QObjectPinned<'a, AppState>,
-}
-
-use std::task::{Context, Poll};
-
-impl Future for QmlApplicationFuture<'_> {
-    type Output = ();
-    fn poll(mut self: std::pin::Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<()> {
-        let dispatch = self.app.event_dispatcher_mut().unwrap();
-        match dispatch.poll(ctx) {
-            Poll::Ready(()) => {
-                log::warn!("Tokio-Qt event dispatcher finished");
-                return Poll::Ready(());
-            }
-            Poll::Pending => (),
-        }
-
-        let filter: *mut CloseEventFilter = self.close_event_filter;
-        let has_closed = unsafe {
-            cpp!([filter as "CloseEventFilter*"] -> bool as "bool" {
-                QWindowSystemInterface::sendWindowSystemEvents(QEventLoop::AllEvents);
-                bool st = filter->isClosed;
-                filter->isClosed = false;
-                return st;
-            })
-        };
-
-        if has_closed {
-            // Reset in QML when the window reopens.
-            self.app_state.borrow_mut().set_closed();
-        }
-
-        if self.app_state.borrow().is_closed() && self.app_state.borrow().may_exit {
-            Poll::Ready(())
-        } else {
-            Poll::Pending
-        }
-    }
-}
 
 impl QmlApp {
     pub fn application(name: String) -> QmlApp {
@@ -212,37 +147,6 @@ impl QmlApp {
             cpp!([self as "QmlApplicationHolder*"] {
                 self->app->exec();
             })
-        }
-    }
-
-    pub fn event_dispatcher_mut(&mut self) -> Option<&mut TokioQEventDispatcher> {
-        unsafe {
-            cpp!([self as "QmlApplicationHolder*"] -> *mut TokioQEventDispatcher as "TokioQEventDispatcher*" {
-                QAbstractEventDispatcher *dispatch = self->app->eventDispatcher();
-                TokioQEventDispatcher *tqed = dynamic_cast<TokioQEventDispatcher *>(dispatch);
-                return tqed;
-            }).as_mut()
-        }
-    }
-
-    pub fn exec_async(
-        mut self,
-        app_state: QObjectPinned<'_, AppState>,
-    ) -> impl Future<Output = ()> + '_ {
-        assert!(self.event_dispatcher_mut().is_some());
-        // XXX: implement Drop to deregister the filter.
-        let app: &mut Self = &mut self;
-        let close_event_filter = unsafe {
-            cpp!([app as "QmlApplicationHolder*"] -> *mut CloseEventFilter as "CloseEventFilter *" {
-                CloseEventFilter *f = new CloseEventFilter();
-                app->view->installEventFilter(f);
-                return f;
-            })
-        };
-        QmlApplicationFuture {
-            app: self,
-            close_event_filter,
-            app_state,
         }
     }
 

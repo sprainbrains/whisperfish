@@ -1,6 +1,3 @@
-mod tokio_qt;
-pub use tokio_qt::*;
-
 #[cfg(feature = "sailfish")]
 mod native;
 
