@@ -135,6 +135,7 @@ FEATURES="sailfish,harbour"
 export RUSTFLAGS="-C link-args=-Wl,-lcrypto"
 
 cargo build \
+          -j 1 \
           --verbose \
           --release \
           --features $FEATURES \
