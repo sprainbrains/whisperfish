@@ -46,6 +46,7 @@ BuildRequires:  qt5-qtwebsockets-devel
 BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
+BuildRequires:  zlib-devel
 
 # For vendored sqlcipher
 BuildRequires:  tcl
