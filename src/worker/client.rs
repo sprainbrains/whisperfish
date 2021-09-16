@@ -1298,6 +1298,7 @@ impl Handler<RefreshPreKeys> for ClientActor {
 
 // methods called from Qt
 impl ClientWorker {
+    #[qmeta_async::with_executor]
     pub fn compress_db(&self) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {

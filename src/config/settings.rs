@@ -125,27 +125,32 @@ impl Settings {
     }
 
     #[allow(non_snake_case)]
+    #[qmeta_async::with_executor]
     fn stringSet(&mut self, key: String, val: String) {
         log::info!("Setting string {}", key);
         self.set_string(&key, &val)
     }
 
     #[allow(non_snake_case)]
+    #[qmeta_async::with_executor]
     fn stringValue(&self, key: String) -> String {
         self.get_string(key)
     }
 
     #[allow(non_snake_case)]
+    #[qmeta_async::with_executor]
     fn boolSet(&mut self, key: String, val: bool) {
         log::info!("Setting bool {}", key);
         self.set_bool(&key, val)
     }
 
     #[allow(non_snake_case)]
+    #[qmeta_async::with_executor]
     fn boolValue(&mut self, key: String) -> bool {
         self.get_bool(key)
     }
 
+    #[qmeta_async::with_executor]
     pub fn defaults(&mut self) {
         log::info!("Setting default settings.");
 

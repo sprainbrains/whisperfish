@@ -18,6 +18,7 @@ pub struct ContactModel {
 
 impl ContactModel {
     // The default formatter expected by QML
+    #[qmeta_async::with_executor]
     fn format(&self, number: QString) -> QString {
         let settings = Settings::default();
         let country_code = settings.get_string("country_code");

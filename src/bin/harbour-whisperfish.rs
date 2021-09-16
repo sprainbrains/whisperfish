@@ -1,4 +1,3 @@
-use actix::prelude::*;
 use harbour_whisperfish::*;
 
 use anyhow::Context;
@@ -79,16 +78,12 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
             .with_context(|| format!("Could not create attachment dir: {}", path.display()))?;
     }
 
-    qmlapp::TokioQEventDispatcher::install();
+    // qmlapp::TokioQEventDispatcher::install();
 
-    let sys = System::new();
-    sys.block_on(async {
-        // Currently not possible, default QmlEngine does not run asynchronous.
-        // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
-
-        #[cfg(feature = "sailfish")]
-        gui::run(config).await.unwrap();
-    });
+    // Currently not possible, default QmlEngine does not run asynchronous.
+    // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
+    #[cfg(feature = "sailfish")]
+    gui::run(config).unwrap();
 
     log::info!("Shut down.");
 

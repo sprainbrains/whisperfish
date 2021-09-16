@@ -65,6 +65,8 @@ structopt = "0.3.16"
 
 rpassword = "5.0"
 
+qmeta-async = { path = "qmeta-async" }
+
 [build-dependencies]
 cpp_build = "0.5"
 cc = "1.0"
@@ -111,8 +113,12 @@ harbour = ["sailfish"]
 
 [patch."https://github.com/signalapp/zkgroup"]
 zkgroup = { git = "https://gitlab.com/whisperfish/zkgroup", branch = "whisperfork" }
+
 [patch."https://github.com/signalapp/libsignal-client"]
 libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
+
+# [patch.crates-io]
+# qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
 
 # [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
 # libsignal-service = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service" }
