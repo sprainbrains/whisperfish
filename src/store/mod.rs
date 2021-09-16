@@ -299,7 +299,7 @@ fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), any
 
     use std::io::Write;
     let mut file = std::fs::File::create(&path)?;
-    file.write_all(&contents)?;
+    file.write_all(contents)?;
 
     Ok(())
 }
@@ -321,8 +321,8 @@ fn write_file_sync_encrypted(
     use block_modes::block_padding::Pkcs7;
     use block_modes::{BlockMode, Cbc};
     let ciphertext = {
-        let cipher =
-            Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv).context("CBC initialization error")?;
+        let cipher = Cbc::<Aes128, Pkcs7>::new_from_slices(&keys[0..16], &iv)
+            .context("CBC initialization error")?;
         cipher.encrypt_vec(contents)
     };
 
@@ -330,7 +330,7 @@ fn write_file_sync_encrypted(
         use hmac::{Hmac, Mac, NewMac};
         use sha2::Sha256;
         // Verify HMAC SHA256, 32 last bytes
-        let mut mac = Hmac::<Sha256>::new_varkey(&keys[16..])
+        let mut mac = Hmac::<Sha256>::new_from_slice(&keys[16..])
             .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
         mac.update(&iv);
         mac.update(&ciphertext);
@@ -353,8 +353,8 @@ fn write_file_sync(
     contents: &[u8],
 ) -> Result<(), anyhow::Error> {
     match keys {
-        Some(keys) => write_file_sync_encrypted(keys, path, &contents),
-        None => write_file_sync_unencrypted(path, &contents),
+        Some(keys) => write_file_sync_encrypted(keys, path, contents),
+        None => write_file_sync_unencrypted(path, contents),
     }
 }
 
@@ -394,12 +394,12 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
         use hmac::{Hmac, Mac, NewMac};
         use sha2::Sha256;
         // Verify HMAC SHA256, 32 last bytes
-        let mut verifier = Hmac::<Sha256>::new_varkey(&keys[16..])
+        let mut verifier = Hmac::<Sha256>::new_from_slice(&keys[16..])
             .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
-        verifier.update(&iv);
+        verifier.update(iv);
         verifier.update(contents);
         verifier
-            .verify(&mac)
+            .verify(mac)
             .map_err(|_| anyhow::anyhow!("MAC error"))?;
     }
 
@@ -407,8 +407,8 @@ fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8
     use block_modes::block_padding::Pkcs7;
     use block_modes::{BlockMode, Cbc};
     // Decrypt password
-    let cipher =
-        Cbc::<Aes128, Pkcs7>::new_var(&keys[0..16], &iv).context("CBC initialization error")?;
+    let cipher = Cbc::<Aes128, Pkcs7>::new_from_slices(&keys[0..16], iv)
+        .context("CBC initialization error")?;
     Ok(cipher
         .decrypt(contents)
         .context("AES CBC decryption error")?
@@ -539,7 +539,7 @@ impl Storage {
         }
 
         // 2. Open DB
-        let db = Self::open_db(&db_path, &path, password).await?;
+        let db = Self::open_db(db_path, path, password).await?;
 
         // 3. initialize protocol store
         let keys = match password {
@@ -582,7 +582,7 @@ impl Storage {
     ) -> Result<Storage, anyhow::Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
 
-        let db = Self::open_db(&db_path, &path, password.as_deref()).await?;
+        let db = Self::open_db(db_path, path, password.as_deref()).await?;
 
         let keys = match password {
             None => None,
@@ -964,7 +964,7 @@ impl Storage {
                                 uuid,
                                 by_e164.e164.unwrap()
                             );
-                            Ok(self.fetch_or_insert_recipient_by_uuid(&uuid))
+                            Ok(self.fetch_or_insert_recipient_by_uuid(uuid))
                         }
                     }
                 } else {
@@ -1847,8 +1847,7 @@ impl Storage {
         schema::messages::table
             .filter(schema::messages::session_id.eq(sid))
             .left_join(schema::recipients::table)
-            // XXX: order by timestamp?
-            .order_by(schema::messages::columns::id.desc())
+            .order_by(schema::messages::columns::server_timestamp.desc())
             .load(&*db)
             .expect("database")
     }
@@ -2018,17 +2017,12 @@ mod tests {
         Ok(())
     }
 
+    #[rstest(
+        storage_password,
+        case(Some(String::from("some password"))),
+        case(None)
+    )]
     #[actix_rt::test]
-    async fn create_and_open_encrypted_storage() -> Result<(), anyhow::Error> {
-        let pass = "Hello, world! I'm the passphrase";
-        test_create_and_open_storage(Some(pass.to_string())).await
-    }
-
-    #[actix_rt::test]
-    async fn create_and_open_unencrypted_storage() -> Result<(), anyhow::Error> {
-        test_create_and_open_storage(None).await
-    }
-
     async fn test_create_and_open_storage(
         storage_password: Option<String>,
     ) -> Result<(), anyhow::Error> {

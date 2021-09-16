@@ -7,7 +7,6 @@ include:
   # Awesome OpenRepos script by @nobodyinperson/Yann Büchau
   - https://gitlab.com/nobodyinperson/python3-openrepos-webclient/-/raw/master/openrepos-upload-rpm.gitlab-ci.yml
   # The MergeRequest-Pipelines template makes your pipelines run for the default branch, tags, and all types of merge request pipelines.
-  # Use this template if you use any of the the pipelines for merge requests features. 
   - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
 
 stages:
@@ -71,7 +70,7 @@ build:sailfishos:aarch64:
       - $CARGO_HOME/git/db/
   before_script:
     - apt-get update
-    - apt-get install -y --no-install-recommends libsqlcipher-dev qtbase5-dev qtbase5-private-dev qt5-qmake cmake qtdeclarative5-dev qt5-default protobuf-compiler libdbus-1-dev libqt5opengl5-dev 
+    - apt-get install -y --no-install-recommends libsqlcipher-dev qtbase5-dev qtbase5-private-dev qt5-qmake cmake qtdeclarative5-dev qtbase5-dev-tools qttools5-dev-tools protobuf-compiler libdbus-1-dev libqt5opengl5-dev libssl-dev
     - cargo --version
     - rustc --version
 
@@ -81,9 +80,9 @@ build:sailfishos:aarch64:
   cache:
     <<: *rust-cache
     key:
+      prefix: rust-stable
       files:
         - Cargo.lock
-      prefix: rust-stable
 
 .rust-nightly: &rust-nightly
   <<: *rust
@@ -92,33 +91,46 @@ build:sailfishos:aarch64:
   cache:
     <<: *rust-cache
     key:
+      prefix: rust-nightly
       files:
         - Cargo.lock
-      prefix: rust-nightly
 
 build:host:stable:
   <<: *rust-stable
   stage: build
-  needs: []
   script:
     - cargo build
 
 build:host:nightly:
   <<: *rust-nightly
   stage: build
-  needs: []
+  needs:
+    # Run only if stable already succeeded. We don't use the results of this
+    # job and run it only to test future versions of rust. See the discussion
+    # in https://gitlab.com/whisperfish/whisperfish/-/merge_requests/202
+    - build:host:stable
   script:
     - cargo build
 
-build:host:nightly:docs:
-  <<: *rust-nightly
+build:host:stable:docs:
+  <<: *rust-stable
   stage: build
-  needs: []
+  needs:
+    - build:host:stable
   script:
-    - cargo doc --no-deps -p harbour-whisperfish -p libsignal-service -p libsignal-protocol -p zkgroup --document-private-items
+    - cargo doc --no-deps --document-private-items -p harbour-whisperfish -p libsignal-service -p libsignal-protocol -p zkgroup 
   artifacts:
     paths:
       - target/doc
+  # This job has no large overhead. Thus, we fetch only the cache from the
+  # build job and don't interfere with later tests jobs.
+  cache:
+    <<: *rust-cache
+    key:
+      prefix: rust-stable
+      files:
+        - Cargo.lock
+    policy: pull
 
 qmllint:
   <<: *rust
@@ -142,55 +154,68 @@ test:stable:diesel-schema:
   needs:
     - build:host:stable
   script:
-    - cargo install -f diesel_cli
     - rustup component add rustfmt
+    # Diesel is not running a long time/often. We don't need the release
+    # version here and the debug version is enough. We save a lot of
+    # compilation time for small overhead when running the binary.
+    - cargo install -f --debug diesel_cli
     - export PATH="$CARGO_HOME/bin:$PATH"
     - export DATABASE_URL=test_whisperfish.db
     - diesel setup
     - diesel migration run
     - diesel print-schema > src/schema.rs
     - cargo fmt -- --check src/schema.rs
+  # Diesel does not need to access build artifacts of other stages.
+  cache: {}
 
-test:nightly:
-  <<: *rust-nightly
-  stage: test
-  needs:
-    - build:host:nightly
-  script:
-    - cargo test
-
-fmt:nightly:
-  <<: *rust-nightly
-  allow_failure: false
+fmt:stable:
+  <<: *rust-stable
   stage: format
   needs:
-    - test:nightly
+    - build:host:stable
+  # Cargo fmt does not need external packages.
+  before_script: []
   script:
+    - rustup component add rustfmt
     - cargo fmt -- --check
+  # Cargo fmt does not need to access the cache. With it's own cache, it does
+  # not interfere with `coverage:stable` and `clippy:stable`. There is nothing
+  # to store in the cache either.
+  cache: {}
 
-coverage:nightly:
-  <<: *rust-nightly
-  image: xd009642/tarpaulin:develop-nightly
+coverage:stable:
+  <<: *rust-stable
+  image: xd009642/tarpaulin
   stage: format
-  needs: []
+  needs:
+    - test:stable
+  variables:
+    <<: *variables
+    # Not needed anymore after the Tarpaulin image is on Debian Bullseye
+    QT_SELECT: qt5
   script:
-    - export PATH="$CARGO_HOME/bin:$PATH"
+    # Add --all-features and --all-targets some time in the future. Tarpaulin
+    # runs only at linux-x86 and would need the whisperfish sdk to build all
+    # features.
     - cargo tarpaulin -v --exclude-files cargo/* --out Xml
-  # tarpaulin needs its own cache
-  cache:
-    <<: *rust-cache
-    key:
-      files:
-        - Cargo.lock
-      prefix: rust-nightly-coverage
   artifacts:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
     reports:
       cobertura: cobertura.xml
+  coverage: '/^\d+.\d+% coverage/'
+  # Tarpaulin needs its own cache as many more information are stored from
+  # other crates. In addition, `clippy:stable` can pull/push the cache from
+  # `test:stable` and the tarpaulin job does not interfere with the clippy
+  # cache.
+  cache:
+    <<: *rust-cache
+    key:
+      prefix: rust-stable-tarpaulin
+      files:
+        - Cargo.lock
 
-clippy:
+clippy:stable:
   <<: *rust-stable
-  allow_failure: false
   stage: format
   needs:
     - test:stable
@@ -205,7 +230,7 @@ clippy:
   needs: []
   before_script:
     - apt-get update
-    - apt-get install --no-install-recommends -y git qttools5-dev-tools qt5-default python3 python3-requests curl
+    - apt-get install --no-install-recommends -y git curl qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools
 
 translations:check:
   <<: *translations
@@ -258,9 +283,9 @@ notify_matrix_build_ready:
 
 pages:
   dependencies:
-    - build:host:nightly:docs
+    - build:host:stable:docs
   needs:
-    - build:host:nightly:docs
+    - build:host:stable:docs
   stage: deploy
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
@@ -289,7 +314,7 @@ openrepos-deploy:
     - build:sailfishos:armv7hl
     - build:sailfishos:i486
     - build:sailfishos:aarch64
-    - test:nightly
+    - test:stable
   dependencies:
     - build:sailfishos:armv7hl
     - build:sailfishos:i486

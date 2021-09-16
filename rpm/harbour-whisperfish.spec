@@ -102,8 +102,10 @@ export SB2_RUST_USE_REAL_FN=Yes
 export SB2_RUST_NO_SPAWNVP=Yes
 
 %ifnarch %ix86
-export CC_i686_unknown_linux_gnu=host-cc
-export CXX_i686_unknown_linux_gnu=host-cxx
+export HOST_CC=host-cc
+export HOST_CXX=host-cxx
+export CC_i686_unknown_linux_gnu=$HOST_CC
+export CXX_i686_unknown_linux_gnu=$HOST_CXX
 %endif
 
 # Set meego cross compilers

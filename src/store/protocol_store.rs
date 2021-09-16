@@ -141,7 +141,7 @@ impl Storage {
                     let name = name.as_os_str().as_bytes();
 
                     log::trace!("parsing {:?}", entry);
-                    let id = std::str::from_utf8(&name).ok()?;
+                    let id = std::str::from_utf8(name).ok()?;
                     id.parse().ok()
                 })
                 .collect();
@@ -163,7 +163,7 @@ impl Storage {
                     let name = name.as_os_str().as_bytes();
 
                     log::trace!("parsing {:?}", entry);
-                    let id = std::str::from_utf8(&name).ok()?;
+                    let id = std::str::from_utf8(name).ok()?;
                     id.parse().ok()
                 })
                 .collect();
@@ -212,16 +212,14 @@ impl protocol::IdentityKeyStore for Storage {
         key: &IdentityKey,
         // XXX
         _direction: Direction,
-        ctx: Context,
+        _ctx: Context,
     ) -> Result<bool, SignalProtocolError> {
-        // We don't lock here, because get_identity locks,
-        // and reentrant read locks can deadlock.
-        // let _lock = self.protocol_store.read().await;
+        let _lock = self.protocol_store.read().await;
 
-        if let Some(trusted_key) = self.get_identity(addr, ctx).await? {
+        if let Some(trusted_key) = self.read_identity_key_file(addr).await? {
             Ok(trusted_key == *key)
         } else {
-            // TOFU
+            // Trust on first use
             Ok(true)
         }
     }
@@ -236,13 +234,26 @@ impl protocol::IdentityKeyStore for Storage {
     ) -> Result<bool, SignalProtocolError> {
         let _lock = self.protocol_store.write().await;
 
-        let path = self.identity_path(addr);
-        write_file(self.keys, path, key.serialize().into())
-            .await
-            .expect("save identity key");
-        // XXX (this result is currently unused in libsignal-client, but may become used in the
-        // future.)
-        Ok(true)
+        // Save return value
+        let mut ret = false;
+
+        // Get old key if present and compare to the new one. If they are the same, we set `ret` to
+        // true.
+        if let Some(key_old) = self.read_identity_key_file(addr).await? {
+            ret = key_old == *key;
+        };
+
+        // Save new key only if ret is false. If it is `true` the old and the new key are identical
+        // and saving is not necessary
+        if !ret {
+            // Write key
+            let path = self.identity_path(addr);
+            write_file(self.keys, path, key.serialize().into())
+                .await
+                .expect("save identity key");
+        }
+
+        Ok(ret)
     }
 
     async fn get_identity(
@@ -252,24 +263,7 @@ impl protocol::IdentityKeyStore for Storage {
     ) -> Result<Option<IdentityKey>, SignalProtocolError> {
         let _lock = self.protocol_store.read().await;
 
-        let path = self.identity_path(addr);
-        if path.is_file() {
-            let buf = load_file(self.keys, path).await.expect("read identity key");
-            match buf.len() {
-                // Old format
-                32 => Ok(Some(
-                    protocol::PublicKey::from_djb_public_key_bytes(&buf)?.into(),
-                )),
-                // New format
-                33 => Ok(Some(IdentityKey::decode(&buf)?)),
-                _ => Err(SignalProtocolError::InvalidArgument(format!(
-                    "Identity key has length {}, expected 32 or 33",
-                    buf.len()
-                ))),
-            }
-        } else {
-            Ok(None)
-        }
+        self.read_identity_key_file(addr).await
     }
 }
 
@@ -280,7 +274,11 @@ impl protocol::PreKeyStore for Storage {
         let _lock = self.protocol_store.read().await;
 
         let path = self.prekey_path(id);
-        let contents = load_file(self.keys, path).await.unwrap();
+        let contents = if let Ok(x) = load_file(self.keys, path).await {
+            x
+        } else {
+            return Err(SignalProtocolError::InvalidPreKeyId);
+        };
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
         Ok(PreKeyRecord::deserialize(&contents)?)
     }
@@ -307,7 +305,7 @@ impl protocol::PreKeyStore for Storage {
         let _lock = self.protocol_store.write().await;
 
         let path = self.prekey_path(id);
-        std::fs::remove_file(path).unwrap();
+        std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
         Ok(())
     }
 }
@@ -330,7 +328,7 @@ impl protocol::SessionStore for Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<Option<SessionRecord>, SignalProtocolError> {
-        let path = self.session_path(&addr);
+        let path = self.session_path(addr);
 
         log::trace!("Loading session for {:?} from {:?}", addr, path);
         let _lock = self.protocol_store.read().await;
@@ -350,7 +348,7 @@ impl protocol::SessionStore for Storage {
         session: &protocol::SessionRecord,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
-        let path = self.session_path(&addr);
+        let path = self.session_path(addr);
 
         log::trace!("Storing session for {:?} at {:?}", addr, path);
         let _lock = self.protocol_store.write().await;
@@ -370,7 +368,7 @@ impl Storage {
     ) -> Result<bool, SignalProtocolError> {
         let _lock = self.protocol_store.read().await;
 
-        let path = self.session_path(&addr);
+        let path = self.session_path(addr);
         Ok(path.is_file())
     }
 }
@@ -502,7 +500,11 @@ impl protocol::SignedPreKeyStore for Storage {
 
         let path = self.signed_prekey_path(id);
 
-        let contents = load_file(self.keys, path).await.unwrap();
+        let contents = if let Ok(x) = load_file(self.keys, path).await {
+            x
+        } else {
+            return Err(SignalProtocolError::InvalidSignedPreKeyId);
+        };
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 
         Ok(SignedPreKeyRecord::deserialize(&contents)?)
@@ -533,7 +535,7 @@ impl Storage {
         let _lock = self.protocol_store.write().await;
 
         let path = self.signed_prekey_path(id);
-        std::fs::remove_file(path).unwrap();
+        std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
         Ok(())
     }
 
@@ -544,5 +546,469 @@ impl Storage {
         let _lock = self.protocol_store.read().await;
 
         self.signed_prekey_path(id).is_file()
+    }
+
+    async fn read_identity_key_file(
+        &self,
+        addr: &ProtocolAddress,
+    ) -> Result<Option<IdentityKey>, SignalProtocolError> {
+        let path = self.identity_path(addr);
+        if path.is_file() {
+            let buf = load_file(self.keys, path).await.expect("read identity key");
+            match buf.len() {
+                // Old format
+                32 => Ok(Some(
+                    protocol::PublicKey::from_djb_public_key_bytes(&buf)?.into(),
+                )),
+                // New format
+                33 => Ok(Some(IdentityKey::decode(&buf)?)),
+                _ => Err(SignalProtocolError::InvalidArgument(format!(
+                    "Identity key has length {}, expected 32 or 33",
+                    buf.len()
+                ))),
+            }
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use libsignal_service::prelude::protocol::*;
+    use rstest::rstest;
+
+    async fn create_example_storage(
+        storage_password: Option<&str>,
+    ) -> Result<(super::Storage, super::StorageLocation<tempdir::TempDir>), anyhow::Error> {
+        use rand::distributions::Alphanumeric;
+        use rand::{Rng, RngCore};
+
+        env_logger::try_init().ok();
+
+        let location = super::temp();
+        let rng = rand::thread_rng();
+
+        // Signaling password for REST API
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+
+        // Signaling key that decrypts the incoming Signal messages
+        let mut rng = rand::thread_rng();
+        let mut signaling_key = [0u8; 52];
+        rng.fill_bytes(&mut signaling_key);
+        let signaling_key = signaling_key;
+
+        // Registration ID
+        let regid = 12345;
+
+        let storage = super::Storage::new(
+            &location,
+            storage_password.as_deref(),
+            regid,
+            &password,
+            signaling_key,
+        )
+        .await?;
+
+        Ok((storage, location))
+    }
+
+    fn create_random_protocol_address() -> ProtocolAddress {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+
+        let user_id = uuid::Uuid::new_v4();
+        let device_id = rng.gen_range(2, 20);
+
+        ProtocolAddress::new(user_id.to_string(), device_id)
+    }
+
+    fn create_random_identity_key() -> IdentityKey {
+        let mut rng = rand::thread_rng();
+
+        let key_pair = IdentityKeyPair::generate(&mut rng);
+
+        *key_pair.identity_key()
+    }
+
+    fn create_random_prekey() -> PreKeyRecord {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+
+        let key_pair = KeyPair::generate(&mut rng);
+        let id: u32 = rng.gen();
+
+        PreKeyRecord::new(id, &key_pair)
+    }
+
+    fn create_random_signed_prekey() -> SignedPreKeyRecord {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+
+        let key_pair = KeyPair::generate(&mut rng);
+        let id: u32 = rng.gen();
+        let timestamp: u64 = rng.gen();
+        let signature = vec![0; 3];
+
+        SignedPreKeyRecord::new(id, timestamp, &key_pair, &signature)
+    }
+
+    /// XXX Right now, this functions seems a bit unnecessary, but we will change the creation of a
+    /// storage and it might be necessary to check the own identity_key_pair in the protocol store.
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn own_identity_key_pair(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // create a new storage
+        let (storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // Copy the identity key pair
+        let id_key1 = storage.protocol_store.read().await.identity_key_pair;
+
+        // Get access to the protocol store
+        // XXX IdentityKeyPair does not implement the std::fmt::Debug trait *arg*
+        //assert_eq!(id_key1.unwrap(), store.get_identity_key_pair(None).await.unwrap());
+        assert_eq!(
+            id_key1.serialize(),
+            storage
+                .get_identity_key_pair(None)
+                .await
+                .unwrap()
+                .serialize()
+        );
+    }
+
+    /// XXX Right now, this functions seems a bit unnecessary, but we will change the creation of a
+    /// storage and it might be necessary to check the regid in the protocol store.
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn own_regid(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // create a new storage
+        let (storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // Copy the regid
+        let regid_1 = storage.protocol_store.read().await.regid;
+
+        // Get access to the protocol store
+        assert_eq!(
+            regid_1,
+            storage.get_local_registration_id(None).await.unwrap()
+        );
+    }
+
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn save_retrieve_identity_key(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // Create a new storage
+        let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // We need two identity keys and two addresses
+        let addr1 = create_random_protocol_address();
+        let addr2 = create_random_protocol_address();
+        let key1 = create_random_identity_key();
+        let key2 = create_random_identity_key();
+
+        // In the beginning, the storage should be emtpy and return an error
+        // XXX Doesn't implement equality *arg*
+        assert_eq!(storage.get_identity(&addr1, None).await.unwrap(), None);
+        assert_eq!(storage.get_identity(&addr2, None).await.unwrap(), None);
+
+        // We store both keys and should get false because there wasn't a key with that address
+        // yet
+        assert!(!storage.save_identity(&addr1, &key1, None).await.unwrap());
+        assert!(!storage.save_identity(&addr2, &key2, None).await.unwrap());
+
+        // Now, we should get both keys
+        assert_eq!(
+            storage.get_identity(&addr1, None).await.unwrap(),
+            Some(key1)
+        );
+        assert_eq!(
+            storage.get_identity(&addr2, None).await.unwrap(),
+            Some(key2)
+        );
+
+        // After removing key2, it shouldn't be there
+        storage.delete_identity(&addr2).await.unwrap();
+        // XXX Doesn't implement equality *arg*
+        assert_eq!(storage.get_identity(&addr2, None).await.unwrap(), None);
+
+        // We can now overwrite key1 with key1 and should get true returned
+        assert!(storage.save_identity(&addr1, &key1, None).await.unwrap());
+
+        // We can now overwrite key1 with key2 and should get false returned
+        assert!(!storage.save_identity(&addr1, &key2, None).await.unwrap());
+    }
+
+    // Direction does not matter yet
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn is_trusted_identity(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // Create a new storage
+        let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // We need two identity keys and two addresses
+        let addr1 = create_random_protocol_address();
+        let key1 = create_random_identity_key();
+        let key2 = create_random_identity_key();
+
+        // Test trust on first use
+        assert!(storage
+            .is_trusted_identity(&addr1, &key1, Direction::Receiving, None)
+            .await
+            .unwrap());
+
+        // Test inserted key
+        storage.save_identity(&addr1, &key1, None).await.unwrap();
+        assert!(storage
+            .is_trusted_identity(&addr1, &key1, Direction::Receiving, None)
+            .await
+            .unwrap());
+
+        // Test wrong key
+        assert!(!storage
+            .is_trusted_identity(&addr1, &key2, Direction::Receiving, None)
+            .await
+            .unwrap());
+    }
+
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn save_retrieve_prekey(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // Create a new storage
+        let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // We need two identity keys and two addresses
+        let id1 = 0u32;
+        let id2 = 1u32;
+        let key1 = create_random_prekey();
+        let key2 = create_random_prekey();
+
+        // In the beginning, the storage should be emtpy and return an error
+        // XXX Doesn't implement equality *arg*
+        assert_eq!(
+            storage
+                .get_pre_key(id1, None)
+                .await
+                .unwrap_err()
+                .to_string(),
+            SignalProtocolError::InvalidPreKeyId.to_string()
+        );
+
+        // Storing both keys and testing retrieval
+        storage.save_pre_key(id1, &key1, None).await.unwrap();
+        storage.save_pre_key(id2, &key2, None).await.unwrap();
+
+        // Now, we should get both keys
+        assert_eq!(
+            storage
+                .get_pre_key(id1, None)
+                .await
+                .unwrap()
+                .serialize()
+                .unwrap(),
+            key1.serialize().unwrap()
+        );
+        assert_eq!(
+            storage
+                .get_pre_key(id2, None)
+                .await
+                .unwrap()
+                .serialize()
+                .unwrap(),
+            key2.serialize().unwrap()
+        );
+
+        // After removing key2, it shouldn't be there
+        storage.remove_pre_key(id2, None).await.unwrap();
+        // XXX Doesn't implement equality *arg*
+        assert_eq!(
+            storage
+                .get_pre_key(id2, None)
+                .await
+                .unwrap_err()
+                .to_string(),
+            SignalProtocolError::InvalidPreKeyId.to_string()
+        );
+
+        // Let's check whether we can overwrite a key
+        storage.save_pre_key(id1, &key2, None).await.unwrap();
+    }
+
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn save_retrieve_signed_prekey(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // Create a new storage
+        let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // We need two identity keys and two addresses
+        let id1 = 0u32;
+        let id2 = 1u32;
+        let key1 = create_random_signed_prekey();
+        let key2 = create_random_signed_prekey();
+
+        // In the beginning, the storage should be emtpy and return an error
+        // XXX Doesn't implement equality *arg*
+        assert_eq!(
+            storage
+                .get_signed_pre_key(id1, None)
+                .await
+                .unwrap_err()
+                .to_string(),
+            SignalProtocolError::InvalidSignedPreKeyId.to_string()
+        );
+
+        // Storing both keys and testing retrieval
+        storage.save_signed_pre_key(id1, &key1, None).await.unwrap();
+        storage.save_signed_pre_key(id2, &key2, None).await.unwrap();
+
+        // Now, we should get both keys
+        assert_eq!(
+            storage
+                .get_signed_pre_key(id1, None)
+                .await
+                .unwrap()
+                .serialize()
+                .unwrap(),
+            key1.serialize().unwrap()
+        );
+        assert_eq!(
+            storage
+                .get_signed_pre_key(id2, None)
+                .await
+                .unwrap()
+                .serialize()
+                .unwrap(),
+            key2.serialize().unwrap()
+        );
+
+        // Let's check whether we can overwrite a key
+        storage.save_signed_pre_key(id1, &key2, None).await.unwrap();
+    }
+
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn save_retrieve_session(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // Create a new storage
+        let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // Collection of some addresses and sessions
+        let addr1 = create_random_protocol_address();
+        let addr2 = create_random_protocol_address();
+        let addr3 = create_random_protocol_address();
+        let addr4 = ProtocolAddress::new(addr3.name().to_string(), addr3.device_id() + 1);
+        let session1 = SessionRecord::new_fresh();
+        let session2 = SessionRecord::new_fresh();
+        let session3 = SessionRecord::new_fresh();
+        let session4 = SessionRecord::new_fresh();
+
+        // In the beginning, the storage should be emtpy and return an error
+        assert!(storage.load_session(&addr1, None).await.unwrap().is_none());
+        assert!(storage.load_session(&addr2, None).await.unwrap().is_none());
+
+        // Store all four sessions: three different names, one name with two different device ids.
+        storage
+            .store_session(&addr1, &session1, None)
+            .await
+            .unwrap();
+        storage
+            .store_session(&addr2, &session2, None)
+            .await
+            .unwrap();
+        storage
+            .store_session(&addr3, &session3, None)
+            .await
+            .unwrap();
+        storage
+            .store_session(&addr4, &session4, None)
+            .await
+            .unwrap();
+
+        // Now, we should get the sessions to the first two addresses
+        assert_eq!(
+            storage
+                .load_session(&addr1, None)
+                .await
+                .unwrap()
+                .unwrap()
+                .serialize()
+                .unwrap(),
+            session1.serialize().unwrap()
+        );
+        assert_eq!(
+            storage
+                .load_session(&addr2, None)
+                .await
+                .unwrap()
+                .unwrap()
+                .serialize()
+                .unwrap(),
+            session2.serialize().unwrap()
+        );
+
+        // Let's check whether we can overwrite a key
+        storage
+            .store_session(&addr1, &session2, None)
+            .await
+            .expect("Overwrite session");
+
+        // Get all device ids for the same address
+        let mut ids = storage.get_sub_device_sessions(addr3.name()).await.unwrap();
+        ids.sort_unstable();
+        assert_eq!(ids[0], std::cmp::min(addr3.device_id(), addr4.device_id()));
+        assert_eq!(ids[1], std::cmp::max(addr3.device_id(), addr4.device_id()));
+
+        // If we call delete all sessions, all sessions of one person/address should be removed
+        assert_eq!(storage.delete_all_sessions(addr3.name()).await.unwrap(), 2);
+        assert!(storage.load_session(&addr3, None).await.unwrap().is_none());
+        assert!(storage.load_session(&addr4, None).await.unwrap().is_none());
+
+        // If we delete the first two sessions, they shouldn't be in the store anymore
+        SessionStoreExt::delete_session(&storage, &addr1)
+            .await
+            .unwrap();
+        SessionStoreExt::delete_session(&storage, &addr2)
+            .await
+            .unwrap();
+        assert!(storage.load_session(&addr1, None).await.unwrap().is_none());
+        assert!(storage.load_session(&addr2, None).await.unwrap().is_none());
+    }
+
+    #[rstest(password, case(Some("some password")), case(None))]
+    #[actix_rt::test]
+    async fn get_next_pre_key_ids(password: Option<&str>) {
+        env_logger::try_init().ok();
+
+        // Create a new storage
+        let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
+
+        // Create two pre keys and one signed pre key
+        let key1 = create_random_prekey();
+        let key2 = create_random_prekey();
+        let key3 = create_random_signed_prekey();
+
+        // In the beginning zero should be returned
+        assert_eq!(storage.next_pre_key_ids().await, (0, 0));
+
+        // Now, we add our keys
+        storage.save_pre_key(0, &key1, None).await.unwrap();
+        storage.save_pre_key(1, &key2, None).await.unwrap();
+        storage.save_signed_pre_key(0, &key3, None).await.unwrap();
+
+        // Adapt to keys in the storage
+        assert_eq!(storage.next_pre_key_ids().await, (1, 2));
     }
 }

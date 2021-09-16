@@ -59,12 +59,12 @@ fn format_with_country(number: &str, country_code: &str) -> Option<String> {
 
     let try_with_plus = if !number.starts_with('+') {
         let number_with_plus = format!("+{}", number);
-        format_with_country_helper(&number_with_plus, Mode::E164, &country_code)
+        format_with_country_helper(&number_with_plus, Mode::E164, country_code)
     } else {
         None
     };
 
-    format_with_country_helper(number, Mode::E164, &country_code).or(try_with_plus)
+    format_with_country_helper(number, Mode::E164, country_code).or(try_with_plus)
 }
 
 #[cfg(test)]

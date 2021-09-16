@@ -48,13 +48,13 @@
         <translation>Yeni Mesaj</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="174"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="176"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Signal istemcisi kurulumu başarısız oldu</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="179"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="181"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
@@ -130,7 +130,7 @@
         <location filename="../qml/pages/About.qml" line="117"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Wiki&apos;yi Ziyaret Et</translation>
+        <translation>Wiki Sayfasını Ziyaret Et</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="126"/>
@@ -852,9 +852,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="379"/>
-        <source>Compress database</source>
-        <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Compact database</source>
+        <oldsource>Compress database</oldsource>
+        <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
+        <translation>Veri tabanını sıkıştır</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
@@ -948,7 +949,7 @@ Settings page share contacts</extracomment>
         <translation>Güvenlik numaralarını doğrula</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Üye Ekle</translation>
@@ -971,52 +972,58 @@ Settings page share contacts</extracomment>
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Yeni grup biçimine güncellenmedi</translation>
     </message>
-    <message id="whisperfish-group-leave-menu">
+    <message id="whisperfish-group-refresh">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
+        <source>Refresh group</source>
+        <extracomment>Refresh group menu item</extracomment>
+        <translation>Grubu yenile</translation>
+    </message>
+    <message id="whisperfish-group-leave-menu">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Bu gruptan ayrıl</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="204"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>Gruptan ayrılıp tüm mesajlar kaldırıldı</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Davet bağlantısı oluştur</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>%1 kişisine mesaj</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Kişilere ekle</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="258"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="267"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Güvenlik numarasını doğrula</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="272"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="281"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Bu gruptan kaldır</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="307"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Sen</translation>

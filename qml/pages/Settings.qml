@@ -374,8 +374,8 @@ Page {
                 id: compressDb
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width - 2*Theme.horizontalPageMargin
-                //: Settings page 'Compress database' button: execute 'VACUUM' command on SQLite-database
-                //% "Compress database"
+                //: Settings page 'Compact database' button: execute 'VACUUM' command on SQLite-database
+                //% "Compact database"
                 text: qsTrId("whisperfish-settings-compress-db")
                 onClicked: {
                     ClientWorker.compress_db();

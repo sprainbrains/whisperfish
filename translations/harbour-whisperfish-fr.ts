@@ -48,17 +48,17 @@
         <translation>Nouveau message</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="174"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="176"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Échec de la configuration du client Signal</translation>
+        <translation>Échec de configuration du client Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="179"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="181"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation>Échec de la configuration du stockage des données</translation>
+        <translation>Échec de configuration du stockage des données</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -163,7 +163,7 @@
         <translation>Veuillez installer Signal Desktop et scanner le code QR avec l&apos;application CodeReader. Copiez-collez l&apos;URL ici.</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Ajouter un membre</translation>
@@ -186,52 +186,58 @@
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Non mis à jour au nouveau format de groupe</translation>
     </message>
-    <message id="whisperfish-group-leave-menu">
+    <message id="whisperfish-group-refresh">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
+        <source>Refresh group</source>
+        <extracomment>Refresh group menu item</extracomment>
+        <translation>Actualiser le groupe</translation>
+    </message>
+    <message id="whisperfish-group-leave-menu">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Quitter ce groupe</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="204"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>Groupe quitté et tous les messages supprimés</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Créer un lien d’invitation</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Message pour %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Ajouter aux contacts</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="258"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="267"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Vérifier le numéro de sécurité</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="272"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="281"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Retirer de ce groupe</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="307"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Vous</translation>
@@ -606,7 +612,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Autorisez Signal à utiliser votre liste de contacts locale pour trouver d&apos;autres utilisateurs de Signal.</translation>
+        <translation>Permettre à Signal d&apos;utiliser les contacts de votre téléphone pour trouver d&apos;autres utilisateurs.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/RegisterPage.qml" line="129"/>
@@ -737,7 +743,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="105"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation>Si ceci est désactivé, Whisperfish n&apos;enverra aucune notification</translation>
+        <translation>Si désactivé, Whisperfish n&apos;affichera aucune notification</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="118"/>
@@ -749,7 +755,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="121"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>Si ceci est désactivé, Whisperfish affichera uniquement l&apos;expéditeur d&apos;un message, pas le contenu.</translation>
+        <translation>Si désactivé, Whisperfish affichera uniquement l&apos;expéditeur d&apos;un message, pas le contenu.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="153"/>
@@ -786,7 +792,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Les pièces jointes sont stockées dans %1. Actuellement, ceci étant désactivé, les pièces jointes ne fonctionneront pas.</translation>
+        <translation>Les pièces jointes sont stockées dans %1. Actuellement, si désactivé, les pièces jointes ne fonctionneront pas.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="232"/>
@@ -799,7 +805,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="235"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation>Quand ceci est activé, la touche de retour fonctionne comme une touche d&apos;envoi. Sinon, la touche de retour peut être utilisée pour les messages multilignes.</translation>
+        <translation>Si activé, la touche entrée fonctionne comme une touche d&apos;envoi. Sinon, la touche entrée permet des messages multilignes.</translation>
     </message>
     <message id="whisperfish-settings-startup-shutdown-section">
         <location filename="../qml/pages/Settings.qml" line="256"/>
@@ -818,7 +824,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
-        <translation>Quand ceci est activé, Whisperfish continue de fonctionner en arrière-plan et peut envoyer des notifications après la fermeture de la fenêtre de l&apos;application.</translation>
+        <translation>Si activé, Whisperfish continue de fonctionner en arrière-plan et peut envoyer des notifications après la fermeture de la fenêtre de l&apos;application.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
         <location filename="../qml/pages/Settings.qml" line="280"/>
@@ -836,13 +842,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="137"/>
         <source>If turned on, Whisperfish will suppress all but the first notification from each session.</source>
         <extracomment>Settings page notifications show minimum number of notifications description</extracomment>
-        <translation>Si cette option est activée, Whisperfish supprimera toutes les notifications de chaque session, sauf la première.</translation>
+        <translation>Si activé, Whisperfish n&apos;affichera que la première notification de chaque session et masquera les autres.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="266"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation>Quand ceci est activé, Whisperfish démarre automatiquement après chaque démarrage. Si le chiffrement du stockage est activé ou si le mode d&apos;arrière-plan est désactivé, l&apos;interface utilisateur s&apos;affiche, sinon l&apos;application démarre en arrière-plan.</translation>
+        <translation>Si activé, Whisperfish démarre automatiquement avec le téléphone. Si le chiffrement du stockage est activé ou si le mode d&apos;arrière-plan est désactivé, l&apos;interface utilisateur s&apos;affiche, sinon l&apos;application démarre en arrière-plan.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="300"/>
@@ -879,7 +885,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="344"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
-        <translation>Redimensionner annexes JPEG</translation>
+        <translation>Redimensionner JPEG joint</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments-description">
         <location filename="../qml/pages/Settings.qml" line="347"/>
@@ -901,9 +907,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="379"/>
-        <source>Compress database</source>
-        <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Compact database</source>
+        <oldsource>Compress database</oldsource>
+        <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
+        <translation>Compresser la base de données</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>

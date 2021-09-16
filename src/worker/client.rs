@@ -57,7 +57,7 @@ struct AttachmentDownloaded(i32);
 
 #[derive(Message)]
 #[rtype(result = "usize")]
-pub struct CompressDb(usize);
+pub struct CompactDb(usize);
 
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
@@ -87,6 +87,8 @@ pub struct ClientWorker {
     unlink_device: qt_method!(fn(&self, id: i64)),
     reload_linked_devices: qt_method!(fn(&self)),
     compress_db: qt_method!(fn(&self)),
+
+    refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -232,7 +234,7 @@ impl ClientActor {
             let source_uuid = source_uuid.clone();
             actix::spawn(async move {
                 if let Some(e164) = source_e164.as_ref() {
-                    if let Err(e) = storage.delete_all_sessions(&e164).await {
+                    if let Err(e) = storage.delete_all_sessions(e164).await {
                         log::error!(
                             "End session (e164) requested, but could not end session: {:?}",
                             e
@@ -240,7 +242,7 @@ impl ClientActor {
                     }
                 }
                 if let Some(uuid) = source_uuid.as_ref() {
-                    if let Err(e) = storage.delete_all_sessions(&uuid).await {
+                    if let Err(e) = storage.delete_all_sessions(uuid).await {
                         log::error!(
                             "End session (uuid) requested, but could not end session: {:?}",
                             e
@@ -248,6 +250,14 @@ impl ClientActor {
                     }
                 }
             });
+        }
+
+        if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
+            // XXX Update expiration timer and notify UI
+        }
+
+        if msg.flags() & DataMessageFlags::ProfileKeyUpdate as u32 != 0 {
+            // XXX Update profile key (which happens just below); don't insert this message.
         }
 
         if source_e164.is_some() || source_uuid.is_some() {
@@ -261,20 +271,58 @@ impl ClientActor {
             }
         }
 
+        if msg.flags() & DataMessageFlags::ProfileKeyUpdate as u32 != 0 {
+            log::info!("Message was ProfileKeyUpdate; not inserting.");
+        }
+
         let alt_body = if let Some(reaction) = &msg.reaction {
-            format!(
+            Some(format!(
                 "R@{}:{}",
                 reaction.target_sent_timestamp(),
                 reaction.emoji()
-            )
+            ))
+        } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
+            Some(format!("Expiration timer has been changed ({:?} seconds), but unimplemented in Whisperfish.", msg.expire_timer))
+        } else if let Some(GroupContextV2 {
+            group_change: Some(ref _group_change),
+            ..
+        }) = msg.group_v2
+        {
+            Some(format!(
+                "Group changed by {}",
+                source_e164
+                    .as_deref()
+                    .or_else(|| source_uuid.as_deref())
+                    .unwrap_or("nobody")
+            ))
+        } else if !msg.attachments.is_empty() {
+            log::trace!("Received an attachment without body, replacing with empty text.");
+            Some("".into())
+        } else if msg.sticker.is_some() {
+            log::warn!("Received a sticker, but inserting empty message.");
+            Some("".into())
+        } else if msg.payment.is_some()
+            || msg.delete.is_some()
+            || msg.group_call_update.is_some()
+            || !msg.contact.is_empty()
+        {
+            Some("Unimplemented message type".into())
         } else {
-            "".into()
+            None
+        };
+
+        let body = msg.body.clone().or(alt_body);
+        let text = if let Some(body) = body {
+            body
+        } else {
+            log::debug!("Message without (alt) body, not inserting");
+            return;
         };
 
         let mut new_message = crate::store::NewMessage {
             source_e164,
             source_uuid,
-            text: msg.body.clone().unwrap_or(alt_body),
+            text,
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
             sent: is_sync_sent,
@@ -311,7 +359,7 @@ impl ClientActor {
             )
         } else if let Some(group) = msg.group_v2.as_ref() {
             let mut key_stack = [0u8; zkgroup::GROUP_MASTER_KEY_LEN];
-            key_stack.clone_from_slice(&group.master_key.as_ref().expect("group message with key"));
+            key_stack.clone_from_slice(group.master_key.as_ref().expect("group message with key"));
             let key = GroupMasterKey::new(key_stack);
             let secret = GroupSecretParams::derive_from_master_key(key);
 
@@ -326,7 +374,7 @@ impl ClientActor {
                 ctx.notify(RequestGroupV2Info(store_v2.clone()));
             } else if !storage.group_v2_exists(&store_v2) {
                 log::info!(
-                    "We don't know this group. We'll request it's structure from the serve."
+                    "We don't know this group. We'll request it's structure from the server."
                 );
                 ctx.notify(RequestGroupV2Info(store_v2.clone()));
             }
@@ -663,7 +711,7 @@ impl Handler<FetchAttachment> for ClientActor {
                     "key material for attachments is ought to be 64 bytes"
                 );
                 let mut key = [0u8; 64];
-                key.copy_from_slice(&key_material);
+                key.copy_from_slice(key_material);
 
                 decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
                 if let Some(size) = ptr.size {
@@ -1253,18 +1301,18 @@ impl ClientWorker {
     pub fn compress_db(&self) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
-            if let Err(e) = actor.send(CompressDb(0)).await {
+            if let Err(e) = actor.send(CompactDb(0)).await {
                 log::error!("{:?}", e);
             }
         });
     }
 }
 
-impl Handler<CompressDb> for ClientActor {
+impl Handler<CompactDb> for ClientActor {
     type Result = usize;
 
-    fn handle(&mut self, _: CompressDb, _ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("handle(CompressDb)");
+    fn handle(&mut self, _: CompactDb, _ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(CompactDb)");
         let store = self.storage.clone().unwrap();
         let res = store.compress_db();
         log::trace!("  res = {}", res);

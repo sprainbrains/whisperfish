@@ -48,13 +48,13 @@
         <translation>Nief bericht</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="174"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="176"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>’t Instellen van de Signal-cliënt is mislukt</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="179"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="181"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
@@ -514,7 +514,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Let op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
+        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Past op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -536,7 +536,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Geeft Signal toegank tot uwen telefoonboek voôr andere Signalgebruikers te kunnen vinden.</translation>
+        <translation>Geeft Signal toegank tot uwen telefonboek voôr andere Signalgebruikers te kunnen vinden.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/RegisterPage.qml" line="129"/>
@@ -604,7 +604,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
-        <translation>Vèrder</translation>
+        <translation>Voôrt</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
@@ -637,7 +637,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="33"/>
         <source>Reconnect</source>
         <extracomment>Reconnect menu</extracomment>
-        <translation>Herverbinden</translation>
+        <translation>Herconnecteren</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="49"/>
@@ -686,7 +686,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="105"/>
         <source>If turned off, Whisperfish will not send any notification</source>
         <extracomment>Settings page notifications enable description</extracomment>
-        <translation>As ge dees afzet krijgde geen meldingen ni meêr van Whisperfish</translation>
+        <translation>As ge dees afzet krijgde geên meldingen ni meêr van Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-notifications-show-body">
         <location filename="../qml/pages/Settings.qml" line="118"/>
@@ -698,7 +698,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="121"/>
         <source>If turned off, Whisperfish will only show the sender of a message, not the contents.</source>
         <extracomment>Settings page notifications show message body description</extracomment>
-        <translation>As ge dees afzet toônt Whisperfish in meldingen alleên maar den afzender ni’ den inhoud van ’t bericht.</translation>
+        <translation>As ge dees afzet toônt Whisperfish in meldingen alleên maar den afzender, ni’ den inhoud van ’t bericht.</translation>
     </message>
     <message id="whisperfish-settings-general-section">
         <location filename="../qml/pages/Settings.qml" line="153"/>
@@ -716,7 +716,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="164"/>
         <source>The selected country code determines what happens when a local phone number is entered.</source>
         <extracomment>Settings page country code description</extracomment>
-        <translation>’t Land waarmee da ne lokale gsm-numero moet geassocieerd worden.</translation>
+        <translation>’t Land waarmee da ne lokalen telefonnumero moet geassocieerd worden.</translation>
     </message>
     <message id="whisperfish-settings-country-code-empty">
         <location filename="../qml/pages/Settings.qml" line="168"/>
@@ -850,9 +850,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="379"/>
-        <source>Compress database</source>
-        <extracomment>Settings page &apos;Compress database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
-        <translation type="unfinished"></translation>
+        <source>Compact database</source>
+        <oldsource>Compress database</oldsource>
+        <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
+        <translation>Database comprimeren</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="390"/>
@@ -876,7 +877,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="402"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
-        <translation>Verbinding verbroken</translation>
+        <translation>Connectie verbroken</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
         <location filename="../qml/pages/Settings.qml" line="407"/>
@@ -946,7 +947,7 @@ Settings page share contacts</extracomment>
         <translation>Veiligheidsnumero’s verifiëren</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Lid toevoegen</translation>
@@ -969,52 +970,58 @@ Settings page share contacts</extracomment>
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Ni bijgewèrkt naar ’t nief groepsformaat</translation>
     </message>
-    <message id="whisperfish-group-leave-menu">
+    <message id="whisperfish-group-refresh">
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
+        <source>Refresh group</source>
+        <extracomment>Refresh group menu item</extracomment>
+        <translation>Groep vernieven</translation>
+    </message>
+    <message id="whisperfish-group-leave-menu">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Deze groep verlaten</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="195"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="204"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>G’hed de groep verlaten en alle berichten dervan zijn verwijderd</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="208"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Uitnôdigingslink aanmaken</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Bericht aan %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Toevoegen aan contacten</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="258"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="267"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Veiligheidsnumero verifiëren</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="272"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="281"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Verwijderen uit deze groep</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="307"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Gij</translation>
@@ -1244,7 +1251,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="90"/>
         <source>Your safety number with %1 has changed. Swipe right to verify the new number.</source>
         <extracomment>Service message, %1 is a name</extracomment>
-        <translation>Uwe veiligheidsnumero me %1 is veranderd. Veegt naar rechts voôr de nieve numero te verifiëren.</translation>
+        <translation>Uwe veiligheidsnumero me %1 is veranderd. Vaagt naar rechts voôr de nieve numero te verifiëren.</translation>
     </message>
     <message id="whisperfish-service-message-session-reset-self">
         <location filename="../qml/delegates/ServiceMessageDelegate.qml" line="94"/>
@@ -1379,7 +1386,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ShareDestination.qml" line="34"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inhoud dêlen</translation>
     </message>
 </context>
 </TS>
