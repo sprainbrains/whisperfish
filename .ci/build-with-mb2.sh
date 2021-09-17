@@ -4,7 +4,9 @@ set -e
 
 echo "Building for $SFOS_VERSION"
 
-sudo zypper install -y sqlcipher
+sudo zypper install -y \
+    sqlcipher \
+    zlib-devel \
 
 # For i486, we lie.
 # https://gitlab.com/whisperfish/whisperfish/-/issues/24
