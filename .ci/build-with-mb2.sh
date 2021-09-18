@@ -48,7 +48,7 @@ mb2 build
 
 # Copy everything useful back
 popd
-mkdir RPMS target
+mkdir -p RPMS target
 sudo cp -ar ~/whisperfish-build/RPMS RPMS/
 sudo cp -ar ~/whisperfish-build/target target/
 
