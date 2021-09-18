@@ -5,7 +5,7 @@ set -e
 echo "Building for $SFOS_VERSION"
 
 sudo zypper install -y \
-    sqlcipher \
+    sqlcipher-devel \
     zlib-devel \
 
 # Tooling-side dependencies used in build.rs
