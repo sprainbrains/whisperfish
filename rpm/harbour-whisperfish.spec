@@ -144,13 +144,8 @@ cargo build \
 
 # Shareplugin
 # This should probably use qmake instead
-%ifnarch %ix86
 mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
 cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
-%else
-mkdir -p %{_sourcedir}/../target/shareplugin/
-cd %{_sourcedir}/../target/shareplugin/
-%endif
 cp -ar %{_sourcedir}/../shareplugin/* .
 make %{?_smp_mflags}
 
@@ -209,7 +204,7 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
 # Transfer plugin
 install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/WhisperfishShare.qml
-install -Dm 644 $targetdir/../../shareplugin/libwhisperfishshareplugin.so \
+install -Dm 644 $targetdir/../shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
 %endif
 
