@@ -163,7 +163,7 @@ targetdir=%{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release/
 targetdir=%{_sourcedir}/../target/aarch64-unknown-linux-gnu/release/
 %endif
 %ifarch %ix86
-targetdir=%{_sourcedir}/../target/release/
+targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release/
 %endif
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
