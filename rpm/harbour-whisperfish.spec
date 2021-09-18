@@ -209,7 +209,7 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
 # Transfer plugin
 install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/WhisperfishShare.qml
-install -Dm 644 $targetdir/../shareplugin/libwhisperfishshareplugin.so \
+install -Dm 644 $targetdir/../../shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
 %endif
 
