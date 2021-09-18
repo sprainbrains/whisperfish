@@ -8,6 +8,12 @@ sudo zypper install -y \
     sqlcipher \
     zlib-devel \
 
+# Tooling-side dependencies used in build.rs
+sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
+    zypper install -y \
+        sqlcipher-devel \
+        zlib-devel \
+
 # For i486, we lie.
 # https://gitlab.com/whisperfish/whisperfish/-/issues/24
 
