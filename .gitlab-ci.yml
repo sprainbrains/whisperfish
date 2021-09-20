@@ -2,6 +2,7 @@ variables: &variables
   SFOS_VERSION: 4.1.0.24
   CARGO_HOME: /home/mersdk/cargo
   GIT_FETCH_EXTRA_FLAGS: --tags
+  RUST_BACKTRACE: full
 
 include:
   # Awesome OpenRepos script by @nobodyinperson/Yann Büchau
