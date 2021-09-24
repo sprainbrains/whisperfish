@@ -18,7 +18,6 @@ use std::path::Path;
 use std::process::Command;
 
 use failure::*;
-use vergen::*;
 
 fn qmake_query(var: &str) -> String {
     let qmake = std::env::var("QMAKE").unwrap_or_else(|_| "qmake".to_string());
@@ -226,11 +225,4 @@ fn main() {
 
     #[cfg(feature = "bundled-sqlcipher")]
     build_sqlcipher();
-
-    // vergen
-    let mut cfg = vergen::Config::default();
-    *cfg.git_mut().enabled_mut() = true;
-    *cfg.git_mut().sha_mut() = true;
-    *cfg.git_mut().sha_kind_mut() = vergen::ShaKind::Short;
-    vergen(cfg).expect("vergen setup");
 }

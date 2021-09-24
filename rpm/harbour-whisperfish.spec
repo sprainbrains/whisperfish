@@ -134,11 +134,13 @@ FEATURES="sailfish,harbour"
 %endif
 
 export RUSTFLAGS="-C link-args=-Wl,-lcrypto"
+export RPM_VERSION=%{version}
 
 cargo build \
           -j 1 \
           --verbose \
           --release \
+          --no-default-features \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 
