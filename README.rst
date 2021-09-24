@@ -122,6 +122,10 @@ Make sure you have access to the `sfdk` tool; we will use it for setting up the 
           rust-std-static-aarch64-unknown-linux-gnu \
           rust-std-static-armv7-unknown-linux-gnueabihf \
           rust-std-static-i686-unknown-linux-gnu
+    $ sfdk tools exec SailfishOS-4.1.0.24 \
+        zypper install -y zlib-devel sqlcipher-devel
+    $ sfdk engine exec \
+        sudo zypper install sqlcipher-devel
 
    Then, install the stub compilers (for armv7hl and aarch64)::
 
