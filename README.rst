@@ -108,7 +108,8 @@ Make sure you have access to the `sfdk` tool; we will use it for setting up the 
    Use the SDK Maintenance tool to upgrade if necessary.
 2. On versions before 4.1, you need to set up a patched version of Rust.
 
-   First, enable the repository that contains the patched Rust compiler and cargo tooling::
+   First, enable the repository that contains the patched Rust compiler and cargo tooling.
+   This repository contains `rubdos.key`, which is used to sign the packages, if you want to check.::
 
     $ sfdk tools exec SailfishOS-4.1.0.24 ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
     $ sfdk tools exec SailfishOS-4.1.0.24-armv7hl ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
