@@ -133,7 +133,10 @@ Make sure you have access to the `sfdk` tool; we will use it for setting up the 
 
    on i486 use this instead::
 
-    $ zypper install --from rubdos -y rust cargo rust-std-static-i686-unknown-linux-gnu
+    $ sfdk tools exec SailfishOS-4.1.0.24-i486 \
+        zypper install --from rubdos -y \
+          rust cargo \
+          rust-std-static-i686-unknown-linux-gnu
 
 3. You can now proceed to build as you would with a normal SailfishOS application::
 
