@@ -153,7 +153,6 @@ fn main() {
 
     // This is kinda hacky. Sorry.
     cfg.include(&qt_include_path)
-        .include("/usr/include/sailfishapp/")
         .include(format!("{}/QtCore", qt_include_path))
         // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
         // It is annoying to look at while developing, and we cannot do anything about it
@@ -183,11 +182,11 @@ fn main() {
     }
 
     let sailfish_libs: &[&str] = if cfg!(feature = "sailfish") {
-        &["sailfishapp", "qt5embedwidget"]
+        &["qt5embedwidget"]
     } else {
         &[]
     };
-    let libs = ["EGL", "dbus-1"];
+    let libs = ["dbus-1"];
     for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
