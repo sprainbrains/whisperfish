@@ -67,6 +67,8 @@ BuildRequires:  libnemotransferengine-qt5-devel
 
 %build
 
+# export CARGO_HOME=%{_sourcedir}/../target
+
 rustc --version
 cargo --version
 
@@ -105,7 +107,6 @@ export SB2_RUST_NO_SPAWNVP=Yes
 %ifnarch %ix86
 export HOST_CC=host-cc
 export HOST_CXX=host-cxx
-export CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER=$HOST_CC
 export CC_i686_unknown_linux_gnu=$HOST_CC
 export CXX_i686_unknown_linux_gnu=$HOST_CXX
 %endif
