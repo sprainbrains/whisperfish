@@ -154,12 +154,8 @@ fn main() {
         .flag("-Wno-deprecated-copy")
         .build("src/lib.rs");
 
-    let contains_cpp = [
-        "qmlapp/mod.rs",
-        "qmlapp/tokio_qt.rs",
-        "qmlapp/native.rs",
-        "config/settings.rs",
-    ];
+    // Add lib.rs to the list, because it's the root of the CPP tree
+    let contains_cpp = ["config/settings.rs", "lib.rs"];
     for f in &contains_cpp {
         println!("cargo:rerun-if-changed=src/{}", f);
     }

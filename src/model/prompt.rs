@@ -1,5 +1,6 @@
 use std::future::Future;
 
+use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
 // XXX code duplication.
@@ -27,7 +28,7 @@ pub struct Prompt {
 
 impl Prompt {
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn phoneNumber(&mut self, phone_number: QString) {
         for listener in self.phone_number_listeners.drain(..) {
             if listener.send(phone_number.clone()).is_err() {
@@ -37,7 +38,7 @@ impl Prompt {
     }
 
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn verificationCode(&mut self, code: QString) {
         for listener in self.code_listeners.drain(..) {
             if listener.send(code.clone()).is_err() {
@@ -47,7 +48,7 @@ impl Prompt {
     }
 
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn password(&mut self, password: QString) {
         for listener in self.password_listeners.drain(..) {
             if listener.send(password.clone()).is_err() {
@@ -57,7 +58,7 @@ impl Prompt {
     }
 
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn captcha(&mut self, captcha: QString) {
         for listener in self.captcha_listeners.drain(..) {
             if listener.send(captcha.clone()).is_err() {
@@ -67,7 +68,7 @@ impl Prompt {
     }
 
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn resetPeerIdentity(&self, _confirm: QString) {}
 
     pub fn ask_password(&mut self) -> impl Future<Output = Option<QString>> {

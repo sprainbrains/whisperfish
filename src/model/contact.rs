@@ -3,6 +3,7 @@ use std::str::FromStr;
 use crate::config::Settings;
 
 use phonenumber::Mode;
+use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
 #[derive(QObject, Default)]
@@ -18,7 +19,7 @@ pub struct ContactModel {
 
 impl ContactModel {
     // The default formatter expected by QML
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn format(&self, number: QString) -> QString {
         let settings = Settings::default();
         let country_code = settings.get_string("country_code");

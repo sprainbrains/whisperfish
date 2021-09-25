@@ -1350,6 +1350,7 @@ dependencies = [
  "rpassword",
  "rstest",
  "rstest_reuse",
+ "sailors",
  "scrypt",
  "serde",
  "serde_yaml",
@@ -2276,6 +2277,21 @@ dependencies = [
 [[package]]
 name = "qmeta-async"
 version = "0.1.0"
+source = "git+https://gitlab.com/rubdos/qmeta-async.git#7754c60070459060923a737073bd77d894ce6f6a"
+dependencies = [
+ "anyhow",
+ "futures",
+ "log",
+ "qmeta-async-macros",
+ "qmetaobject",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "qmeta-async-macros"
+version = "0.1.0"
+source = "git+https://gitlab.com/rubdos/qmeta-async.git#7754c60070459060923a737073bd77d894ce6f6a"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2643,6 +2659,19 @@ name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d301d4193d031abdd79ff7e3dd721168a9572ef3fe51a1517aba235bd8f86e"
+
+[[package]]
+name = "sailors"
+version = "0.1.0"
+source = "git+https://gitlab.com/whisperfish/sailo-rs.git#f314dae5a0060e6e3c18209a66ae819fc9f88267"
+dependencies = [
+ "anyhow",
+ "cpp",
+ "cpp_build",
+ "log",
+ "qmetaobject",
+ "thiserror",
+]
 
 [[package]]
 name = "salsa20"

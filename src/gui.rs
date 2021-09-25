@@ -1,6 +1,6 @@
+use std::cell::RefCell;
 #[cfg(feature = "sailfish")]
 use std::rc::Rc;
-use std::{cell::RefCell, task::Waker};
 
 #[cfg(not(feature = "harbour"))]
 use std::{
@@ -11,11 +11,15 @@ use std::{
 
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
-use crate::{actor, config::Settings, model, qmlapp::QmlApp, worker};
+use crate::{actor, config::Settings, model, worker};
+
+#[cfg(feature = "sailfish")]
+use sailors::sailfishapp::QmlApp;
+
+use qmeta_async::with_executor;
+use qmetaobject::prelude::*;
 
 use actix::prelude::*;
-use qmetaobject::prelude::*;
-use tokio::{runtime::Handle, runtime::Runtime, task::LocalSet};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -46,28 +50,28 @@ pub struct AppState {
 
 impl AppState {
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn setActive(&mut self) {
         self.closed = false;
     }
 
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn isClosed(&self) -> bool {
         self.closed
     }
 
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn is_closed(&self) -> bool {
         self.closed
     }
 
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn set_closed(&mut self) {
         self.closed = true;
     }
 
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn activate_hidden_window(&mut self, may_exit: bool) {
         if self.closed {
             self.activate();
@@ -79,13 +83,13 @@ impl AppState {
 
     #[cfg(not(feature = "harbour"))]
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn setMayExit(&mut self, value: bool) {
         self.may_exit = value;
     }
 
     #[cfg(not(feature = "harbour"))]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn systemd_dir() -> PathBuf {
         let sdir = dirs::config_dir()
             .expect("config directory")
@@ -98,7 +102,7 @@ impl AppState {
 
     #[cfg(not(feature = "harbour"))]
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn setAutostartEnabled(&self, enabled: bool) {
         if enabled {
             let _ = symlink(
@@ -112,7 +116,7 @@ impl AppState {
 
     #[cfg(not(feature = "harbour"))]
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn isAutostartEnabled(&self) -> bool {
         Self::systemd_dir()
             .join("harbour-whisperfish.service")
@@ -121,19 +125,19 @@ impl AppState {
 
     #[cfg(feature = "harbour")]
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn isAutostartEnabled(&self) -> bool {
         false
     }
 
     #[allow(non_snake_case)]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn isHarbour(&mut self) -> bool {
         cfg!(feature = "harbour")
     }
 
     #[cfg(feature = "sailfish")]
-    #[qmeta_async::with_executor]
+    #[with_executor]
     fn new() -> Self {
         Self {
             base: Default::default(),
@@ -212,65 +216,8 @@ fn long_version() -> String {
     }
 }
 
-std::thread_local! {
-    static LOCALSET: RefCell<LocalSet> = RefCell::new(tokio::task::LocalSet::new());
-    static RUNTIME: RefCell<Option<Handle>> = RefCell::default();
-    static WAKER: RefCell<Option<Waker>> = RefCell::default();
-}
-
-fn with_runtime<R, F: FnOnce(&Handle) -> R>(f: F) -> R {
-    RUNTIME.with(|rt| {
-        let rt = rt.borrow();
-        f(rt.as_ref().expect("active runtime"))
-    })
-}
-
-pub fn with_executor<R, F: FnOnce() -> R>(f: F) -> R {
-    with_runtime(|rt| {
-        LOCALSET.with(|ls| {
-            let ret = match ls.try_borrow_mut() {
-                Ok(mut ls) => {
-                    let ls = &mut *ls;
-                    rt.block_on(ls.run_until(async move { f() }))
-                }
-                // Reentrant call
-                Err(_borrow_mut_error) => {
-                    log::debug!("Reentrant with_executor");
-                    f()
-                }
-            };
-
-            WAKER.with(|waker| {
-                let w = waker.borrow();
-                if let Some(w) = w.as_ref() {
-                    w.wake_by_ref()
-                }
-            });
-
-            ret
-        })
-    })
-}
-
-// On non-Sailfish targets, this is dead code.
-// The Sailfish-decoupling work (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/185)
-// should fix this.
-#[allow(dead_code)]
-fn init_runtime() -> Runtime {
-    let rt = tokio::runtime::Builder::new_current_thread()
-        .enable_io()
-        .enable_time()
-        .build()
-        .unwrap();
-    let handle = rt.handle();
-    let prev = RUNTIME.with(|rt| rt.borrow_mut().replace(handle.clone()));
-    assert!(prev.is_none(), "Runtime was already initialized.");
-    rt
-}
-
 #[cfg(feature = "sailfish")]
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
-    let runtime = init_runtime();
     let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
         // XXX this arc thing should be removed in the future and refactored
         let config = std::sync::Arc::new(config);
@@ -347,43 +294,5 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
         Ok((app, whisperfish))
     })?;
 
-    qmetaobject::future::execute_async(futures::future::poll_fn(move |cx| {
-        with_runtime(|rt| {
-            let _guard = rt.enter();
-            LOCALSET.with(|ls| {
-                WAKER.with(|waker| {
-                    *waker.borrow_mut() = Some(cx.waker().clone());
-                });
-
-                let mut ls = ls.borrow_mut();
-
-                // If the localset is "ready", the queue is empty.
-                let _rdy = futures::ready!(futures::Future::poll(std::pin::Pin::new(&mut *ls), cx));
-                log::warn!("LocalSet is empty, application will either shut down or lock up.");
-
-                std::task::Poll::Ready(())
-            })
-        })
-    }));
-
-    // Spawn the TOkio I/O loop on a separate thread.
-    // The first thread to call `block_on` drives the I/O loop; the I/O that gets spawned by other
-    // threads gets polled on this "main" thread.
-    let (tx, rx) = futures::channel::oneshot::channel();
-    let driver = std::thread::Builder::new()
-        .name("Tokio I/O driver".to_string())
-        .spawn(move || {
-            runtime.block_on(async move {
-                rx.await.unwrap();
-            });
-        })?;
-
-    with_runtime(|rt| {
-        let _guard = rt.enter();
-        app.exec();
-        tx.send(()).unwrap();
-    });
-    driver.join().unwrap();
-
-    Ok(())
+    qmeta_async::run(|| app.exec())
 }
