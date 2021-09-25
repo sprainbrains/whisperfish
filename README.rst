@@ -151,6 +151,9 @@ Because of a bug in `sb2`, it is currently not possible to (reliably) build usin
 This means your compilation is going to take a while, especially the first time.
 Get yourself some coffee!
 
+If you get errors (command not found or status 126) at linking stage, make sure
+that you are not using `~/.cargo/config` to override linkers or compilers.
+
 -------------------------------------------------------------------------------
 Development environment tips, tricks and hacks
 -------------------------------------------------------------------------------

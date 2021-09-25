@@ -105,15 +105,18 @@ export SB2_RUST_NO_SPAWNVP=Yes
 %ifnarch %ix86
 export HOST_CC=host-cc
 export HOST_CXX=host-cxx
+export CARGO_TARGET_I686_UNKNOWN_LINUX_GNU_LINKER=$HOST_CC
 export CC_i686_unknown_linux_gnu=$HOST_CC
 export CXX_i686_unknown_linux_gnu=$HOST_CXX
 %endif
 
 # Set meego cross compilers
 export PATH=/opt/cross/bin/:$PATH
+export CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER=armv7hl-meego-linux-gnueabi-gcc
 export CC_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-gcc
 export CXX_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-g++
 export AR_armv7_unknown_linux_gnueabihf=armv7hl-meego-linux-gnueabi-ar
+export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-meego-linux-gnu-gcc
 export CC_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-gcc
 export CXX_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-g++
 export AR_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-ar
