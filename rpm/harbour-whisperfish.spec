@@ -230,8 +230,6 @@ systemctl-user disable harbour-whisperfish.service || true
 %defattr(-,root,root,-)
 %{_bindir}/*
 %{_datadir}/%{name}
-%{_datadir}/%{name}/qml/
-%{_datadir}/%{name}/qml/%{name}.qml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/mapplauncherd/privileges.d/%{name}.privileges
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
