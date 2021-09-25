@@ -32,37 +32,6 @@ fn qmake_query(var: &str) -> String {
     .expect("UTF-8 conversion failed")
 }
 
-fn detect_qt_version(qt_include_path: &Path) -> Result<String, Error> {
-    let path = qt_include_path.join("QtCore").join("qconfig.h");
-    let f = std::fs::File::open(&path).unwrap_or_else(|_| panic!("Cannot open `{:?}`", path));
-    let b = BufReader::new(f);
-
-    // append qconfig-64.h or config-32.h, depending on TARGET_POINTER_WIDTH
-    let arch_specific: Box<dyn BufRead> = {
-        let pointer_width = std::env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap();
-        let path = qt_include_path
-            .join("QtCore")
-            .join(format!("qconfig-{}.h", pointer_width));
-        match std::fs::File::open(&path) {
-            Ok(f) => Box::new(BufReader::new(f)),
-            Err(_) => Box::new(std::io::Cursor::new("")),
-        }
-    };
-
-    let regex = regex::Regex::new("#define +QT_VERSION_STR +\"(.*)\"")?;
-
-    for line in b.lines().chain(arch_specific.lines()) {
-        let line = line.expect("qconfig.h is valid UTF-8");
-        if let Some(capture) = regex.captures_iter(&line).next() {
-            return Ok(capture[1].into());
-        }
-        if line.contains("QT_VERION_STR") {
-            bail!("QT_VERSION_STR: {}, not matched by regex", line);
-        }
-    }
-    bail!("Could not detect Qt version");
-}
-
 #[cfg(feature = "bundled-sqlcipher")]
 // static sqlcipher handling. Needed for compatibility with
 // sailfish-components-webview.
@@ -174,9 +143,6 @@ fn main() {
     let qt_include_path = qt_include_path.trim();
 
     let mut cfg = cpp_build::Config::new();
-
-    let qt_version = detect_qt_version(std::path::Path::new(&qt_include_path)).unwrap();
-    cfg.include(format!("{}/QtGui/{}", qt_include_path, qt_version));
 
     // This is kinda hacky. Sorry.
     cfg.include(&qt_include_path)
