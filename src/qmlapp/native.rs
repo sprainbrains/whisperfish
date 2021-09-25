@@ -1,10 +1,7 @@
-use std::future::Future;
 use std::os::raw::*;
 
 use qmetaobject::qttypes::*;
 use qmetaobject::{QObject, QObjectPinned};
-
-use crate::gui::AppState;
 
 /// Qt is not thread safe, and the engine can only be created once and in one thread.
 /// So this is a guard that will be used to panic if the engine is created twice
