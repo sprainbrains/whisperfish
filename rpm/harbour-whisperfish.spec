@@ -123,7 +123,7 @@ export CXX_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-g++
 export AR_aarch64_unknown_linux_gnu=aarch64-meego-linux-gnu-ar
 
 # Hack for qmetaobject on QT_SELECT=5 platforms
-export QMAKE=%{_sourcedir}/../rpm/qmake-sailfish
+# export QMAKE=%{_sourcedir}/../rpm/qmake-sailfish
 
 # Hack for cross linking against dbus
 export PKG_CONFIG_ALLOW_CROSS_i686_unknown_linux_gnu=1
