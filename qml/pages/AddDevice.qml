@@ -37,7 +37,7 @@ Dialog {
             id: urlField
             width: parent.width
             inputMethodHints: Qt.ImhNoPredictiveText
-            validator: RegExpValidator{ regExp: /tsdevice:\/\/?.*/;}
+            validator: RegExpValidator{ regExp: /(tsdevice|sgnl):\/\/?.*/;}
             //: Device URL, text input for pasting the QR-scanned code
             //% "Device URL"
             label: qsTrId("whisperfish-device-url")
