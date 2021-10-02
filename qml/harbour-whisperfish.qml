@@ -99,6 +99,7 @@ ApplicationWindow
         }
 
         m.appIcon = "harbour-whisperfish"
+        m.appName = "Whisperfish"
         m.category = "harbour-whisperfish-message"
         m.previewSummary = name
         m.previewBody = m.body
