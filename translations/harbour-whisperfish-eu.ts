@@ -7,7 +7,7 @@
         <location filename="../qml/cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Berria</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
         <location filename="../qml/delegates/SessionDelegate.qml" line="36"/>
