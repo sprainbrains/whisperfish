@@ -68,7 +68,7 @@ structopt = "0.3.16"
 
 rpassword = "5.0"
 
-sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git" }
+sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", features=["sailfish"] }
 
 [build-dependencies]
 cpp_build = "0.5"
