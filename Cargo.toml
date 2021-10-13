@@ -68,7 +68,7 @@ structopt = "0.3.16"
 
 rpassword = "5.0"
 
-sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", features=["sailfish"] }
+sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", optional = true }
 
 [build-dependencies]
 cpp_build = "0.5"
@@ -110,7 +110,7 @@ opt-level = 0
 [features]
 # This feature requires setting RUSTFLAGS="-C link-args=-Wl,-lcrypto"
 bundled-sqlcipher = []
-sailfish = ["bundled-sqlcipher"]
+sailfish = ["bundled-sqlcipher", "sailors"]
 harbour = ["sailfish"]
 
 [patch."https://github.com/signalapp/zkgroup"]
