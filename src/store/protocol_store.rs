@@ -9,11 +9,6 @@ mod quirk;
 
 use super::*;
 
-pub struct ProtocolStore {
-    pub(crate) identity_key_pair: IdentityKeyPair,
-    pub(crate) regid: u32,
-}
-
 fn convert_io_error(e: io::Error) -> SignalProtocolError {
     // XXX can probably be better, but currently this is only used in session_delete and
     // identity_delete
@@ -26,9 +21,11 @@ fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a
     std::str::from_utf8(addr).expect("address in valid UTF8")
 }
 
+pub struct ProtocolStore;
+
 impl ProtocolStore {
-    pub async fn store_with_key(
-        keys: Option<[u8; 16 + 20]>,
+    pub async fn new(
+        store_enc: Option<&encryption::StorageEncryption>,
         path: &Path,
         regid: u32,
         identity_key_pair: IdentityKeyPair,
@@ -47,43 +44,27 @@ impl ProtocolStore {
         assert_eq!(private.len(), 32);
         identity_key.extend(private);
 
-        write_file(
-            keys,
+        // Encrypt regid if necessary and write to file
+        utils::write_file_async_encrypted(
             identity_path.join("regid"),
             format!("{}", regid).into_bytes(),
+            store_enc,
         )
         .await?;
-        write_file(keys, identity_path.join("identity_key"), identity_key).await?;
 
-        Ok(Self {
-            identity_key_pair,
-            regid,
-        })
+        // Encrypt identity key if necessary and write to file
+        utils::write_file_async_encrypted(
+            identity_path.join("identity_key"),
+            identity_key,
+            store_enc,
+        )
+        .await?;
+
+        Ok(Self)
     }
 
-    pub async fn open_with_key(
-        keys: Option<[u8; 16 + 20]>,
-        path: &Path,
-    ) -> Result<Self, anyhow::Error> {
-        // Identity
-        let identity_path = path.join("storage").join("identity");
-
-        let regid = load_file(keys, identity_path.join("regid")).await?;
-        let regid = String::from_utf8(regid)?;
-        let regid = regid.parse()?;
-        let identity_key_pair = {
-            use std::convert::TryFrom;
-            let mut buf = load_file(keys, identity_path.join("identity_key")).await?;
-            buf.insert(0, quirk::DJB_TYPE);
-            let public = IdentityKey::decode(&buf[0..33])?;
-            let private = PrivateKey::try_from(&buf[33..])?;
-            IdentityKeyPair::new(public, private)
-        };
-
-        Ok(Self {
-            identity_key_pair,
-            regid,
-        })
+    pub async fn open() -> Self {
+        Self
     }
 }
 
@@ -197,13 +178,43 @@ impl protocol::IdentityKeyStore for Storage {
         &self,
         _: Context,
     ) -> Result<IdentityKeyPair, SignalProtocolError> {
-        log::trace!("identity_key_pair");
-        let protocol_store = self.protocol_store.read().await;
-        Ok(protocol_store.identity_key_pair)
+        log::trace!("Reading own identity key pair");
+        let _lock = self.protocol_store.read().await;
+
+        let path = self
+            .path
+            .join("storage")
+            .join("identity")
+            .join("identity_key");
+        let identity_key_pair = {
+            use std::convert::TryFrom;
+            let mut buf = utils::read_file_async_encrypted(path, self.store_enc.as_ref())
+                .await
+                .map_err(|_| SignalProtocolError::InternalError("Cannot read own identity key"))?;
+            buf.insert(0, quirk::DJB_TYPE);
+            let public = IdentityKey::decode(&buf[0..33])?;
+            let private = PrivateKey::try_from(&buf[33..])?;
+            IdentityKeyPair::new(public, private)
+        };
+        Ok(identity_key_pair)
     }
 
     async fn get_local_registration_id(&self, _: Context) -> Result<u32, SignalProtocolError> {
-        Ok(self.protocol_store.read().await.regid)
+        log::trace!("Reading regid");
+        let _lock = self.protocol_store.read().await;
+
+        let path = self.path.join("storage").join("identity").join("regid");
+        let regid = utils::read_file_async_encrypted(path, self.store_enc.as_ref())
+            .await
+            .map_err(|_| SignalProtocolError::InternalError("Cannot read regid"))?;
+        let regid = String::from_utf8(regid).map_err(|_| {
+            SignalProtocolError::InternalError("Convert regid from bytes to string")
+        })?;
+        let regid = regid
+            .parse()
+            .map_err(|_| SignalProtocolError::InternalError("Parse regid from string to number"))?;
+
+        Ok(regid)
     }
 
     async fn is_trusted_identity(
@@ -247,8 +258,7 @@ impl protocol::IdentityKeyStore for Storage {
         // and saving is not necessary
         if !ret {
             // Write key
-            let path = self.identity_path(addr);
-            write_file(self.keys, path, key.serialize().into())
+            self.write_file(self.identity_path(addr), key.serialize())
                 .await
                 .expect("save identity key");
         }
@@ -273,8 +283,7 @@ impl protocol::PreKeyStore for Storage {
         log::trace!("Loading prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let path = self.prekey_path(id);
-        let contents = if let Ok(x) = load_file(self.keys, path).await {
+        let contents = if let Ok(x) = self.read_file(self.prekey_path(id)).await {
             x
         } else {
             return Err(SignalProtocolError::InvalidPreKeyId);
@@ -292,9 +301,8 @@ impl protocol::PreKeyStore for Storage {
         log::trace!("Storing prekey {}", id);
         let _lock = self.protocol_store.write().await;
 
-        let path = self.prekey_path(id);
         let contents = quirk::pre_key_to_0_5(&body.serialize()?).unwrap();
-        write_file(self.keys, path, contents)
+        self.write_file(self.prekey_path(id), contents)
             .await
             .expect("written file");
         Ok(())
@@ -333,7 +341,7 @@ impl protocol::SessionStore for Storage {
         log::trace!("Loading session for {:?} from {:?}", addr, path);
         let _lock = self.protocol_store.read().await;
 
-        let buf = if let Ok(buf) = load_file(self.keys, path).await {
+        let buf = if let Ok(buf) = self.read_file(path).await {
             quirk::session_from_0_5(&buf)?
         } else {
             return Ok(None);
@@ -354,7 +362,7 @@ impl protocol::SessionStore for Storage {
         let _lock = self.protocol_store.write().await;
 
         let quirked = quirk::session_to_0_5(&session.serialize()?)?;
-        write_file(self.keys, path, quirked).await.unwrap();
+        self.write_file(path, quirked).await.unwrap();
         Ok(())
     }
 }
@@ -498,9 +506,7 @@ impl protocol::SignedPreKeyStore for Storage {
         log::trace!("Loading signed prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let path = self.signed_prekey_path(id);
-
-        let contents = if let Ok(x) = load_file(self.keys, path).await {
+        let contents = if let Ok(x) = self.read_file(self.signed_prekey_path(id)).await {
             x
         } else {
             return Err(SignalProtocolError::InvalidSignedPreKeyId);
@@ -519,9 +525,8 @@ impl protocol::SignedPreKeyStore for Storage {
         log::trace!("Storing prekey {}", id);
         let _lock = self.protocol_store.write().await;
 
-        let path = self.signed_prekey_path(id);
         let contents = quirk::signed_pre_key_to_0_5(&body.serialize()?).unwrap();
-        write_file(self.keys, path, contents)
+        self.write_file(self.signed_prekey_path(id), contents)
             .await
             .expect("written file");
         Ok(())
@@ -554,7 +559,7 @@ impl Storage {
     ) -> Result<Option<IdentityKey>, SignalProtocolError> {
         let path = self.identity_path(addr);
         if path.is_file() {
-            let buf = load_file(self.keys, path).await.expect("read identity key");
+            let buf = self.read_file(path).await.expect("read identity key");
             match buf.len() {
                 // Old format
                 32 => Ok(Some(
@@ -664,7 +669,7 @@ mod tests {
         let (storage, _tempdir) = create_example_storage(password).await.unwrap();
 
         // Copy the identity key pair
-        let id_key1 = storage.protocol_store.read().await.identity_key_pair;
+        let id_key1 = storage.get_identity_key_pair(None).await.unwrap();
 
         // Get access to the protocol store
         // XXX IdentityKeyPair does not implement the std::fmt::Debug trait *arg*
@@ -690,7 +695,7 @@ mod tests {
         let (storage, _tempdir) = create_example_storage(password).await.unwrap();
 
         // Copy the regid
-        let regid_1 = storage.protocol_store.read().await.regid;
+        let regid_1 = storage.get_local_registration_id(None).await.unwrap();
 
         // Get access to the protocol store
         assert_eq!(

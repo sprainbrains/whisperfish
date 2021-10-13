@@ -117,8 +117,10 @@ async fn main() -> Result<(), anyhow::Error> {
     libsignal_service::attachment_cipher::decrypt_in_place(key, &mut ciphertext)
         .expect("attachment decryption");
 
-    let attachment_path =
-        crate::store::save_attachment(&dest, &opt.ext, futures::io::Cursor::new(ciphertext)).await;
+    let attachment_path = storage
+        .save_attachment(dest, &opt.ext, &ciphertext)
+        .await
+        .unwrap();
 
     log::info!("Attachment stored at {:?}", attachment_path);
 
