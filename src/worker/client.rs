@@ -720,8 +720,8 @@ impl Handler<FetchAttachment> for ClientActor {
                 }
 
                 let attachment_path =
-                    crate::store::save_attachment(&dest, ext, futures::io::Cursor::new(ciphertext))
-                        .await;
+                    storage.save_attachment(&dest, ext, &ciphertext)
+                        .await?;
 
                 storage.register_attachment(
                     mid,

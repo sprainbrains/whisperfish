@@ -17,11 +17,11 @@ use diesel::debug_query;
 use diesel::prelude::*;
 use itertools::Itertools;
 
-use futures::io::AsyncRead;
-
 use zkgroup::api::groups::GroupSecretParams;
 
+mod encryption;
 mod protocol_store;
+mod utils;
 use protocol_store::ProtocolStore;
 
 pub mod orm;
@@ -141,33 +141,6 @@ impl std::fmt::Debug for GroupV2 {
     }
 }
 
-/// Saves a given attachment into a random-generated path. Returns the path.
-///
-/// This was a Message method in Go
-pub async fn save_attachment(
-    dir: impl AsRef<Path>,
-    ext: &str,
-    mut attachment: impl AsyncRead + Unpin,
-) -> PathBuf {
-    use std::fs::File;
-
-    let fname = Uuid::new_v4().to_simple();
-    let fname_formatted = format!("{}", fname);
-    let fname_path = Path::new(&fname_formatted);
-
-    let mut path = dir.as_ref().join(fname_path);
-    path.set_extension(ext);
-
-    let file = File::create(&path).expect("Could not create file");
-
-    // https://github.com/rust-lang/futures-rs/issues/2105
-    // https://github.com/tokio-rs/tokio/pull/1744
-    let mut file = futures::io::AllowStdIo::new(file);
-    futures::io::copy(&mut attachment, &mut file).await.unwrap();
-
-    path
-}
-
 /// Location of the storage.
 ///
 /// Path is for persistent storage.
@@ -218,7 +191,7 @@ impl<P: AsRef<Path>> std::ops::Deref for StorageLocation<P> {
 }
 
 impl<P: AsRef<Path>> StorageLocation<P> {
-    fn open_db(&self) -> Result<SqliteConnection, anyhow::Error> {
+    pub fn open_db(&self) -> Result<SqliteConnection, anyhow::Error> {
         let database_url = match self {
             StorageLocation::Memory => ":memory:".into(),
             StorageLocation::Path(p) => p
@@ -237,195 +210,10 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 #[derive(Clone)]
 pub struct Storage {
     pub db: Arc<AssertUnwindSafe<ReentrantMutex<SqliteConnection>>>,
-    // aesKey + macKey
-    keys: Option<[u8; 16 + 20]>,
+    store_enc: Option<encryption::StorageEncryption>,
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<Mutex<InMemoryCredentialsCache>>,
     path: PathBuf,
-}
-
-// Cannot borrow password/salt because threadpool requires 'static...
-async fn derive_storage_key(
-    password: String,
-    salt_path: PathBuf,
-) -> Result<[u8; 16 + 20], anyhow::Error> {
-    use actix_threadpool::BlockingError;
-    use std::io::Read;
-
-    actix_threadpool::run(move || -> Result<_, anyhow::Error> {
-        let mut salt_file = std::fs::File::open(salt_path).context("Cannot open salt file")?;
-        let mut salt = [0u8; 8];
-        anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
-
-        let mut key = [0u8; 16 + 20];
-        // Please don't blame me, I'm only the implementer.
-        pbkdf2::pbkdf2::<hmac::Hmac<sha1::Sha1>>(password.as_bytes(), &salt, 1024, &mut key);
-        log::trace!("Computed the key, salt was {:?}", salt);
-
-        Ok(key)
-    })
-    .await
-    .map_err(|e| match e {
-        BlockingError::Canceled => anyhow::anyhow!("Threadpool Canceled"),
-        BlockingError::Error(e) => e,
-    })
-}
-
-// Cannot borrow password/salt because threadpool requires 'static...
-async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], anyhow::Error> {
-    use actix_threadpool::BlockingError;
-    use std::io::Read;
-
-    actix_threadpool::run(move || -> Result<_, anyhow::Error> {
-        let mut salt_file = std::fs::File::open(salt_path)?;
-        let mut salt = [0u8; 8];
-        anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
-
-        let params = scrypt::Params::new(14, 8, 1)?;
-        let mut key = [0u8; 32];
-        scrypt::scrypt(password.as_bytes(), &salt, &params, &mut key)?;
-        log::trace!("Computed the key, salt was {:?}", salt);
-        Ok(key)
-    })
-    .await
-    .map_err(|e| match e {
-        BlockingError::Canceled => anyhow::anyhow!("Threadpool Canceled"),
-        BlockingError::Error(e) => e,
-    })
-}
-
-fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), anyhow::Error> {
-    log::trace!("Writing unencrypted file {:?}", path);
-
-    use std::io::Write;
-    let mut file = std::fs::File::create(&path)?;
-    file.write_all(contents)?;
-
-    Ok(())
-}
-
-fn write_file_sync_encrypted(
-    keys: [u8; 16 + 20],
-    path: PathBuf,
-    contents: &[u8],
-) -> Result<(), anyhow::Error> {
-    log::trace!("Writing encrypted file {:?}", path);
-
-    // Generate random IV
-    use rand::RngCore;
-    let mut iv = [0u8; 16];
-    rand::thread_rng().fill_bytes(&mut iv);
-
-    // Encrypt
-    use aes::Aes128;
-    use block_modes::block_padding::Pkcs7;
-    use block_modes::{BlockMode, Cbc};
-    let ciphertext = {
-        let cipher = Cbc::<Aes128, Pkcs7>::new_from_slices(&keys[0..16], &iv)
-            .context("CBC initialization error")?;
-        cipher.encrypt_vec(contents)
-    };
-
-    let mac = {
-        use hmac::{Hmac, Mac, NewMac};
-        use sha2::Sha256;
-        // Verify HMAC SHA256, 32 last bytes
-        let mut mac = Hmac::<Sha256>::new_from_slice(&keys[16..])
-            .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
-        mac.update(&iv);
-        mac.update(&ciphertext);
-        mac.finalize().into_bytes()
-    };
-
-    // Write iv, ciphertext, mac
-    use std::io::Write;
-    let mut file = std::fs::File::create(&path)?;
-    file.write_all(&iv)?;
-    file.write_all(&ciphertext)?;
-    file.write_all(&mac)?;
-
-    Ok(())
-}
-
-fn write_file_sync(
-    keys: Option<[u8; 16 + 20]>,
-    path: PathBuf,
-    contents: &[u8],
-) -> Result<(), anyhow::Error> {
-    match keys {
-        Some(keys) => write_file_sync_encrypted(keys, path, contents),
-        None => write_file_sync_unencrypted(path, contents),
-    }
-}
-
-async fn write_file(
-    keys: Option<[u8; 16 + 20]>,
-    path: PathBuf,
-    contents: Vec<u8>,
-) -> Result<(), anyhow::Error> {
-    actix_threadpool::run(move || write_file_sync(keys, path, &contents)).await?;
-    Ok(())
-}
-
-fn load_file_sync_unencrypted(path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
-    log::trace!("Opening unencrypted file {:?}", path);
-    let contents = std::fs::read(&path)?;
-    let count = contents.len();
-    log::trace!("Read {:?}, {} bytes", path, count);
-    Ok(contents)
-}
-
-fn load_file_sync_encrypted(keys: [u8; 16 + 20], path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
-    // XXX This is *full* of bad practices.
-    // Let's try to migrate to nacl or something alike in the future.
-
-    log::trace!("Opening encrypted file {:?}", path);
-    let mut contents = std::fs::read(&path)?;
-    let count = contents.len();
-
-    log::trace!("Read {:?}, {} bytes", path, count);
-    anyhow::ensure!(count >= 16 + 32, "File smaller than cryptographic overhead");
-
-    let (iv, contents) = contents.split_at_mut(16);
-    let count = count - 16;
-    let (contents, mac) = contents.split_at_mut(count - 32);
-
-    {
-        use hmac::{Hmac, Mac, NewMac};
-        use sha2::Sha256;
-        // Verify HMAC SHA256, 32 last bytes
-        let mut verifier = Hmac::<Sha256>::new_from_slice(&keys[16..])
-            .map_err(|_| anyhow::anyhow!("MAC keylength error"))?;
-        verifier.update(iv);
-        verifier.update(contents);
-        verifier
-            .verify(mac)
-            .map_err(|_| anyhow::anyhow!("MAC error"))?;
-    }
-
-    use aes::Aes128;
-    use block_modes::block_padding::Pkcs7;
-    use block_modes::{BlockMode, Cbc};
-    // Decrypt password
-    let cipher = Cbc::<Aes128, Pkcs7>::new_from_slices(&keys[0..16], iv)
-        .context("CBC initialization error")?;
-    Ok(cipher
-        .decrypt(contents)
-        .context("AES CBC decryption error")?
-        .to_owned())
-}
-
-fn load_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
-    match keys {
-        Some(keys) => load_file_sync_encrypted(keys, path),
-        None => load_file_sync_unencrypted(path),
-    }
-}
-
-async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
-    let contents = actix_threadpool::run(move || load_file_sync(keys, path)).await?;
-
-    Ok(contents)
 }
 
 /// Fetches an `orm::Session`, for which the supplied closure can impose constraints.
@@ -521,10 +309,10 @@ impl Storage {
         log::info!("Creating directory structure");
         Self::scaffold_directories(path)?;
 
-        // 1. Generate both salts if needed
-        let storage_salt_path = path.join("storage").join("salt");
-        if password != None {
+        // 1. Generate both salts if needed and create a storage encryption object if necessary
+        let store_enc = if let Some(password) = password {
             let db_salt_path = path.join("db").join("salt");
+            let storage_salt_path = path.join("storage").join("salt");
 
             use rand::RngCore;
             log::info!("Generating salts");
@@ -534,42 +322,44 @@ impl Storage {
             rng.fill_bytes(&mut db_salt);
             rng.fill_bytes(&mut storage_salt);
 
-            std::fs::write(&db_salt_path, db_salt)?;
-            std::fs::write(&storage_salt_path, storage_salt)?;
-        }
+            utils::write_file_async(db_salt_path, &db_salt).await?;
+            utils::write_file_async(storage_salt_path, &storage_salt).await?;
 
-        // 2. Open DB
-        let db = Self::open_db(db_path, path, password).await?;
-
-        // 3. initialize protocol store
-        let keys = match password {
-            None => None,
-            Some(pass) => Some(derive_storage_key(pass.to_string(), storage_salt_path).await?),
+            Some(
+                encryption::StorageEncryption::new(password.to_string(), storage_salt, db_salt)
+                    .await?,
+            )
+        } else {
+            None
         };
 
+        // 2. Open DB
+        let db = Self::open_db(db_path, store_enc.as_ref().map(|x| x.get_database_key())).await?;
+
+        // 3. initialize protocol store
         let identity_key_pair = protocol::IdentityKeyPair::generate(&mut rand::thread_rng());
 
         let protocol_store =
-            ProtocolStore::store_with_key(keys, path, regid, identity_key_pair).await?;
+            ProtocolStore::new(store_enc.as_ref(), path, regid, identity_key_pair).await?;
 
         // 4. save http password and signaling key
         let identity_path = path.join("storage").join("identity");
-        write_file(
-            keys,
+        utils::write_file_async_encrypted(
             identity_path.join("http_password"),
-            http_password.as_bytes().into(),
+            http_password.as_bytes(),
+            store_enc.as_ref(),
         )
         .await?;
-        write_file(
-            keys,
+        utils::write_file_async_encrypted(
             identity_path.join("http_signaling_key"),
-            signaling_key.to_vec(),
+            signaling_key,
+            store_enc.as_ref(),
         )
         .await?;
 
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
-            keys,
+            store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
             path: path.to_path_buf(),
@@ -582,21 +372,26 @@ impl Storage {
     ) -> Result<Storage, anyhow::Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
 
-        let db = Self::open_db(db_path, path, password.as_deref()).await?;
+        let store_enc = if let Some(password) = password {
+            // Get storage and db salt
+            let storage_salt = utils::read_salt_file(path.join("storage").join("salt")).await?;
+            let db_salt = utils::read_salt_file(path.join("db").join("salt")).await?;
 
-        let keys = match password {
-            None => None,
-            Some(pass) => {
-                let salt_path = path.join("storage").join("salt");
-                Some(derive_storage_key(pass, salt_path).await?)
-            }
+            Some(
+                encryption::StorageEncryption::new(password.to_string(), storage_salt, db_salt)
+                    .await?,
+            )
+        } else {
+            None
         };
 
-        let protocol_store = ProtocolStore::open_with_key(keys, path).await?;
+        let db = Self::open_db(db_path, store_enc.as_ref().map(|x| x.get_database_key())).await?;
+
+        let protocol_store = ProtocolStore::open().await;
 
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
-            keys,
+            store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
             path: path.to_path_buf(),
@@ -605,22 +400,15 @@ impl Storage {
 
     async fn open_db<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
-        path: &Path,
-        password: Option<&str>,
+        password: Option<&[u8]>,
     ) -> Result<SqliteConnection, anyhow::Error> {
         log::info!("Opening DB");
         let db = db_path.open_db()?;
 
-        if password != None {
+        if let Some(password) = password {
             log::info!("Setting DB encryption");
 
-            let db_salt_path = path.join("db").join("salt");
-            let db_key = derive_db_key(password.unwrap().to_string(), db_salt_path);
-
-            db.execute(&format!(
-                "PRAGMA key = \"x'{}'\";",
-                hex::encode(db_key.await?)
-            ))?;
+            db.execute(&format!("PRAGMA hexkey = \"{}\";", hex::encode(password)))?;
             db.execute("PRAGMA cipher_page_size = 4096;")?;
         }
 
@@ -653,8 +441,9 @@ impl Storage {
     /// Asynchronously loads the signal HTTP password from storage and decrypts it.
     pub async fn signal_password(&self) -> Result<String, anyhow::Error> {
         let contents = self
-            .load_file(
-                self.path
+            .read_file(
+                &self
+                    .path
                     .join("storage")
                     .join("identity")
                     .join("http_password"),
@@ -666,8 +455,9 @@ impl Storage {
     /// Asynchronously loads the base64 encoded signaling key.
     pub async fn signaling_key(&self) -> Result<[u8; 52], anyhow::Error> {
         let v = self
-            .load_file(
-                self.path
+            .read_file(
+                &self
+                    .path
                     .join("storage")
                     .join("identity")
                     .join("http_signaling_key"),
@@ -679,8 +469,16 @@ impl Storage {
         Ok(out)
     }
 
-    async fn load_file(&self, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
-        load_file(self.keys, path).await
+    async fn read_file(&self, path: impl AsRef<std::path::Path>) -> Result<Vec<u8>, anyhow::Error> {
+        utils::read_file_async_encrypted(path, self.store_enc.as_ref()).await
+    }
+
+    async fn write_file(
+        &self,
+        path: impl AsRef<std::path::Path>,
+        content: impl Into<Vec<u8>>,
+    ) -> Result<(), anyhow::Error> {
+        utils::write_file_async_encrypted(path, content, self.store_enc.as_ref()).await
     }
 
     /// Process message and store in database and update or create a session.
@@ -1964,6 +1762,32 @@ impl Storage {
     pub fn credential_cache(&self) -> std::sync::MutexGuard<InMemoryCredentialsCache> {
         self.credential_cache.lock().expect("mutex")
     }
+
+    /// Saves a given attachment into a random-generated path. Returns the path.
+    pub async fn save_attachment(
+        &self,
+        dest: &Path,
+        ext: &str,
+        attachment: &[u8],
+    ) -> Result<PathBuf, anyhow::Error> {
+        let fname = Uuid::new_v4().to_simple();
+        let fname_formatted = format!("{}", fname);
+        let fname_path = Path::new(&fname_formatted);
+
+        let mut path = dest.join(fname_path);
+        path.set_extension(ext);
+
+        utils::write_file_async(&path, attachment)
+            .await
+            .with_context(|| {
+                format!(
+                    "Could not create and write to attachment file: {}",
+                    path.display()
+                )
+            })?;
+
+        Ok(path)
+    }
 }
 
 #[cfg(test)]
@@ -1974,16 +1798,43 @@ mod tests {
     #[rstest(ext, case("mp4"), case("jpg"), case("jpg"), case("png"), case("txt"))]
     #[actix_rt::test]
     async fn test_save_attachment(ext: &str) {
-        use std::env;
-        use std::fs;
-        use std::path::Path;
+        use rand::distributions::Alphanumeric;
+        use rand::{Rng, RngCore};
 
-        let dirname = env::temp_dir().to_str().expect("Temp dir fail").to_string();
-        let dir = Path::new(&dirname);
-        let mut contents = futures::io::Cursor::new([0u8]);
-        let fname = save_attachment(dir, ext, &mut contents).await;
+        env_logger::try_init().ok();
 
-        let exists = Path::new(&fname).exists();
+        let location = super::temp();
+        let rng = rand::thread_rng();
+
+        // Signaling password for REST API
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+
+        // Signaling key that decrypts the incoming Signal messages
+        let mut rng = rand::thread_rng();
+        let mut signaling_key = [0u8; 52];
+        rng.fill_bytes(&mut signaling_key);
+        let signaling_key = signaling_key;
+
+        // Registration ID
+        let regid = 12345;
+
+        let storage = Storage::new(&location, None, regid, &password, signaling_key)
+            .await
+            .unwrap();
+
+        // Create content for attachment and write to file
+        let content = [1u8; 10];
+        let fname = storage
+            .save_attachment(
+                &storage.path().join("storage").join("attachments"),
+                ext,
+                &content,
+            )
+            .await
+            .unwrap();
+
+        // Check existence of attachment
+        let exists = std::path::Path::new(&fname).exists();
 
         println!("Looking for {}", fname.to_str().unwrap());
         assert!(exists);
@@ -1994,27 +1845,6 @@ mod tests {
             "{}",
             format!("{} <> {}", fname.to_str().unwrap(), ext)
         );
-
-        fs::remove_file(fname).expect("Could not remove test case file");
-    }
-
-    #[test]
-    fn encrypt_and_decrypt_file() -> Result<(), anyhow::Error> {
-        let contents = "The funny horse jumped over a river.";
-
-        // Key full of ones.
-        let key = [1u8; 16 + 20];
-        let dir = temp();
-
-        write_file_sync_encrypted(
-            key,
-            dir.join("encrypt-and-decrypt.temp"),
-            contents.as_bytes(),
-        )?;
-        let res = load_file_sync_encrypted(key, dir.join("encrypt-and-decrypt.temp"))?;
-        assert_eq!(std::str::from_utf8(&res).expect("utf8"), contents);
-
-        Ok(())
     }
 
     #[rstest(
