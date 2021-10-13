@@ -87,6 +87,9 @@ build:sailfishos:aarch64:
 
 .rust-nightly: &rust-nightly
   <<: *rust
+  variables:
+    QT_SELECT: 5
+    <<: *variables
   image: rustlang/rust:nightly
   allow_failure: true
   cache:
