@@ -218,81 +218,84 @@ fn long_version() -> String {
 
 #[cfg(feature = "sailfish")]
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
-    let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
-        // XXX this arc thing should be removed in the future and refactored
-        let config = std::sync::Arc::new(config);
+    qmeta_async::run(|| {
+        let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
+            // XXX this arc thing should be removed in the future and refactored
+            let config = std::sync::Arc::new(config);
 
-        let mut app = QmlApp::application("harbour-whisperfish".into());
-        let long_version: QString = long_version().into();
-        log::info!("QmlApp::application loaded - version {}", long_version);
-        let version: QString = env!("CARGO_PKG_VERSION").into();
-        app.set_title("Whisperfish".into());
-        app.set_application_version(version.clone());
-        app.install_default_translator().unwrap();
+            let mut app = QmlApp::application("harbour-whisperfish".into());
+            let long_version: QString = long_version().into();
+            log::info!("QmlApp::application loaded - version {}", long_version);
+            let version: QString = env!("CARGO_PKG_VERSION").into();
+            app.set_title("Whisperfish".into());
+            app.set_application_version(version.clone());
+            app.install_default_translator().unwrap();
 
-        // XXX Spaghetti
-        let session_actor = actor::SessionActor::new(&mut app).start();
-        let client_actor = worker::ClientActor::new(
-            &mut app,
-            session_actor.clone(),
-            std::sync::Arc::clone(&config),
-        )?
-        .start();
-        let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
+            // XXX Spaghetti
+            let session_actor = actor::SessionActor::new(&mut app).start();
+            let client_actor = worker::ClientActor::new(
+                &mut app,
+                session_actor.clone(),
+                std::sync::Arc::clone(&config),
+            )?
+            .start();
+            let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
-        let whisperfish = Rc::new(WhisperfishApp {
-            app_state: QObjectBox::new(AppState::new()),
-            session_actor,
-            message_actor,
-            client_actor,
-            contact_model: QObjectBox::new(model::ContactModel::default()),
-            prompt: QObjectBox::new(model::Prompt::default()),
-            file_picker: QObjectBox::new(model::FilePicker::default()),
+            let whisperfish = Rc::new(WhisperfishApp {
+                app_state: QObjectBox::new(AppState::new()),
+                session_actor,
+                message_actor,
+                client_actor,
+                contact_model: QObjectBox::new(model::ContactModel::default()),
+                prompt: QObjectBox::new(model::Prompt::default()),
+                file_picker: QObjectBox::new(model::FilePicker::default()),
 
-            setup_worker: QObjectBox::new(worker::SetupWorker::default()),
+                setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
-            settings: QObjectBox::new(Settings::default()),
+                settings: QObjectBox::new(Settings::default()),
 
-            storage: RefCell::new(None),
-        });
+                storage: RefCell::new(None),
+            });
 
-        app.set_property("AppVersion".into(), version.into());
-        app.set_property("LongAppVersion".into(), long_version.into());
-        let ci_job_url: Option<QString> = option_env!("CI_JOB_URL").map(Into::into);
-        let ci_job_url = ci_job_url.map(Into::into).unwrap_or(false.into());
-        app.set_property("CiJobUrl".into(), ci_job_url);
+            app.set_property("AppVersion".into(), version.into());
+            app.set_property("LongAppVersion".into(), long_version.into());
+            let ci_job_url: Option<QString> = option_env!("CI_JOB_URL").map(Into::into);
+            let ci_job_url = ci_job_url.map(Into::into).unwrap_or(false.into());
+            app.set_property("CiJobUrl".into(), ci_job_url);
 
-        app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
-        app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
-        app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
-        app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
-        app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
-        app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
+            app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
+            app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
+            app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
+            app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
+            app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
+            app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
 
-        app.set_source(QmlApp::path_to("qml/harbour-whisperfish.qml".into()));
+            app.set_source(QmlApp::path_to("qml/harbour-whisperfish.qml".into()));
 
-        if config.autostart
-            && !whisperfish
-                .settings
-                .pinned()
-                .borrow()
-                .get_bool("quit_on_ui_close")
-            && cfg!(not(feature = "harbour"))
-        {
-            // keep the ui closed until needed on auto-start
-            whisperfish.app_state.pinned().borrow_mut().may_exit = false;
-            whisperfish.app_state.pinned().borrow_mut().set_closed();
-        } else {
-            app.show_full_screen();
-        }
+            if config.autostart
+                && !whisperfish
+                    .settings
+                    .pinned()
+                    .borrow()
+                    .get_bool("quit_on_ui_close")
+                && cfg!(not(feature = "harbour"))
+            {
+                // keep the ui closed until needed on auto-start
+                whisperfish.app_state.pinned().borrow_mut().may_exit = false;
+                whisperfish.app_state.pinned().borrow_mut().set_closed();
+            } else {
+                app.show_full_screen();
+            }
 
-        actix::spawn(worker::SetupWorker::run(
-            whisperfish.clone(),
-            std::sync::Arc::clone(&config),
-        ));
+            actix::spawn(worker::SetupWorker::run(
+                whisperfish.clone(),
+                std::sync::Arc::clone(&config),
+            ));
 
-        Ok((app, whisperfish))
-    })?;
+            Ok((app, whisperfish))
+        })
+        .expect("setup application");
 
-    qmeta_async::run(|| app.exec())
+        app.exec()
+    })
 }
