@@ -49,12 +49,13 @@ mb2 build
 # Copy everything useful back
 popd
 mkdir -p RPMS target
-sudo cp -ar ~/whisperfish-build/RPMS RPMS/
-sudo cp -ar ~/whisperfish-build/target target/
+sudo cp -ar ~/whisperfish-build/RPMS/* RPMS/
+sudo cp -ar ~/whisperfish-build/target/* target/
 
 # Only upload on tags or master
 if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
     RPM_PATH=(RPMS/*.rpm)
+    echo Found rpms: $RPM_PATH
     RPM_PATH="${RPM_PATH[0]}"
     RPM=$(basename $RPM_PATH)
 
