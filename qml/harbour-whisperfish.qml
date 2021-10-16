@@ -98,6 +98,8 @@ ApplicationWindow
             m.itemCount = first_message.itemCount + 1
         }
 
+        m.appIcon = "harbour-whisperfish"
+        m.appName = "Whisperfish"
         m.category = "harbour-whisperfish-message"
         m.previewSummary = name
         m.previewBody = m.body
@@ -116,7 +118,9 @@ ApplicationWindow
         m.remoteActions = [ {
             "name": "default",
             "displayName": "Show Conversation",
-            "icon": "harbour-whisperfish",
+            // Doesn't work as-is.
+            // TODO: Drop in Avatar image here.
+            // "icon": "harbour-whisperfish",
             "service": "org.whisperfish.session",
             "path": "/message",
             "iface": "org.whisperfish.session",
