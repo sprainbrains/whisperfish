@@ -93,176 +93,66 @@ See here for more information.
 Building from source
 -------------------------------------------------------------------------------
 
-Whisperfish is built using tooling of the *host* operating system.
-Currently tested are Ubuntu, Debian and Arch Linux for this purpose.
-Fedora, notably, does *not* have the necessary infrastructure for this.
-By Whisperfish 1.0.0, we want to use the real SailfishOS SDK, since it offers Rust since version 3.4.
+Whisperfish is written in Rust, and Rust is a bit of a special guest for SailfishOS.
+Luckily, since SailfishOS 3.4, Jolla provides a Rust compiler that runs more or less decently.
+Their compiler still has a few issues (which are being discussed and solved),
+and in the meanwhile you need a patched version.  This should be resolved by the time
+SailfishOS 4.3 tooling and targets are around.
+Jolla's Rust compiler works as a cross-compiler, unlike the C and C++ compilers,
+which are emulated. This means a bit of preparation is necessary in the *tooling*
+as well as in the target.
 
-The instructions below assume a fresh Ubuntu 20.04 64-bit installation.
+Make sure you have access to the `sfdk` tool; we will use it for setting up the environment.
 
-1. Clone the repository::
+1. Make sure you have a tooling and target later than 4.1.0.24.
+   Use the SDK Maintenance tool to upgrade if necessary.
+2. On versions before 4.1, you need to set up a patched version of Rust.
 
-    $ sudo apt install git
-    $ git clone https://gitlab.com/whisperfish/whisperfish
+   First, enable the repository that contains the patched Rust compiler and cargo tooling.
+   This repository contains `rubdos.key`, which is used to sign the packages, if you want to check.::
 
-2. Install Rust::
+    $ sfdk tools exec SailfishOS-4.1.0.24 ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+    $ sfdk tools exec SailfishOS-4.1.0.24-armv7hl ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
 
-   Ubuntu provides only Rust 1.47, so we'll have to use `rustup.rs <https://rustup.rs>`_ instead or ``apt``::
+   Then, install the tooling::
 
-    $ sudo apt install curl
-    $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    $ sfdk tools exec SailfishOS-4.1.0.24 \
+        zypper update -y --allow-vendor-change \
+          rust cargo \
+          rust-std-static-aarch64-unknown-linux-gnu \
+          rust-std-static-armv7-unknown-linux-gnueabihf \
+          rust-std-static-i686-unknown-linux-gnu
+    $ sfdk tools exec SailfishOS-4.1.0.24 \
+        zypper install -y zlib-devel sqlcipher-devel
+    $ sfdk engine exec \
+        sudo zypper install sqlcipher-devel
 
-   Make sure to have a Rust version above 1.48::
+   Then, install the stub compilers (for armv7hl and aarch64)::
 
-    $ rustc --version
-    rustc 1.54.0 # Newer than 1.48, we're good!
+    $ sfdk tools exec SailfishOS-4.1.0.24-armv7hl \
+        zypper install --repo rubdos -y \
+          rust cargo \
+          rust-std-static \
+          rust-std-static-i686-unknown-linux-gnu
 
-   If ``rustc`` isn't found, try closing and opening the shell again or running ``source ~/.cargo/env``.
+   on i486 use this instead::
 
-   Update Rust and install architectures of your choice::
+    $ sfdk tools exec SailfishOS-4.1.0.24-i486 \
+        zypper install --from rubdos -y \
+          rust cargo \
+          rust-std-static-i686-unknown-linux-gnu
 
-    $ rustup update
-    $ rustup target add armv7-unknown-linux-gnueabihf # for armv7hl
-    $ rustup target add aarch64-unknown-linux-gnu     # for aarch64
-    $ rustup target add i686-unknown-linux-gnu        # for i486
+3. You can now proceed to build as you would with a normal SailfishOS application::
 
-3. Install cargo-rpm::
+    $ sfdk config --push target SailfishOS-4.1.0.24-armv7hl
+    $ sfdk build
 
-    $ sudo apt install build-essential
-    $ cargo install cargo-rpm
-    $ cargo-rpm
-    cargo-rpm 0.8.0 # Not new enough!
+Because of a bug in `sb2`, it is currently not possible to (reliably) build using more than a single thread.
+This means your compilation is going to take a while, especially the first time.
+Get yourself some coffee!
 
-   Cargo-rpm has to be above 0.8.0 to `better handle long paths <https://github.com/iqlusioninc/cargo-rpm/issues/86>`_. If necessary, compile it from source::
-
-    $ cargo install --git https://github.com/iqlusioninc/cargo-rpm cargo-rpm
-
-    Note that the version may still be 0.8.0 if there hasn't been a new release.
-
-4. Install the `Sailfish Platform SDK <https://sailfishos.org/wiki/Platform_SDK>`_::
-
-   Whisperfish is built on the host, outside of the classic ``sb2`` and ``mb2`` environments.
-   Refer to the `Platform SDK Installation <https://sailfishos.org/wiki/Platform_SDK_Installation>`_ page for installation instructions.
-   After that, `install the tooling and the targets <https://sailfishos.org/wiki/Platform_SDK_Target_Installation>`_ of your choice::
-
-    $ sfossdk
-    PlatformSDK $ sdk-assistant create SailfishOS-latest \
-                  https://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Tooling-i486.tar.7z
-    PlatformSDK $ sdk-assistant create SailfishOS-latest-armv7hl \
-                  https://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-armv7hl.tar.7z
-    PlatformSDK $ sdk-assistant create SailfishOS-latest-aarch64 \
-                  https://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-aarch64.tar.7z
-    PlatformSDK $ sdk-assistant create SailfishOS-latest-i486 \
-                  https://releases.sailfishos.org/sdk/targets/Sailfish_OS-latest-Sailfish_SDK_Target-i486.tar.7z
-
-   Still in the SDK chroot use ``sdk-manage`` to install the Sqlite-sqlcipher build dependency,
-   together with some other headers, for each target of your choice::
-
-    PlatformSDK $ sdk-manage develpkg install SailfishOS-latest-armv7hl \
-                   sailfish-components-webview-qt5 qt5-qtwebsockets-devel openssl-devel \
-                   dbus-devel libnemotransferengine-qt5-devel qtmozembed-qt5-devel
-    PlatformSDK $ sdk-manage develpkg install SailfishOS-latest-aarch64 \
-                   sailfish-components-webview-qt5 qt5-qtwebsockets-devel openssl-devel \
-                   dbus-devel libnemotransferengine-qt5-devel qtmozembed-qt5-devel
-    PlatformSDK $ sdk-manage develpkg install SailfishOS-latest-i486 \
-                   sailfish-components-webview-qt5 qt5-qtwebsockets-devel openssl-devel \
-                   dbus-devel libnemotransferengine-qt5-devel qtmozembed-qt5-devel
-   
-   Leave Platform SDK by typing `exit` or pressing Ctrl-D.
-
-   Make sure `PLATFORM_SDK_ROOT` is set correctly:
-
-    $ echo $PLATFORM_SDK_ROOT
-    /srv/mer
-
-5. Install the environment file::
-
-    $ cp dotenv.example .env
-
-   Review `.env` file and adapt it to your configuration and target architecture.
-   Make sure `MERSDK` matches `PLATFORM_SDK_ROOT` above.
-
-   Note you can make the ``run.sh`` script log to a file by following the example instructions,
-   with the warning that some of the logged information is sensitive.
-
-6. Install and configure cross compilers
-
-   For building on the host, ie. running ``cargo test`` or whatever you may desire, the Ubuntu / Debian
-   requirements are in ``Dockerfile.builder``, reproduced here (with some additions)::
-
-    $ sudo apt-get install -y build-essential libsqlcipher-dev \
-            qtbase5-dev qtbase5-private-dev qtdeclarative5-dev \
-            qt5-qmake qttools5-dev-tools qtchooser qt5-default \
-            desktop-file-utils rpm cmake protobuf-compiler tcl curl jq
-
-   Install the cross compilers of your choice. On different systems, you may have to use a different cross compiler::
-
-    $ sudo apt install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf binutils-arm-linux-gnueabihf # for armv7hl
-    $ sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu       # for aarch64
-    $ sudo apt install gcc-i686-linux-gnu g++-i686-linux-gnu binutils-i686-linux-gnu \
-                       libc6-dev:i386 libstdc++-9-dev:i386 lib32gcc-9-dev lib32stdc++-9-dev         # for i486
-
-   Next, configure Cargo. For global config::
-
-    $ cp .ci/cargo.toml ~/.cargo/config
-
-   For current user only::
-
-    $ mkdir .cargo
-    $ cp .ci/cargo.toml .cargo/config
-    
-   Edit the copied file as necessary for your host operating systems cross compilers.
-
-7. Selecting compilation target
-
-   In order to change compilation target, make the following changes.
-
-   .env::
-
-    export MER_ARCH=armv7hl
-    #export MER_ARCH=aarch64
-    #export MER_ARCH=i486
-    
-    export TARGET_ARCH=armv7-unknown-linux-gnueabihf
-    #export TARGET_ARCH=aarch64-unknown-linux-gnu
-    #export TARGET_ARCH=i686-unknown-linux-gnu
-
-   Cargo.toml::
-
-    target_architecture = "armv7hl"
-    #target_architecture = "aarch64"
-    #target_architecture = "i486"
-
-    target = "armv7-unknown-linux-gnueabihf"
-    #target = "aarch64-unknown-linux-gnu"
-    #target = "i686-unknown-linux-gnu"
-
-8. From here on, you can use cargo to build the project;
-   make sure to have the correct targets installed (rustup target) and a C compiler set,
-   and to have sourced ``.env``::
-
-    $ source .env
-    $ cargo build --release --target=armv7-unknown-linux-gnueabihf
-
-   Alternatively, you may use the ``run.sh`` script, which copies the RPM to your device.
-   
-   If you run into linker issues, try closing and re-opening the terminal,
-   and don't source ``.env`` if you use ``run.sh``.
-
-   The ``harbour-whisperfish`` executable resides in ``target/[target]/release``.
-   You can also use ``cargo rpm`` to build an RPM package,
-   note that you need ``rpmtools`` installed on the host system. Note that version 0.8.0 **does not work here** and you must manually build `cargo-rpm <https://github.com/iqlusioninc/cargo-rpm>`_ from master instead.
-   Once you built and setup cargo-rpm you can run::
-
-    $ cargo rpm build
-
-   The generated RPM can be found in ``target/[target]/release/rpmbuild/RPMS/armv7hl/``.
-
--------------------------------------------------------------------------------
-Testing on the device
--------------------------------------------------------------------------------
-
-The ``run.sh`` script will will source the ``.env`` file and run the build on your device.
+If you get errors (command not found or status 126) at linking stage, make sure
+that you are not using `~/.cargo/config` to override linkers or compilers.
 
 -------------------------------------------------------------------------------
 Development environment tips, tricks and hacks

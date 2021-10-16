@@ -1,0 +1,70 @@
+#!/bin/bash
+
+set -e
+
+echo "Building for $SFOS_VERSION"
+
+sudo zypper install -y \
+    sqlcipher-devel \
+    zlib-devel \
+
+# Tooling-side dependencies used in build.rs
+sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
+    zypper install -y \
+        sqlcipher-devel \
+        zlib-devel \
+
+# For i486, we lie.
+# https://gitlab.com/whisperfish/whisperfish/-/issues/24
+
+if [ -z "$CI_COMMIT_TAG" ]; then
+    CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
+    GIT_REF="$(git rev-parse --short HEAD)"
+    VERSION="$CARGO_VERSION.b$CI_PIPELINE_IID.$GIT_REF"
+else
+    # Strip leading v in v0.6.0- ...
+    VERSION=$(echo "$CI_COMMIT_TAG" | sed -e 's/^v//g')
+fi
+
+# The MB2 image comes with a default user.
+# We need to copy the source over, because of that.
+
+mkdir -p ~/whisperfish-build
+cp -ar .git* * ~/whisperfish-build
+sudo chown $(id -un):$(id -gn) -R ~/whisperfish-build
+pushd ~/whisperfish-build
+
+# Configure Cargo.toml
+sed -ie "s/# lto/lto/" Cargo.toml
+sed -ie "s/^version\s\?=\s\?\".*\"/version = \"$VERSION\"/" Cargo.toml
+cat Cargo.toml
+
+# -f to ignore non-existent files
+rm -f RPMS/*.rpm
+
+mb2 build
+
+[ -e "$(echo RPMS/*.rpm)" ] || exit 1
+
+# Copy everything useful back
+popd
+mkdir -p RPMS target
+sudo cp -ar ~/whisperfish-build/RPMS RPMS/
+sudo cp -ar ~/whisperfish-build/target target/
+
+# Only upload on tags or master
+if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+    RPM_PATH=(target/*/release/rpmbuild/RPMS/*/*.rpm)
+    RPM_PATH="${RPM_PATH[0]}"
+    RPM=$(basename $RPM_PATH)
+
+    BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
+
+    URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
+    echo Posting to $URL
+
+    # Upload to Gitlab
+    curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
+         --upload-file "$RPM_PATH" \
+         $URL
+fi

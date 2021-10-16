@@ -20,7 +20,7 @@ macro_rules! define_model_roles {
         impl $enum_name {
             #[allow(unused_assignments)]
             #[allow(dead_code)]
-            fn role_names() -> HashMap<i32, QByteArray> {
+            fn role_names() -> HashMap<i32, qmetaobject::QByteArray> {
                 let mut hm = HashMap::new();
 
                 let mut i = 0;
@@ -32,7 +32,7 @@ macro_rules! define_model_roles {
                 hm
             }
 
-            fn get(&self, obj: &$diesel_model) -> QVariant {
+            fn get(&self, obj: &$diesel_model) -> qmetaobject::QVariant {
                 match self {
                     $(
                         Self::$role => define_model_roles!(RETRIEVE obj $($retrieval)*),

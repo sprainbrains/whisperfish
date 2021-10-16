@@ -1,6 +1,8 @@
 variables: &variables
-  SFOS_VERSION: 3.4.0.24
-  CARGO_HOME: $CI_PROJECT_DIR/cargo
+  SFOS_VERSION: 4.1.0.24
+  CARGO_HOME: /home/mersdk/cargo
+  GIT_FETCH_EXTRA_FLAGS: --tags
+  RUST_BACKTRACE: full
 
 include:
   # Awesome OpenRepos script by @nobodyinperson/Yann Büchau
@@ -14,12 +16,16 @@ stages:
   - format
   - deploy
 
-.build-target: &build-target
-  image: registry.gitlab.com/whisperfish/sailo-rs/platform-$MER_ARCH-$SFOS_VERSION:latest
+.build-sailfishos: &build-sailfishos
+  image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
   artifacts:
     paths:
-      - target/*/release/rpmbuild/RPMS/*/*.rpm
+      - RPMS/*.rpm
+        # i686 is the "native" target, so we catch them in the `target` dir directly.
+      - target/release/whisperfish-migration-dry-run
+      - target/release/fetch-signal-attachment
+      - target/release/harbour-whisperfish
       - target/*/release/whisperfish-migration-dry-run
       - target/*/release/fetch-signal-attachment
       - target/*/release/harbour-whisperfish
@@ -35,34 +41,25 @@ stages:
         - Cargo.lock
       prefix: target-$MER_ARCH
   script:
-    - .ci/build-for-target.sh
+    - .ci/build-with-mb2.sh
 
-build:armv7hl:
+build:sailfishos:armv7hl:
   variables:
     <<: *variables
     MER_ARCH: armv7hl
-    RUST_ARCH: armv7-unknown-linux-gnueabihf
-    CC_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-gcc
-    CXX_armv7_unknown_linux_gnueabihf: arm-linux-gnueabihf-g++
-  <<: *build-target
+  <<: *build-sailfishos
 
-build:i486:
+build:sailfishos:i486:
   variables:
     <<: *variables
     MER_ARCH: i486
-    RUST_ARCH: i686-unknown-linux-gnu
-    CC_i686_unknown_linux_gnu: i686-linux-gnu-gcc
-    CXX_i686_unknown_linux_gnu: i686-linux-gnu-g++
-  <<: *build-target
+  <<: *build-sailfishos
 
-build:aarch64:
+build:sailfishos:aarch64:
   variables:
     <<: *variables
     MER_ARCH: aarch64
-    RUST_ARCH: aarch64-unknown-linux-gnu
-    CC_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-gcc
-    CXX_aarch64_unknown_linux_gnueabihf: aarch64-linux-gnu-g++
-  <<: *build-target
+  <<: *build-sailfishos
 
 .rust: &rust
   cache: &rust-cache
@@ -90,6 +87,9 @@ build:aarch64:
 
 .rust-nightly: &rust-nightly
   <<: *rust
+  variables:
+    QT_SELECT: 5
+    <<: *variables
   image: rustlang/rust:nightly
   allow_failure: true
   cache:
@@ -252,22 +252,20 @@ translations:update:
   script:
     - .ci/update-translations.sh
 
-test:validate-rpms:
+test:sailfishos:validate-rpms:
   stage: test
   image: registry.gitlab.com/whisperfish/sailo-rs/rpm-validator:latest
   allow_failure: true
   dependencies:
-    - build:armv7hl
-    - build:aarch64
-    - build:i486
+    - build:sailfishos:armv7hl
+    - build:sailfishos:aarch64
+    - build:sailfishos:i486
   needs:
-    - build:armv7hl
-    - build:aarch64
-    - build:i486
+    - build:sailfishos:armv7hl
+    - build:sailfishos:aarch64
+    - build:sailfishos:i486
   script:
-    - rpmvalidation.sh target/armv7-unknown-linux-gnueabihf/release/rpmbuild/RPMS/armv7hl/*.rpm
-    - rpmvalidation.sh target/i686-unknown-linux-gnu/release/rpmbuild/RPMS/i486/*.rpm
-    - rpmvalidation.sh target/aarch64-unknown-linux-gnu/release/rpmbuild/RPMS/aarch64/*.rpm
+    - for rpm in RPMS/*.rpm; do rpmvalidation.sh $rpm; done
 
 notify_matrix_build_ready:
   stage: deploy
@@ -278,9 +276,9 @@ notify_matrix_build_ready:
     name: Whisperfish Matrix channel
     url: $MATRIX_HOME_SERVER
   needs:
-    - build:armv7hl
-    - build:aarch64
-    - build:i486
+    - build:sailfishos:armv7hl
+    - build:sailfishos:aarch64
+    - build:sailfishos:i486
   before_script:
     - apt-get update
     - apt-get install --no-install-recommends -y git curl jq ca-certificates
@@ -314,19 +312,17 @@ openrepos-deploy:
       name: OpenRepos
       url: https://openrepos.net/content/rubdos/whisperfish
   before_script:
-    - mv target/armv7-unknown-linux-gnueabihf/release/rpmbuild/RPMS/armv7hl/*.rpm .
-    - mv target/i686-unknown-linux-gnu/release/rpmbuild/RPMS/i486/*.rpm .
-    - mv target/aarch64-unknown-linux-gnu/release/rpmbuild/RPMS/aarch64/*.rpm  .
+    - mv RPMS/*.rpm .
     - ls *.rpm
   needs:
-    - build:armv7hl
-    - build:i486
-    - build:aarch64
+    - build:sailfishos:armv7hl
+    - build:sailfishos:i486
+    - build:sailfishos:aarch64
     - test:stable
   dependencies:
-    - build:armv7hl
-    - build:i486
-    - build:aarch64
+    - build:sailfishos:armv7hl
+    - build:sailfishos:i486
+    - build:sailfishos:aarch64
   only:
     - tags
 

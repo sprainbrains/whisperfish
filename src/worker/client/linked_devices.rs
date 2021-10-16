@@ -1,3 +1,5 @@
+use qmeta_async::with_executor;
+
 use super::*;
 
 #[derive(Message)]
@@ -18,7 +20,7 @@ pub struct UnlinkDevice {
 
 // methods called from Qt
 impl ClientWorker {
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn link_device(&self, tsurl: String) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
@@ -28,7 +30,7 @@ impl ClientWorker {
         });
     }
 
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn unlink_device(&self, id: i64) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
@@ -38,7 +40,7 @@ impl ClientWorker {
         });
     }
 
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn reload_linked_devices(&self) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {

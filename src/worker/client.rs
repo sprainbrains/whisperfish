@@ -6,6 +6,7 @@ use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
 use phonenumber::PhoneNumber;
+use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
 use crate::actor::{LoadAllSessions, SessionActor};
@@ -1298,7 +1299,7 @@ impl Handler<RefreshPreKeys> for ClientActor {
 
 // methods called from Qt
 impl ClientWorker {
-    #[qmeta_async::with_executor]
+    #[with_executor]
     pub fn compress_db(&self) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {

@@ -78,8 +78,6 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
             .with_context(|| format!("Could not create attachment dir: {}", path.display()))?;
     }
 
-    // qmlapp::TokioQEventDispatcher::install();
-
     // Currently not possible, default QmlEngine does not run asynchronous.
     // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
     #[cfg(feature = "sailfish")]
