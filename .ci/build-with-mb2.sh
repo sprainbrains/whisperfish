@@ -54,7 +54,7 @@ sudo cp -ar ~/whisperfish-build/target target/
 
 # Only upload on tags or master
 if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
-    RPM_PATH=(target/*/release/rpmbuild/RPMS/*/*.rpm)
+    RPM_PATH=(RPMS/*.rpm)
     RPM_PATH="${RPM_PATH[0]}"
     RPM=$(basename $RPM_PATH)
 
