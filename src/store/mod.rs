@@ -385,7 +385,9 @@ impl Storage {
             None
         };
 
-        let db = Self::open_db(db_path, store_enc.as_ref().map(|x| x.get_database_key())).await?;
+        let db = Self::open_db(db_path, store_enc.as_ref().map(|x| x.get_database_key()))
+            .await
+            .context("Opening database")?;
 
         let protocol_store = ProtocolStore::open().await;
 

@@ -113,7 +113,7 @@ impl SetupWorker {
             match Storage::open(&config.get_share_dir().to_owned().into(), Some(password)).await {
                 Ok(storage) => return Ok(storage),
                 Err(error) => log::error!(
-                    "Attempt {} of opening encrypted storage failed: {}",
+                    "Attempt {} of opening encrypted storage failed: {:?}",
                     i,
                     error
                 ),
