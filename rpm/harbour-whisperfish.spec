@@ -205,7 +205,7 @@ install -Dm 644 %{_sourcedir}/../icons/86x86/harbour-whisperfish.png \
 install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
     %{buildroot}%{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
-    %{buildroot}%{_exec_prefix}/lib/systemd/user/harbour-whisperfish.service
+    %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
 # Transfer plugin
 install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
