@@ -209,7 +209,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation>Gekoppeld de %1</translation>
+        <translation>Gekoppeld: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="98"/>
@@ -514,7 +514,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nievers ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Past op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
+        <translation>Whisperfish sla’ d’identiteitssleutels, de sessiestatus en lokale berichtgegevens versleuteld op de schijf op. ’t Paswoord da’ g’instelt wordt nieveranst ni opgeslagen, dus as ge ’t verliest gade u gegevens ni kunnen herstellen. Past op: bijlagen worden voôr de moment onversleuteld opgeslagen. In d’instellingen kunde ’t opslaan van bijlagen uitschakelen.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -591,7 +591,7 @@ Settings page share contacts</extracomment>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
-        <translation>Signal gaat u bellen me een 6-cijferige verificatiecode. Zorgt da’ ge z’ievers kunt noteren.</translation>
+        <translation>Signal gaat u bellen me een 6-cijferige verificatiecode. Zorgt da’ ge z’ieveranst kunt noteren.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="136"/>
