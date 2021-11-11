@@ -37,7 +37,11 @@ pushd ~/whisperfish-build
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
-mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- --define "dist $DIST" --define "rustflags -Clto=fat"
+mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
+    --define "dist $DIST" \
+    --define "rustflags -Clto=fat" \
+    --define "cargo_version $VERSION"\
+
 
 [ -e "$(echo RPMS/*.rpm)" ] || exit 1
 

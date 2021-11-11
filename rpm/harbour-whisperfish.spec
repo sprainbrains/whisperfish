@@ -141,7 +141,9 @@ export RUSTFLAGS="-C link-args=-Wl,-lcrypto %{?rustflags}"
 export RPM_VERSION=%{version}-%{release}
 
 # Configure Cargo.toml
-sed -ie "s/^version\s\?=\s\?\".*\"/version = \"%{version}-%{release}\"/" %{_sourcedir}/../Cargo.toml
+%if 0%{?cargo_version:1}
+sed -ie "s/^version\s\?=\s\?\".*\"/version = \"%{cargo_version}\"/" %{_sourcedir}/../Cargo.toml
+%endif
 cat %{_sourcedir}/../Cargo.toml
 
 cargo build \
