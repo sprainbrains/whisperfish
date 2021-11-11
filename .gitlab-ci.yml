@@ -67,13 +67,18 @@ build:sailfishos:latest:i486:
     DIST: .sf4
   <<: *build-sailfishos
 
-build:sailfishos:3.4:i486:
-  variables:
-    <<: *variables
-    MER_ARCH: i486
-    TARGET_VERSION: 3.4.0.24
-    DIST: .sf3
-  <<: *build-sailfishos
+## We don't build 3.4 for i486, because
+#  in that case, rust 1.52 gets installed without the sb2 passthrough,
+#  and the 3.4 runtime doesn't provide all necessary dependencies.
+#  If this bothers someone (I don't think there's any i486 device that doesn't support 4.3;
+#  check conversation at https://matrix.to/#/!clfpfblSRQUbEUGwsD:rubdos.be/$QANC2ZqJuGElnp2Bkvll_4KLmmSmZUqPgthzzT1KRT0?via=libera.chat&via=matrix.org&via=rubdos.be)
+# build:sailfishos:3.4:i486:
+#   variables:
+#     <<: *variables
+#     MER_ARCH: i486
+#     TARGET_VERSION: 3.4.0.24
+#     DIST: .sf3
+#   <<: *build-sailfishos
 
 build:sailfishos:latest:aarch64:
   variables:
@@ -349,7 +354,7 @@ openrepos-deploy:
     - build:sailfishos:latest:i486
     - build:sailfishos:latest:aarch64
     - build:sailfishos:3.4:armv7hl
-    - build:sailfishos:3.4:i486
+    # - build:sailfishos:3.4:i486
     - build:sailfishos:3.4:aarch64
     - test:stable
   dependencies:
@@ -357,7 +362,7 @@ openrepos-deploy:
     - build:sailfishos:latest:i486
     - build:sailfishos:latest:aarch64
     - build:sailfishos:3.4:armv7hl
-    - build:sailfishos:3.4:i486
+    # - build:sailfishos:3.4:i486
     - build:sailfishos:3.4:aarch64
   only:
     - tags
