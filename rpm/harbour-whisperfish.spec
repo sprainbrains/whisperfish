@@ -17,7 +17,7 @@ Version: 0.6.0
 Release: 0
 License: GPLv3+
 Group: Qt/Qt
-URL: https://gitlab.com/rubdos/whisperfish/
+URL: https://gitlab.com/whisperfish/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   sailfish-components-contacts-qt5
