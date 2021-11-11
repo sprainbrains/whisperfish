@@ -43,22 +43,52 @@ stages:
   script:
     - .ci/build-with-mb2.sh
 
-build:sailfishos:armv7hl:
+build:sailfishos:latest:armv7hl:
   variables:
     <<: *variables
     MER_ARCH: armv7hl
+    TARGET_VERSION: $SFOS_VERSION
+    DIST: .sf4
   <<: *build-sailfishos
 
-build:sailfishos:i486:
+build:sailfishos:3.4:armv7hl:
+  variables:
+    <<: *variables
+    MER_ARCH: armv7hl
+    TARGET_VERSION: 3.4.0.24
+    DIST: .sf3
+  <<: *build-sailfishos
+
+build:sailfishos:latest:i486:
   variables:
     <<: *variables
     MER_ARCH: i486
+    TARGET_VERSION: $SFOS_VERSION
+    DIST: .sf4
   <<: *build-sailfishos
 
-build:sailfishos:aarch64:
+build:sailfishos:3.4:i486:
+  variables:
+    <<: *variables
+    MER_ARCH: i486
+    TARGET_VERSION: 3.4.0.24
+    DIST: .sf3
+  <<: *build-sailfishos
+
+build:sailfishos:latest:aarch64:
   variables:
     <<: *variables
     MER_ARCH: aarch64
+    TARGET_VERSION: $SFOS_VERSION
+    DIST: .sf4
+  <<: *build-sailfishos
+
+build:sailfishos:3.4:aarch64:
+  variables:
+    <<: *variables
+    MER_ARCH: aarch64
+    TARGET_VERSION: 3.4.0.24
+    DIST: .sf3
   <<: *build-sailfishos
 
 .rust: &rust
@@ -257,13 +287,13 @@ test:sailfishos:validate-rpms:
   image: registry.gitlab.com/whisperfish/sailo-rs/rpm-validator:latest
   allow_failure: true
   dependencies:
-    - build:sailfishos:armv7hl
-    - build:sailfishos:aarch64
-    - build:sailfishos:i486
+    - build:sailfishos:latest:armv7hl
+    - build:sailfishos:latest:aarch64
+    - build:sailfishos:latest:i486
   needs:
-    - build:sailfishos:armv7hl
-    - build:sailfishos:aarch64
-    - build:sailfishos:i486
+    - build:sailfishos:latest:armv7hl
+    - build:sailfishos:latest:aarch64
+    - build:sailfishos:latest:i486
   script:
     - for rpm in RPMS/*.rpm; do rpmvalidation.sh $rpm; done
 
@@ -276,9 +306,9 @@ notify_matrix_build_ready:
     name: Whisperfish Matrix channel
     url: $MATRIX_HOME_SERVER
   needs:
-    - build:sailfishos:armv7hl
-    - build:sailfishos:aarch64
-    - build:sailfishos:i486
+    - build:sailfishos:latest:armv7hl
+    - build:sailfishos:latest:aarch64
+    - build:sailfishos:latest:i486
   before_script:
     - apt-get update
     - apt-get install --no-install-recommends -y git curl jq ca-certificates
@@ -315,14 +345,20 @@ openrepos-deploy:
     - mv RPMS/*.rpm .
     - ls *.rpm
   needs:
-    - build:sailfishos:armv7hl
-    - build:sailfishos:i486
-    - build:sailfishos:aarch64
+    - build:sailfishos:latest:armv7hl
+    - build:sailfishos:latest:i486
+    - build:sailfishos:latest:aarch64
+    - build:sailfishos:3.4:armv7hl
+    - build:sailfishos:3.4:i486
+    - build:sailfishos:3.4:aarch64
     - test:stable
   dependencies:
-    - build:sailfishos:armv7hl
-    - build:sailfishos:i486
-    - build:sailfishos:aarch64
+    - build:sailfishos:latest:armv7hl
+    - build:sailfishos:latest:i486
+    - build:sailfishos:latest:aarch64
+    - build:sailfishos:3.4:armv7hl
+    - build:sailfishos:3.4:i486
+    - build:sailfishos:3.4:aarch64
   only:
     - tags
 

@@ -14,7 +14,7 @@ Name: harbour-whisperfish
 Summary: Private messaging using Signal for SailfishOS.
 
 Version: 0.6.0
-Release: 0
+Release: 0%{?dist}
 License: GPLv3+
 Group: Qt/Qt
 URL: https://gitlab.com/whisperfish/whisperfish/
@@ -138,7 +138,7 @@ FEATURES="sailfish,harbour"
 %endif
 
 export RUSTFLAGS="-C link-args=-Wl,-lcrypto"
-export RPM_VERSION=%{version}
+export RPM_VERSION=%{version}-%{release}
 
 cargo build \
           -j 1 \

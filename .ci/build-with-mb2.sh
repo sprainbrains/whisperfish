@@ -42,7 +42,7 @@ cat Cargo.toml
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
-mb2 build
+mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- --define "dist $DIST"
 
 [ -e "$(echo RPMS/*.rpm)" ] || exit 1
 
