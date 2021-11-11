@@ -39,7 +39,6 @@ rm -f RPMS/*.rpm
 
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
     --define "dist $DIST" \
-    --define "rustflags -Clto=fat" \
     --define "cargo_version $VERSION"\
 
 
