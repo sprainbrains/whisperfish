@@ -402,15 +402,18 @@ impl Storage {
 
     async fn open_db<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
-        password: Option<&[u8]>,
+        database_key: Option<&[u8]>,
     ) -> Result<SqliteConnection, anyhow::Error> {
         log::info!("Opening DB");
         let db = db_path.open_db()?;
 
-        if let Some(password) = password {
+        if let Some(database_key) = database_key {
             log::info!("Setting DB encryption");
 
-            db.execute(&format!("PRAGMA hexkey = \"{}\";", hex::encode(password)))?;
+            db.execute(&format!(
+                "PRAGMA key = \"x'{}'\";",
+                hex::encode(database_key)
+            ))?;
             db.execute("PRAGMA cipher_page_size = 4096;")?;
         }
 
