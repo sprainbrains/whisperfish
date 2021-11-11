@@ -34,15 +34,10 @@ cp -ar .git* * ~/whisperfish-build
 sudo chown $(id -un):$(id -gn) -R ~/whisperfish-build
 pushd ~/whisperfish-build
 
-# Configure Cargo.toml
-sed -ie "s/# lto/lto/" Cargo.toml
-sed -ie "s/^version\s\?=\s\?\".*\"/version = \"$VERSION\"/" Cargo.toml
-cat Cargo.toml
-
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
-mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- --define "dist $DIST"
+mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- --define "dist $DIST" --define "rustflags -Clto=fat"
 
 [ -e "$(echo RPMS/*.rpm)" ] || exit 1
 
