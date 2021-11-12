@@ -29,20 +29,18 @@ fi
 # The MB2 image comes with a default user.
 # We need to copy the source over, because of that.
 
-mkdir -p ~/whisperfish-build
-cp -ar .git* * ~/whisperfish-build
-sudo chown $(id -un):$(id -gn) -R ~/whisperfish-build
+git clone . ~/whisperfish-build
 pushd ~/whisperfish-build
 
-# Configure Cargo.toml
-sed -ie "s/# lto/lto/" Cargo.toml
-sed -ie "s/^version\s\?=\s\?\".*\"/version = \"$VERSION\"/" Cargo.toml
-cat Cargo.toml
+git status
 
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
-mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- --define "dist $DIST"
+mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
+    --define "dist $DIST" \
+    --define "cargo_version $VERSION"\
+
 
 [ -e "$(echo RPMS/*.rpm)" ] || exit 1
 

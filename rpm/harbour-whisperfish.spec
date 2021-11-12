@@ -137,8 +137,15 @@ FEATURES=sailfish
 FEATURES="sailfish,harbour"
 %endif
 
-export RUSTFLAGS="-C link-args=-Wl,-lcrypto"
+export RUSTFLAGS="-C link-args=-Wl,-lcrypto %{?rustflags}"
 export RPM_VERSION=%{version}-%{release}
+
+# Configure Cargo.toml
+%if 0%{?cargo_version:1}
+sed -ie "s/^version\s\?=\s\?\".*\"/version = \"%{cargo_version}\"/" %{_sourcedir}/../Cargo.toml
+export CARGO_PROFILE_RELEASE_LTO=fat
+%endif
+cat %{_sourcedir}/../Cargo.toml
 
 cargo build \
           -j 1 \
