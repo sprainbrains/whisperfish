@@ -35,6 +35,21 @@ Requires:   dbus
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
 Requires:   sailfish-version >= 3.3
 
+%if "%{release}" == "0.sf3"
+Requires: sailfish-version < 4.0
+Requires: sailfish-version >= 3.0
+%endif
+
+%if "%{release}" == "0.sf4"
+Requires: sailfish-version < 5.0
+Requires: sailfish-version >= 4.0
+%endif
+
+%if "%{release}" == "0.sf5"
+Requires: sailfish-version < 6.0
+Requires: sailfish-version >= 5.0
+%endif
+
 BuildRequires:  rust >= 1.48
 BuildRequires:  rust-std-static >= 1.48
 BuildRequires:  cargo
