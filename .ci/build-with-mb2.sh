@@ -29,9 +29,7 @@ fi
 # The MB2 image comes with a default user.
 # We need to copy the source over, because of that.
 
-mkdir -p ~/whisperfish-build
-cp -ar .git* * ~/whisperfish-build
-sudo chown $(id -un):$(id -gn) -R ~/whisperfish-build
+git clone . ~/whisperfish-build
 pushd ~/whisperfish-build
 
 git status
