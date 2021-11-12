@@ -34,6 +34,8 @@ cp -ar .git* * ~/whisperfish-build
 sudo chown $(id -un):$(id -gn) -R ~/whisperfish-build
 pushd ~/whisperfish-build
 
+git status
+
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
