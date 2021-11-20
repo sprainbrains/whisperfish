@@ -17,13 +17,15 @@ use qmetaobject::prelude::*;
 struct AugmentedSession {
     session: orm::Session,
     group_members: Vec<orm::Recipient>,
-    // XXX Maybe make this AugmentedMessage
-    // use crate::store::orm::AugmentedMessage;
-    last_message: Option<(
-        orm::Message,
-        Vec<orm::Attachment>,
-        Vec<(orm::Receipt, orm::Recipient)>,
-    )>,
+    last_message: Option<LastMessage>,
+}
+
+// XXX Maybe make this AugmentedMessage
+// use crate::store::orm::AugmentedMessage;
+struct LastMessage {
+    message: orm::Message,
+    attachments: Vec<orm::Attachment>,
+    receipts: Vec<(orm::Receipt, orm::Recipient)>,
 }
 
 impl std::ops::Deref for AugmentedSession {
@@ -142,8 +144,8 @@ impl SessionModel {
                     .map(Result::unwrap),
             );
 
-            if let Some((m, _, _)) = &mut session.last_message {
-                m.is_read = true;
+            if let Some(message) = &mut session.last_message {
+                message.message.is_read = true;
             }
             let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
@@ -189,16 +191,20 @@ impl SessionModel {
             .map(|(session, group_members, last_message)| AugmentedSession {
                 session,
                 group_members,
-                last_message,
+                last_message: last_message.map(|(message, attachments, receipts)| LastMessage {
+                    message,
+                    attachments,
+                    receipts,
+                }),
             })
             .collect();
         // XXX This could be solved through a sub query.
         self.content
             .sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
                 (Some(a_last_message), Some(b_last_message)) => a_last_message
-                    .0
+                    .message
                     .server_timestamp
-                    .cmp(&b_last_message.0.server_timestamp)
+                    .cmp(&b_last_message.message.server_timestamp)
                     .reverse(),
                 (None, Some(_)) => std::cmp::Ordering::Greater,
                 (Some(_), None) => std::cmp::Ordering::Greater,
@@ -273,11 +279,11 @@ impl SessionModel {
             AugmentedSession {
                 session: sess,
                 group_members,
-                last_message: Some((
-                    last_message,
-                    last_message_attachments,
-                    last_message_receipts,
-                )),
+                last_message: Some(LastMessage {
+                    message: last_message,
+                    attachments: last_message_attachments,
+                    receipts: last_message_receipts,
+                }),
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -292,8 +298,8 @@ impl SessionModel {
             .enumerate()
             .find(|(_, s)| s.session.id == sid)
         {
-            if let Some((m, _, _)) = &mut session.last_message {
-                m.is_read = true;
+            if let Some(m) = &mut session.last_message {
+                m.message.is_read = true;
             }
             let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
@@ -320,11 +326,9 @@ impl SessionModel {
 
 impl AugmentedSession {
     fn timestamp(&self) -> Option<NaiveDateTime> {
-        if let Some((m, _, _)) = &self.last_message {
-            Some(m.server_timestamp)
-        } else {
-            None
-        }
+        self.last_message
+            .as_ref()
+            .map(|m| m.message.server_timestamp)
     }
 
     fn group_name(&self) -> Option<&str> {
@@ -363,8 +367,8 @@ impl AugmentedSession {
     }
 
     fn sent(&self) -> bool {
-        if let Some((m, _, _)) = &self.last_message {
-            m.sent_timestamp.is_some()
+        if let Some(m) = &self.last_message {
+            m.message.sent_timestamp.is_some()
         } else {
             false
         }
@@ -379,8 +383,8 @@ impl AugmentedSession {
     }
 
     fn has_attachment(&self) -> bool {
-        if let Some((_, attachments, _)) = &self.last_message {
-            !attachments.is_empty()
+        if let Some(m) = &self.last_message {
+            !m.attachments.is_empty()
         } else {
             false
         }
@@ -389,7 +393,7 @@ impl AugmentedSession {
     fn text(&self) -> Option<&str> {
         self.last_message
             .as_ref()
-            .and_then(|(m, _, _)| m.text.as_deref())
+            .and_then(|m| m.message.text.as_deref())
     }
 
     fn section(&self) -> String {
@@ -400,8 +404,8 @@ impl AugmentedSession {
             .and_hms(0, 0, 0)
             .naive_utc();
 
-        let last_message = if let Some((m, _, _)) = &self.last_message {
-            m
+        let last_message = if let Some(m) = &self.last_message {
+            &m.message
         } else {
             return String::from("today");
         };
@@ -422,13 +426,13 @@ impl AugmentedSession {
     fn is_read(&self) -> bool {
         self.last_message
             .as_ref()
-            .map(|(m, _, _)| m.is_read)
+            .map(|m| m.message.is_read)
             .unwrap_or(false)
     }
 
     fn delivered(&self) -> u32 {
-        if let Some((_, _, receipts)) = &self.last_message {
-            receipts
+        if let Some(m) = &self.last_message {
+            m.receipts
                 .iter()
                 .filter(|(r, _)| r.delivered.is_some())
                 .count() as _
@@ -438,16 +442,19 @@ impl AugmentedSession {
     }
 
     fn read(&self) -> u32 {
-        if let Some((_, _, receipts)) = &self.last_message {
-            receipts.iter().filter(|(r, _)| r.read.is_some()).count() as _
+        if let Some(m) = &self.last_message {
+            m.receipts.iter().filter(|(r, _)| r.read.is_some()).count() as _
         } else {
             0
         }
     }
 
     fn viewed(&self) -> u32 {
-        if let Some((_, _, receipts)) = &self.last_message {
-            receipts.iter().filter(|(r, _)| r.viewed.is_some()).count() as _
+        if let Some(m) = &self.last_message {
+            m.receipts
+                .iter()
+                .filter(|(r, _)| r.viewed.is_some())
+                .count() as _
         } else {
             0
         }
