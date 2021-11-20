@@ -17,9 +17,13 @@ use qmetaobject::prelude::*;
 struct AugmentedSession {
     session: orm::Session,
     group_members: Vec<orm::Recipient>,
-    last_message: orm::Message,
-    last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
-    last_message_attachments: Vec<orm::Attachment>,
+    // XXX Maybe make this AugmentedMessage
+    // use crate::store::orm::AugmentedMessage;
+    last_message: Option<(
+        orm::Message,
+        Vec<orm::Attachment>,
+        Vec<(orm::Receipt, orm::Recipient)>,
+    )>,
 }
 
 impl std::ops::Deref for AugmentedSession {
@@ -133,12 +137,14 @@ impl SessionModel {
                     .unwrap()
                     .send(actor::MarkSessionRead {
                         sid: session.id,
-                        already_unread: !session.last_message.is_read,
+                        already_unread: !session.is_read(),
                     })
                     .map(Result::unwrap),
             );
 
-            session.last_message.is_read = true;
+            if let Some((m, _, _)) = &mut session.last_message {
+                m.is_read = true;
+            }
             let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
         }
@@ -169,40 +175,36 @@ impl SessionModel {
         sessions: Vec<(
             orm::Session,
             Vec<orm::Recipient>,
-            orm::Message,
-            Vec<orm::Attachment>,
-            Vec<(orm::Receipt, orm::Recipient)>,
+            Option<(
+                orm::Message,
+                Vec<orm::Attachment>,
+                Vec<(orm::Receipt, orm::Recipient)>,
+            )>,
         )>,
     ) {
         // XXX: maybe this should be called before even accessing the db?
         (self as &mut dyn QAbstractListModel).begin_reset_model();
         self.content = sessions
             .into_iter()
-            .map(
-                |(
-                    session,
-                    group_members,
-                    last_message,
-                    last_message_attachments,
-                    last_message_receipts,
-                )| {
-                    AugmentedSession {
-                        session,
-                        group_members,
-                        last_message,
-                        last_message_receipts,
-                        last_message_attachments,
-                    }
-                },
-            )
+            .map(|(session, group_members, last_message)| AugmentedSession {
+                session,
+                group_members,
+                last_message,
+            })
             .collect();
         // XXX This could be solved through a sub query.
-        self.content.sort_unstable_by(|a, b| {
-            a.last_message
-                .server_timestamp
-                .cmp(&b.last_message.server_timestamp)
-                .reverse()
-        });
+        self.content
+            .sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
+                (Some(a_last_message), Some(b_last_message)) => a_last_message
+                    .0
+                    .server_timestamp
+                    .cmp(&b_last_message.0.server_timestamp)
+                    .reverse(),
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (Some(_), None) => std::cmp::Ordering::Greater,
+                // Gotta use something here.
+                (None, None) => a.session.id.cmp(&b.session.id),
+            });
         (self as &mut dyn QAbstractListModel).end_reset_model();
     }
 
@@ -271,9 +273,11 @@ impl SessionModel {
             AugmentedSession {
                 session: sess,
                 group_members,
-                last_message,
-                last_message_attachments,
-                last_message_receipts,
+                last_message: Some((
+                    last_message,
+                    last_message_attachments,
+                    last_message_receipts,
+                )),
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -288,7 +292,9 @@ impl SessionModel {
             .enumerate()
             .find(|(_, s)| s.session.id == sid)
         {
-            session.last_message.is_read = true;
+            if let Some((m, _, _)) = &mut session.last_message {
+                m.is_read = true;
+            }
             let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
         } else {
@@ -313,8 +319,12 @@ impl SessionModel {
 }
 
 impl AugmentedSession {
-    fn timestamp(&self) -> NaiveDateTime {
-        self.last_message.server_timestamp
+    fn timestamp(&self) -> Option<NaiveDateTime> {
+        if let Some((m, _, _)) = &self.last_message {
+            Some(m.server_timestamp)
+        } else {
+            None
+        }
     }
 
     fn group_name(&self) -> Option<&str> {
@@ -353,7 +363,11 @@ impl AugmentedSession {
     }
 
     fn sent(&self) -> bool {
-        self.last_message.sent_timestamp.is_some()
+        if let Some((m, _, _)) = &self.last_message {
+            m.sent_timestamp.is_some()
+        } else {
+            false
+        }
     }
 
     fn source(&self) -> &str {
@@ -365,7 +379,17 @@ impl AugmentedSession {
     }
 
     fn has_attachment(&self) -> bool {
-        !self.last_message_attachments.is_empty()
+        if let Some((_, attachments, _)) = &self.last_message {
+            !attachments.is_empty()
+        } else {
+            false
+        }
+    }
+
+    fn text(&self) -> Option<&str> {
+        self.last_message
+            .as_ref()
+            .and_then(|(m, _, _)| m.text.as_deref())
     }
 
     fn section(&self) -> String {
@@ -375,44 +399,58 @@ impl AugmentedSession {
             .ymd(now.year(), now.month(), now.day())
             .and_hms(0, 0, 0)
             .naive_utc();
-        let diff = today.signed_duration_since(self.last_message.server_timestamp);
+
+        let last_message = if let Some((m, _, _)) = &self.last_message {
+            m
+        } else {
+            return String::from("today");
+        };
+        let diff = today.signed_duration_since(last_message.server_timestamp);
 
         if diff.num_seconds() <= 0 {
             String::from("today")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
             String::from("yesterday")
         } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
-            let wd = self
-                .last_message
-                .server_timestamp
-                .weekday()
-                .number_from_monday()
-                % 7;
+            let wd = last_message.server_timestamp.weekday().number_from_monday() % 7;
             wd.to_string()
         } else {
             String::from("older")
         }
     }
 
+    fn is_read(&self) -> bool {
+        self.last_message
+            .as_ref()
+            .map(|(m, _, _)| m.is_read)
+            .unwrap_or(false)
+    }
+
     fn delivered(&self) -> u32 {
-        self.last_message_receipts
-            .iter()
-            .filter(|(r, _)| r.delivered.is_some())
-            .count() as _
+        if let Some((_, _, receipts)) = &self.last_message {
+            receipts
+                .iter()
+                .filter(|(r, _)| r.delivered.is_some())
+                .count() as _
+        } else {
+            0
+        }
     }
 
     fn read(&self) -> u32 {
-        self.last_message_receipts
-            .iter()
-            .filter(|(r, _)| r.read.is_some())
-            .count() as _
+        if let Some((_, _, receipts)) = &self.last_message {
+            receipts.iter().filter(|(r, _)| r.read.is_some()).count() as _
+        } else {
+            0
+        }
     }
 
     fn viewed(&self) -> u32 {
-        self.last_message_receipts
-            .iter()
-            .filter(|(r, _)| r.viewed.is_some())
-            .count() as _
+        if let Some((_, _, receipts)) = &self.last_message {
+            receipts.iter().filter(|(r, _)| r.viewed.is_some()).count() as _
+        } else {
+            0
+        }
     }
 }
 
@@ -427,10 +465,10 @@ define_model_roles! {
         GroupId(fn group_id(&self) via qstring_from_option):               "groupId",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
-        Message(last_message.text via qstring_from_option):                "message",
+        Message(fn text(&self) via qstring_from_option):                   "message",
         Section(fn section(&self) via QString::from):                      "section",
-        Timestamp(fn timestamp(&self) via qdatetime_from_naive):           "timestamp",
-        IsRead(last_message.is_read):                                      "read",
+        Timestamp(fn timestamp(&self) via qdatetime_from_naive_option):    "timestamp",
+        IsRead(fn is_read(&self)):                                         "read",
         Sent(fn sent(&self)):                                              "sent",
         Delivered(fn delivered(&self)):                                    "deliveryCount",
         Read(fn read(&self)):                                              "readCount",
