@@ -34,7 +34,7 @@ tokio = {version="1.1", features=["time", "io-util", "net", "sync"]}
 futures = "0.3"
 pin-utils = "0.1"
 
-qmetaobject = { version = "=0.2.2" }
+qmetaobject = { version = "=0.2.5" }
 qmeta-async = { git = "https://gitlab.com/rubdos/qmeta-async.git" }
 
 cstr = "0.2.0"

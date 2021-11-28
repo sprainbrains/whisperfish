@@ -2295,9 +2295,9 @@ dependencies = [
 
 [[package]]
 name = "qmetaobject"
-version = "0.2.2"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9481b95ec08592b015440628956123ef9229c38e291840130d9331e622c9925f"
+checksum = "a76cc676692bb507fecc1c824daa876f50da783a4ab08934d529302d0bc788ba"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -2310,9 +2310,9 @@ dependencies = [
 
 [[package]]
 name = "qmetaobject_impl"
-version = "0.2.2"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5849bf843ce108a482855097d69540e8ca8e49230e97f262d490f995b58f998a"
+checksum = "b2f63c587d691e960ffcf0ffdfc85c68a3becc3efe79763b8b0304fa6ffb466b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2321,9 +2321,9 @@ dependencies = [
 
 [[package]]
 name = "qttypes"
-version = "0.2.4"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53703dc548e89ea3dbfce7695b53ebf27e99af7b85dfd201b7bc1abaf6889bb1"
+checksum = "2d4e491cd7c627027e974928c08eb16042c06c57abfe3be8b15222826b2669e0"
 dependencies = [
  "cpp",
  "cpp_build",
