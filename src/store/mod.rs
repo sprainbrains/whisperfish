@@ -1764,7 +1764,7 @@ impl Storage {
         Ok(hex::encode_upper(ident.serialize()))
     }
 
-    pub fn credential_cache(&self) -> std::sync::MutexGuard<InMemoryCredentialsCache> {
+    pub fn credential_cache(&self) -> std::sync::MutexGuard<'_, InMemoryCredentialsCache> {
         self.credential_cache.lock().expect("mutex")
     }
 
