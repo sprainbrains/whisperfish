@@ -1623,7 +1623,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#3424b55d3e64890c48659ee7616942baa64b995b"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#49651bb16f444d4eeaf406296cc957497d5be624"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1656,7 +1656,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#3424b55d3e64890c48659ee7616942baa64b995b"
+source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#49651bb16f444d4eeaf406296cc957497d5be624"
 dependencies = [
  "actix",
  "actix-http",
@@ -1672,6 +1672,7 @@ dependencies = [
  "phonenumber",
  "rand 0.7.3",
  "rustls",
+ "rustls-pemfile",
  "serde",
  "serde_json",
  "thiserror",
@@ -2714,6 +2715,15 @@ dependencies = [
  "ring",
  "sct",
  "webpki",
+]
+
+[[package]]
+name = "rustls-pemfile"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5eebeaeb360c87bfb72e84abdb3447159c0eaececf1bef2aecd65a8be949d1c9"
+dependencies = [
+ "base64",
 ]
 
 [[package]]
