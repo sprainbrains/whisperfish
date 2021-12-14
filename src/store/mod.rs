@@ -1073,6 +1073,7 @@ impl Storage {
     /// Marks the message with a certain timestamp as received by a certain person.
     ///
     /// Should only be called if the relation between the e164 and uuid is certain.
+    // TODO: Maybe this should take a ServiceAddress instead.
     pub fn mark_message_received(
         &self,
         receiver_e164: Option<&str>,
@@ -1532,6 +1533,7 @@ impl Storage {
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
         let server_time = millis_to_naive_chrono(new_message.timestamp.timestamp_millis() as u64);
+        log::trace!("Creating message for timestamp {}", server_time);
 
         let affected_rows = {
             use schema::messages::dsl::*;

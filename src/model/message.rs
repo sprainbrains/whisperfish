@@ -6,6 +6,8 @@ use std::process::Command;
 
 use crate::actor;
 use crate::model::*;
+use crate::store::orm::Receipt;
+use crate::store::orm::Recipient;
 use crate::store::orm::{self, AugmentedMessage};
 use crate::worker::{ClientActor, SendMessage};
 
@@ -359,13 +361,45 @@ impl MessageModel {
             if mark_sent {
                 log::trace!("Mark message {} sent '{}'", id, mark_sent);
 
-                // XXX
+                // XXX: fetch the correct time
                 msg.inner.sent_timestamp = Some(chrono::Utc::now().naive_utc());
             } else if mark_received {
                 log::trace!("Mark message {} received '{}'", id, mark_received);
 
-                // XXX needs something more in AugmentedMessage
-                // msg.received = true;
+                // XXX: fetch the correct time and person
+                msg.inner.received_timestamp = Some(chrono::Utc::now().naive_utc());
+                // Dummy
+                msg.receipts.push((
+                    Receipt {
+                        message_id: 0,
+                        recipient_id: 0,
+                        delivered: msg.inner.received_timestamp,
+                        read: None,
+                        viewed: None,
+                    },
+                    Recipient {
+                        id,
+                        e164: None,
+                        uuid: None,
+                        username: None,
+                        email: None,
+                        blocked: false,
+                        profile_key: None,
+                        profile_key_credential: None,
+                        profile_given_name: None,
+                        profile_family_name: None,
+                        profile_joined_name: None,
+                        signal_profile_avatar: None,
+                        profile_sharing: false,
+                        last_profile_fetch: None,
+                        unidentified_access_mode: false,
+                        storage_service_id: None,
+                        storage_proto: None,
+                        capabilities: 0,
+                        last_gv1_migrate_reminder: None,
+                        last_session_reset: None,
+                    },
+                ));
             }
             // In fact, we should only update the necessary roles, but qmetaobject, in its current
             // state, does not allow this.

@@ -519,6 +519,34 @@ impl ClientActor {
         }.map(|v| if let Err(e) = v {log::error!("{:?}", e)}));
     }
 
+    fn process_receipt(&mut self, msg: &Envelope) {
+        log::info!("Received receipt: {}", msg.timestamp());
+
+        let storage = self.storage.as_mut().expect("storage initialized");
+
+        let ts = msg.timestamp();
+        let source = msg.source_address();
+
+        let ts = millis_to_naive_chrono(ts);
+        log::trace!(
+            "Marking message from {} at {} ({}) as received.",
+            source,
+            ts,
+            msg.timestamp()
+        );
+        if let Some((sess, msg)) = storage.mark_message_received(
+            source.e164().as_deref(),
+            source.uuid.as_ref().map(uuid::Uuid::to_string).as_deref(),
+            ts,
+            None,
+        ) {
+            self.inner
+                .pinned()
+                .borrow_mut()
+                .messageReceipt(sess.id, msg.id)
+        }
+    }
+
     fn process_envelope(
         &mut self,
         Content { body, metadata }: Content,
@@ -862,7 +890,7 @@ impl Handler<SendMessage> for ClientActor {
                     content.attachments.push(ptr);
                 }
 
-                log::trace!("Transmitting {:?}", content);
+                log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
 
                 match &session.r#type {
                     orm::SessionType::GroupV1(group) => {
@@ -1097,39 +1125,43 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
 
         let mut cipher = self.cipher.clone().expect("cipher initialized");
 
-        if msg.is_prekey_signal_message()
+        if msg.is_receipt() {
+            self.process_receipt(&msg);
+        }
+
+        if !(msg.is_prekey_signal_message()
             || msg.is_signal_message()
             || msg.is_unidentified_sender()
-            || msg.is_receipt()
+            || msg.is_receipt())
         {
-            ctx.spawn(
-                async move {
-                    let content = match cipher.open_envelope(msg).await {
-                        Ok(Some(content)) => content,
-                        Ok(None) => {
-                            log::info!("Empty envelope");
-                            return None;
-                        }
-                        Err(e) => {
-                            log::error!("Error opening envelope: {:?}", e);
-                            return None;
-                        }
-                    };
-
-                    log::trace!("Opened envelope: {:?}", content);
-
-                    Some(content)
-                }
-                .into_actor(self)
-                .map(|content, act, ctx| {
-                    if let Some(content) = content {
-                        act.process_envelope(content, ctx);
-                    }
-                }),
-            );
-        } else {
             log::warn!("Unknown envelope type {:?}", msg.r#type());
         }
+
+        ctx.spawn(
+            async move {
+                let content = match cipher.open_envelope(msg).await {
+                    Ok(Some(content)) => content,
+                    Ok(None) => {
+                        log::warn!("Empty envelope");
+                        return None;
+                    }
+                    Err(e) => {
+                        log::error!("Error opening envelope: {:?}", e);
+                        return None;
+                    }
+                };
+
+                log::trace!("Opened envelope: {:?}", content);
+
+                Some(content)
+            }
+            .into_actor(self)
+            .map(|content, act, ctx| {
+                if let Some(content) = content {
+                    act.process_envelope(content, ctx);
+                }
+            }),
+        );
     }
 
     /// Called when the WebSocket somehow has disconnected.
