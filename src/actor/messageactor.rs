@@ -273,7 +273,12 @@ impl Handler<QueueGroupMessage> for MessageActor {
             Some(group),
         );
 
-        self.inner.pinned().borrow_mut().handle_queue_message(msg);
+        let attachments = storage.fetch_attachments_for_message(msg.id);
+
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_queue_message(msg, attachments);
     }
 }
 
@@ -318,7 +323,12 @@ impl Handler<QueueMessage> for MessageActor {
             None,
         );
 
-        self.inner.pinned().borrow_mut().handle_queue_message(msg);
+        let attachments = storage.fetch_attachments_for_message(msg.id);
+
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_queue_message(msg, attachments);
     }
 }
 
@@ -350,6 +360,9 @@ impl Handler<EndSession> for MessageActor {
             None,
         );
 
-        self.inner.pinned().borrow_mut().handle_queue_message(msg);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_queue_message(msg, vec![]);
     }
 }

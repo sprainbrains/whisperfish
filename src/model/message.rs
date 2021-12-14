@@ -218,7 +218,7 @@ impl MessageModel {
         );
     }
 
-    pub fn handle_queue_message(&mut self, msg: orm::Message) {
+    pub fn handle_queue_message(&mut self, msg: orm::Message, attachments: Vec<orm::Attachment>) {
         self.sendMessage(msg.id);
 
         // TODO: Go version modified the `self` model appropriately,
@@ -231,7 +231,7 @@ impl MessageModel {
                 inner: msg,
                 sender: None,
                 // XXX
-                attachments: Vec::new(),
+                attachments,
                 // No receipts yet.
                 receipts: Vec::new(),
             },
