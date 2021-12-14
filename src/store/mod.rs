@@ -1062,6 +1062,10 @@ impl Storage {
                 .expect("foreignk key");
             Some((session, message))
         } else {
+            log::warn!("Could not find message with timestamp {}", timestamp);
+            log::warn!(
+                "This probably indicates out-of-order receipt delivery. Please upvote issue #260"
+            );
             None
         }
     }
