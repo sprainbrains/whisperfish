@@ -450,6 +450,7 @@ impl AugmentedMessage {
         self.attachments.len() as _
     }
 
+    #[deprecated]
     pub fn first_attachment(&self) -> &str {
         if self.attachments.is_empty() {
             return "";
@@ -466,6 +467,7 @@ impl AugmentedMessage {
             .join(",")
     }
 
+    #[deprecated]
     pub fn first_attachment_mime_type(&self) -> &str {
         if self.attachments.is_empty() {
             return "";

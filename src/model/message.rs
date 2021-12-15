@@ -8,7 +8,7 @@ use crate::actor;
 use crate::model::*;
 use crate::store::orm::Receipt;
 use crate::store::orm::Recipient;
-use crate::store::orm::{self, AugmentedMessage};
+use crate::store::orm::{self, Attachment, AugmentedMessage};
 use crate::worker::{ClientActor, SendMessage};
 
 use actix::prelude::*;
@@ -16,9 +16,10 @@ use futures::prelude::*;
 use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
+use qmetaobject::{QObjectBox, QObjectPinned};
 
 define_model_roles! {
-    enum MessageRoles for AugmentedMessage {
+    enum MessageRoles for QtAugmentedMessage {
         Id(id):                                               "id",
         Sid(session_id):                                      "sid",
         Source(fn source(&self) via QString::from):           "source",
@@ -33,7 +34,8 @@ define_model_roles! {
 
         Sent(fn sent(&self)):                                 "sent",
         Flags(flags):                                         "flags",
-        Attachments(fn attachments(&self)):                   "attachments",
+        ThumbsAttachments(fn visual_attachments(&self)):                   "thumbsAttachments",
+        DetailAttachments(fn detail_attachments(&self)):                   "detailAttachments",
         Outgoing(is_outbound):                                "outgoing",
         Queued(fn queued(&self)):                             "queued",
         Failed(sending_has_failed):                           "failed",
@@ -44,13 +46,51 @@ define_model_roles! {
     }
 }
 
+struct QtAugmentedMessage {
+    inner: AugmentedMessage,
+    visual_attachments: QObjectBox<AttachmentModel>,
+    detail_attachments: QObjectBox<AttachmentModel>,
+}
+
+impl Deref for QtAugmentedMessage {
+    type Target = AugmentedMessage;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl From<AugmentedMessage> for QtAugmentedMessage {
+    fn from(inner: AugmentedMessage) -> Self {
+        let (visual, detail) =
+            inner.attachments.iter().cloned().partition(|x| {
+                x.content_type.contains("image") || x.content_type.contains("image")
+            });
+
+        let visual_attachments = AttachmentModel {
+            attachments: visual,
+            ..Default::default()
+        };
+        let detail_attachments = AttachmentModel {
+            attachments: detail,
+            ..Default::default()
+        };
+        Self {
+            inner,
+            visual_attachments: QObjectBox::new(visual_attachments),
+            detail_attachments: QObjectBox::new(detail_attachments),
+        }
+    }
+}
+
 #[derive(QObject, Default)]
 pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
     pub actor: Option<Addr<actor::MessageActor>>,
     pub client_actor: Option<Addr<ClientActor>>,
 
-    messages: Vec<AugmentedMessage>,
+    messages: Vec<QtAugmentedMessage>,
+
     group_members: Vec<orm::Recipient>,
     fingerprint: Option<String>,
 
@@ -242,7 +282,8 @@ impl MessageModel {
                 receipts: Vec::new(),
                 // No reactions yet.
                 reactions: Vec::new(),
-            },
+            }
+            .into(),
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
         // }
@@ -396,20 +437,20 @@ impl MessageModel {
                 log::trace!("Mark message {} sent '{}'", id, mark_sent);
 
                 // XXX: fetch the correct time
-                msg.inner.sent_timestamp = Some(chrono::Utc::now().naive_utc());
+                msg.inner.inner.sent_timestamp = Some(chrono::Utc::now().naive_utc());
             } else if mark_failed {
                 log::trace!("Mark message {} failed'", id);
-                msg.inner.sending_has_failed = true;
+                msg.inner.inner.sending_has_failed = true;
             } else if mark_pending {
                 log::trace!("Mark message {} failed'", id);
-                msg.inner.sending_has_failed = false;
+                msg.inner.inner.sending_has_failed = false;
             } else if mark_received {
                 log::trace!("Mark message {} received '{}'", id, mark_received);
 
                 // XXX: fetch the correct time and person
-                msg.inner.received_timestamp = Some(chrono::Utc::now().naive_utc());
+                msg.inner.inner.received_timestamp = Some(chrono::Utc::now().naive_utc());
                 // Dummy
-                msg.receipts.push((
+                msg.inner.receipts.push((
                     Receipt {
                         message_id: 0,
                         recipient_id: 0,
@@ -560,7 +601,8 @@ impl MessageModel {
             attachments,
             receipts,
             reactions,
-        };
+        }
+        .into();
 
         match idx {
             Ok(idx) => {
@@ -589,7 +631,7 @@ impl MessageModel {
 
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
 
-        self.messages.extend(messages);
+        self.messages.extend(messages.into_iter().map(Into::into));
 
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
@@ -622,5 +664,56 @@ impl QAbstractListModel for MessageModel {
 
     fn role_names(&self) -> HashMap<i32, QByteArray> {
         MessageRoles::role_names()
+    }
+}
+
+define_model_roles! {
+    enum AttachmentRoles for Attachment {
+        // There's a lot more useful stuff to expose.
+        MimeType(content_type via QString::from):       "type",
+        Data(attachment_path via qstring_from_option):  "data",
+    }
+}
+
+#[derive(QObject, Default)]
+pub struct AttachmentModel {
+    base: qt_base_class!(trait QAbstractListModel),
+    attachments: Vec<Attachment>,
+}
+
+impl QtAugmentedMessage {
+    fn detail_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
+        log::trace!(
+            "Qt requesting detail attachments ({})",
+            self.detail_attachments.pinned().borrow().attachments.len()
+        );
+        self.detail_attachments.pinned()
+    }
+
+    fn visual_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
+        log::trace!(
+            "Qt requesting visual attachments ({})",
+            self.visual_attachments.pinned().borrow().attachments.len()
+        );
+        self.visual_attachments.pinned()
+    }
+}
+
+impl QAbstractListModel for AttachmentModel {
+    fn row_count(&self) -> i32 {
+        log::trace!(
+            "Qt requesting attachment count ({})",
+            self.attachments.len()
+        );
+        self.attachments.len() as i32
+    }
+
+    fn data(&self, index: QModelIndex, role: i32) -> QVariant {
+        let role = AttachmentRoles::from(role);
+        role.get(&self.attachments[index.row() as usize])
+    }
+
+    fn role_names(&self) -> HashMap<i32, QByteArray> {
+        AttachmentRoles::role_names()
     }
 }

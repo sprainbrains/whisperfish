@@ -10,12 +10,12 @@ Loader {
     id: root
     readonly property var thumbsRe: /^(image|video)\//
 
-    property var thumbsAttachments: _attachments.filter(function(v){ return thumbsRe.test(v.type) })
-    property var detailAttachments: _attachments.filter(function(v){ return !thumbsRe.test(v.type) })
-    property real thumbsHeight: thumbsAttachments.length > 0 ? Math.min(2*Theme.itemSizeExtraLarge, width) : 0
+    property var thumbsAttachments: modelData.thumbsAttachments
+    property var detailAttachments: modelData.detailAttachments
+    property real thumbsHeight: thumbsAttachments.count > 0 ? Math.min(2*Theme.itemSizeExtraLarge, width) : 0
     property real detailItemHeight: Theme.itemSizeMedium
-    property real detailHeight: detailAttachments.length > 0 ? Math.min(maxDetails, detailAttachments.length)*detailItemHeight : 0
-    property real spacing: (thumbsAttachments.length > 0 && detailAttachments.length > 0) ? Theme.paddingMedium : 0
+    property real detailHeight: detailAttachments.count > 0 ? Math.min(maxDetails, detailAttachments.count)*detailItemHeight : 0
+    property real spacing: (thumbsAttachments.count > 0 && detailAttachments.count > 0) ? Theme.paddingMedium : 0
 
     property bool cornersOutbound: false
     property bool cornersQuoted: false
@@ -57,12 +57,12 @@ Loader {
                     width: parent.width
                     height: thumbsHeight
                     sourceComponent: {
-                        if (thumbsAttachments.length === 0) null
-                        else if (thumbsAttachments.length === 1) mediaComponent_1
-                        else if (thumbsAttachments.length === 2) mediaComponent_2
-                        else if (thumbsAttachments.length === 3) mediaComponent_3
-                        else if (thumbsAttachments.length === 4) mediaComponent_4
-                        else if (thumbsAttachments.length >= 5) mediaComponent_5_plus
+                        if (thumbsAttachments.count === 0) null
+                        else if (thumbsAttachments.count === 1) mediaComponent_1
+                        else if (thumbsAttachments.count === 2) mediaComponent_2
+                        else if (thumbsAttachments.count === 3) mediaComponent_3
+                        else if (thumbsAttachments.count === 4) mediaComponent_4
+                        else if (thumbsAttachments.count >= 5) mediaComponent_5_plus
                     }
                 }
 
@@ -207,7 +207,7 @@ Loader {
 
                     Rectangle {
                         id: thumbsOverlay
-                        visible: thumbsAttachments.length > maxThumbs
+                        visible: thumbsAttachments.count > maxThumbs
                         anchors.fill: parent
                         color: Theme.highlightDimmerColor
                         opacity: parent.highlighted ? 0.7 : 0.85
@@ -217,7 +217,7 @@ Loader {
                             anchors.fill: parent
                             //: Label hinting at more attachments than are currently shown. Read as "and %n more".
                             //% "+%n"
-                            text: qsTrId("whisperfish-attachments-plus-n", thumbsAttachments.length-maxThumbs)
+                            text: qsTrId("whisperfish-attachments-plus-n", thumbsAttachments.count-maxThumbs)
                             fontSizeMode: Text.Fit
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
@@ -244,8 +244,8 @@ Loader {
             Loader {
                 property int currentAttachmentIndex: 0
                 width: parent.width
-                height: parent.height/Math.min(maxDetails, detailAttachments.length)
-                sourceComponent: detailAttachments.length >= 1 ?
+                height: parent.height/Math.min(maxDetails, detailAttachments.count)
+                sourceComponent: detailAttachments.count >= 1 ?
                                      parent.componentForMime(detailAttachments[0].type) : null
             }
 
@@ -258,7 +258,7 @@ Loader {
                     anchors.fill: parent
                     property int currentAttachmentIndex: 1
                     opacity: detailOverlay.visible ? Theme.opacityFaint : 1.0
-                    sourceComponent: detailAttachments.length >= maxDetails ?
+                    sourceComponent: detailAttachments.count >= maxDetails ?
                                          detailColumn.componentForMime(detailAttachments[0].type) : null
 
                 }
@@ -273,7 +273,7 @@ Loader {
 
                 Rectangle {
                     id: detailOverlay
-                    visible: detailAttachments.length > maxDetails
+                    visible: detailAttachments.count > maxDetails
                     color: Theme.highlightDimmerColor
                     anchors.fill: showMoreDetail
                 }
@@ -285,7 +285,7 @@ Loader {
                     //: Note if some message attachments are hidden instead of being shown inline
                     //% "and %n more"
                     text: qsTrId("whisperfish-attachments-loader-show-more",
-                                 detailAttachments.length-maxDetails+1)
+                                 detailAttachments.count-maxDetails+1)
                     fontSizeMode: Text.Fit
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -297,7 +297,7 @@ Loader {
     Component {
         id: detail_contactComponent
         AttachmentItemContact {
-            attach: detailAttachments[currentAttachmentIndex]
+            attach: detailAttachments.get(currentAttachmentIndex)
             onPressAndHold: root.pressAndHold(mouse)
         }
     }
@@ -305,7 +305,7 @@ Loader {
     Component {
         id: detail_audioComponent
         AttachmentItemAudio {
-            attach: detailAttachments[currentAttachmentIndex]
+            attach: detailAttachments.get(currentAttachmentIndex)
             onPressAndHold: root.pressAndHold(mouse)
         }
     }
@@ -313,7 +313,7 @@ Loader {
     Component {
         id: detail_fileComponent
         AttachmentItemFile {
-            attach: detailAttachments[currentAttachmentIndex]
+            attach: detailAttachments.get(currentAttachmentIndex)
             onPressAndHold: root.pressAndHold(mouse)
         }
     }

@@ -37,9 +37,6 @@ ListItem {
     // treated as extra long messages.
     readonly property string _message: hasData && modelData.message ? modelData.message.trim() : ''
     readonly property string _source: hasData && modelData.source ? modelData.source.trim() : ''
-    readonly property var _attachments: hasData && modelData.attachment && modelData.mimeType ?
-                                            [{ data: modelData.attachment, type: modelData.mimeType }] : []
-    // TODO implement multiple attachments in the model (separate thumbs/details; include mime type)
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
 
     // SETTINGS PROPERTIES
@@ -72,7 +69,7 @@ ListItem {
 
     readonly property bool hasData: modelData !== null && typeof modelData !== 'undefined'
     readonly property bool hasQuotedMessage: quotedMessageData !== null
-    readonly property bool hasAttachments: hasData && (modelData.attachments > 0)
+    readonly property bool hasAttachments: hasData && (modelData.thumbsAttachments.count + modelData.detailAttachments.count > 0)
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && _source !== ''
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
