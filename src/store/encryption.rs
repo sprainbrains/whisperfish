@@ -125,7 +125,7 @@ impl StorageEncryption {
         // Get IV and MAC from message input vector. We use only slices after here and replace the
         // original message vector in the end.
         let (iv, content) = msg.split_at_mut(16);
-        let (mut content, mac) = content.split_at_mut(content.len() - 32);
+        let (content, mac) = content.split_at_mut(content.len() - 32);
 
         // Verify HMAC SHA256
         let mut verifier =
@@ -145,7 +145,7 @@ impl StorageEncryption {
             )
             .expect("CBC initialization error");
         let cleartext_len = cipher
-            .decrypt(&mut content)
+            .decrypt(content)
             .context("AES CBC decryption error")?
             .len();
 

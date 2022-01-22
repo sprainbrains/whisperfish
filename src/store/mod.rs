@@ -556,7 +556,6 @@ impl Storage {
         let db = self.db.lock();
         use schema::recipients;
         let by_e164: Option<orm::Recipient> = e164
-            .as_deref()
             .map(|e164| {
                 recipients::table
                     .filter(recipients::e164.eq(e164))
@@ -567,7 +566,6 @@ impl Storage {
             .expect("db")
             .flatten();
         let by_uuid: Option<orm::Recipient> = uuid
-            .as_deref()
             .map(|uuid| {
                 recipients::table
                     .filter(recipients::uuid.eq(uuid))
@@ -642,7 +640,6 @@ impl Storage {
 
         use schema::recipients;
         let by_e164: Option<orm::Recipient> = e164
-            .as_deref()
             .map(|e164| {
                 recipients::table
                     .filter(recipients::e164.eq(e164))
@@ -652,7 +649,6 @@ impl Storage {
             .transpose()?
             .flatten();
         let by_uuid: Option<orm::Recipient> = uuid
-            .as_deref()
             .map(|uuid| {
                 recipients::table
                     .filter(recipients::uuid.eq(uuid))
@@ -1853,8 +1849,9 @@ mod tests {
         assert_eq!(
             fname.extension().unwrap(),
             ext,
-            "{}",
-            format!("{} <> {}", fname.to_str().unwrap(), ext)
+            "{} <> {}",
+            fname.to_str().unwrap(),
+            ext
         );
     }
 
