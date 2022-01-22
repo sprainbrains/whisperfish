@@ -1,6 +1,7 @@
 use actix::prelude::*;
 
 use libsignal_service::profile_name::ProfileName;
+use libsignal_service::push_service::AccountAttributes;
 use libsignal_service::push_service::DeviceCapabilities;
 use rand::Rng;
 use zkgroup::profiles::ProfileKey;
@@ -124,26 +125,28 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 .expect("self set by now");
 
             let mut am = AccountManager::new(service, self_recipient.profile_key());
-            am.set_account_attributes(
-                None,            // signaling key
-                registration_id, // regid
-                false,           // voice
-                false,           // video
-                true,            // fetches_messages
-                None,            // pin
-                None,            // reg lock
-                None,            // unidentified_access_key
-                false,           //unresticted UA
-                true,            // discoverable by phone
-                DeviceCapabilities {
+            let account_attributes = AccountAttributes {
+                signaling_key: None,
+                registration_id,
+                voice: false,
+                video: false,
+                fetches_messages: true,
+                pin: None,
+                registration_lock: None,
+                unidentified_access_key: None,
+                unrestricted_unidentified_access: false,
+                discoverable_by_phone_number: true,
+                capabilities: DeviceCapabilities {
                     uuid: true,
                     gv2: true,
                     storage: false,
                     gv1_migration: true,
                 },
-            )
-            .await
-            .expect("upload profile");
+                device_name: None,
+            };
+            am.set_account_attributes(account_attributes)
+                .await
+                .expect("upload profile");
             log::info!("Profile attributes refreshed");
         })
     }
