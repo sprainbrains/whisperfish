@@ -29,8 +29,8 @@ use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
 
-pub use libsignal_service::provisioning::VerificationCodeResponse;
-use libsignal_service::provisioning::{ConfirmCodeResponse, ProvisioningManager};
+use libsignal_service::provisioning::ProvisioningManager;
+pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
 
 mod migrations;
@@ -1231,7 +1231,7 @@ impl Handler<Register> for ClientActor {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<(u32, ConfirmCodeResponse), anyhow::Error>")]
+#[rtype(result = "Result<(u32, VerifyAccountResponse), anyhow::Error>")]
 pub struct ConfirmRegistration {
     pub phonenumber: PhoneNumber,
     pub password: String,
@@ -1240,10 +1240,11 @@ pub struct ConfirmRegistration {
 }
 
 impl Handler<ConfirmRegistration> for ClientActor {
-    type Result = ResponseActFuture<Self, Result<(u32, ConfirmCodeResponse), anyhow::Error>>;
+    type Result = ResponseActFuture<Self, Result<(u32, VerifyAccountResponse), anyhow::Error>>;
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
         use libsignal_service::provisioning::*;
+        use libsignal_service::push_service::{AccountAttributes, DeviceCapabilities};
 
         let ConfirmRegistration {
             phonenumber,
@@ -1268,14 +1269,26 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 phonenumber,
                 password,
             );
+            let account_attrs = AccountAttributes {
+                signaling_key: Some(signaling_key.to_vec()),
+                registration_id,
+                voice: false,
+                video: false,
+                fetches_messages: true,
+                pin: None,
+                registration_lock: None,
+                unidentified_access_key: None,
+                unrestricted_unidentified_access: false,
+                discoverable_by_phone_number: true,
+                capabilities: DeviceCapabilities {
+                    uuid: true,
+                    gv2: true,
+                    storage: false,
+                    gv1_migration: true,
+                },
+            };
             provisioning_manager
-                .confirm_verification_code(
-                    confirm_code,
-                    ConfirmCodeMessage::new_without_unidentified_access(
-                        signaling_key.to_vec(),
-                        registration_id,
-                    ),
-                )
+                .confirm_verification_code(confirm_code, account_attrs)
                 .await
         };
 
