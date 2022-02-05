@@ -104,7 +104,7 @@ as well as in the target.
 
 Make sure you have access to the `sfdk` tool; we will use it for setting up the environment.
 
-1. Make sure you have a tooling and target later than 4.1.0.24.
+1. Make sure you have a tooling and target later than 4.1.0.24 (tested with 4.3.0.12, too).
    Use the SDK Maintenance tool to upgrade if necessary.
 2. On versions before 4.1, you need to set up a patched version of Rust.
 
@@ -117,11 +117,11 @@ Make sure you have access to the `sfdk` tool; we will use it for setting up the 
    Then, install the tooling::
 
     $ sfdk tools exec SailfishOS-4.1.0.24 \
-        zypper update -y --allow-vendor-change \
-          rust cargo \
-          rust-std-static-aarch64-unknown-linux-gnu \
-          rust-std-static-armv7-unknown-linux-gnueabihf \
-          rust-std-static-i686-unknown-linux-gnu
+        zypper install --oldpackage -y --allow-vendor-change \
+        rust=1.52.1+git1-1 cargo=1.52.1+git1-1 \
+        rust-std-static-aarch64-unknown-linux-gnu=1.52.1+git1-1 \
+        rust-std-static-armv7-unknown-linux-gnueabihf=1.52.1+git1-1 \
+        rust-std-static-i686-unknown-linux-gnu=1.52.1+git1-1
     $ sfdk tools exec SailfishOS-4.1.0.24 \
         zypper install -y zlib-devel sqlcipher-devel
     $ sfdk engine exec \
@@ -130,17 +130,18 @@ Make sure you have access to the `sfdk` tool; we will use it for setting up the 
    Then, install the stub compilers (for armv7hl and aarch64)::
 
     $ sfdk tools exec SailfishOS-4.1.0.24-armv7hl \
-        zypper install --repo rubdos -y \
-          rust cargo \
-          rust-std-static \
-          rust-std-static-i686-unknown-linux-gnu
+        zypper install --oldpackage --repo rubdos -y \
+          rust=1.52.1+git1-1 cargo=1.52.1+git1-1 \
+          rust-std-static=1.0+git3-1.2.1 \
+          rust-std-static-i686-unknown-linux-gnu=1.0+git3-1.2.1
 
    on i486 use this instead::
 
     $ sfdk tools exec SailfishOS-4.1.0.24-i486 \
         zypper install --from rubdos -y \
-          rust cargo \
-          rust-std-static-i686-unknown-linux-gnu
+          rust=1.52.1+git1-1 cargo=1.52.1+git1-1 \
+          rust-std-static=1.52.1+git1-1 \
+          rust-std-static-i686-unknown-linux-gnu=1.52.1+git1-1
 
 3. You can now proceed to build as you would with a normal SailfishOS application::
 
