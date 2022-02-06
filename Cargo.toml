@@ -1,3 +1,5 @@
+# cargo-features = ["strip"]
+
 [package]
 name = "harbour-whisperfish"
 version = "0.6.0-dev"
@@ -14,30 +16,30 @@ harness = false
 [dependencies]
 async-trait = "0.1"
 bincode = "1.2.1"
-actix = "0.12.0-beta"
+actix = "0.12.0"
 rand = "0.7"
 aes = "0.7"
 block-modes = "0.8"
 parking_lot = "0.11"
 dbus = "0.9"
-hmac = "0.11.0"
+hmac = "0.11"
 sha2 = "0.9"
 pbkdf2 = { version = "0.8.0", default-features = false }
 sha-1 = "0.9"
-uuid = { version = "0.8.1", features=["v4"] }
+uuid = { version = "0.8", features=["v4"] }
 mime_guess = "2.0.3"
 actix-threadpool = "0.3"
-actix-rt = "2.0.0-beta"
-actix_derive = "0.6.0-beta.1"
+actix-rt = "2.6.0"
+actix_derive = "0.6"
 chrono = "0.4"
-tokio = {version="1.1", features=["time", "io-util", "net", "sync"]}
+tokio = {version="1.16.1", features=["time", "io-util", "net", "sync"]}
 futures = "0.3"
 pin-utils = "0.1"
 
 qmetaobject = { version = "=0.2.5" }
 qmeta-async = { git = "https://gitlab.com/rubdos/qmeta-async.git" }
 
-cstr = "0.2.0"
+cstr = "0.2"
 cpp = "0.5"
 dirs = "3.0"
 anyhow = "1.0"
@@ -45,26 +47,26 @@ thiserror = "1"
 libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 zkgroup = { git = "https://github.com/signalapp/zkgroup" }
-log = "0.4.8"
+log = "0.4"
 env_logger = "0.8"
 scrypt = { version = "0.7", default-features = false, features=["std"] }
-single-instance = "0.3.1"
+single-instance = "0.3.3"
 hex = "0.4"
 phonenumber = "0.3"
 itertools = "0.10.0"
 
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 diesel_migrations = "1.4"
-libsqlite3-sys = { version = "0.9", features = ["sqlcipher"] }
+libsqlite3-sys = { version = "0.22.2", features = ["sqlcipher"] }
 
 serde = {version = "1.0", features = ["derive"]}
 serde_yaml = "0.8"
 
 prost = "0.8"
 
-tempdir = "0.3.5"
+tempdir = "0.3"
 
-structopt = "0.3.16"
+structopt = "0.3"
 
 rpassword = "5.0"
 secrecy = "0.8"
@@ -107,6 +109,8 @@ opt-level = 0
 [profile.release]
 # This flag is set in CI using RUSTFLAGS
 # lto = "fat"
+
+#strip = "symbols"
 
 [features]
 # This feature requires setting RUSTFLAGS="-C link-args=-Wl,-lcrypto"
