@@ -285,10 +285,12 @@ impl protocol::PreKeyStore for Storage {
         log::trace!("Loading prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = if let Ok(x) = self.read_file(self.prekey_path(id)).await {
-            x
-        } else {
-            return Err(SignalProtocolError::InvalidPreKeyId);
+        let contents = match self.read_file(self.prekey_path(id)).await {
+            Ok(x) => x,
+            Err(e) => {
+                log::error!("Invalid pre key id: {}", e);
+                return Err(SignalProtocolError::InvalidPreKeyId);
+            }
         };
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
         Ok(PreKeyRecord::deserialize(&contents)?)
@@ -520,10 +522,12 @@ impl protocol::SignedPreKeyStore for Storage {
         log::trace!("Loading signed prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = if let Ok(x) = self.read_file(self.signed_prekey_path(id)).await {
-            x
-        } else {
-            return Err(SignalProtocolError::InvalidSignedPreKeyId);
+        let contents = match self.read_file(self.signed_prekey_path(id)).await {
+            Ok(x) => x,
+            Err(e) => {
+                log::error!("Invalid signed pre key id: {}", e);
+                return Err(SignalProtocolError::InvalidSignedPreKeyId);
+            }
         };
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 
