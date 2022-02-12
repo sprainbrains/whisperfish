@@ -142,7 +142,6 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                     storage: false,
                     gv1_migration: true,
                 },
-                device_name: None,
             };
             am.set_account_attributes(account_attributes)
                 .await
