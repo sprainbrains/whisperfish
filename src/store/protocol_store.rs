@@ -188,7 +188,8 @@ impl protocol::IdentityKeyStore for Storage {
             .join("identity_key");
         let identity_key_pair = {
             use std::convert::TryFrom;
-            let mut buf = utils::read_file_async_encrypted(path, self.store_enc.as_ref())
+            let mut buf = self
+                .read_file(path)
                 .await
                 .map_err(|_| SignalProtocolError::InternalError("Cannot read own identity key"))?;
             buf.insert(0, quirk::DJB_TYPE);
@@ -204,7 +205,8 @@ impl protocol::IdentityKeyStore for Storage {
         let _lock = self.protocol_store.read().await;
 
         let path = self.path.join("storage").join("identity").join("regid");
-        let regid = utils::read_file_async_encrypted(path, self.store_enc.as_ref())
+        let regid = self
+            .read_file(path)
             .await
             .map_err(|_| SignalProtocolError::InternalError("Cannot read regid"))?;
         let regid = String::from_utf8(regid).map_err(|_| {
