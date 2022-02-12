@@ -343,10 +343,22 @@ impl protocol::SessionStore for Storage {
         log::trace!("Loading session for {:?} from {:?}", addr, path);
         let _lock = self.protocol_store.read().await;
 
-        let buf = if let Ok(buf) = self.read_file(path).await {
-            quirk::session_from_0_5(&buf)?
-        } else {
-            return Ok(None);
+        let buf = match self.read_file(&path).await {
+            Ok(buf) => quirk::session_from_0_5(&buf)?,
+            Err(e) if !path.exists() => {
+                log::trace!(
+                    "Returning None session because session file does not exist ({})",
+                    e
+                );
+                return Ok(None);
+            }
+            Err(e) => {
+                log::error!(
+                    "Problem reading session: {}.  Returning empty session, but here be dragons.",
+                    e
+                );
+                return Ok(None);
+            }
         };
 
         Ok(Some(SessionRecord::deserialize(&buf)?))
