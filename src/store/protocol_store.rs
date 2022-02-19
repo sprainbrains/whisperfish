@@ -188,7 +188,8 @@ impl protocol::IdentityKeyStore for Storage {
             .join("identity_key");
         let identity_key_pair = {
             use std::convert::TryFrom;
-            let mut buf = utils::read_file_async_encrypted(path, self.store_enc.as_ref())
+            let mut buf = self
+                .read_file(path)
                 .await
                 .map_err(|_| SignalProtocolError::InternalError("Cannot read own identity key"))?;
             buf.insert(0, quirk::DJB_TYPE);
@@ -204,7 +205,8 @@ impl protocol::IdentityKeyStore for Storage {
         let _lock = self.protocol_store.read().await;
 
         let path = self.path.join("storage").join("identity").join("regid");
-        let regid = utils::read_file_async_encrypted(path, self.store_enc.as_ref())
+        let regid = self
+            .read_file(path)
             .await
             .map_err(|_| SignalProtocolError::InternalError("Cannot read regid"))?;
         let regid = String::from_utf8(regid).map_err(|_| {
@@ -283,10 +285,12 @@ impl protocol::PreKeyStore for Storage {
         log::trace!("Loading prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = if let Ok(x) = self.read_file(self.prekey_path(id)).await {
-            x
-        } else {
-            return Err(SignalProtocolError::InvalidPreKeyId);
+        let contents = match self.read_file(self.prekey_path(id)).await {
+            Ok(x) => x,
+            Err(e) => {
+                log::error!("Invalid pre key id: {}", e);
+                return Err(SignalProtocolError::InvalidPreKeyId);
+            }
         };
         let contents = quirk::pre_key_from_0_5(&contents).unwrap();
         Ok(PreKeyRecord::deserialize(&contents)?)
@@ -341,10 +345,22 @@ impl protocol::SessionStore for Storage {
         log::trace!("Loading session for {:?} from {:?}", addr, path);
         let _lock = self.protocol_store.read().await;
 
-        let buf = if let Ok(buf) = self.read_file(path).await {
-            quirk::session_from_0_5(&buf)?
-        } else {
-            return Ok(None);
+        let buf = match self.read_file(&path).await {
+            Ok(buf) => quirk::session_from_0_5(&buf)?,
+            Err(e) if !path.exists() => {
+                log::trace!(
+                    "Returning None session because session file does not exist ({})",
+                    e
+                );
+                return Ok(None);
+            }
+            Err(e) => {
+                log::error!(
+                    "Problem reading session: {}.  Returning empty session, but here be dragons.",
+                    e
+                );
+                return Ok(None);
+            }
         };
 
         Ok(Some(SessionRecord::deserialize(&buf)?))
@@ -506,10 +522,12 @@ impl protocol::SignedPreKeyStore for Storage {
         log::trace!("Loading signed prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = if let Ok(x) = self.read_file(self.signed_prekey_path(id)).await {
-            x
-        } else {
-            return Err(SignalProtocolError::InvalidSignedPreKeyId);
+        let contents = match self.read_file(self.signed_prekey_path(id)).await {
+            Ok(x) => x,
+            Err(e) => {
+                log::error!("Invalid signed pre key id: {}", e);
+                return Err(SignalProtocolError::InvalidSignedPreKeyId);
+            }
         };
         let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
 

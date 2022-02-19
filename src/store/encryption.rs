@@ -122,6 +122,14 @@ impl StorageEncryption {
         use block_modes::BlockMode;
         use hmac::{Mac, NewMac};
 
+        const MIN_MESSAGE_LEN: usize = 16 + 32; // IV (16) + MSG (0) + MAC (32)
+        anyhow::ensure!(
+            msg.len() >= MIN_MESSAGE_LEN,
+            "Attempt at decrypting a message with length {} smaller than minimum length {}",
+            msg.len(),
+            MIN_MESSAGE_LEN
+        );
+
         // Get IV and MAC from message input vector. We use only slices after here and replace the
         // original message vector in the end.
         let (iv, content) = msg.split_at_mut(16);
