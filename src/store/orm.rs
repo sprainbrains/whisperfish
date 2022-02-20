@@ -316,7 +316,9 @@ impl
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum SessionType {
+    // XXX clippy suggests to put Recipient, 322 bytes, on the heap.
     DirectMessage(Recipient),
     GroupV1(GroupV1),
     GroupV2(GroupV2),

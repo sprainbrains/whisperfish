@@ -15,6 +15,7 @@ use harbour_whisperfish::store;
 pub mod schemas;
 
 #[derive(Queryable, QueryableByName, Debug)]
+#[allow(dead_code)]
 pub struct ForeignKeyViolation {
     #[sql_type = "Text"]
     table: String,

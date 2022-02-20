@@ -49,6 +49,7 @@ pub fn check_foreign_keys(db: &diesel::SqliteConnection) -> Result<(), anyhow::E
     use diesel::sql_types::*;
 
     #[derive(Queryable, QueryableByName, Debug)]
+    #[allow(dead_code)]
     pub struct ForeignKeyViolation {
         #[sql_type = "Text"]
         table: String,
