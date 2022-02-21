@@ -28,6 +28,7 @@ pub struct Storage {
     // aesKey + macKey
     keys: Option<[u8; 16 + 20]>,
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
+    #[allow(dead_code)]
     credential_cache: Arc<Mutex<InMemoryCredentialsCache>>,
     path: PathBuf,
 }
