@@ -2,13 +2,13 @@
 
 cd "$(dirname "$0")"
 SCRIPT_DIR=$(pwd)
-SQLCIPHER_VERSION="3.4.1"
+SQLCIPHER_VERSION="3.4.2"
 
 # Excerpt from https://github.com/rusqlite/rusqlite/pull/860
 # Download and generate sqlcipher amalgamation
 mkdir -p "$SCRIPT_DIR/sqlcipher.src"
 [ -e "v${SQLCIPHER_VERSION}.tar.gz" ] || curl -sfL -O "https://github.com/sqlcipher/sqlcipher/archive/v${SQLCIPHER_VERSION}.tar.gz"
-sha256sum -c v3.4.1.tar.gz.sha256sum
+sha256sum -c v${SQLCIPHER_VERSION}.tar.gz.sha256sum
 
 [ -e "sqlite3.c" ] && exit 0
 
