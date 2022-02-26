@@ -78,6 +78,7 @@ ListItem {
             highlighted: delegate.highlighted
             labelsHighlighted: delegate._labelsHighlighted
             imageSource: profilePicture
+            isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
             showInfoMark: pinned || archived || hasDraft || isNoteToSelf || hasAttachment
             infoMark.source: {
