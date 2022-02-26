@@ -46,7 +46,9 @@ ApplicationWindow
 
     Component {
         id: messageNotification
-        Notification {}
+        Notification {
+            property int mid
+        }
     }
 
     ConfigurationValue {
@@ -64,6 +66,7 @@ ApplicationWindow
     }
 
     function newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup) {
+    function newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup) {
         var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier);
         var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
         var contactName = contact ? contact.displayLabel : senderIdentifier;
@@ -128,6 +131,7 @@ ApplicationWindow
             "arguments": [ "sid", sid ]
         } ]
         m.publish()
+        m.mid = mid
         if(sid in notificationMap) {
               notificationMap[sid].push(m)
         } else {
@@ -155,7 +159,7 @@ ApplicationWindow
             }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup)
+            newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup)
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {

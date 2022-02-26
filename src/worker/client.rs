@@ -68,6 +68,7 @@ pub struct ClientWorker {
     messageReceipt: qt_signal!(sid: i32, mid: i32),
     notifyMessage: qt_signal!(
         sid: i32,
+        mid: i32,
         sessionName: QString,
         senderIdentifier: QString,
         message: QString,
@@ -434,6 +435,7 @@ impl ClientActor {
 
             self.inner.pinned().borrow_mut().notifyMessage(
                 session.id,
+                message.id,
                 session_name.into(),
                 sender_recipient
                     .map(|x| x.e164_or_uuid().into())
