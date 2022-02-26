@@ -13,7 +13,7 @@ ListItem {
     property int unreadCount: 0 // TODO implement in model
     property bool isRead: model.read // TODO investigate: is this really a bool?
     property bool isUnread: !isRead // TODO investigate: is this really a bool?
-    property bool isNoteToSelf: false // TODO implement in model (#138), e.g. SettingsBridge.stringValue("tel") === model.source
+    property bool isNoteToSelf: SetupWorker.phoneNumber === model.source
     property bool pinned: false // TODO implement in model
     property bool archived: false // TODO implement in model
     property bool hasDraft: false // TODO implement in model (#178)
