@@ -65,7 +65,24 @@ ApplicationWindow
         MessageModel.load(sid, name)
     }
 
-    function newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup) {
+    function closeMessageNotification(sid, mid) {
+        if(sid in notificationMap) {
+            for(var i in notificationMap[sid]) {
+
+                if(notificationMap[sid][i].mid === mid) {
+                    notificationMap[sid][i].close()
+                    delete notificationMap[sid][i]
+                    notificationMap[sid].splice(i, 1)
+                    
+                    if(notificationMap[sid].length === 0) {
+                        delete notificationMap[sid]
+                    }
+                    break
+                }
+            }
+        }
+    }
+
     function newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup) {
         var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier);
         var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
@@ -157,6 +174,10 @@ ApplicationWindow
             if(sid > 0) {
                 SessionModel.markReceived(sid)
             }
+
+            if(sid > 0 && mid > 0) {
+                closeMessageNotification(sid, mid)
+            }
         }
         onNotifyMessage: {
             newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup)
@@ -245,7 +266,7 @@ ApplicationWindow
     function clearNotifications(sid) {
         // Close out any existing notifications for the session
         if(sid in notificationMap) {
-            for(var i = 0; i < notificationMap[sid].length; i++) {
+            for(var i in notificationMap[sid]) {
                 notificationMap[sid][i].close()
             }
             delete notificationMap[sid]
