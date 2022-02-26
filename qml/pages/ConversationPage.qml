@@ -13,7 +13,7 @@ Page {
 
     property bool isGroup: MessageModel.group
     property var contact: isGroup ? null : resolvePeopleModel.personByPhoneNumber(MessageModel.peerTel, true)
-    property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : MessageModel.peerTel)
+    property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : ( MessageModel.peerTel === SetupWorker.phoneNumber ? qsTrId("whisperfish-group-member-name-self") : MessageModel.peerTel))
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
