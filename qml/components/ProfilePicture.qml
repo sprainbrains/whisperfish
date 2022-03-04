@@ -11,6 +11,7 @@ MouseArea {
 
     property alias imageSource: image.source
     property bool isGroup
+    property bool isNoteToSelf
     property bool showInfoMark
     property alias infoMark: infoMarkIcon
     property real infoMarkSize: Theme.iconSizeSmall // set this, don't change infoMark.{width,height}
@@ -98,7 +99,7 @@ MouseArea {
 
     HighlightImage {
         source: isGroup ? "image://theme/icon-m-users" :
-                          "image://theme/icon-m-contact"
+                          ( isNoteToSelf ? "image://theme/icon-m-note" : "image://theme/icon-m-contact" )
         anchors.centerIn: parent
         highlighted: _labelsHighlighted
         opacity: !_hasImage || image.status !== Image.Ready ?
