@@ -23,38 +23,38 @@
         <translation>Tous les messages sont supprimés</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="124"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="125"/>
         <location filename="../qml/pages/ShareDestination.qml" line="97"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Note à moi-même</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="144"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Brouillon&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="263"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Supprimer la conversation</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="92"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="112"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nouveau message</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="180"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="205"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Échec de configuration du client Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="185"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="210"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
@@ -237,6 +237,7 @@
         <translation>Retirer de ce groupe</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
+        <location filename="../qml/pages/ConversationPage.qml" line="16"/>
         <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
