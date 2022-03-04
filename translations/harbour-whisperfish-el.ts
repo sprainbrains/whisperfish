@@ -1024,11 +1024,11 @@ Settings page share contacts</extracomment>
         <translation>Κατάργηση από την ομάδα</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/ConversationPage.qml" line="16"/>
-        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
-        <source>You</source>
-        <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
-        <translation>Εσείς</translation>
+        <location filename="../qml/pages/ConversationPage.qml" line="18"/>
+        <source>Note to Self</source>
+        <oldsource>You</oldsource>
+        <extracomment>The name of the session with yourself, often used for notes.</extracomment>
+        <translation type="unfinished">Εσείς</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
@@ -1323,7 +1323,7 @@ Settings page share contacts</extracomment>
         <translation>Αποτυχία αναπαραγωγής</translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="256"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="258"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
@@ -1333,7 +1333,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="280"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="282"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
@@ -1342,7 +1342,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="289"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="291"/>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1352,13 +1352,13 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="297"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="299"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation>Προβολή πληροφοριών του μηνύματος</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="311"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="313"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1368,7 +1368,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="320"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="322"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1378,7 +1378,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="332"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="334"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
