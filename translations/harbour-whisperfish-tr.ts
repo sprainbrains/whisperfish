@@ -51,7 +51,7 @@
         <location filename="../qml/harbour-whisperfish.qml" line="205"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Signal istemcisi kurulumu başarısız oldu</translation>
+        <translation>Signal istemcisi kurulamadı</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="210"/>
