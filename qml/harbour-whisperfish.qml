@@ -46,7 +46,9 @@ ApplicationWindow
 
     Component {
         id: messageNotification
-        Notification {}
+        Notification {
+            property int mid
+        }
     }
 
     ConfigurationValue {
@@ -63,7 +65,25 @@ ApplicationWindow
         MessageModel.load(sid, name)
     }
 
-    function newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup) {
+    function closeMessageNotification(sid, mid) {
+        if(sid in notificationMap) {
+            for(var i in notificationMap[sid]) {
+
+                if(notificationMap[sid][i].mid === mid) {
+                    notificationMap[sid][i].close()
+                    delete notificationMap[sid][i]
+                    notificationMap[sid].splice(i, 1)
+                    
+                    if(notificationMap[sid].length === 0) {
+                        delete notificationMap[sid]
+                    }
+                    break
+                }
+            }
+        }
+    }
+
+    function newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup) {
         var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier);
         var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
         var contactName = contact ? contact.displayLabel : senderIdentifier;
@@ -128,6 +148,7 @@ ApplicationWindow
             "arguments": [ "sid", sid ]
         } ]
         m.publish()
+        m.mid = mid
         if(sid in notificationMap) {
               notificationMap[sid].push(m)
         } else {
@@ -153,9 +174,13 @@ ApplicationWindow
             if(sid > 0) {
                 SessionModel.markReceived(sid)
             }
+
+            if(sid > 0 && mid > 0) {
+                closeMessageNotification(sid, mid)
+            }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, sessionName, senderIdentifier, message, isGroup)
+            newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup)
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
@@ -241,7 +266,7 @@ ApplicationWindow
     function clearNotifications(sid) {
         // Close out any existing notifications for the session
         if(sid in notificationMap) {
-            for(var i = 0; i < notificationMap[sid].length; i++) {
+            for(var i in notificationMap[sid]) {
                 notificationMap[sid][i].close()
             }
             delete notificationMap[sid]
