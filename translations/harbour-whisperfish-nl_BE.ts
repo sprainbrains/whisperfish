@@ -1021,10 +1021,10 @@ Settings page share contacts</extracomment>
         <translation>Verwijderen uit deze groep</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/ConversationPage.qml" line="18"/>
-        <source>Note to Self</source>
-        <oldsource>You</oldsource>
-        <extracomment>The name of the session with yourself, often used for notes.</extracomment>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
+        <source>You</source>
+        <oldsource>Note to Self</oldsource>
+        <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation type="unfinished">Gij</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
