@@ -126,7 +126,7 @@ impl Recipient {
     pub fn e164_or_uuid(&self) -> &str {
         self.e164
             .as_deref()
-            .or_else(|| self.uuid.as_deref())
+            .or(self.uuid.as_deref())
             .expect("either uuid or e164")
     }
 }

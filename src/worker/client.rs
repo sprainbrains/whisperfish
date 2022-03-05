@@ -294,7 +294,7 @@ impl ClientActor {
                 "Group changed by {}",
                 source_e164
                     .as_deref()
-                    .or_else(|| source_uuid.as_deref())
+                    .or(source_uuid.as_deref())
                     .unwrap_or("nobody")
             ))
         } else if !msg.attachments.is_empty() {
@@ -966,7 +966,7 @@ impl Handler<SendMessage> for ClientActor {
                     act.inner.pinned().borrow().messageSent(
                         sid,
                         mid,
-                        message.unwrap_or_else(String::new).into(),
+                        message.unwrap_or_default().into(),
                     );
 
                     actix::spawn(
