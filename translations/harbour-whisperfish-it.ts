@@ -1026,9 +1026,8 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-group-member-name-self">
         <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
-        <oldsource>Note to Self</oldsource>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
-        <translation type="unfinished">Tu</translation>
+        <translation>Tu</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
