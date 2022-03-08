@@ -17,7 +17,7 @@ Page {
                 //: Reset secure session menu item
                 //% "Reset Secure Session"
                 text: qsTrId("whisperfish-reset-session-menu")
-                enabled: MessageModel.peerIdentity.length > 0
+                enabled: ! MessageModel.group
                 onClicked: {
                     //: Reset secure session remorse message (past tense)
                     //% "Secure session reset"
