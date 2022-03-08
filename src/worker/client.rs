@@ -828,7 +828,11 @@ impl Handler<SendMessage> for ClientActor {
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
                 let mut content = DataMessage {
                     body: msg.text.clone(),
-                    flags: None,
+                    flags: if msg.flags != 0 {
+                        Some(msg.flags as _)
+                    } else {
+                        None
+                    },
                     timestamp: Some(timestamp),
                     // XXX: depends on the features in the message!
                     required_protocol_version: Some(0),
@@ -838,10 +842,6 @@ impl Handler<SendMessage> for ClientActor {
                     profile_key: self_recipient.and_then(|r| r.profile_key),
                     ..Default::default()
                 };
-
-                if msg.flags == 1 {
-                    log::warn!("End session unimplemented");
-                }
 
                 let attachments = storage.fetch_attachments_for_message(msg.id);
 
