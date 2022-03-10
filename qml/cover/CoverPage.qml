@@ -5,6 +5,8 @@ CoverBackground {
     Image {
         x: Theme.paddingLarge
         horizontalAlignment: Text.AlignHCenter
+        width: parent.width * 0.3
+        height: width
         source: {
             if(SessionModel.unread > 0) {
                 return "/usr/share/harbour-whisperfish/icons/172x172/gold.png"
