@@ -5,6 +5,7 @@ use crate::store::{orm, Storage};
 use crate::worker::ClientActor;
 
 use actix::prelude::*;
+use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use qmetaobject::prelude::*;
 
 #[derive(actix::Message)]
@@ -90,14 +91,14 @@ impl Handler<StorageReady> for MessageActor {
 }
 
 impl Handler<FetchSession> for MessageActor {
-    type Result = ();
+    type Result = ResponseActFuture<Self, ()>;
 
     fn handle(
         &mut self,
         FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let storage = self.storage.as_ref().unwrap();
+        let storage = self.storage.as_ref().unwrap().clone();
         let sess = storage
             .fetch_session_by_id(sid)
             .expect("FIXME No session returned!");
@@ -122,28 +123,42 @@ impl Handler<FetchSession> for MessageActor {
             storage.mark_session_read(sess.id);
         }
 
-        let peer_identity = if let orm::SessionType::DirectMessage(_recipient) = &sess.r#type {
-            log::info!("STUB requested peer identity for {:?}; #303", _recipient);
-            // FIXME UUID
-            String::new()
-            // match storage.peer_identity(recipient.e164.as_deref().expect("fixme")) {
-            //     Ok(ident) => ident,
-            //     Err(e) => {
-            //         log::warn!(
-            //             "FetchSession: returning empty string for peer_ident because {:?}",
-            //             e
-            //         );
-            //         String::new()
-            //     }
-            // }
-        } else {
-            String::new()
-        };
-
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_session(sess, group_members, peer_identity);
+        let sess_type = sess.r#type.clone();
+        Box::pin(
+            async move {
+                if let orm::SessionType::DirectMessage(recipient) = sess_type {
+                    log::info!("STUB requested peer identity for {:?}; #303", recipient);
+                    let addr = recipient.to_service_address();
+                    let addr = libsignal_service::cipher::get_preferred_protocol_address(
+                        &storage,
+                        &addr,
+                        DEFAULT_DEVICE_ID,
+                    )
+                    .await
+                    .expect("existing session");
+                    match storage.peer_identity(addr).await {
+                        Ok(ident) => Some(ident),
+                        Err(e) => {
+                            log::warn!(
+                                "FetchSession: returning None for peer_ident because {:?}",
+                                e
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    None
+                }
+            }
+            .into_actor(self)
+            .map(move |peer_identity, act, _ctx| {
+                act.inner.pinned().borrow_mut().handle_fetch_session(
+                    sess,
+                    group_members,
+                    peer_identity,
+                );
+            }),
+        )
     }
 }
 

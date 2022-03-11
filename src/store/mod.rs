@@ -1756,14 +1756,13 @@ impl Storage {
             .unwrap();
     }
 
-    /// Returns a hex-encoded peer identity
-    pub async fn peer_identity(&self, e164: String) -> Result<String, anyhow::Error> {
-        let addr = ProtocolAddress::new(e164, 1);
+    /// Returns a binary peer identity
+    pub async fn peer_identity(&self, addr: ProtocolAddress) -> Result<Vec<u8>, anyhow::Error> {
         let ident = self
             .get_identity(&addr, None)
             .await?
             .context("No such identity")?;
-        Ok(hex::encode_upper(ident.serialize()))
+        Ok(ident.serialize().into())
     }
 
     pub fn credential_cache(&self) -> std::sync::MutexGuard<'_, InMemoryCredentialsCache> {
