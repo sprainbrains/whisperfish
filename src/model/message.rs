@@ -29,6 +29,8 @@ define_model_roles! {
         Read(fn read(&self)):                                 "read",
         Viewed(fn viewed(&self)):                             "viewed",
 
+        Reactions(fn reactions(&self) via QString::from):     "reactions",
+
         Sent(fn sent(&self)):                                 "sent",
         Flags(flags):                                         "flags",
         Attachments(fn attachments(&self)):                   "attachments",

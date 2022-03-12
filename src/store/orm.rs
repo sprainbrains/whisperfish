@@ -437,6 +437,14 @@ impl AugmentedMessage {
         self.attachments[0].attachment_path.as_deref().unwrap_or("")
     }
 
+    pub fn reactions(&self) -> String {
+        use itertools::Itertools;
+        self.reactions
+            .iter()
+            .map(|(reaction, _recipient)| &reaction.emoji)
+            .join(",")
+    }
+
     pub fn first_attachment_mime_type(&self) -> &str {
         if self.attachments.is_empty() {
             return "";
