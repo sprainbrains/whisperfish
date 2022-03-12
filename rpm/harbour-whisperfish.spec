@@ -212,7 +212,13 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
     %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-whisperfish-message.conf
 
-# Application icon
+# Application icons
+install -Dm 644 %{_sourcedir}/../icons/86x86/harbour-whisperfish.png \
+    %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/harbour-whisperfish.png
+install -Dm 644 %{_sourcedir}/../icons/108x108/harbour-whisperfish.png \
+    %{buildroot}%{_datadir}/icons/hicolor/108x108/apps/harbour-whisperfish.png
+install -Dm 644 %{_sourcedir}/../icons/128x128/harbour-whisperfish.png \
+    %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/harbour-whisperfish.png
 install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
     %{buildroot}%{_datadir}/icons/hicolor/172x172/apps/harbour-whisperfish.png
 
