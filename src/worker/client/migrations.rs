@@ -17,6 +17,10 @@ use e164_to_uuid::*;
 mod groupv2;
 use groupv2::*;
 
+/// Migration to remove R@ reactions and dump them in the correct table.
+mod parse_reactions;
+use parse_reactions::*;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct Migrations;
@@ -28,5 +32,6 @@ impl Handler<Migrations> for ClientActor {
         ctx.notify(E164ToUuid);
         ctx.notify(ComputeGroupV2ExpectedIds);
         ctx.notify(GenerateEmptyProfileIfNeeded);
+        ctx.notify(ParseOldReaction);
     }
 }
