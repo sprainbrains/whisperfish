@@ -157,6 +157,7 @@ impl Handler<FetchMessage> for MessageActor {
             .unwrap_or_else(|| panic!("No message with id {}", id));
         let receipts = storage.fetch_message_receipts(message.id);
         let attachments = storage.fetch_attachments_for_message(message.id);
+        let reactions = storage.fetch_reactions_for_message(message.id);
         let recipient = if let Some(id) = message.sender_recipient_id {
             self.storage.as_ref().unwrap().fetch_recipient_by_id(id)
         } else {
@@ -167,6 +168,7 @@ impl Handler<FetchMessage> for MessageActor {
             recipient,
             attachments,
             receipts,
+            reactions,
         );
     }
 }

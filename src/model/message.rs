@@ -29,6 +29,8 @@ define_model_roles! {
         Read(fn read(&self)):                                 "read",
         Viewed(fn viewed(&self)):                             "viewed",
 
+        Reactions(fn reactions(&self) via QString::from):     "reactions",
+
         Sent(fn sent(&self)):                                 "sent",
         Flags(flags):                                         "flags",
         Attachments(fn attachments(&self)):                   "attachments",
@@ -89,6 +91,7 @@ pub struct MessageModel {
     endSession: qt_method!(fn(&self, e164: QString)),
 
     load: qt_method!(fn(&self, sid: i32, peer_name: QString)),
+    reload_message: qt_method!(fn(&self, mid: i32)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(
         fn(
@@ -236,10 +239,24 @@ impl MessageModel {
                 attachments,
                 // No receipts yet.
                 receipts: Vec::new(),
+                // No reactions yet.
+                reactions: Vec::new(),
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
         // }
+    }
+
+    #[with_executor]
+    fn reload_message(&mut self, mid: i32) {
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::FetchMessage(mid))
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::FetchMessage({})", mid);
     }
 
     #[with_executor]
@@ -503,20 +520,39 @@ impl MessageModel {
         recipient: Option<orm::Recipient>,
         attachments: Vec<orm::Attachment>,
         receipts: Vec<(orm::Receipt, orm::Recipient)>,
+        reactions: Vec<(orm::Reaction, orm::Recipient)>,
     ) {
         log::trace!("handle_fetch_message({})", message.id);
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
-        self.messages.insert(
-            0,
-            AugmentedMessage {
-                inner: message,
-                sender: recipient,
-                attachments,
-                receipts,
-            },
-        );
-        (self as &mut dyn QAbstractListModel).end_insert_rows();
+        let idx = self.messages.binary_search_by(|am| {
+            am.inner
+                .server_timestamp
+                .cmp(&message.server_timestamp)
+                .reverse()
+        });
+
+        let am = AugmentedMessage {
+            inner: message,
+            sender: recipient,
+            attachments,
+            receipts,
+            reactions,
+        };
+
+        match idx {
+            Ok(idx) => {
+                log::trace!("Fetched message exists at idx = {}; replacing", idx);
+                let model_idx = (self as &mut dyn QAbstractListModel).row_index(idx as _);
+
+                self.messages[idx] = am;
+                (self as &mut dyn QAbstractListModel).data_changed(model_idx, model_idx);
+            }
+            Err(idx) => {
+                (self as &mut dyn QAbstractListModel).begin_insert_rows(idx as _, idx as _);
+                self.messages.insert(idx, am);
+                (self as &mut dyn QAbstractListModel).end_insert_rows();
+            }
+        };
     }
 
     #[allow(clippy::type_complexity)]

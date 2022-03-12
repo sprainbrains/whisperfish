@@ -7,6 +7,7 @@ use anyhow::Context;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
+use libsignal_service::proto::{data_message::Reaction, DataMessage};
 use parking_lot::ReentrantMutex;
 
 use crate::schema;
@@ -506,6 +507,60 @@ impl Storage {
         new_message.session_id = Some(session.id);
         let message = self.create_message(&new_message);
         (message, session)
+    }
+
+    /// Process reaction and store in database.
+    pub fn process_reaction(
+        &self,
+        sender: &orm::Recipient,
+        data_message: &DataMessage,
+        reaction: &Reaction,
+    ) -> Option<(orm::Message, orm::Session)> {
+        // XXX error handling...
+        let ts = reaction.target_sent_timestamp.expect("target timestamp");
+        let ts = millis_to_naive_chrono(ts);
+        let message = self.fetch_message_by_timestamp(ts).expect("message exists");
+        let session = self
+            .fetch_session_by_id(message.session_id)
+            .expect("session exists");
+
+        if let Some(uuid) = &sender.uuid {
+            if uuid != reaction.target_author_uuid() {
+                log::warn!(
+                    "uuid != reaction.target_author_uuid ({} != {}). Continuing, but this is a bug or attack.",
+                    uuid,
+                    reaction.target_author_uuid(),
+                );
+            }
+        }
+
+        // Two options, either it's a *removal* or an update-or-replace
+        // Both cases, we remove existing reactions for this author-message pair.
+        use crate::schema::reactions::dsl::*;
+        use diesel::dsl::*;
+
+        let db = self.db.lock();
+        diesel::delete(reactions)
+            .filter(message_id.eq(message.id))
+            .filter(author.eq(sender.id))
+            .execute(&*db)
+            .expect("remove old reaction from database");
+        if !reaction.remove() {
+            // If this was not a removal action, we have a replacement
+            let message_sent_time = millis_to_naive_chrono(data_message.timestamp());
+            diesel::insert_into(reactions)
+                .values((
+                    message_id.eq(message.id),
+                    author.eq(sender.id),
+                    emoji.eq(reaction.emoji()),
+                    sent_time.eq(message_sent_time),
+                    received_time.eq(now),
+                ))
+                .execute(&*db)
+                .expect("insert reaction into database");
+        }
+
+        Some((message, session))
     }
 
     pub fn fetch_self_recipient(&self, cfg: &SignalConfig) -> Option<orm::Recipient> {
@@ -1214,6 +1269,17 @@ impl Storage {
             .unwrap()
     }
 
+    pub fn fetch_reactions_for_message(&self, mid: i32) -> Vec<(orm::Reaction, orm::Recipient)> {
+        use schema::{reactions, recipients};
+        let db = self.db.lock();
+
+        reactions::table
+            .inner_join(recipients::table)
+            .filter(reactions::message_id.eq(mid))
+            .load(&*db)
+            .expect("db")
+    }
+
     pub fn fetch_group_members_by_group_v1_id(
         &self,
         id: &str,
@@ -1690,6 +1756,17 @@ impl Storage {
             .order_by(schema::receipts::message_id.desc())
             .load(&*db)
             .expect("db");
+        let reactions: Vec<(orm::Reaction, orm::Recipient)> = schema::reactions::table
+            .inner_join(schema::recipients::table)
+            .select((
+                schema::reactions::all_columns,
+                schema::recipients::all_columns,
+            ))
+            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
+            .filter(schema::sessions::id.eq(sid))
+            .order_by(schema::reactions::message_id.desc())
+            .load(&*db)
+            .expect("db");
 
         let attachments = attachments
             .into_iter()
@@ -1699,6 +1776,11 @@ impl Storage {
             .into_iter()
             .group_by(|(receipt, _recipient)| receipt.message_id);
         let mut receipts = receipts.into_iter().peekable();
+
+        let reactions = reactions
+            .into_iter()
+            .group_by(|(reaction, _recipient)| reaction.message_id);
+        let mut reactions = reactions.into_iter().peekable();
 
         let mut aug_messages = Vec::with_capacity(messages.len());
         for (message, sender) in messages {
@@ -1722,11 +1804,22 @@ impl Storage {
             } else {
                 vec![]
             };
+            let reactions = if reactions
+                .peek()
+                .map(|(id, _)| *id == message.id)
+                .unwrap_or(false)
+            {
+                let (_, reactions) = reactions.next().unwrap();
+                reactions.collect_vec()
+            } else {
+                vec![]
+            };
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
                 sender,
                 attachments,
                 receipts,
+                reactions,
             });
         }
         aug_messages

@@ -166,6 +166,11 @@ ApplicationWindow
                 SessionModel.add(sid, false)
             }
         }
+        onMessageReactionReceived: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+                MessageModel.reload_message(mid)
+            }
+        }
         onMessageReceipt: {
             if(mid > 0 && pageStack.currentPage.objectName == conversationPageName) {
                 MessageModel.markReceived(mid)

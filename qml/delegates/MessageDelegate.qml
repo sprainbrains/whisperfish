@@ -81,6 +81,8 @@ ListItem {
     property bool isExpanded: false
     property bool isSelected: listView.selectedMessages[modelData.id] !== undefined
 
+    property var reactions: modelData !== null ? modelData.reactions.split(',') : []
+
     function handleExternalPressAndHold(mouse) {
         if (openMenuOnPressAndHold) openMenu()
         else pressAndHold(mouse) // propagate
@@ -252,6 +254,14 @@ ListItem {
                                     Theme.fontSizeSmall // TODO make configurable
                 defaultLinkActions: !listView.isSelecting
             }
+        }
+
+        Item { width: 1; height: reactions.length > 0 ? Theme.paddingSmall : 0 }
+
+        EmojiRow {
+            id: emojiRow
+            property real minContentWidth: item ? item.minContentWidth : 0
+            width: delegateContentWidth
         }
 
         Item { width: 1; height: Theme.paddingSmall }

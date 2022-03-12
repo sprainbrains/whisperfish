@@ -65,6 +65,7 @@ pub struct CompactDb(usize);
 pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
     messageReceived: qt_signal!(sid: i32, mid: i32),
+    messageReactionReceived: qt_signal!(sid: i32, mid: i32),
     messageReceipt: qt_signal!(sid: i32, mid: i32),
     notifyMessage: qt_signal!(
         sid: i32,
@@ -278,11 +279,22 @@ impl ClientActor {
         }
 
         let alt_body = if let Some(reaction) = &msg.reaction {
-            Some(format!(
-                "R@{}:{}",
-                reaction.target_sent_timestamp(),
-                reaction.emoji()
-            ))
+            let config = self.config.clone();
+            if let Some((message, session)) = storage.process_reaction(
+                &sender_recipient
+                    .clone()
+                    .or_else(|| storage.fetch_self_recipient(&config))
+                    .expect("sender or self-sent"),
+                &msg,
+                reaction,
+            ) {
+                log::info!("Reaction saved for message {}/{}", session.id, message.id);
+                self.inner
+                    .pinned()
+                    .borrow_mut()
+                    .messageReactionReceived(session.id, message.id);
+            }
+            None
         } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
             Some(format!("Expiration timer has been changed ({:?} seconds), but unimplemented in Whisperfish.", msg.expire_timer))
         } else if let Some(GroupContextV2 {
