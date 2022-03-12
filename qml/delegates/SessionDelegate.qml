@@ -12,6 +12,7 @@ ListItem {
     property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
     property bool isRead: model.read // TODO investigate: is this really a bool?
+    property bool idMuted: model.isMuted
     property bool isUnread: !isRead // TODO investigate: is this really a bool?
     property bool isNoteToSelf: SetupWorker.phoneNumber === model.source
     property bool pinned: false // TODO implement in model
@@ -70,6 +71,10 @@ ListItem {
         console.warn("setting archived/not archived is not implemented yet")
     }
 
+    function toggleMutedState() {
+        SessionModel.markMuted(model.index, !isMuted)
+    }
+
     Item {
         anchors { fill: parent; leftMargin: Theme.horizontalPageMargin }
 
@@ -80,13 +85,14 @@ ListItem {
             imageSource: profilePicture
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
-            showInfoMark: pinned || archived || hasDraft || isNoteToSelf || hasAttachment
+            showInfoMark: pinned || archived || hasDraft || isNoteToSelf || hasAttachment || isMuted
             infoMark.source: {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (pinned) 'image://theme/icon-s-low-importance'
                 else if (archived) 'image://theme/icon-s-time'
                 else if (hasAttachment) 'image://theme/icon-s-attach'
+                else if (isMuted) 'image://theme/icon-s-low-importance'
                 else ''
             }
             infoMark.rotation: {
@@ -246,8 +252,18 @@ ListItem {
                           //% "Pin to top"
                           qsTrId("whisperfish-session-unpin-view")
                 onClicked: togglePinState()
-            }
+            } */
             MenuItem {
+                text: isMuted ?
+                        //: Mark conversation as unmuted
+                          //% "Mark as unread"
+                          qsTrId("whisperfish-session-mark-unmuted") :
+                          //: Mark conversation as muted
+                          //% "Mark as muted"
+                          qsTrId("whisperfish-session-mark-muted")
+                onClicked: toggleMutedState()
+            }
+            /* MenuItem {
                 text: archived ?
                           //: Show hidden messages again
                           //% "Un-archive conversation"

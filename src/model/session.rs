@@ -52,6 +52,7 @@ pub struct SessionModel {
     markRead: qt_method!(fn(&mut self, id: usize)),
     markReceived: qt_method!(fn(&self, id: usize)),
     markSent: qt_method!(fn(&self, id: usize, message: QString)),
+    markMuted: qt_method!(fn(&self, idx: usize, muted: bool)),
 }
 
 impl SessionModel {
@@ -163,6 +164,26 @@ impl SessionModel {
     #[with_executor]
     fn markSent(&self, _id: usize, _message: QString) {
         log::trace!("STUB: Mark sent called");
+        // XXX: don't forget sync messages
+    }
+
+    #[with_executor]
+    fn markMuted(&self, idx: usize, muted: bool) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+        
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::MarkSessionMuted { sid, muted })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::MarkSessionMuted({}, {})", idx, muted);
         // XXX: don't forget sync messages
     }
 
@@ -316,6 +337,21 @@ impl SessionModel {
         }
     }
 
+    pub fn handle_mark_session_muted(&mut self, sid: i32, muted: bool) {
+        if let Some((i, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.session.id == sid)
+        {
+            session.session.is_muted = muted;
+            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        } else {
+            log::warn!("Could not call data_changed for non-existing session!");
+        }
+    }
+
     /// Remove deleted session from QML
     pub fn handle_delete_session(&mut self, idx: usize) {
         (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
@@ -449,6 +485,10 @@ impl AugmentedSession {
         }
     }
 
+    fn is_muted(&self) -> bool {
+        self.session.is_muted
+    }
+
     fn viewed(&self) -> u32 {
         if let Some(m) = &self.last_message {
             m.receipts
@@ -479,6 +519,7 @@ define_model_roles! {
         Sent(fn sent(&self)):                                              "sent",
         Delivered(fn delivered(&self)):                                    "deliveryCount",
         Read(fn read(&self)):                                              "readCount",
+        IsMuted(fn is_muted(&self)):                                       "isMuted",
         Viewed(fn viewed(&self)):                                          "viewCount",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
     }
