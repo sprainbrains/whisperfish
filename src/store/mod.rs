@@ -7,6 +7,7 @@ use anyhow::Context;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
+use libsignal_service::proto::{data_message::Reaction, DataMessage};
 use parking_lot::ReentrantMutex;
 
 use crate::schema;
@@ -506,6 +507,60 @@ impl Storage {
         new_message.session_id = Some(session.id);
         let message = self.create_message(&new_message);
         (message, session)
+    }
+
+    /// Process reaction and store in database.
+    pub fn process_reaction(
+        &self,
+        sender: &orm::Recipient,
+        data_message: &DataMessage,
+        reaction: &Reaction,
+    ) -> Option<(orm::Message, orm::Session)> {
+        // XXX error handling...
+        let ts = reaction.target_sent_timestamp.expect("target timestamp");
+        let ts = millis_to_naive_chrono(ts);
+        let message = self.fetch_message_by_timestamp(ts).expect("message exists");
+        let session = self
+            .fetch_session_by_id(message.session_id)
+            .expect("session exists");
+
+        if let Some(uuid) = &sender.uuid {
+            if uuid != reaction.target_author_uuid() {
+                log::warn!(
+                    "uuid != reaction.target_author_uuid ({} != {}). Continuing, but this is a bug or attack.",
+                    uuid,
+                    reaction.target_author_uuid(),
+                );
+            }
+        }
+
+        // Two options, either it's a *removal* or an update-or-replace
+        // Both cases, we remove existing reactions for this author-message pair.
+        use crate::schema::reactions::dsl::*;
+        use diesel::dsl::*;
+
+        let db = self.db.lock();
+        diesel::delete(reactions)
+            .filter(message_id.eq(message.id))
+            .filter(author.eq(sender.id))
+            .execute(&*db)
+            .expect("remove old reaction from database");
+        if !reaction.remove() {
+            // If this was not a removal action, we have a replacement
+            let message_sent_time = millis_to_naive_chrono(data_message.timestamp());
+            diesel::insert_into(reactions)
+                .values((
+                    message_id.eq(message.id),
+                    author.eq(sender.id),
+                    emoji.eq(reaction.emoji()),
+                    sent_time.eq(message_sent_time),
+                    received_time.eq(now),
+                ))
+                .execute(&*db)
+                .expect("insert reaction into database");
+        }
+
+        Some((message, session))
     }
 
     pub fn fetch_self_recipient(&self, cfg: &SignalConfig) -> Option<orm::Recipient> {
