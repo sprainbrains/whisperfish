@@ -5,15 +5,17 @@ CoverBackground {
     Image {
         x: Theme.paddingLarge
         horizontalAlignment: Text.AlignHCenter
+        width: parent.width * 0.3
+        height: width
         source: {
             if(SessionModel.unread > 0) {
-                return "/usr/share/harbour-whisperfish/icons/86x86/gold.png"
+                return "/usr/share/harbour-whisperfish/icons/172x172/gold.png"
             } else if(ClientWorker.connected) {
-                return "/usr/share/harbour-whisperfish/icons/86x86/connected.png"
+                return "/usr/share/harbour-whisperfish/icons/172x172/connected.png"
             } else if(!ClientWorker.connected) {
-                return "/usr/share/harbour-whisperfish/icons/86x86/disconnected.png"
+                return "/usr/share/harbour-whisperfish/icons/172x172/disconnected.png"
             } else {
-                return "/usr/share/icons/hicolor/86x86/apps/harbour-whisperfish.png"
+                return "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
             }
         }
         anchors {
