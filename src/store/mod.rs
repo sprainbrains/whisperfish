@@ -1269,6 +1269,17 @@ impl Storage {
             .unwrap()
     }
 
+    pub fn fetch_reactions_for_message(&self, mid: i32) -> Vec<(orm::Reaction, orm::Recipient)> {
+        use schema::{reactions, recipients};
+        let db = self.db.lock();
+
+        reactions::table
+            .inner_join(recipients::table)
+            .filter(reactions::message_id.eq(mid))
+            .load(&*db)
+            .expect("db")
+    }
+
     pub fn fetch_group_members_by_group_v1_id(
         &self,
         id: &str,
@@ -1745,6 +1756,17 @@ impl Storage {
             .order_by(schema::receipts::message_id.desc())
             .load(&*db)
             .expect("db");
+        let reactions: Vec<(orm::Reaction, orm::Recipient)> = schema::reactions::table
+            .inner_join(schema::recipients::table)
+            .select((
+                schema::reactions::all_columns,
+                schema::recipients::all_columns,
+            ))
+            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
+            .filter(schema::sessions::id.eq(sid))
+            .order_by(schema::reactions::message_id.desc())
+            .load(&*db)
+            .expect("db");
 
         let attachments = attachments
             .into_iter()
@@ -1754,6 +1776,11 @@ impl Storage {
             .into_iter()
             .group_by(|(receipt, _recipient)| receipt.message_id);
         let mut receipts = receipts.into_iter().peekable();
+
+        let reactions = reactions
+            .into_iter()
+            .group_by(|(reaction, _recipient)| reaction.message_id);
+        let mut reactions = reactions.into_iter().peekable();
 
         let mut aug_messages = Vec::with_capacity(messages.len());
         for (message, sender) in messages {
@@ -1777,11 +1804,22 @@ impl Storage {
             } else {
                 vec![]
             };
+            let reactions = if reactions
+                .peek()
+                .map(|(id, _)| *id == message.id)
+                .unwrap_or(false)
+            {
+                let (_, reactions) = reactions.next().unwrap();
+                reactions.collect_vec()
+            } else {
+                vec![]
+            };
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
                 sender,
                 attachments,
                 receipts,
+                reactions,
             });
         }
         aug_messages

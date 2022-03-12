@@ -201,6 +201,16 @@ pub struct Session {
 }
 
 #[derive(Queryable, Debug, Clone)]
+pub struct Reaction {
+    pub reaction_id: i32,
+    pub message_id: i32,
+    pub author: i32,
+    pub emoji: String,
+    pub sent_time: NaiveDateTime,
+    pub received_time: NaiveDateTime,
+}
+
+#[derive(Queryable, Debug, Clone)]
 pub struct Receipt {
     pub message_id: i32,
     pub recipient_id: i32,
@@ -364,11 +374,12 @@ impl SessionType {
 
 // Some extras
 
-/// [`Message`] augmented with its sender, attachments and receipts.
+/// [`Message`] augmented with its sender, attachments, reactions and receipts.
 pub struct AugmentedMessage {
     pub inner: Message,
     pub sender: Option<Recipient>,
     pub attachments: Vec<Attachment>,
+    pub reactions: Vec<(Reaction, Recipient)>,
     pub receipts: Vec<(Receipt, Recipient)>,
 }
 

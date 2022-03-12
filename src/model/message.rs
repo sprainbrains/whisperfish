@@ -237,6 +237,8 @@ impl MessageModel {
                 attachments,
                 // No receipts yet.
                 receipts: Vec::new(),
+                // No reactions yet.
+                reactions: Vec::new(),
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -516,6 +518,7 @@ impl MessageModel {
         recipient: Option<orm::Recipient>,
         attachments: Vec<orm::Attachment>,
         receipts: Vec<(orm::Receipt, orm::Recipient)>,
+        reactions: Vec<(orm::Reaction, orm::Recipient)>,
     ) {
         log::trace!("handle_fetch_message({})", message.id);
 
@@ -531,6 +534,7 @@ impl MessageModel {
             sender: recipient,
             attachments,
             receipts,
+            reactions,
         };
 
         match idx {
