@@ -50,13 +50,11 @@ pub struct MessageModel {
 
     messages: Vec<AugmentedMessage>,
     group_members: Vec<orm::Recipient>,
-    peer_identity: Option<Vec<u8>>,
     fingerprint: Option<String>,
 
     sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
 
-    numericFingerprint: qt_property!(QString; NOTIFY peerIdentityChanged),
-    peerIdentity: qt_property!(QString; NOTIFY peerIdentityChanged READ peer_identity),
+    numericFingerprint: qt_property!(QString; NOTIFY peerIdentityChanged READ fingerprint),
     peerName: qt_property!(QString; NOTIFY peerChanged),
     peerTel: qt_property!(QString; NOTIFY peerChanged),
     peerUuid: qt_property!(QString; NOTIFY peerChanged),
@@ -309,11 +307,10 @@ impl MessageModel {
     }
 
     #[with_executor]
-    fn peer_identity(&self) -> QString {
-        self.peer_identity
+    fn fingerprint(&self) -> QString {
+        self.fingerprint
             .as_deref()
-            .map(hex::encode)
-            .unwrap_or_else(|| "no identity".into())
+            .unwrap_or("no fingerprint")
             .into()
     }
 
@@ -424,7 +421,7 @@ impl MessageModel {
         &mut self,
         sess: orm::Session,
         group_members: Vec<orm::Recipient>,
-        peer_identity: Option<Vec<u8>>,
+        fingerprint: Option<String>,
     ) {
         log::trace!("handle_fetch_session({})", sess.id);
         self.sessionId = sess.id;
@@ -487,7 +484,7 @@ impl MessageModel {
             }
         };
 
-        self.peer_identity = peer_identity;
+        self.fingerprint = fingerprint;
         self.peerIdentityChanged();
 
         // TODO: contact identity key
