@@ -12,7 +12,7 @@ ListItem {
     property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
     property bool isRead: model.read // TODO investigate: is this really a bool?
-    property bool idMuted: model.isMuted
+    property bool isMuted: model.isMuted
     property bool isUnread: !isRead // TODO investigate: is this really a bool?
     property bool isNoteToSelf: SetupWorker.phoneNumber === model.source
     property bool pinned: false // TODO implement in model
