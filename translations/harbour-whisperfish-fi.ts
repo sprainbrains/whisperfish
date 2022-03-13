@@ -10,33 +10,45 @@
         <translation>Uusi</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="36"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="37"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Liite</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="51"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="52"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation>Kaikki viestit poistettu</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="125"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="131"/>
         <location filename="../qml/pages/ShareDestination.qml" line="97"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Omat viestit</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="144"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="150"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Luonnos: %1</translation>
     </message>
+    <message id="whisperfish-session-mark-unmuted">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
+        <source>Mark as unread</source>
+        <extracomment>Mark conversation as unmuted</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-session-mark-muted">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
+        <source>Mark as muted</source>
+        <extracomment>Mark conversation as muted</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="263"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Poista keskustelu</translation>
