@@ -34,6 +34,13 @@ pub struct MarkSessionRead {
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
+pub struct MarkSessionMuted {
+    pub sid: i32,
+    pub muted: bool,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
 pub struct DeleteSession {
     pub id: i32,
     pub idx: usize,
@@ -155,6 +162,25 @@ impl Handler<MarkSessionRead> for SessionActor {
             .pinned()
             .borrow_mut()
             .handle_mark_session_read(sid, already_unread);
+    }
+}
+
+impl Handler<MarkSessionMuted> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        MarkSessionMuted { sid, muted }: MarkSessionMuted,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage
+            .as_ref()
+            .unwrap()
+            .mark_session_muted(sid, muted);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_mark_session_muted(sid, muted);
     }
 }
 

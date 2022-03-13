@@ -55,6 +55,7 @@ pub struct Session {
     pub received: bool,
     pub unread: bool,
     pub is_group: bool,
+    pub is_muted: bool,
     pub group_members: Option<String>,
     #[allow(dead_code)]
     pub group_id: Option<String>,
@@ -1548,6 +1549,19 @@ impl Storage {
             .set((is_read.eq(true),))
             .execute(&*db)
             .expect("mark session read");
+    }
+
+    pub fn mark_session_muted(&self, sid: i32, muted: bool) {
+        let db = self.db.lock();
+
+        log::trace!("Called mark_session_muted({}, {})", sid, muted);
+
+        use schema::sessions::dsl::*;
+
+        diesel::update(sessions.filter(id.eq(sid)))
+            .set((is_muted.eq(muted),))
+            .execute(&*db)
+            .expect("mark session (un)muted");
     }
 
     pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
