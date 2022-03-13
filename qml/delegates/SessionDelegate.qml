@@ -233,6 +233,7 @@ ListItem {
 
         ContextMenu {
             id: menu
+
             /* MenuItem {
                 text: isUnread ?
                           //: Mark conversation as 'read', even though it isn't
@@ -253,6 +254,7 @@ ListItem {
                           qsTrId("whisperfish-session-unpin-view")
                 onClicked: togglePinState()
             } */
+
             MenuItem {
                 text: isMuted ?
                         //: Mark conversation as unmuted
@@ -263,6 +265,7 @@ ListItem {
                           qsTrId("whisperfish-session-mark-muted")
                 onClicked: toggleMutedState()
             }
+
             /* MenuItem {
                 text: archived ?
                           //: Show hidden messages again
@@ -273,6 +276,7 @@ ListItem {
                           qsTrId("whisperfish-session-archive")
                 onClicked: toggleArchivedState()
             } */
+
             MenuItem {
                 //: Delete all messages from session menu
                 //% "Delete conversation"

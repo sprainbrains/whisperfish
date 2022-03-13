@@ -175,7 +175,7 @@ impl SessionModel {
         }
 
         let sid = self.content[idx].id;
-        
+
         actix::spawn(
             self.actor
                 .as_ref()

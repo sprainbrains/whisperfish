@@ -170,13 +170,13 @@ impl Handler<MarkSessionMuted> for SessionActor {
 
     fn handle(
         &mut self,
-        MarkSessionMuted {
-            sid,
-            muted,
-        }: MarkSessionMuted,
+        MarkSessionMuted { sid, muted }: MarkSessionMuted,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        self.storage.as_ref().unwrap().mark_session_muted(sid, muted);
+        self.storage
+            .as_ref()
+            .unwrap()
+            .mark_session_muted(sid, muted);
         self.inner
             .pinned()
             .borrow_mut()
