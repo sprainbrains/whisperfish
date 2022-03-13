@@ -269,7 +269,7 @@ clippy:stable:
   needs: []
   before_script:
     - apt-get update
-    - apt-get install --no-install-recommends -y git curl qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools
+    - apt-get install --no-install-recommends -y git curl qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qttools5-dev-tools ca-certificates
 
 translations:check:
   <<: *translations
