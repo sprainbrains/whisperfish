@@ -184,7 +184,6 @@ impl SessionModel {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::MarkSessionMuted({}, {})", idx, muted);
-        // XXX: don't forget sync messages
     }
 
     // Event handlers below this line
