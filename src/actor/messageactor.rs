@@ -57,10 +57,24 @@ pub struct EndSession(pub String);
 pub struct MessageActor {
     inner: QObjectBox<MessageModel>,
     storage: Option<Storage>,
+    config: std::sync::Arc<crate::config::SignalConfig>,
+}
+
+pub fn pad_fingerprint(fp: &mut String) {
+    if fp.len() == 60 {
+        // twelve groups, eleven spaces.
+        for i in 1..12 {
+            fp.insert(6 * i - 1, ' ');
+        }
+    }
 }
 
 impl MessageActor {
-    pub fn new(app: &mut QmlApp, client: Addr<ClientActor>) -> Self {
+    pub fn new(
+        app: &mut QmlApp,
+        client: Addr<ClientActor>,
+        config: std::sync::Arc<crate::config::SignalConfig>,
+    ) -> Self {
         let inner = QObjectBox::new(MessageModel::default());
         app.set_object_property("MessageModel".into(), inner.pinned());
         inner.pinned().borrow_mut().client_actor = Some(client);
@@ -68,6 +82,7 @@ impl MessageActor {
         Self {
             inner,
             storage: None,
+            config,
         }
     }
 }
@@ -90,14 +105,14 @@ impl Handler<StorageReady> for MessageActor {
 }
 
 impl Handler<FetchSession> for MessageActor {
-    type Result = ();
+    type Result = ResponseActFuture<Self, ()>;
 
     fn handle(
         &mut self,
         FetchSession { id: sid, mark_read }: FetchSession,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let storage = self.storage.as_ref().unwrap();
+        let storage = self.storage.as_ref().unwrap().clone();
         let sess = storage
             .fetch_session_by_id(sid)
             .expect("FIXME No session returned!");
@@ -122,28 +137,44 @@ impl Handler<FetchSession> for MessageActor {
             storage.mark_session_read(sess.id);
         }
 
-        let peer_identity = if let orm::SessionType::DirectMessage(_recipient) = &sess.r#type {
-            log::info!("STUB requested peer identity for {:?}; #303", _recipient);
-            // FIXME UUID
-            String::new()
-            // match storage.peer_identity(recipient.e164.as_deref().expect("fixme")) {
-            //     Ok(ident) => ident,
-            //     Err(e) => {
-            //         log::warn!(
-            //             "FetchSession: returning empty string for peer_ident because {:?}",
-            //             e
-            //         );
-            //         String::new()
-            //     }
-            // }
-        } else {
-            String::new()
-        };
-
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_fetch_session(sess, group_members, peer_identity);
+        let myself = storage
+            .fetch_self_recipient(&self.config)
+            .expect("self recipient in db")
+            .to_service_address();
+        let sess_type = sess.r#type.clone();
+        Box::pin(
+            async move {
+                if let orm::SessionType::DirectMessage(recipient) = sess_type {
+                    use libsignal_service::prelude::protocol::SessionStoreExt;
+                    log::info!("requested peer identity for {:?}; #303", recipient);
+                    let addr = recipient.to_service_address();
+                    match storage.compute_safety_number(&myself, &addr, None).await {
+                        Ok(mut fp) => {
+                            log::info!("Computed fingerprint {}", fp);
+                            pad_fingerprint(&mut fp);
+                            Some(fp)
+                        }
+                        Err(e) => {
+                            log::warn!(
+                                "FetchSession: returning None for peer_ident because {:?}",
+                                e
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    None
+                }
+            }
+            .into_actor(self)
+            .map(move |fingerprint, act, _ctx| {
+                act.inner.pinned().borrow_mut().handle_fetch_session(
+                    sess,
+                    group_members,
+                    fingerprint,
+                );
+            }),
+        )
     }
 }
 
@@ -366,5 +397,19 @@ impl Handler<EndSession> for MessageActor {
             .pinned()
             .borrow_mut()
             .handle_queue_message(msg, vec![]);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn pad_fingerprint_smoke() {
+        let mut s = "892064087450853131489552767731995657884565179277972848560834".to_string();
+        pad_fingerprint(&mut s);
+        assert_eq!(
+            s,
+            "89206 40874 50853 13148 95527 67731 99565 78845 65179 27797 28485 60834"
+        );
     }
 }

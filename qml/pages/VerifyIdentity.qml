@@ -58,7 +58,7 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 width: parent.width
-                text: MessageModel.numericFingerprint(SetupWorker.localId, MessageModel.peerTel)
+                text: MessageModel.numericFingerprint
             }
 
             TextArea {

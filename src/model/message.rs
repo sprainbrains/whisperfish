@@ -52,10 +52,11 @@ pub struct MessageModel {
 
     messages: Vec<AugmentedMessage>,
     group_members: Vec<orm::Recipient>,
+    fingerprint: Option<String>,
 
     sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
 
-    peerIdentity: qt_property!(QString; NOTIFY peerIdentityChanged),
+    numericFingerprint: qt_property!(QString; NOTIFY peerIdentityChanged READ fingerprint),
     peerName: qt_property!(QString; NOTIFY peerChanged),
     peerTel: qt_property!(QString; NOTIFY peerChanged),
     peerUuid: qt_property!(QString; NOTIFY peerChanged),
@@ -99,8 +100,6 @@ pub struct MessageModel {
             id: usize, /* FIXME the implemented method takes an *index* but should take a message ID */
         )
     ),
-
-    numericFingerprint: qt_method!(fn(&self, localId: QString, remoteId: QString) -> QString),
 
     markSent: qt_method!(fn(&self, id: i32)),
     markReceived: qt_method!(fn(&self, id: i32)),
@@ -325,9 +324,11 @@ impl MessageModel {
     }
 
     #[with_executor]
-    fn numericFingerprint(&self, _localId: QString, _remoteId: QString) -> QString {
-        // XXX
-        "unimplemented".into()
+    fn fingerprint(&self) -> QString {
+        self.fingerprint
+            .as_deref()
+            .unwrap_or("no fingerprint")
+            .into()
     }
 
     /// Mark a message sent in QML.
@@ -437,7 +438,7 @@ impl MessageModel {
         &mut self,
         sess: orm::Session,
         group_members: Vec<orm::Recipient>,
-        peer_identity: String,
+        fingerprint: Option<String>,
     ) {
         log::trace!("handle_fetch_session({})", sess.id);
         self.sessionId = sess.id;
@@ -500,7 +501,7 @@ impl MessageModel {
             }
         };
 
-        self.peerIdentity = peer_identity.into();
+        self.fingerprint = fingerprint;
         self.peerIdentityChanged();
 
         // TODO: contact identity key
