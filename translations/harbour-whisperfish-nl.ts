@@ -37,7 +37,7 @@
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
-        <source>Mark as unread</source>
+        <source>Mark as unmuted</source>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation type="unfinished"></translation>
     </message>

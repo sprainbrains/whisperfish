@@ -257,8 +257,8 @@ ListItem {
 
             MenuItem {
                 text: isMuted ?
-                        //: Mark conversation as unmuted
-                          //% "Mark as unread"
+                          //: Mark conversation as unmuted
+                          //% "Mark as unmuted"
                           qsTrId("whisperfish-session-mark-unmuted") :
                           //: Mark conversation as muted
                           //% "Mark as muted"
