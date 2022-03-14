@@ -39,7 +39,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
         <source>Mark as unmuted</source>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished">Okunmadı olarak işaretle</translation>
+        <translation>Sesi açıldı olarak işaretle</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
