@@ -298,6 +298,8 @@ function parseSingleUrl(what, size, style, noGrow, maxRasterSize) {
 
 // +++ WF: Adapted from the original parse(what, how) function.
 function parse(what, size, style, noGrow, maxRasterSize, includePlain, asMarkup) {
+  if(typeof style !== "object" || !style.hasOwnProperty('ext'))
+    return null
   var settings = getParseSettings(style, size, maxRasterSize, noGrow)
   return parseString(what, {
     callback: function(icon, options) {
