@@ -8,6 +8,7 @@ sudo zypper install -y \
     sqlcipher-devel \
     openssl-devel \
     zlib-devel \
+    cargo \
 
 # Tooling-side dependencies used in build.rs
 sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
@@ -38,6 +39,9 @@ git status
 
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
+
+mkdir -p .cargo
+cargo vendor > .cargo/config.toml
 
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build --enable-debug -- \
     --define "dist $DIST" \
