@@ -32,6 +32,7 @@ stages:
   cache:
     paths:
       - target
+      - vendor
       - $CARGO_HOME/bin/
       - $CARGO_HOME/registry/index/
       - $CARGO_HOME/registry/cache/
