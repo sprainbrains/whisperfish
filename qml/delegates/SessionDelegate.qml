@@ -258,10 +258,10 @@ ListItem {
             MenuItem {
                 text: isMuted ?
                           //: Mark conversation as unmuted
-                          //% "Mark as unmuted"
+                          //% "Unmute conversation"
                           qsTrId("whisperfish-session-mark-unmuted") :
                           //: Mark conversation as muted
-                          //% "Mark as muted"
+                          //% "Mute conversation"
                           qsTrId("whisperfish-session-mark-muted")
                 onClicked: toggleMutedState()
             }
