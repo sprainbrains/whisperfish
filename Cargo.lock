@@ -879,25 +879,12 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "3.0.0"
-source = "git+https://github.com/signalapp/curve25519-dalek.git?branch=3.0.0-lizard2#b3329ed05ce7ffae5b7c18b9b6e1fd3588eaf468"
+source = "git+https://github.com/signalapp/curve25519-dalek?branch=3.0.0-lizard2#b3329ed05ce7ffae5b7c18b9b6e1fd3588eaf468"
 dependencies = [
  "byteorder",
  "digest 0.9.0",
  "rand_core 0.5.1",
  "serde",
- "subtle 2.4.1",
- "zeroize",
-]
-
-[[package]]
-name = "curve25519-dalek"
-version = "3.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b9fdf9972b2bd6af2d913799d9ebc165ea4d2e65878e329d9c6b372c4491b61"
-dependencies = [
- "byteorder",
- "digest 0.9.0",
- "rand_core 0.5.1",
  "subtle 2.4.1",
  "zeroize",
 ]
@@ -3542,7 +3529,7 @@ version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a0c105152107e3b96f6a00a65e86ce82d9b125230e1c4302940eca58ff71f4f"
 dependencies = [
- "curve25519-dalek 3.2.0",
+ "curve25519-dalek 3.0.0",
  "rand_core 0.5.1",
  "zeroize",
 ]
