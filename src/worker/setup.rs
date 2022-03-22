@@ -186,6 +186,9 @@ impl SetupWorker {
         // XXX in rand 0.8, this needs to be a Vec<u8> and be converted afterwards.
         // let password = std::str::from_utf8(&password)?.to_string();
 
+        if let Some(captcha) = &config.override_captcha {
+            log::info!("Using override captcha {}", captcha);
+        }
         let mut res = app
             .client_actor
             .send(super::client::Register {
