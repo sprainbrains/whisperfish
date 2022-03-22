@@ -37,15 +37,17 @@
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
-        <source>Mark as unmuted</source>
+        <source>Unmute conversation</source>
+        <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation>Segna come non silenziato</translation>
+        <translation type="unfinished">Segna come non silenziato</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
-        <source>Mark as muted</source>
+        <source>Mute conversation</source>
+        <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation>Segna come muto</translation>
+        <translation type="unfinished">Segna come muto</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
