@@ -29,6 +29,8 @@ pub struct SignalConfig {
     /// arguments.
     #[serde(skip)]
     pub autostart: bool,
+
+    pub override_captcha: Option<String>,
 }
 
 impl Default for SignalConfig {
@@ -42,6 +44,7 @@ impl Default for SignalConfig {
             share_dir: path.to_path_buf(),
             verbose: false,
             autostart: false,
+            override_captcha: None,
         }
     }
 }

@@ -10,6 +10,15 @@ use single_instance::SingleInstance;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "harbour-whisperfish")]
 struct Opts {
+    /// Captcha override
+    ///
+    /// By opening https://signalcaptchas.org/registration/generate.html in a browser,
+    /// and intercepting the redirect (by using the console), it is possible to inject a reCAPTCHA.
+    ///
+    /// This is as a work around for https://gitlab.com/whisperfish/whisperfish/-/issues/378
+    #[structopt(short, long)]
+    captcha: Option<String>,
+
     /// Verbosity.
     ///
     /// Equivalent with setting

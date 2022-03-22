@@ -192,7 +192,7 @@ impl SetupWorker {
                 phonenumber: number.clone(),
                 password: password.clone(),
                 use_voice: this.borrow().useVoice,
-                captcha: None,
+                captcha: config.override_captcha.clone(),
             })
             .await??;
 
