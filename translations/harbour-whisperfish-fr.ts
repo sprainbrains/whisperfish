@@ -39,13 +39,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
         <source>Mark as unmuted</source>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Marquer comme non muet</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
         <source>Mark as muted</source>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Marquer comme en sourdine</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
