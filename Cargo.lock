@@ -3579,8 +3579,8 @@ dependencies = [
 
 [[package]]
 name = "zkgroup"
-version = "0.7.4"
-source = "git+https://gitlab.com/whisperfish/zkgroup?branch=whisperfork#a142805e9e402403f5dbeff8874138af69c15395"
+version = "0.9.0"
+source = "git+https://gitlab.com/whisperfish/zkgroup?branch=whisperfork#c915376f915a61e522adc29b3afe1c90546f1549"
 dependencies = [
  "aead",
  "aes-gcm-siv",
