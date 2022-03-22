@@ -6,6 +6,22 @@ use std::time::Duration;
 
 use single_instance::SingleInstance;
 
+/// Signal attachment downloader for Whisperfish
+#[derive(StructOpt, Debug)]
+#[structopt(name = "harbour-whisperfish")]
+struct Opts {
+    /// Verbosity.
+    ///
+    /// Equivalent with setting
+    /// `RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,harbour_whisperfish=trace`.
+    #[structopt(short, long)]
+    verbose: bool,
+
+    /// Whether whisperfish was launched from autostart
+    #[structopt(long)]
+    autostart: bool,
+}
+
 fn main() {
     // Read config file or get a default config
     let mut config = match config::SignalConfig::read_from_file() {
@@ -23,7 +39,13 @@ fn main() {
     }
 
     // Then, handle command line arguments and overwrite settings from config file if necessary
-    config::Args::check_args(&mut config);
+    let opt = Opts::from_args();
+    if opt.verbose {
+        config.verbose = true;
+    }
+    if opt.autostart {
+        config.autostart = true;
+    }
 
     // Initiate logger facility
     if config.verbose {
