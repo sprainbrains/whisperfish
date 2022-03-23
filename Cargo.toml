@@ -115,8 +115,7 @@ opt-level = 0
 #strip = "symbols"
 
 [features]
-# This feature requires setting RUSTFLAGS="-C link-args=-Wl,-lcrypto"
-bundled-sqlcipher = []
+bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
 sailfish = ["bundled-sqlcipher", "sailors"]
 harbour = ["sailfish"]
 
@@ -131,6 +130,7 @@ libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", 
 
 [patch.crates-io]
 curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = '3.0.0-lizard2' }
+libsqlite3-sys = { git = "https://github.com/rusqlite/rusqlite", rev = "8770e7d4433de942122d37f073dd80519a8d67c0" }
 
 # [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
 # libsignal-service = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service" }

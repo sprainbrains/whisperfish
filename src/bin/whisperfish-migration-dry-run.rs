@@ -315,6 +315,7 @@ fn main() -> Result<(), anyhow::Error> {
         let db_key = derive_db_key(&password, &db_salt_path)?;
         println!("Derived the db key.");
 
+        db.execute("PRAGMA cipher_compatibility = 3;")?;
         db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key)))?;
         db.execute("PRAGMA cipher_page_size = 4096;")?;
 

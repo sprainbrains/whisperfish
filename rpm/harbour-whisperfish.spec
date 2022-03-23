@@ -152,7 +152,7 @@ FEATURES=sailfish
 FEATURES="sailfish,harbour"
 %endif
 
-export RUSTFLAGS="-C link-args=-Wl,-lcrypto %{?rustflags}"
+export RUSTFLAGS="%{?rustflags}"
 export RPM_VERSION=%{version}-%{release}
 
 # Configure Cargo.toml

@@ -405,23 +405,45 @@ impl Storage {
     async fn open_db<T: AsRef<Path>>(
         db_path: &StorageLocation<T>,
         database_key: Option<&[u8]>,
-    ) -> Result<SqliteConnection, anyhow::Error> {
+    ) -> anyhow::Result<SqliteConnection, anyhow::Error> {
         log::info!("Opening DB");
         let db = db_path.open_db()?;
 
         if let Some(database_key) = database_key {
             log::info!("Setting DB encryption");
 
+            db.execute("PRAGMA cipher_log = stderr;")
+                .context("setting sqlcipher log output to stderr")?;
+            db.execute("PRAGMA cipher_log_level = DEBUG;")
+                .context("setting sqlcipher log level to debug")?;
+
             db.execute(&format!(
                 "PRAGMA key = \"x'{}'\";",
                 hex::encode(database_key)
-            ))?;
-            db.execute("PRAGMA cipher_page_size = 4096;")?;
+            ))
+            .context("setting key")?;
+            // `cipher_compatibility = 3` sets cipher_page_size = 1024,
+            // while Go-Whisperfish used to use 4096.
+            // Therefore,
+            // ```
+            // db.execute("PRAGMA cipher_compatibility = 3;")?;
+            // ```
+            // does not work.  We manually set the parameters of Sqlcipher 3.4 now,
+            // and we postpone migration until we see that this sufficiencly works.
+            db.execute("PRAGMA cipher_page_size = 4096;")
+                .context("setting cipher_page_size")?;
+            db.execute("PRAGMA kdf_iter = 64000;")
+                .context("setting kdf_iter")?;
+            db.execute("PRAGMA cipher_hmac_algorithm = HMAC_SHA1;")
+                .context("setting cipher_hmac_algorithm")?;
+            db.execute("PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1;")
+                .context("setting cipher_kdf_algorithm")?;
         }
 
         // From the sqlcipher manual:
         // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
-        db.execute("SELECT count(*) FROM sqlite_master;")?;
+        db.execute("SELECT count(*) FROM sqlite_master;")
+            .context("attempting a read; probably wrong password")?;
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
 
