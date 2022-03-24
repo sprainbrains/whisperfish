@@ -9,6 +9,7 @@ pub async fn write_file_async(
     log::trace!("Writing file (async) {}", path.as_ref().display());
     let mut file = tokio::fs::File::create(&path).await?;
     file.write_all(content).await?;
+    file.sync_all().await?;
 
     Ok(())
 }
