@@ -1218,6 +1218,16 @@ impl Handler<Register> for ClientActor {
         });
         // XXX add profile key when #192 implemneted
         let registration_procedure = async move {
+            let captcha = if let Some(captcha) = captcha.as_deref() {
+                if captcha.starts_with("signalcaptcha://") {
+                    Some(&captcha["signalcaptcha://".len()..])
+                } else {
+                    Some(captcha)
+                }
+            } else {
+                None
+            };
+
             let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
                 &mut push_service,
                 phonenumber,
@@ -1225,12 +1235,12 @@ impl Handler<Register> for ClientActor {
             );
             if use_voice {
                 provisioning_manager
-                    .request_voice_verification_code(captcha.as_deref(), None)
+                    .request_voice_verification_code(captcha, None)
                     .await
                     .map(Into::into)
             } else {
                 provisioning_manager
-                    .request_sms_verification_code(captcha.as_deref(), None)
+                    .request_sms_verification_code(captcha, None)
                     .await
                     .map(Into::into)
             }
