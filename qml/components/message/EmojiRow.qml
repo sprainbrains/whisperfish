@@ -11,7 +11,7 @@ Row {
     layoutDirection: isOutbound ? Qt.RightToLeft : Qt.LeftToRight
     width: delegateContentWidth
 
-    property real minContentWidth: statusIcon.width+infoLabel.width+debugLabel.width
+    property real minContentWidth: delegateContentWidth
 
     LinkedEmojiLabel {
         text: modelData.reactions
