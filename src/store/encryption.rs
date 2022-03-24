@@ -313,4 +313,18 @@ mod tests {
         // Assert equalness between cleartext and ciphertext
         assert_eq!(my_cleartext, my_ciphertext.as_slice());
     }
+
+    #[actix_rt::test]
+    async fn decrypt_too_short() {
+        let crypto = StorageEncryption::new("lol".into(), [0u8; 8], [0u8; 8])
+            .await
+            .unwrap();
+        let mut ct = vec![0u8; 16 + 31];
+        let decr = crypto.decrypt(&mut ct);
+        assert!(matches!(decr, Err(anyhow::Error { .. })));
+        let err = decr.unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("Attempt at decrypting a message with length 47 smaller"));
+    }
 }
