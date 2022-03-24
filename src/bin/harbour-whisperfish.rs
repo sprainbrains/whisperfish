@@ -56,6 +56,7 @@ fn main() {
     if opt.autostart {
         config.autostart = true;
     }
+    config.override_captcha = opt.captcha;
 
     // Initiate logger facility
     if config.verbose {
