@@ -1,8 +1,8 @@
-OBJS=WhisperfishPluginInfo.o WhisperfishSharePlugin.o
+OBJS=WhisperfishTransfer.o WhisperfishTransferPlugin.o
 
-all: libwhisperfishshareplugin.so
+all: libwhisperfishtransferplugin.so
 
-libwhisperfishshareplugin.so: $(OBJS)
+libwhisperfishtransferplugin.so: $(OBJS)
 	$(CXX) -shared -o $@ $^ -lnemotransferengine-qt5 -lQt5DBus -lQt5Core
 
 %.o: %.cpp

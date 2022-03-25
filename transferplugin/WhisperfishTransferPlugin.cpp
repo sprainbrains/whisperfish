@@ -1,11 +1,6 @@
 #include "WhisperfishTransferPlugin.h"
 #include "WhisperfishTransfer.h"
-#include "WhisperfishPluginInfo.h"
-
-TransferPluginInfo* WhisperfishTransferPlugin::infoObject()
-{ 
-	return new WhisperfishPluginInfo;  
-}
+#include <QtPlugin>
 
 MediaTransferInterface* WhisperfishTransferPlugin::transferObject()
 { 
@@ -16,9 +11,3 @@ QString WhisperfishTransferPlugin::pluginId() const
 { 
 	return PLUGIN_ID; 
 }
-
-bool WhisperfishTransferPlugin::enabled() const
-{ 
-	return true; 
-}
-

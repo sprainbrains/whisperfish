@@ -1,10 +1,8 @@
 #ifndef WHISPERFISH_TRANSFER_PLUGIN
 #define WHISPERFISH_TRANSFER_PLUGIN
 
-#include <TransferEngine-qt5/transferplugininterface.h>
-#include <TransferEngine-qt5/transferplugininfo.h>
-#include <TransferEngine-qt5/transfermethodinfo.h>
-#include <TransferEngine-qt5/mediatransferinterface.h>
+#include "transferplugininterface.h"
+#include <QObject>
 
 class WhisperfishTransferPlugin : public QObject, public TransferPluginInterface
 {
@@ -15,11 +13,10 @@ class WhisperfishTransferPlugin : public QObject, public TransferPluginInterface
 	public:
 
 		WhisperfishTransferPlugin() {};
+		~WhisperfishTransferPlugin() {};
 
 		QString pluginId() const;
-		bool enabled() const;
 
-		TransferPluginInfo* infoObject();
 		MediaTransferInterface* transferObject();
 };
 

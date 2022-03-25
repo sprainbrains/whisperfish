@@ -1,8 +1,7 @@
 #ifndef WHISPERFISH_PLUGIN_INFO
 #define WHISPERFISH_PLUGIN_INFO
 
-#include <TransferEngine-qt5/transferplugininfo.h>
-#include <TransferEngine-qt5/transfermethodinfo.h>
+#include "sharingplugininfo.h"
 
 // Display Name
 #define APP_NAME "Whisperfish"
@@ -13,20 +12,18 @@
 #define DBUS_SERVICE "be.rubdos.whisperfish"
 #define DBUS_PATH "/be/rubdos/whisperfish"
 
-class TransferMethodInfo;
-
-class WhisperfishPluginInfo: public TransferPluginInfo
+class WhisperfishPluginInfo: public SharingPluginInfo
 {
 	public:
 		WhisperfishPluginInfo();
+		~WhisperfishPluginInfo();
 
-		QList<TransferMethodInfo> info() const Q_DECL_OVERRIDE;
-
-		void query() Q_DECL_OVERRIDE;
-		bool ready() const Q_DECL_OVERRIDE;
+		QList<SharingMethodInfo> info() const;
+		void query();
+		bool ready() const;
 
 	private:
-		QList<TransferMethodInfo> infoList;
+		QList<SharingMethodInfo> infoList;
 		bool is_ready;
 };
 

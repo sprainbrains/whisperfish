@@ -2,7 +2,7 @@
 # Whisperfish Transfer Plugin #
 
 Adds "share via whisperfish" option to sailfish. See
-https://git.sailfishos.org/mer-core/transfer-engine/tree/master for details.
+https://github.com/sailfishos/transfer-engine/ for details.
 
 ## MOC ##
 
