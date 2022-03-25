@@ -68,7 +68,7 @@ BuildRequires:  tcl
 BuildRequires:  automake
 
 %if %{without harbour}
-BuildRequires:  libnemotransferengine-qt5-devel
+BuildRequires: pkgconfig(nemotransferengine-qt5)
 %endif
 
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
@@ -170,23 +170,31 @@ cargo build \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 
-# Shareplugin
+%install
+
+%if %{without harbour}
 # This should probably use qmake instead
+# Shareplugin
 mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
 cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
 cp -ar %{_sourcedir}/../shareplugin/* .
 make %{?_smp_mflags}
 
-%install
+# Transferplugin
+mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/transferplugin/
+cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/transferplugin/
+cp -ar %{_sourcedir}/../transferplugin/* .
+make %{?_smp_mflags}
+%endif
 
 %ifarch %arm
-targetdir=%{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release/
+targetdir=%{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release
 %endif
 %ifarch aarch64
-targetdir=%{_sourcedir}/../target/aarch64-unknown-linux-gnu/release/
+targetdir=%{_sourcedir}/../target/aarch64-unknown-linux-gnu/release
 %endif
 %ifarch %ix86
-targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release/
+targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release
 %endif
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
@@ -237,9 +245,19 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
 
 # Transfer plugin
 install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
-    %{buildroot}%{_datadir}/nemo-transferengine/plugins/WhisperfishShare.qml
-install -Dm 644 $targetdir/../shareplugin/libwhisperfishshareplugin.so \
-    %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
+    %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
+%ifnarch aarch64
+install -Dm 755 $targetdir/../../shareplugin/libwhisperfishshareplugin.so \
+    %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
+install -Dm 755 $targetdir/../../transferplugin/libwhisperfishtransferplugin.so \
+    %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
+%endif
+%ifarch aarch64
+install -Dm 755 $targetdir/../../shareplugin/libwhisperfishshareplugin.so \
+    %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
+install -Dm 755 $targetdir/../../transferplugin/libwhisperfishtransferplugin.so \
+    %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
+%endif
 %endif
 
 %clean
@@ -266,7 +284,14 @@ systemctl-user disable harbour-whisperfish.service || true
 
 %if %{without harbour}
 %{_exec_prefix}/lib/systemd/user/%{name}.service
-%{_exec_prefix}/lib/nemo-transferengine/plugins/libwhisperfishshareplugin.so
-%{_datadir}/nemo-transferengine/plugins/WhisperfishShare.qml
+%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
+%ifnarch aarch64
+%{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
+%{_exec_prefix}/lib/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
+%endif
+%ifarch aarch64
+%{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
+%{_exec_prefix}/lib64/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
+%endif
 %{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 %endif
