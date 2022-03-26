@@ -112,8 +112,6 @@ opt-level = 0
 # This flag is set in CI using RUSTFLAGS
 # lto = "fat"
 
-#strip = "symbols"
-
 [features]
 bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
 sailfish = ["bundled-sqlcipher", "sailors"]
