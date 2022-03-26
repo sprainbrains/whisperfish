@@ -41,6 +41,7 @@ rm -f RPMS/*.rpm
 
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
     --define "dist $DIST" \
+    --with harbour \
     --define "cargo_version $VERSION"\
 
 
