@@ -286,6 +286,7 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>Yerel olarak silinen %n mesaj</numerusform>
+            <numerusform>Yerel olarak silinen %n mesaj</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -1120,6 +1121,7 @@ Settings page share contacts</extracomment>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
             <numerusform>%n ek</numerusform>
+            <numerusform>%n ek</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1146,6 +1148,7 @@ Settings page share contacts</extracomment>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1154,6 +1157,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>ve %n tane daha</numerusform>
             <numerusform>ve %n tane daha</numerusform>
         </translation>
     </message>
@@ -1338,6 +1342,7 @@ Settings page share contacts</extracomment>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
             <numerusform>%n mesaj seçildi</numerusform>
+            <numerusform>%n mesaj seçildi</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1345,6 +1350,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Seçimi temizle</numerusform>
             <numerusform>Seçimi temizle</numerusform>
         </translation>
     </message>
@@ -1354,6 +1360,7 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
+            <numerusform>%n mesajı kopyala</numerusform>
             <numerusform>%n mesajı kopyala</numerusform>
         </translation>
     </message>
@@ -1370,6 +1377,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Yerel olarak %n mesajı sil</numerusform>
+            <numerusform>Yerel olarak %n mesajı sil</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1379,6 +1387,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Tümü için %n mesajı sil</numerusform>
+            <numerusform>Tümü için %n mesajı sil</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1387,6 +1396,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Başarısız mesajı yeniden göndermeyi dene</numerusform>
+            <numerusform>Başarısız mesajları yeniden göndermeyi dene</numerusform>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
