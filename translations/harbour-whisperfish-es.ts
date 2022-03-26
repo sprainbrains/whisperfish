@@ -74,6 +74,18 @@
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>No se pudo configurar el almacenamiento de datos</translation>
     </message>
+    <message id="permission-la-data">
+        <location filename="../qml/harbour-whisperfish.qml" line="308"/>
+        <source>Whisperfish data storage</source>
+        <extracomment>Permission for Whisperfish data storage</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="permission-la-data_description">
+        <location filename="../qml/harbour-whisperfish.qml" line="312"/>
+        <source>Store configuration and messages</source>
+        <extracomment>Permission description for Whisperfish data storage</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
         <source>Today</source>
