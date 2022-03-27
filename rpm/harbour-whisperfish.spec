@@ -172,24 +172,6 @@ cargo build \
 
 %install
 
-%if %{without harbour}
-
-# Shareplugin
-mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
-cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
-cp -ar %{_sourcedir}/../shareplugin/* .
-qmake shareplugin.pro
-make %{?_smp_mflags}
-
-# Transferplugin
-mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/transferplugin/
-cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/transferplugin/
-cp -ar %{_sourcedir}/../transferplugin/* .
-qmake transferplugin.pro
-make %{?_smp_mflags}
-
-%endif
-
 %ifarch %arm
 targetdir=%{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release
 %endif
@@ -198,6 +180,24 @@ targetdir=%{_sourcedir}/../target/aarch64-unknown-linux-gnu/release
 %endif
 %ifarch %ix86
 targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release
+%endif
+
+%if %{without harbour}
+
+# Shareplugin
+mkdir -p $targetdir/shareplugin/
+cd $targetdir//shareplugin/
+cp -ar %{_sourcedir}/../shareplugin/* .
+qmake shareplugin.pro
+make %{?_smp_mflags}
+
+# Transferplugin
+mkdir -p $targetdir/transferplugin/
+cd $targetdir/transferplugin/
+cp -ar %{_sourcedir}/../transferplugin/* .
+qmake transferplugin.pro
+make %{?_smp_mflags}
+
 %endif
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
@@ -250,15 +250,15 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
 install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
 %ifnarch aarch64
-install -Dm 755 $targetdir/../../shareplugin/libwhisperfishshareplugin.so \
+install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-install -Dm 755 $targetdir/../../transferplugin/libwhisperfishtransferplugin.so \
+install -Dm 755 $targetdir/transferplugin/libwhisperfishtransferplugin.so \
     %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
 %endif
 %ifarch aarch64
-install -Dm 755 $targetdir/../../shareplugin/libwhisperfishshareplugin.so \
+install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-install -Dm 755 $targetdir/../../transferplugin/libwhisperfishtransferplugin.so \
+install -Dm 755 $targetdir/transferplugin/libwhisperfishtransferplugin.so \
     %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
 %endif
 %endif
