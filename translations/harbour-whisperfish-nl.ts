@@ -40,14 +40,14 @@
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished">Dempen opheffen</translation>
+        <translation>Dempen opheffen</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished">Dempen</translation>
+        <translation>Dempen</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
@@ -73,6 +73,18 @@
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Instellen van gegevensopslag mislukt</translation>
+    </message>
+    <message id="permission-la-data">
+        <location filename="../qml/harbour-whisperfish.qml" line="308"/>
+        <source>Whisperfish data storage</source>
+        <extracomment>Permission for Whisperfish data storage</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="permission-la-data_description">
+        <location filename="../qml/harbour-whisperfish.qml" line="312"/>
+        <source>Store configuration and messages</source>
+        <extracomment>Permission description for Whisperfish data storage</extracomment>
+        <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>

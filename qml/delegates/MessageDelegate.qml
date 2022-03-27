@@ -260,7 +260,7 @@ ListItem {
 
         EmojiRow {
             id: emojiRow
-            property real minContentWidth: item ? item.minContentWidth : 0
+            property real minContentWidth: item && item.minContentWidth ? item.minContentWidth : 0
             width: delegateContentWidth
         }
 

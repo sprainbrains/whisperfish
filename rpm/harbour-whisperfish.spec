@@ -28,6 +28,9 @@ Requires:   sailfish-components-webview-qt5
 Requires:   openssl-libs
 Requires:   dbus
 
+Recommends:   sailjail
+Recommends:   sailjail-permissions
+
 # This comment lists SailfishOS-version specific code,
 # for future reference, to track the reasoning behind the minimum SailfishOS version.
 # We're aiming to support 3.4 as long as possible, since Jolla 1 will be stuck on that.
@@ -218,6 +221,8 @@ desktop-file-install \
   --dir %{buildroot}%{_datadir}/applications \
    %{_sourcedir}/../harbour-whisperfish.desktop
 
+install -Dm 644 %{_sourcedir}/../harbour-whisperfish.profile \
+    %{buildroot}%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
     %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
@@ -284,6 +289,8 @@ systemctl-user disable harbour-whisperfish.service || true
 %{_datadir}/mapplauncherd/privileges.d/%{name}.privileges
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/lipstick/notificationcategories/%{name}-message.conf
+
+%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
 
 %if %{without harbour}
 %{_exec_prefix}/lib/systemd/user/%{name}.service
