@@ -11,7 +11,7 @@ WhisperfishTransfer::~WhisperfishTransfer()
 
 QString WhisperfishTransfer::displayName() const
 {
-    return tr("Example");
+    return "Whisperfish";
 }
 
 QUrl WhisperfishTransfer::serviceIcon() const

@@ -1,25 +1,18 @@
-import QtQuick 2.0
+import QtQuick 2.6
 import Sailfish.Silica 1.0
-import org.nemomobile.thumbnailer 1.0
+import Nemo.Thumbnailer 1.0
 import Nemo.DBus 2.0
 import Sailfish.TransferEngine 1.0
 
-Page {
+SilicaFlickable {
     id: root
 
-    property url source
-    property variant content: ({})
+    property var shareAction
+
+    width: Screen.width
+    height: Screen.height/2
 
     property string clientId: String(new Date().getTime())
-
-    property bool shareDone: false
-
-    // Used by the share engine
-    property int accountId
-    property string accountName
-    property string displayName
-    property string methodId
-    property var shareEndDestination
 
     // This page is loaded by the transfer system. We implement the following
     // procedure: When the page is ready, Whisperfish is called via dbus with
@@ -31,14 +24,14 @@ Page {
     Component.onCompleted: {
         whisperfishApp.call(
             "handleShare",
-            [clientId, String(source), JSON.stringify(content ? content : {})],
-            function () { shareDone = true },
+            [clientId, shareAction.toConfiguration()],
+            function () { },
             function (error, message) {
                 console.log('Calling Whisperfish on DBus failed: ' + error + ' message: ' + message)
                 spinner.running = false
                 spinner.text = "Sharing failed\n" + message
             }
-        );
+        )
     }
 
     DBusInterface {
@@ -55,25 +48,26 @@ Page {
 
         function done() {
             console.log("DBus shareClient.done() call received");
-            spinner.text = "success"
-            pageStack.pop()
+            spinner.text = "Sharing complete"
+            spinner.running = false
             activate()
+            shareAction.done()
+            // TODO: How to dismiss the sharing dialog?
         }
     }
 
     BusyLabel {
         id: spinner
+        anchors.centerIn: parent
         running: true
-        opacity: 1
+        opacity: running ? 1 : 0
         text: "Waiting for Whisperfish"
     }
 
-    Connections {
-        target: Qt.application
-        onStateChanged: {
-            if(Qt.application.state == Qt.ApplicationActive && shareDone) {
-                pageStack.pop()
-            }
-        }
+    Label {
+        opacity: spinner.running ? 0 : 1
+        anchors.centerIn: parent
+        text: "Sharing complete"
+        font.pixelSize: Theme.fontSizeExtraLarge
     }
 }

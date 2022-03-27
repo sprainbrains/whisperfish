@@ -6,8 +6,7 @@ import "../components"
 Page {
     id: root
 
-    property string source: ''
-    property var content: ({})
+    property var shareObject
 
     onStatusChanged: {
         if (status == PageStatus.Deactivating) {
@@ -44,7 +43,7 @@ Page {
             property string profilePicture: ''
             property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
             property bool isNoteToSelf: false
-            property bool selected: (sessionList.recipients.indexOf(model.id) > -1)
+            property bool selected: sessionList.recipients.hasOwnProperty("indexOf") ? (sessionList.recipients.indexOf(model.id) > -1) : false
 
             highlighted: down || selected
 
@@ -109,17 +108,23 @@ Page {
         enablePersonalizedPlaceholder: false
         showSeparator: true
         enableAttachments: false
-        attachments: root.source != '' ? [ { data: root.source.replace(/^file:\/\//, ''), type: '*/*' } ] : []
+        attachments: (typeof root.shareObject.resources[0] === 'string' || root.shareObject.resources[0] instanceof String)
+            ? [ { data: root.shareObject.resources[0].replace(/^file:\/\//, ''), type: root.shareObject.mimeType } ]
+            : []
         enableSending: Object.keys(sessionList.recipients).length > 0
 
         Component.onCompleted: {
-            if ('type' in root.content) {
-                switch (root.content.type) {
+            if ('mimeType' in root.shareObject) {
+                switch (root.shareObject.mimeType) {
+                    case 'image/jpeg':
+                    case 'video/mp4':
+                        text = /[^/]*$/.exec(root.shareObject.resources[0])[0]
+                        break;
                     case 'text/x-url':
-                        text = root.content.status
+                        text = root.shareObject.resources[0].linkTitle + '\n\n' + root.shareObject.resources[0].status
                         break;
                     case 'text/plain':
-                        text = (('linkTitle' in root.content) ? root.content.linkTitle + ':\n' : '') + root.content.data
+                        text = root.shareObject.resources[0].name + '\n\n' + root.shareObject.resources[0].data
                         break;
                     case 'text/vcard':
                         /* TODO: Implement correct signal-style contact
@@ -131,10 +136,10 @@ Page {
                          * whisperfish anymore after a reboot due to #253 (Copy sent
                          * attachments to WF-controlled directory)
                          */
-                        var vcfile = Qt.resolvedUrl(StandardPaths.temporary+'/'+Date.now()+"-"+encodeURI(root.content.name))
+                        var vcfile = Qt.resolvedUrl(StandardPaths.temporary + '/' + Date.now() + '_' + encodeURI(root.shareObject.resources[0].name))
                         var xhr = new XMLHttpRequest()
                         xhr.open('PUT', vcfile, false)
-                        xhr.send(root.content.data)
+                        xhr.send(root.shareObject.resources[0].data)
                         attachments = [ { data: vcfile.replace(/^file:\/\//, ''), type: 'text/vcard' } ]
                         break;
                 }
