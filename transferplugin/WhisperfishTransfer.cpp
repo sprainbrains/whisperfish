@@ -1,6 +1,14 @@
 #include "WhisperfishTransfer.h"
 #include "mediaitem.h"
 
+WhisperfishTransfer::WhisperfishTransfer(QObject *parent) : MediaTransferInterface(parent)
+{
+}
+
+WhisperfishTransfer::~WhisperfishTransfer()
+{
+}
+
 QString WhisperfishTransfer::displayName() const
 {
     return tr("Example");

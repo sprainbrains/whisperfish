@@ -10,20 +10,20 @@
 
 class WhisperfishTransfer : public MediaTransferInterface
 {
-	Q_OBJECT
+    Q_OBJECT
 
-	public:
-		WhisperfishTransfer(QObject *parent = nullptr) {};
-		~WhisperfishTransfer() {};
+public:
+    WhisperfishTransfer(QObject *parent = nullptr);
+    ~WhisperfishTransfer();
 
-		bool cancelEnabled() const;
-		QString displayName() const;
-		bool restartEnabled() const;
-		QUrl serviceIcon() const;
+    bool cancelEnabled() const;
+    QString displayName() const;
+    bool restartEnabled() const;
+    QUrl serviceIcon() const;
 
-	public slots:
-		void	cancel();
-		void	start();
+public slots:
+    void    cancel();
+    void    start();
 };
 
 #endif // WHISPERFISH_TRANSFER

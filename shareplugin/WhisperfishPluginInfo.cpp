@@ -1,17 +1,22 @@
 #include "WhisperfishPluginInfo.h"
 
-WhisperfishPluginInfo::WhisperfishPluginInfo(): 
-	is_ready(false) 
-{}
+WhisperfishPluginInfo::WhisperfishPluginInfo():
+    is_ready(false)
+{
+}
+
+WhisperfishPluginInfo::~WhisperfishPluginInfo()
+{
+}
 
 QList<SharingMethodInfo> WhisperfishPluginInfo::info() const
 { 
-	return infoList; 
+    return infoList; 
 }
 
 bool WhisperfishPluginInfo::ready() const
-{ 
-	return is_ready; 
+{
+    return is_ready;
 }
 
 void WhisperfishPluginInfo::query()
@@ -22,10 +27,10 @@ void WhisperfishPluginInfo::query()
 
     info.setDisplayName(QLatin1String(APP_NAME));
     info.setMethodId(QLatin1String(PLUGIN_ID));
-	info.setMethodIcon(QLatin1String(APP_ICON));
-	info.setShareUIPath(QLatin1String("/usr/share/nemo-transferengine/plugins/WhisperfishShare.qml")); 
+    info.setMethodIcon(QLatin1String(APP_ICON));
+    info.setShareUIPath(QLatin1String("/usr/share/nemo-transferengine/plugins/WhisperfishShare.qml")); 
 
-	// We just allow everything and hope for bug reports where special handling is needed.
+    // We just allow everything and hope for bug reports where special handling is needed.
     capabilities << QLatin1String("application/*")
                  << QLatin1String("image/*")
                  << QLatin1String("audio/*")

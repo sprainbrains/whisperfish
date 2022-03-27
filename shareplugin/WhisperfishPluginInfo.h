@@ -14,17 +14,17 @@
 
 class WhisperfishPluginInfo: public SharingPluginInfo
 {
-	public:
-		WhisperfishPluginInfo();
-		~WhisperfishPluginInfo();
+public:
+    WhisperfishPluginInfo();
+    ~WhisperfishPluginInfo();
 
-		QList<SharingMethodInfo> info() const;
-		void query();
-		bool ready() const;
+    QList<SharingMethodInfo> info() const;
+    void query();
+    bool ready() const;
 
-	private:
-		QList<SharingMethodInfo> infoList;
-		bool is_ready;
+private:
+    QList<SharingMethodInfo> infoList;
+    bool is_ready;
 };
 
 #endif
