@@ -78,13 +78,13 @@
         <location filename="../qml/harbour-whisperfish.qml" line="308"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Armazenamento de dados do Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish.qml" line="312"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Armazenar definições e mensagens</translation>
     </message>
     <message id="whisperfish-about">
         <location filename="../qml/pages/About.qml" line="20"/>
