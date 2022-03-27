@@ -173,18 +173,21 @@ cargo build \
 %install
 
 %if %{without harbour}
-# This should probably use qmake instead
+
 # Shareplugin
 mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
 cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/shareplugin/
 cp -ar %{_sourcedir}/../shareplugin/* .
+qmake shareplugin.pro
 make %{?_smp_mflags}
 
 # Transferplugin
 mkdir -p %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/transferplugin/
 cd %{_sourcedir}/../target/$SB2_RUST_TARGET_TRIPLE/transferplugin/
 cp -ar %{_sourcedir}/../transferplugin/* .
+qmake transferplugin.pro
 make %{?_smp_mflags}
+
 %endif
 
 %ifarch %arm

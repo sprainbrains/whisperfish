@@ -4,7 +4,7 @@
 #include "sharingplugininterface.h"
 #include <QObject>
 
-class WhisperfishSharePlugin : public QObject, public SharingPluginInterface
+class Q_DECL_EXPORT WhisperfishSharePlugin : public QObject, public SharingPluginInterface
 {
     Q_OBJECT
 	Q_PLUGIN_METADATA(IID "be.rubdos.whisperfish.share.plugin")
