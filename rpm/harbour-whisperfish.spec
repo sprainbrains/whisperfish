@@ -190,7 +190,8 @@ targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release
 mkdir -p $targetdir/shareplugin/
 cd $targetdir/shareplugin/
 cp -ar %{_sourcedir}/../shareplugin/* .
-qmake shareplugin.pro
+rm -f Makefile moc_* *.so *.o
+%qmake5
 make %{?_smp_mflags}
 %endif
 
