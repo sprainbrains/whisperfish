@@ -186,21 +186,12 @@ targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release
 %endif
 
 %if %{without harbour}
-
-# Shareplugin
+# Share plugin
 mkdir -p $targetdir/shareplugin/
-cd $targetdir//shareplugin/
+cd $targetdir/shareplugin/
 cp -ar %{_sourcedir}/../shareplugin/* .
 qmake shareplugin.pro
 make %{?_smp_mflags}
-
-# Transferplugin
-mkdir -p $targetdir/transferplugin/
-cd $targetdir/transferplugin/
-cp -ar %{_sourcedir}/../transferplugin/* .
-qmake transferplugin.pro
-make %{?_smp_mflags}
-
 %endif
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
@@ -251,20 +242,16 @@ install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
     %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
-# Transfer plugin
+# Share plugin
 install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
 %ifnarch aarch64
 install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-install -Dm 755 $targetdir/transferplugin/libwhisperfishtransferplugin.so \
-    %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
 %endif
 %ifarch aarch64
 install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-install -Dm 755 $targetdir/transferplugin/libwhisperfishtransferplugin.so \
-    %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
 %endif
 %endif
 
@@ -297,11 +284,9 @@ systemctl-user disable harbour-whisperfish.service || true
 %{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
 %ifnarch aarch64
 %{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%{_exec_prefix}/lib/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
 %endif
 %ifarch aarch64
 %{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%{_exec_prefix}/lib64/nemo-transferengine/plugins/transfer/libwhisperfishtransferplugin.so
 %endif
 %{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 %endif
