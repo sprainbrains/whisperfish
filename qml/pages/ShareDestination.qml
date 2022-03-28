@@ -8,12 +8,6 @@ Page {
 
     property var shareObject
 
-    onStatusChanged: {
-        if (status == PageStatus.Deactivating) {
-            mainWindow.shareDone()
-        }
-    }
-
     SilicaListView {
         id: sessionList
         model: SessionModel

@@ -4,7 +4,7 @@
 #include "transferplugininterface.h"
 #include <QObject>
 
-class WhisperfishTransferPlugin : public QObject, public TransferPluginInterface
+class Q_DECL_EXPORT WhisperfishTransferPlugin : public QObject, public TransferPluginInterface
 {
     Q_OBJECT
 	Q_PLUGIN_METADATA(IID "be.rubdos.whisperfish.transfer.plugin")
