@@ -1114,6 +1114,7 @@ impl Handler<Restart> for ClientActor {
             .map(move |pipe, act, ctx| match pipe {
                 Ok(pipe) => {
                     ctx.add_stream(pipe.stream());
+                    ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
                     act.inner.pinned().borrow().connectedChanged();
                 }
