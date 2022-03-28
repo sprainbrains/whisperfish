@@ -1220,6 +1220,7 @@ impl Handler<Register> for ClientActor {
         let registration_procedure = async move {
             let captcha = captcha
                 .as_deref()
+                .map(|captcha| captcha.trim())
                 .and_then(|captcha| captcha.strip_prefix("signalcaptcha://"));
 
             let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
