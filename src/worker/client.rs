@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use actix::prelude::*;
+use anyhow::Context;
 use chrono::prelude::*;
 use futures::prelude::*;
 use phonenumber::PhoneNumber;
@@ -293,6 +294,11 @@ impl ClientActor {
                     .pinned()
                     .borrow_mut()
                     .messageReactionReceived(session.id, message.id);
+            } else {
+                log::error!("Could not find a message for this reaction. Dropping.");
+                log::warn!(
+                    "This probably indicates out-of-order receipt delivery. Please upvote issue #260"
+                );
             }
             None
         } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
@@ -672,6 +678,13 @@ impl Actor for ClientActor {
     fn started(&mut self, ctx: &mut Self::Context) {
         self.inner.pinned().borrow_mut().actor = Some(ctx.address());
     }
+
+    fn stopped(&mut self, ctx: &mut Self::Context) {
+        self.inner.pinned().borrow_mut().actor = Some(ctx.address());
+
+        self.inner.pinned().borrow_mut().connected = false;
+        self.inner.pinned().borrow().connectedChanged();
+    }
 }
 
 #[derive(Message)]
@@ -858,24 +871,15 @@ impl Handler<SendMessage> for ClientActor {
                 let attachments = storage.fetch_attachments_for_message(msg.id);
 
                 for attachment in &attachments {
-                    use actix_threadpool::BlockingError;
                     let attachment_path = attachment
                         .attachment_path
                         .clone()
                         .expect("attachment path when uploading");
-                    let contents = match actix_threadpool::run(move || {
-                        std::fs::read(&attachment_path)
-                    })
-                    .await
-                    {
-                        Err(BlockingError::Canceled) => {
-                            anyhow::bail!("Threadpool Canceled");
-                        }
-                        Err(BlockingError::Error(e)) => {
-                            anyhow::bail!("Could not read attachment: {}", e);
-                        }
-                        Ok(contents) => contents,
-                    };
+                    let contents =
+                        tokio::task::spawn_blocking(move || std::fs::read(&attachment_path))
+                            .await
+                            .context("threadpool")?
+                            .context("reading attachment")?;
                     let attachment_path = attachment.attachment_path.as_ref().unwrap();
                     let spec = AttachmentSpec {
                         content_type: mime_guess::from_path(&attachment_path)
@@ -1109,6 +1113,7 @@ impl Handler<Restart> for ClientActor {
             .map(move |pipe, act, ctx| match pipe {
                 Ok(pipe) => {
                     ctx.add_stream(pipe.stream());
+                    ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
                     act.inner.pinned().borrow().connectedChanged();
                 }
@@ -1220,6 +1225,7 @@ impl Handler<Register> for ClientActor {
         let registration_procedure = async move {
             let captcha = captcha
                 .as_deref()
+                .map(|captcha| captcha.trim())
                 .and_then(|captcha| captcha.strip_prefix("signalcaptcha://"));
 
             let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(

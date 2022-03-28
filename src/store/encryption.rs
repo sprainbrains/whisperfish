@@ -26,7 +26,7 @@ impl StorageEncryption {
         salt_storage: [u8; 8],
         salt_database: [u8; 8],
     ) -> Result<Self, anyhow::Error> {
-        actix_threadpool::run(move || -> Result<Self, anyhow::Error> {
+        tokio::task::spawn_blocking(move || -> Result<Self, anyhow::Error> {
             let password = password.as_bytes();
 
             // Derive storage key
@@ -54,10 +54,7 @@ impl StorageEncryption {
             })
         })
         .await
-        .map_err(|e| match e {
-            actix_threadpool::BlockingError::Canceled => panic!("Threadpool Canceled"),
-            actix_threadpool::BlockingError::Error(e) => e,
-        })
+        .map_err(anyhow::Error::from)?
     }
 
     /// Encrypt data in place. Uses the storage key. IV and MAC are appended to the msg vector.

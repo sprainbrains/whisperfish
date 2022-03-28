@@ -542,7 +542,7 @@ impl Storage {
         // XXX error handling...
         let ts = reaction.target_sent_timestamp.expect("target timestamp");
         let ts = millis_to_naive_chrono(ts);
-        let message = self.fetch_message_by_timestamp(ts).expect("message exists");
+        let message = self.fetch_message_by_timestamp(ts)?;
         let session = self
             .fetch_session_by_id(message.session_id)
             .expect("session exists");
