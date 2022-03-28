@@ -677,6 +677,13 @@ impl Actor for ClientActor {
     fn started(&mut self, ctx: &mut Self::Context) {
         self.inner.pinned().borrow_mut().actor = Some(ctx.address());
     }
+
+    fn stopped(&mut self, ctx: &mut Self::Context) {
+        self.inner.pinned().borrow_mut().actor = Some(ctx.address());
+
+        self.inner.pinned().borrow_mut().connected = false;
+        self.inner.pinned().borrow().connectedChanged();
+    }
 }
 
 #[derive(Message)]
