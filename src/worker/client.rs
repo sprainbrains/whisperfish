@@ -293,6 +293,11 @@ impl ClientActor {
                     .pinned()
                     .borrow_mut()
                     .messageReactionReceived(session.id, message.id);
+            } else {
+                log::error!("Could not find a message for this reaction. Dropping.");
+                log::warn!(
+                    "This probably indicates out-of-order receipt delivery. Please upvote issue #260"
+                );
             }
             None
         } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
