@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use actix::prelude::*;
+use anyhow::Context;
 use chrono::prelude::*;
 use futures::prelude::*;
 use phonenumber::PhoneNumber;
@@ -870,24 +871,15 @@ impl Handler<SendMessage> for ClientActor {
                 let attachments = storage.fetch_attachments_for_message(msg.id);
 
                 for attachment in &attachments {
-                    use actix_threadpool::BlockingError;
                     let attachment_path = attachment
                         .attachment_path
                         .clone()
                         .expect("attachment path when uploading");
-                    let contents = match actix_threadpool::run(move || {
-                        std::fs::read(&attachment_path)
-                    })
-                    .await
-                    {
-                        Err(BlockingError::Canceled) => {
-                            anyhow::bail!("Threadpool Canceled");
-                        }
-                        Err(BlockingError::Error(e)) => {
-                            anyhow::bail!("Could not read attachment: {}", e);
-                        }
-                        Ok(contents) => contents,
-                    };
+                    let contents =
+                        tokio::task::spawn_blocking(move || std::fs::read(&attachment_path))
+                            .await
+                            .context("threadpool")?
+                            .context("reading attachment")?;
                     let attachment_path = attachment.attachment_path.as_ref().unwrap();
                     let spec = AttachmentSpec {
                         content_type: mime_guess::from_path(&attachment_path)

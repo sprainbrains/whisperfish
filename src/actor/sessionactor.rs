@@ -207,7 +207,7 @@ impl Handler<LoadAllSessions> for SessionActor {
         let storage = self.storage.clone().unwrap();
 
         actix::spawn(async move {
-            let sessions = actix_threadpool::run(move || -> Result<_, anyhow::Error> {
+            let sessions = tokio::task::spawn_blocking(move || -> Result<_, anyhow::Error> {
                 let sessions: Vec<orm::Session> = storage.fetch_sessions();
                 let result = sessions
                     .into_iter()
@@ -255,7 +255,8 @@ impl Handler<LoadAllSessions> for SessionActor {
                 Ok(result)
             })
             .await
-            .unwrap();
+            .expect("threadpool")
+            .expect("fetch all sessions");
             // XXX handle error
 
             session_actor.send(SessionsLoaded(sessions)).await.unwrap();

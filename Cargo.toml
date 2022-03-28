@@ -28,7 +28,6 @@ pbkdf2 = { version = "0.8.0", default-features = false }
 sha-1 = "0.9"
 uuid = { version = "0.8", features=["v4"] }
 mime_guess = "2.0.3"
-actix-threadpool = "0.3"
 actix-rt = "2.6.0"
 actix_derive = "0.6"
 chrono = "0.4"
