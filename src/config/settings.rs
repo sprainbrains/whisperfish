@@ -3,6 +3,7 @@ use qmetaobject::prelude::*;
 
 cpp! {{
     #include <QtCore/QSettings>
+    #include <QtCore/QStandardPaths>
 }}
 
 cpp_class! (
@@ -42,7 +43,19 @@ impl Default for Settings {
 
             inner: unsafe {
                 cpp!([] -> *mut QSettings as "QSettings *" {
-                    return new QSettings();
+                    // The new location of config file
+                    QSettings *settings = new QSettings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/be.rubdos/harbour-whisperfish.conf", QSettings::NativeFormat);
+
+                    if (settings->contains("sailjail-migrated"))
+                        return settings;
+
+                    QSettings oldSettings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/harbour-whisperfish/harbour-whisperfish.conf", QSettings::NativeFormat);
+
+                    for (const QString& key : oldSettings.childKeys())
+                        settings->setValue(key, oldSettings.value(key));
+
+                    settings->setValue("sailjail-migrated", "true");
+                    return settings;
                 })
             },
         }
