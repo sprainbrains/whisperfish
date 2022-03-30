@@ -65,6 +65,7 @@ BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
+BuildRequires:  coreutils
 
 # For vendored sqlcipher
 BuildRequires:  tcl
@@ -186,13 +187,22 @@ targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release
 %endif
 
 %if %{without harbour}
-# Share plugin
 mkdir -p $targetdir/shareplugin/
 cd $targetdir/shareplugin/
-cp -ar %{_sourcedir}/../shareplugin/* .
-rm -f Makefile moc_* *.so *.o
-%qmake5
-make %{?_smp_mflags}
+rm -f *.so *.o moc_*
+
+if [[ "$(bash %{_sourcedir}/../target_at_least.sh 4.4.0.58)" == "1" ]]
+then
+    # Share plugin API v2
+    cp -ar %{_sourcedir}/../shareplugin_v2/* .
+    %qmake5
+    make %{?_smp_mflags}
+else
+    # Share plugin API v1
+    cp -ar %{_sourcedir}/../shareplugin_v1/* .
+    make %{?_smp_mflags}
+fi
+
 %endif
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
@@ -244,7 +254,7 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
     %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
 # Share plugin
-install -Dm 644 %{_sourcedir}/../shareplugin/WhisperfishShare.qml \
+install -Dm 644 $targetdir/shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
 %ifnarch aarch64
 install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
