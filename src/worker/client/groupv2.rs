@@ -1,5 +1,6 @@
 use actix::prelude::*;
 use diesel::prelude::*;
+use qmeta_async::with_executor;
 
 use libsignal_service::groups_v2::*;
 
@@ -21,6 +22,7 @@ pub struct RequestGroupV2InfoBySessionId(pub i32);
 pub struct RequestGroupV2Info(pub GroupV2);
 
 impl ClientWorker {
+    #[with_executor]
     pub fn refresh_group_v2(&self, session_id: usize) {
         log::trace!("Request to refresh group v2 by session id = {}", session_id);
 
