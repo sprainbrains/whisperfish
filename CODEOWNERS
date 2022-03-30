@@ -26,6 +26,6 @@ src/ @rubdos
 
 # Translations
 [I18n]
-translations/ @rubdos
+translations/ @rubdos @weblate
 translations/harbour-whisperfish-pt_PT.ts @iled
 translations/harbour-whisperfish-fi.ts @mjtorn

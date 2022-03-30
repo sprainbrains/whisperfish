@@ -78,13 +78,13 @@
         <location filename="../qml/harbour-whisperfish.qml" line="308"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish-gegevensopslag</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish.qml" line="312"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Opslag van configuratie en berichten</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -156,7 +156,7 @@
         <location filename="../qml/pages/About.qml" line="117"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Leest de Wiki</translation>
+        <translation>Leest de wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="126"/>

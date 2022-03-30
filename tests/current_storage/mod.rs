@@ -38,10 +38,9 @@ async fn derive_storage_key(
     password: String,
     salt_path: PathBuf,
 ) -> Result<[u8; 16 + 20], anyhow::Error> {
-    use actix_threadpool::BlockingError;
     use std::io::Read;
 
-    actix_threadpool::run(move || -> Result<_, anyhow::Error> {
+    tokio::task::spawn_blocking(move || -> Result<_, anyhow::Error> {
         let mut salt_file = std::fs::File::open(salt_path).context("Cannot open salt file")?;
         let mut salt = [0u8; 8];
         anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
@@ -54,18 +53,14 @@ async fn derive_storage_key(
         Ok(key)
     })
     .await
-    .map_err(|e| match e {
-        BlockingError::Canceled => anyhow::anyhow!("Threadpool Canceled"),
-        BlockingError::Error(e) => e,
-    })
+    .context("threadpool")?
 }
 
 // Cannot borrow password/salt because threadpool requires 'static...
 async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32], anyhow::Error> {
-    use actix_threadpool::BlockingError;
     use std::io::Read;
 
-    actix_threadpool::run(move || -> Result<_, anyhow::Error> {
+    tokio::task::spawn_blocking(move || -> Result<_, anyhow::Error> {
         let mut salt_file = std::fs::File::open(salt_path)?;
         let mut salt = [0u8; 8];
         anyhow::ensure!(salt_file.read(&mut salt)? == 8, "salt file not 8 bytes");
@@ -77,10 +72,7 @@ async fn derive_db_key(password: String, salt_path: PathBuf) -> Result<[u8; 32],
         Ok(key)
     })
     .await
-    .map_err(|e| match e {
-        BlockingError::Canceled => anyhow::anyhow!("Threadpool Canceled"),
-        BlockingError::Error(e) => e,
-    })
+    .context("threadpool")?
 }
 
 fn write_file_sync_unencrypted(path: PathBuf, contents: &[u8]) -> Result<(), anyhow::Error> {
@@ -152,7 +144,7 @@ async fn write_file(
     path: PathBuf,
     contents: Vec<u8>,
 ) -> Result<(), anyhow::Error> {
-    actix_threadpool::run(move || write_file_sync(keys, path, &contents)).await?;
+    tokio::task::spawn_blocking(move || write_file_sync(keys, path, &contents)).await??;
     Ok(())
 }
 
@@ -212,7 +204,7 @@ fn load_file_sync(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>,
 }
 
 async fn load_file(keys: Option<[u8; 16 + 20]>, path: PathBuf) -> Result<Vec<u8>, anyhow::Error> {
-    let contents = actix_threadpool::run(move || load_file_sync(keys, path)).await?;
+    let contents = tokio::task::spawn_blocking(move || load_file_sync(keys, path)).await??;
 
     Ok(contents)
 }
