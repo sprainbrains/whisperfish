@@ -4,6 +4,7 @@ use qmetaobject::prelude::*;
 cpp! {{
     #include <QtCore/QSettings>
     #include <QtCore/QStandardPaths>
+    #include <QtCore/QFile>
 }}
 
 cpp_class! (
@@ -43,19 +44,24 @@ impl Default for Settings {
 
             inner: unsafe {
                 cpp!([] -> *mut QSettings as "QSettings *" {
-                    // The new location of config file
-                    QSettings *settings = new QSettings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/be.rubdos/harbour-whisperfish.conf", QSettings::NativeFormat);
+                    QString newSettingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf";
+                    QString oldSettingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/harbour-whisperfish/harbour-whisperfish.conf";
+                    QString tmpSettingsFile = newSettingsFile + ".bak";
 
-                    if (settings->contains("sailjail-migrated"))
-                        return settings;
 
-                    QSettings oldSettings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/harbour-whisperfish/harbour-whisperfish.conf", QSettings::NativeFormat);
+                    if(QFile::exists(oldSettingsFile)) {
+                        QFile::remove(tmpSettingsFile);
+                        if(QFile::exists(newSettingsFile)) {
+                            QFile::copy(newSettingsFile, tmpSettingsFile);
+                            QFile::remove(newSettingsFile);
+                        }
+                        if(QFile::copy(oldSettingsFile, newSettingsFile)) {
+                            QFile::remove(oldSettingsFile);
+                            QFile::remove(tmpSettingsFile);
+                        }
+                    }
 
-                    for (const QString& key : oldSettings.childKeys())
-                        settings->setValue(key, oldSettings.value(key));
-
-                    settings->setValue("sailjail-migrated", "true");
-                    return settings;
+                    return new QSettings(newSettingsFile, QSettings::NativeFormat);
                 })
             },
         }
