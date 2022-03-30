@@ -18,11 +18,5 @@
 # x-sailjail-permission = Privileged
 # x-sailjail-permission = Mozilla
 
-mkdir     ${HOME}/.config/harbour-whisperfish
-whitelist ${HOME}/.config/harbour-whisperfish
-
-mkdir     ${HOME}/.local/share/harbour-whisperfish
-whitelist ${HOME}/.local/share/harbour-whisperfish
-
 dbus-user.own org.whisperfish
 dbus-user.own org.whisperfish.session
