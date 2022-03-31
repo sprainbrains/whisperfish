@@ -256,14 +256,8 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
 # Share plugin
 install -Dm 644 $targetdir/shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
-%ifnarch aarch64
 install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
-    %{buildroot}%{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%endif
-%ifarch aarch64
-install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
-    %{buildroot}%{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%endif
+    %{buildroot}%{_libdir}/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
 %endif
 
 %clean
@@ -293,11 +287,6 @@ systemctl-user disable harbour-whisperfish.service || true
 %if %{without harbour}
 %{_exec_prefix}/lib/systemd/user/%{name}.service
 %{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
-%ifnarch aarch64
-%{_exec_prefix}/lib/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%endif
-%ifarch aarch64
-%{_exec_prefix}/lib64/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%endif
+%{_libdir}/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
 %{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 %endif
