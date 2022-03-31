@@ -17,17 +17,17 @@ class TransferMethodInfo;
 
 class WhisperfishPluginInfo: public TransferPluginInfo
 {
-	public:
-		WhisperfishPluginInfo();
+public:
+    WhisperfishPluginInfo();
 
-		QList<TransferMethodInfo> info() const Q_DECL_OVERRIDE;
+    QList<TransferMethodInfo> info() const Q_DECL_OVERRIDE;
 
-		void query() Q_DECL_OVERRIDE;
-		bool ready() const Q_DECL_OVERRIDE;
+    void query() Q_DECL_OVERRIDE;
+    bool ready() const Q_DECL_OVERRIDE;
 
-	private:
-		QList<TransferMethodInfo> infoList;
-		bool is_ready;
+private:
+    QList<TransferMethodInfo> infoList;
+    bool is_ready;
 };
 
 #endif

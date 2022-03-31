@@ -1,17 +1,17 @@
 #include "WhisperfishPluginInfo.h"
 
 WhisperfishPluginInfo::WhisperfishPluginInfo(): 
-	is_ready(false) 
+    is_ready(false)
 {}
 
 QList<TransferMethodInfo> WhisperfishPluginInfo::info() const
 { 
-	return infoList; 
+    return infoList;
 }
 
 bool WhisperfishPluginInfo::ready() const
 { 
-	return is_ready; 
+    return is_ready;
 }
 
 void WhisperfishPluginInfo::query()
@@ -21,17 +21,17 @@ void WhisperfishPluginInfo::query()
 
     info.displayName = QLatin1String(APP_NAME);
     info.methodId = QLatin1String(PLUGIN_ID);
-	info.accountIcon = QLatin1String(APP_ICON);
-	info.shareUIPath = QLatin1String(
-			"/usr/share/nemo-transferengine/plugins/WhisperfishShare.qml");
+    info.accountIcon = QLatin1String(APP_ICON);
+    info.shareUIPath = QLatin1String(
+                "/usr/share/nemo-transferengine/plugins/WhisperfishShare.qml");
 
-	// We just allow everything and hope for bug reports where special handling is needed.
+    // We just allow everything and hope for bug reports where special handling is needed.
     info.capabilitities << QLatin1String("application/*")
-                 << QLatin1String("image/*")
-                 << QLatin1String("audio/*")
-                 << QLatin1String("video/*")
-                 << QLatin1String("text/*")
-                 << QLatin1String("*/*");
+                        << QLatin1String("image/*")
+                        << QLatin1String("audio/*")
+                        << QLatin1String("video/*")
+                        << QLatin1String("text/*")
+                        << QLatin1String("*/*");
 
     infoList.clear();
     infoList << info;

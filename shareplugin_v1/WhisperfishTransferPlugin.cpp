@@ -4,21 +4,21 @@
 
 TransferPluginInfo* WhisperfishTransferPlugin::infoObject()
 { 
-	return new WhisperfishPluginInfo;  
+    return new WhisperfishPluginInfo;
 }
 
 MediaTransferInterface* WhisperfishTransferPlugin::transferObject()
 { 
-	return new WhisperfishTransfer; 
+    return new WhisperfishTransfer;
 }
 
 QString WhisperfishTransferPlugin::pluginId() const
 { 
-	return PLUGIN_ID; 
+    return PLUGIN_ID;
 }
 
 bool WhisperfishTransferPlugin::enabled() const
 { 
-	return true; 
+    return true;
 }
 

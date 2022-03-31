@@ -4,10 +4,10 @@
 
 SharingPluginInfo* WhisperfishSharePlugin::infoObject()
 { 
-	return new WhisperfishPluginInfo; 
+    return new WhisperfishPluginInfo;
 }
 
 QString WhisperfishSharePlugin::pluginId() const
 { 
-	return PLUGIN_ID; 
+    return PLUGIN_ID;
 }

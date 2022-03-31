@@ -11,7 +11,7 @@ WhisperfishPluginInfo::~WhisperfishPluginInfo()
 
 QList<SharingMethodInfo> WhisperfishPluginInfo::info() const
 { 
-    return infoList; 
+    return infoList;
 }
 
 bool WhisperfishPluginInfo::ready() const
@@ -28,7 +28,7 @@ void WhisperfishPluginInfo::query()
     info.setDisplayName(QLatin1String(APP_NAME));
     info.setMethodId(QLatin1String(PLUGIN_ID));
     info.setMethodIcon(QLatin1String(APP_ICON));
-    info.setShareUIPath(QLatin1String("/usr/share/nemo-transferengine/plugins/sharing/WhisperfishShare.qml")); 
+    info.setShareUIPath(QLatin1String("/usr/share/nemo-transferengine/plugins/sharing/WhisperfishShare.qml"));
 
     // We just allow everything and hope for bug reports where special handling is needed.
     capabilities << QLatin1String("application/*")
