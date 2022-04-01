@@ -3,6 +3,8 @@ use qmetaobject::prelude::*;
 
 cpp! {{
     #include <QtCore/QSettings>
+    #include <QtCore/QStandardPaths>
+    #include <QtCore/QFile>
 }}
 
 cpp_class! (
@@ -42,7 +44,24 @@ impl Default for Settings {
 
             inner: unsafe {
                 cpp!([] -> *mut QSettings as "QSettings *" {
-                    return new QSettings();
+                    QString newSettingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf";
+                    QString oldSettingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/harbour-whisperfish/harbour-whisperfish.conf";
+                    QString tmpSettingsFile = newSettingsFile + ".bak";
+
+
+                    if(QFile::exists(oldSettingsFile)) {
+                        QFile::remove(tmpSettingsFile);
+                        if(QFile::exists(newSettingsFile)) {
+                            QFile::copy(newSettingsFile, tmpSettingsFile);
+                            QFile::remove(newSettingsFile);
+                        }
+                        if(QFile::copy(oldSettingsFile, newSettingsFile)) {
+                            QFile::remove(oldSettingsFile);
+                            QFile::remove(tmpSettingsFile);
+                        }
+                    }
+
+                    return new QSettings(newSettingsFile, QSettings::NativeFormat);
                 })
             },
         }
