@@ -156,7 +156,7 @@ FEATURES=sailfish
 FEATURES="sailfish,harbour"
 %endif
 
-export RUSTFLAGS="%{?rustflags} -C debuginfo=2"
+export RUSTFLAGS="%{?rustflags} -C debuginfo=1"
 export CARGO_PROFILE_RELEASE_STRIP=symbols
 export RPM_VERSION=%{version}-%{release}
 
