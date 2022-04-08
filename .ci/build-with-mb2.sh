@@ -42,6 +42,7 @@ rm -f RPMS/*.rpm
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
     --define "dist $DIST" \
     --define "cargo_version $VERSION"\
+    --with lto\
 
 
 [ -e "$(echo RPMS/*.rpm)" ] || exit 1

@@ -3,6 +3,7 @@
 %define debug_package %{nil}
 
 %bcond_with harbour
+%bcond_with lto
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -164,6 +165,10 @@ sed -ie "s/^version\s\?=\s\?\".*\"/version = \"%{cargo_version}\"/" %{_sourcedir
 export CARGO_PROFILE_RELEASE_LTO=fat
 %endif
 cat %{_sourcedir}/../Cargo.toml
+
+%if %{with lto}
+export CARGO_PROFILE_RELEASE_LTO=fat
+%endif
 
 cargo build \
           -j 1 \
