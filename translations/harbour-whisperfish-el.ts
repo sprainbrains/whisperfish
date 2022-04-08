@@ -40,14 +40,14 @@
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κατάργηση σίγασης συνομιλίας</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Σίγαση συνομιλίας</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
@@ -78,13 +78,13 @@
         <location filename="../qml/harbour-whisperfish.qml" line="308"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish αποθηκευτικός χώρος</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish.qml" line="312"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποθήκευση ρυθμίσεων και μηνυμάτων</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="111"/>
@@ -540,7 +540,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
         <source>Whisperfish stores identity keys, session state, and local message data encrypted on disk. The password you set is not stored anywhere and you will not be able to restore your data if you lose your password. Note: Attachments are currently stored unencrypted. You can disable storing of attachments in the Settings page.</source>
         <extracomment>Whisperfish password informational message</extracomment>
-        <translation>Το Whisperfish αποθηκεύει τα κλειδιά ταυτοποίησης, την κατάσταση συνεδρίας και τα δεδομένα μηνύματων με κρυπτογράφηση στο δίσκό. Ο κωδικός πρόσβασης που καθορίζετε δεν αποθηκεύετε πουθενά και κατά συνέπεια δε μπορείτε να ανακτήσετε τα δεδομένα σας εάν χάσετε τον κωδικό σας. Σημείωση: Τα συνημμένα προς το παρόν αποθηκεύονται χωρίς κρυπτογράφηση. Μπορείτε να απενεργοποιήσετε την αποθήκευση δεδομένων στη σελίδα Ρυθμίσεων.</translation>
+        <translation>Το Whisperfish αποθηκεύει τα κλειδιά ταυτοποίησης, την κατάσταση συνεδρίας και τα δεδομένα μηνύματων με κρυπτογράφηση στο δίσκο. Ο κωδικός πρόσβασης που καθορίζετε δεν αποθηκεύεται πουθενά και κατά συνέπεια δε μπορείτε να ανακτήσετε τα δεδομένα σας εάν χάσετε τον κωδικό σας. Σημείωση: Τα συνημμένα προς το παρόν αποθηκεύονται χωρίς κρυπτογράφηση. Μπορείτε να απενεργοποιήσετε την αποθήκευση δεδομένων στη σελίδα Ρυθμίσεων.</translation>
     </message>
     <message id="whisperfish-registration-message">
         <location filename="../qml/pages/RegisterPage.qml" line="16"/>
@@ -652,7 +652,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="42"/>
         <source>WARNING: %1 identity is no longer trusted. Tap Confirm to reset peer identity.</source>
         <extracomment>Peer identity not trusted message</extracomment>
-        <translation>ΠΡΟΣΟΧΗ: Η ταυτότητα του %1 δεν είναι πλέον έμπιστη. Πιέστε Επιβεβαίωση για να επαναφέρετε την ταυτότητα του συνομιλητη.</translation>
+        <translation>ΠΡΟΣΟΧΗ: Η ταυτότητα του %1 δεν είναι πλέον έμπιστη. Πιέστε Επιβεβαίωση για να επαναφέρετε την ταυτότητα του συνομιλητή.</translation>
     </message>
     <message id="whisperfish-settings-linked-devices-menu">
         <location filename="../qml/pages/Settings.qml" line="24"/>
@@ -777,7 +777,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="235"/>
         <source>When enabled, the return key functions as a send key. Otherwise, the return key can be used for multi-line messages.</source>
         <extracomment>Settings page enable enter send description</extracomment>
-        <translation>Όταν είναι ενεργοποιημένο, το πλήκτρο Enter λειτουργεί σαν κουμπί αποστολής. Εναλλακτικά, το πληκτρο μπορει να χρησιμοποιηθεί για τη δημιουργία μηνυμάτων με πολλαπλές σειρές.</translation>
+        <translation>Όταν είναι ενεργοποιημένο, το πλήκτρο Enter λειτουργεί σαν κουμπί αποστολής. Εναλλακτικά, το πλήκτρο μπορει να χρησιμοποιηθεί για τη δημιουργία μηνυμάτων με πολλαπλές σειρές.</translation>
     </message>
     <message id="whisperfish-settings-startup-shutdown-section">
         <location filename="../qml/pages/Settings.qml" line="256"/>
@@ -1101,7 +1101,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
         <source>Signal should have sent you a 6-digit verification code via text message. Please wait a moment, or restart the process if you have not received a message.</source>
         <extracomment>verify registration instructions: text message</extracomment>
-        <translation>Το Signal θα πρέπει να σας έχει αποστείλει έναν 6-ψήφιο κωδικό επιβεβαίωσης με SMS. Παρακαλώ περιμενετε, ή επανεκκινήστε τη διαδικασία εαν δεν έχετε λάβει την μήνυμα.</translation>
+        <translation>Το Signal θα πρέπει να σας έχει αποστείλει έναν 6-ψήφιο κωδικό επιβεβαίωσης με SMS. Παρακαλώ περιμενετε, ή επανεκκινήστε τη διαδικασία εαν δεν έχετε λάβει το μήνυμα.</translation>
     </message>
     <message id="whisperfish-verify-retry-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="43"/>
