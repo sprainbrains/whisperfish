@@ -261,7 +261,7 @@ install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
 %if %{without harbour}
 # Dbus service
 install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
-    %{buildroot}%{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
+    %{buildroot}%{_unitdir}/be.rubdos.whisperfish.service
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
     %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
@@ -297,8 +297,8 @@ systemctl-user disable harbour-whisperfish.service || true
 %{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
 
 %if %{without harbour}
-%{_exec_prefix}/lib/systemd/user/%{name}.service
-%{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
+%{_userunitdir}/harbour-whisperfish.service
+%{_unitdir}/be.rubdos.whisperfish.service
 %endif
 
 %if %{without harbour}
