@@ -79,6 +79,16 @@ Recommends:    %{name}-shareplugin
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 
+%ifarch %arm
+%define targetdir %{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release
+%endif
+%ifarch aarch64
+%define targetdir %{_sourcedir}/../target/aarch64-unknown-linux-gnu/release
+%endif
+%ifarch %ix86
+%define targetdir %{_sourcedir}/../target/i686-unknown-linux-gnu/release
+%endif
+
 %description
 %{summary}
 
@@ -187,21 +197,9 @@ cargo build \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 
-%install
-
-%ifarch %arm
-targetdir=%{_sourcedir}/../target/armv7-unknown-linux-gnueabihf/release
-%endif
-%ifarch aarch64
-targetdir=%{_sourcedir}/../target/aarch64-unknown-linux-gnu/release
-%endif
-%ifarch %ix86
-targetdir=%{_sourcedir}/../target/i686-unknown-linux-gnu/release
-%endif
-
 %if %{without harbour}
-mkdir -p $targetdir/shareplugin/
-cd $targetdir/shareplugin/
+mkdir -p %{targetdir}/shareplugin/
+cd %{targetdir}/shareplugin/
 rm -f *.so *.o moc_*
 
 if [[ "$(bash %{_sourcedir}/../target_at_least.sh 4.4.0.58)" == "1" ]]
@@ -215,8 +213,9 @@ else
     cp -ar %{_sourcedir}/../shareplugin_v1/* .
     make %{?_smp_mflags}
 fi
-
 %endif
+
+%install
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
 for filename in %{_sourcedir}/../translations/*.ts; do
@@ -226,10 +225,10 @@ for filename in %{_sourcedir}/../translations/*.ts; do
         -qm "%{buildroot}%{_datadir}/harbour-whisperfish/translations/$base.qm";
 done
 
-install -D $targetdir/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
+install -D %{targetdir}/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
 %if %{without harbour}
-install -D $targetdir/fetch-signal-attachment %{buildroot}%{_bindir}/fetch-signal-attachment
-install -D $targetdir/whisperfish-migration-dry-run %{buildroot}%{_bindir}/whisperfish-migration-dry-run
+install -D %{targetdir}/fetch-signal-attachment %{buildroot}%{_bindir}/fetch-signal-attachment
+install -D %{targetdir}/whisperfish-migration-dry-run %{buildroot}%{_bindir}/whisperfish-migration-dry-run
 %endif
 
 desktop-file-install \
@@ -267,9 +266,9 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
     %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
 # Share plugin
-install -Dm 644 $targetdir/shareplugin/WhisperfishShare.qml \
+install -Dm 644 %{targetdir}/shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
-install -Dm 755 $targetdir/shareplugin/libwhisperfishshareplugin.so \
+install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_libdir}/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
 %endif
 
