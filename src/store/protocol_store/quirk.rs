@@ -13,9 +13,13 @@ include!(concat!(env!("OUT_DIR"), "/textsecure.rs"));
 
 pub const DJB_TYPE: u8 = 0x05;
 
+fn prost_err_to_signal(e: prost::DecodeError) -> SignalProtocolError {
+    SignalProtocolError::InvalidArgument(format!("Decoding in quirks: {}", e))
+}
+
 /// Removes quirks to the session data format that are apparent in Whisperfish 0.5
 pub fn session_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
-    let mut obj = RecordStructure::decode(input)?;
+    let mut obj = RecordStructure::decode(input).map_err(prost_err_to_signal)?;
 
     // begin unquirking
     obj.current_session
@@ -32,7 +36,7 @@ pub fn session_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
 
 /// Adds quirks to the session data format that are apparent in Whisperfish 0.5
 pub fn session_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
-    let mut obj = RecordStructure::decode(input)?;
+    let mut obj = RecordStructure::decode(input).map_err(prost_err_to_signal)?;
 
     // begin quirking
     obj.current_session
@@ -49,7 +53,7 @@ pub fn session_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
 
 /// Removes quirks to the pre key data format that are apparent in Whisperfish 0.5
 pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
-    let mut obj = PreKeyRecordStructure::decode(input)?;
+    let mut obj = PreKeyRecordStructure::decode(input).map_err(prost_err_to_signal)?;
 
     // begin quirking
     unquirk_identity(&mut obj.public_key)?;
@@ -60,7 +64,7 @@ pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
 
 /// Adds quirks to the pre key data format that are apparent in Whisperfish 0.5
 pub fn pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
-    let mut obj = PreKeyRecordStructure::decode(input)?;
+    let mut obj = PreKeyRecordStructure::decode(input).map_err(prost_err_to_signal)?;
 
     // begin quirking
     quirk_identity(&mut obj.public_key)?;
@@ -71,7 +75,7 @@ pub fn pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
 
 /// Removes quirks to the signed pre key data format that are apparent in Whisperfish 0.5
 pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
-    let mut obj = SignedPreKeyRecordStructure::decode(input)?;
+    let mut obj = SignedPreKeyRecordStructure::decode(input).map_err(prost_err_to_signal)?;
 
     // begin quirking
     unquirk_identity(&mut obj.public_key)?;
@@ -82,7 +86,7 @@ pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolEr
 
 /// Adds quirks to the signed pre key data format that are apparent in Whisperfish 0.5
 pub fn signed_pre_key_to_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
-    let mut obj = SignedPreKeyRecordStructure::decode(input)?;
+    let mut obj = SignedPreKeyRecordStructure::decode(input).map_err(prost_err_to_signal)?;
 
     // begin quirking
     quirk_identity(&mut obj.public_key)?;
@@ -136,14 +140,14 @@ fn quirk_identity(id: &mut Vec<u8>) -> Result<(), SignalProtocolError> {
         let removed = id.remove(0);
         if removed != DJB_TYPE {
             log::error!("Unknown input key type {}, not quirking.", removed);
-            Err(SignalProtocolError::InternalError("Unknown key type"))
+            Err(SignalProtocolError::BadKeyType(removed))
         } else {
             Ok(())
         }
     } else {
         log::error!("Invalid input key of length {}", id.len());
-        Err(SignalProtocolError::InternalError(
-            "Invalid identity key length",
+        Err(SignalProtocolError::InvalidArgument(
+            "Invalid identity key length".into(),
         ))
     }
 }
@@ -160,8 +164,8 @@ fn unquirk_identity(id: &mut Vec<u8>) -> Result<(), SignalProtocolError> {
         Ok(())
     } else {
         log::error!("Invalid input key of length {}, cannot unquirk", id.len());
-        Err(SignalProtocolError::InternalError(
-            "Invalid identity key length",
+        Err(SignalProtocolError::InvalidArgument(
+            "Invalid identity key length".into(),
         ))
     }
 }

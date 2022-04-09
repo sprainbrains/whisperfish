@@ -12,7 +12,7 @@ use super::*;
 fn convert_io_error(e: io::Error) -> SignalProtocolError {
     // XXX can probably be better, but currently this is only used in session_delete and
     // identity_delete
-    SignalProtocolError::SessionNotFound(e.to_string())
+    SignalProtocolError::InvalidArgument(format!("IO error {}", e.to_string()))
 }
 
 fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a str {
@@ -188,10 +188,9 @@ impl protocol::IdentityKeyStore for Storage {
             .join("identity_key");
         let identity_key_pair = {
             use std::convert::TryFrom;
-            let mut buf = self
-                .read_file(path)
-                .await
-                .map_err(|_| SignalProtocolError::InternalError("Cannot read own identity key"))?;
+            let mut buf = self.read_file(path).await.map_err(|e| {
+                SignalProtocolError::InvalidArgument(format!("Cannot read own identity key {}", e))
+            })?;
             buf.insert(0, quirk::DJB_TYPE);
             let public = IdentityKey::decode(&buf[0..33])?;
             let private = PrivateKey::try_from(&buf[33..])?;
@@ -205,16 +204,21 @@ impl protocol::IdentityKeyStore for Storage {
         let _lock = self.protocol_store.read().await;
 
         let path = self.path.join("storage").join("identity").join("regid");
-        let regid = self
-            .read_file(path)
-            .await
-            .map_err(|_| SignalProtocolError::InternalError("Cannot read regid"))?;
-        let regid = String::from_utf8(regid).map_err(|_| {
-            SignalProtocolError::InternalError("Convert regid from bytes to string")
+        let regid = self.read_file(path).await.map_err(|e| {
+            SignalProtocolError::InvalidArgument(format!("Cannot read regid {}", e))
         })?;
-        let regid = regid
-            .parse()
-            .map_err(|_| SignalProtocolError::InternalError("Parse regid from string to number"))?;
+        let regid = String::from_utf8(regid).map_err(|e| {
+            SignalProtocolError::InvalidArgument(format!(
+                "Convert regid from bytes to string {}",
+                e
+            ))
+        })?;
+        let regid = regid.parse().map_err(|e| {
+            SignalProtocolError::InvalidArgument(format!(
+                "Convert regid from string to number {}",
+                e
+            ))
+        })?;
 
         Ok(regid)
     }
@@ -453,7 +457,7 @@ impl protocol::SessionStoreExt for Storage {
                 addr.to_string(),
                 e
             );
-            SignalProtocolError::SessionNotFound(addr.to_string())
+            SignalProtocolError::SessionNotFound(addr.clone())
         })?;
         Ok(())
     }
