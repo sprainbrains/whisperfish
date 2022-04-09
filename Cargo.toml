@@ -119,8 +119,9 @@ opt-level = 0
 opt-level = 0
 
 [profile.release]
-# This flag is set in CI using RUSTFLAGS
-# lto = "fat"
+# This flag is set in CI using CARGO_PROFILE_RELEASE_LTO=thin
+# lto = "thin"
+debug = true
 
 [features]
 bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
