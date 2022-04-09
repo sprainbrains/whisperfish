@@ -73,6 +73,7 @@ BuildRequires:  automake
 
 %if %{without harbour}
 BuildRequires: pkgconfig(nemotransferengine-qt5)
+Recommends:    %{name}-shareplugin
 %endif
 
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
@@ -83,6 +84,18 @@ BuildRequires: pkgconfig(nemotransferengine-qt5)
 
 %prep
 %setup -q -n %{?with_harbour:harbour-}whisperfish
+
+# harbour-whisperfish-shareplugin
+%if %{without harbour}
+%package shareplugin
+Summary: Share plugin for Whisperfish
+%description shareplugin
+%{summary}
+
+Group: Qt/Qt
+
+%endif
+# end harbour-whisperfish-shareplugin
 
 %build
 
@@ -286,7 +299,11 @@ systemctl-user disable harbour-whisperfish.service || true
 
 %if %{without harbour}
 %{_exec_prefix}/lib/systemd/user/%{name}.service
+%{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
+%endif
+
+%if %{without harbour}
+%files shareplugin
 %{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
 %{_libdir}/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
-%{_datadir}/dbus-1/services/be.rubdos.whisperfish.service
 %endif
