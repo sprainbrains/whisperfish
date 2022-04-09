@@ -18,5 +18,5 @@
 # x-sailjail-permission = Privileged
 # x-sailjail-permission = Mozilla
 
-dbus-user.own org.whisperfish
-dbus-user.own org.whisperfish.session
+dbus-user.own org.whisperfish.*
+dbus-user.own be.rubdos.whisperfish.*
