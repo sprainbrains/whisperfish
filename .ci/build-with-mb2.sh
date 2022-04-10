@@ -45,7 +45,7 @@ mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build --enable-debug -- \
     --with lto\
 
 
-[ -e "$(echo RPMS/*.rpm)" ] || exit 1
+[ "$(ls -A RPMS/*.rpm)" ] || exit 1
 
 # Copy everything useful back
 popd
