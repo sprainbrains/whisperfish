@@ -54,18 +54,19 @@ sudo cp -ar ~/whisperfish-build/target/* target/
 
 # Only upload on tags or master
 if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
-    RPM_PATH=(RPMS/*.rpm)
-    echo Found rpms: $RPM_PATH
-    RPM_PATH="${RPM_PATH[0]}"
-    RPM=$(basename $RPM_PATH)
+    for RPM_PATH in RPMS/*.rpm; do
+        echo Found RPM: $RPM_PATH
+        RPM_PATH="${RPM_PATH[0]}"
+        RPM=$(basename $RPM_PATH)
 
-    BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
+        BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 
-    URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
-    echo Posting to $URL
+        URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
+        echo Posting to $URL
 
-    # Upload to Gitlab
-    curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
-         --upload-file "$RPM_PATH" \
-         $URL
+        # Upload to Gitlab
+        curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
+             --upload-file "$RPM_PATH" \
+             $URL
+    done
 fi
