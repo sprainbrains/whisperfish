@@ -44,7 +44,7 @@ mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
     --define "cargo_version $VERSION"\
 
 
-[ -e "$(echo RPMS/*.rpm)" ] || exit 1
+[ "$(ls -A RPMS/*.rpm)" ] || exit 1
 
 # Copy everything useful back
 popd
