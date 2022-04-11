@@ -1,8 +1,5 @@
-%define __spec_install_post %{nil}
-%define __os_install_post %{_dbpath}/brp-compress
-%define debug_package %{nil}
-
 %bcond_with harbour
+%bcond_with lto
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -65,6 +62,8 @@ BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
+
+BuildRequires:  meego-rpm-config
 
 # For vendored sqlcipher
 BuildRequires:  tcl
@@ -161,9 +160,13 @@ export RPM_VERSION=%{version}-%{release}
 # Configure Cargo.toml
 %if 0%{?cargo_version:1}
 sed -ie "s/^version\s\?=\s\?\".*\"/version = \"%{cargo_version}\"/" %{_sourcedir}/../Cargo.toml
-export CARGO_PROFILE_RELEASE_LTO=fat
+export CARGO_PROFILE_RELEASE_LTO=thin
 %endif
 cat %{_sourcedir}/../Cargo.toml
+
+%if %{with lto}
+export CARGO_PROFILE_RELEASE_LTO=thin
+%endif
 
 cargo build \
           -j 1 \

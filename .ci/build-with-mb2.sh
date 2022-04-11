@@ -39,9 +39,10 @@ git status
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
-mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build -- \
+mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build --enable-debug -- \
     --define "dist $DIST" \
     --define "cargo_version $VERSION"\
+    --with lto\
 
 
 [ "$(ls -A RPMS/*.rpm)" ] || exit 1
