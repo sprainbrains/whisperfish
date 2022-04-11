@@ -7,22 +7,22 @@ WhisperfishTransfer::WhisperfishTransfer(QObject *parent) : MediaTransferInterfa
 
 bool WhisperfishTransfer::cancelEnabled() const
 { 
-	return false; 
+    return false;
 }
 
 QString WhisperfishTransfer::displayName() const
 { 
-	return APP_NAME; 
+    return APP_NAME;
 }
 
 bool WhisperfishTransfer::restartEnabled() const
 { 
-	return false; 
+    return false;
 }
 
 QUrl WhisperfishTransfer::serviceIcon() const
 { 
-	return QUrl::fromLocalFile(APP_ICON); 
+    return QUrl::fromLocalFile(APP_ICON);
 }
 
 void WhisperfishTransfer::cancel()

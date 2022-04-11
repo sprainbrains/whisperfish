@@ -9,18 +9,18 @@
 class WhisperfishTransferPlugin : public QObject, public TransferPluginInterface
 {
     Q_OBJECT
-	Q_PLUGIN_METADATA(IID "be.rubdos.whisperfish.transfer.plugin")
-	Q_INTERFACES(TransferPluginInterface)
+    Q_PLUGIN_METADATA(IID "be.rubdos.whisperfish.transfer.plugin")
+    Q_INTERFACES(TransferPluginInterface)
 
-	public:
+public:
 
-		WhisperfishTransferPlugin() {};
+    WhisperfishTransferPlugin() {};
 
-		QString pluginId() const;
-		bool enabled() const;
+    QString pluginId() const;
+    bool enabled() const;
 
-		TransferPluginInfo* infoObject();
-		MediaTransferInterface* transferObject();
+    TransferPluginInfo* infoObject();
+    MediaTransferInterface* transferObject();
 };
 
 #endif

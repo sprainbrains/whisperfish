@@ -247,15 +247,19 @@ ApplicationWindow
             }
         }
 
-        function handleShare(clientId, source, content) {
+        function handleShare(clientId, shareObject) {
             console.log("DBus app.handleShare() call received"); 
             console.log("DBus Share Client:", clientId);
-            console.log("DBus MEDIA:", source);
-            console.log("DBus content:", content)
+            console.log("DBus MEDIA:", JSON.stringify(shareObject));
 
             shareClientId = clientId
-            activate()
-            pageStack.push(Qt.resolvedUrl("pages/ShareDestination.qml"), {source: source, content: JSON.parse(content)})
+            pageStack.push(
+                Qt.resolvedUrl("pages/ShareDestination.qml"),
+                { shareObject: shareObject },
+                PageStackAction.Immediate
+            )
+            mainWindow.activate()
+            dbusShareClient.call("done")
         }
     }
     DBusInterface {
@@ -263,9 +267,6 @@ ApplicationWindow
         service: "be.rubdos.whisperfish.shareClient.c" + shareClientId
         path: "/be/rubdos/whisperfish/shareClient/c" + shareClientId
         iface: "be.rubdos.whisperfish.shareClient"
-    }
-    function shareDone() {
-        dbusShareClient.call("done")
     }
 
     function clearNotifications(sid) {
