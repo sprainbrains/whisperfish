@@ -60,9 +60,7 @@ if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
         RPM_PATH="${RPM_PATH[0]}"
         RPM=$(basename $RPM_PATH)
 
-        BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
-
-        URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$BASEVERSION/$RPM"
+        URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$VERSION/$RPM"
         echo Posting to $URL
 
         # Upload to Gitlab

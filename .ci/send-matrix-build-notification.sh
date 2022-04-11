@@ -9,10 +9,7 @@ echo "Filtering on $GIT_REF"
 VERSION="$CARGO_VERSION.b$CI_PIPELINE_IID.$GIT_REF"
 echo "Complete version would be $VERSION"
 
-BASEVERSION=$(echo $VERSION | sed -e 's/\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
-echo "Base version is $BASEVERSION"
-
-PACKAGE_ID=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages?package_name=harbour-whisperfish" | jq ".[] | select(.version == \"$BASEVERSION\") | .id")
+PACKAGE_ID=$(curl -s "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages?package_name=harbour-whisperfish" | jq ".[] | select(.version == \"$VERSION\") | .id")
 PAGES=$(curl -si -XHEAD "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/$PACKAGE_ID/package_files" |grep x-total-pages | sed -e 's/x-total-pages: \([0-9]\+\)/\1/' | tr -d '\n\r')
 
 echo "Checking only page $PAGES"
