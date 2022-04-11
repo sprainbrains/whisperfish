@@ -16,7 +16,7 @@ echo "Checking only page $PAGES"
 
 JQ_FORMAT_LIST="
 [.[]
-    | select(.file_name | test(\"$GIT_REF\"))
+    | select((.file_name | test(\"$GIT_REF\")) and (not (.file_name | test(\"-debug\"))))
     | \"<li><a href=\\\\\\\"$CI_PROJECT_URL/-/package_files/\"+(.id|tostring)+\"/download\\\\\\\">\"+.file_name+\"</a></li>\" ]
     | join(\" \")
 "
