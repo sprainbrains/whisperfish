@@ -24,7 +24,7 @@
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="131"/>
-        <location filename="../qml/pages/ShareDestination.qml" line="97"/>
+        <location filename="../qml/pages/ShareDestination.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Uwaga do siebie</translation>
@@ -75,13 +75,13 @@
         <translation>Nie udało się skonfigurować magazynu danych</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="308"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="309"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="312"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="313"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation type="unfinished"></translation>
@@ -1422,7 +1422,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
-        <location filename="../qml/pages/ShareDestination.qml" line="34"/>
+        <location filename="../qml/pages/ShareDestination.qml" line="27"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
         <translation>Udostępnianie treści</translation>
