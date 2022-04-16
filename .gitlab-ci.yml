@@ -56,6 +56,7 @@ build:sailfishos:3.4:armv7hl:
     <<: *variables
     MER_ARCH: armv7hl
     TARGET_VERSION: 3.4.0.24
+    SFOS_VERSION: 4.1.0.24
     DIST: .sf3
   <<: *build-sailfishos
 
@@ -93,6 +94,7 @@ build:sailfishos:3.4:aarch64:
     <<: *variables
     MER_ARCH: aarch64
     TARGET_VERSION: 3.4.0.24
+    SFOS_VERSION: 4.1.0.24
     DIST: .sf3
   <<: *build-sailfishos
 
