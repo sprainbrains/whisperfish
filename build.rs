@@ -15,8 +15,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 use std::path::Path;
 use std::process::Command;
 
-use failure::*;
-
 fn qmake_query(var: &str) -> Result<String, std::io::Error> {
     let output = match std::env::var("QMAKE") {
         Ok(env_var_value) => Command::new(env_var_value).args(&["-query", var]).output(),
@@ -49,7 +47,7 @@ fn qmake_query(var: &str) -> Result<String, std::io::Error> {
         .to_string())
 }
 
-fn protobuf() -> Result<(), Error> {
+fn protobuf() -> anyhow::Result<()> {
     let protobuf = Path::new("protobuf").to_owned();
 
     let input: Vec<_> = protobuf
