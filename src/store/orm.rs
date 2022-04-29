@@ -91,6 +91,9 @@ pub struct Recipient {
     pub capabilities: i32,
     pub last_gv1_migrate_reminder: Option<NaiveDateTime>,
     pub last_session_reset: Option<NaiveDateTime>,
+
+    pub record: Option<Vec<u8>>,
+    pub identity: Option<Vec<u8>>,
 }
 
 impl Recipient {
