@@ -10,7 +10,7 @@ Icon=harbour-whisperfish
 X-Desktop-File-Install-Version=0.20
 
 [X-HarbourBackup]
-BackupPathList=.config/harbour-whisperfish/:.local/share/harbour-whisperfish/
+BackupPathList=.config/harbour-whisperfish/:.local/share/harbour-whisperfish/:.config/be.rubdos.be/harbour-whisperfish/
 #BackupConfigList=/apps/harbour-whisperfish/
 
 [X-Sailjail]
