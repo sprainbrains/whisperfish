@@ -46,35 +46,41 @@ Steps
 
 Copy the attachment log file you want to manipulate onto your computer.
 
-  1. Write and open a copy like ``attachments-2021-01-24_10-36.log.rescue``
+The file is like ``.local/share/harbour-whisperfish/attachments-2021-04-15_15-47.log``.
 
-  2. Clean up the beginning by removing the data message
-     ``:%s/^.*AttachmentPointer /AttachmentPointer /g``
-  3. Replace what's leading up to the message ID
-     ``:%s/for message ID \(\d\+\)/--message-id \1/g``
-  4. Remove uselessness before content type ``:%s/AttachmentPointer { //g``
-  5. ``jpeg`` becomes ``jpg`` just in case: ``:%s/jpeg/jpg/g``
-     Also plaintext ``:%s/Some("text\/x-signal-plain")/Some("text\/plain")/g``
-  6. Format the extension part
+Protip: steps 1-7 can be a macro recorded with ``qa``, then the line-specific ones ``qb`` and ``qc``,
+with the rest ``qd``!
+
+Write and open a copy like ``attachments-2021-01-24_10-36.log.rescue``
+
+  1. Remove all irrelevant lines
+     ``:%v/Error fetching attachment/d``
+  2. Replace what's leading up to and around the message ID
+     ``:%s#.*for message with ID `\(\d\+\)` AttachmentPointer {#$HOME/fetch-signal-attachment --message-id \1#g``
+  3. ``jpeg`` becomes ``jpg`` just in case:
+     ``:%s/jpeg/jpg/g``
+  4. Also plaintext:
+     ``:%s/Some("text\/x-signal-plain")/Some("text\/plain")/g``
+  5. Format the extension part
      ``:%s/content_type: [^"]*"\([^/]\+\)\/\(\w\+\)"),/--ext \2 --mime-type \1\/\2/g``
-     Also plaintext must be fixed if required ``:%s/--ext plain/--ext txt/g``
+  6. Also plaintext must be fixed if required
+     ``:%s/--ext plain/--ext txt/g``
   7. Format the key part, still in decimal, by grabbing that relevant part
      ``:%s/key:[^(]*(\([^)]*\)), /--key \1 /g``
+  8. ``CdnId`` and ``CdnKey`` used interchangeably in the logs, but the fetcher wants
+      it like the key: ``:%s/CdnId(\(\d\+\))/CdnKey("\1")/g``
+      (said Ruben, dunno lol, let's see, breaks Vim macros if it doesn't exist)
 
-  8. Get tired of wranging vim and do the hex conversion manually; on every line run
+  9. Get tired of wranging vim and do the hex conversion manually; on every line run
       ``f[v%`` and ``:s/\%V\(\d\+\)/\=Dec2hex(submatch(0))/g`` and make it a macro if you want
-  9. Still tired of wranging vim and do space/comma removal manually; on every line run
+  10. Still tired of wranging vim and do space/comma removal manually; on every line run
       ``f[v%`` and ``:s/\%V[, ]//g`` and make it a macro if you want
-  10. Get rid of brackets ``:%s/\(^[^[]*\)\[\([^]]*\)\]/\1\2``
-  11. ``CdnId`` and ``CdnKey`` used interchangeably in the logs, but the fetcher wants
-      it like the key: ``:%s/CdnId(\(\d\+\))/CdnKey("\1")/g`` (said Ruben, dunno lol, let's see)
+  11. Get rid of brackets ``:%s/\(^[^[]*\)\[\([^]]*\)\]/\1\2``
   12. ``:%s/size:.*cdn_number[^\d]\+\(\d\+\)),/--cdn-number \1/g`` to connect to the right place
-  13. ``:%s/attachment_identifier:.*CdnKey("\(.*\)").* --message-id/--cdn-key \1 --message-id/g`` to rule them all
-  14. ``:%s/--cdn-number None/--cdn-number 0/g``
+  13. ``:%s/size:.*cdn_number: None,/--cdn-number 0/g`` to connect to the right place
+  14. ``:%s/attachment_identifier:.*CdnKey("\(.*\)").*/--cdn-key \1/g`` to rule them all
 
 Now time for the great scriptification!
-
-In that file, execute ``:%s#^#$HOME/fetch-signal-attachment #g``.
 
 Also set the password ``:%s/$/ --password your_password_here/g`` with the warning
 that it might end up in your history/undo files, so you can also set the password
