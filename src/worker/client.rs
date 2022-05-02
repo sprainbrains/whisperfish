@@ -719,6 +719,7 @@ impl Handler<FetchAttachment> for ClientActor {
         let ext = match ptr.content_type() {
             "text/plain" => "txt",
             "image/jpeg" => "jpg",
+            "image/png" => "png",
             "image/jpg" => "jpg",
             "text/x-signal-plain" => "txt",
             "application/x-signal-view-once" => "bin",
