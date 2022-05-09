@@ -92,8 +92,14 @@ pub struct Recipient {
     pub last_gv1_migrate_reminder: Option<NaiveDateTime>,
     pub last_session_reset: Option<NaiveDateTime>,
 
-    pub record: Option<Vec<u8>>,
     pub identity: Option<Vec<u8>>,
+}
+
+#[derive(Queryable, Debug, Clone)]
+pub struct SessionRecord {
+    pub recipient_id: i32,
+    pub device_id: i32,
+    pub record: Vec<u8>,
 }
 
 impl Recipient {

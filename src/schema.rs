@@ -136,8 +136,15 @@ table! {
         capabilities -> Integer,
         last_gv1_migrate_reminder -> Nullable<Timestamp>,
         last_session_reset -> Nullable<Timestamp>,
-        record -> Nullable<Binary>,
         identity -> Nullable<Binary>,
+    }
+}
+
+table! {
+    session_records (recipient_id, device_id) {
+        recipient_id -> Integer,
+        device_id -> Integer,
+        record -> Binary,
     }
 }
 
@@ -185,6 +192,7 @@ joinable!(reactions -> messages (message_id));
 joinable!(reactions -> recipients (author));
 joinable!(receipts -> messages (message_id));
 joinable!(receipts -> recipients (recipient_id));
+joinable!(session_records -> recipients (recipient_id));
 joinable!(sessions -> group_v1s (group_v1_id));
 joinable!(sessions -> group_v2s (group_v2_id));
 joinable!(sessions -> recipients (direct_message_recipient_id));
@@ -199,6 +207,7 @@ allow_tables_to_appear_in_same_query!(
     reactions,
     receipts,
     recipients,
+    session_records,
     sessions,
     stickers,
 );
