@@ -19,6 +19,7 @@
 # x-sailjail-permission = Mozilla
 
 whitelist ${HOME}/.local/share/sailor-emoji
+read-only ${HOME}/.local/share/sailor-emoji
 
 dbus-user.own org.whisperfish.*
 dbus-user.own be.rubdos.whisperfish.*
