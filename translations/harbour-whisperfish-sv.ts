@@ -7,20 +7,20 @@
         <location filename="../qml/cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ny</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
         <location filename="../qml/delegates/SessionDelegate.qml" line="37"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bilaga</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="52"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alla meddelande raderade</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="131"/>
@@ -59,7 +59,7 @@
         <location filename="../qml/harbour-whisperfish.qml" line="112"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nytt meddelande</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
         <location filename="../qml/harbour-whisperfish.qml" line="210"/>
@@ -90,25 +90,25 @@
         <location filename="../qml/pages/MainPage.qml" line="111"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Idag</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../qml/pages/MainPage.qml" line="116"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Igår</translation>
     </message>
     <message id="whisperfish-session-section-older">
         <location filename="../qml/pages/MainPage.qml" line="121"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Äldre</translation>
     </message>
     <message id="whisperfish-about">
         <location filename="../qml/pages/About.qml" line="20"/>
         <source>About Whisperfish</source>
         <extracomment>Title for about page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Om Whisperfish</translation>
     </message>
     <message id="whisperfish-version">
         <location filename="../qml/pages/About.qml" line="33"/>
@@ -120,7 +120,7 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal klient för Sailfish OS</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="54"/>
@@ -132,25 +132,25 @@
         <location filename="../qml/pages/About.qml" line="87"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Donera på Liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="97"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Källkod</translation>
     </message>
     <message id="whisperfish-bug-report">
         <location filename="../qml/pages/About.qml" line="107"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rapportera en bug</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Upphovsrätt</translation>
     </message>
     <message id="whisperfish-about-wiki-link">
         <location filename="../qml/pages/About.qml" line="117"/>
@@ -174,7 +174,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till en enhet</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/AddDevice.qml" line="43"/>
@@ -192,19 +192,19 @@
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Välj bild</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
         <source>Add</source>
         <extracomment>Menu option to add new linked device</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Uppdatera</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
@@ -259,25 +259,25 @@
         <location filename="../qml/pages/MainPage.qml" line="25"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Om Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="31"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar</translation>
     </message>
     <message id="whisperfish-new-group-menu">
         <location filename="../qml/pages/MainPage.qml" line="55"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ny grupp</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nytt meddelande</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/MainPage.qml" line="89"/>
@@ -289,7 +289,7 @@
         <location filename="../qml/pages/MainPage.qml" line="93"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Låst</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally" numerus="yes">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
@@ -311,7 +311,7 @@
         <location filename="../qml/components/MessagesView.qml" line="380"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera</translation>
     </message>
     <message id="whisperfish-forward-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="387"/>
@@ -415,31 +415,31 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>New message recipient label
 ----------
 Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mottagare</translation>
     </message>
     <message id="whisperfish-error-invalid-group-name">
         <location filename="../qml/pages/NewGroup.qml" line="110"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Var god att namnge denna grupp</translation>
     </message>
     <message id="whisperfish-error-invalid-group-members">
         <location filename="../qml/pages/NewGroup.qml" line="106"/>
         <source>Please select group members</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till grupp medlemmar</translation>
     </message>
     <message id="whisperfish-error-invalid-recipient">
         <location filename="../qml/pages/NewMessage.qml" line="174"/>
         <source>Invalid recipient</source>
         <extracomment>Invalid recipient error</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fel mottagare</translation>
     </message>
     <message id="whisperfish-initial-setup-welcome-title">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="16"/>
         <source>Welcome to Whisperfish</source>
         <extracomment>welcome screen title when creating a new database</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Välkommen till Whisperfish</translation>
     </message>
     <message id="whisperfish-setup-password-prompt">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="20"/>
@@ -452,39 +452,39 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="100"/>
         <source>Password is too short</source>
         <extracomment>Password label when too short</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lösenordet är för kort</translation>
     </message>
     <message id="whisperfish-password-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="74"/>
         <location filename="../qml/pages/UnlockPage.qml" line="73"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lösenord</translation>
     </message>
     <message id="whisperfish-new-password-placeholder">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="77"/>
         <source>Your new password</source>
         <extracomment>New password input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ditt nya lösenord</translation>
     </message>
     <message id="whisperfish-password-repeated-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="95"/>
         <source>Repeat the password</source>
         <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Repetera ditt lösenord</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>
         <source>Passwords do not match</source>
         <extracomment>repeated password input label if passwords don&apos;t match</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lösenorden matchar inte</translation>
     </message>
     <message id="whisperfish-new-password-repeat-placeholder">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="107"/>
         <source>Repeat your new password</source>
         <extracomment>Repeated new password input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Repetera ditt nya lösenord</translation>
     </message>
     <message id="whisperfish-skip-button-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="131"/>
@@ -496,13 +496,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/UnlockPage.qml" line="9"/>
         <source>Unlock</source>
         <extracomment>unlock page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lås up</translation>
     </message>
     <message id="whisperfish-unlock-welcome-title">
         <location filename="../qml/pages/UnlockPage.qml" line="12"/>
         <source>Whisperfish</source>
         <extracomment>unlock page welcome title, centered on screen</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish</translation>
     </message>
     <message id="whisperfish-unlock-password-prompt">
         <location filename="../qml/pages/UnlockPage.qml" line="15"/>
@@ -515,26 +515,26 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="67"/>
         <source>You are not registered.</source>
         <extracomment>fatal error when trying to unlock the db when not registered</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Du är inte registrerad.</translation>
     </message>
     <message id="whisperfish-unlock-try-again">
         <location filename="../qml/pages/UnlockPage.qml" line="52"/>
         <source>Please try again</source>
         <extracomment>input field placeholder after failed attempt to unlock (keep it short)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Var god att försök igen</translation>
     </message>
     <message id="whisperfish-password-placeholder">
         <location filename="../qml/pages/UnlockPage.qml" line="76"/>
         <source>Your password</source>
         <oldsource>Password</oldsource>
         <extracomment>password placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ditt lösenord</translation>
     </message>
     <message id="whisperfish-unlock-button-label">
         <location filename="../qml/pages/UnlockPage.qml" line="85"/>
         <source>Unlock</source>
         <extracomment>unlock button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lås upp</translation>
     </message>
     <message id="whisperfish-password-info">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="24"/>
@@ -556,7 +556,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>Share contacts label
 ----------
 Settings page share contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dela kontakt</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
         <location filename="../qml/pages/RegisterPage.qml" line="163"/>
@@ -599,19 +599,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="76"/>
         <source>Prefix</source>
         <extracomment>label for combo box for selecting calling code (phone number prefix) important: translate as short as possible</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prefix</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
         <location filename="../qml/pages/RegisterPage.qml" line="112"/>
         <source>Phone number</source>
         <extracomment>phone number input label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Telefonnummer</translation>
     </message>
     <message id="whisperfish-registration-number-input-placeholder">
         <location filename="../qml/pages/RegisterPage.qml" line="116"/>
         <source>Phone number</source>
         <extracomment>phone number input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Telefonnummer</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="134"/>
@@ -631,14 +631,14 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fortsätt</translation>
     </message>
     <message id="whisperfish-reset-peer-accept">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="24"/>
         <location filename="../qml/pages/ResetPeerIdentity.qml" line="24"/>
         <source>Confirm</source>
         <extracomment>Reset peer identity accept text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bekräfta</translation>
     </message>
     <message id="whisperfish-peer-not-trusted">
         <location filename="../qml/pages/PeerIdentityChanged.qml" line="32"/>
@@ -658,20 +658,20 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="24"/>
         <source>Linked Devices</source>
         <extracomment>Linked devices menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Länkade enheter</translation>
     </message>
     <message id="whisperfish-settings-reconnect-menu">
         <location filename="../qml/pages/Settings.qml" line="33"/>
         <source>Reconnect</source>
         <extracomment>Reconnect menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Återanslut</translation>
     </message>
     <message id="whisperfish-settings-title">
         <location filename="../qml/pages/Settings.qml" line="49"/>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="56"/>
@@ -684,7 +684,7 @@ Settings page share contacts</extracomment>
         <source>My Phone</source>
         <oldsource>Phone</oldsource>
         <extracomment>Settings page My phone number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Min telefon</translation>
     </message>
     <message id="whisperfish-settings-my-uuid">
         <location filename="../qml/pages/Settings.qml" line="75"/>
@@ -696,7 +696,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="86"/>
         <source>Identity</source>
         <extracomment>Settings page Identity label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identitet</translation>
     </message>
     <message id="whisperfish-settings-notifications-section">
         <location filename="../qml/pages/Settings.qml" line="95"/>
@@ -942,13 +942,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="435"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted key store enabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aktiverat</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore-disabled">
         <location filename="../qml/pages/Settings.qml" line="438"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted key store disabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inaktiverat</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
         <location filename="../qml/pages/Settings.qml" line="443"/>
@@ -960,7 +960,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="447"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aktiverat</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
         <location filename="../qml/pages/Settings.qml" line="450"/>
@@ -985,7 +985,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Okänt</translation>
     </message>
     <message id="whisperfish-group-updated-to-groupv2">
         <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
@@ -1053,19 +1053,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Du</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
         <source>Whisperfish</source>
         <extracomment>default title of full-screen info pages (below the icon)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish</translation>
     </message>
     <message id="whisperfish-fatal-error-title">
         <location filename="../qml/pages/FatalErrorPage.qml" line="11"/>
         <source>Error</source>
         <extracomment>fatal error page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fel</translation>
     </message>
     <message id="whisperfish-fatal-error-hint">
         <location filename="../qml/pages/FatalErrorPage.qml" line="18"/>
@@ -1077,7 +1077,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/LandingPage.qml" line="73"/>
         <source>Welcome</source>
         <extracomment>welcome text shown when startup takes a long time</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Välkomen</translation>
     </message>
     <message id="whisperfish-verify-page-title">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="10"/>
@@ -1119,7 +1119,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="87"/>
         <source>Code</source>
         <extracomment>verification code input placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kod</translation>
     </message>
     <message id="whisperfish-attachment-preview-contact-title">
         <location filename="../qml/components/attachment/AttachmentItemContact.qml" line="22"/>
@@ -1339,7 +1339,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewImagePage.qml" line="261"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Misslyckades att ladda</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
         <location filename="../qml/pages/ViewVideoPage.qml" line="107"/>
