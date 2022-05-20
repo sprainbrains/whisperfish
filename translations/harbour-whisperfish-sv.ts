@@ -168,7 +168,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lägg till</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
@@ -210,7 +210,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Länkade enheter</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
@@ -385,7 +385,7 @@
         <location filename="../qml/pages/NewGroup.qml" line="38"/>
         <source>New Group</source>
         <extracomment>New group page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ny grupp</translation>
     </message>
     <message id="whisperfish-group-name-label">
         <location filename="../qml/pages/NewGroup.qml" line="47"/>
@@ -966,7 +966,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="450"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inaktiverat</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/VerifyIdentity.qml" line="53"/>
@@ -1196,13 +1196,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/SenderNameLabel.qml" line="81"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Du</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bilaga</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="179"/>
