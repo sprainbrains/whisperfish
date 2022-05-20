@@ -1,3 +1,4 @@
+use std::fs::remove_file;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -93,6 +94,8 @@ pub struct ClientWorker {
     compress_db: qt_method!(fn(&self)),
 
     refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
+
+    delete_file: qt_method!(fn(&self, file_name: String)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -1377,6 +1380,19 @@ impl ClientWorker {
                 log::error!("{:?}", e);
             }
         });
+    }
+
+    #[with_executor]
+    pub fn delete_file(&self, file_name: String) {
+        let _result = remove_file(&file_name);
+        let _result = match _result {
+            Ok(()) => {
+                log::trace!("Deleted file {}", file_name);
+            }
+            Err(e) => {
+                log::trace!("Could not delete file {}: {:?}", file_name, e);
+            }
+        };
     }
 }
 
