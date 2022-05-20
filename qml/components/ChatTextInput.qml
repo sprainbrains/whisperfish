@@ -4,6 +4,7 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
 import Nemo.Time 1.0
+import "../pages"
 
 Item {
     id: root
@@ -139,7 +140,7 @@ Item {
                 anchors {
                     bottom: parent.bottom; bottomMargin: -Theme.paddingSmall
                     left: parent.left
-                    right: attachButton.left; rightMargin: Theme.paddingSmall
+                    right: moreButton.left; rightMargin: Theme.paddingSmall
                 }
                 label: Format.formatDate(clock.time, Formatter.TimeValue) +
                        (attachments.length > 0 ?
@@ -167,16 +168,96 @@ Item {
             }
 
             IconButton {
-                id: attachButton
+                id: moreButton
                 anchors {
                     right: sendButton.left; rightMargin: Theme.paddingSmall
                     bottom: parent.bottom; bottomMargin: Theme.paddingMedium
                 }
-                icon.source: "image://theme/icon-m-attach"
+                icon.source: "image://theme/icon-m-add"
                 icon.width: enableAttachments ? Theme.iconSizeMedium : 0
                 icon.height: icon.width
-                visible: enableAttachments
-                onClicked: pageStack.push(multiDocumentPickerDialog)
+                icon.rotation: iconRotation
+                property real iconRotation: 0
+                Behavior on iconRotation {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+                function showHide() {
+                    if(buttonContainer.enabled) {
+                        buttonContainer.enabled = false
+                        buttonContainer.opacity = 0.0
+                        moreButton.iconRotation = 0
+                    }
+                    else {
+                        buttonContainer.enabled = true
+                        buttonContainer.opacity = 1.0
+                        moreButton.iconRotation = 45
+                    }
+                }
+
+                onClicked: moreButton.showHide()
+            }
+
+            Item {
+                id: buttonContainer
+                anchors {
+                    horizontalCenter: moreButton.horizontalCenter
+                    bottom: moreButton.top
+                }
+                width: cameraButton.width
+                height: cameraButton.height + attachButton.height + (2 * Theme.paddingSmall)
+
+                clip: false
+
+                enabled: false
+                opacity: 0.0
+                visible: opacity > 0.0
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: width / 4.0
+                    color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
+                }
+
+                IconButton {
+                    id: cameraButton
+                    anchors {
+                        top: parent.top
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                    icon.source: "image://theme/icon-m-camera"
+                    icon.width: enableAttachments ? Theme.iconSizeMedium : 0
+                    icon.height: icon.width
+                    visible: enableAttachments
+                    onClicked: {
+                        moreButton.showHide()
+                        pageStack.push(cameraDialog)
+                    }
+                }
+
+                IconButton {
+                    id: attachButton
+                    anchors {
+                        top: cameraButton.bottom
+                        topMargin: Theme.paddingSmall
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                    icon.source: "image://theme/icon-m-attach"
+                    icon.width: enableAttachments ? Theme.iconSizeMedium : 0
+                    icon.height: icon.width
+                    visible: enableAttachments
+                    onClicked: {
+                        moreButton.showHide()
+                        pageStack.push(multiDocumentPickerDialog)
+                    }
+                }
             }
 
             IconButton {
@@ -199,6 +280,22 @@ Item {
                     // TODO implement in backend
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click") === false*/) {
                         _send()
+                    }
+                }
+            }
+
+            Component {
+                id: cameraDialog
+                CameraDialog {
+                    onAccepted: {
+                        var newAttachments = []
+                            newAttachments.push({data: fileName, type: fileType})
+                        root.attachments = newAttachments // assignment to update bindings
+                    }
+                    onRejected: {
+                        // Rejecting the dialog should not unexpectedly clear the
+                        // currently selected attachments.
+                        // root.attachments = []
                     }
                 }
             }
