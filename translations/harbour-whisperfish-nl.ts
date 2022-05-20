@@ -1125,7 +1125,7 @@ Settings page share contacts</extracomment>
         <translation>Gedeelde contactgegevens</translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
-        <location filename="../qml/components/ChatTextInput.qml" line="149"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="150"/>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
@@ -1134,19 +1134,19 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
-        <location filename="../qml/components/ChatTextInput.qml" line="157"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="158"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation>Hoi %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
-        <location filename="../qml/components/ChatTextInput.qml" line="161"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="162"/>
         <source>Write a message</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation>Schrijf een bericht</translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
-        <location filename="../qml/components/ChatTextInput.qml" line="211"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="308"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
         <translation>Selecteer bijlagen</translation>
