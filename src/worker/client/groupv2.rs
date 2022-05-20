@@ -62,7 +62,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
 
         Box::pin(
             async move {
-                let mut credential_cache = storage.credential_cache();
+                let mut credential_cache = storage.credential_cache_mut().await;
                 let mut gm =
                     GroupsManager::new(authenticated_service, &mut *credential_cache, zk_params);
                 let credentials = gm.get_authorization_for_today(uuid, request.secret).await?;
