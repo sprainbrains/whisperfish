@@ -265,11 +265,10 @@ impl SessionModel {
         // XXX This could be solved through a sub query.
         self.content
             .sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
-                (Some(a_last_message), Some(b_last_message)) => a_last_message
+                (Some(a_last_message), Some(b_last_message)) => b_last_message
                     .message
                     .server_timestamp
-                    .cmp(&b_last_message.message.server_timestamp)
-                    .reverse(),
+                    .cmp(&a_last_message.message.server_timestamp),
                 (None, Some(_)) => std::cmp::Ordering::Greater,
                 (Some(_), None) => std::cmp::Ordering::Greater,
                 // Gotta use something here.
@@ -299,9 +298,7 @@ impl SessionModel {
             .find(|(_i, s)| s.id == sess.id);
 
         if let Some((idx, _session)) = found {
-            if !last_message.is_read {
-                already_unread = true;
-            }
+            already_unread = !last_message.is_read;
 
             log::trace!("Removing the session from qml");
 
@@ -538,9 +535,9 @@ impl AugmentedSession {
 
         if diff.num_seconds() <= 0 {
             String::from("today")
-        } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
+        } else if diff.num_hours() <= 24 {
             String::from("yesterday")
-        } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
+        } else if diff.num_hours() <= (7 * 24) {
             let wd = last_message.server_timestamp.weekday().number_from_monday() % 7;
             wd.to_string()
         } else {
