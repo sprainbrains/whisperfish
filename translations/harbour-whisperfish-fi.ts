@@ -10,47 +10,71 @@
         <translation>Uusi</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="37"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="36"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Liite</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="52"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="53"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation>Kaikki viestit poistettu</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="131"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="153"/>
         <location filename="../qml/pages/ShareDestination.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Omat viestit</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="150"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="172"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Luonnos: %1</translation>
     </message>
+    <message id="whisperfish-session-mark-unpinned">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="273"/>
+        <source>Unpin</source>
+        <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
+        <translation>Vapauta</translation>
+    </message>
+    <message id="whisperfish-session-mark-pinned">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="276"/>
+        <source>Pin to top</source>
+        <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
+        <translation>Kiinnitä</translation>
+    </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="285"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation>Poista mykistys</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="288"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation>Mykistä</translation>
     </message>
+    <message id="whisperfish-session-mark-unarchived">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="296"/>
+        <source>Restore to inbox</source>
+        <extracomment>Show archived messages again in the main page</extracomment>
+        <translation>Palauta keskustelu</translation>
+    </message>
+    <message id="whisperfish-session-mark-archived">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="299"/>
+        <source>Archive conversation</source>
+        <extracomment>Move the conversation to archived conversations</extracomment>
+        <translation>Arkistoi keskustelu</translation>
+    </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="306"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Poista keskustelu</translation>
@@ -87,19 +111,19 @@
         <translation>Tallenna asetukset ja viestit</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/MainPage.qml" line="111"/>
+        <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Tänään</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/MainPage.qml" line="116"/>
+        <location filename="../qml/pages/MainPage.qml" line="251"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Eilen</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="121"/>
+        <location filename="../qml/pages/MainPage.qml" line="256"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Aiemmat</translation>
@@ -250,46 +274,76 @@
         <translation>Poista linkitys</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="97"/>
+        <location filename="../qml/pages/MainPage.qml" line="225"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Aloita uusi keskustelu vetämällä alas.</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/MainPage.qml" line="25"/>
+        <location filename="../qml/pages/MainPage.qml" line="24"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>Tietoja</translation>
     </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/MainPage.qml" line="31"/>
+        <location filename="../qml/pages/MainPage.qml" line="30"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Asetukset</translation>
     </message>
     <message id="whisperfish-new-group-menu">
-        <location filename="../qml/pages/MainPage.qml" line="55"/>
+        <location filename="../qml/pages/MainPage.qml" line="54"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
         <translation>Uusi ryhmä</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/MainPage.qml" line="62"/>
+        <location filename="../qml/pages/MainPage.qml" line="61"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Uusi viesti</translation>
     </message>
+    <message id="whisperfish-show-archived-menu">
+        <location filename="../qml/pages/MainPage.qml" line="73"/>
+        <source>Show archived conversations</source>
+        <extracomment>Menu item for showing archived conversations</extracomment>
+        <translation>Arkistoidut keskustelut</translation>
+    </message>
+    <message id="whisperfish-show-inbox-menu">
+        <location filename="../qml/pages/MainPage.qml" line="77"/>
+        <source>Return to conversations</source>
+        <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
+        <translation>Aktiiviset keskustelut</translation>
+    </message>
+    <message id="whisperfish-subtitle-active-conversations">
+        <location filename="../qml/pages/MainPage.qml" line="197"/>
+        <source>Conversations</source>
+        <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
+        <translation>Keskustelut</translation>
+    </message>
+    <message id="whisperfish-subtitle-archived-conversations">
+        <location filename="../qml/pages/MainPage.qml" line="201"/>
+        <source>Archived conversations</source>
+        <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
+        <translation>Arkistoidut keskustelut</translation>
+    </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/MainPage.qml" line="89"/>
+        <location filename="../qml/pages/MainPage.qml" line="217"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Rekisteröinti vaaditaan</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/MainPage.qml" line="93"/>
+        <location filename="../qml/pages/MainPage.qml" line="221"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Lukittu</translation>
+    </message>
+    <message id="whisperfish-session-section-pinned">
+        <location filename="../qml/pages/MainPage.qml" line="241"/>
+        <source>Pinned</source>
+        <extracomment>Session section label for pinned messages</extracomment>
+        <translation>Kiinnitetty</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally" numerus="yes">
         <location filename="../qml/components/MessagesView.qml" line="141"/>
