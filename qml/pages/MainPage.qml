@@ -51,6 +51,19 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SearchPage.qml"))
             }
             */
+            MenuItem {
+                visible: SessionModel.hasArchived // TODO implement in backend
+                text: visualSessionModel.filterOnGroup === "active"
+                        //: Menu item for showing archived conversations
+                        //% "Show archived conversations"
+                      ? qsTrId("whisperfish-show-archived-menu")
+                        //: Menu item for returning to "inbox" from archived sessions
+                        //% "Return to conversations"
+                      : qsTrId("whisperfish-show-inbox-menu")
+                onClicked: visualSessionModel.filterOnGroup = visualSessionModel.filterOnGroup === "archived"
+                           ? "active"
+                           : "archived"
+            }
             /* TODO Disabled for now -- see #409
             MenuItem {
                 // TODO merge "new group" and "new message" as "new conversation"
@@ -67,27 +80,6 @@ Page {
                 text: qsTrId("whisperfish-new-message-menu")
                 visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
-            }
-        }
-
-        PushUpMenu {
-            MenuItem {
-                visible: SessionModel.hasArchived // TODO implement in backend
-
-                //: Menu item for showing archived conversations
-                //% "Show archived conversations"
-                property string showArchives: qsTrId("whisperfish-show-archived-menu")
-
-                //: Menu item for returning to "inbox" from archived sessions
-                //% "Return to conversations"
-                property string showInbox: qsTrId("whisperfish-show-inbox-menu")
-
-                text: visualSessionModel.filterOnGroup === "active"
-                      ? showArchives
-                      : showInbox
-                onClicked: visualSessionModel.filterOnGroup = visualSessionModel.filterOnGroup === "archived"
-                           ? "active"
-                           : "archived"
             }
         }
 
@@ -197,18 +189,13 @@ Page {
             spacing: 0
             header: PageHeader {
                 title: "Whisperfish"
-
-                //: Whisperfish subtitle for active conversations aka. "inbox"
-                //% "Conversations"
-                property string inboxSubtitle: qsTrId("whisperfish-subtitle-active-conversations")
-
-                //: Whisperfish subtitle for active conversations aka. "inbox"
-                //% "Archived conversations"
-                property string archivedSubtitle: qsTrId("whisperfish-subtitle-archived-conversations")
-
                 description: visualSessionModel.filterOnGroup === "active"
-                             ? inboxSubtitle
-                             : archivedSubtitle
+                               //: Whisperfish subtitle for active conversations aka. "inbox"
+                               //% "Conversations"
+                             ? qsTrId("whisperfish-subtitle-active-conversations")
+                               //: Whisperfish subtitle for archived conversations
+                               //% "Archived conversations"
+                             : qsTrId("whisperfish-subtitle-archived-conversations")
             }
 
             ViewPlaceholder {
