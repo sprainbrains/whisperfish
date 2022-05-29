@@ -31,22 +31,26 @@ Page {
                 visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
-            // MenuItem {
-            //     // TODO implement in backend
-            //     //: Show list of bookmarked messages, menu item
-            //     //% "Bookmarks"
-            //     text: qsTrId("whisperfish-bookmarks-menu")
-            //     visible: SessionModel.hasBookmarks
-            //     onClicked: pageStack.push(Qt.resolvedUrl("BookmarksPage.qml"))
-            // }
-            //     MenuItem {
-            //     // TODO implement in backend (#13)
-            //     //: Show search field menu item
-            //     //% "Search"
-            //     text: qsTrId("whisperfish-search-menu")
-            //     visible: !SetupWorker.locked
-            //     onClicked: pageStack.push(Qt.resolvedUrl("SearchPage.qml"))
-            // }
+            /*
+            MenuItem {
+                // TODO implement in backend
+                //: Show list of bookmarked messages, menu item
+                //% "Bookmarks"
+                text: qsTrId("whisperfish-bookmarks-menu")
+                visible: SessionModel.hasBookmarks
+                onClicked: pageStack.push(Qt.resolvedUrl("BookmarksPage.qml"))
+            }
+            */
+            /*
+            MenuItem {
+                // TODO implement in backend (#13)
+                //: Show search field menu item
+                //% "Search"
+                text: qsTrId("whisperfish-search-menu")
+                visible: !SetupWorker.locked
+                onClicked: pageStack.push(Qt.resolvedUrl("SearchPage.qml"))
+            }
+            */
             MenuItem {
                 // TODO merge "new group" and "new message" as "new conversation"
                 //: Whisperfish new group menu item
