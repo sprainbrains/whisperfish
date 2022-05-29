@@ -53,6 +53,8 @@ pub struct SessionModel {
     markReceived: qt_method!(fn(&self, id: usize)),
     markSent: qt_method!(fn(&self, id: usize, message: QString)),
     markMuted: qt_method!(fn(&self, idx: usize, muted: bool)),
+    markArchived: qt_method!(fn(&self, idx: usize, archived: bool)),
+    markPinned: qt_method!(fn(&self, idx: usize, pinned: bool)),
 }
 
 impl SessionModel {
@@ -184,6 +186,48 @@ impl SessionModel {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::MarkSessionMuted({}, {})", idx, muted);
+    }
+
+    #[with_executor]
+    fn markArchived(&self, idx: usize, archived: bool) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::MarkSessionArchived { sid, archived })
+                .map(Result::unwrap),
+        );
+        log::trace!(
+            "Dispatched actor::MarkSessionArchived({}, {})",
+            idx,
+            archived
+        );
+    }
+
+    #[with_executor]
+    fn markPinned(&self, idx: usize, pinned: bool) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::MarkSessionPinned { sid, pinned })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::MarkSessionPinned({}, {})", idx, pinned);
     }
 
     // Event handlers below this line
@@ -351,6 +395,36 @@ impl SessionModel {
         }
     }
 
+    pub fn handle_mark_session_archived(&mut self, sid: i32, archived: bool) {
+        if let Some((i, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.session.id == sid)
+        {
+            session.session.is_archived = archived;
+            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        } else {
+            log::warn!("Could not call data_changed for non-existing session!");
+        }
+    }
+
+    pub fn handle_mark_session_pinned(&mut self, sid: i32, pinned: bool) {
+        if let Some((i, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.session.id == sid)
+        {
+            session.session.is_pinned = pinned;
+            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        } else {
+            log::warn!("Could not call data_changed for non-existing session!");
+        }
+    }
+
     /// Remove deleted session from QML
     pub fn handle_delete_session(&mut self, idx: usize) {
         (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
@@ -488,6 +562,14 @@ impl AugmentedSession {
         self.session.is_muted
     }
 
+    fn is_archived(&self) -> bool {
+        self.session.is_archived
+    }
+
+    fn is_pinned(&self) -> bool {
+        self.session.is_pinned
+    }
+
     fn viewed(&self) -> u32 {
         if let Some(m) = &self.last_message {
             m.receipts
@@ -519,6 +601,8 @@ define_model_roles! {
         Delivered(fn delivered(&self)):                                    "deliveryCount",
         Read(fn read(&self)):                                              "readCount",
         IsMuted(fn is_muted(&self)):                                       "isMuted",
+        IsArchived(fn is_archived(&self)):                                 "isArchived",
+        IsPinned(fn is_pinned(&self)):                                     "isPinned",
         Viewed(fn viewed(&self)):                                          "viewCount",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
     }

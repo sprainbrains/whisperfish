@@ -41,6 +41,20 @@ pub struct MarkSessionMuted {
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
+pub struct MarkSessionArchived {
+    pub sid: i32,
+    pub archived: bool,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct MarkSessionPinned {
+    pub sid: i32,
+    pub pinned: bool,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
 pub struct DeleteSession {
     pub id: i32,
     pub idx: usize,
@@ -162,6 +176,44 @@ impl Handler<MarkSessionRead> for SessionActor {
             .pinned()
             .borrow_mut()
             .handle_mark_session_read(sid, already_unread);
+    }
+}
+
+impl Handler<MarkSessionArchived> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        MarkSessionArchived { sid, archived }: MarkSessionArchived,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage
+            .as_ref()
+            .unwrap()
+            .mark_session_archived(sid, archived);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_mark_session_archived(sid, archived);
+    }
+}
+
+impl Handler<MarkSessionPinned> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        MarkSessionPinned { sid, pinned }: MarkSessionPinned,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage
+            .as_ref()
+            .unwrap()
+            .mark_session_pinned(sid, pinned);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_mark_session_pinned(sid, pinned);
     }
 }
 
