@@ -5,9 +5,7 @@ import "../components"
 
 ListItem {
     id: delegate
-    property string date: model.section === 'older' ?
-                              Format.formatDate(model.timestamp, Formatter.DateMedium) :
-                              Format.formatDate(model.timestamp, Formatter.TimeValue)
+    property string date: Format.formatDate(model.timestamp, _dateFormat)
     property bool isGroup: model.isGroup
     property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
@@ -41,6 +39,7 @@ ListItem {
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property bool _labelsHighlighted: highlighted || isUnread
+    property int _dateFormat: model.section === 'older' ? Formatter.DateMedium : (model.section === 'pinned' ? Formatter.Timepoint : Formatter.TimeValue)
 
     contentHeight: 3*Theme.fontSizeMedium+2*Theme.paddingMedium+2*Theme.paddingSmall
     menu: contextMenuComponent

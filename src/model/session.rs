@@ -506,6 +506,10 @@ impl AugmentedSession {
     }
 
     fn section(&self) -> String {
+        if self.session.is_pinned {
+            return String::from("pinned");
+        }
+
         // XXX: stub
         let now = chrono::Utc::now();
         let today = Utc
