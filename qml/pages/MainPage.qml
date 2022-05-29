@@ -51,6 +51,7 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("SearchPage.qml"))
             }
             */
+            /* TODO Disabled for now -- see #409
             MenuItem {
                 // TODO merge "new group" and "new message" as "new conversation"
                 //: Whisperfish new group menu item
@@ -59,6 +60,7 @@ Page {
                 visible: !SetupWorker.locked
                 onClicked: pageStack.push(Qt.resolvedUrl("NewGroup.qml"))
             }
+            */
             MenuItem {
                 //: Whisperfish new message menu item
                 //% "New Message"
