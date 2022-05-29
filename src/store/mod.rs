@@ -1348,6 +1348,7 @@ impl Storage {
 
     pub fn fetch_or_insert_session_by_e164(&self, e164: &str) -> orm::Session {
         log::trace!("Called fetch_or_insert_session_by_e164({})", e164);
+        let db = self.db.lock();
         if let Some(session) = self.fetch_session_by_e164(e164) {
             return session;
         }
@@ -1355,8 +1356,6 @@ impl Storage {
         let recipient = self.fetch_or_insert_recipient_by_e164(e164);
 
         use schema::sessions::dsl::*;
-
-        let db = self.db.lock();
         diesel::insert_into(sessions)
             .values((direct_message_recipient_id.eq(recipient.id),))
             .execute(&*db)
