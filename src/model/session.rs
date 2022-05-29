@@ -275,6 +275,7 @@ impl SessionModel {
                 // Gotta use something here.
                 (None, None) => a.session.id.cmp(&b.session.id),
             });
+        self.content.sort_by_key(|k| !k.is_pinned);
         (self as &mut dyn QAbstractListModel).end_reset_model();
     }
 
@@ -301,6 +302,8 @@ impl SessionModel {
             if !last_message.is_read {
                 already_unread = true;
             }
+
+            log::trace!("Removing the session from qml");
 
             // Remove from this place so it can be added back in later
             (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
@@ -335,11 +338,20 @@ impl SessionModel {
             // self.unread_changed(count);
         }
 
-        log::trace!("Inserting the message back in qml");
+        let mut newIdx = 0 as usize;
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        for (idx, s) in self.content.iter().enumerate() {
+            if s.is_pinned == sess.is_pinned {
+                newIdx = idx;
+                break;
+            }
+        }
+
+        log::trace!("Inserting the session back in qml into position {}", newIdx);
+
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(newIdx as i32, newIdx as i32);
         self.content.insert(
-            0,
+            newIdx,
             AugmentedSession {
                 session: sess,
                 group_members,

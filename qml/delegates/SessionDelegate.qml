@@ -37,6 +37,8 @@ ListItem {
         return re
     }
 
+    signal relocateItem(int sessionId)
+
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property bool _labelsHighlighted: highlighted || isUnread
     property int _dateFormat: model.section === 'older' ? Formatter.DateMedium : (model.section === 'pinned' ? Formatter.Timepoint : Formatter.TimeValue)
@@ -55,20 +57,40 @@ ListItem {
             })
     }
 
+    property int clickedSessionId: 0
+
+    // QML is faster than diesel, so well have to
+    // send the item relocation signals only
+    // after we get the update ourselves...
+    onIsArchivedChanged: {
+        if(relocationActive) {
+            relocateItem(model.id)
+            relocationActive = false
+        }
+    }
+    onIsPinnedChanged:{
+        if(relocationActive) {
+            relocateItem(model.id)
+            relocationActive = false
+        }
+    }
+
+    // ...but only when it's manually activated
+    // to prevent scrolled-out-of-view cases. Augh.
+    property bool relocationActive: false
+
     function toggleReadState() {
         // TODO implement in model
         console.warn("setting read/unread is not implemented yet")
     }
 
     function togglePinState() {
-        // TODO implement in model
-        console.warn("setting pinned/unpinned is not implemented yet")
+        relocationActive = true
         SessionModel.markPinned(model.index, !isPinned)
     }
 
     function toggleArchivedState() {
-        // TODO implement in model
-        console.warn("setting archived/not archived is not implemented yet")
+        relocationActive = true
         SessionModel.markArchived(model.index, !isArchived)
     }
 
