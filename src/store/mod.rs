@@ -1703,6 +1703,10 @@ impl Storage {
             "message insert sanity test failed"
         );
 
+        // Mark the session as non-archived
+        // TODO: Do this only when necessary
+        self.mark_session_archived(session, false);
+
         log::trace!("Inserted message id {}", latest_message.id);
 
         if let Some(path) = &new_message.attachment {
