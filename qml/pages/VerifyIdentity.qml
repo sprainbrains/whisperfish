@@ -58,6 +58,7 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 width: parent.width
+                font.family: 'monospace'
                 text: MessageModel.numericFingerprint
             }
 

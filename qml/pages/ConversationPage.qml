@@ -168,6 +168,7 @@ Page {
             editor.focus: root.editorFocus
             showSeparator: !messages.atYEnd || quotedMessageShown
             editor.onFocusChanged: if (editor.focus) panel.show()
+            dockMoving: panel.moving
 
             onQuotedMessageClicked: {
                 // TODO use message id instead of index

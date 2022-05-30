@@ -25,6 +25,7 @@ Item {
     property bool clearAfterSend: true
     property bool enableSending: true
     property bool enableAttachments: true
+    property bool dockMoving
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
@@ -38,6 +39,12 @@ Item {
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
     signal quotedMessageClicked(var index, var quotedData)
+
+    onDockMovingChanged: {
+        if(buttonContainer.enabled) {
+            inputRow.toggleAttachmentButtons()
+        }
+    }
 
     function reset() {
         Qt.inputMethod.commit()
@@ -125,8 +132,22 @@ Item {
         }
 
         Item {
+            id: inputRow
             anchors { left: parent.left; right: parent.right }
             height: input.height
+
+            function toggleAttachmentButtons() {
+                if(buttonContainer.enabled) {
+                    buttonContainer.enabled = false
+                    buttonContainer.opacity = 0.0
+                    moreButton.iconRotation = 0
+                }
+                else {
+                    buttonContainer.enabled = true
+                    buttonContainer.opacity = 1.0
+                    moreButton.iconRotation = 45
+                }
+            }
 
             TextArea {
                 id: input
@@ -183,20 +204,7 @@ Item {
                         duration: 200
                     }
                 }
-                function showHide() {
-                    if(buttonContainer.enabled) {
-                        buttonContainer.enabled = false
-                        buttonContainer.opacity = 0.0
-                        moreButton.iconRotation = 0
-                    }
-                    else {
-                        buttonContainer.enabled = true
-                        buttonContainer.opacity = 1.0
-                        moreButton.iconRotation = 45
-                    }
-                }
-
-                onClicked: moreButton.showHide()
+                onClicked: inputRow.toggleAttachmentButtons()
             }
 
             Item {
@@ -223,7 +231,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: width / 4.0
-                    color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
+                    color: Theme.rgba(Theme.highlightDimmerColor, 0.9)
                 }
 
                 IconButton {
@@ -237,7 +245,7 @@ Item {
                     icon.height: icon.width
                     visible: enableAttachments
                     onClicked: {
-                        moreButton.showHide()
+                        inputRow.toggleAttachmentButtons()
                         pageStack.push(cameraDialog)
                     }
                 }
@@ -254,7 +262,7 @@ Item {
                     icon.height: icon.width
                     visible: enableAttachments
                     onClicked: {
-                        moreButton.showHide()
+                        inputRow.toggleAttachmentButtons()
                         pageStack.push(multiDocumentPickerDialog)
                     }
                 }
@@ -274,6 +282,9 @@ Item {
                 onClicked: {
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click")*/) {
                         _send()
+                    }
+                    if (buttonContainer.enabled) {
+                        inputRow.toggleAttachmentButtons()
                     }
                 }
                 onPressAndHold: {
