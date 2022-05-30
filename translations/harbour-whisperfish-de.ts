@@ -10,47 +10,47 @@
         <translation>Neu</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="37"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="35"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Anhang</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="52"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="49"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation>Alle Nachrichten gelöscht</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="131"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="128"/>
         <location filename="../qml/pages/ShareDestination.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Notiz an mich selbst</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="150"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="147"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Entwurf: %1</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="259"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation type="unfinished">Als nicht stummgeschaltet markieren</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="265"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation type="unfinished">Als stummgeschaltet markieren</translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="283"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="280"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Unterhaltung löschen</translation>
@@ -351,7 +351,7 @@
         <translation>Kontakt anzeigen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="72"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="73"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
@@ -1127,7 +1127,7 @@ Settings page share contacts</extracomment>
         <translation>Geteilter Kontakt</translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
-        <location filename="../qml/components/ChatTextInput.qml" line="150"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="171"/>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
@@ -1136,19 +1136,19 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
-        <location filename="../qml/components/ChatTextInput.qml" line="158"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="179"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation>Hallo %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
-        <location filename="../qml/components/ChatTextInput.qml" line="162"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="183"/>
         <source>Write a message</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation>Schreibe eine Nachricht</translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
-        <location filename="../qml/components/ChatTextInput.qml" line="308"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="319"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
         <translation>Wähle Anhänge aus</translation>
@@ -1347,7 +1347,7 @@ Settings page share contacts</extracomment>
         <translation>Wiedergabe fehlgeschlagen</translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="258"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="259"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
@@ -1357,7 +1357,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="282"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="283"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
@@ -1366,7 +1366,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="291"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="292"/>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1376,13 +1376,13 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="299"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="300"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation>Nachrichteninformationen anzeigen</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="313"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="314"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1392,7 +1392,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="322"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="323"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1402,7 +1402,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="334"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="335"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
