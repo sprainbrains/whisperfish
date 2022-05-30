@@ -274,6 +274,7 @@ impl SessionModel {
                 // Gotta use something here.
                 (None, None) => a.session.id.cmp(&b.session.id),
             });
+        // Stable sort, such that this retains the above ordering.
         self.content.sort_by_key(|k| !k.is_pinned);
         (self as &mut dyn QAbstractListModel).end_reset_model();
     }
