@@ -60,15 +60,9 @@ ListItem {
     property int clickedSessionId: 0
 
     // QML is faster than diesel, so well have to
-    // send the item relocation signals only
+    // send the item relocation signal only
     // after we get the update ourselves...
     onIsArchivedChanged: {
-        if(relocationActive) {
-            relocateItem(model.id)
-            relocationActive = false
-        }
-    }
-    onIsPinnedChanged:{
         if(relocationActive) {
             relocateItem(model.id)
             relocationActive = false
@@ -85,7 +79,6 @@ ListItem {
     }
 
     function togglePinState() {
-        relocationActive = true
         SessionModel.markPinned(model.index, !isPinned)
     }
 

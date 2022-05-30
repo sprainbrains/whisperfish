@@ -16,6 +16,13 @@ pub struct FetchSession {
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
+pub struct UpdateSession {
+    pub id: i32,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+
 pub struct FetchMessage(pub i32);
 
 #[derive(actix::Message)]

@@ -362,6 +362,57 @@ impl SessionModel {
         (self as &mut dyn QAbstractListModel).end_insert_rows();
     }
 
+    /// Handle add-or-replace session (without is_read update)
+    pub fn handle_update_session(
+        &mut self,
+        sess: orm::Session,
+        group_members: Vec<orm::Recipient>,
+        last_message: orm::Message,
+        last_message_attachments: Vec<orm::Attachment>,
+        last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
+    ) {
+        let found = self
+            .content
+            .iter()
+            .enumerate()
+            .find(|(_i, s)| s.id == sess.id);
+
+        if let Some((idx, _session)) = found {
+            log::trace!("Removing the session from qml");
+
+            // Remove from this place so it can be added back in later
+            (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            self.content.remove(idx);
+            (self as &mut dyn QAbstractListModel).end_remove_rows();
+        };
+
+        let mut newIdx = 0 as usize;
+
+        for (idx, s) in self.content.iter().enumerate() {
+            if s.is_pinned == sess.is_pinned {
+                newIdx = idx;
+                break;
+            }
+        }
+
+        log::trace!("Inserting the session back in qml into position {}", newIdx);
+
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(newIdx as i32, newIdx as i32);
+        self.content.insert(
+            newIdx,
+            AugmentedSession {
+                session: sess,
+                group_members,
+                last_message: Some(LastMessage {
+                    message: last_message,
+                    attachments: last_message_attachments,
+                    receipts: last_message_receipts,
+                }),
+            },
+        );
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
+    }
+
     /// When a session is marked as read and this handler called, implicitly
     /// the session will be set at the top of the QML list.
     pub fn handle_mark_session_read(&mut self, sid: i32, already_unread: bool) {
@@ -420,15 +471,24 @@ impl SessionModel {
     }
 
     pub fn handle_mark_session_pinned(&mut self, sid: i32, pinned: bool) {
-        if let Some((i, session)) = self
+        if let Some((_i, session)) = self
             .content
             .iter_mut()
             .enumerate()
             .find(|(_, s)| s.session.id == sid)
         {
             session.session.is_pinned = pinned;
-            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+
+            actix::spawn(
+                self.actor
+                    .as_ref()
+                    .unwrap()
+                    .send(actor::UpdateSession {
+                        id: session.session.id,
+                    })
+                    .map(Result::unwrap),
+            );
+            log::trace!("Dispatched actor::UpdateSession({})", session.session.id);
         } else {
             log::warn!("Could not call data_changed for non-existing session!");
         }
