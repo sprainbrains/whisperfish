@@ -101,24 +101,34 @@ Dialog {
             right: parent.right
             bottom: parent.bottom
         }
-        height: shutterButton.height + 2*Theme.paddingLarge
+        height: shutterButton.height * 2
 
         // Show either the shutter button...
 
-        Button {
+        IconButton {
             id: shutterButton
-            text: "Shoot"
+            icon.source: "image://theme/icon-m-camera?" + (pressed
+                  ? Theme.highlightColor
+                  : Theme.primaryColor)
             onClicked: camera.imageCapture.captureToLocation(photoPath + "/Photo_" + Qt.formatDateTime(new Date(), "yyyyMMdd_hhmmss") + ".jpg")
             anchors.horizontalCenter: parent.horizontalCenter
             enabled: camera.imageCapture.ready && photoPath.length > 0
             visible: !photoPreview.visible
+            Rectangle {
+                anchors.fill: parent
+                radius: Math.min(parent.width, parent.height, width/2, height/2)
+                color: Theme.rgba(Theme.primaryColor, 0.25)
+                z: -1
+            }
        }
 
         // ...or the picture action buttons
 
-        Button {
+        IconButton {
             id: previewButton
-            text: "Retry"
+            icon.source: "image://theme/icon-m-delete?" + (pressed
+                  ? Theme.highlightColor
+                  : Theme.primaryColor)
             onClicked: {
                 // TODO: Delete the discarded photo/video, but how?
                 // QML doesn't support fs actions...
@@ -132,25 +142,41 @@ Dialog {
 
             anchors {
                 right: parent.horizontalCenter
-                rightMargin: Theme.paddingMedium
+                rightMargin: width / 2
             }
             enabled: photoPreview.visible
             visible: photoPreview.visible
+
+            Rectangle {
+                anchors.fill: parent
+                radius: Math.min(parent.width, parent.height, width/2, height/2)
+                color: Theme.rgba(Theme.primaryColor, 0.25)
+                z: -1
+            }
         }
 
-        Button {
+        IconButton {
             id: shareButton
-            text: "Continue"
+            icon.source: "image://theme/icon-m-accept?" + (pressed
+                  ? Theme.highlightColor
+                  : Theme.primaryColor)
             onClicked: {
                 dialog.accept()
             }
 
             anchors {
                 left: parent.horizontalCenter
-                leftMargin: Theme.paddingMedium
+                leftMargin: width / 2
             }
             enabled: photoPreview.visible
             visible: photoPreview.visible
+
+            Rectangle {
+                anchors.fill: parent
+                radius: Math.min(parent.width, parent.height, width/2, height/2)
+                color: Theme.rgba(Theme.primaryColor, 0.25)
+                z: -1
+            }
         }
     }
 

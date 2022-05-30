@@ -26,18 +26,15 @@ ListItem {
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
     property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
-    property string message: {
-        var re = (_debugMode ? "[" + model.id + "] " : "")
-        if (model.message !== '') {
-            return re+=model.message
-        } else if (hasAttachment) {
+    property string message:
+        (_debugMode ? "[" + model.id + "] " : "") +
+        (hasAttachment && model.message === ''
             // TODO we could show an icon in front
             //: Session contains an attachment label
             //% "Attachment"
-            re+=qsTrId("whisperfish-session-has-attachment")
-        }
-        return re
-    }
+            ? qsTrId("whisperfish-session-has-attachment")
+            : model.message
+        )
 
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property bool _labelsHighlighted: highlighted || isUnread
@@ -138,7 +135,7 @@ ListItem {
                 left: upperLabel.left; right: unreadBackground.left
                 top: upperLabel.bottom; bottom: parent.bottom
             }
-            wrapMode: Text.WrapAnywhere
+            wrapMode: Text.Wrap
             maximumLineCount: 2
             enableElide: Text.ElideRight
             color: highlighted ? Theme.secondaryHighlightColor :
