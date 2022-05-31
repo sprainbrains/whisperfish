@@ -39,13 +39,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="263"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sabitlemeyi kaldır</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="266"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>En üste sabitle</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="275"/>
@@ -65,13 +65,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="286"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gelen kutusuna geri yükle</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="289"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Konuşmayı arşivle</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="296"/>
@@ -114,31 +114,31 @@
         <location filename="../qml/pages/MainPage.qml" line="59"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arşivlenen konuşmaları göster</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Konuşmalara geri dön</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="195"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Konuşmalar</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="198"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arşivlenen konuşmalar</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="234"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sabitlenen</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="239"/>
