@@ -10,47 +10,71 @@
         <translation>Yeni</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="35"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Ek</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="49"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="50"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation>Tüm mesajlar silindi</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="128"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
         <location filename="../qml/pages/ShareDestination.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Kendime not</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="147"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="162"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Taslak: %1</translation>
     </message>
+    <message id="whisperfish-session-mark-unpinned">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="263"/>
+        <source>Unpin</source>
+        <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-session-mark-pinned">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="266"/>
+        <source>Pin to top</source>
+        <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="259"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="275"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation>Konuşmanın sesini aç</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="262"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="278"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation>Konuşmanın sesini kapat</translation>
     </message>
+    <message id="whisperfish-session-mark-unarchived">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="286"/>
+        <source>Restore to inbox</source>
+        <extracomment>Show archived messages again in the main page</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-session-mark-archived">
+        <location filename="../qml/delegates/SessionDelegate.qml" line="289"/>
+        <source>Archive conversation</source>
+        <extracomment>Move the conversation to archived conversations</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="280"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="296"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Konuşmayı sil</translation>
@@ -86,20 +110,50 @@
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Yapılandırma ve mesajları depolamak için</translation>
     </message>
+    <message id="whisperfish-show-archived-menu">
+        <location filename="../qml/pages/MainPage.qml" line="59"/>
+        <source>Show archived conversations</source>
+        <extracomment>Menu item for showing archived conversations</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-show-inbox-menu">
+        <location filename="../qml/pages/MainPage.qml" line="62"/>
+        <source>Return to conversations</source>
+        <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-subtitle-active-conversations">
+        <location filename="../qml/pages/MainPage.qml" line="195"/>
+        <source>Conversations</source>
+        <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-subtitle-archived-conversations">
+        <location filename="../qml/pages/MainPage.qml" line="198"/>
+        <source>Archived conversations</source>
+        <extracomment>Whisperfish subtitle for archived conversations</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-session-section-pinned">
+        <location filename="../qml/pages/MainPage.qml" line="234"/>
+        <source>Pinned</source>
+        <extracomment>Session section label for pinned messages</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/MainPage.qml" line="111"/>
+        <location filename="../qml/pages/MainPage.qml" line="239"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Bugün</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/MainPage.qml" line="116"/>
+        <location filename="../qml/pages/MainPage.qml" line="244"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Dün</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="121"/>
+        <location filename="../qml/pages/MainPage.qml" line="249"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Daha Eski</translation>
@@ -250,43 +304,42 @@
         <translation>Bağlantıyı kaldır</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="97"/>
+        <location filename="../qml/pages/MainPage.qml" line="218"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Yeni bir konuşma başlatmak için aşağı çekin.</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/MainPage.qml" line="25"/>
+        <location filename="../qml/pages/MainPage.qml" line="24"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>Whisperfish Hakkında</translation>
     </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/MainPage.qml" line="31"/>
+        <location filename="../qml/pages/MainPage.qml" line="30"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Ayarlar</translation>
     </message>
     <message id="whisperfish-new-group-menu">
-        <location filename="../qml/pages/MainPage.qml" line="55"/>
         <source>New Group</source>
         <extracomment>Whisperfish new group menu item</extracomment>
-        <translation>Yeni Grup</translation>
+        <translation type="vanished">Yeni Grup</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/MainPage.qml" line="62"/>
+        <location filename="../qml/pages/MainPage.qml" line="80"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Yeni Mesaj</translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/MainPage.qml" line="89"/>
+        <location filename="../qml/pages/MainPage.qml" line="210"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Kayıt gerekli</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/MainPage.qml" line="93"/>
+        <location filename="../qml/pages/MainPage.qml" line="214"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Kilitli</translation>
