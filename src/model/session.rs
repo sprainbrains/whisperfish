@@ -387,7 +387,7 @@ impl SessionModel {
             (self as &mut dyn QAbstractListModel).end_remove_rows();
         };
 
-        let mut newIdx = 0let mut newIdxusize;
+        let mut newIdx = 0_usize;
 
         for (idx, s) in self.content.iter().enumerate() {
             if s.is_pinned == sess.is_pinned {
