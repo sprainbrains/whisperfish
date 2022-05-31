@@ -56,6 +56,8 @@ pub struct Session {
     pub unread: bool,
     pub is_group: bool,
     pub is_muted: bool,
+    pub is_archived: bool,
+    pub is_pinned: bool,
     pub group_members: Option<String>,
     #[allow(dead_code)]
     pub group_id: Option<String>,
@@ -1590,6 +1592,32 @@ impl Storage {
             .expect("mark session (un)muted");
     }
 
+    pub fn mark_session_archived(&self, sid: i32, archived: bool) {
+        let db = self.db.lock();
+
+        log::trace!("Called mark_session_archived({}, {})", sid, archived);
+
+        use schema::sessions::dsl::*;
+
+        diesel::update(sessions.filter(id.eq(sid)))
+            .set((is_archived.eq(archived),))
+            .execute(&*db)
+            .expect("mark session (un)archived");
+    }
+
+    pub fn mark_session_pinned(&self, sid: i32, pinned: bool) {
+        let db = self.db.lock();
+
+        log::trace!("Called mark_session_pinned({}, {})", sid, pinned);
+
+        use schema::sessions::dsl::*;
+
+        diesel::update(sessions.filter(id.eq(sid)))
+            .set((is_pinned.eq(pinned),))
+            .execute(&*db)
+            .expect("mark session (un)pinned");
+    }
+
     pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
         // XXX: multiple attachments https://gitlab.com/rubdos/whisperfish/-/issues/11
 
@@ -1674,6 +1702,10 @@ impl Storage {
             latest_message.session_id, session,
             "message insert sanity test failed"
         );
+
+        // Mark the session as non-archived
+        // TODO: Do this only when necessary
+        self.mark_session_archived(session, false);
 
         log::trace!("Inserted message id {}", latest_message.id);
 

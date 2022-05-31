@@ -5,9 +5,7 @@ import "../components"
 
 ListItem {
     id: delegate
-    property string date: model.section === 'older' ?
-                              Format.formatDate(model.timestamp, Formatter.DateMedium) :
-                              Format.formatDate(model.timestamp, Formatter.TimeValue)
+    property string date: Format.formatDate(model.timestamp, _dateFormat)
     property bool isGroup: model.isGroup
     property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
@@ -15,8 +13,8 @@ ListItem {
     property bool isMuted: model.isMuted
     property bool isUnread: !isRead // TODO investigate: is this really a bool?
     property bool isNoteToSelf: SetupWorker.phoneNumber === model.source
-    property bool pinned: false // TODO implement in model
-    property bool archived: false // TODO implement in model
+    property bool isPinned: model.isPinned
+    property bool isArchived: model.isArchived
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
     property string profilePicture: '' // TODO implement in model (#192)
@@ -36,8 +34,11 @@ ListItem {
             : model.message
         )
 
+    signal relocateItem(int sessionId)
+
     property bool _debugMode: SettingsBridge.boolValue("debug_mode")
     property bool _labelsHighlighted: highlighted || isUnread
+    property int _dateFormat: model.section === 'older' ? Formatter.DateMedium : (model.section === 'pinned' ? Formatter.Timepoint : Formatter.TimeValue)
 
     contentHeight: 3*Theme.fontSizeMedium+2*Theme.paddingMedium+2*Theme.paddingSmall
     menu: contextMenuComponent
@@ -53,19 +54,34 @@ ListItem {
             })
     }
 
+    property int clickedSessionId: 0
+
+    // QML is faster than diesel, so well have to
+    // send the item relocation signal only
+    // after we get the update ourselves...
+    onIsArchivedChanged: {
+        if(relocationActive) {
+            relocateItem(model.id)
+            relocationActive = false
+        }
+    }
+
+    // ...but only when it's manually activated
+    // to prevent scrolled-out-of-view cases. Augh.
+    property bool relocationActive: false
+
     function toggleReadState() {
         // TODO implement in model
         console.warn("setting read/unread is not implemented yet")
     }
 
     function togglePinState() {
-        // TODO implement in model
-        console.warn("setting pinned/unpinned is not implemented yet")
+        SessionModel.markPinned(model.index, !isPinned)
     }
 
     function toggleArchivedState() {
-        // TODO implement in model
-        console.warn("setting archived/not archived is not implemented yet")
+        relocationActive = true
+        SessionModel.markArchived(model.index, !isArchived)
     }
 
     function toggleMutedState() {
@@ -82,19 +98,18 @@ ListItem {
             imageSource: profilePicture
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
-            showInfoMark: pinned || archived || hasDraft || isNoteToSelf || hasAttachment || isMuted
+            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || hasAttachment || isMuted
             infoMark.source: {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
-                else if (pinned) 'image://theme/icon-s-low-importance'
-                else if (archived) 'image://theme/icon-s-time'
-                else if (hasAttachment) 'image://theme/icon-s-attach'
+                else if (isPinned) 'image://theme/icon-s-high-importance'
+                else if (isArchived) 'image://theme/icon-s-time'
                 else if (isMuted) 'image://theme/icon-s-low-importance'
+                else if (hasAttachment) 'image://theme/icon-s-attach'
                 else ''
             }
             infoMark.rotation: {
-                if (pinned) 30
-                else if (hasDraft) -90
+                if (hasDraft) -90
                 else 0
             }
             anchors {
@@ -240,17 +255,18 @@ ListItem {
                           //% "Mark as unread"
                           qsTrId("whisperfish-session-mark-unread")
                 onClicked: toggleReadState()
-            }
-            MenuItem {
-                text: pinned ?
-                          //: 'Unpin' conversation from the top of the view
-                          //% "Unpin"
-                          qsTrId("whisperfish-session-pin-view") :
-                          //: 'Pin' conversation to the top of the view
-                          //% "Pin to top"
-                          qsTrId("whisperfish-session-unpin-view")
-                onClicked: togglePinState()
             } */
+            MenuItem {
+                text: isPinned 
+                        //: 'Unpin' conversation from the top of the view
+                        //% "Unpin"
+                      ? qsTrId("whisperfish-session-mark-unpinned")
+                        //: 'Pin' conversation to the top of the view
+                        //% "Pin to top"
+                      : qsTrId("whisperfish-session-mark-pinned")
+
+                onClicked: togglePinState()
+            }
 
             MenuItem {
                 text: isMuted ?
@@ -263,16 +279,16 @@ ListItem {
                 onClicked: toggleMutedState()
             }
 
-            /* MenuItem {
-                text: archived ?
-                          //: Show hidden messages again
-                          //% "Un-archive conversation"
-                          qsTrId("whisperfish-session-unarchive") :
-                          //: Hide all messages from session menu
+            MenuItem {
+                text: isArchived ?
+                          //: Show archived messages again in the main page
+                          //% "Restore to inbox"
+                          qsTrId("whisperfish-session-mark-unarchived") :
+                          //: Move the conversation to archived conversations
                           //% "Archive conversation"
-                          qsTrId("whisperfish-session-archive")
+                          qsTrId("whisperfish-session-mark-archived")
                 onClicked: toggleArchivedState()
-            } */
+            }
 
             MenuItem {
                 //: Delete all messages from session menu

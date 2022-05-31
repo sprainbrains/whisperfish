@@ -53,6 +53,8 @@ pub struct SessionModel {
     markReceived: qt_method!(fn(&self, id: usize)),
     markSent: qt_method!(fn(&self, id: usize, message: QString)),
     markMuted: qt_method!(fn(&self, idx: usize, muted: bool)),
+    markArchived: qt_method!(fn(&self, idx: usize, archived: bool)),
+    markPinned: qt_method!(fn(&self, idx: usize, pinned: bool)),
 }
 
 impl SessionModel {
@@ -186,6 +188,48 @@ impl SessionModel {
         log::trace!("Dispatched actor::MarkSessionMuted({}, {})", idx, muted);
     }
 
+    #[with_executor]
+    fn markArchived(&self, idx: usize, archived: bool) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::MarkSessionArchived { sid, archived })
+                .map(Result::unwrap),
+        );
+        log::trace!(
+            "Dispatched actor::MarkSessionArchived({}, {})",
+            idx,
+            archived
+        );
+    }
+
+    #[with_executor]
+    fn markPinned(&self, idx: usize, pinned: bool) {
+        if idx > self.content.len() - 1 {
+            log::error!("Invalid index for session model");
+            return;
+        }
+
+        let sid = self.content[idx].id;
+
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::MarkSessionPinned { sid, pinned })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched actor::MarkSessionPinned({}, {})", idx, pinned);
+    }
+
     // Event handlers below this line
 
     /// Handle loaded session
@@ -221,16 +265,17 @@ impl SessionModel {
         // XXX This could be solved through a sub query.
         self.content
             .sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
-                (Some(a_last_message), Some(b_last_message)) => a_last_message
+                (Some(a_last_message), Some(b_last_message)) => b_last_message
                     .message
                     .server_timestamp
-                    .cmp(&b_last_message.message.server_timestamp)
-                    .reverse(),
+                    .cmp(&a_last_message.message.server_timestamp),
                 (None, Some(_)) => std::cmp::Ordering::Greater,
                 (Some(_), None) => std::cmp::Ordering::Greater,
                 // Gotta use something here.
                 (None, None) => a.session.id.cmp(&b.session.id),
             });
+        // Stable sort, such that this retains the above ordering.
+        self.content.sort_by_key(|k| !k.is_pinned);
         (self as &mut dyn QAbstractListModel).end_reset_model();
     }
 
@@ -254,9 +299,9 @@ impl SessionModel {
             .find(|(_i, s)| s.id == sess.id);
 
         if let Some((idx, _session)) = found {
-            if !last_message.is_read {
-                already_unread = true;
-            }
+            already_unread = !last_message.is_read;
+
+            log::trace!("Removing the session from qml");
 
             // Remove from this place so it can be added back in later
             (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
@@ -291,11 +336,71 @@ impl SessionModel {
             // self.unread_changed(count);
         }
 
-        log::trace!("Inserting the message back in qml");
+        let mut newIdx = 0_usize;
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        for (idx, s) in self.content.iter().enumerate() {
+            if s.is_pinned == sess.is_pinned {
+                newIdx = idx;
+                break;
+            }
+        }
+
+        log::trace!("Inserting the session back in qml into position {}", newIdx);
+
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(newIdx as i32, newIdx as i32);
         self.content.insert(
-            0,
+            newIdx,
+            AugmentedSession {
+                session: sess,
+                group_members,
+                last_message: Some(LastMessage {
+                    message: last_message,
+                    attachments: last_message_attachments,
+                    receipts: last_message_receipts,
+                }),
+            },
+        );
+        (self as &mut dyn QAbstractListModel).end_insert_rows();
+    }
+
+    /// Handle add-or-replace session (without is_read update)
+    pub fn handle_update_session(
+        &mut self,
+        sess: orm::Session,
+        group_members: Vec<orm::Recipient>,
+        last_message: orm::Message,
+        last_message_attachments: Vec<orm::Attachment>,
+        last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
+    ) {
+        let found = self
+            .content
+            .iter()
+            .enumerate()
+            .find(|(_i, s)| s.id == sess.id);
+
+        if let Some((idx, _session)) = found {
+            log::trace!("Removing the session from qml");
+
+            // Remove from this place so it can be added back in later
+            (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            self.content.remove(idx);
+            (self as &mut dyn QAbstractListModel).end_remove_rows();
+        };
+
+        let mut newIdx = 0_usize;
+
+        for (idx, s) in self.content.iter().enumerate() {
+            if s.is_pinned == sess.is_pinned {
+                newIdx = idx;
+                break;
+            }
+        }
+
+        log::trace!("Inserting the session back in qml into position {}", newIdx);
+
+        (self as &mut dyn QAbstractListModel).begin_insert_rows(newIdx as i32, newIdx as i32);
+        self.content.insert(
+            newIdx,
             AugmentedSession {
                 session: sess,
                 group_members,
@@ -346,6 +451,45 @@ impl SessionModel {
             session.session.is_muted = muted;
             let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        } else {
+            log::warn!("Could not call data_changed for non-existing session!");
+        }
+    }
+
+    pub fn handle_mark_session_archived(&mut self, sid: i32, archived: bool) {
+        if let Some((i, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.session.id == sid)
+        {
+            session.session.is_archived = archived;
+            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        } else {
+            log::warn!("Could not call data_changed for non-existing session!");
+        }
+    }
+
+    pub fn handle_mark_session_pinned(&mut self, sid: i32, pinned: bool) {
+        if let Some((_i, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.session.id == sid)
+        {
+            session.session.is_pinned = pinned;
+
+            actix::spawn(
+                self.actor
+                    .as_ref()
+                    .unwrap()
+                    .send(actor::UpdateSession {
+                        id: session.session.id,
+                    })
+                    .map(Result::unwrap),
+            );
+            log::trace!("Dispatched actor::UpdateSession({})", session.session.id);
         } else {
             log::warn!("Could not call data_changed for non-existing session!");
         }
@@ -432,6 +576,10 @@ impl AugmentedSession {
     }
 
     fn section(&self) -> String {
+        if self.session.is_pinned {
+            return String::from("pinned");
+        }
+
         // XXX: stub
         let now = chrono::Utc::now();
         let today = Utc
@@ -448,9 +596,9 @@ impl AugmentedSession {
 
         if diff.num_seconds() <= 0 {
             String::from("today")
-        } else if diff.num_seconds() > 0 && diff.num_hours() <= 24 {
+        } else if diff.num_hours() <= 24 {
             String::from("yesterday")
-        } else if diff.num_seconds() > 0 && diff.num_hours() <= (7 * 24) {
+        } else if diff.num_hours() <= (7 * 24) {
             let wd = last_message.server_timestamp.weekday().number_from_monday() % 7;
             wd.to_string()
         } else {
@@ -488,6 +636,14 @@ impl AugmentedSession {
         self.session.is_muted
     }
 
+    fn is_archived(&self) -> bool {
+        self.session.is_archived
+    }
+
+    fn is_pinned(&self) -> bool {
+        self.session.is_pinned
+    }
+
     fn viewed(&self) -> u32 {
         if let Some(m) = &self.last_message {
             m.receipts
@@ -519,6 +675,8 @@ define_model_roles! {
         Delivered(fn delivered(&self)):                                    "deliveryCount",
         Read(fn read(&self)):                                              "readCount",
         IsMuted(fn is_muted(&self)):                                       "isMuted",
+        IsArchived(fn is_archived(&self)):                                 "isArchived",
+        IsPinned(fn is_pinned(&self)):                                     "isPinned",
         Viewed(fn viewed(&self)):                                          "viewCount",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
     }

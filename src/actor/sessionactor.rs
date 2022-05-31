@@ -1,4 +1,4 @@
-use crate::actor::FetchSession;
+use crate::actor::{FetchSession, UpdateSession};
 
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
@@ -37,6 +37,20 @@ pub struct MarkSessionRead {
 pub struct MarkSessionMuted {
     pub sid: i32,
     pub muted: bool,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct MarkSessionArchived {
+    pub sid: i32,
+    pub archived: bool,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct MarkSessionPinned {
+    pub sid: i32,
+    pub pinned: bool,
 }
 
 #[derive(actix::Message)]
@@ -146,6 +160,50 @@ impl Handler<FetchSession> for SessionActor {
     }
 }
 
+impl Handler<UpdateSession> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        UpdateSession { id: sid }: UpdateSession,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        let storage = self.storage.as_ref().unwrap();
+        let sess = storage.fetch_session_by_id(sid).expect("existing session");
+        let message = storage
+            .fetch_last_message_by_session_id(sid)
+            .expect("> 0 messages per session");
+        let receipts = storage.fetch_message_receipts(message.id);
+        let attachments = storage.fetch_attachments_for_message(message.id);
+
+        let group_members = if sess.is_group_v1() {
+            let group = sess.unwrap_group_v1();
+            storage
+                .fetch_group_members_by_group_v1_id(&group.id)
+                .into_iter()
+                .map(|(_, r)| r)
+                .collect()
+        } else if sess.is_group_v2() {
+            let group = sess.unwrap_group_v2();
+            storage
+                .fetch_group_members_by_group_v2_id(&group.id)
+                .into_iter()
+                .map(|(_, r)| r)
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        self.inner.pinned().borrow_mut().handle_update_session(
+            sess,
+            group_members,
+            message,
+            attachments,
+            receipts,
+        );
+    }
+}
+
 impl Handler<MarkSessionRead> for SessionActor {
     type Result = ();
 
@@ -162,6 +220,44 @@ impl Handler<MarkSessionRead> for SessionActor {
             .pinned()
             .borrow_mut()
             .handle_mark_session_read(sid, already_unread);
+    }
+}
+
+impl Handler<MarkSessionArchived> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        MarkSessionArchived { sid, archived }: MarkSessionArchived,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage
+            .as_ref()
+            .unwrap()
+            .mark_session_archived(sid, archived);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_mark_session_archived(sid, archived);
+    }
+}
+
+impl Handler<MarkSessionPinned> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        MarkSessionPinned { sid, pinned }: MarkSessionPinned,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage
+            .as_ref()
+            .unwrap()
+            .mark_session_pinned(sid, pinned);
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .handle_mark_session_pinned(sid, pinned);
     }
 }
 
