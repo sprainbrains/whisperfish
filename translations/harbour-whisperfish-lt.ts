@@ -129,19 +129,19 @@
         <translation>Laidos ID: %1</translation>
     </message>
     <message id="whisperfish-liberapay">
-        <location filename="../qml/pages/About.qml" line="87"/>
+        <location filename="../qml/pages/About.qml" line="88"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
         <translation>Paramti per Liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
-        <location filename="../qml/pages/About.qml" line="97"/>
+        <location filename="../qml/pages/About.qml" line="98"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
         <translation>Pirminis kodas</translation>
     </message>
     <message id="whisperfish-bug-report">
-        <location filename="../qml/pages/About.qml" line="107"/>
+        <location filename="../qml/pages/About.qml" line="108"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
         <translation>Pranešti apie klaidą</translation>
@@ -153,13 +153,13 @@
         <translation>Autorių teisės</translation>
     </message>
     <message id="whisperfish-about-wiki-link">
-        <location filename="../qml/pages/About.qml" line="117"/>
+        <location filename="../qml/pages/About.qml" line="118"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
         <translation>Aplankykiti Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="126"/>
+        <location filename="../qml/pages/About.qml" line="127"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation>Papildomos autorių teisės</translation>
