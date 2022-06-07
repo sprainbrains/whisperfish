@@ -18,7 +18,7 @@ pub struct ProtocolStore {
 fn convert_io_error(e: io::Error) -> SignalProtocolError {
     // XXX can probably be better, but currently this is only used in session_delete and
     // identity_delete
-    SignalProtocolError::SessionNotFound(e.to_string())
+    SignalProtocolError::InvalidArgument(format!("IO error {}", e))
 }
 
 fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a str {
@@ -336,7 +336,7 @@ impl protocol::SessionStoreExt for Storage {
                 addr.to_string(),
                 e
             );
-            SignalProtocolError::SessionNotFound(addr.to_string())
+            SignalProtocolError::SessionNotFound(addr.clone())
         })?;
         Ok(())
     }
