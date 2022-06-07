@@ -16,7 +16,7 @@ harness = false
 [dependencies]
 async-trait = "0.1"
 bincode = "1.2.1"
-actix = "0.13"
+actix = "0.12"
 rand = "0.7"
 aes = "0.7"
 block-modes = "0.8"
