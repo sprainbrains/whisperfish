@@ -92,7 +92,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "rand 0.8.5",
- "sha-1",
+ "sha-1 0.10.0",
  "smallvec",
  "zstd",
 ]
@@ -1176,8 +1176,8 @@ dependencies = [
  "secrecy",
  "serde",
  "serde_yaml",
- "sha-1",
- "sha2 0.10.2",
+ "sha-1 0.9.8",
+ "sha2 0.9.9",
  "single-instance",
  "structopt",
  "tempdir",
@@ -2689,6 +2689,19 @@ dependencies = [
  "ryu",
  "serde",
  "yaml-rust",
+]
+
+[[package]]
+name = "sha-1"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99cd6713db3cf16b6c84e06321e049a9b9f699826e16096d23bbcc44d15d51a6"
+dependencies = [
+ "block-buffer 0.9.0",
+ "cfg-if",
+ "cpufeatures",
+ "digest 0.9.0",
+ "opaque-debug",
 ]
 
 [[package]]
