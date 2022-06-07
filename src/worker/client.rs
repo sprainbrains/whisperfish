@@ -1072,13 +1072,21 @@ impl Handler<StorageReady> for ClientActor {
                     relay: None,
                 };
                 let storage = act.storage.clone().unwrap();
+                let unidentified_sender_trust_root = PublicKey::deserialize(
+                    // XXX: Why don't we have this in Cfg itself already?
+                    //      PR: https://github.com/whisperfish/libsignal-service-rs/pull/147
+                    //      Remove base64 direct dependency after cleaning.
+                    &base64::decode(&service_cfg.unidentified_sender_trust_root)
+                        .expect("valid base64 for trust root"),
+                )
+                .expect("valid trust root");
                 let cipher = ServiceCipher::new(
                     storage.clone(),
                     storage.clone(),
                     storage.clone(),
                     storage,
                     rand::thread_rng(),
-                    service_cfg.credentials_validator().expect("trust root"),
+                    unidentified_sender_trust_root,
                 );
                 // end signal service context
                 act.cipher = Some(cipher);

@@ -1133,6 +1133,7 @@ dependencies = [
  "aes",
  "anyhow",
  "async-trait",
+ "base64",
  "bincode",
  "block-modes",
  "cc",
