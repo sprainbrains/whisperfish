@@ -54,7 +54,7 @@ anyhow = "1.0"
 thiserror = "1"
 libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
-zkgroup = { version="=0.7.4", git = "https://github.com/signalapp/zkgroup" }
+zkgroup = { version = "0.9.0", git = "https://github.com/signalapp/libsignal-client", branch = "main" }
 log = "0.4"
 env_logger = "0.9"
 single-instance = "0.3.3"
@@ -76,7 +76,7 @@ tempdir = "0.3"
 structopt = "0.3"
 
 rpassword = "5.0"
-secrecy = "0.8"
+secrecy = "0.7"
 
 regex = "1.5"
 
@@ -124,18 +124,15 @@ bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
 sailfish = ["bundled-sqlcipher", "sailors"]
 harbour = ["sailfish"]
 
-[patch."https://github.com/signalapp/zkgroup"]
-zkgroup = { git = "https://gitlab.com/whisperfish/zkgroup", rev = "a142805e9e402403f5dbeff8874138af69c15395" }
-
-# Branch "whisperfork" is being updated
 [patch."https://github.com/signalapp/libsignal-client"]
-libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", rev = "8e54c5d2d2821c308d273ba395c6af8c8f022116" }
+libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
+zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 
 # [patch.crates-io]
 # qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
 
 [patch.crates-io]
-curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = '3.0.0-lizard2' }
+curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = 'lizard2' }
 libsqlite3-sys = { git = "https://github.com/rusqlite/rusqlite", rev = "8770e7d4433de942122d37f073dd80519a8d67c0" }
 
 # [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
