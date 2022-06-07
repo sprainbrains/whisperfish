@@ -51,7 +51,8 @@ mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     -- \
     --define "dist $DIST" \
     --define "cargo_version $VERSION"\
-    --with lto\
+    --with lto \
+    --with sccache \
 
 
 [ "$(ls -A RPMS/*.rpm)" ] || exit 1

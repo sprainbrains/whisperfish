@@ -1,5 +1,6 @@
 %bcond_with harbour
 %bcond_with lto
+%bcond_with sccache
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -113,6 +114,11 @@ Group: Qt/Qt
 rustc --version
 cargo --version
 
+%if %{with sccache}
+export RUSTC_WRAPPER=sccache
+sccache -s
+%endif
+
 # https://git.sailfishos.org/mer-core/gecko-dev/blob/master/rpm/xulrunner-qt5.spec#L224
 # When cross-compiling under SB2 rust needs to know what arch to emit
 # when nothing is specified on the command line. That usually defaults
@@ -216,6 +222,10 @@ else
     cp -ar %{_sourcedir}/../shareplugin_v1/* .
     make %{?_smp_mflags}
 fi
+%endif
+
+%if %{with sccache}
+sccache -s
 %endif
 
 %install
