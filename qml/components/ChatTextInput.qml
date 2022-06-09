@@ -4,6 +4,7 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
 import Nemo.Time 1.0
+import "../pages"
 
 Item {
     id: root
@@ -24,6 +25,7 @@ Item {
     property bool clearAfterSend: true
     property bool enableSending: true
     property bool enableAttachments: true
+    property bool dockMoving
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
@@ -37,6 +39,12 @@ Item {
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
     signal quotedMessageClicked(var index, var quotedData)
+
+    onDockMovingChanged: {
+        if(buttonContainer.enabled) {
+            inputRow.toggleAttachmentButtons()
+        }
+    }
 
     function reset() {
         Qt.inputMethod.commit()
@@ -124,8 +132,22 @@ Item {
         }
 
         Item {
+            id: inputRow
             anchors { left: parent.left; right: parent.right }
             height: input.height
+
+            function toggleAttachmentButtons() {
+                if(buttonContainer.enabled) {
+                    buttonContainer.enabled = false
+                    buttonContainer.opacity = 0.0
+                    moreButton.iconRotation = 0
+                }
+                else {
+                    buttonContainer.enabled = true
+                    buttonContainer.opacity = 1.0
+                    moreButton.iconRotation = 45
+                }
+            }
 
             TextArea {
                 id: input
@@ -139,7 +161,7 @@ Item {
                 anchors {
                     bottom: parent.bottom; bottomMargin: -Theme.paddingSmall
                     left: parent.left
-                    right: attachButton.left; rightMargin: Theme.paddingSmall
+                    right: moreButton.left; rightMargin: Theme.paddingSmall
                 }
                 label: Format.formatDate(clock.time, Formatter.TimeValue) +
                        (attachments.length > 0 ?
@@ -167,16 +189,83 @@ Item {
             }
 
             IconButton {
-                id: attachButton
+                id: moreButton
                 anchors {
                     right: sendButton.left; rightMargin: Theme.paddingSmall
                     bottom: parent.bottom; bottomMargin: Theme.paddingMedium
                 }
-                icon.source: "image://theme/icon-m-attach"
+                icon.source: "image://theme/icon-m-add"
                 icon.width: enableAttachments ? Theme.iconSizeMedium : 0
                 icon.height: icon.width
-                visible: enableAttachments
-                onClicked: pageStack.push(multiDocumentPickerDialog)
+                icon.rotation: iconRotation
+                property real iconRotation: 0
+                Behavior on iconRotation {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+                onClicked: inputRow.toggleAttachmentButtons()
+            }
+
+            Item {
+                id: buttonContainer
+                anchors {
+                    horizontalCenter: moreButton.horizontalCenter
+                    bottom: moreButton.top
+                }
+                width: cameraButton.width
+                height: cameraButton.height + attachButton.height + (2 * Theme.paddingSmall)
+
+                clip: false
+
+                enabled: false
+                opacity: 0.0
+                visible: opacity > 0.0
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: width / 4.0
+                    color: Theme.rgba(Theme.highlightDimmerColor, 0.9)
+                }
+
+                IconButton {
+                    id: cameraButton
+                    anchors {
+                        top: parent.top
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                    icon.source: "image://theme/icon-m-camera"
+                    icon.width: enableAttachments ? Theme.iconSizeMedium : 0
+                    icon.height: icon.width
+                    visible: enableAttachments
+                    onClicked: {
+                        inputRow.toggleAttachmentButtons()
+                        pageStack.push(cameraDialog)
+                    }
+                }
+
+                IconButton {
+                    id: attachButton
+                    anchors {
+                        top: cameraButton.bottom
+                        topMargin: Theme.paddingSmall
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                    icon.source: "image://theme/icon-m-attach"
+                    icon.width: enableAttachments ? Theme.iconSizeMedium : 0
+                    icon.height: icon.width
+                    visible: enableAttachments
+                    onClicked: {
+                        inputRow.toggleAttachmentButtons()
+                        pageStack.push(multiDocumentPickerDialog)
+                    }
+                }
             }
 
             IconButton {
@@ -194,11 +283,30 @@ Item {
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click")*/) {
                         _send()
                     }
+                    if (buttonContainer.enabled) {
+                        inputRow.toggleAttachmentButtons()
+                    }
                 }
                 onPressAndHold: {
                     // TODO implement in backend
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click") === false*/) {
                         _send()
+                    }
+                }
+            }
+
+            Component {
+                id: cameraDialog
+                CameraDialog {
+                    onAccepted: {
+                        var newAttachments = []
+                            newAttachments.push({data: fileName, type: fileType})
+                        root.attachments = newAttachments // assignment to update bindings
+                    }
+                    onRejected: {
+                        // Rejecting the dialog should not unexpectedly clear the
+                        // currently selected attachments.
+                        // root.attachments = []
                     }
                 }
             }

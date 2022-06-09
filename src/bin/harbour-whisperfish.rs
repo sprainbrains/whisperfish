@@ -104,11 +104,16 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     // With more refactoring there should be probably more initialization here
     // Not creating the storage/attachment directory is fatal and we return here.
     let settings = crate::config::Settings::default();
-    let dir = settings.get_string("attachment_dir");
-    let path = std::path::Path::new(dir.trim());
-    if !path.exists() {
-        std::fs::create_dir_all(path)
-            .with_context(|| format!("Could not create attachment dir: {}", path.display()))?;
+
+    for dir in &[
+        settings.get_string("attachment_dir"),
+        settings.get_string("camera_dir"),
+    ] {
+        let path = std::path::Path::new(dir.trim());
+        if !path.exists() {
+            std::fs::create_dir_all(path)
+                .with_context(|| format!("Could not create dir: {}", path.display()))?;
+        }
     }
 
     // Currently not possible, default QmlEngine does not run asynchronous.

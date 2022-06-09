@@ -10,10 +10,10 @@ Icon=harbour-whisperfish
 X-Desktop-File-Install-Version=0.20
 
 [X-HarbourBackup]
-BackupPathList=.config/harbour-whisperfish/:.local/share/harbour-whisperfish/
+BackupPathList=.config/harbour-whisperfish/:.local/share/harbour-whisperfish/:.config/be.rubdos/harbour-whisperfish/
 #BackupConfigList=/apps/harbour-whisperfish/
 
 [X-Sailjail]
-Permissions=Internet;Pictures;Contacts;Notifications;Phone;Privileged;Mozilla;MediaIndexing;Downloads;UserDirs;WebView
+Permissions=Internet;Pictures;Contacts;Notifications;Phone;Privileged;Mozilla;MediaIndexing;Downloads;UserDirs;WebView;Camera
 OrganizationName=be.rubdos
 ApplicationName=harbour-whisperfish

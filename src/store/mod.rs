@@ -1,6 +1,6 @@
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use anyhow::Context;
 
@@ -214,7 +214,7 @@ pub struct Storage {
     pub db: Arc<AssertUnwindSafe<ReentrantMutex<SqliteConnection>>>,
     store_enc: Option<encryption::StorageEncryption>,
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
-    credential_cache: Arc<Mutex<InMemoryCredentialsCache>>,
+    credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
     path: PathBuf,
 }
 
@@ -363,7 +363,9 @@ impl Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
-            credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
+            credential_cache: Arc::new(tokio::sync::RwLock::new(
+                InMemoryCredentialsCache::default(),
+            )),
             path: path.to_path_buf(),
         })
     }
@@ -397,7 +399,9 @@ impl Storage {
             db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
-            credential_cache: Arc::new(Mutex::new(InMemoryCredentialsCache::default())),
+            credential_cache: Arc::new(tokio::sync::RwLock::new(
+                InMemoryCredentialsCache::default(),
+            )),
             path: path.to_path_buf(),
         })
     }
@@ -1894,8 +1898,16 @@ impl Storage {
         Ok(ident.serialize().into())
     }
 
-    pub fn credential_cache(&self) -> std::sync::MutexGuard<'_, InMemoryCredentialsCache> {
-        self.credential_cache.lock().expect("mutex")
+    pub async fn credential_cache(
+        &self,
+    ) -> tokio::sync::RwLockReadGuard<'_, InMemoryCredentialsCache> {
+        self.credential_cache.read().await
+    }
+
+    pub async fn credential_cache_mut(
+        &self,
+    ) -> tokio::sync::RwLockWriteGuard<'_, InMemoryCredentialsCache> {
+        self.credential_cache.write().await
     }
 
     /// Saves a given attachment into a random-generated path. Returns the path.

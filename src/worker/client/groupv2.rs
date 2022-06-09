@@ -62,7 +62,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
 
         Box::pin(
             async move {
-                let mut credential_cache = storage.credential_cache();
+                let mut credential_cache = storage.credential_cache_mut().await;
                 let mut gm =
                     GroupsManager::new(authenticated_service, &mut *credential_cache, zk_params);
                 let credentials = gm.get_authorization_for_today(uuid, request.secret).await?;
@@ -80,7 +80,8 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                     diesel::update(group_v2s)
                         .set((
                             name.eq(&group.title),
-                            revision.eq(group.revision as i32),
+                            // TODO: maybe rename the SQLite column to version
+                            revision.eq(group.version as i32),
                             invite_link_password.eq(&group.invite_link_password),
                             access_required_for_attributes.eq(acl.attributes),
                             access_required_for_members.eq(acl.members),
@@ -122,25 +123,15 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                             .requesting_members
                             .iter()
                             .map(|member| (&member.uuid, Some(&member.profile_key))),
-                    )
-                    .filter_map(|(uuid, key)| {
-                        // XXX filter on correctness/length of profile key, if supplied
-                        let uuid = uuid::Uuid::from_slice(uuid)
-                            .map_err(|e| {
-                                log::error!("Member with unparsable UUID {:?}: {}", uuid, e);
-                                e
-                            })
-                            .ok()?;
-                        Some((uuid, key))
-                    });
+                    );
 
                 // We need all the profile keys and UUIDs in the database.
                 for (uuid, profile_key) in members_to_assert {
                     let recipient = storage.fetch_or_insert_recipient_by_uuid(&uuid.to_string());
                     if let Some(profile_key) = profile_key {
-                        let recipient = storage.update_profile_key(recipient.e164.as_deref(), recipient.uuid.as_deref(), profile_key, TrustLevel::Uncertain);
+                        let recipient = storage.update_profile_key(recipient.e164.as_deref(), recipient.uuid.as_deref(), &profile_key.get_bytes(), TrustLevel::Uncertain);
                         match recipient.profile_key {
-                            Some(key) if &key == profile_key => {
+                            Some(key) if key == profile_key.get_bytes() => {
                                 log::trace!("Profile key matches server-stored profile key");
                             }
                             Some(_key) => {
@@ -159,9 +150,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                 // 1. Delete all existing memberships.
                 // 2. Insert all memberships from the DecryptedGroup.
                 let uuids = group.members.iter().map(|member| {
-                    uuid::Uuid::from_slice(&member.uuid)
-                        .expect("real members have real UUIDs")
-                        .to_string()
+                    member.uuid.to_string()
                 });
                 let db = storage.db.lock();
                 db.transaction(|| -> Result<(), diesel::result::Error> {
@@ -191,9 +180,8 @@ impl Handler<RequestGroupV2Info> for ClientActor {
 
                     for member in &group.members {
                         // XXX there's a bit of duplicate work going on here.
-                        let uuid = uuid::Uuid::from_slice(&member.uuid).expect("caught earlier");
                         let recipient =
-                            storage.fetch_or_insert_recipient_by_uuid(&uuid.to_string());
+                            storage.fetch_or_insert_recipient_by_uuid(&member.uuid.to_string());
                         log::trace!(
                             "Asserting {} as a member of the group",
                             recipient.e164_or_uuid()

@@ -100,6 +100,10 @@ impl SignalConfig {
         self.share_dir.join("storage").join("attachments")
     }
 
+    pub fn default_camera_dir(&self) -> std::path::PathBuf {
+        self.share_dir.join("storage").join("camera")
+    }
+
     pub fn get_identity_dir(&self) -> std::path::PathBuf {
         self.share_dir
             .join("storage")

@@ -191,6 +191,13 @@ impl Settings {
                 .default_attachment_dir()
                 .to_string_lossy(),
         );
+        self.set_string_if_unset(
+            "camera_dir",
+            // XXX this has to be adapted to current config struct
+            &crate::config::SignalConfig::default()
+                .default_camera_dir()
+                .to_string_lossy(),
+        );
     }
 
     pub fn get_string(&self, key: impl AsRef<str>) -> String {
