@@ -146,10 +146,10 @@ export CXXFLAGS=$CFLAGS
 # This avoids a malloc hang in sb2 gated calls to execvp/dup2/chdir
 # during fork/exec. It has no effect outside sb2 so doesn't hurt
 # native builds.
-export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
-export SB2_RUST_USE_REAL_EXECVP=Yes
-export SB2_RUST_USE_REAL_FN=Yes
-export SB2_RUST_NO_SPAWNVP=Yes
+# export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
+# export SB2_RUST_USE_REAL_EXECVP=Yes
+# export SB2_RUST_USE_REAL_FN=Yes
+# export SB2_RUST_NO_SPAWNVP=Yes
 
 %ifnarch %ix86
 export HOST_CC=host-cc
