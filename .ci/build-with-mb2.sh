@@ -45,6 +45,10 @@ git status
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
+TMPDIR2="$TMPDIR"
+export TMPDIR=$PWD/tmp/
+mkdir $TMPDIR
+
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     --enable-debug \
     --no-check \
@@ -53,6 +57,9 @@ mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     --define "cargo_version $VERSION"\
     --with lto \
     --with sccache \
+
+rm -rf $TMPDIR
+export TMPDIR="$TMPDIR2"
 
 
 [ "$(ls -A RPMS/*.rpm)" ] || exit 1
