@@ -45,9 +45,19 @@ git status
 # -f to ignore non-existent files
 rm -f RPMS/*.rpm
 
+# Set this for sccache.  Sccache is testing out compilers, and host-cc fails here.
 TMPDIR2="$TMPDIR"
 export TMPDIR=$PWD/tmp/
 mkdir $TMPDIR
+
+mkdir -p ~/.config/sccache
+cat > ~/.config/sccache/config << EOF
+[cache.s3]
+bucket = "$SCCACHE_BUCKET"
+endpoint = "$SCCACHE_ENDPOINT"
+use_ssl = false
+key_prefix = "$SCCACHE_S3_KEY_PREFIX"
+EOF
 
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     --enable-debug \
