@@ -32,10 +32,10 @@ stages:
   cache:
     paths:
       - target
-      - $CARGO_HOME/bin/
-      - $CARGO_HOME/registry/index/
-      - $CARGO_HOME/registry/cache/
-      - $CARGO_HOME/git/db/
+      - cargo/bin/
+      - cargo/registry/index/
+      - cargo/registry/cache/
+      - cargo/git/db/
     key:
       files:
         - Cargo.lock
@@ -102,10 +102,10 @@ build:sailfishos:3.4:aarch64:
   cache: &rust-cache
     paths:
       - target/
-      - $CARGO_HOME/bin/
-      - $CARGO_HOME/registry/index/
-      - $CARGO_HOME/registry/cache/
-      - $CARGO_HOME/git/db/
+      - cargo/bin/
+      - cargo/registry/index/
+      - cargo/registry/cache/
+      - cargo/git/db/
   before_script:
     - apt-get update
     - apt-get install -y --no-install-recommends libsqlcipher-dev qtbase5-dev qtbase5-private-dev qt5-qmake cmake qtdeclarative5-dev qtbase5-dev-tools qttools5-dev-tools protobuf-compiler libdbus-1-dev libqt5opengl5-dev libssl-dev

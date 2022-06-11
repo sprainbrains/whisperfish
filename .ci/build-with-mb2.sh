@@ -34,6 +34,12 @@ fi
 git clone . ~/whisperfish-build
 pushd ~/whisperfish-build
 
+# We also need to move the cache, and afterwards move it back.
+if [ -e "$CI_PROJECT_DIR/cargo" ]; then
+    sudo mv $CI_PROJECT_DIR/cargo ~/cargo
+    sudo chown -R $USER:$USER ~/cargo
+fi
+
 git status
 
 # -f to ignore non-existent files
@@ -55,6 +61,8 @@ popd
 mkdir -p RPMS target
 sudo cp -ar ~/whisperfish-build/RPMS/* RPMS/
 sudo cp -ar ~/whisperfish-build/target/* target/
+
+sudo mv ~/cargo $CI_PROJECT_DIR/cargo
 
 # Only upload on tags or master
 if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
