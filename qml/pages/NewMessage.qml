@@ -15,7 +15,7 @@
  *   - Alternatively, if you have a commercial license agreement with Jolla Ltd,
  *     you may use the code under the terms of that license instead.
  *
- * You can visit <https://sailfishos.org/legal/> for more information
+ * You can visit <https://jolla.com/legal/> for more information
  */
 
 import QtQuick 2.2
