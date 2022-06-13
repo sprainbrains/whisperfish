@@ -298,6 +298,7 @@ systemctl-user daemon-reload
 
 %if %{without harbour}
 %preun
+systemctl-user stop harbour-whisperfish.service || true
 systemctl-user disable harbour-whisperfish.service || true
 %endif
 
