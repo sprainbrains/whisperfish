@@ -484,7 +484,7 @@ impl ClientActor {
                 Type::Contacts => {
                     use libsignal_service::sender::ContactDetails;
                     // In fact, we should query for registered contacts instead of sessions here.
-                    // https://gitlab.com/rubdos/whisperfish/-/issues/133
+                    // https://gitlab.com/whisperfish/whisperfish/-/issues/133
                     let recipients: Vec<orm::Recipient> = {
                         use crate::schema::recipients::dsl::*;
                         use diesel::prelude::*;

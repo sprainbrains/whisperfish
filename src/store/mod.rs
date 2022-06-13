@@ -1619,7 +1619,7 @@ impl Storage {
     }
 
     pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
-        // XXX: multiple attachments https://gitlab.com/rubdos/whisperfish/-/issues/11
+        // XXX: multiple attachments https://gitlab.com/whisperfish/whisperfish/-/issues/11
 
         let db = self.db.lock();
 
