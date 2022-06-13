@@ -2,10 +2,8 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
 import Nemo.DBus 2.0
-import Nemo.Configuration 1.0
 import org.nemomobile.contacts 1.0
 import "pages"
-import "js/emoji.js" as Emoji // for initialization
 
 ApplicationWindow
 {
@@ -15,15 +13,10 @@ ApplicationWindow
     allowedOrientations: Orientation.All
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
-    Component.onCompleted: Emoji.dataBaseDirectory = StandardPaths.genericData
 
     readonly property string mainPageName: "mainPage"
     readonly property string conversationPageName: "conversationPage"
     property var notificationMap: ({})
-
-    // TODO This should be moved to a singleton Emoji type,
-    // together with the js import and data directory initialization.
-    readonly property string emojiStyle: globalEmojiStyleConfig.value
 
     // setting this to "true" will block global navigation
     // methods (showMainPage() etc.)
@@ -49,15 +42,6 @@ ApplicationWindow
         Notification {
             property int mid
         }
-    }
-
-    ConfigurationValue {
-        id: globalEmojiStyleConfig
-        // TODO FIXME No signal is fired when the value changes from
-        // outside of Whisperfish, e.g. when the current style is changed
-        // in the keyboard config popup. This may be related to #140.
-        key: '/apps/sailor-emoji/currentStyle'
-        defaultValue: 'openmoji'
     }
 
     function activateSession(sid, name, source) {
