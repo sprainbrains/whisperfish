@@ -80,32 +80,32 @@
         <translation>Διαγραφή συνομιλίας</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="112"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="96"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Νέο Μήνυμα</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="210"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="194"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Αποτυχία ρύθμισης του Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="215"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="199"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Αποτυχία ρύθμισης του χώρου αποθήκευσης</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="309"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="293"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Whisperfish αποθηκευτικός χώρος</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="313"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="297"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Αποθήκευση ρυθμίσεων και μηνυμάτων</translation>
