@@ -116,6 +116,7 @@ cargo --version
 
 %if %{with sccache}
 export RUSTC_WRAPPER=sccache
+sccache --start-server
 sccache -s
 %endif
 
