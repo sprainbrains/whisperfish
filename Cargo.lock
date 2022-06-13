@@ -1271,6 +1271,8 @@ dependencies = [
  "libsignal-service-actix",
  "libsqlite3-sys",
  "log",
+ "mime",
+ "mime_classifier",
  "mime_guess",
  "parking_lot 0.12.0",
  "pbkdf2 0.9.0",
@@ -1749,6 +1751,16 @@ name = "mime"
 version = "0.3.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a60c7ce501c71e03a9c9c0d35b861413ae925bd979cc7a4e30d060069aaac8d"
+
+[[package]]
+name = "mime_classifier"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e817cb34c89e147fcfbb8a4e88e4c1c064c1c9fcdab80191f94b55921b3cbbd4"
+dependencies = [
+ "mime",
+ "serde",
+]
 
 [[package]]
 name = "mime_guess"

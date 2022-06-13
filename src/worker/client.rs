@@ -49,6 +49,9 @@ pub use groupv2::*;
 
 use crate::millis_to_naive_chrono;
 
+use mime;
+use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
+
 #[derive(Message)]
 #[rtype(result = "()")]
 /// Enqueue a message on socket by MID
@@ -719,7 +722,7 @@ impl Handler<FetchAttachment> for ClientActor {
 
         // Sailfish and/or Rust needs "image/jpg" and some others need coaching
         // before taking a wild guess
-        let ext = match ptr.content_type() {
+        let mut ext = match ptr.content_type() {
             "text/plain" => "txt",
             "image/jpeg" => "jpg",
             "image/png" => "png",
@@ -742,28 +745,22 @@ impl Handler<FetchAttachment> for ClientActor {
                     let r = service.get_attachment(&ptr).await;
                     match r {
                         Ok(stream) => break stream,
-                        Err(ServiceError::Timeout{ .. }) => {
+                        Err(ServiceError::Timeout { .. }) => {
                             log::warn!("get_attachment timed out, retrying")
-                        },
+                        }
                         Err(e) => return Err(e.into()),
                     }
                 };
                 log::info!("Downloading attachment");
 
                 // We need the whole file for the crypto to check out 😢
-                let mut ciphertext = if let Some(size) = ptr.size {
-                    Vec::with_capacity(size as usize)
-                } else {
-                    Vec::new()
-                };
-                let len = stream.read_to_end(&mut ciphertext).await
-                    .expect("streamed attachment");
+                let actual_len = ptr.size.unwrap();
+                let mut ciphertext = Vec::with_capacity(actual_len as usize);
+                let stream_len = stream
+                    .read_to_end(&mut ciphertext)
+                    .await
+                    .expect("streamed attachment") as u32;
 
-                // Downloaded attachment length (1781792) is not equal to expected length of 1708516 bytes.
-                // Not sure where the difference comes from at this point.
-                if len != ptr.size.unwrap() as usize {
-                    log::warn!("Downloaded attachment length ({}) is not equal to expected length of {} bytes.", len, ptr.size.unwrap());
-                }
                 let key_material = ptr.key();
                 assert_eq!(
                     key_material.len(),
@@ -772,16 +769,45 @@ impl Handler<FetchAttachment> for ClientActor {
                 );
                 let mut key = [0u8; 64];
                 key.copy_from_slice(key_material);
-
                 decrypt_in_place(key, &mut ciphertext).expect("attachment decryption");
-                if let Some(size) = ptr.size {
-                    log::debug!("Truncating attachment to {}B", size);
-                    ciphertext.truncate(size as usize);
+
+                // Signal puts exponentially increasing padding at the end
+                // to prevent some distinguishing attacks, so it has to be truncated.
+                if stream_len > actual_len {
+                    log::info!(
+                        "The attachment contains {} bytes of padding",
+                        (stream_len - actual_len)
+                    );
+                    log::info!("Truncating from {} to {} bytes", stream_len, actual_len);
+                    ciphertext.truncate(actual_len as usize);
                 }
 
-                let attachment_path =
-                    storage.save_attachment(&dest, ext, &ciphertext)
-                        .await?;
+                // Signal Desktop sometimes sends a JPEG image with .png extension,
+                // so double check the received .png image, and rename it if necessary.
+                if ext == "png" {
+                    let classifier = MimeClassifier::new();
+                    let context = LoadContext::Image;
+                    let no_sniff_flag = NoSniffFlag::Off;
+                    let apache_bug_flag = ApacheBugFlag::Off;
+                    let supplied_type: Option<mime::Mime> = None;
+
+                    let body: &[u8] = &ciphertext;
+
+                    log::trace!("Checking for JPEG with .png extension...");
+                    let computed_type = classifier.classify(
+                        context,
+                        no_sniff_flag,
+                        apache_bug_flag,
+                        &supplied_type,
+                        body,
+                    );
+                    if computed_type == mime::IMAGE_JPEG {
+                        log::info!("Received JPEG file with .png suffix, renaming to .jpg");
+                        ext = "jpg";
+                    }
+                }
+
+                let attachment_path = storage.save_attachment(&dest, ext, &ciphertext).await?;
 
                 storage.register_attachment(
                     mid,
@@ -795,14 +821,17 @@ impl Handler<FetchAttachment> for ClientActor {
             .map(move |r: Result<(), anyhow::Error>, act, _ctx| {
                 // Synchronise on the actor, to log the error to attachment.log
                 if let Err(e) = r {
-                    let e = format!("Error fetching attachment for message with ID `{}` {:?}: {:?}", mid, ptr2, e);
+                    let e = format!(
+                        "Error fetching attachment for message with ID `{}` {:?}: {:?}",
+                        mid, ptr2, e
+                    );
                     log::error!("{}", e);
                     let mut log = act.attachment_log();
                     if let Err(e) = writeln!(log, "{}", e) {
                         log::error!("Could not write error to error log: {}", e);
                     }
                 }
-            })
+            }),
         )
     }
 }

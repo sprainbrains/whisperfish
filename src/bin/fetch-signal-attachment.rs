@@ -8,6 +8,9 @@ use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
+use mime;
+use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
+
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]
 #[structopt(name = "fetch-signal-attachment")]
@@ -117,8 +120,34 @@ async fn main() -> Result<(), anyhow::Error> {
     libsignal_service::attachment_cipher::decrypt_in_place(key, &mut ciphertext)
         .expect("attachment decryption");
 
+    // Signal Desktop sometimes sends a JPEG image with .png extension,
+    // so double check the received .png image, and rename it if necessary.
+    let mut real_ext = String::from(opt.ext);
+    if real_ext.ends_with("png") == true || real_ext.ends_with("PNG") == true {
+        let classifier = MimeClassifier::new();
+        let context = LoadContext::Image;
+        let no_sniff_flag = NoSniffFlag::Off;
+        let apache_bug_flag = ApacheBugFlag::Off;
+        let supplied_type: Option<mime::Mime> = None;
+
+        let body: &[u8] = &ciphertext;
+
+        log::trace!("Checking for JPEG with .png extension...");
+        let computed_type = classifier.classify(
+            context,
+            no_sniff_flag,
+            apache_bug_flag,
+            &supplied_type,
+            body,
+        );
+        if computed_type == mime::IMAGE_JPEG {
+            log::info!("Received JPEG file with .png suffix, fixing suffix");
+            real_ext = "jpg".to_string();
+        }
+    }
+
     let attachment_path = storage
-        .save_attachment(dest, &opt.ext, &ciphertext)
+        .save_attachment(dest, &real_ext, &ciphertext)
         .await
         .unwrap();
 
