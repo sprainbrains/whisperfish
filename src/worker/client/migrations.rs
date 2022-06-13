@@ -21,6 +21,10 @@ use groupv2::*;
 mod parse_reactions;
 use parse_reactions::*;
 
+/// Migration to get rid of file based session and identity data.
+mod session_to_db;
+use session_to_db::*;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct Migrations;
@@ -33,5 +37,6 @@ impl Handler<Migrations> for ClientActor {
         ctx.notify(ComputeGroupV2ExpectedIds);
         ctx.notify(GenerateEmptyProfileIfNeeded);
         ctx.notify(ParseOldReaction);
+        ctx.notify(MoveSessionsToDatabase);
     }
 }

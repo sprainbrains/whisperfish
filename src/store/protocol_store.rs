@@ -575,6 +575,7 @@ impl Storage {
         self.signed_prekey_path(id).is_file()
     }
 
+    #[deprecated]
     async fn read_identity_key_file(
         &self,
         addr: &ProtocolAddress,
