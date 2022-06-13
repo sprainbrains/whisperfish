@@ -16,6 +16,44 @@ stages:
   - format
   - deploy
 
+.rust: &rust
+  cache: &rust-cache
+    paths:
+      - target/
+      - cargo/bin/
+      - cargo/registry/index/
+      - cargo/registry/cache/
+      - cargo/git/db/
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends libsqlcipher-dev qtbase5-dev qtbase5-private-dev qt5-qmake cmake qtdeclarative5-dev qtbase5-dev-tools qttools5-dev-tools protobuf-compiler libdbus-1-dev libqt5opengl5-dev libssl-dev
+    - cargo --version
+    - rustc --version
+
+.rust-stable: &rust-stable
+  <<: *rust
+  image: rust
+  cache:
+    <<: *rust-cache
+    key:
+      prefix: rust-stable
+      files:
+        - Cargo.lock
+
+.rust-nightly: &rust-nightly
+  <<: *rust
+  variables:
+    QT_SELECT: 5
+    <<: *variables
+  image: rustlang/rust:nightly
+  allow_failure: true
+  cache:
+    <<: *rust-cache
+    key:
+      prefix: rust-nightly
+      files:
+        - Cargo.lock
+
 .build-sailfishos: &build-sailfishos
   image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
@@ -62,6 +100,9 @@ build:sailfishos:latest:i486:
     MER_ARCH: i486
     TARGET_VERSION: $SFOS_VERSION
     DIST: .sf4
+  cache:
+    <<: *rust-cache
+    key: "target-i486-$CI_COMMIT_REF_SLUG"
   <<: *build-sailfishos
 
 ## We don't build 3.4 for i486, because
@@ -93,44 +134,6 @@ build:sailfishos:3.4:aarch64:
     SFOS_VERSION: 4.1.0.24
     DIST: .sf3
   <<: *build-sailfishos
-
-.rust: &rust
-  cache: &rust-cache
-    paths:
-      - target/
-      - cargo/bin/
-      - cargo/registry/index/
-      - cargo/registry/cache/
-      - cargo/git/db/
-  before_script:
-    - apt-get update
-    - apt-get install -y --no-install-recommends libsqlcipher-dev qtbase5-dev qtbase5-private-dev qt5-qmake cmake qtdeclarative5-dev qtbase5-dev-tools qttools5-dev-tools protobuf-compiler libdbus-1-dev libqt5opengl5-dev libssl-dev
-    - cargo --version
-    - rustc --version
-
-.rust-stable: &rust-stable
-  <<: *rust
-  image: rust
-  cache:
-    <<: *rust-cache
-    key:
-      prefix: rust-stable
-      files:
-        - Cargo.lock
-
-.rust-nightly: &rust-nightly
-  <<: *rust
-  variables:
-    QT_SELECT: 5
-    <<: *variables
-  image: rustlang/rust:nightly
-  allow_failure: true
-  cache:
-    <<: *rust-cache
-    key:
-      prefix: rust-nightly
-      files:
-        - Cargo.lock
 
 build:host:stable:
   <<: *rust-stable
