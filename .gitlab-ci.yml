@@ -62,6 +62,9 @@ build:sailfishos:latest:i486:
     MER_ARCH: i486
     TARGET_VERSION: $SFOS_VERSION
     DIST: .sf4
+  cache:
+    <<: *rust-cache
+    key: "target-i486-$CI_COMMIT_REF_SLUG"
   <<: *build-sailfishos
 
 ## We don't build 3.4 for i486, because
