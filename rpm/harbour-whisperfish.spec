@@ -1,5 +1,6 @@
 %bcond_with harbour
 %bcond_with lto
+%bcond_with sccache
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -113,6 +114,14 @@ Group: Qt/Qt
 rustc --version
 cargo --version
 
+%if %{with sccache}
+%ifnarch %ix86
+export RUSTC_WRAPPER=sccache
+sccache --start-server
+sccache -s
+%endif
+%endif
+
 # https://git.sailfishos.org/mer-core/gecko-dev/blob/master/rpm/xulrunner-qt5.spec#L224
 # When cross-compiling under SB2 rust needs to know what arch to emit
 # when nothing is specified on the command line. That usually defaults
@@ -140,10 +149,10 @@ export CXXFLAGS=$CFLAGS
 # This avoids a malloc hang in sb2 gated calls to execvp/dup2/chdir
 # during fork/exec. It has no effect outside sb2 so doesn't hurt
 # native builds.
-export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
-export SB2_RUST_USE_REAL_EXECVP=Yes
-export SB2_RUST_USE_REAL_FN=Yes
-export SB2_RUST_NO_SPAWNVP=Yes
+# export SB2_RUST_EXECVP_SHIM="/usr/bin/env LD_PRELOAD=/usr/lib/libsb2/libsb2.so.1 /usr/bin/env"
+# export SB2_RUST_USE_REAL_EXECVP=Yes
+# export SB2_RUST_USE_REAL_FN=Yes
+# export SB2_RUST_NO_SPAWNVP=Yes
 
 %ifnarch %ix86
 export HOST_CC=host-cc
@@ -216,6 +225,10 @@ else
     cp -ar %{_sourcedir}/../shareplugin_v1/* .
     make %{?_smp_mflags}
 fi
+%endif
+
+%if %{with sccache}
+sccache -s
 %endif
 
 %install
