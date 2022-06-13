@@ -62,6 +62,19 @@ fn option_warn<T>(o: Option<T>, s: &'static str) -> Option<T> {
     o
 }
 
+fn name_to_service_addr(name: &str) -> Option<ServiceAddress> {
+    if let Ok(addr) = ServiceAddress::parse(None, Some(name)) {
+        return Some(addr);
+    }
+    if let Ok(addr) = ServiceAddress::parse(Some(&format!("+{}", name)), None) {
+        return Some(addr);
+    }
+    if let Ok(addr) = ServiceAddress::parse(Some(name), None) {
+        return Some(addr);
+    }
+    None
+}
+
 impl SessionStorageMigration {
     async fn migrate_sessions(&self) {
         let session_dir = self.path().join("storage").join("sessions");
@@ -102,7 +115,11 @@ impl SessionStorageMigration {
                 let name = option_warn(split.next(), "no session name; skipping")?;
                 let id = option_warn(split.next(), "no session id; skipping")?;
                 let id: u32 = option_warn(id.parse().ok(), "unparseable session id")?;
-                Some(ProtocolAddress::new(name.to_string(), id))
+
+                let name =
+                    option_warn(name_to_service_addr(name), "unparsable file name")?.identifier();
+
+                Some(ProtocolAddress::new(name, id))
             });
 
         // Now read the files, put them in the database, and remove the file
@@ -136,21 +153,11 @@ impl SessionStorageMigration {
                 }
             };
 
-            // XXX Phone number possibly needs a + prefix or something like that.
-            //     Maybe pull it through phonenumber for normalisation.
-            let recipient = self.0.fetch_recipient(Some(addr.name()), Some(addr.name()));
-            let recipient = if let Some(recipient) = recipient {
-                recipient
-            } else {
-                // FIXME, we can create this recipient at this point
-                log::warn!("No recipient for this session; leaving alone.");
-                continue;
-            };
             {
                 use crate::schema::session_records::dsl::*;
                 use diesel::prelude::*;
                 let session_record = SessionRecord {
-                    recipient_id: recipient.id,
+                    address: addr.name().to_string(),
                     device_id: addr.device_id() as i32,
                     record: buf,
                 };
@@ -204,8 +211,10 @@ impl SessionStorageMigration {
                 let mut split = name.split('_');
                 assert_eq!(split.next(), Some("remote"));
                 let addr = option_warn(split.next(), "no addr component for identity")?;
+                let addr =
+                    option_warn(name_to_service_addr(addr), "unparsable file name")?.identifier();
 
-                Some(ProtocolAddress::new(addr.to_string(), DEFAULT_DEVICE_ID))
+                Some(ProtocolAddress::new(addr, DEFAULT_DEVICE_ID))
             });
 
         for addr in identities {
@@ -216,59 +225,22 @@ impl SessionStorageMigration {
                 .expect("readable identity file")
                 .expect("existing identity file");
 
-            // uuid's have 36 characters.
-            // phone numbers don't, with a bit of luck.
-            let addr_is_uuid = addr.name().len() == 36;
+            use crate::schema::identity_records::dsl::*;
+            use diesel::prelude::*;
+            let db = self.0.db.lock();
+            diesel::insert_into(identity_records)
+                .values((address.eq(addr.name()), record.eq(buf.serialize().to_vec())))
+                .execute(&*db)
+                // XXX: ignore but log duplicates
+                .expect("inserting identity key into db");
 
-            // XXX Phone number possibly needs a + prefix or something like that.
-            //     Maybe pull it through phonenumber for normalisation.
-            let recipient = self.0.fetch_recipient(Some(addr.name()), Some(addr.name()));
-            let recipient = if let Some(recipient) = recipient {
-                recipient
-            } else {
-                // FIXME, we can create this recipient at this point
-                log::warn!("No recipient for this identity; leaving alone.");
-                continue;
-            };
-
-            let should_update = match (addr_is_uuid, recipient.identity.is_some()) {
-                (true, true) => {
-                    log::error!("Found an existing identity for {}, overwriting via UUID from file storage, sorry!", recipient.to_service_address());
-                    true
-                }
-                (true, false) => {
-                    log::debug!(
-                        "Found no existing identity for {}",
-                        recipient.to_service_address()
-                    );
-                    true
-                }
-                (false, true) => {
-                    log::warn!("Found an existing identity for {}, not overwriting via E164 from file storage, sorry!", recipient.to_service_address());
-                    false
-                }
-                (false, false) => {
-                    log::warn!("Found no existing identity for {}, but E164-based identity in storage. Inserting.", recipient.to_service_address());
-                    true
-                }
-            };
-            if should_update {
-                use crate::schema::recipients::dsl::*;
-                use diesel::prelude::*;
-                let db = self.0.db.lock();
-                diesel::update(&recipient)
-                    .set(identity.eq(buf.serialize().to_vec()))
-                    .execute(&*db)
-                    .expect("updating recipient into db");
-
-                // By now, the identity is safely stored in the database, so we can remove the file.
-                if let Err(e) = std::fs::remove_file(self.identity_path(&addr)) {
-                    log::debug!(
-                        "Could not delete identity {}, assuming non-existing: {}",
-                        addr.to_string(),
-                        e
-                    );
-                }
+            // By now, the identity is safely stored in the database, so we can remove the file.
+            if let Err(e) = std::fs::remove_file(self.identity_path(&addr)) {
+                log::debug!(
+                    "Could not delete identity {}, assuming non-existing: {}",
+                    addr.to_string(),
+                    e
+                );
             }
         }
     }
@@ -315,5 +287,24 @@ impl SessionStorageMigration {
         } else {
             Ok(None)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[actix_rt::test]
+    async fn name_parsing() {
+        assert_eq!(
+            name_to_service_addr("32474123456").unwrap().identifier(),
+            "+32474123456"
+        );
+        assert_eq!(
+            name_to_service_addr("64d41108-1d4b-4b71-91b8-4e0fb7cad444")
+                .unwrap()
+                .identifier(),
+            "64d41108-1d4b-4b71-91b8-4e0fb7cad444"
+        );
     }
 }

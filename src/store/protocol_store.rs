@@ -1,4 +1,3 @@
-use std::io;
 use std::path::Path;
 
 use libsignal_service::prelude::protocol::{self, Context};
@@ -8,18 +7,6 @@ use protocol::SignalProtocolError;
 mod quirk;
 
 use super::*;
-
-fn convert_io_error(e: io::Error) -> SignalProtocolError {
-    // XXX can probably be better, but currently this is only used in session_delete and
-    // identity_delete
-    SignalProtocolError::InvalidArgument(format!("IO error {}", e))
-}
-
-fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a str {
-    let addr: &'a [u8] = addr.as_ref();
-    let addr = if addr[0] == b'+' { &addr[1..] } else { addr };
-    std::str::from_utf8(addr).expect("address in valid UTF8")
-}
 
 pub struct ProtocolStore;
 
@@ -69,25 +56,6 @@ impl ProtocolStore {
 }
 
 impl Storage {
-    fn session_path(&self, addr: &ProtocolAddress) -> PathBuf {
-        let recipient_id = addr_to_path_component(addr.name());
-
-        self.path.join("storage").join("sessions").join(format!(
-            "{}_{}",
-            recipient_id,
-            addr.device_id()
-        ))
-    }
-
-    fn identity_path(&self, addr: &ProtocolAddress) -> PathBuf {
-        let recipient_id = addr_to_path_component(addr.name());
-
-        self.path
-            .join("storage")
-            .join("identity")
-            .join(format!("remote_{}", recipient_id,))
-    }
-
     fn prekey_path(&self, id: u32) -> PathBuf {
         self.path
             .join("storage")
@@ -165,9 +133,7 @@ impl Storage {
 
     pub async fn delete_identity(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
         let _lock = self.protocol_store.write().await;
-
-        let path = self.identity_path(addr);
-        std::fs::remove_file(path).map_err(convert_io_error)?;
+        self.delete_identity_key(addr);
         Ok(())
     }
 }
@@ -233,7 +199,7 @@ impl protocol::IdentityKeyStore for Storage {
     ) -> Result<bool, SignalProtocolError> {
         let _lock = self.protocol_store.read().await;
 
-        if let Some(trusted_key) = self.read_identity_key_file(addr).await? {
+        if let Some(trusted_key) = self.fetch_identity_key(addr) {
             Ok(trusted_key == *key)
         } else {
             // Trust on first use
@@ -249,27 +215,9 @@ impl protocol::IdentityKeyStore for Storage {
         key: &IdentityKey,
         _: Context,
     ) -> Result<bool, SignalProtocolError> {
+        // We're using the database now, but that doesn't mean we want weird interleaving here.
         let _lock = self.protocol_store.write().await;
-
-        // Save return value
-        let mut ret = false;
-
-        // Get old key if present and compare to the new one. If they are the same, we set `ret` to
-        // true.
-        if let Some(key_old) = self.read_identity_key_file(addr).await? {
-            ret = key_old == *key;
-        };
-
-        // Save new key only if ret is false. If it is `true` the old and the new key are identical
-        // and saving is not necessary
-        if !ret {
-            // Write key
-            self.write_file(self.identity_path(addr), key.serialize())
-                .await
-                .expect("save identity key");
-        }
-
-        Ok(ret)
+        Ok(self.store_identity_key(addr, key))
     }
 
     async fn get_identity(
@@ -277,9 +225,9 @@ impl protocol::IdentityKeyStore for Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<Option<IdentityKey>, SignalProtocolError> {
+        // We're using the database now, but that doesn't mean we want weird interleaving here.
         let _lock = self.protocol_store.read().await;
-
-        self.read_identity_key_file(addr).await
+        Ok(self.fetch_identity_key(addr))
     }
 }
 
@@ -344,45 +292,64 @@ impl protocol::SessionStore for Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<Option<SessionRecord>, SignalProtocolError> {
-        let path = self.session_path(addr);
-
-        log::trace!("Loading session for {:?} from {:?}", addr, path);
+        log::trace!("Loading session for {:?}", addr);
         let _lock = self.protocol_store.read().await;
 
-        let buf = match self.read_file(&path).await {
-            Ok(buf) => quirk::session_from_0_5(&buf)?,
-            Err(e) if !path.exists() => {
-                log::trace!(
-                    "Returning None session because session file does not exist ({})",
-                    e
-                );
-                return Ok(None);
-            }
-            Err(e) => {
-                log::error!(
-                    "Problem reading session: {}.  Returning empty session, but here be dragons.",
-                    e
-                );
-                return Ok(None);
-            }
-        };
+        use crate::schema::session_records::dsl::*;
+        use diesel::prelude::*;
 
-        Ok(Some(SessionRecord::deserialize(&buf)?))
+        let db = self.db.lock();
+
+        let session_record: Option<crate::store::orm::SessionRecord> = session_records
+            .filter(
+                address
+                    .eq(addr.name())
+                    .and(device_id.eq(addr.device_id() as i32)),
+            )
+            .first(&*db)
+            .optional()
+            .expect("db");
+        if let Some(session_record) = session_record {
+            Ok(Some(SessionRecord::deserialize(&session_record.record)?))
+        } else {
+            Ok(None)
+        }
     }
 
     async fn store_session(
         &mut self,
         addr: &ProtocolAddress,
         session: &protocol::SessionRecord,
-        _: Context,
+        context: Context,
     ) -> Result<(), SignalProtocolError> {
-        let path = self.session_path(addr);
-
-        log::trace!("Storing session for {:?} at {:?}", addr, path);
+        log::trace!("Storing session for {:?}", addr);
         let _lock = self.protocol_store.write().await;
+        let db = self.db.lock();
 
-        let quirked = quirk::session_to_0_5(&session.serialize()?)?;
-        self.write_file(path, quirked).await.unwrap();
+        use crate::schema::session_records::dsl::*;
+        use diesel::prelude::*;
+
+        if self.contains_session(addr, context).await? {
+            diesel::update(session_records)
+                .filter(
+                    address
+                        .eq(addr.name())
+                        .and(device_id.eq(addr.device_id() as i32)),
+                )
+                .set(record.eq(session.serialize()?))
+                .execute(&*db)
+                .expect("updated session");
+        } else {
+            diesel::insert_into(session_records)
+                .values((
+                    address.eq(addr.name()),
+                    device_id.eq(addr.device_id() as i32),
+                    record.eq(session.serialize()?),
+                ))
+                .execute(&*db)
+                .expect("updated session");
+        }
+
         Ok(())
     }
 }
@@ -396,10 +363,82 @@ impl Storage {
     ) -> Result<bool, SignalProtocolError> {
         let _lock = self.protocol_store.read().await;
 
-        let path = self.session_path(addr);
-        Ok(path.is_file())
+        use crate::schema::session_records::dsl::*;
+        use diesel::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        let count: i64 = session_records
+            .select(count_star())
+            .filter(
+                address
+                    .eq(addr.name())
+                    .and(device_id.eq(addr.device_id() as i32)),
+            )
+            .first(&*db)
+            .expect("db");
+        Ok(count != 0)
     }
 }
+
+// BEGIN identity key block
+impl Storage {
+    /// Fetches the identity matching `addr` from the database
+    ///
+    /// Does not lock the protocol storage.
+    fn fetch_identity_key(&self, addr: &ProtocolAddress) -> Option<IdentityKey> {
+        let db = self.db.lock();
+        use crate::schema::identity_records::dsl::*;
+        let addr = addr.name();
+        let found: orm::IdentityRecord = identity_records
+            .filter(address.eq(addr))
+            .first(&*db)
+            .optional()
+            .expect("db")?;
+
+        Some(IdentityKey::decode(&found.record).expect("only valid identity keys in db"))
+    }
+
+    fn delete_identity_key(&self, addr: &ProtocolAddress) -> bool {
+        let db = self.db.lock();
+        use crate::schema::identity_records::dsl::*;
+        let addr = addr.name();
+        let amount = diesel::delete(identity_records)
+            .filter(address.eq(addr))
+            .execute(&*db)
+            .expect("db");
+
+        amount == 1
+    }
+
+    /// (Over)writes the identity key for a given address.
+    ///
+    /// Returns whether the identity key has been altered.
+    fn store_identity_key(&self, addr: &ProtocolAddress, key: &IdentityKey) -> bool {
+        let db = self.db.lock();
+        use crate::schema::identity_records::dsl::*;
+        let previous = self.fetch_identity_key(addr);
+
+        let ret = previous.as_ref() == Some(key);
+
+        if previous.is_some() {
+            diesel::update(identity_records)
+                .filter(address.eq(addr.name()))
+                .set(record.eq(key.serialize().to_vec()))
+                .execute(&*db)
+                .expect("db");
+        } else {
+            diesel::insert_into(identity_records)
+                .values((address.eq(addr.name()), record.eq(key.serialize().to_vec())))
+                .execute(&*db)
+                .expect("db");
+        }
+
+        ret
+    }
+}
+// END identity key
 
 #[async_trait::async_trait(?Send)]
 impl protocol::SessionStoreExt for Storage {
@@ -407,112 +446,58 @@ impl protocol::SessionStoreExt for Storage {
         log::trace!("Looking for sub_device sessions for {}", addr);
         let _lock = self.protocol_store.read().await;
 
-        let addr = addr_to_path_component(addr).as_bytes();
+        let db = self.db.lock();
+        use crate::schema::session_records::dsl::*;
 
-        let session_dir = self.path.join("storage").join("sessions");
-
-        let ids = std::fs::read_dir(session_dir)
-            .expect("initialized storage")
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-
-                if name.len() < addr.len() + 2 {
-                    return None;
-                }
-
-                if &name[..addr.len()] == addr {
-                    if name[addr.len()] != b'_' {
-                        log::warn!("Weird session directory entry: {:?}. Skipping", entry);
-                        return None;
-                    }
-                    // skip underscore
-                    let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
-                    id.parse().ok()
-                } else {
-                    None
-                }
-            })
-            .filter(|id| *id != libsignal_service::push_service::DEFAULT_DEVICE_ID)
-            .collect();
-
-        Ok(ids)
+        let records: Vec<i32> = session_records
+            .select(device_id)
+            .filter(
+                address
+                    .eq(addr)
+                    .and(device_id.ne(libsignal_service::push_service::DEFAULT_DEVICE_ID as i32)),
+            )
+            .load(&*db)
+            .expect("db");
+        Ok(records.into_iter().map(|x| x as u32).collect())
     }
 
     async fn delete_session(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
         let _lock = self.protocol_store.write().await;
+        let db = self.db.lock();
+        use crate::schema::session_records::dsl::*;
 
-        let path = self.session_path(addr);
-        std::fs::remove_file(path).map_err(|e| {
+        let num = diesel::delete(session_records)
+            .filter(
+                address
+                    .eq(addr.name())
+                    .and(device_id.eq(addr.device_id() as i32)),
+            )
+            .execute(&*db)
+            .expect("db");
+
+        if num != 1 {
             log::debug!(
-                "Could not delete session {}, assuming non-existing: {}",
+                "Could not delete session {}, assuming non-existing.",
                 addr.to_string(),
-                e
             );
-            SignalProtocolError::SessionNotFound(addr.clone())
-        })?;
-        Ok(())
+            Err(SignalProtocolError::SessionNotFound(addr.clone()))
+        } else {
+            Ok(())
+        }
     }
 
     async fn delete_all_sessions(&self, addr: &str) -> Result<usize, SignalProtocolError> {
         log::warn!("Deleting all sessions for {}", addr);
         let _lock = self.protocol_store.write().await;
+        let db = self.db.lock();
+        use crate::schema::session_records::dsl::*;
 
-        let addr = addr_to_path_component(addr).as_bytes();
+        let num = diesel::delete(session_records)
+            .filter(address.eq(addr))
+            .execute(&*db)
+            .expect("db");
 
-        let session_dir = self.path.join("storage").join("sessions");
-
-        let entries = std::fs::read_dir(session_dir)
-            .expect("initialized storage")
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-
-                log::trace!("parsing {:?}", entry);
-
-                if name.len() < addr.len() + 2 {
-                    log::trace!("filename {:?} not long enough", entry);
-                    return None;
-                }
-
-                if &name[..addr.len()] == addr {
-                    if name[addr.len()] != b'_' {
-                        log::warn!("Weird session directory entry: {:?}. Skipping", entry);
-                        return None;
-                    }
-                    // skip underscore
-                    let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
-                    let _: u32 = id.parse().ok()?;
-                    Some(entry.path())
-                } else {
-                    log::trace!("filename {:?} without prefix match", entry);
-                    None
-                }
-            });
-
-        let mut count = 0;
-        for entry in entries {
-            std::fs::remove_file(entry).map_err(convert_io_error)?;
-            count += 1;
-        }
-
-        Ok(count)
+        Ok(num)
     }
 }
 
@@ -573,31 +558,6 @@ impl Storage {
         let _lock = self.protocol_store.read().await;
 
         self.signed_prekey_path(id).is_file()
-    }
-
-    #[deprecated]
-    async fn read_identity_key_file(
-        &self,
-        addr: &ProtocolAddress,
-    ) -> Result<Option<IdentityKey>, SignalProtocolError> {
-        let path = self.identity_path(addr);
-        if path.is_file() {
-            let buf = self.read_file(path).await.expect("read identity key");
-            match buf.len() {
-                // Old format
-                32 => Ok(Some(
-                    protocol::PublicKey::from_djb_public_key_bytes(&buf)?.into(),
-                )),
-                // New format
-                33 => Ok(Some(IdentityKey::decode(&buf)?)),
-                _ => Err(SignalProtocolError::InvalidArgument(format!(
-                    "Identity key has length {}, expected 32 or 33",
-                    buf.len()
-                ))),
-            }
-        } else {
-            Ok(None)
-        }
     }
 }
 

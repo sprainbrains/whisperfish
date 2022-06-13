@@ -73,6 +73,13 @@ table! {
 }
 
 table! {
+    identity_records (address) {
+        address -> Text,
+        record -> Binary,
+    }
+}
+
+table! {
     messages (id) {
         id -> Integer,
         session_id -> Integer,
@@ -136,13 +143,12 @@ table! {
         capabilities -> Integer,
         last_gv1_migrate_reminder -> Nullable<Timestamp>,
         last_session_reset -> Nullable<Timestamp>,
-        identity -> Nullable<Binary>,
     }
 }
 
 table! {
-    session_records (recipient_id, device_id) {
-        recipient_id -> Integer,
+    session_records (address, device_id) {
+        address -> Text,
         device_id -> Integer,
         record -> Binary,
     }
@@ -192,7 +198,6 @@ joinable!(reactions -> messages (message_id));
 joinable!(reactions -> recipients (author));
 joinable!(receipts -> messages (message_id));
 joinable!(receipts -> recipients (recipient_id));
-joinable!(session_records -> recipients (recipient_id));
 joinable!(sessions -> group_v1s (group_v1_id));
 joinable!(sessions -> group_v2s (group_v2_id));
 joinable!(sessions -> recipients (direct_message_recipient_id));
@@ -203,6 +208,7 @@ allow_tables_to_appear_in_same_query!(
     group_v1s,
     group_v2_members,
     group_v2s,
+    identity_records,
     messages,
     reactions,
     receipts,

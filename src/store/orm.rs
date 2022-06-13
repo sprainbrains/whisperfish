@@ -91,14 +91,20 @@ pub struct Recipient {
     pub capabilities: i32,
     pub last_gv1_migrate_reminder: Option<NaiveDateTime>,
     pub last_session_reset: Option<NaiveDateTime>,
-
-    pub identity: Option<Vec<u8>>,
 }
 
-#[derive(Queryable, Insertable, Debug, Clone)]
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+#[primary_key(address, device_id)]
 pub struct SessionRecord {
-    pub recipient_id: i32,
+    pub address: String,
     pub device_id: i32,
+    pub record: Vec<u8>,
+}
+
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+#[primary_key(address)]
+pub struct IdentityRecord {
+    pub address: String,
     pub record: Vec<u8>,
 }
 

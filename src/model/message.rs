@@ -416,8 +416,6 @@ impl MessageModel {
                         capabilities: 0,
                         last_gv1_migrate_reminder: None,
                         last_session_reset: None,
-
-                        identity: None,
                     },
                 ));
             }
