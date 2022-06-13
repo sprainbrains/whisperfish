@@ -785,21 +785,14 @@ impl Handler<FetchAttachment> for ClientActor {
                 // Signal Desktop sometimes sends a JPEG image with .png extension,
                 // so double check the received .png image, and rename it if necessary.
                 if ext == "png" {
-                    let classifier = MimeClassifier::new();
-                    let context = LoadContext::Image;
-                    let no_sniff_flag = NoSniffFlag::Off;
-                    let apache_bug_flag = ApacheBugFlag::Off;
-                    let supplied_type: Option<mime::Mime> = None;
-
-                    let body: &[u8] = &ciphertext;
-
                     log::trace!("Checking for JPEG with .png extension...");
+                    let classifier = MimeClassifier::new();
                     let computed_type = classifier.classify(
-                        context,
-                        no_sniff_flag,
-                        apache_bug_flag,
-                        &supplied_type,
-                        body,
+                        LoadContext::Image,
+                        NoSniffFlag::Off,
+                        ApacheBugFlag::Off,
+                        &None,
+                        &ciphertext as &[u8],
                     );
                     if computed_type == mime::IMAGE_JPEG {
                         log::info!("Received JPEG file with .png suffix, renaming to .jpg");

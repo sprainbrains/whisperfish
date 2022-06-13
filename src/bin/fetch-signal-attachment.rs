@@ -50,7 +50,7 @@ struct Opt {
 async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
-    let opt = Opt::from_args();
+    let mut opt = Opt::from_args();
 
     let config = harbour_whisperfish::config::SignalConfig::read_from_file()?;
     let settings = harbour_whisperfish::config::Settings::default();
@@ -122,32 +122,25 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Signal Desktop sometimes sends a JPEG image with .png extension,
     // so double check the received .png image, and rename it if necessary.
-    let mut real_ext = String::from(opt.ext);
-    if real_ext.ends_with("png") == true || real_ext.ends_with("PNG") == true {
-        let classifier = MimeClassifier::new();
-        let context = LoadContext::Image;
-        let no_sniff_flag = NoSniffFlag::Off;
-        let apache_bug_flag = ApacheBugFlag::Off;
-        let supplied_type: Option<mime::Mime> = None;
-
-        let body: &[u8] = &ciphertext;
-
+    opt.ext = opt.ext.to_lowercase();
+    if opt.ext == "png" {
         log::trace!("Checking for JPEG with .png extension...");
+        let classifier = MimeClassifier::new();
         let computed_type = classifier.classify(
-            context,
-            no_sniff_flag,
-            apache_bug_flag,
-            &supplied_type,
-            body,
+            LoadContext::Image,
+            NoSniffFlag::Off,
+            ApacheBugFlag::Off,
+            &None,
+            &ciphertext as &[u8],
         );
         if computed_type == mime::IMAGE_JPEG {
             log::info!("Received JPEG file with .png suffix, fixing suffix");
-            real_ext = "jpg".to_string();
+            opt.ext = String::from("jpg");
         }
     }
 
     let attachment_path = storage
-        .save_attachment(dest, &real_ext, &ciphertext)
+        .save_attachment(dest, &opt.ext, &ciphertext)
         .await
         .unwrap();
 
