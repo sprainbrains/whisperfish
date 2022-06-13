@@ -1,11 +1,7 @@
 use actix::prelude::*;
-use libsignal_service::prelude::protocol::{
-    IdentityKeyStore, ProtocolAddress, SessionStore, SessionStoreExt,
-};
-use std::io;
+use libsignal_service::prelude::protocol::ProtocolAddress;
 
-use libsignal_service::prelude::protocol::{self, Context};
-use protocol::IdentityKeyPair;
+use libsignal_service::prelude::protocol;
 use protocol::SignalProtocolError;
 
 use crate::store::orm::SessionRecord;
@@ -51,12 +47,6 @@ impl Handler<MoveSessionsToDatabase> for ClientActor {
 
         std::pin::Pin::from(Box::new(proc))
     }
-}
-
-fn convert_io_error(e: io::Error) -> SignalProtocolError {
-    // XXX can probably be better, but currently this is only used in session_delete and
-    // identity_delete
-    SignalProtocolError::InvalidArgument(format!("IO error {}", e))
 }
 
 fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a str {
@@ -183,7 +173,105 @@ impl SessionStorageMigration {
         }
     }
 
-    async fn migrate_identities(&self) {}
+    async fn migrate_identities(&self) {
+        let identity_dir = self.0.path().join("storage").join("identity");
+
+        let identities = std::fs::read_dir(identity_dir)
+            // XXX: actually, storage will stop initializing this.
+            .expect("initialized storage")
+            // Parse the session file names
+            .filter_map(|entry| {
+                let entry = entry.expect("directory listing");
+                if !entry.path().is_file() {
+                    log::warn!("Non-file identity entry: {:?}. Skipping", entry);
+                    return None;
+                }
+
+                // XXX: *maybe* Signal could become a cross-platform desktop app.
+                //      Issue #77
+                use std::os::unix::ffi::OsStrExt;
+                let name = entry.file_name();
+                let name = name.as_os_str().as_bytes();
+                let name = option_warn(
+                    std::str::from_utf8(name).ok(),
+                    "non-UTF8 identity name; skipping",
+                )?;
+
+                if !name.starts_with("remote_") {
+                    log::warn!("Identity file does not start with `remote_`; skipping");
+                }
+
+                let mut split = name.split('_');
+                assert_eq!(split.next(), Some("remote"));
+                let addr = option_warn(split.next(), "no addr component for identity")?;
+
+                Some(ProtocolAddress::new(addr.to_string(), DEFAULT_DEVICE_ID))
+            });
+
+        for addr in identities {
+            log::trace!("Migrating identity for {:?} to database", addr);
+            let buf = self
+                .read_identity_key_file(&addr)
+                .await
+                .expect("readable identity file")
+                .expect("existing identity file");
+
+            // uuid's have 36 characters.
+            // phone numbers don't, with a bit of luck.
+            let addr_is_uuid = addr.name().len() == 36;
+
+            // XXX Phone number possibly needs a + prefix or something like that.
+            //     Maybe pull it through phonenumber for normalisation.
+            let recipient = self.0.fetch_recipient(Some(addr.name()), Some(addr.name()));
+            let recipient = if let Some(recipient) = recipient {
+                recipient
+            } else {
+                // FIXME, we can create this recipient at this point
+                log::warn!("No recipient for this identity; leaving alone.");
+                continue;
+            };
+
+            let should_update = match (addr_is_uuid, recipient.identity.is_some()) {
+                (true, true) => {
+                    log::error!("Found an existing identity for {}, overwriting via UUID from file storage, sorry!", recipient.to_service_address());
+                    true
+                }
+                (true, false) => {
+                    log::debug!(
+                        "Found no existing identity for {}",
+                        recipient.to_service_address()
+                    );
+                    true
+                }
+                (false, true) => {
+                    log::warn!("Found an existing identity for {}, not overwriting via E164 from file storage, sorry!", recipient.to_service_address());
+                    false
+                }
+                (false, false) => {
+                    log::warn!("Found no existing identity for {}, but E164-based identity in storage. Inserting.", recipient.to_service_address());
+                    true
+                }
+            };
+            if should_update {
+                use crate::schema::recipients::dsl::*;
+                use diesel::prelude::*;
+                let db = self.0.db.lock();
+                diesel::update(&recipient)
+                    .set(identity.eq(buf.serialize().to_vec()))
+                    .execute(&*db)
+                    .expect("updating recipient into db");
+
+                // By now, the identity is safely stored in the database, so we can remove the file.
+                if let Err(e) = std::fs::remove_file(self.identity_path(&addr)) {
+                    log::debug!(
+                        "Could not delete identity {}, assuming non-existing: {}",
+                        addr.to_string(),
+                        e
+                    );
+                }
+            }
+        }
+    }
 
     fn session_path(&self, addr: &ProtocolAddress) -> PathBuf {
         let recipient_id = addr_to_path_component(addr.name());
@@ -205,128 +293,6 @@ impl SessionStorageMigration {
             .join(format!("remote_{}", recipient_id,))
     }
 
-    async fn get_identity_key_pair(
-        &self,
-        _: Context,
-    ) -> Result<IdentityKeyPair, SignalProtocolError> {
-        log::trace!("Reading own identity key pair");
-        let _lock = self.protocol_store.read().await;
-
-        let path = self
-            .path()
-            .join("storage")
-            .join("identity")
-            .join("identity_key");
-        let identity_key_pair = {
-            use std::convert::TryFrom;
-            let mut buf = self.read_file(path).await.map_err(|e| {
-                SignalProtocolError::InvalidArgument(format!("Cannot read own identity key {}", e))
-            })?;
-            buf.insert(0, quirk::DJB_TYPE);
-            let public = IdentityKey::decode(&buf[0..33])?;
-            let private = PrivateKey::try_from(&buf[33..])?;
-            IdentityKeyPair::new(public, private)
-        };
-        Ok(identity_key_pair)
-    }
-
-    async fn is_trusted_identity(
-        &self,
-        addr: &ProtocolAddress,
-        key: &IdentityKey,
-        // XXX
-        _direction: Direction,
-        _ctx: Context,
-    ) -> Result<bool, SignalProtocolError> {
-        let _lock = self.protocol_store.read().await;
-
-        if let Some(trusted_key) = self.read_identity_key_file(addr).await? {
-            Ok(trusted_key == *key)
-        } else {
-            // Trust on first use
-            Ok(true)
-        }
-    }
-
-    async fn get_identity(
-        &self,
-        addr: &ProtocolAddress,
-        _: Context,
-    ) -> Result<Option<IdentityKey>, SignalProtocolError> {
-        let _lock = self.protocol_store.read().await;
-
-        self.read_identity_key_file(addr).await
-    }
-
-    async fn delete_session(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
-        let _lock = self.protocol_store.write().await;
-
-        let path = self.session_path(addr);
-        std::fs::remove_file(path).map_err(|e| {
-            log::debug!(
-                "Could not delete session {}, assuming non-existing: {}",
-                addr.to_string(),
-                e
-            );
-            SignalProtocolError::SessionNotFound(addr.clone())
-        })?;
-        Ok(())
-    }
-
-    async fn delete_all_sessions(&self, addr: &str) -> Result<usize, SignalProtocolError> {
-        log::warn!("Deleting all sessions for {}", addr);
-        let _lock = self.protocol_store.write().await;
-
-        let addr = addr_to_path_component(addr).as_bytes();
-
-        let session_dir = self.path().join("storage").join("sessions");
-
-        let entries = std::fs::read_dir(session_dir)
-            .expect("initialized storage")
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-
-                log::trace!("parsing {:?}", entry);
-
-                if name.len() < addr.len() + 2 {
-                    log::trace!("filename {:?} not long enough", entry);
-                    return None;
-                }
-
-                if &name[..addr.len()] == addr {
-                    if name[addr.len()] != b'_' {
-                        log::warn!("Weird session directory entry: {:?}. Skipping", entry);
-                        return None;
-                    }
-                    // skip underscore
-                    let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
-                    let _: u32 = id.parse().ok()?;
-                    Some(entry.path())
-                } else {
-                    log::trace!("filename {:?} without prefix match", entry);
-                    None
-                }
-            });
-
-        let mut count = 0;
-        for entry in entries {
-            std::fs::remove_file(entry).map_err(convert_io_error)?;
-            count += 1;
-        }
-
-        Ok(count)
-    }
-
-    #[deprecated]
     async fn read_identity_key_file(
         &self,
         addr: &ProtocolAddress,

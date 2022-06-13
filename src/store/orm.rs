@@ -64,7 +64,7 @@ pub struct Message {
     pub is_remote_deleted: bool,
 }
 
-#[derive(Queryable, Debug, Clone)]
+#[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct Recipient {
     pub id: i32,
     pub e164: Option<String>,
