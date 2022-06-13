@@ -115,9 +115,11 @@ rustc --version
 cargo --version
 
 %if %{with sccache}
+%ifnarch %ix86
 export RUSTC_WRAPPER=sccache
 sccache --start-server
 sccache -s
+%endif
 %endif
 
 # https://git.sailfishos.org/mer-core/gecko-dev/blob/master/rpm/xulrunner-qt5.spec#L224
