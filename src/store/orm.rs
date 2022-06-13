@@ -95,7 +95,7 @@ pub struct Recipient {
     pub identity: Option<Vec<u8>>,
 }
 
-#[derive(Queryable, Debug, Clone)]
+#[derive(Queryable, Insertable, Debug, Clone)]
 pub struct SessionRecord {
     pub recipient_id: i32,
     pub device_id: i32,

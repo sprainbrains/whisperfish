@@ -3,11 +3,12 @@ use libsignal_service::prelude::protocol::{
     IdentityKeyStore, ProtocolAddress, SessionStore, SessionStoreExt,
 };
 use std::io;
-use std::path::Path;
 
 use libsignal_service::prelude::protocol::{self, Context};
 use protocol::IdentityKeyPair;
 use protocol::SignalProtocolError;
+
+use crate::store::orm::SessionRecord;
 
 use super::*;
 
@@ -64,8 +65,123 @@ fn addr_to_path_component<'a>(addr: &'a (impl AsRef<[u8]> + ?Sized + 'a)) -> &'a
     std::str::from_utf8(addr).expect("address in valid UTF8")
 }
 
+fn option_warn<T>(o: Option<T>, s: &'static str) -> Option<T> {
+    if o.is_none() {
+        log::warn!("{}", s)
+    }
+    o
+}
+
 impl SessionStorageMigration {
-    async fn migrate_sessions(&self) {}
+    async fn migrate_sessions(&self) {
+        let session_dir = self.path().join("storage").join("sessions");
+
+        let sessions = std::fs::read_dir(session_dir)
+            // XXX: actually, storage will stop initializing this.
+            .expect("initialized storage")
+            // Parse the session file names
+            .filter_map(|entry| {
+                let entry = entry.expect("directory listing");
+                if !entry.path().is_file() {
+                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
+                    return None;
+                }
+
+                // XXX: *maybe* Signal could become a cross-platform desktop app.
+                //      Issue #77
+                use std::os::unix::ffi::OsStrExt;
+                let name = entry.file_name();
+                let name = name.as_os_str().as_bytes();
+
+                if name.len() < 3 {
+                    log::warn!(
+                        "Strange session name; skipping ({})",
+                        String::from_utf8_lossy(name)
+                    );
+                    return None;
+                }
+                let name = option_warn(
+                    std::str::from_utf8(name).ok(),
+                    "non-UTF8 session name; skipping",
+                )?;
+
+                log::info!("Migrating session {}", name);
+
+                // Parse: session file consists of ADDR + _ + ID
+                let mut split = name.split('_');
+                let name = option_warn(split.next(), "no session name; skipping")?;
+                let id = option_warn(split.next(), "no session id; skipping")?;
+                let id: u32 = option_warn(id.parse().ok(), "unparseable session id")?;
+                Some(ProtocolAddress::new(name.to_string(), id))
+            });
+
+        // Now read the files, put them in the database, and remove the file
+        for addr in sessions {
+            let path = self.session_path(&addr);
+
+            log::trace!("Loading session for {:?} from {:?}", addr, path);
+            let _lock = self.protocol_store.read().await;
+
+            let buf = match self.read_file(&path).await {
+                Ok(buf) => match quirk::session_from_0_5(&buf) {
+                    Ok(buf) => buf,
+                    Err(e) => {
+                        log::warn!("Corrupt session: {}. Continuing", e);
+                        continue;
+                    }
+                },
+                Err(e) if !path.exists() => {
+                    log::trace!(
+                        "Skipping session because session file does not exist ({})",
+                        e
+                    );
+                    continue;
+                }
+                Err(e) => {
+                    log::error!(
+                        "Problem reading session: {}.  Skipping, but here be dragons.",
+                        e
+                    );
+                    continue;
+                }
+            };
+
+            // XXX Phone number possibly needs a + prefix or something like that.
+            //     Maybe pull it through phonenumber for normalisation.
+            let recipient = self.0.fetch_recipient(Some(addr.name()), Some(addr.name()));
+            let recipient = if let Some(recipient) = recipient {
+                recipient
+            } else {
+                // FIXME, we can create this recipient at this point
+                log::warn!("No recipient for this session; leaving alone.");
+                continue;
+            };
+            {
+                use crate::schema::session_records::dsl::*;
+                use diesel::prelude::*;
+                let session_record = SessionRecord {
+                    recipient_id: recipient.id,
+                    device_id: addr.device_id() as i32,
+                    record: buf,
+                };
+                let db = self.0.db.lock();
+                diesel::insert_into(session_records)
+                    .values(session_record)
+                    .execute(&*db)
+                    // XXX we should catch duplicate primary keys here.
+                    .expect("inserting record into db");
+            }
+
+            // By now, the session is safely stored in the database, so we can remove the file.
+            if let Err(e) = std::fs::remove_file(path) {
+                log::debug!(
+                    "Could not delete session {}, assuming non-existing: {}",
+                    addr.to_string(),
+                    e
+                );
+            }
+        }
+    }
 
     async fn migrate_identities(&self) {}
 
@@ -140,109 +256,6 @@ impl SessionStorageMigration {
         let _lock = self.protocol_store.read().await;
 
         self.read_identity_key_file(addr).await
-    }
-
-    async fn load_session(
-        &self,
-        addr: &ProtocolAddress,
-        _: Context,
-    ) -> Result<Option<SessionRecord>, SignalProtocolError> {
-        let path = self.session_path(addr);
-
-        log::trace!("Loading session for {:?} from {:?}", addr, path);
-        let _lock = self.protocol_store.read().await;
-
-        let buf = match self.read_file(&path).await {
-            Ok(buf) => quirk::session_from_0_5(&buf)?,
-            Err(e) if !path.exists() => {
-                log::trace!(
-                    "Returning None session because session file does not exist ({})",
-                    e
-                );
-                return Ok(None);
-            }
-            Err(e) => {
-                log::error!(
-                    "Problem reading session: {}.  Returning empty session, but here be dragons.",
-                    e
-                );
-                return Ok(None);
-            }
-        };
-
-        Ok(Some(SessionRecord::deserialize(&buf)?))
-    }
-
-    async fn store_session(
-        &mut self,
-        addr: &ProtocolAddress,
-        session: &protocol::SessionRecord,
-        _: Context,
-    ) -> Result<(), SignalProtocolError> {
-        let path = self.session_path(addr);
-
-        log::trace!("Storing session for {:?} at {:?}", addr, path);
-        let _lock = self.protocol_store.write().await;
-
-        let quirked = quirk::session_to_0_5(&session.serialize()?)?;
-        self.write_file(path, quirked).await.unwrap();
-        Ok(())
-    }
-
-    #[allow(dead_code)]
-    async fn contains_session(
-        &self,
-        addr: &ProtocolAddress,
-        _: Context,
-    ) -> Result<bool, SignalProtocolError> {
-        let _lock = self.protocol_store.read().await;
-
-        let path = self.session_path(addr);
-        Ok(path.is_file())
-    }
-
-    async fn get_sub_device_sessions(&self, addr: &str) -> Result<Vec<u32>, SignalProtocolError> {
-        log::trace!("Looking for sub_device sessions for {}", addr);
-        let _lock = self.protocol_store.read().await;
-
-        let addr = addr_to_path_component(addr).as_bytes();
-
-        let session_dir = self.path().join("storage").join("sessions");
-
-        let ids = std::fs::read_dir(session_dir)
-            .expect("initialized storage")
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-
-                if name.len() < addr.len() + 2 {
-                    return None;
-                }
-
-                if &name[..addr.len()] == addr {
-                    if name[addr.len()] != b'_' {
-                        log::warn!("Weird session directory entry: {:?}. Skipping", entry);
-                        return None;
-                    }
-                    // skip underscore
-                    let id = std::str::from_utf8(&name[(addr.len() + 1)..]).ok()?;
-                    id.parse().ok()
-                } else {
-                    None
-                }
-            })
-            .filter(|id| *id != libsignal_service::push_service::DEFAULT_DEVICE_ID)
-            .collect();
-
-        Ok(ids)
     }
 
     async fn delete_session(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
