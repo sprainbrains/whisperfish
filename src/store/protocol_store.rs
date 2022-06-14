@@ -356,13 +356,15 @@ impl protocol::SessionStore for Storage {
 
 impl Storage {
     #[allow(dead_code)]
+    /// Check whether session exists.
+    ///
+    /// This does *not* lock the protocol store.  If a transactional check is required, use the
+    /// lock from outside.
     async fn contains_session(
         &self,
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<bool, SignalProtocolError> {
-        let _lock = self.protocol_store.read().await;
-
         use crate::schema::session_records::dsl::*;
         use diesel::dsl::*;
         use diesel::prelude::*;
