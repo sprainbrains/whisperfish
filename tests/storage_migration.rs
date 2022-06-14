@@ -218,3 +218,25 @@ async fn read_other_identity_key(storage_password: Option<String>) {
     // Test equality
     assert_eq!(key, key_2);
 }
+
+/// These storages were initialized in June 2022, while moving the identity and session store into the SQLite database.
+///
+/// https://gitlab.com/whisperfish/whisperfish/-/merge_requests/249
+#[rstest]
+#[case("tests/storage_migration/without-password-2022-06".into(), None)]
+#[case("tests/storage_migration/with-password-123456-2022-06".into(), Some("123456".into()))]
+#[actix_rt::test]
+async fn test_2022_06_migration(
+    #[case] path: std::path::PathBuf,
+    #[case] storage_password: Option<String>,
+) {
+    let storage = harbour_whisperfish::store::Storage::open(&path.into(), storage_password)
+        .await
+        .expect("open older storage");
+    let migration =
+        harbour_whisperfish::worker::client::migrations::session_to_db::SessionStorageMigration(
+            storage,
+        );
+    migration.execute().await;
+    // XXX now test that the sessions and identities are still there.
+}
