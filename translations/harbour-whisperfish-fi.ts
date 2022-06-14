@@ -655,11 +655,17 @@ Settings page share contacts</extracomment>
         <extracomment>new registration prompt text asking to retry</extracomment>
         <translation>Yritä uudelleen kelvollisella puhelinnumerolla.</translation>
     </message>
-    <message id="whisperfish-registration-phone-number-prefix">
-        <location filename="../qml/pages/RegisterPage.qml" line="76"/>
-        <source>Prefix</source>
-        <extracomment>label for combo box for selecting calling code (phone number prefix) important: translate as short as possible</extracomment>
-        <translation>Etuliite</translation>
+    <message id="whisperfish-registration-country-or-area">
+        <location filename="../qml/pages/RegisterPage.qml" line="73"/>
+        <source>Country or area</source>
+        <extracomment>Label for country selection menu</extracomment>
+        <translation>Maa tai alue</translation>
+    </message>
+    <message id="whisperfish-not-selected">
+        <location filename="../qml/pages/RegisterPage.qml" line="78"/>
+        <source>Not selected</source>
+        <extracomment>Placeholder for country not selected</extracomment>
+        <translation>Ei valittu</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
         <location filename="../qml/pages/RegisterPage.qml" line="112"/>

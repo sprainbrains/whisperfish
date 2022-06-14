@@ -17,6 +17,7 @@ BlockingInfoPageBase {
 
     property bool _canAccept: !numberField.errorHighlight &&
                               prefixCombo.currentIndex >= 0 &&
+                              numberField.text.length > 4 &&
                               numberField.text.replace(/[- ]*/, '').trim() !== ''
 
     signal accept
@@ -65,19 +66,18 @@ BlockingInfoPageBase {
 
             ComboBox {
                 id: prefixCombo
-                anchors { left: parent.left; top: parent.top }
-                width: Math.max(metrics.width+2*Theme.horizontalPageMargin+Theme.paddingSmall,
-                                Theme.itemSizeExtraLarge)
-                label: ""
+                width: parent.width
 
-                //: label for combo box for selecting calling code (phone number prefix)
-                //: important: translate as short as possible
-                //% "Prefix"
-                description: qsTrId("whisperfish-registration-phone-number-prefix")
-
+                //: Label for country selection menu
+                //% "Country or area"
+                label: qsTrId("whisperfish-registration-country-or-area")
                 currentIndex: -1
-                value: currentIndex < 0 ?
-                           '+xx' : currentItem.prefix
+                value: currentIndex < 0
+                             //: Placeholder for country not selected
+                             //% "Not selected"
+                             ? qsTrId("whisperfish-not-selected")
+                             : currentItem.name + (currentItem.iso ? " (%1)".arg(currentItem.iso) : "")
+
                 menu: ContextMenu {
                     Repeater {
                         model: CallingCodes.c
@@ -89,23 +89,37 @@ BlockingInfoPageBase {
                         }
                     }
                 }
+            }
+        }
 
-                TextMetrics {
-                    id: metrics
-                    font.pixelSize: Theme.fontSizeMedium
-                    text: prefixCombo.value
+        Item {
+            width: parent.width
+            height: numberField.height
+
+            Label {
+                id: countryCodeField
+                anchors {
+                    top: parent.top
+                    topMargin: Theme.paddingSmall
+                    left: parent.left
+                    leftMargin: Theme.horizontalPageMargin
+                    rightMargin: Theme.paddingSmall
                 }
+                font.pixelSize: countryCodeField.font.pixelSize
+                text: prefixCombo.currentIndex < 0
+                    ? "+xx"
+                    : prefixCombo.currentItem.prefix
             }
 
             TextField {
                 id: numberField
                 anchors {
-                    left: prefixCombo.right; leftMargin: 0
-                    right: parent.right; rightMargin: Theme.horizontalPageMargin
-                    verticalCenter: prefixCombo.verticalCenter
+                    left: countryCodeField.right
+                    right: parent.right
+                    top: parent.top
                 }
                 inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly
-                validator: RegExpValidator{ regExp: /|[- 0-9]{4,}/ }
+                validator: RegExpValidator{ regExp: /|[1-9][- 0-9]{3,}/ }
 
                 //: phone number input label
                 //% "Phone number"
@@ -115,8 +129,8 @@ BlockingInfoPageBase {
                 //% "Phone number"
                 placeholderText: qsTrId("whisperfish-registration-number-input-placeholder")
                 EnterKey.iconSource: _canAccept ?
-                                         "image://theme/icon-m-enter-next" :
-                                         "image://theme/icon-m-enter-close"
+                                            "image://theme/icon-m-enter-next" :
+                                            "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: parent.forceActiveFocus()
             }
         }
