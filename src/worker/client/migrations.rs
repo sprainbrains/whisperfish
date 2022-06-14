@@ -26,13 +26,8 @@ use parse_reactions::*;
 pub mod session_to_db;
 use session_to_db::*;
 
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct Migrations;
-
-impl Handler<Migrations> for ClientActor {
-    type Result = ();
-    fn handle(&mut self, _: Migrations, ctx: &mut Self::Context) {
+impl ClientActor {
+    pub(super) fn queue_migrations(ctx: &mut <Self as Actor>::Context) {
         ctx.notify(WhoAmI);
         ctx.notify(MoveSessionsToDatabase);
         ctx.notify(E164ToUuid);

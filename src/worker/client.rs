@@ -37,7 +37,6 @@ pub use libsignal_service::push_service::DeviceInfo;
 
 // XXX maybe the session-to-db migration should move into the store module.
 pub mod migrations;
-use migrations::*;
 
 mod linked_devices;
 pub use linked_devices::*;
@@ -1093,7 +1092,7 @@ impl Handler<StorageReady> for ClientActor {
                 act.cipher = Some(cipher);
                 act.local_addr = Some(local_addr);
 
-                ctx.notify(Migrations);
+                Self::queue_migrations(ctx);
 
                 ctx.notify(Restart);
 
