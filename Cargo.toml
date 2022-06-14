@@ -27,7 +27,9 @@ sha2 = "0.9"
 
 sha-1 = "0.9"
 uuid = { version = "0.8", features=["v4"] }
+mime = "0.3.16"
 mime_guess = "2.0"
+mime_classifier = "0.0.1"
 actix-rt = "2.7.0"
 chrono = "0.4"
 tokio = { version="1.17.0", features=["time", "io-util", "net", "sync"] }

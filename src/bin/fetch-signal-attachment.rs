@@ -8,6 +8,8 @@ use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
+use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
+
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]
 #[structopt(name = "fetch-signal-attachment")]
@@ -47,7 +49,7 @@ struct Opt {
 async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
-    let opt = Opt::from_args();
+    let mut opt = Opt::from_args();
 
     let config = harbour_whisperfish::config::SignalConfig::read_from_file()?;
     let settings = harbour_whisperfish::config::Settings::default();
@@ -73,7 +75,7 @@ async fn main() -> Result<(), anyhow::Error> {
     );
 
     // Connection details for OWS servers
-    // XXX: https://gitlab.com/rubdos/whisperfish/-/issues/80
+    // XXX: https://gitlab.com/whisperfish/whisperfish/-/issues/80
     let phonenumber = phonenumber::parse(None, config.get_tel_clone()).unwrap();
     let uuid = uuid::Uuid::parse_str(&config.get_uuid_clone()).ok();
     let e164 = phonenumber
@@ -116,6 +118,25 @@ async fn main() -> Result<(), anyhow::Error> {
     key.copy_from_slice(&key_material);
     libsignal_service::attachment_cipher::decrypt_in_place(key, &mut ciphertext)
         .expect("attachment decryption");
+
+    // Signal Desktop sometimes sends a JPEG image with .png extension,
+    // so double check the received .png image, and rename it if necessary.
+    opt.ext = opt.ext.to_lowercase();
+    if opt.ext == "png" {
+        log::trace!("Checking for JPEG with .png extension...");
+        let classifier = MimeClassifier::new();
+        let computed_type = classifier.classify(
+            LoadContext::Image,
+            NoSniffFlag::Off,
+            ApacheBugFlag::Off,
+            &None,
+            &ciphertext as &[u8],
+        );
+        if computed_type == mime::IMAGE_JPEG {
+            log::info!("Received JPEG file with .png suffix, fixing suffix");
+            opt.ext = String::from("jpg");
+        }
+    }
 
     let attachment_path = storage
         .save_attachment(dest, &opt.ext, &ciphertext)

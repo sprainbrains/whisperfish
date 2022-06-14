@@ -97,7 +97,7 @@ Page {
                 //% "Source Code"
                 text: qsTrId("whisperfish-source-code")
                 onClicked: {
-                    Qt.openUrlExternally("https://gitlab.com/rubdos/whisperfish")
+                    Qt.openUrlExternally("https://gitlab.com/whisperfish/whisperfish")
                 }
             }
 
@@ -107,7 +107,7 @@ Page {
                 //% "Report a Bug"
                 text: qsTrId("whisperfish-bug-report")
                 onClicked: {
-                    Qt.openUrlExternally("https://gitlab.com/rubdos/whisperfish/issues")
+                    Qt.openUrlExternally("https://gitlab.com/whisperfish/whisperfish/issues")
                 }
             }
 
@@ -117,7 +117,7 @@ Page {
                 //% "Visit the Wiki"
                 text: qsTrId("whisperfish-about-wiki-link")
                 onClicked: {
-                    Qt.openUrlExternally("https://gitlab.com/rubdos/whisperfish/-/wikis/home")
+                    Qt.openUrlExternally("https://gitlab.com/whisperfish/whisperfish/-/wikis/home")
                 }
             }
 
