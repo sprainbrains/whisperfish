@@ -172,11 +172,22 @@ impl SessionStorageMigration {
                     record: buf,
                 };
                 let db = self.0.db.lock();
-                diesel::insert_into(session_records)
+                let res = diesel::insert_into(session_records)
                     .values(session_record)
-                    .execute(&*db)
-                    // XXX we should catch duplicate primary keys here.
-                    .expect("inserting record into db");
+                    .execute(&*db);
+
+                use diesel::result::{DatabaseErrorKind, Error};
+                match res {
+                    Ok(1) => (),
+                    Ok(n) => unreachable!(
+                        "inserting a single record cannot return {} rows changed.",
+                        n
+                    ),
+                    Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+                        log::warn!("Already found a session for {} in the database. Skipping and deleting the one on storage.", addr);
+                    }
+                    Err(e) => Err(e).expect("well behaving database"),
+                }
             }
 
             // By now, the session is safely stored in the database, so we can remove the file.
@@ -251,11 +262,22 @@ impl SessionStorageMigration {
             use crate::schema::identity_records::dsl::*;
             use diesel::prelude::*;
             let db = self.0.db.lock();
-            diesel::insert_into(identity_records)
+            let res = diesel::insert_into(identity_records)
                 .values((address.eq(addr.name()), record.eq(buf.serialize().to_vec())))
-                .execute(&*db)
-                // XXX: ignore but log duplicates
-                .expect("inserting identity key into db");
+                .execute(&*db);
+
+            use diesel::result::{DatabaseErrorKind, Error};
+            match res {
+                Ok(1) => (),
+                Ok(n) => unreachable!(
+                    "inserting a single record cannot return {} rows changed.",
+                    n
+                ),
+                Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+                    log::warn!("Already found an identity for {} in the database. Skipping and deleting the one on storage.", addr);
+                }
+                Err(e) => Err(e).expect("well behaving database"),
+            }
 
             // By now, the identity is safely stored in the database, so we can remove the file.
             if let Err(e) = std::fs::remove_file(self.identity_path(&addr)) {
