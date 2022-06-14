@@ -274,6 +274,10 @@ install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
     -exec \
         install -Dm 644 "{}" "%{buildroot}%{_datadir}/harbour-whisperfish/{}" \; )
 
+# Set the build date to the update notification
+CURR_DATE=$(date "+%Y-%m-%d")
+sed -i -E "s/buildDate: \"[0-9\-]{10}\".*/buildDate: \"${CURR_DATE}\"/g" "%{buildroot}%{_datadir}/harbour-whisperfish/qml/pages/MainPage.qml"
+
 %if %{without harbour}
 # Dbus service
 install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
