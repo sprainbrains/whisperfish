@@ -8,7 +8,6 @@ use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 
-use mime;
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 
 /// Signal attachment downloader for Whisperfish

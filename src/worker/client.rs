@@ -49,7 +49,6 @@ pub use groupv2::*;
 
 use crate::millis_to_naive_chrono;
 
-use mime;
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 
 #[derive(Message)]
