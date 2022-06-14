@@ -1093,11 +1093,11 @@ impl Handler<StorageReady> for ClientActor {
                 act.cipher = Some(cipher);
                 act.local_addr = Some(local_addr);
 
+                ctx.notify(Migrations);
+
                 ctx.notify(Restart);
 
                 ctx.notify(RefreshPreKeys);
-
-                ctx.notify(Migrations);
             },
         ))
     }
