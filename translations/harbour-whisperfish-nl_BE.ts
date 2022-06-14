@@ -111,49 +111,49 @@
         <translation>Opslag van configuratie en berichten</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
-        <location filename="../qml/pages/MainPage.qml" line="59"/>
+        <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
-        <location filename="../qml/pages/MainPage.qml" line="62"/>
+        <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
-        <location filename="../qml/pages/MainPage.qml" line="195"/>
+        <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
-        <location filename="../qml/pages/MainPage.qml" line="198"/>
+        <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-pinned">
-        <location filename="../qml/pages/MainPage.qml" line="234"/>
+        <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/MainPage.qml" line="239"/>
+        <location filename="../qml/pages/MainPage.qml" line="271"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Vandaag</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/MainPage.qml" line="244"/>
+        <location filename="../qml/pages/MainPage.qml" line="276"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Gisteren</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="249"/>
+        <location filename="../qml/pages/MainPage.qml" line="281"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Ouder</translation>
@@ -304,19 +304,31 @@
         <translation>Ontkoppelen</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="218"/>
+        <location filename="../qml/pages/MainPage.qml" line="250"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Trekt naar omleêg voôr e nief gesprek te beginnen.</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/MainPage.qml" line="24"/>
+        <location filename="../qml/pages/MainPage.qml" line="56"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>Over Whisperfish</translation>
     </message>
+    <message id="whisperfish-update-reminder-summary">
+        <location filename="../qml/pages/MainPage.qml" line="22"/>
+        <source>Please check for updates</source>
+        <extracomment>Update notification title text</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-update-reminder-body">
+        <location filename="../qml/pages/MainPage.qml" line="26"/>
+        <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
+        <extracomment>About whisperfish menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/MainPage.qml" line="30"/>
+        <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Instellingen</translation>
@@ -327,19 +339,19 @@
         <translation type="vanished">Nieve groep</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/MainPage.qml" line="80"/>
+        <location filename="../qml/pages/MainPage.qml" line="112"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Nief bericht</translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/MainPage.qml" line="210"/>
+        <location filename="../qml/pages/MainPage.qml" line="242"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Registratie vereist</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/MainPage.qml" line="214"/>
+        <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Vergrendeld</translation>

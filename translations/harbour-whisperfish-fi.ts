@@ -111,19 +111,19 @@
         <translation>Tallenna asetukset ja viestit</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/MainPage.qml" line="239"/>
+        <location filename="../qml/pages/MainPage.qml" line="271"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Tänään</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/MainPage.qml" line="244"/>
+        <location filename="../qml/pages/MainPage.qml" line="276"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Eilen</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="249"/>
+        <location filename="../qml/pages/MainPage.qml" line="281"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Aiemmat</translation>
@@ -274,31 +274,31 @@
         <translation>Poista linkitys</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="218"/>
+        <location filename="../qml/pages/MainPage.qml" line="250"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Aloita uusi keskustelu vetämällä alas.</translation>
     </message>
     <message id="whisperfish-about-menu">
-        <location filename="../qml/pages/MainPage.qml" line="24"/>
+        <location filename="../qml/pages/MainPage.qml" line="56"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
         <translation>Tietoja</translation>
     </message>
     <message id="whisperfish-settings-menu">
-        <location filename="../qml/pages/MainPage.qml" line="30"/>
+        <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
         <translation>Asetukset</translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/MainPage.qml" line="80"/>
+        <location filename="../qml/pages/MainPage.qml" line="112"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Uusi viesti</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
-        <location filename="../qml/pages/MainPage.qml" line="59"/>
+        <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
         <translation>Arkistoidut keskustelut</translation>
@@ -316,37 +316,37 @@
         <translation>Tämä Whisperfish-versio on yli 90 päivää vanha. Ole hyvä ja tarkista päivitykset, jotta Whisperfish toimisi myös jatkossa ongelmitta.</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
-        <location filename="../qml/pages/MainPage.qml" line="62"/>
+        <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
         <translation>Aktiiviset keskustelut</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
-        <location filename="../qml/pages/MainPage.qml" line="195"/>
+        <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
         <translation>Keskustelut</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
-        <location filename="../qml/pages/MainPage.qml" line="198"/>
+        <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
         <translation>Arkistoidut keskustelut</translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/MainPage.qml" line="210"/>
+        <location filename="../qml/pages/MainPage.qml" line="242"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Rekisteröinti vaaditaan</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/MainPage.qml" line="214"/>
+        <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Lukittu</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
-        <location filename="../qml/pages/MainPage.qml" line="234"/>
+        <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
         <translation>Kiinnitetty</translation>
