@@ -34,10 +34,10 @@ impl Handler<Migrations> for ClientActor {
     type Result = ();
     fn handle(&mut self, _: Migrations, ctx: &mut Self::Context) {
         ctx.notify(WhoAmI);
+        ctx.notify(MoveSessionsToDatabase);
         ctx.notify(E164ToUuid);
         ctx.notify(ComputeGroupV2ExpectedIds);
         ctx.notify(GenerateEmptyProfileIfNeeded);
         ctx.notify(ParseOldReaction);
-        ctx.notify(MoveSessionsToDatabase);
     }
 }
