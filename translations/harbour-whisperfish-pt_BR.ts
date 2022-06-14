@@ -25,7 +25,8 @@
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
         <location filename="../qml/pages/ConversationPage.qml" line="18"/>
-        <location filename="../qml/pages/ShareDestination.qml" line="90"/>
+        <location filename="../qml/pages/ShareDestinationV1.qml" line="91"/>
+        <location filename="../qml/pages/ShareDestinationV2.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
         <translation>Nota pessoal</translation>
@@ -100,13 +101,13 @@
         <translation>Não foi possível configurar o armazenamento de dados</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="293"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="309"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Armazenamento de dados do Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="297"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="313"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Armazenar definições e mensagens</translation>
@@ -1501,7 +1502,8 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
-        <location filename="../qml/pages/ShareDestination.qml" line="27"/>
+        <location filename="../qml/pages/ShareDestinationV1.qml" line="28"/>
+        <location filename="../qml/pages/ShareDestinationV2.qml" line="27"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
         <translation>Compartilhar conteúdo</translation>
