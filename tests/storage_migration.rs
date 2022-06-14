@@ -295,5 +295,5 @@ async fn test_2022_06_migration(
     assert!(session_1.is_some());
     assert!(session_2.is_some());
 
-    // XXX test that the session dir got removed!
+    assert!(!path.join("storage").join("sessions").exists());
 }

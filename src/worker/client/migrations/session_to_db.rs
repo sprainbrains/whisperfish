@@ -70,9 +70,14 @@ fn name_to_service_addr(name: &str) -> Option<ServiceAddress> {
 
 impl SessionStorageMigration {
     pub async fn execute(&self) {
-        if self.0.path().join("storage").join("sessions").exists() {
+        let session_dir = self.0.path().join("storage").join("sessions");
+        if session_dir.exists() {
             log::trace!("calling migrate_sessions");
             self.migrate_sessions().await;
+
+            if let Err(e) = tokio::fs::remove_dir(session_dir).await {
+                log::warn!("Could not remove alledgedly empty session dir: {}", e);
+            }
         }
 
         if self.0.path().join("storage").join("identity").exists() {
