@@ -1,11 +1,43 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import Nemo.Notifications 1.0
 import QtQml.Models 2.2
 import "../delegates"
 
 Page {
     id: main
     objectName: mainPageName
+
+    readonly property string buildDate: "2022-06-13" // This is a placeholder date, which is updated during build
+    property bool updateBannerDisplayed: false
+
+    Notification {
+        id: updateNotification
+        appIcon: "harbour-whisperfish"
+        appName: "Whisperfish"
+        category: "harbour-whisperfish-update"
+
+        //: Update notification title text
+        //% "Please check for updates"
+        previewSummary: qsTrId("whisperfish-update-reminder-summary")
+
+        //: About whisperfish menu item
+        //% "This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly."
+        previewBody: qsTrId("whisperfish-update-reminder-body")
+    }
+
+    Component.onCompleted: {
+        var now = new Date()
+        var then = Date.parse(buildDate)
+        var ageInDays = Math.floor((now - then) / (1000 * 60 * 60 * 24))
+        // console.log("showUpdateBanner", showUpdateBanner, (now - then), Math.ceil((now - then) / (1000 * 60 * 60 * 24)))
+        console.log("Age", ageInDays)
+
+        if(!updateBannerDisplayed && ageInDays >= 90) {
+            updateNotification.publish()
+            updateBannerDisplayed = true
+        }
+    }
 
     SilicaFlickable {
         anchors.fill: parent
