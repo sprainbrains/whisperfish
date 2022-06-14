@@ -626,8 +626,20 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <extracomment>registration prompt text</extracomment>
         <translation>Gib die Telefonnummer ein, mit der du dich bei Signal anmelden möchtest.</translation>
     </message>
+    <message id="whisperfish-registration-country-or-area">
+        <location filename="../qml/pages/RegisterPage.qml" line="73"/>
+        <source>Country or area</source>
+        <extracomment>Label for country selection menu</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-not-selected">
+        <location filename="../qml/pages/RegisterPage.qml" line="78"/>
+        <source>Not selected</source>
+        <extracomment>Placeholder for country not selected</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="160"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="174"/>
         <location filename="../qml/pages/Settings.qml" line="215"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -636,26 +648,26 @@ Settings page share contacts</extracomment>
         <translation>Zugriff auf Adressbücher</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/RegisterPage.qml" line="163"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="177"/>
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation>Erlaube Signal, dein Adressbuch zu nutzen, um andere Nutzer zu finden.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="129"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="143"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Prüfmethode</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="147"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="161"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Per Anruf</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="142"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="156"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Per SMS</translation>
@@ -667,43 +679,42 @@ Settings page share contacts</extracomment>
         <translation>Registrierung</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
-        <location filename="../qml/pages/RegisterPage.qml" line="38"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="39"/>
         <source>Please retry with a valid phone number.</source>
         <extracomment>new registration prompt text asking to retry</extracomment>
         <translation>Bitte versuche es erneut mit einer gültigen Telefonnummer.</translation>
     </message>
     <message id="whisperfish-registration-phone-number-prefix">
-        <location filename="../qml/pages/RegisterPage.qml" line="76"/>
         <source>Prefix</source>
         <extracomment>label for combo box for selecting calling code (phone number prefix) important: translate as short as possible</extracomment>
-        <translation>Präfix</translation>
+        <translation type="vanished">Präfix</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="112"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="126"/>
         <source>Phone number</source>
         <extracomment>phone number input label</extracomment>
         <translation>Telefonnummer</translation>
     </message>
     <message id="whisperfish-registration-number-input-placeholder">
-        <location filename="../qml/pages/RegisterPage.qml" line="116"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="130"/>
         <source>Phone number</source>
         <extracomment>phone number input placeholder</extracomment>
         <translation>Telefonnummer</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="134"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="148"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
         <translation>Signal wird dich anrufen, um dir einen 6-stelligen Code mitzuteilen. Sei bereit zum Notieren.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="136"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="150"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <translation>Signal wird dir einen 6-stelligen Code per SMS schicken.</translation>
     </message>
     <message id="whisperfish-continue-button-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="176"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="190"/>
         <location filename="../qml/pages/SetupPasswordPage.qml" line="124"/>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
