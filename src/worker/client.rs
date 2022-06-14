@@ -35,7 +35,8 @@ use libsignal_service::provisioning::ProvisioningManager;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
 
-mod migrations;
+// XXX maybe the session-to-db migration should move into the store module.
+pub mod migrations;
 use migrations::*;
 
 mod linked_devices;

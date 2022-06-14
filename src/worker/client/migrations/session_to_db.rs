@@ -14,7 +14,7 @@ mod quirk;
 #[rtype(result = "()")]
 pub struct MoveSessionsToDatabase;
 
-struct SessionStorageMigration(Storage);
+pub struct SessionStorageMigration(pub Storage);
 impl std::ops::Deref for SessionStorageMigration {
     type Target = Storage;
 
@@ -35,14 +35,7 @@ impl Handler<MoveSessionsToDatabase> for ClientActor {
 
         let proc = async move {
             let migration = SessionStorageMigration(storage.clone());
-
-            if storage.path().join("storage").join("sessions").exists() {
-                migration.migrate_sessions().await;
-            }
-
-            if storage.path().join("storage").join("identity").exists() {
-                migration.migrate_identities().await;
-            }
+            migration.execute().await;
         };
 
         std::pin::Pin::from(Box::new(proc))
@@ -76,6 +69,18 @@ fn name_to_service_addr(name: &str) -> Option<ServiceAddress> {
 }
 
 impl SessionStorageMigration {
+    pub async fn execute(&self) {
+        if self.0.path().join("storage").join("sessions").exists() {
+            log::trace!("calling migrate_sessions");
+            self.migrate_sessions().await;
+        }
+
+        if self.0.path().join("storage").join("identity").exists() {
+            log::trace!("calling migrate_identities");
+            self.migrate_identities().await;
+        }
+    }
+
     async fn migrate_sessions(&self) {
         let session_dir = self.path().join("storage").join("sessions");
 
@@ -239,7 +244,19 @@ impl SessionStorageMigration {
                 )?;
 
                 if !name.starts_with("remote_") {
-                    log::warn!("Identity file does not start with `remote_`; skipping");
+                    let allow_list = [
+                        "http_password",
+                        "http_signaling_key",
+                        "identity_key",
+                        "regid",
+                    ];
+                    if !allow_list.contains(&name) {
+                        log::warn!(
+                            "Identity file `{}` does not start with `remote_`; skipping",
+                            name
+                        );
+                    }
+                    return None;
                 }
 
                 let mut split = name.split('_');

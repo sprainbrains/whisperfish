@@ -9,7 +9,7 @@
 
 use harbour_whisperfish::store as current_storage;
 
-use libsignal_service::prelude::protocol::IdentityKeyStore;
+use libsignal_service::prelude::protocol::{IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::ops::Deref;
 
@@ -269,10 +269,31 @@ async fn test_2022_06_migration(
     let storage = harbour_whisperfish::store::Storage::open(&path, storage_password)
         .await
         .expect("open older storage");
-    let migration =
-        harbour_whisperfish::worker::client::migrations::session_to_db::SessionStorageMigration(
-            storage,
-        );
+    let migration = SessionStorageMigration(storage);
+    println!("Start migration");
     migration.execute().await;
-    // XXX now test that the sessions and identities are still there.
+    println!("End migration");
+    let SessionStorageMigration(storage) = migration;
+
+    let user_id = uuid::Uuid::from_str("5844fce4-4407-401a-9dbc-fc86c6def4e6").unwrap();
+    let device_id = 1;
+    let addr_1 =
+        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+
+    let user_id = uuid::Uuid::from_str("7bec59e1-140d-4b53-98f1-dc8fd2c011c8").unwrap();
+    let device_id = 2;
+    let addr_2 =
+        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+
+    let identity_key_1 = storage.get_identity(&addr_1, None).await.unwrap();
+    let identity_key_2 = storage.get_identity(&addr_2, None).await.unwrap();
+    assert!(identity_key_1.is_some());
+    assert!(identity_key_2.is_some());
+
+    let session_1 = storage.load_session(&addr_1, None).await.unwrap();
+    let session_2 = storage.load_session(&addr_2, None).await.unwrap();
+    assert!(session_1.is_some());
+    assert!(session_2.is_some());
+
+    // XXX test that the session dir got removed!
 }

@@ -22,7 +22,8 @@ mod parse_reactions;
 use parse_reactions::*;
 
 /// Migration to get rid of file based session and identity data.
-mod session_to_db;
+// XXX maybe the session-to-db migration should move into the store module.
+pub mod session_to_db;
 use session_to_db::*;
 
 #[derive(Message)]
