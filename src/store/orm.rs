@@ -64,7 +64,7 @@ pub struct Message {
     pub is_remote_deleted: bool,
 }
 
-#[derive(Queryable, Debug, Clone)]
+#[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct Recipient {
     pub id: i32,
     pub e164: Option<String>,
@@ -91,6 +91,21 @@ pub struct Recipient {
     pub capabilities: i32,
     pub last_gv1_migrate_reminder: Option<NaiveDateTime>,
     pub last_session_reset: Option<NaiveDateTime>,
+}
+
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+#[primary_key(address, device_id)]
+pub struct SessionRecord {
+    pub address: String,
+    pub device_id: i32,
+    pub record: Vec<u8>,
+}
+
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+#[primary_key(address)]
+pub struct IdentityRecord {
+    pub address: String,
+    pub record: Vec<u8>,
 }
 
 impl Recipient {

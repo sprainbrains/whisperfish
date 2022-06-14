@@ -7,9 +7,9 @@
 //! e8ef69ba76b5f40fc149bf1c240df99b62f19b60. Be aware that only necessary parts were copied that
 //! were changed in later commits.
 
-mod current_storage;
+use harbour_whisperfish::store as current_storage;
 
-use libsignal_service::prelude::protocol::IdentityKeyStore;
+use libsignal_service::prelude::protocol::{IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::ops::Deref;
 
@@ -217,4 +217,83 @@ async fn read_other_identity_key(storage_password: Option<String>) {
 
     // Test equality
     assert_eq!(key, key_2);
+}
+
+async fn copy_to_temp(root: std::path::PathBuf) -> tempdir::TempDir {
+    let new_root = tempdir::TempDir::new("whisperfish-storage-migration-test").unwrap();
+
+    let mut queue = std::collections::VecDeque::new();
+    queue.push_back((root, new_root.path().to_owned()));
+
+    while let Some((source_path, target)) = queue.pop_front() {
+        if source_path.is_dir() && !target.exists() {
+            tokio::fs::create_dir(&target).await.unwrap();
+        }
+
+        let mut read_dir = tokio::fs::read_dir(source_path).await.unwrap();
+        while let Some(child) = read_dir.next_entry().await.unwrap() {
+            let path = child.path();
+            if path.is_dir() {
+                let new_target = target.join(path.file_name().unwrap());
+                queue.push_back((path, new_target));
+            } else {
+                assert!(path.is_file());
+
+                let target_path = target.join(path.file_name().unwrap());
+
+                tokio::fs::copy(path, target_path).await.unwrap();
+            }
+        }
+    }
+
+    new_root
+}
+
+/// These storages were initialized in June 2022, while moving the identity and session store into the SQLite database.
+///
+/// https://gitlab.com/whisperfish/whisperfish/-/merge_requests/249
+#[rstest]
+#[case("tests/storage_migration/without-password-2022-06".into(), None)]
+#[case("tests/storage_migration/with-password-123456-2022-06".into(), Some("123456".into()))]
+#[actix_rt::test]
+async fn test_2022_06_migration(
+    #[case] path: std::path::PathBuf,
+    #[case] storage_password: Option<String>,
+) {
+    use harbour_whisperfish::worker::client::migrations::session_to_db::SessionStorageMigration;
+    use std::str::FromStr;
+
+    env_logger::try_init().ok();
+
+    let path = current_storage::StorageLocation::Path(copy_to_temp(path).await);
+    let storage = harbour_whisperfish::store::Storage::open(&path, storage_password)
+        .await
+        .expect("open older storage");
+    let migration = SessionStorageMigration(storage);
+    println!("Start migration");
+    migration.execute().await;
+    println!("End migration");
+    let SessionStorageMigration(storage) = migration;
+
+    let user_id = uuid::Uuid::from_str("5844fce4-4407-401a-9dbc-fc86c6def4e6").unwrap();
+    let device_id = 1;
+    let addr_1 =
+        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+
+    let user_id = uuid::Uuid::from_str("7bec59e1-140d-4b53-98f1-dc8fd2c011c8").unwrap();
+    let device_id = 2;
+    let addr_2 =
+        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+
+    let identity_key_1 = storage.get_identity(&addr_1, None).await.unwrap();
+    let identity_key_2 = storage.get_identity(&addr_2, None).await.unwrap();
+    assert!(identity_key_1.is_some());
+    assert!(identity_key_2.is_some());
+
+    let session_1 = storage.load_session(&addr_1, None).await.unwrap();
+    let session_2 = storage.load_session(&addr_2, None).await.unwrap();
+    assert!(session_1.is_some());
+    assert!(session_2.is_some());
+
+    assert!(!path.join("storage").join("sessions").exists());
 }

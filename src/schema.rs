@@ -73,6 +73,13 @@ table! {
 }
 
 table! {
+    identity_records (address) {
+        address -> Text,
+        record -> Binary,
+    }
+}
+
+table! {
     messages (id) {
         id -> Integer,
         session_id -> Integer,
@@ -140,6 +147,14 @@ table! {
 }
 
 table! {
+    session_records (address, device_id) {
+        address -> Text,
+        device_id -> Integer,
+        record -> Binary,
+    }
+}
+
+table! {
     sessions (id) {
         id -> Integer,
         direct_message_recipient_id -> Nullable<Integer>,
@@ -193,10 +208,12 @@ allow_tables_to_appear_in_same_query!(
     group_v1s,
     group_v2_members,
     group_v2s,
+    identity_records,
     messages,
     reactions,
     receipts,
     recipients,
+    session_records,
     sessions,
     stickers,
 );

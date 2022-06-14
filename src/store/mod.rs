@@ -278,7 +278,6 @@ impl Storage {
             root.join("storage"),
             root.join("storage").join("identity"),
             root.join("storage").join("attachments"),
-            root.join("storage").join("sessions"),
             root.join("storage").join("prekeys"),
             root.join("storage").join("signed_prekeys"),
             root.join("storage").join("groups"),
@@ -504,11 +503,15 @@ impl Storage {
         Ok(out)
     }
 
-    async fn read_file(&self, path: impl AsRef<std::path::Path>) -> Result<Vec<u8>, anyhow::Error> {
+    // This is public for session_to_db migration
+    pub async fn read_file(
+        &self,
+        path: impl AsRef<std::path::Path>,
+    ) -> Result<Vec<u8>, anyhow::Error> {
         utils::read_file_async_encrypted(path, self.store_enc.as_ref()).await
     }
 
-    async fn write_file(
+    pub async fn write_file(
         &self,
         path: impl AsRef<std::path::Path>,
         content: impl Into<Vec<u8>>,

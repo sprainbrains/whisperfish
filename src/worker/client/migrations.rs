@@ -21,14 +21,15 @@ use groupv2::*;
 mod parse_reactions;
 use parse_reactions::*;
 
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct Migrations;
+/// Migration to get rid of file based session and identity data.
+// XXX maybe the session-to-db migration should move into the store module.
+pub mod session_to_db;
+use session_to_db::*;
 
-impl Handler<Migrations> for ClientActor {
-    type Result = ();
-    fn handle(&mut self, _: Migrations, ctx: &mut Self::Context) {
+impl ClientActor {
+    pub(super) fn queue_migrations(ctx: &mut <Self as Actor>::Context) {
         ctx.notify(WhoAmI);
+        ctx.notify(MoveSessionsToDatabase);
         ctx.notify(E164ToUuid);
         ctx.notify(ComputeGroupV2ExpectedIds);
         ctx.notify(GenerateEmptyProfileIfNeeded);
