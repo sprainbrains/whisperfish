@@ -1,6 +1,7 @@
 %bcond_with harbour
 %bcond_with lto
 %bcond_with sccache
+%bcond_with tools
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -201,11 +202,18 @@ cat %{_sourcedir}/../Cargo.toml
 export CARGO_PROFILE_RELEASE_LTO=thin
 %endif
 
+%if %{with tools}
+BINS="--bins"
+%else
+BINS="--bin harbour-whisperfish"
+%endif
+
 cargo build \
           -j 1 \
           --verbose \
           --release \
           --no-default-features \
+          $BINS \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 
@@ -243,8 +251,10 @@ done
 
 install -D %{targetdir}/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
 %if %{without harbour}
+%if %{with tools}
 install -D %{targetdir}/fetch-signal-attachment %{buildroot}%{_bindir}/fetch-signal-attachment
 install -D %{targetdir}/whisperfish-migration-dry-run %{buildroot}%{_bindir}/whisperfish-migration-dry-run
+%endif
 %endif
 
 desktop-file-install \
