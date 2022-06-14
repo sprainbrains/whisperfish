@@ -65,9 +65,16 @@ async fn add_dummy_data(storage: &mut store::Storage) {
     let addr_2 =
         libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
 
+    let device_id = 3;
+    let addr_3 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+        "+32412345678".into(),
+        device_id,
+    );
+
     // Create two identities and two sessions
     let key_1 = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
     let key_2 = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
+    let key_3 = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
 
     storage
         .save_identity(&addr_1, key_1.identity_key(), None)
@@ -77,15 +84,24 @@ async fn add_dummy_data(storage: &mut store::Storage) {
         .save_identity(&addr_2, key_2.identity_key(), None)
         .await
         .unwrap();
+    storage
+        .save_identity(&addr_3, key_3.identity_key(), None)
+        .await
+        .unwrap();
 
     let session_1 = libsignal_service::prelude::protocol::SessionRecord::new_fresh();
     let session_2 = libsignal_service::prelude::protocol::SessionRecord::new_fresh();
+    let session_3 = libsignal_service::prelude::protocol::SessionRecord::new_fresh();
     storage
         .store_session(&addr_1, &session_1, None)
         .await
         .unwrap();
     storage
         .store_session(&addr_2, &session_2, None)
+        .await
+        .unwrap();
+    storage
+        .store_session(&addr_3, &session_3, None)
         .await
         .unwrap();
 }
