@@ -276,7 +276,6 @@ impl Storage {
             root.join("storage"),
             root.join("storage").join("identity"),
             root.join("storage").join("attachments"),
-            root.join("storage").join("sessions"),
             root.join("storage").join("prekeys"),
             root.join("storage").join("signed_prekeys"),
             root.join("storage").join("groups"),
