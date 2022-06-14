@@ -1,0 +1,6 @@
+This storage was initialized in June 2022, while moving the identity and session store into the SQLite database.
+
+Its password is 123456
+
+https://gitlab.com/whisperfish/whisperfish/-/merge_requests/249
+
