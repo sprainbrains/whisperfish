@@ -30,13 +30,13 @@ Page {
 
     Component.onCompleted: {
         whisperfishApp.call(
-            "handleShare",
+            "handleShareV1",
             [clientId, String(source), JSON.stringify(content ? content : {})],
             function () { shareDone = true },
             function (error, message) {
                 console.log('Calling Whisperfish on DBus failed: ' + error + ' message: ' + message)
                 spinner.running = false
-                spinner.text = "Sharing failed\n" + message
+                spinner.text = "Please start Whisperfish first\n\n" + message
             }
         );
     }
@@ -71,7 +71,7 @@ Page {
     Connections {
         target: Qt.application
         onStateChanged: {
-            if(Qt.application.state == Qt.ApplicationActive && shareDone) {
+            if(shareDone) {
                 pageStack.pop()
             }
         }

@@ -105,6 +105,13 @@ Summary: Share plugin for Whisperfish
 
 Group: Qt/Qt
 
+if [[ "$(bash %{_sourcedir}/../target_at_least.sh 4.4.0.58)" == "1" ]]
+then
+%define sharingsubdir sharing
+else
+%define sharingsubdir .
+fi
+
 %endif
 # end harbour-whisperfish-shareplugin
 
@@ -231,6 +238,7 @@ then
 else
     # Share plugin API v1
     cp -ar %{_sourcedir}/../shareplugin_v1/* .
+    %qmake5
     make %{?_smp_mflags}
 fi
 %endif
@@ -297,9 +305,9 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
 
 # Share plugin
 install -Dm 644 %{targetdir}/shareplugin/WhisperfishShare.qml \
-    %{buildroot}%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
+    %{buildroot}%{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
 install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
-    %{buildroot}%{_libdir}/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
+    %{buildroot}%{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
 %endif
 
 %clean
@@ -334,6 +342,6 @@ systemctl-user disable harbour-whisperfish.service || true
 
 %if %{without harbour}
 %files shareplugin
-%{_datadir}/nemo-transferengine/plugins/sharing/WhisperfishShare.qml
-%{_libdir}/nemo-transferengine/plugins/sharing/libwhisperfishshareplugin.so
+%{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
+%{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
 %endif

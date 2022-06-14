@@ -19,13 +19,13 @@ SilicaFlickable {
 
     Component.onCompleted: {
         whisperfishApp.call(
-            "handleShare",
+            "handleShareV2",
             [clientId, shareAction.toConfiguration()],
             function () { },
             function (error, message) {
                 console.log('Calling Whisperfish on DBus failed: ' + error + ' message: ' + message)
                 spinner.running = false
-                spinner.text = "Sharing failed\n" + message
+                spinner.text = "Please start Whisperfish first\n\n" + message
             }
         )
     }
