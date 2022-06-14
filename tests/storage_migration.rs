@@ -219,6 +219,36 @@ async fn read_other_identity_key(storage_password: Option<String>) {
     assert_eq!(key, key_2);
 }
 
+async fn copy_to_temp(root: std::path::PathBuf) -> tempdir::TempDir {
+    let new_root = tempdir::TempDir::new("whisperfish-storage-migration-test").unwrap();
+
+    let mut queue = std::collections::VecDeque::new();
+    queue.push_back((root, new_root.path().to_owned()));
+
+    while let Some((source_path, target)) = queue.pop_front() {
+        if source_path.is_dir() && !target.exists() {
+            tokio::fs::create_dir(&target).await.unwrap();
+        }
+
+        let mut read_dir = tokio::fs::read_dir(source_path).await.unwrap();
+        while let Some(child) = read_dir.next_entry().await.unwrap() {
+            let path = child.path();
+            if path.is_dir() {
+                let new_target = target.join(path.file_name().unwrap());
+                queue.push_back((path, new_target));
+            } else {
+                assert!(path.is_file());
+
+                let target_path = target.join(path.file_name().unwrap());
+
+                tokio::fs::copy(path, target_path).await.unwrap();
+            }
+        }
+    }
+
+    new_root
+}
+
 /// These storages were initialized in June 2022, while moving the identity and session store into the SQLite database.
 ///
 /// https://gitlab.com/whisperfish/whisperfish/-/merge_requests/249
@@ -230,7 +260,13 @@ async fn test_2022_06_migration(
     #[case] path: std::path::PathBuf,
     #[case] storage_password: Option<String>,
 ) {
-    let storage = harbour_whisperfish::store::Storage::open(&path.into(), storage_password)
+    use harbour_whisperfish::worker::client::migrations::session_to_db::SessionStorageMigration;
+    use std::str::FromStr;
+
+    env_logger::try_init().ok();
+
+    let path = current_storage::StorageLocation::Path(copy_to_temp(path).await);
+    let storage = harbour_whisperfish::store::Storage::open(&path, storage_password)
         .await
         .expect("open older storage");
     let migration =
