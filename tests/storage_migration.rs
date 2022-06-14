@@ -7,7 +7,7 @@
 //! e8ef69ba76b5f40fc149bf1c240df99b62f19b60. Be aware that only necessary parts were copied that
 //! were changed in later commits.
 
-mod current_storage;
+use harbour_whisperfish::store as current_storage;
 
 use libsignal_service::prelude::protocol::IdentityKeyStore;
 use rstest::rstest;
