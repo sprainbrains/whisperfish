@@ -62,6 +62,8 @@ pub struct Message {
     pub is_bookmarked: bool,
     pub use_unidentified: bool,
     pub is_remote_deleted: bool,
+
+    pub sending_has_failed: bool,
 }
 
 #[derive(Queryable, Identifiable, Debug, Clone)]
@@ -438,6 +440,10 @@ impl AugmentedMessage {
             .iter()
             .filter(|(r, _)| r.viewed.is_some())
             .count() as _
+    }
+
+    pub fn queued(&self) -> bool {
+        self.is_outbound && self.sent_timestamp.is_none() && !self.sending_has_failed
     }
 
     pub fn attachments(&self) -> u32 {

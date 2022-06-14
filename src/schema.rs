@@ -97,6 +97,7 @@ table! {
         is_bookmarked -> Bool,
         use_unidentified -> Bool,
         is_remote_deleted -> Bool,
+        sending_has_failed -> Bool,
     }
 }
 
