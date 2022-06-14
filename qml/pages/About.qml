@@ -64,6 +64,9 @@ Page {
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                wrapMode: Text.Wrap
                 text: {
                     var build_id = CiJobUrl ?
                         "<a href=\"" + CiJobUrl + "\">" + LongAppVersion + "</a>"
