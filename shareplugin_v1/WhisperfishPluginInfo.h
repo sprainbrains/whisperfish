@@ -6,7 +6,7 @@
 
 // Display Name
 #define APP_NAME "Whisperfish"
-#define APP_ICON "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+#define APP_ICON "/usr/share/icons/hicolor/108x108/apps/harbour-whisperfish.png"
 #define PLUGIN_ID "WhisperfishSharePlugin"
 
 #define DBUS_INTERFACE "be.rubdos.whisperfish.share"

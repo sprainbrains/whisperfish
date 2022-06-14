@@ -231,14 +231,30 @@ ApplicationWindow
             }
         }
 
-        function handleShare(clientId, shareObject) {
-            console.log("DBus app.handleShare() call received"); 
+        function handleShareV1(clientId, source, content) {
+            console.log("DBus app.handleShare() (v1) call received");
             console.log("DBus Share Client:", clientId);
-            console.log("DBus MEDIA:", JSON.stringify(shareObject));
+            console.log("DBus source:", source);
+            console.log("DBus content:", content)
+            pageStack.push(
+                Qt.resolvedUrl("pages/ShareDestinationV1.qml"),
+                {
+                    source: source,
+                    content: content
+                }
+            )
+            mainWindow.activate()
+            dbusShareClient.call("done")
+        }
+
+        function handleShareV2(clientId, shareObject) {
+            console.log("DBus app.handleShare() (v2) call received");
+            console.log("DBus Share Client:", clientId);
+            console.log("DBus Share object:", JSON.stringify(shareObject));
 
             shareClientId = clientId
             pageStack.push(
-                Qt.resolvedUrl("pages/ShareDestination.qml"),
+                Qt.resolvedUrl("pages/ShareDestinationV2.qml"),
                 { shareObject: shareObject },
                 PageStackAction.Immediate
             )
