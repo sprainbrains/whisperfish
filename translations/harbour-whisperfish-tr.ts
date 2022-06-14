@@ -631,13 +631,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="73"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ülke veya bölge</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="78"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Seçilmedi</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="174"/>
