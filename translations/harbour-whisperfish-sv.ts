@@ -28,57 +28,57 @@
         <location filename="../qml/pages/ShareDestination.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Anteckning till mig själv</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="162"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Utkast: %1</translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="263"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lossa</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="266"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fäst på toppen</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="275"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Slå på ljudet för konversationen</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="278"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Stäng av ljudet för konversation</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="286"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Återställ till inkorgen</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="289"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arkivera konversation</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="296"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Radera konversation</translation>
     </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../qml/harbour-whisperfish.qml" line="96"/>
@@ -90,56 +90,56 @@
         <location filename="../qml/harbour-whisperfish.qml" line="194"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att konfigurera Signal-klienten</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish.qml" line="199"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att konfigurera lagrningen</translation>
     </message>
     <message id="permission-la-data">
         <location filename="../qml/harbour-whisperfish.qml" line="293"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish datalagring</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish.qml" line="297"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lagra konfiguration och meddelanden</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Visa arkiverade konversationer</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Återgå till konversationer</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Konversationer</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arkiverade konversationer</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fast nålade</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
@@ -169,7 +169,7 @@
         <location filename="../qml/pages/About.qml" line="33"/>
         <source>Whisperfish v%1</source>
         <extracomment>Whisperfish version string</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish v%1</translation>
     </message>
     <message id="whisperfish-description">
         <location filename="../qml/pages/About.qml" line="43"/>
@@ -181,13 +181,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivning</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish är en inofficiell, men avancerad Signal-klient för Sailfish OS. Whisperfish är mycket användbar, men anses fortfarande vara programvara av betakvalitet. Se till att uppdatera regelbundet! Kolla också vår wiki och bidra gärna till den! Kontakta aldrig Signal-utvecklarna om ett problem med Whisperfish, kontakta oss istället!.</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -223,13 +223,13 @@
         <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Besök wikin</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="149"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ytterligare upphovsrätt</translation>
     </message>
     <message id="whisperfish-add-confirm">
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
@@ -253,7 +253,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="54"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Installera Signal Desktop. Använd programmet CodeReader för att skanna QR-koden som visas på Signal Desktop och kopiera och klistra in webbadressen här.</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
@@ -1493,7 +1493,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ShareDestination.qml" line="27"/>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dela innehåll</translation>
     </message>
 </context>
 </TS>
