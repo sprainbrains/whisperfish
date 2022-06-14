@@ -24,6 +24,7 @@
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="143"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="18"/>
         <location filename="../qml/pages/ShareDestination.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
@@ -176,44 +177,56 @@
         <extracomment>Whisperfish description</extracomment>
         <translation>Whisperfish 描述</translation>
     </message>
+    <message id="whisperfish-description-section">
+        <location filename="../qml/pages/About.qml" line="49"/>
+        <source>Description</source>
+        <extracomment>Description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-long-description">
+        <location filename="../qml/pages/About.qml" line="62"/>
+        <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
+        <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-build-id">
-        <location filename="../qml/pages/About.qml" line="54"/>
+        <location filename="../qml/pages/About.qml" line="76"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
         <translation>构建 ID: %1</translation>
     </message>
     <message id="whisperfish-copyright">
-        <location filename="../qml/pages/About.qml" line="64"/>
+        <location filename="../qml/pages/About.qml" line="86"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
         <translation>版权</translation>
     </message>
     <message id="whisperfish-liberapay">
-        <location filename="../qml/pages/About.qml" line="88"/>
+        <location filename="../qml/pages/About.qml" line="110"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
         <translation>使用 Liberapay 捐赠</translation>
     </message>
     <message id="whisperfish-source-code">
-        <location filename="../qml/pages/About.qml" line="98"/>
+        <location filename="../qml/pages/About.qml" line="120"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
         <translation>源代码</translation>
     </message>
     <message id="whisperfish-bug-report">
-        <location filename="../qml/pages/About.qml" line="108"/>
+        <location filename="../qml/pages/About.qml" line="130"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
         <translation>报告缺陷</translation>
     </message>
     <message id="whisperfish-about-wiki-link">
-        <location filename="../qml/pages/About.qml" line="118"/>
+        <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
         <translation>浏览 Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="127"/>
+        <location filename="../qml/pages/About.qml" line="149"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation>附加版权声明</translation>
