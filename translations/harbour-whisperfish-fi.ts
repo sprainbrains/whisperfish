@@ -303,6 +303,18 @@
         <extracomment>Menu item for showing archived conversations</extracomment>
         <translation>Arkistoidut keskustelut</translation>
     </message>
+    <message id="whisperfish-update-reminder-summary">
+        <location filename="../qml/pages/MainPage.qml" line="22"/>
+        <source>Please check for updates</source>
+        <extracomment>Update notification title text</extracomment>
+        <translation>Tarkista päiviykset</translation>
+    </message>
+    <message id="whisperfish-update-reminder-body">
+        <location filename="../qml/pages/MainPage.qml" line="26"/>
+        <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
+        <extracomment>About whisperfish menu item</extracomment>
+        <translation>Tämä Whisperfish-versio on yli 90 päivää vanha. Ole hyvä ja tarkista päivitykset, jotta Whisperfish toimisi myös jatkossa ongelmitta.</translation>
+    </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>Return to conversations</source>
