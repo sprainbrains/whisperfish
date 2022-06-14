@@ -264,9 +264,7 @@ impl SessionStorageMigration {
                     return None;
                 }
 
-                let mut split = name.split('_');
-                assert_eq!(split.next(), Some("remote"));
-                let addr = option_warn(split.next(), "no addr component for identity")?;
+                let addr = &name["remote_".len()..];
                 let addr =
                     option_warn(name_to_service_addr(addr), "unparsable file name")?.identifier();
 
@@ -278,8 +276,17 @@ impl SessionStorageMigration {
             let buf = self
                 .read_identity_key_file(&addr)
                 .await
-                .expect("readable identity file")
-                .expect("existing identity file");
+                .expect("readable identity file");
+            let buf = if let Some(buf) = buf {
+                buf
+            } else {
+                // XXX: comply with promises.
+                log::warn!(
+                    "Not migrating {}, since it's an unparsable form of identity. This file will be removed in the future.",
+                    addr
+                );
+                continue;
+            };
 
             use crate::schema::identity_records::dsl::*;
             use diesel::prelude::*;
