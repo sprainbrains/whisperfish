@@ -1002,26 +1002,29 @@ impl Handler<SendMessage> for ClientActor {
                 Ok((session.id, mid, msg.text))
             }
             .into_actor(self)
-            .map(move |res, act, _ctx| match res {
-                Ok((sid, mid, message)) => {
-                    act.inner.pinned().borrow().messageSent(
-                        sid,
-                        mid,
-                        message.unwrap_or_default().into(),
-                    );
-
-                    actix::spawn(
-                        act.inner
-                            .pinned()
-                            .borrow()
-                            .session_actor
-                            .clone()
-                            .unwrap()
-                            .send(LoadAllSessions)
-                            .map(Result::unwrap),
-                    );
-                }
-                Err(e) => log::error!("Sending message: {}", e),
+            .map(move |res, act, _ctx| {
+                match res {
+                    Ok((sid, mid, message)) => {
+                        act.inner.pinned().borrow().messageSent(
+                            sid,
+                            mid,
+                            message.unwrap_or_default().into(),
+                        );
+                    }
+                    Err(e) => {
+                        log::error!("Sending message: {}", e)
+                    }
+                };
+                actix::spawn(
+                    act.inner
+                        .pinned()
+                        .borrow()
+                        .session_actor
+                        .clone()
+                        .unwrap()
+                        .send(LoadAllSessions)
+                        .map(Result::unwrap),
+                );
             }),
         )
     }
