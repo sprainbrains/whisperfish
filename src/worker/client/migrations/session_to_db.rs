@@ -79,9 +79,19 @@ impl SessionStorageMigration {
     async fn migrate_sessions(&self) {
         let session_dir = self.path().join("storage").join("sessions");
 
-        let sessions = std::fs::read_dir(session_dir)
-            // XXX: actually, storage will stop initializing this.
-            .expect("initialized storage")
+        let entries = match std::fs::read_dir(session_dir) {
+            Ok(entries) => entries,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                // Potentially in the future also e.kind() == std::io::ErrorKind::NotADirectory
+                log::info!("Migrating sessions is not necessary; there's no session directory.");
+                return;
+            }
+            Err(e) => {
+                panic!("Something went wrong reading the session directory: {}", e);
+            }
+        };
+
+        let sessions = entries
             // Parse the session file names
             .filter_map(|entry| {
                 let entry = entry.expect("directory listing");
@@ -183,9 +193,22 @@ impl SessionStorageMigration {
     async fn migrate_identities(&self) {
         let identity_dir = self.0.path().join("storage").join("identity");
 
-        let identities = std::fs::read_dir(identity_dir)
-            // XXX: actually, storage will stop initializing this.
-            .expect("initialized storage")
+        let entries = match std::fs::read_dir(identity_dir) {
+            Ok(entries) => entries,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                // Potentially in the future also e.kind() == std::io::ErrorKind::NotADirectory
+                log::info!("Migrating identities is not necessary; there's no identity directory.");
+                return;
+            }
+            Err(e) => {
+                panic!(
+                    "Something went wrong reading the identities directory: {}",
+                    e
+                );
+            }
+        };
+
+        let identities = entries
             // Parse the session file names
             .filter_map(|entry| {
                 let entry = entry.expect("directory listing");
