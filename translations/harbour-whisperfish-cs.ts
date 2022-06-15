@@ -88,26 +88,26 @@
         <translation>Nová zpráva</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="194"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="199"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Nastavení klienta signálu se nezdařilo</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="199"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="204"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Nastavení úložiště dat se nezdařilo</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="309"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="314"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="313"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="318"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation type="unfinished"></translation>
@@ -371,7 +371,7 @@
         <translation>Uzamčeno</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally" numerus="yes">
-        <location filename="../qml/components/MessagesView.qml" line="141"/>
+        <location filename="../qml/components/MessagesView.qml" line="142"/>
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
@@ -382,31 +382,31 @@
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="366"/>
+        <location filename="../qml/components/MessagesView.qml" line="367"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
         <translation>Reagovat</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="380"/>
+        <location filename="../qml/components/MessagesView.qml" line="381"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Kopírovat</translation>
     </message>
     <message id="whisperfish-forward-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="387"/>
+        <location filename="../qml/components/MessagesView.qml" line="388"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
         <translation>Přeposlat</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="394"/>
+        <location filename="../qml/components/MessagesView.qml" line="395"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
         <translation>Vyberte • další</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="373"/>
+        <location filename="../qml/components/MessagesView.qml" line="374"/>
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
@@ -1268,19 +1268,19 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
-        <location filename="../qml/components/message/InfoRow.qml" line="46"/>
+        <location filename="../qml/components/message/InfoRow.qml" line="41"/>
         <source>no time</source>
         <extracomment>Placeholder note if a message doesn&apos;t have a timestamp (which must not happen).</extracomment>
         <translation>bez času</translation>
     </message>
     <message id="whisperfish-message-show-less">
-        <location filename="../qml/components/message/InfoRow.qml" line="83"/>
+        <location filename="../qml/components/message/InfoRow.qml" line="78"/>
         <source>show less</source>
         <extracomment>Hint for very long messages, while expanded</extracomment>
         <translation>Ukázat méně</translation>
     </message>
     <message id="whisperfish-message-show-more">
-        <location filename="../qml/components/message/InfoRow.qml" line="86"/>
+        <location filename="../qml/components/message/InfoRow.qml" line="81"/>
         <source>show more</source>
         <extracomment>Hint for very long messages, while not expanded</extracomment>
         <translation>zobrazit více</translation>
