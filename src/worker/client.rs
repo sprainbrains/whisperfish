@@ -81,6 +81,7 @@ pub struct ClientWorker {
     ),
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
+    messageNotSent: qt_signal!(sid: i32, mid: i32),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
@@ -839,6 +840,7 @@ impl Handler<SendMessage> for ClientActor {
         let msg = storage.fetch_message_by_id(mid).unwrap();
 
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
+        let session_id = session.id;
 
         if msg.sent_timestamp.is_some() {
             log::warn!("Message already sent, refusing to retransmit.");
@@ -980,6 +982,7 @@ impl Handler<SendMessage> for ClientActor {
                             .await;
                         for result in results {
                             if let Err(e) = result {
+                                storage.fail_message(mid);
                                 anyhow::bail!("Error sending message: {}", e);
                             }
                         }
@@ -991,6 +994,7 @@ impl Handler<SendMessage> for ClientActor {
                             .send_message(&recipient, None, content.clone(), timestamp, online)
                             .await
                         {
+                            storage.fail_message(mid);
                             anyhow::bail!("Error sending message: {}", e);
                         }
                     }
@@ -1012,7 +1016,8 @@ impl Handler<SendMessage> for ClientActor {
                         );
                     }
                     Err(e) => {
-                        log::error!("Sending message: {}", e)
+                        log::error!("Sending message: {}", e);
+                        act.inner.pinned().borrow().messageNotSent(session_id, mid);
                     }
                 };
                 actix::spawn(
@@ -1050,6 +1055,8 @@ impl Handler<StorageReady> for ClientActor {
         self.storage = Some(storageready.storage.clone());
         let tel = self.config.get_tel_clone();
         let uuid = self.config.get_uuid_clone();
+
+        storageready.storage.mark_pending_messages_failed();
 
         let storage_for_password = storageready.storage;
         let request_password = async move {

@@ -100,7 +100,8 @@ SilicaListView {
     function resendInline(listItem) { // call through messageAction()
         // TODO give some kind of feedback on success
         console.log("Resending message:", listItem.modelData.id)
-        MessageModel.sendMessage(listItem.modelData.id) // no remorse needed
+        MessageModel.markPending(listItem.modelData.id) // no remorse needed
+        MessageModel.sendMessage(listItem.modelData.id)
     }
 
     function resendSelected() { // call through messageAction()

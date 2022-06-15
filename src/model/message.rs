@@ -35,8 +35,8 @@ define_model_roles! {
         Flags(flags):                                         "flags",
         Attachments(fn attachments(&self)):                   "attachments",
         Outgoing(is_outbound):                                "outgoing",
-        // FIXME
-        // Queued(queued):                                       "queued",
+        Queued(fn queued(&self)):                             "queued",
+        Failed(sending_has_failed):                           "failed",
 
         // FIXME issue #11 multiple attachments
         Attachment(fn first_attachment(&self) via QString::from): "attachment",
@@ -103,6 +103,8 @@ pub struct MessageModel {
 
     markSent: qt_method!(fn(&self, id: i32)),
     markReceived: qt_method!(fn(&self, id: i32)),
+    markFailed: qt_method!(fn(&self, id: i32)),
+    markPending: qt_method!(fn(&self, id: i32)),
 }
 
 impl MessageModel {
@@ -340,7 +342,7 @@ impl MessageModel {
     /// Note that the id argument was i64 in Go.
     #[with_executor]
     fn markSent(&mut self, id: i32) {
-        self.mark(id, true, false)
+        self.mark(id, true, false, false, false)
     }
 
     /// Mark a message received in QML.
@@ -352,21 +354,35 @@ impl MessageModel {
     /// Note that the id argument was i64 in Go.
     #[with_executor]
     fn markReceived(&mut self, id: i32) {
-        self.mark(id, false, true)
+        self.mark(id, false, true, false, false)
+    }
+
+    /// Mark a message failed
+    #[with_executor]
+    fn markFailed(&mut self, id: i32) {
+        self.mark(id, false, false, true, false)
+    }
+
+    /// Mark a message pending/queued
+    #[with_executor]
+    fn markPending(&mut self, id: i32) {
+        self.mark(id, false, false, false, true)
     }
 
     /// Mark a message sent or received in QML. No database involved.
     ///
     /// Note that the id argument was i64 in Go.
     #[with_executor]
-    fn mark(&mut self, id: i32, mark_sent: bool, mark_received: bool) {
+    fn mark(
+        &mut self,
+        id: i32,
+        mark_sent: bool,
+        mark_received: bool,
+        mark_failed: bool,
+        mark_pending: bool,
+    ) {
         if mark_sent && mark_received {
             log::trace!("Cannot mark message both sent and received");
-            return;
-        }
-
-        if !mark_sent && !mark_received {
-            log::trace!("Cannot mark message both not sent and not received");
             return;
         }
 
@@ -381,6 +397,12 @@ impl MessageModel {
 
                 // XXX: fetch the correct time
                 msg.inner.sent_timestamp = Some(chrono::Utc::now().naive_utc());
+            } else if mark_failed {
+                log::trace!("Mark message {} failed'", id);
+                msg.inner.sending_has_failed = true;
+            } else if mark_pending {
+                log::trace!("Mark message {} failed'", id);
+                msg.inner.sending_has_failed = false;
             } else if mark_received {
                 log::trace!("Mark message {} received '{}'", id, mark_received);
 
