@@ -2,6 +2,8 @@
 %bcond_with lto
 %bcond_with sccache
 %bcond_with tools
+%bcond_with shareplugin_v1
+%bcond_with shareplugin_v2
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -104,13 +106,6 @@ Summary: Share plugin for Whisperfish
 %{summary}
 
 Group: Qt/Qt
-
-if [[ "$(bash %{_sourcedir}/../target_at_least.sh 4.4.0.58)" == "1" ]]
-then
-%define sharingsubdir sharing
-else
-%define sharingsubdir .
-fi
 
 %endif
 # end harbour-whisperfish-shareplugin
@@ -215,6 +210,39 @@ BINS="--bins"
 BINS="--bin harbour-whisperfish"
 %endif
 
+if [ -z "$TARGET_VERSION" ]
+then
+TARGET_VERSION=$(grep VERSION_ID /etc/sailfish-release | cut -d "=" -f2)
+fi
+
+# To make comparing easier: 4.4.0.58 >> 4.4
+MAJOR_VERSION=$(echo $TARGET_VERSION | awk -F. '{print $1 FS $2}')
+
+%if %{with shareplugin_v1}
+%if %{with shareplugin_v2}
+echo "Error: only give shareplugin_v1 or shareplugin_v2"
+exit 1
+%endif
+%endif
+
+%if %{with shareplugin_v2}
+if [[ "$MAJOR_VERSION" < "4.4" ]]
+then
+    echo "Error: trying to compile shareplugin v2 for SFOS < 4.4"
+    exit 1
+fi
+%define sharingsubdir sharing
+%endif
+
+%if %{with shareplugin_v1}
+if [[ ! "$MAJOR_VERSION" < "4.4" ]]
+then
+    echo "Error: trying to compile shareplugin v1 for SFOS >= 4.4"
+    exit 1
+fi
+%define sharingsubdir .
+%endif
+
 cargo build \
           -j 1 \
           --verbose \
@@ -229,18 +257,20 @@ mkdir -p %{targetdir}/shareplugin/
 cd %{targetdir}/shareplugin/
 rm -f *.so *.o moc_*
 
-if [[ "$(bash %{_sourcedir}/../target_at_least.sh 4.4.0.58)" == "1" ]]
-then
+%if %{with shareplugin_v2}
     # Share plugin API v2
     cp -ar %{_sourcedir}/../shareplugin_v2/* .
     %qmake5
     make %{?_smp_mflags}
-else
+%endif
+
+%if %{with shareplugin_v1}
     # Share plugin API v1
     cp -ar %{_sourcedir}/../shareplugin_v1/* .
     %qmake5
     make %{?_smp_mflags}
-fi
+%endif
+
 %endif
 
 %if %{with sccache}
