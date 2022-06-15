@@ -23,16 +23,11 @@ Row {
             if (modelData.read > 0) "../../../icons/icon-s-read.png"
             else if (modelData.delivered > 0) "../../../icons/icon-s-received.png"
             else if (modelData.sent) "../../../icons/icon-s-sent.png"
-            // TODO actually use 'queued' state in model
             else if (modelData.queued) "../../../icons/icon-s-queued.png"
-            // TODO implement 'failed' state in model
             // TODO check if SFOS 4 has "image://theme/icon-s-blocked" (3.4 doesn't)
             else if (modelData.failed) "../../../icons/icon-s-failed.png"
-            // TODO If all states are implemented and used, then we should
-            // change the default state to 'failed'. Until then the default
-            // has to be 'queued' to prevent a new message's icon to jump
-            // from 'failed' to 'received'.
-            else "../../../icons/icon-s-queued.png"
+            // If none of the above options are true, then we assume failure.
+            else "../../../icons/icon-s-failed.png"
         }
     }
 

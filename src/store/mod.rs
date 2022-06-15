@@ -1914,12 +1914,49 @@ impl Storage {
         query.execute(&*db).ok()
     }
 
+    /// Marks all messages that are outbound and unsent as failed.
+    pub fn mark_pending_messages_failed(&self) {
+        let db = self.db.lock();
+
+        let count = diesel::update(schema::messages::table)
+            .filter(
+                schema::messages::sent_timestamp
+                    .is_null()
+                    .and(schema::messages::is_outbound)
+                    .and(schema::messages::sending_has_failed.eq(false)),
+            )
+            .set(schema::messages::sending_has_failed.eq(true))
+            .execute(&*db)
+            .unwrap();
+        let level = if count == 0 {
+            log::Level::Trace
+        } else {
+            log::Level::Warn
+        };
+        log::log!(level, "Set {} messages to failed", count);
+    }
+
+    /// Marks a message as failed to send
+    pub fn fail_message(&self, mid: i32) {
+        log::trace!("Setting message {} to failed", mid);
+        let db = self.db.lock();
+
+        diesel::update(schema::messages::table)
+            .filter(schema::messages::id.eq(mid))
+            .set(schema::messages::sending_has_failed.eq(true))
+            .execute(&*db)
+            .unwrap();
+    }
+
     pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime) {
         let db = self.db.lock();
 
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
-            .set(schema::messages::sent_timestamp.eq(sent_time))
+            .set((
+                schema::messages::sent_timestamp.eq(sent_time),
+                schema::messages::sending_has_failed.eq(false),
+            ))
             .execute(&*db)
             .unwrap();
     }

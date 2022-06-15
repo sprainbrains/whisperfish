@@ -1,0 +1,2 @@
+ALTER TABLE messages
+    ADD COLUMN sending_has_failed BOOLEAN DEFAULT FALSE NOT NULL;

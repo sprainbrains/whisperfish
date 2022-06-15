@@ -171,6 +171,11 @@ ApplicationWindow
         onNotifyMessage: {
             newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup)
         }
+        onMessageNotSent: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+                MessageModel.markFailed(mid)
+            }
+        }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 SessionModel.markSent(sid, message)

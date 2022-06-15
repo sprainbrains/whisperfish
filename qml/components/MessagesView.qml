@@ -100,7 +100,8 @@ SilicaListView {
     function resendInline(listItem) { // call through messageAction()
         // TODO give some kind of feedback on success
         console.log("Resending message:", listItem.modelData.id)
-        MessageModel.sendMessage(listItem.modelData.id) // no remorse needed
+        MessageModel.markPending(listItem.modelData.id) // no remorse needed
+        MessageModel.sendMessage(listItem.modelData.id)
     }
 
     function resendSelected() { // call through messageAction()
@@ -364,14 +365,14 @@ SilicaListView {
                 //: React with emoji to message menu item
                 //% "React"
                 text: qsTrId("whisperfish-react-message-menu")
-                visible: !!(menu.parent && !menu.parent.modelData.queued) // TODO use .failed
+                visible: !!(menu.parent && !menu.parent.modelData.queued && !menu.parent.modelData.failed) // TODO use .failed
                 onClicked: reactInline(menu.parent)
             }
             MenuItem {
                 //: Resend message menu item
                 //% "Retry sending"
                 text: qsTrId("whisperfish-resend-message-menu")
-                visible: !!(menu.parent && menu.parent.modelData.queued)
+                visible: !!(menu.parent && menu.parent.modelData.failed)
                 onClicked: resendInline(menu.parent)
             }
             MenuItem {
