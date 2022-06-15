@@ -245,7 +245,7 @@ fi
 
 cargo build \
           -j 1 \
-          --verbose \
+          -vv \
           --release \
           --no-default-features \
           $BINS \

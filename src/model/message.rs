@@ -34,8 +34,8 @@ define_model_roles! {
 
         Sent(fn sent(&self)):                                 "sent",
         Flags(flags):                                         "flags",
-        ThumbsAttachments(fn visual_attachments(&self)):                   "thumbsAttachments",
-        DetailAttachments(fn detail_attachments(&self)):                   "detailAttachments",
+        ThumbsAttachments(fn visual_attachments(&self)):      "thumbsAttachments",
+        DetailAttachments(fn detail_attachments(&self)):      "detailAttachments",
         Outgoing(is_outbound):                                "outgoing",
         Queued(fn queued(&self)):                             "queued",
         Failed(sending_has_failed):                           "failed",
@@ -64,7 +64,7 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
     fn from(inner: AugmentedMessage) -> Self {
         let (visual, detail) =
             inner.attachments.iter().cloned().partition(|x| {
-                x.content_type.contains("image") || x.content_type.contains("image")
+                x.content_type.contains("image") || x.content_type.contains("video")
             });
 
         let visual_attachments = AttachmentModel {
@@ -679,32 +679,44 @@ define_model_roles! {
 pub struct AttachmentModel {
     base: qt_base_class!(trait QAbstractListModel),
     attachments: Vec<Attachment>,
+
+    count: qt_property!(i32; NOTIFY rowCountChanged READ row_count),
+
+    /// Gets the nth item of the model, serialized as byte array
+    get: qt_method!(fn(&self, idx: i32) -> QByteArray),
+
+    rowCountChanged: qt_signal!(),
+}
+
+impl AttachmentModel {
+    // XXX When we're able to run Rust 1.a-bit-more, with qmetaobject 0.2.7+, we have QVariantMap.
+    fn get(&self, idx: i32) -> QByteArray {
+        let mut map = qmetaobject::QJsonObject::default();
+
+        for (k, v) in self.role_names() {
+            let idx = self.row_index(idx);
+            map.insert(
+                v.to_str().expect("only utf8 role names"),
+                self.data(idx, k).into(),
+            );
+        }
+
+        map.to_json()
+    }
 }
 
 impl QtAugmentedMessage {
     fn detail_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
-        log::trace!(
-            "Qt requesting detail attachments ({})",
-            self.detail_attachments.pinned().borrow().attachments.len()
-        );
         self.detail_attachments.pinned()
     }
 
     fn visual_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
-        log::trace!(
-            "Qt requesting visual attachments ({})",
-            self.visual_attachments.pinned().borrow().attachments.len()
-        );
         self.visual_attachments.pinned()
     }
 }
 
 impl QAbstractListModel for AttachmentModel {
     fn row_count(&self) -> i32 {
-        log::trace!(
-            "Qt requesting attachment count ({})",
-            self.attachments.len()
-        );
         self.attachments.len() as i32
     }
 

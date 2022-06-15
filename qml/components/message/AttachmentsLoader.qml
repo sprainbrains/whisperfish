@@ -81,7 +81,7 @@ Loader {
         id: mediaComponent_1
         AttachmentThumbnail {
             anchors.fill: parent
-            attach: thumbsAttachments[0]
+            attach: JSON.parse(thumbsAttachments.get(0))
             onPressAndHold: root.pressAndHold(mouse)
             enabled: !listView.isSelecting
         }
@@ -93,12 +93,12 @@ Loader {
             enabled: !listView.isSelecting
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
-                attach: thumbsAttachments[0]
+                attach: JSON.parse(thumbsAttachments.get(0))
                 onPressAndHold: root.pressAndHold(mouse)
             }
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
-                attach: thumbsAttachments[1]
+                attach: JSON.parse(thumbsAttachments.get(1))
                 onPressAndHold: root.pressAndHold(mouse)
             }
         }
@@ -110,7 +110,7 @@ Loader {
             enabled: !listView.isSelecting
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
-                attach: thumbsAttachments[0]
+                attach: JSON.parse(thumbsAttachments.get(0))
                 onPressAndHold: root.pressAndHold(mouse)
             }
 
@@ -118,12 +118,12 @@ Loader {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: thumbsAttachments[1]
+                    attach: JSON.parse(thumbsAttachments.get(1))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: thumbsAttachments[2]
+                    attach: JSON.parse(thumbsAttachments.get(2))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -138,12 +138,12 @@ Loader {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: thumbsAttachments[0]
+                    attach: JSON.parse(thumbsAttachments.get(0))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: thumbsAttachments[1]
+                    attach: JSON.parse(thumbsAttachments.get(1))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -151,12 +151,12 @@ Loader {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: thumbsAttachments[2]
+                    attach: JSON.parse(thumbsAttachments.get(2))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: thumbsAttachments[3]
+                    attach: JSON.parse(thumbsAttachments.get(3))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -171,12 +171,12 @@ Loader {
                 width: parent.width; height: parent.height/5*3
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
-                    attach: thumbsAttachments[0]
+                    attach: JSON.parse(thumbsAttachments.get(0))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
-                    attach: thumbsAttachments[1]
+                    attach: JSON.parse(thumbsAttachments.get(1))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -184,18 +184,18 @@ Loader {
                 width: parent.width; height: parent.height/5*2
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
-                    attach: thumbsAttachments[2]
+                    attach: JSON.parse(thumbsAttachments.get(2))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
-                    attach: thumbsAttachments[3]
+                    attach: JSON.parse(thumbsAttachments.get(3))
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     id: showMoreThumb
                     width: parent.width/3; height: parent.height
-                    attach: thumbsAttachments[4]
+                    attach: JSON.parse(thumbsAttachments.get(4))
                     onPressAndHold: root.pressAndHold(mouse)
 
                     OpacityRampEffect {
@@ -297,7 +297,7 @@ Loader {
     Component {
         id: detail_contactComponent
         AttachmentItemContact {
-            attach: detailAttachments.get(currentAttachmentIndex)
+            attach: JSON.parse(detailAttachments.get(currentAttachmentIndex))
             onPressAndHold: root.pressAndHold(mouse)
         }
     }
@@ -305,7 +305,7 @@ Loader {
     Component {
         id: detail_audioComponent
         AttachmentItemAudio {
-            attach: detailAttachments.get(currentAttachmentIndex)
+            attach: JSON.parse(detailAttachments.get(currentAttachmentIndex))
             onPressAndHold: root.pressAndHold(mouse)
         }
     }
@@ -313,7 +313,7 @@ Loader {
     Component {
         id: detail_fileComponent
         AttachmentItemFile {
-            attach: detailAttachments.get(currentAttachmentIndex)
+            attach: JSON.parse(detailAttachments.get(currentAttachmentIndex))
             onPressAndHold: root.pressAndHold(mouse)
         }
     }
