@@ -41,13 +41,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="263"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Losmaken</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="266"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bovenaan vastzetten</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="275"/>
@@ -67,13 +67,13 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="286"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Terugzetten naar postvak in</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="289"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gesprek archiveren</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="296"/>
@@ -116,31 +116,31 @@
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Toon gearchiveerde gesprekken</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Keer terug naar gesprekken</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gesprekken</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gearchiveerde gesprekken</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vastgezet</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
@@ -182,13 +182,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beschrijving</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfis in een onofficiële, maar geavanceerde Signal-client voor Sailfish OS. Whisperfish is erg bruikbaar, maar wordt nog beschouwd als beta software. Zorg ervoor dat je regelmatig updatet! Kijk ook eens naar onze Wiki en voel je vrij om erin te schrijven! Contacteer nooit de Signal ontwikkelaars met een Whisperfish-probleem, maar contacteer ons direct!.</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -333,13 +333,13 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kijk na of er updates zijn</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Deze Whisperfish-versie is meer dan 90 dagen oud. Kijk na of er updates zijn om Whisperfish werkend te houden.</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
@@ -631,13 +631,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="73"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Land of regio</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="78"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Niet geselecteerd</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="174"/>
