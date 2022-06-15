@@ -62,6 +62,7 @@ SilicaItem {
     property real leftMargin: 1.5*Theme.horizontalPageMargin
     property real rightMargin: Theme.horizontalPageMargin
     property real _preferredHeight: page && page.isLandscape ? Theme.itemSizeSmall : Theme.itemSizeLarge
+    property string isTypingMessage: ""
 
     Component.onCompleted: {
         if (!page) {
@@ -72,7 +73,7 @@ SilicaItem {
 
     width: parent ? parent.width : Screen.width
     // set height that keeps the first line of text aligned with the page indicator
-    height: Math.max(headerText.y + headerText.height + _descriptionLabel.height + Theme.paddingMedium,
+    height: Math.max(headerText.y + headerText.height + _descriptionLabel.height + _isTypingLabel.height + Theme.paddingMedium,
                      _preferredHeight)
 
     Label {
@@ -100,9 +101,13 @@ SilicaItem {
 
     Label {
         id: _descriptionLabel
-        height: descrMetrics.height // force non-null height
+        height: text.length > 0 ? descrMetrics.height : 0
+        Behavior on height {
+            NumberAnimation {}
+        }
+        clip: true
         anchors {
-            top: parent._titleItem.bottom
+            top: _titleItem.bottom
             right: parent.right; rightMargin: parent.rightMargin
             left: extraContent.right; leftMargin: Theme.paddingMedium
         }
@@ -113,12 +118,55 @@ SilicaItem {
         truncationMode: TruncationMode.Fade
         text: pageHeader.description
         wrapMode: pageHeader.wrapMode
-        visible: pageHeader.description.length > 0
 
         TextMetrics {
             id: descrMetrics
             text: "X"
             font.pixelSize: Theme.fontSizeSmall
+        }
+    }
+
+    Label {
+        id: _isTypingLabel
+        height: incomingText.length > 0 ? isTypingMetrics.height : 0
+        Behavior on height {
+            NumberAnimation {}
+        }
+        clip: true
+        anchors {
+            top: _descriptionLabel.bottom
+            right: parent.right; rightMargin: parent.rightMargin
+            left: extraContent.right; leftMargin: Theme.paddingMedium
+        }
+        font.pixelSize: Theme.fontSizeSmall
+        color: highlighted ? Theme.secondaryColor : Theme.secondaryHighlightColor
+        horizontalAlignment: wrapMode === Text.NoWrap && implicitWidth > width ?
+                                 Text.AlignLeft : Text.AlignRight
+        truncationMode: TruncationMode.Fade
+        property string incomingText: pageHeader.isTypingMessage
+        text: incomingText
+        wrapMode: pageHeader.wrapMode
+        onIncomingTextChanged: {
+            if(incomingText.length > 0) {
+                text = incomingText
+                clearTypingTimer.restart()
+            }
+        }
+
+        TextMetrics {
+            id: isTypingMetrics
+            text: "X"
+            font.pixelSize: Theme.fontSizeSmall
+        }
+
+        Timer {
+            id: clearTypingTimer
+            running: true
+            repeat: false
+            interval: 5000
+            onTriggered: {
+                pageHeader.isTypingMessage = "";
+            }
         }
     }
 
