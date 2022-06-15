@@ -111,6 +111,30 @@ Item {
         Behavior on opacity { FadeAnimator { } }
     }
 
+    Timer {
+        id: sendIsTypingTimer
+        running: false
+        repeat: false
+        // XXX Fine tune the timer values -- this should be longer
+        interval: 5000
+        property bool shouldSend: false
+        onShouldSendChanged: {
+            if(shouldSend) {
+                if(!running) {
+                    console.log("STUB: Send 'I am typing...' message")
+                    shouldSend = false
+                    start()
+                }
+                shouldSend = false
+            }
+        }
+        onTriggered: {
+            if(shouldSend) {
+                restart()
+            }
+        }
+    }
+
     Column {
         id: column
         width: parent.width
@@ -186,6 +210,9 @@ Item {
                         _send()
                     }
                 }
+
+                // XXX Add config value check here
+                onTextChanged: sendIsTypingTimer.shouldSend = text.length > 0;
             }
 
             IconButton {

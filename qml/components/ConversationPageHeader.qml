@@ -147,6 +147,7 @@ SilicaItem {
         text: incomingText
         wrapMode: pageHeader.wrapMode
         onIncomingTextChanged: {
+            // XXX Add config value check here (or perhaps a lot earlier)
             if(incomingText.length > 0) {
                 text = incomingText
                 clearTypingTimer.restart()
@@ -163,6 +164,7 @@ SilicaItem {
             id: clearTypingTimer
             running: true
             repeat: false
+            // XXX Fine tune the timer values -- this should shorter
             interval: 5000
             onTriggered: {
                 pageHeader.isTypingMessage = "";
