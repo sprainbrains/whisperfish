@@ -158,9 +158,21 @@ impl SessionModel {
     }
 
     #[with_executor]
-    fn markReceived(&self, _id: usize) {
-        log::trace!("STUB: Mark received called");
+    fn markReceived(&mut self, id: usize) {
+        log::trace!("Mark received called");
         // XXX: don't forget sync messages
+        if let Some((idx, session)) = self
+            .content
+            .iter_mut()
+            .enumerate()
+            .find(|(_, s)| s.id == id as i32)
+        {
+            if let Some(message) = &mut session.last_message {
+                message.message.is_read = true;
+            }
+            let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
+            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+        }
     }
 
     #[with_executor]
