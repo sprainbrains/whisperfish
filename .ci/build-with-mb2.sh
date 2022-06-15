@@ -59,6 +59,15 @@ use_ssl = false
 key_prefix = "$SCCACHE_S3_KEY_PREFIX"
 EOF
 
+MAJOR_VERSION=$(echo $TARGET_VERSION | awk -F. '{print $1 FS $2}')
+
+if [[ "$MAJOR_VERSION" < "4.4" ]]
+then
+    SHAREPLUGIN="shareplugin_v1"
+else
+    SHAREPLUGIN="shareplugin_v2"
+fi
+
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     --enable-debug \
     --no-check \
@@ -68,6 +77,7 @@ mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     --with lto \
     --with sccache \
     --with tools \
+    --with $SHAREPLUGIN \
 
 rm -rf $TMPDIR
 export TMPDIR="$TMPDIR2"
