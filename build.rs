@@ -73,20 +73,6 @@ fn protobuf() -> anyhow::Result<()> {
 fn main() {
     protobuf().unwrap();
 
-    // Print a warning when rustc is too old.
-    if !version_check::is_min_version("1.48.0").unwrap_or(false) {
-        if let Some(version) = version_check::Version::read() {
-            panic!(
-                "Whisperfish requires Rust 1.48.0 or later.  You are using rustc {}",
-                version
-            );
-        } else {
-            panic!(
-                "Whisperfish requires Rust 1.48.0 or later, but could not determine Rust version.",
-            );
-        }
-    }
-
     let qt_include_path = qmake_query("QT_INSTALL_HEADERS").expect("QMAKE");
     let qt_include_path = qt_include_path.trim();
 
