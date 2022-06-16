@@ -199,6 +199,7 @@ pub struct Attachment {
     pub display_order: i32,
     pub upload_timestamp: NaiveDateTime,
     pub cdn_number: Option<i32>,
+    pub caption: Option<String>,
 }
 
 #[derive(Debug, Clone)]

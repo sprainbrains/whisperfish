@@ -30,6 +30,7 @@ table! {
         display_order -> Integer,
         upload_timestamp -> Timestamp,
         cdn_number -> Nullable<Integer>,
+        caption -> Nullable<Text>,
     }
 }
 
