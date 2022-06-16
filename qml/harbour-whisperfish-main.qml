@@ -5,6 +5,9 @@ import Nemo.DBus 2.0
 import org.nemomobile.contacts 1.0
 import "pages"
 
+// Note: This is the main QML file for Whisperfish.
+// The reCaptcha helper uses harbour-whisperfish.qml by design.
+
 ApplicationWindow
 {
     id: mainWindow
