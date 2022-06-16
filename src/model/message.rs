@@ -39,10 +39,6 @@ define_model_roles! {
         Outgoing(is_outbound):                                "outgoing",
         Queued(fn queued(&self)):                             "queued",
         Failed(sending_has_failed):                           "failed",
-
-        // FIXME issue #11 multiple attachments
-        Attachment(fn first_attachment(&self) via QString::from): "attachment",
-        AttachmentMimeType(fn first_attachment_mime_type(&self) via QString::from): "mimeType",
     }
 }
 
@@ -113,7 +109,6 @@ pub struct MessageModel {
     sessionIdChanged: qt_signal!(),
     groupChanged: qt_signal!(),
 
-    openAttachment: qt_method!(fn(&self, index: usize)),
     createGroupMessage: qt_method!(
         fn(
             &self,
@@ -148,32 +143,6 @@ pub struct MessageModel {
 }
 
 impl MessageModel {
-    #[with_executor]
-    fn openAttachment(&mut self, idx: usize) {
-        let msg = if let Some(msg) = self.messages.get(idx) {
-            msg
-        } else {
-            log::error!("[attachment] Message not found at index {}", idx);
-            return;
-        };
-
-        // XXX move this method to its own model.
-        let attachment = msg.first_attachment();
-
-        log::debug!("[attachment] Open by index {:?}: {}", idx, &attachment);
-
-        match Command::new("xdg-open").arg(attachment).status() {
-            Ok(status) => {
-                if !status.success() {
-                    log::error!("[attachment] fail");
-                }
-            }
-            Err(e) => {
-                log::error!("[attachment] Error {}", e);
-            }
-        }
-    }
-
     #[with_executor]
     fn createGroupMessage(
         &mut self,
@@ -685,6 +654,8 @@ pub struct AttachmentModel {
     /// Gets the nth item of the model, serialized as byte array
     get: qt_method!(fn(&self, idx: i32) -> QByteArray),
 
+    open: qt_method!(fn(&self, idx: i32)),
+
     rowCountChanged: qt_signal!(),
 }
 
@@ -702,6 +673,33 @@ impl AttachmentModel {
         }
 
         map.to_json()
+    }
+
+    #[with_executor]
+    fn open(&mut self, idx: i32) {
+        let attachment = if let Some(attachment) = self.attachments.get(idx as usize) {
+            attachment
+        } else {
+            log::error!("[attachment] Message not found at index {}", idx);
+            return;
+        };
+        let attachment = if let Some(path) = &attachment.attachment_path {
+            path
+        } else {
+            log::error!("[attachment] Opening attachment without path (idx {})", idx);
+            return;
+        };
+
+        match Command::new("xdg-open").arg(attachment).status() {
+            Ok(status) => {
+                if !status.success() {
+                    log::error!("[attachment] fail");
+                }
+            }
+            Err(e) => {
+                log::error!("[attachment] Error {}", e);
+            }
+        }
     }
 }
 
