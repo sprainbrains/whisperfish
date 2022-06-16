@@ -155,6 +155,12 @@ ApplicationWindow
                 MessageModel.reload_message(mid)
             }
         }
+        onAttachmentDownloaded: {
+            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+                MessageModel.reload_message(mid)
+            }
+            SessionModel.add(sid, false)
+        }
         onMessageReceipt: {
             if(mid > 0 && pageStack.currentPage.objectName == conversationPageName) {
                 MessageModel.markReceived(mid)
