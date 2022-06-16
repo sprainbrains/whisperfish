@@ -88,26 +88,26 @@
         <translation>Nova mensagem</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="199"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="205"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Não foi possível configurar cliente Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="204"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="210"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Não foi possível configurar o armazenamento de dados</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="314"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="320"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Armazenamento de dados do Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="318"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="324"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Armazenar definições e mensagens</translation>
@@ -1295,13 +1295,13 @@ Settings page share contacts</extracomment>
         <translation>Anexo</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="179"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="176"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation>sem remetente</translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="234"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="231"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation>mensagem vazia</translation>
