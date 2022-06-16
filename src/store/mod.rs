@@ -7,7 +7,7 @@ use anyhow::Context;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
-use libsignal_service::proto::{data_message::Reaction, DataMessage};
+use libsignal_service::proto::{attachment_pointer, data_message::Reaction, DataMessage};
 use parking_lot::ReentrantMutex;
 
 use crate::schema;
@@ -1621,20 +1621,35 @@ impl Storage {
             .expect("mark session (un)pinned");
     }
 
-    pub fn register_attachment(&mut self, mid: i32, path: &str, mime_type: &str) {
-        // XXX: multiple attachments https://gitlab.com/whisperfish/whisperfish/-/issues/11
-
+    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
         let db = self.db.lock();
 
-        diesel::insert_into(schema::attachments::table)
+        use schema::attachments::dsl::*;
+
+        diesel::insert_into(attachments)
             .values((
-                // XXX: many more things to store !
-                schema::attachments::message_id.eq(mid),
-                schema::attachments::content_type.eq(mime_type),
-                schema::attachments::attachment_path.eq(path),
-                schema::attachments::is_voice_note.eq(false),
-                schema::attachments::is_borderless.eq(false),
-                schema::attachments::is_quote.eq(false),
+                // XXX: many more things to store:
+                // - display order
+                // - transform properties
+
+                // First the fields that borrow, but are `Copy` through an accessor method
+                is_voice_note
+                    .eq(attachment_pointer::Flags::VoiceMessage as i32 & ptr.flags() as i32 != 0),
+                is_borderless
+                    .eq(attachment_pointer::Flags::Borderless as i32 & ptr.flags() as i32 != 0),
+                upload_timestamp.eq(millis_to_naive_chrono(ptr.upload_timestamp())),
+                cdn_number.eq(ptr.cdn_number() as i32),
+                content_type.eq(ptr.content_type().to_string()),
+                // Then the fields that we immediately access
+                is_quote.eq(false),
+                message_id.eq(mid),
+                attachment_path.eq(path),
+                visual_hash.eq(ptr.blur_hash),
+                file_name.eq(ptr.file_name),
+                caption.eq(ptr.caption),
+                data_hash.eq(ptr.digest),
+                width.eq(ptr.width.map(|x| x as i32)),
+                height.eq(ptr.height.map(|x| x as i32)),
             ))
             .execute(&*db)
             .expect("insert attachment");
