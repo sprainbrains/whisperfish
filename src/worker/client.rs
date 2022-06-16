@@ -815,8 +815,8 @@ impl Handler<FetchAttachment> for ClientActor {
 
                 storage.register_attachment(
                     message_id,
+                    ptr,
                     attachment_path.to_str().expect("attachment path utf-8"),
-                    ptr.content_type(),
                 );
                 client_addr
                     .send(AttachmentDownloaded {

@@ -147,12 +147,16 @@ async fn main() -> Result<(), anyhow::Error> {
 
     storage.register_attachment(
         mid,
+        // Reconstruct attachment pointer
+        AttachmentPointer {
+            content_type: Some(opt.mime_type),
+            ..Default::default()
+        },
         attachment_path
             .canonicalize()
             .unwrap()
             .to_str()
             .expect("attachment path utf-8"),
-        &opt.mime_type,
     );
     log::info!("Attachment registered with message {:?}", msg);
     Ok(())
