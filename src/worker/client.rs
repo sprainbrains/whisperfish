@@ -720,8 +720,8 @@ impl Handler<FetchAttachment> for ClientActor {
         ctx: &mut <Self as Actor>::Context,
     ) -> Self::Result {
         let FetchAttachment {
-            session_id: sid,
-            message_id: mid,
+            session_id,
+            message_id,
             dest,
             ptr,
         } = fetch;
@@ -814,14 +814,14 @@ impl Handler<FetchAttachment> for ClientActor {
                 let attachment_path = storage.save_attachment(&dest, ext, &ciphertext).await?;
 
                 storage.register_attachment(
-                    mid,
+                    message_id,
                     attachment_path.to_str().expect("attachment path utf-8"),
                     ptr.content_type(),
                 );
                 client_addr
                     .send(AttachmentDownloaded {
-                        session_id: sid,
-                        message_id: mid,
+                        session_id,
+                        message_id,
                     })
                     .await?;
                 Ok(())
@@ -832,7 +832,7 @@ impl Handler<FetchAttachment> for ClientActor {
                 if let Err(e) = r {
                     let e = format!(
                         "Error fetching attachment for message with ID `{}` {:?}: {:?}",
-                        mid, ptr2, e
+                        message_id, ptr2, e
                     );
                     log::error!("{}", e);
                     let mut log = act.attachment_log();
