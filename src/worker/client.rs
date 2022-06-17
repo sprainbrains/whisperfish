@@ -637,8 +637,19 @@ impl ClientActor {
                     log::warn!("Sync message without known sync type");
                 }
             }
-            ContentBody::TypingMessage(_typing) => {
+            ContentBody::TypingMessage(typing) => {
                 log::info!("{} is typing.", metadata.sender);
+                let res = self
+                    .inner
+                    .pinned()
+                    .borrow()
+                    .session_actor
+                    .as_ref()
+                    .expect("session actor running")
+                    .try_send(crate::actor::TypingNotification(typing));
+                if let Err(e) = res {
+                    log::error!("Could not send typing notification to SessionActor: {}", e);
+                }
             }
             ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender);

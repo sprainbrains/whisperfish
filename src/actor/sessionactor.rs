@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::actor::{FetchSession, UpdateSession};
 
 use crate::gui::StorageReady;
@@ -7,6 +9,9 @@ use crate::store::{orm, Storage};
 
 use actix::prelude::*;
 use qmetaobject::prelude::*;
+
+mod typing_notifications;
+pub use typing_notifications::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -67,6 +72,8 @@ pub struct LoadAllSessions;
 pub struct SessionActor {
     inner: QObjectBox<SessionModel>,
     storage: Option<Storage>,
+
+    typing_queue: VecDeque<TypingQueueItem>,
 }
 
 impl SessionActor {
@@ -77,6 +84,7 @@ impl SessionActor {
         Self {
             inner,
             storage: None,
+            typing_queue: VecDeque::new(),
         }
     }
 }
