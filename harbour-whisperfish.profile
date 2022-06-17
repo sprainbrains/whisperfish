@@ -21,5 +21,7 @@
 whitelist ${HOME}/.local/share/sailor-emoji
 read-only ${HOME}/.local/share/sailor-emoji
 
+private-bin /usr/bin/sailfish-qml
+
 dbus-user.own org.whisperfish.*
 dbus-user.own be.rubdos.whisperfish.*

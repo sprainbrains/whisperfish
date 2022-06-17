@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import Sailfish.Silica 1.0
+import Nemo.DBus 2.0
 import "../components"
 import "../js/countries.js" as CallingCodes
 
@@ -44,7 +45,7 @@ BlockingInfoPageBase {
         // We wait till the backend calls to continue.
         target: Prompt
         onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
-        onPromptCaptcha: console.log("STUB: Launch the Whisperfish reCaptcha helper application")
+        onPromptCaptcha: Prompt.startCaptcha()
         onPromptPhoneNumber: _retry()
     }
 
@@ -62,7 +63,7 @@ BlockingInfoPageBase {
         iface: "be.rubdos.whisperfish.captcha"
 
         function handleCaptcha(code) {
-            console.log("Captcha received:", code);
+            Prompt.captcha(code)
             activate()
         }
     }

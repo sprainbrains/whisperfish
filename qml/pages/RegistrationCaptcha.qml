@@ -22,6 +22,16 @@ WebViewPage {
         iface: "be.rubdos.whisperfish.captcha"
     }
 
+	Timer {
+		id: closeTimer
+		interval: 3000
+		running: false
+		repeat: false
+		onTriggered: Qt.quit()
+	}
+
+	// XXX Maybe put a PageHeader and a short text here?
+
 	WebView {
 		id: webView
 
@@ -60,14 +70,13 @@ WebViewPage {
 				[code],
 				function () {
 					console.log("Captcha code sent!")
-					Qt.quit(0)
+					closeTimer.start()
 				},
 				function (error, message) {
 					console.log('Sending captcha code failed: ' + error + ' message: ' + message)
-					Qt.quit(1)
+					closeTimer.start()
 				}
 			)
-
 		}
 
 		onUrlChanged: {
