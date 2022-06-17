@@ -646,7 +646,10 @@ impl ClientActor {
                     .session_actor
                     .as_ref()
                     .expect("session actor running")
-                    .try_send(crate::actor::TypingNotification(typing));
+                    .try_send(crate::actor::TypingNotification {
+                        typing,
+                        sender: metadata.sender,
+                    });
                 if let Err(e) = res {
                     log::error!("Could not send typing notification to SessionActor: {}", e);
                 }

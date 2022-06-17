@@ -146,29 +146,11 @@ SilicaItem {
         property string incomingText: pageHeader.isTypingMessage
         text: incomingText
         wrapMode: pageHeader.wrapMode
-        onIncomingTextChanged: {
-            // XXX Add config value check here (or perhaps a lot earlier)
-            if(incomingText.length > 0) {
-                text = incomingText
-                clearTypingTimer.restart()
-            }
-        }
 
         TextMetrics {
             id: isTypingMetrics
             text: "X"
             font.pixelSize: Theme.fontSizeSmall
-        }
-
-        Timer {
-            id: clearTypingTimer
-            running: true
-            repeat: false
-            // XXX Fine tune the timer values -- this should shorter
-            interval: 5000
-            onTriggered: {
-                pageHeader.isTypingMessage = "";
-            }
         }
     }
 
