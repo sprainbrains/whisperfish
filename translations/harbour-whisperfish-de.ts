@@ -182,13 +182,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish ist ein inoffizieller, aber fortschrittlicher Signal-Client für Sailfish OS. Whisperfish ist sehr brauchbar, wird aber noch als Beta-Software betrachtet. Stellen Sie sicher, dass Sie regelmäßig aktualisieren! Besuchen Sie auch unser Wiki und tragen Sie gerne dazu bei! Wenden Sie sich niemals an die Signal-Entwickler, wenn Sie ein Problem mit Whisperfish haben, sondern an uns!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -333,13 +333,13 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bitte prüfen Sie auf Aktualisierungen</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diese Whisperfish-Version ist mehr als 90 Tage alt. Bitte prüfen Sie, ob ein Update verfügbar ist, damit Whisperfish weiterhin reibungslos funktioniert.</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
@@ -631,13 +631,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="73"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Land oder Gebiet</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="78"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nicht ausgewählt</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="174"/>
