@@ -443,15 +443,23 @@ impl SessionModel {
         // too.
         for i in 0..self.content.len() {
             let session = &mut self.content[i];
-            if let Some(typers) = typings.remove(&session.id) {
+            let changed = if let Some(typers) = typings.remove(&session.id) {
                 let lhs: HashSet<i32> = session.typing.iter().map(|s| s.id).collect();
                 let rhs: HashSet<i32> = typers.iter().map(|s| s.id).collect();
 
                 session.typing = typers;
-                if lhs != rhs {
-                    let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
-                    (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
-                }
+                lhs != rhs
+            } else if !session.typing.is_empty() {
+                log::trace!("Clearing typing for session id {} at row {}", session.id, i);
+                session.typing.clear();
+                true
+            } else {
+                false
+            };
+            if changed {
+                log::trace!("Updating model for changed typings");
+                let idx = self.row_index(i as i32);
+                self.data_changed(idx, idx);
             }
         }
 
@@ -705,11 +713,13 @@ impl AugmentedSession {
     }
 
     fn is_typing(&self) -> bool {
+        log::trace!("QML request is_typing");
         !self.typing.is_empty()
     }
 
     // XXX exposing this as a model would be nicer, but it'll do for now.
     fn typing(&self) -> qmetaobject::QVariantList {
+        log::trace!("QML request typing");
         let mut lst = qmetaobject::QVariantList::default();
         for t in &self.typing {
             lst.push(QString::from(t.e164_or_uuid()).into());

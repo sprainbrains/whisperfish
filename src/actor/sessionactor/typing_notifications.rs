@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use super::*;
 use chrono::prelude::*;
-use libsignal_service::{proto::TypingMessage, ServiceAddress};
+use libsignal_service::{
+    proto::{typing_message, TypingMessage},
+    ServiceAddress,
+};
 
 // FIXME: chrono::Duration::seconds is not a const_fn.
 const TYPING_EXIPIRY_DELAY: std::time::Duration = std::time::Duration::from_secs(5);
@@ -38,23 +41,27 @@ impl Handler<TypingNotification> for SessionActor {
         } else {
             Utc::now()
         };
-        let expire = started + chrono::Duration::from_std(TYPING_EXIPIRY_DELAY).unwrap();
-        if expire < Utc::now() {
-            log::debug!(
-                "Received a typing notification too late (sent {}, now is {}, expired {}).",
-                started,
-                Utc::now(),
-                expire,
-            );
-            return;
-        }
+        if typing.action() == typing_message::Action::Started {
+            let expire = started + chrono::Duration::from_std(TYPING_EXIPIRY_DELAY).unwrap();
+            if expire < Utc::now() {
+                log::debug!(
+                    "Received a typing notification too late (sent {}, now is {}, expired {}).",
+                    started,
+                    Utc::now(),
+                    expire,
+                );
+                return;
+            }
 
-        // XXX This assumes action == Started. Prune action == Stopped
-        self.typing_queue.push_back(TypingQueueItem {
-            inner: typing,
-            sender,
-            expire,
-        });
+            self.typing_queue.push_back(TypingQueueItem {
+                inner: typing,
+                sender,
+                expire,
+            });
+        } else {
+            self.typing_queue
+                .retain(|item| !(item.inner.group_id == typing.group_id && item.sender == sender));
+        }
 
         ctx.notify(UpdateTypingNotifications);
     }
@@ -131,15 +138,19 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
             Ok(map)
         };
 
-        Box::pin(fetch_sessions.into_actor(self).map(|result, act, _ctx| {
-            match result {
-                Ok(typings) => act
-                    .inner
-                    .pinned()
-                    .borrow_mut()
-                    .handle_update_typing(typings),
-                Err(e) => log::error!("Could not process typings: {}", e),
-            }
-        }))
+        Box::pin(
+            fetch_sessions
+                .into_actor(self)
+                .map(|result, act, _ctx| match result {
+                    Ok(typings) => {
+                        log::info!("Sending typings {:?} to model", typings);
+                        act.inner
+                            .pinned()
+                            .borrow_mut()
+                            .handle_update_typing(typings);
+                    }
+                    Err(e) => log::error!("Could not process typings: {}", e),
+                }),
+        )
     }
 }

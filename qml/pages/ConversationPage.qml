@@ -20,6 +20,10 @@ Page {
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
 
+    function setTyping(message) {
+        pageHeader.isTypingMessage = message;
+    }
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
             SessionModel.markRead(MessageModel.sessionId)
