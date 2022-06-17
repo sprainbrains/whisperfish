@@ -44,7 +44,7 @@ BlockingInfoPageBase {
         // We wait till the backend calls to continue.
         target: Prompt
         onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
-        onPromptCaptcha: pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"))
+        onPromptCaptcha: console.log("STUB: Launch the Whisperfish reCaptcha helper application")
         onPromptPhoneNumber: _retry()
     }
 
@@ -53,6 +53,17 @@ BlockingInfoPageBase {
         onInvalidPhoneNumber: {
             console.log("invalid phone number")
             _retry()
+        }
+    }
+
+    DBusAdaptor {
+        service: "be.rubdos.whisperfish"
+        path: "/be/rubdos/whisperfish/captcha"
+        iface: "be.rubdos.whisperfish.captcha"
+
+        function handleCaptcha(code) {
+            console.log("Captcha received:", code);
+            activate()
         }
     }
 

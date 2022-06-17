@@ -1,6 +1,10 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.WebView 1.0
+import Nemo.DBus 2.0
+
+// Warning: Do not use this page within Whisperfish:
+// Clashing sqlite and sqlcipher causes mozembedded to crash.
 
 WebViewPage {
 	id: page
@@ -10,6 +14,13 @@ WebViewPage {
 	backNavigation: false
 	forwardNavigation: false
 	showNavigationIndicator: false
+
+    DBusInterface {
+        id: whisperfishApp
+        service: "be.rubdos.whisperfish"
+        path: "/be/rubdos/whisperfish/captcha"
+        iface: "be.rubdos.whisperfish.captcha"
+    }
 
 	WebView {
 		id: webView
@@ -44,10 +55,19 @@ WebViewPage {
 		}
 
 		function complete(code) {
-			Prompt.captcha(code);
-			if (!pageStack.busy) {
-				pageStack.pop();
-			}
+			whisperfishApp.call(
+				"handleCaptcha",
+				[code],
+				function () {
+					console.log("Captcha code sent!")
+					Qt.quit(0)
+				},
+				function (error, message) {
+					console.log('Sending captcha code failed: ' + error + ' message: ' + message)
+					Qt.quit(1)
+				}
+			)
+
 		}
 
 		onUrlChanged: {
