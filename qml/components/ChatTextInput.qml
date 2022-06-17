@@ -26,6 +26,7 @@ Item {
     property bool enableSending: true
     property bool enableAttachments: true
     property bool dockMoving
+    property bool enableTypingIndicators: SettingsBridge.boolValue("enable_typing_indicators")
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
@@ -119,7 +120,7 @@ Item {
         interval: 5000
         property bool shouldSend: false
         onShouldSendChanged: {
-            if(shouldSend) {
+            if(enableTypingIndicators && shouldSend) {
                 if(!running) {
                     console.log("STUB: Send 'I am typing...' message")
                     shouldSend = false
@@ -211,8 +212,11 @@ Item {
                     }
                 }
 
-                // XXX Add config value check here
-                onTextChanged: sendIsTypingTimer.shouldSend = text.length > 0;
+                onTextChanged: {
+                    if(enableTypingIndicators) {
+                        sendIsTypingTimer.shouldSend = text.length > 0;
+                    }
+                }
             }
 
             IconButton {
