@@ -66,32 +66,36 @@ ListItem {
         }
     }
 
-    Connections {
-        target: model
-        onTypingChanged: {
-            console.log("onTypingChanged for", model.id, ":", model.typing);
-            if(model.id == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-                // XXX look up names instead of showing phone numbers
-                // FIXME after the session model is stable with row-moving instead of reinsertion (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271), the typing variable can be 100% declarative and in the page header.
-                var typing;
-                if (! model.isTyping) typing = ""
-                else if (model.typing.length == 1)
-                    //: Text shown when one person is typing
-                    //% "%1 is typing"
-                    typing = qsTrId("whisperfish-typing-1").arg(model.typing[0])
-                else if (model.typing.length == 2)
-                    //: Text shown when two persons are typing
-                    //% "%1 and %2 are typing"
-                    typing = qsTrId("whisperfish-typing-2").arg(model.typing[0]).arg(model.typing[1])
-                else if (model.typing.length >= 3)
-                    //: Text shown when three or more persons are typing
-                    //% "%1 and %n others are typing"
-                    typing = qsTrId("whisperfish-typing-3-plus").arg(model.typing[0]).arg(model.typing.length - 1)
-                else typing = ""
-                pageStack.currentPage.setTyping(typing)
-            }
+    function sendTypingToHeader() {
+        console.log("onTypingChanged for", model.id, ":", model.typing);
+        if(model.id == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+            // XXX look up names instead of showing phone numbers
+            // FIXME after the session model is stable with row-moving instead of reinsertion (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271), the typing variable can be 100% declarative and in the page header.
+            var typing;
+            if (! model.isTyping) typing = ""
+            else if (model.typing.length == 1)
+                //: Text shown when one person is typing
+                //% "%1 is typing"
+                typing = qsTrId("whisperfish-typing-1").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0]))
+            else if (model.typing.length == 2)
+                //: Text shown when two persons are typing
+                //% "%1 and %2 are typing"
+                typing = qsTrId("whisperfish-typing-2").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0])).arg(resolvePeopleModel.personByPhoneNumber(model.typing[1]))
+            else if (model.typing.length >= 3)
+                //: Text shown when three or more persons are typing
+                //% "%1 and %n others are typing"
+                typing = qsTrId("whisperfish-typing-3-plus").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0])).arg(model.typing.length - 1)
+            else typing = ""
+            pageStack.currentPage.setTyping(typing)
         }
     }
+
+    Connections {
+        target: model
+        onTypingChanged: sendTypingToHeader()
+    }
+
+    Component.onCompleted: sendTypingToHeader()
 
     // ...but only when it's manually activated
     // to prevent scrolled-out-of-view cases. Augh.
