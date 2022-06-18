@@ -130,9 +130,12 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
                         typing.inner.group_id
                     );
                 };
-                map.entry(session.id)
-                    .or_insert(Vec::new())
-                    .push(sender_recipient);
+                let session = map
+                    .entry(session.id)
+                    .or_insert(Vec::<orm::Recipient>::new());
+                if !session.iter().any(|x| x.id == sender_recipient.id) {
+                    session.push(sender_recipient);
+                }
             }
 
             Ok(map)
