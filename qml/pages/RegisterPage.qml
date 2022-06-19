@@ -103,7 +103,9 @@ BlockingInfoPageBase {
                             property string prefix: CallingCodes.c[index].p
                             property string name: CallingCodes.c[index].n
                             property string iso: CallingCodes.c[index].i
-                            text: prefix + " - " + name + (iso ? " (%1)".arg(iso) : "")
+                            text: name
+                                 + (iso ? " (%1) ".arg(iso) : " ")
+                                 + " (%1) ".arg(prefix)
                         }
                     }
                 }
