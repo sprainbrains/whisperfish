@@ -40,9 +40,9 @@ WebViewPage {
 			horizontalCenter: parent.horizontalCenter
 		}
 
-		// Capcha Format: aprox. 300px x 481px: 300/481 = 0.6237006237006237; 481/300 = 1.6033333333333333
+		// Capcha Format: aprox. 300px x 500x: 300/500 = 0.6; 500/300 = 1.666
 		viewportWidth: parent.width
-		viewportHeight: Math.min(parent.width*1.5, parent.height)
+		viewportHeight: Math.min(parent.width*1.666, parent.height)
 		width: viewportWidth
 		height: viewportHeight
 
