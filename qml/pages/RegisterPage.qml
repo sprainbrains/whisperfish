@@ -62,9 +62,15 @@ BlockingInfoPageBase {
         path: "/be/rubdos/whisperfish/captcha"
         iface: "be.rubdos.whisperfish.captcha"
 
+        property bool captchaReceived: false
+
         function handleCaptcha(code) {
-            Prompt.captcha(code)
-            activate()
+            console.log("Received captcha:",code)
+            if(!captchaReceived) {
+                captchaReceived = true
+                Prompt.captcha(code)
+                activate()
+            }
         }
     }
 
