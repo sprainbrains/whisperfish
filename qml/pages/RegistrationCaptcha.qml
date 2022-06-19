@@ -30,7 +30,11 @@ WebViewPage {
 		onTriggered: Qt.quit()
 	}
 
-	// XXX Maybe put a PageHeader and a short text here?
+	PageHeader {
+		//: Registration captcha page title
+		//% "Signal Captcha"
+		title: qsTrId("whisperfish-signal-captcha")
+	}
 
 	WebView {
 		id: webView

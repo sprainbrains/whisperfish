@@ -8,5 +8,6 @@ import "pages"
 ApplicationWindow
 {
     initialPage: Component { RegistrationCaptcha { } }
+    cover: Qt.resolvedUrl("cover/RegistrationCoverPage.qml")
     allowedOrientations: defaultAllowedOrientations
 }
