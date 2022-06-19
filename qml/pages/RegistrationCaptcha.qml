@@ -96,13 +96,9 @@ WebViewPage {
 		}
 
 		onRecvAsyncMessage: {
-			console.log(message);
 			if (message == "Whisperfish:CaptchaDone") {
 				console.log("Captcha Code Received:", data.code);
 				complete(data.code);
-			} else if (message == "Whisperfish:CaptchaUnload") {
-				console.log("Captcha Page Unloading: ", data.url);
-				filterUrl(data.url);
 			}
 		}
 	}
