@@ -125,7 +125,6 @@ BlockingInfoPageBase {
                     leftMargin: Theme.horizontalPageMargin
                     rightMargin: Theme.paddingSmall
                 }
-                font.pixelSize: countryCodeField.font.pixelSize
                 text: prefixCombo.currentIndex < 0
                     ? "+xx"
                     : prefixCombo.currentItem.prefix
