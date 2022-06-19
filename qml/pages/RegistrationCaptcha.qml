@@ -64,19 +64,24 @@ WebViewPage {
 			return false;
 		}
 
+		property bool captchaSent: false
+
 		function complete(code) {
-			whisperfishApp.call(
-				"handleCaptcha",
-				[code],
-				function () {
-					console.log("Captcha code sent!")
-					closeTimer.start()
-				},
-				function (error, message) {
-					console.log('Sending captcha code failed: ' + error + ' message: ' + message)
-					closeTimer.start()
-				}
-			)
+			if(!captchaSent) {
+				captchaSent = true
+				whisperfishApp.call(
+					"handleCaptcha",
+					[code],
+					function () {
+						console.log("Captcha code sent!")
+						closeTimer.start()
+					},
+					function (error, message) {
+						console.log('Sending captcha code failed: ' + error + ' message: ' + message)
+						closeTimer.start()
+					}
+				)
+			}
 		}
 
 		onUrlChanged: {
