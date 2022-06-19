@@ -85,6 +85,7 @@ BlockingInfoPageBase {
             ComboBox {
                 id: prefixCombo
                 width: parent.width
+                enabled: !busy
 
                 //: Label for country selection menu
                 //% "Country or area"
@@ -118,6 +119,7 @@ BlockingInfoPageBase {
 
             Label {
                 id: countryCodeField
+                opacity: !busy ? 1.0 : Theme.opacityLow
                 anchors {
                     top: parent.top
                     topMargin: Theme.paddingSmall
@@ -132,6 +134,7 @@ BlockingInfoPageBase {
 
             TextField {
                 id: numberField
+                enabled: !busy
                 anchors {
                     left: countryCodeField.right
                     right: parent.right
@@ -156,6 +159,7 @@ BlockingInfoPageBase {
 
         ComboBox {
             width: parent.width
+            enabled: !busy
 
             //: Verification method
             //% "Verification method"
@@ -188,6 +192,7 @@ BlockingInfoPageBase {
 
         IconTextSwitch {
             id: shareContacts
+            enabled: !root.busy
             //: Share contacts label
             //% "Share Contacts"
             text: qsTrId("whisperfish-share-contacts-label")
