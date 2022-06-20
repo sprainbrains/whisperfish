@@ -20,7 +20,7 @@ addEventListener("DOMContentLoaded", function () {
 		"wf_cp_done = true;"+
 		// Build the captcha string
 		"var sitekey = '6LfBXs0bAAAAAAjkDyyI1Lk5gBAUWfhI_bIyox5W';"+
-		"var result = 'signal-recaptcha-v2.' + sitekey + '.registration.' + token;"+
+		"var result = 'signalcaptcha://signal-recaptcha-v2.' + sitekey + '.registration.' + token;"+
 		// Make result accessible and notify frame script
 		"document.body.dataset.wfResult = result;"+
 		"document.body.dispatchEvent(new Event('ccdone'));"+
