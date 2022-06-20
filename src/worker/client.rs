@@ -58,7 +58,10 @@ pub struct SendMessage(pub i32);
 
 #[derive(Message)]
 #[rtype(result = "()")]
-struct AttachmentDownloaded(i32);
+struct AttachmentDownloaded {
+    session_id: i32,
+    message_id: i32,
+}
 
 #[derive(Message)]
 #[rtype(result = "usize")]
@@ -70,6 +73,7 @@ pub struct ClientWorker {
     base: qt_base_class!(trait QObject),
     messageReceived: qt_signal!(sid: i32, mid: i32),
     messageReactionReceived: qt_signal!(sid: i32, mid: i32),
+    attachmentDownloaded: qt_signal!(sid: i32, mid: i32),
     messageReceipt: qt_signal!(sid: i32, mid: i32),
     notifyMessage: qt_signal!(
         sid: i32,
@@ -437,7 +441,8 @@ impl ClientActor {
                 let dest = Path::new(&dir);
 
                 ctx.notify(FetchAttachment {
-                    mid: message.id,
+                    session_id: session.id,
+                    message_id: message.id,
                     dest: dest.to_path_buf(),
                     ptr: attachment,
                 });
@@ -696,7 +701,8 @@ impl Actor for ClientActor {
 #[derive(Message)]
 #[rtype(result = "()")]
 struct FetchAttachment {
-    mid: i32,
+    session_id: i32,
+    message_id: i32,
     dest: PathBuf,
     ptr: AttachmentPointer,
 }
@@ -713,7 +719,12 @@ impl Handler<FetchAttachment> for ClientActor {
         fetch: FetchAttachment,
         ctx: &mut <Self as Actor>::Context,
     ) -> Self::Result {
-        let FetchAttachment { mid, dest, ptr } = fetch;
+        let FetchAttachment {
+            session_id,
+            message_id,
+            dest,
+            ptr,
+        } = fetch;
 
         let client_addr = ctx.address();
 
@@ -803,11 +814,16 @@ impl Handler<FetchAttachment> for ClientActor {
                 let attachment_path = storage.save_attachment(&dest, ext, &ciphertext).await?;
 
                 storage.register_attachment(
-                    mid,
+                    message_id,
+                    ptr,
                     attachment_path.to_str().expect("attachment path utf-8"),
-                    ptr.content_type(),
                 );
-                client_addr.send(AttachmentDownloaded(mid)).await?;
+                client_addr
+                    .send(AttachmentDownloaded {
+                        session_id,
+                        message_id,
+                    })
+                    .await?;
                 Ok(())
             }
             .into_actor(self)
@@ -816,7 +832,7 @@ impl Handler<FetchAttachment> for ClientActor {
                 if let Err(e) = r {
                     let e = format!(
                         "Error fetching attachment for message with ID `{}` {:?}: {:?}",
-                        mid, ptr2, e
+                        message_id, ptr2, e
                     );
                     log::error!("{}", e);
                     let mut log = act.attachment_log();
@@ -1040,11 +1056,14 @@ impl Handler<AttachmentDownloaded> for ClientActor {
 
     fn handle(
         &mut self,
-        AttachmentDownloaded(mid): AttachmentDownloaded,
+        AttachmentDownloaded {
+            session_id: sid,
+            message_id: mid,
+        }: AttachmentDownloaded,
         _ctx: &mut Self::Context,
     ) {
         log::info!("Attachment downloaded for message {:?}", mid);
-        // XXX: refresh Qt views
+        self.inner.pinned().borrow().attachmentDownloaded(sid, mid);
     }
 }
 

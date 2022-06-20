@@ -1188,7 +1188,6 @@ dependencies = [
  "time 0.3.5",
  "tokio",
  "uuid",
- "version_check",
  "zkgroup",
 ]
 

@@ -88,26 +88,26 @@
         <translation>Nuovo messaggio</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="199"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="205"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Impossibile configurare il cliente Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="204"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="210"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Impossibile configurare l&apos;archiviazione dei dati</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="314"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="320"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Archiviazione dati Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="318"/>
+        <location filename="../qml/harbour-whisperfish.qml" line="324"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Memorizzare la configurazione e i messaggi</translation>
@@ -182,13 +182,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Descrizione</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish è un client Signal non ufficiale ma avanzato per Sailfish OS. Whisperfish è altamente utilizzabile, ma è ancora considerato un software di qualità beta. Assicuratevi di aggiornarlo regolarmente! Inoltre, controllate il nostro Wiki e sentitevi liberi di contribuire! Non contattare mai gli sviluppatori di Signal per un problema relativo a Whisperfish, ma contattaci!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -333,13 +333,13 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Controlla gli aggiornamenti</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Questa versione di Whisperfish ha più di 90 giorni. Si prega di verificare la presenza di un aggiornamento per mantenere il funzionamento di Whisperfish senza problemi.</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
@@ -632,13 +632,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="73"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Paese o area</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="78"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Non selezionato</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="174"/>
@@ -1295,13 +1295,13 @@ Settings page share contacts</extracomment>
         <translation>Allegato</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="179"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="176"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation>nessun mittente</translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="234"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="231"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation>questo messaggio è vuoto</translation>

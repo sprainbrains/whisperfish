@@ -1,6 +1,6 @@
 macro_rules! define_model_roles {
     (RETRIEVE $obj:ident fn $fn:ident(&self) $(via $via_fn:path)*) => {{
-        let field = $obj.$fn().clone();
+        let field = $obj.$fn();
         $(let field = $via_fn(field);)*
         field.into()
     }};

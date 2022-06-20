@@ -1,5 +1,6 @@
 use harbour_whisperfish::store::{temp, NewMessage};
 use harbour_whisperfish::store::{Storage, StorageLocation};
+use libsignal_service::proto::AttachmentPointer;
 
 pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
 
@@ -50,7 +51,7 @@ fn fetch_augmented_messages(c: &mut Criterion) {
                     None,
                 );
                 for _attachment in 0..attachments {
-                    storage.register_attachment(msg.id, "", "");
+                    storage.register_attachment(msg.id, AttachmentPointer::default(), "");
                 }
                 // for _receipt in 0..receipts {
                 //     storage.register_attachment(msg.id, "", "");

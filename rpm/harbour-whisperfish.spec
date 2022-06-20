@@ -74,7 +74,7 @@ BuildRequires:  meego-rpm-config
 BuildRequires:  tcl
 BuildRequires:  automake
 
-%if %{without harbour}
+%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
 BuildRequires: pkgconfig(nemotransferengine-qt5)
 Recommends:    %{name}-shareplugin
 %endif
@@ -99,7 +99,7 @@ Recommends:    %{name}-shareplugin
 %setup -q -n %{?with_harbour:harbour-}whisperfish
 
 # harbour-whisperfish-shareplugin
-%if %{without harbour}
+%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
 %package shareplugin
 Summary: Share plugin for Whisperfish
 %description shareplugin
@@ -218,11 +218,9 @@ fi
 # To make comparing easier: 4.4.0.58 >> 4.4
 MAJOR_VERSION=$(echo $TARGET_VERSION | awk -F. '{print $1 FS $2}')
 
-%if %{with shareplugin_v1}
-%if %{with shareplugin_v2}
+%if %{with shareplugin_v1} && %{with shareplugin_v2}
 echo "Error: only give shareplugin_v1 or shareplugin_v2"
 exit 1
-%endif
 %endif
 
 %if %{with shareplugin_v2}
@@ -245,14 +243,15 @@ fi
 
 cargo build \
           -j 1 \
-          --verbose \
+          -vv \
           --release \
           --no-default-features \
           $BINS \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 
-%if %{without harbour}
+%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
+
 mkdir -p %{targetdir}/shareplugin/
 cd %{targetdir}/shareplugin/
 rm -f *.so *.o moc_*
@@ -334,10 +333,12 @@ install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
     %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
 # Share plugin
+%if %{with shareplugin_v1} || %{with shareplugin_v2}
 install -Dm 644 %{targetdir}/shareplugin/WhisperfishShare.qml \
     %{buildroot}%{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
 install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
+%endif
 %endif
 
 %clean
@@ -368,10 +369,10 @@ systemctl-user disable harbour-whisperfish.service || true
 %if %{without harbour}
 %{_userunitdir}/harbour-whisperfish.service
 %{_unitdir}/be.rubdos.whisperfish.service
-%endif
 
-%if %{without harbour}
+%if %{with shareplugin_v1} || %{with shareplugin_v2}
 %files shareplugin
 %{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
 %{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
+%endif
 %endif

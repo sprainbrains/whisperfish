@@ -199,6 +199,7 @@ pub struct Attachment {
     pub display_order: i32,
     pub upload_timestamp: NaiveDateTime,
     pub cdn_number: Option<i32>,
+    pub caption: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -450,6 +451,7 @@ impl AugmentedMessage {
         self.attachments.len() as _
     }
 
+    #[deprecated]
     pub fn first_attachment(&self) -> &str {
         if self.attachments.is_empty() {
             return "";
@@ -466,6 +468,7 @@ impl AugmentedMessage {
             .join(",")
     }
 
+    #[deprecated]
     pub fn first_attachment_mime_type(&self) -> &str {
         if self.attachments.is_empty() {
             return "";
