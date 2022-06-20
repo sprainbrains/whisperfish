@@ -24,7 +24,7 @@ WebViewPage {
 
 	Timer {
 		id: closeTimer
-		interval: 3000
+		interval: 750
 		running: false
 		repeat: false
 		onTriggered: Qt.quit()

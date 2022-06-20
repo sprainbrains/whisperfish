@@ -20,6 +20,7 @@ BlockingInfoPageBase {
                               prefixCombo.currentIndex >= 0 &&
                               numberField.text.length > 4 &&
                               numberField.text.replace(/[- ]*/, '').trim() !== ''
+    property bool captchaReceived: false
 
     signal accept
     onAccept: {
@@ -45,7 +46,7 @@ BlockingInfoPageBase {
         // We wait till the backend calls to continue.
         target: Prompt
         onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
-        onPromptCaptcha: Prompt.startCaptcha()
+        onPromptCaptcha: captchaTimer.restart()
         onPromptPhoneNumber: _retry()
     }
 
@@ -62,8 +63,6 @@ BlockingInfoPageBase {
         path: "/be/rubdos/whisperfish/captcha"
         iface: "be.rubdos.whisperfish.captcha"
 
-        property bool captchaReceived: false
-
         function handleCaptcha(code) {
             console.log("Received captcha:",code)
             if(!captchaReceived) {
@@ -73,6 +72,17 @@ BlockingInfoPageBase {
             }
         }
     }
+
+    Timer {
+		id: captchaTimer
+		interval: 2500
+		running: false
+		repeat: false
+		onTriggered: {
+            captchaReceived = false
+            Prompt.startCaptcha()
+        }
+	}
 
     Column {
         width: parent.width
