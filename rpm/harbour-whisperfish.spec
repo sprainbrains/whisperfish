@@ -191,7 +191,10 @@ FEATURES="sailfish,harbour"
 %endif
 
 export RUSTFLAGS="%{?rustflags}"
-export RPM_VERSION=%{version}-%{release}
+# We could use the %(version) and %(release), but SFDK will include a datetime stamp,
+# ordering Cargo to recompile literally every second when the workspace is dirty.
+# git describe is a lot stabler, because it only uses the commit number and potentially a -dirty flag
+export GIT_VERSION=$(git describe  --exclude release,tag --dirty=-dirty)
 
 # Configure Cargo.toml
 %if 0%{?cargo_version:1}
