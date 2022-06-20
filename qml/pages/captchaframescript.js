@@ -15,11 +15,14 @@ addEventListener("DOMContentLoaded", function () {
 	sc.textContent = "var wf_cp_done = false;" +
 		"function wf_cp_handler(c) {" +
 		"if (wf_cp_done) return;" +
-		"var res = grecaptcha.enterprise.getResponse();"+
-		"if (res == '') return;"+
+		"var token = grecaptcha.enterprise.getResponse();"+
+		"if (token == '') return;"+
 		"wf_cp_done = true;"+
+		// Build the captcha string
+		"var sitekey = '6LfBXs0bAAAAAAjkDyyI1Lk5gBAUWfhI_bIyox5W';"+
+		"var result = 'signal-recaptcha-v2.' + sitekey + '.registration.' + token;"+
 		// Make result accessible and notify frame script
-		"document.body.dataset.wfResult = res;"+
+		"document.body.dataset.wfResult = result;"+
 		"document.body.dispatchEvent(new Event('ccdone'));"+
 		"}"+
 		// Watch for body class changes to detect when the capcha is done
