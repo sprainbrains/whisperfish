@@ -31,9 +31,19 @@ WebViewPage {
 	}
 
 	PageHeader {
+		id: header
 		//: Registration captcha page title
 		//% "Signal Captcha"
 		title: qsTrId("whisperfish-signal-captcha")
+	}
+
+	Rectangle {
+		anchors {
+			top: header.bottom
+			left: parent.left
+			right: parent.right
+			bottom: parent.bottom
+		}
 	}
 
 	WebView {
