@@ -257,7 +257,6 @@ cargo build \
 
 mkdir -p %{targetdir}/shareplugin/
 cd %{targetdir}/shareplugin/
-rm -f *.so *.o moc_*
 
 %if %{with shareplugin_v2}
     # Share plugin API v2
