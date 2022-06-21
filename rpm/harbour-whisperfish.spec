@@ -278,20 +278,13 @@ cd %{targetdir}/shareplugin/
 sccache -s
 %endif
 
-# Create a .pro file for the translation and generate the .qm files
-cd "%{_sourcedir}/.."
-echo "TRANSLATIONS += \\" > _translations.pro
-find -name "harbour-whisperfish*.ts" -print | sed 's/$/ \\/' | sed 's/.\///' >> _translations.pro
-lrelease -idbased _translations.pro
-rm _translations.pro
+lrelease -idbased %{_sourcedir}/../translations/*.ts
 
 %install
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
-for filename in %{_sourcedir}/../translations/*.ts; do
-    install -Dm 644 "$filename" \
-        "%{buildroot}%{_datadir}/harbour-whisperfish/translations/$base.qm";
-done
+install -Dm 644 %{_sourcedir}/../translations/*.qm \
+        %{buildroot}%{_datadir}/harbour-whisperfish/translations
 
 install -D %{targetdir}/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
 %if %{without harbour}
