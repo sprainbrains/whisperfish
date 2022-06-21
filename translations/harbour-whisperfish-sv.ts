@@ -476,7 +476,7 @@
         <location filename="../qml/pages/NewGroup.qml" line="50"/>
         <source>Group Name</source>
         <extracomment>Group name placeholder</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gruppnamn</translation>
     </message>
     <message id="whisperfish-new-group-message-members">
         <location filename="../qml/pages/NewGroup.qml" line="69"/>
