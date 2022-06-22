@@ -428,7 +428,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation>Alusta salattu istunto</translation>
+        <translation>Nollaa salattu istunto</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
@@ -447,7 +447,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="73"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Jos haluat varmentaa salauksen yksityisyyden sinun ja keskustelukumppanin %1 välillä, vertaa näitä numeroita keskustelukumppanin laitteessa näkyviin numeroihin.</translation>
+        <translation>Jos haluat varmentaa salauksen sinun ja keskustelukumppanin %1 välillä, vertaa näitä numeroita keskustelukumppanin laitteessa näkyviin numeroihin.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="59"/>
@@ -576,7 +576,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="107"/>
         <source>Repeat your new password</source>
         <extracomment>Repeated new password input placeholder</extracomment>
-        <translation>Toista salasanasi</translation>
+        <translation>Toista uusi salasanasi</translation>
     </message>
     <message id="whisperfish-skip-button-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="131"/>
@@ -679,7 +679,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegisterPage.qml" line="13"/>
         <source>Register</source>
         <extracomment>registration page title</extracomment>
-        <translation>Rekisterointi</translation>
+        <translation>Rekisteröinti</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
         <location filename="../qml/pages/RegisterPage.qml" line="41"/>
@@ -930,7 +930,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="283"/>
         <source>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</source>
         <extracomment>Settings page enable autostart description</extracomment>
-        <translation>Jos käytössä, Whisperfish käynnistyy automaattiseesti puhelimen käynnistymisen jälkeen. Pääikkuna avataan, mikäli salasanasuojaus on käytössä, tai jos suoritus taustalla on pois päältä. Muutoin sovellus avautuu taustalle.</translation>
+        <translation>Jos käytössä, Whisperfish käynnistyy automaattisesti puhelimen käynnistymisen jälkeen. Pääikkuna avataan, mikäli salasanasuojaus on käytössä tai jos suoritus taustalla on pois päältä. Muutoin sovellus avautuu taustalle.</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="317"/>
@@ -1199,19 +1199,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
         <source>Please enter the code you received from Signal.</source>
         <extracomment>verify registration prompt</extracomment>
-        <translation>Syötä koodi, jonka Signal lähettää sinulle.</translation>
+        <translation>Syötä koodi, jonka Signal lähetti sinulle.</translation>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
         <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation>Signalin pitäisi soittaa sinulle ja antaa sinulle kuusinumeroinen vahvistustunnus. Ole hyvä ja odota hetki, tai käynnistä toiminto uudelleen, jos puhelua ei tule.</translation>
+        <translation>Signalin pitäisi soittaa sinulle ja antaa sinulle kuusinumeroinen vahvistuskoodin. Ole hyvä ja odota hetki, tai käynnistä toiminto uudelleen, jos puhelua ei tule.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
         <source>Signal should have sent you a 6-digit verification code via text message. Please wait a moment, or restart the process if you have not received a message.</source>
         <extracomment>verify registration instructions: text message</extracomment>
-        <translation>Signalin pitäisi lähettää sinulle kuusinumeroinen vahvistustunnus tekstiviestinä. Ole hyvä ja odota hetki, tai käynnistä toiminto uudelleen jos viestiä ei tule.</translation>
+        <translation>Signalin pitäisi lähettää sinulle kuusinumeroinen vahvistuskoodintekstiviestinä. Ole hyvä ja odota hetki, tai käynnistä toiminto uudelleen jos viestiä ei tule.</translation>
     </message>
     <message id="whisperfish-verify-retry-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="43"/>
