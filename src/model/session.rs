@@ -46,6 +46,10 @@ pub struct SessionModel {
 
     content: Vec<AugmentedSession>,
 
+    unread: qt_property!(i32; NOTIFY unread_count_changed READ unread),
+
+    unread_count_changed: qt_signal!(),
+
     count: qt_method!(fn(&self) -> usize),
     add: qt_method!(fn(&self, id: i32, mark_read: bool)),
     remove: qt_method!(fn(&self, idx: usize)),
@@ -64,6 +68,13 @@ impl SessionModel {
     #[with_executor]
     fn count(&self) -> usize {
         self.content.len()
+    }
+
+    fn unread(&self) -> i32 {
+        self.content
+            .iter()
+            .map(|session| if session.is_read() { 0 } else { 1 })
+            .sum()
     }
 
     /// Add or replace a Session in the model.
@@ -157,6 +168,8 @@ impl SessionModel {
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
         }
 
+        self.unread_count_changed();
+
         // XXX: don't forget sync messages
     }
 
@@ -176,6 +189,8 @@ impl SessionModel {
             let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
             (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
         }
+
+        self.unread_count_changed();
     }
 
     #[with_executor]
@@ -294,6 +309,8 @@ impl SessionModel {
         // Stable sort, such that this retains the above ordering.
         self.content.sort_by_key(|k| !k.is_pinned);
         (self as &mut dyn QAbstractListModel).end_reset_model();
+
+        self.unread_count_changed();
     }
 
     /// Handle add-or-replace session
@@ -379,6 +396,8 @@ impl SessionModel {
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
+
+        self.unread_count_changed();
     }
 
     /// Handle add-or-replace session (without is_read update)
@@ -435,6 +454,8 @@ impl SessionModel {
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
+
+        self.unread_count_changed();
     }
 
     /// The typings should map session id's to recipients.
@@ -496,6 +517,8 @@ impl SessionModel {
             // self.set_unread(count);
             // self.unread_changed(count);
         }
+
+        self.unread_count_changed();
     }
 
     pub fn handle_mark_session_muted(&mut self, sid: i32, muted: bool) {
@@ -557,6 +580,8 @@ impl SessionModel {
         (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
         self.content.remove(idx);
         (self as &mut dyn QAbstractListModel).end_remove_rows();
+
+        self.unread_count_changed();
     }
 }
 
