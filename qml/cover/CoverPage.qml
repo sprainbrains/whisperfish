@@ -57,6 +57,8 @@ CoverBackground {
     }
 
     Column {
+        id: contentColumn
+
         x: Theme.paddingLarge
         spacing: Theme.paddingSmall
         width: parent.width - 2*Theme.paddingLarge
@@ -73,23 +75,26 @@ CoverBackground {
             ListView {
                 id: sessionList
 
-                property int sessionHeight: (parent.height - Theme.paddingSmall - spacing)/ (unreadLabel.visible ? 2 : 3)
-
                 // XXX Maybe we can use a delegate model to resort without pinning.
                 //     Pins don't make a lot of sense in this context
                 model: SessionModel
 
                 width: parent.width
-                height: (unreadLabel.visible ? 2 : 3)*sessionHeight + spacing
+                height: parent.height - Theme.paddingSmall
                 spacing: Theme.paddingSmall
 
                 delegate: SessionItem {
                     session: model
-                    height: sessionList.sessionHeight
                     width: sessionList.width
                 }
             }
         }
+    }
+
+    OpacityRampEffect {
+        offset: 0.7
+        sourceItem: contentColumn
+        direction: OpacityRamp.TopToBottom
     }
 
     Image {

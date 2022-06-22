@@ -4,8 +4,6 @@ import Sailfish.Silica 1.0
 Column {
     id: root
 
-    spacing: Theme.paddingSmall
-
     property var session
     property var contact: (session.isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(session.source, true)
     property string message: (session.hasAttachment && session.message === ''
@@ -24,8 +22,7 @@ Column {
 
             font.pixelSize: Theme.fontSizeSmall
             verticalAlignment: Text.AlignTop
-            // fontSizeMode: Text.HorizontalFit
-            height: root.height * 2 / 3
+
             width: root.width
 
             maximumLineCount: 2
@@ -47,7 +44,6 @@ Column {
         spacing: Theme.paddingSmall
 
         width: root.width - Theme.paddingLarge
-        height: root.height
 
         Item {
             width: recipientLabel.width
@@ -56,10 +52,9 @@ Column {
             Label {
                 id: recipientLabel
 
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: Theme.fontSizeExtraSmall
                 verticalAlignment: Text.AlignTop
-                height: root.height / 3
-                width: typingIcon.visible ? (recipientRow.width - typingIcon.width) : recipientRow.width
+                width: typingIcon.visible ? (recipientRow.width - typingIcon.width - Theme.paddingSmall) : recipientRow.width
 
                 maximumLineCount: 1
                 truncationMode: TruncationMode.Fade
