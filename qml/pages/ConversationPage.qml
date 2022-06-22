@@ -201,6 +201,10 @@ Page {
                     if (sid > 0) SessionModel.add(sid, true) // update session model
                 }
             }
+            onSendTypingNotification: {
+                console.log("Sending 'I am typing...' message")
+                ClientWorker.send_typing_notification(MessageModel.sessionId)
+            }
         }
     }
 

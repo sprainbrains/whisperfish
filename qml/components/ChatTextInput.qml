@@ -39,6 +39,7 @@ Item {
     property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
+    signal sendTypingNotification()
     signal quotedMessageClicked(var index, var quotedData)
 
     onDockMovingChanged: {
@@ -122,7 +123,7 @@ Item {
         onShouldSendChanged: {
             if(enableTypingIndicators && shouldSend) {
                 if(!running) {
-                    console.log("STUB: Send 'I am typing...' message")
+                    sendTypingNotification()
                     shouldSend = false
                     start()
                 }
