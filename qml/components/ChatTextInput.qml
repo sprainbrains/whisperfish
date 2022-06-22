@@ -115,7 +115,7 @@ Item {
     }
 
     Timer {
-        id: sendIsTypingTimer
+        id: isTypingTimer
         running: false
         repeat: false
         // XXX Fine tune the timer values -- this should be longer
@@ -136,6 +136,14 @@ Item {
                 restart()
             }
         }
+    }
+
+    Timer {
+        id: isNotTypingTimer
+        running: false
+        repeat: false
+        interval: 6000
+        onTriggered: sendTypingNotificationEnd()
     }
 
     Column {
@@ -216,7 +224,8 @@ Item {
 
                 onTextChanged: {
                     if(enableTypingIndicators) {
-                        sendIsTypingTimer.shouldSend = text.length > 0;
+                        isTypingTimer.shouldSend = text.length > 0;
+                        isNotTypingTimer.restart()
                     }
                 }
             }
