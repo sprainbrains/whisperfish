@@ -7,6 +7,7 @@ use actix::prelude::*;
 use anyhow::Context;
 use chrono::prelude::*;
 use futures::prelude::*;
+use libsignal_service::proto::typing_message::Action;
 use phonenumber::PhoneNumber;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -22,7 +23,7 @@ use libsignal_service::content::sync_message::Request as SyncRequest;
 use libsignal_service::content::DataMessageFlags;
 use libsignal_service::content::{
     sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContext, GroupContextV2,
-    GroupType, Metadata,
+    GroupType, Metadata, TypingMessage,
 };
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
@@ -56,6 +57,14 @@ use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 /// Enqueue a message on socket by MID
 pub struct SendMessage(pub i32);
 
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+/// Send a notification that we're typing on a certain session.
+pub struct SendTypingNotification {
+    pub session_id: i32,
+    pub is_start: bool,
+}
+
 #[derive(Message)]
 #[rtype(result = "()")]
 struct AttachmentDownloaded {
@@ -86,6 +95,8 @@ pub struct ClientWorker {
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
     messageNotSent: qt_signal!(sid: i32, mid: i32),
+
+    send_typing_notification: qt_method!(fn(&self, id: i32, is_start: bool)),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
@@ -637,8 +648,22 @@ impl ClientActor {
                     log::warn!("Sync message without known sync type");
                 }
             }
-            ContentBody::TypingMessage(_typing) => {
+            ContentBody::TypingMessage(typing) => {
                 log::info!("{} is typing.", metadata.sender);
+                let res = self
+                    .inner
+                    .pinned()
+                    .borrow()
+                    .session_actor
+                    .as_ref()
+                    .expect("session actor running")
+                    .try_send(crate::actor::TypingNotification {
+                        typing,
+                        sender: metadata.sender,
+                    });
+                if let Err(e) = res {
+                    log::error!("Could not send typing notification to SessionActor: {}", e);
+                }
             }
             ContentBody::ReceiptMessage(receipt) => {
                 log::info!("{} received a message.", metadata.sender);
@@ -1051,6 +1076,132 @@ impl Handler<SendMessage> for ClientActor {
     }
 }
 
+impl Handler<SendTypingNotification> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(
+        &mut self,
+        SendTypingNotification {
+            session_id,
+            is_start,
+        }: SendTypingNotification,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        log::info!("ClientActor::SendTypingNotification({:?})", session_id);
+        let mut sender = self.message_sender();
+        let storage = self.storage.as_mut().unwrap();
+
+        let session = storage.fetch_session_by_id(session_id).unwrap();
+        assert_eq!(session_id, session.id);
+
+        log::trace!("Sending typing notification for session: {:?}", session);
+
+        let local_addr = self.local_addr.clone().unwrap();
+        let storage = storage.clone();
+        Box::pin(
+            async move {
+                let group_id = match &session.r#type {
+                    orm::SessionType::DirectMessage(_) => None,
+                    orm::SessionType::GroupV1(group) => {
+                        Some(hex::decode(&group.id).expect("valid hex identifiers in db"))
+                    }
+                    orm::SessionType::GroupV2(group) => {
+                        Some(hex::decode(&group.id).expect("valid hex identifiers in db"))
+                    }
+                };
+
+                let online = true;
+                let timestamp = Utc::now().timestamp_millis() as u64;
+                let content = TypingMessage {
+                    timestamp: Some(timestamp),
+                    action: Some(if is_start {
+                        Action::Started
+                    } else {
+                        Action::Stopped
+                    } as _),
+                    group_id,
+                };
+
+                log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
+
+                match &session.r#type {
+                    orm::SessionType::GroupV1(group) => {
+                        let members = storage.fetch_group_members_by_group_v1_id(&group.id);
+                        let members = members
+                            .iter()
+                            .filter_map(|(_member, recipient)| {
+                                let member = recipient.to_service_address();
+
+                                if local_addr.matches(&member) {
+                                    None
+                                } else {
+                                    Some(member)
+                                }
+                            })
+                            .collect::<Vec<_>>();
+                        // Clone + async closure means we can use an immutable borrow.
+                        let results = sender
+                            .send_message_to_group(&members, None, content, timestamp, online)
+                            .await;
+                        for result in results {
+                            if let Err(e) = result {
+                                anyhow::bail!("Error sending message: {}", e);
+                            }
+                        }
+                    }
+                    orm::SessionType::GroupV2(group) => {
+                        let members = storage.fetch_group_members_by_group_v2_id(&group.id);
+                        let members = members
+                            .iter()
+                            .filter_map(|(_member, recipient)| {
+                                let member = recipient.to_service_address();
+
+                                if local_addr.matches(&member) {
+                                    None
+                                } else {
+                                    Some(member)
+                                }
+                            })
+                            .collect::<Vec<_>>();
+                        // Clone + async closure means we can use an immutable borrow.
+                        let results = sender
+                            .send_message_to_group(&members, None, content, timestamp, online)
+                            .await;
+                        for result in results {
+                            if let Err(e) = result {
+                                anyhow::bail!("Error sending message: {}", e);
+                            }
+                        }
+                    }
+                    orm::SessionType::DirectMessage(recipient) => {
+                        let recipient = recipient.to_service_address();
+
+                        if let Err(e) = sender
+                            .send_message(&recipient, None, content.clone(), timestamp, online)
+                            .await
+                        {
+                            anyhow::bail!("Error sending message: {}", e);
+                        }
+                    }
+                }
+
+                Ok(session.id)
+            }
+            .into_actor(self)
+            .map(move |res, _act, _ctx| {
+                match res {
+                    Ok(sid) => {
+                        log::trace!("Successfully sent typing notification for session {}", sid);
+                    }
+                    Err(e) => {
+                        log::error!("Sending typing notification: {}", e);
+                    }
+                };
+            }),
+        )
+    }
+}
+
 impl Handler<AttachmentDownloaded> for ClientActor {
     type Result = ();
 
@@ -1443,6 +1594,20 @@ impl ClientWorker {
                 log::trace!("Could not delete file {}: {:?}", file_name, e);
             }
         };
+    }
+
+    #[with_executor]
+    fn send_typing_notification(&self, session_id: i32, is_start: bool) {
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(SendTypingNotification {
+                    session_id,
+                    is_start,
+                })
+                .map(Result::unwrap),
+        );
     }
 }
 

@@ -95,6 +95,23 @@ Page {
                 text: qsTrId("whisperfish-settings-notifications-section")
             }
             IconTextSwitch {
+                id: useIsTypingMessages
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page use typing indicators
+                //% "Enable typing indicators"
+                text: qsTrId("whisperfish-settings-enable-typing-indicators")
+                //: Settings page scale image attachments description
+                //% "See when others are typing, and let others see when you are typing, if they also have this enabled."
+                description: qsTrId("whisperfish-settings-enable-typing-indicators-description")
+                checked: SettingsBridge.boolValue("enable_typing_indicators")
+                icon.source: "image://theme/icon-m-activity-messaging"
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("enable_typing_indicators")) {
+                        SettingsBridge.boolSet("enable_typing_indicators", checked)
+                    }
+                }
+            }
+            IconTextSwitch {
                 id: enableNotify
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page notifications enable

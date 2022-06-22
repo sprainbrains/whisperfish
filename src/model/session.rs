@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use crate::actor;
 use crate::model::*;
@@ -18,6 +19,8 @@ struct AugmentedSession {
     session: orm::Session,
     group_members: Vec<orm::Recipient>,
     last_message: Option<LastMessage>,
+
+    typing: Vec<orm::Recipient>,
 }
 
 // XXX Maybe make this AugmentedMessage
@@ -272,6 +275,8 @@ impl SessionModel {
                     attachments,
                     receipts,
                 }),
+                // XXX migrate typing notices from previous loaded sessions?
+                typing: Vec::new(),
             })
             .collect();
         // XXX This could be solved through a sub query.
@@ -370,6 +375,7 @@ impl SessionModel {
                     attachments: last_message_attachments,
                     receipts: last_message_receipts,
                 }),
+                typing: Vec::new(),
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
@@ -390,13 +396,17 @@ impl SessionModel {
             .enumerate()
             .find(|(_i, s)| s.id == sess.id);
 
-        if let Some((idx, _session)) = found {
+        let typing = if let Some((idx, _session)) = found {
             log::trace!("Removing the session from qml");
 
             // Remove from this place so it can be added back in later
             (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            let typing = std::mem::take(&mut self.content[idx].typing);
             self.content.remove(idx);
             (self as &mut dyn QAbstractListModel).end_remove_rows();
+            typing
+        } else {
+            Vec::new()
         };
 
         let mut newIdx = 0_usize;
@@ -421,9 +431,44 @@ impl SessionModel {
                     attachments: last_message_attachments,
                     receipts: last_message_receipts,
                 }),
+                typing,
             },
         );
         (self as &mut dyn QAbstractListModel).end_insert_rows();
+    }
+
+    /// The typings should map session id's to recipients.
+    pub fn handle_update_typing(&mut self, mut typings: HashMap<i32, Vec<orm::Recipient>>) {
+        // Cannot iter_mut() over content with .enumerate(), because we need to call data_changed()
+        // too.
+        for i in 0..self.content.len() {
+            let session = &mut self.content[i];
+            let changed = if let Some(typers) = typings.remove(&session.id) {
+                let lhs: HashSet<i32> = session.typing.iter().map(|s| s.id).collect();
+                let rhs: HashSet<i32> = typers.iter().map(|s| s.id).collect();
+
+                session.typing = typers;
+                lhs != rhs
+            } else if !session.typing.is_empty() {
+                log::trace!("Clearing typing for session id {} at row {}", session.id, i);
+                session.typing.clear();
+                true
+            } else {
+                false
+            };
+            if changed {
+                log::trace!("Updating model for changed typings");
+                let idx = self.row_index(i as i32);
+                self.data_changed(idx, idx);
+            }
+        }
+
+        if !typings.is_empty() {
+            log::warn!(
+                "Some session is typing that this model does not now about: {:?}",
+                typings
+            )
+        }
     }
 
     /// When a session is marked as read and this handler called, implicitly
@@ -666,6 +711,21 @@ impl AugmentedSession {
             0
         }
     }
+
+    fn is_typing(&self) -> bool {
+        log::trace!("QML request is_typing");
+        !self.typing.is_empty()
+    }
+
+    // XXX exposing this as a model would be nicer, but it'll do for now.
+    fn typing(&self) -> qmetaobject::QVariantList {
+        log::trace!("QML request typing");
+        let mut lst = qmetaobject::QVariantList::default();
+        for t in &self.typing {
+            lst.push(QString::from(t.e164_or_uuid()).into());
+        }
+        lst
+    }
 }
 
 define_model_roles! {
@@ -690,7 +750,10 @@ define_model_roles! {
         IsArchived(fn is_archived(&self)):                                 "isArchived",
         IsPinned(fn is_pinned(&self)):                                     "isPinned",
         Viewed(fn viewed(&self)):                                          "viewCount",
-        HasAttachment(fn has_attachment(&self)):                           "hasAttachment"
+        HasAttachment(fn has_attachment(&self)):                           "hasAttachment",
+
+        IsTyping(fn is_typing(&self)):                                     "isTyping",
+        Typing(fn typing(&self)):                                          "typing",
     }
 }
 

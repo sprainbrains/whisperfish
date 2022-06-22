@@ -20,6 +20,10 @@ Page {
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
 
+    function setTyping(message) {
+        pageHeader.isTypingMessage = message;
+    }
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
             SessionModel.markRead(MessageModel.sessionId)
@@ -196,6 +200,14 @@ Page {
                     }
                     if (sid > 0) SessionModel.add(sid, true) // update session model
                 }
+            }
+            onSendTypingNotification: {
+                console.log("Sending 'I am typing...' message")
+                ClientWorker.send_typing_notification(MessageModel.sessionId, true)
+            }
+            onSendTypingNotificationEnd: {
+                console.log("Sending 'I am not typing anymore...' message")
+                ClientWorker.send_typing_notification(MessageModel.sessionId, false)
             }
         }
     }

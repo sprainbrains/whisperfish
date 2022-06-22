@@ -26,6 +26,7 @@ Item {
     property bool enableSending: true
     property bool enableAttachments: true
     property bool dockMoving
+    property bool enableTypingIndicators: SettingsBridge.boolValue("enable_typing_indicators")
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
@@ -38,6 +39,8 @@ Item {
     property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
+    signal sendTypingNotification()
+    signal sendTypingNotificationEnd()
     signal quotedMessageClicked(var index, var quotedData)
 
     onDockMovingChanged: {
@@ -109,6 +112,45 @@ Item {
             top: parent.top
         }
         Behavior on opacity { FadeAnimator { } }
+    }
+
+    Timer {
+        id: isTypingTimer
+        running: false
+        repeat: false
+        // XXX Fine tune the timer values -- this should be longer
+        interval: 5000
+        property bool shouldSend: false
+        onShouldSendChanged: {
+            if(enableTypingIndicators && shouldSend) {
+                if(!running) {
+                    sendTypingNotification()
+                    shouldSend = false
+                    start()
+                }
+                shouldSend = false
+            }
+        }
+        onTriggered: {
+            if(shouldSend) {
+                restart()
+            }
+        }
+        Component.onDestruction: stop()
+    }
+
+    Timer {
+        id: isNotTypingTimer
+        running: false
+        repeat: false
+        interval: 6000
+        onTriggered: sendTypingNotificationEnd()
+        Component.onDestruction: {
+            if(running) {
+                stop()
+                sendTypingNotificationEnd()
+            }
+        }
     }
 
     Column {
@@ -184,6 +226,13 @@ Item {
                 EnterKey.onClicked: {
                     if (canSend && SettingsBridge.boolValue("enable_enter_send")) {
                         _send()
+                    }
+                }
+
+                onTextChanged: {
+                    if(enableTypingIndicators) {
+                        isTypingTimer.shouldSend = text.length > 0;
+                        isNotTypingTimer.restart()
                     }
                 }
             }
@@ -282,6 +331,8 @@ Item {
                 onClicked: {
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click")*/) {
                         _send()
+                        isTypingTimer.stop()
+                        isNotTypingTimer.stop()
                     }
                     if (buttonContainer.enabled) {
                         inputRow.toggleAttachmentButtons()
@@ -291,6 +342,8 @@ Item {
                     // TODO implement in backend
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click") === false*/) {
                         _send()
+                        isTypingTimer.stop()
+                        isNotTypingTimer.stop()
                     }
                 }
             }
