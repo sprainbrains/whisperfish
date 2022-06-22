@@ -1510,7 +1510,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Captcha Signal</translation>
     </message>
 </context>
 </TS>
