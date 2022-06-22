@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import Sailfish.Silica 1.0
+import Nemo.DBus 2.0
 import "../components"
 import "../js/countries.js" as CallingCodes
 
@@ -19,6 +20,7 @@ BlockingInfoPageBase {
                               prefixCombo.currentIndex >= 0 &&
                               numberField.text.length > 4 &&
                               numberField.text.replace(/[- ]*/, '').trim() !== ''
+    property bool captchaReceived: false
 
     signal accept
     onAccept: {
@@ -44,7 +46,7 @@ BlockingInfoPageBase {
         // We wait till the backend calls to continue.
         target: Prompt
         onPromptVerificationCode: pageStack.push(Qt.resolvedUrl("VerifyRegistrationPage.qml"))
-        onPromptCaptcha: pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"))
+        onPromptCaptcha: captchaTimer.restart()
         onPromptPhoneNumber: _retry()
     }
 
@@ -55,6 +57,32 @@ BlockingInfoPageBase {
             _retry()
         }
     }
+
+    DBusAdaptor {
+        service: "be.rubdos.whisperfish"
+        path: "/be/rubdos/whisperfish/captcha"
+        iface: "be.rubdos.whisperfish.captcha"
+
+        function handleCaptcha(code) {
+            console.log("Received captcha:",code)
+            if(!captchaReceived) {
+                captchaReceived = true
+                Prompt.captcha(code)
+                activate()
+            }
+        }
+    }
+
+    Timer {
+		id: captchaTimer
+		interval: 2500
+		running: false
+		repeat: false
+		onTriggered: {
+            captchaReceived = false
+            Prompt.startCaptcha()
+        }
+	}
 
     Column {
         width: parent.width
@@ -67,6 +95,7 @@ BlockingInfoPageBase {
             ComboBox {
                 id: prefixCombo
                 width: parent.width
+                enabled: !busy
 
                 //: Label for country selection menu
                 //% "Country or area"
@@ -85,7 +114,9 @@ BlockingInfoPageBase {
                             property string prefix: CallingCodes.c[index].p
                             property string name: CallingCodes.c[index].n
                             property string iso: CallingCodes.c[index].i
-                            text: prefix + " - " + name + (iso ? " (%1)".arg(iso) : "")
+                            text: name
+                                 + (iso ? " (%1) ".arg(iso) : " ")
+                                 + " (%1) ".arg(prefix)
                         }
                     }
                 }
@@ -98,6 +129,7 @@ BlockingInfoPageBase {
 
             Label {
                 id: countryCodeField
+                opacity: !busy ? 1.0 : Theme.opacityLow
                 anchors {
                     top: parent.top
                     topMargin: Theme.paddingSmall
@@ -105,7 +137,6 @@ BlockingInfoPageBase {
                     leftMargin: Theme.horizontalPageMargin
                     rightMargin: Theme.paddingSmall
                 }
-                font.pixelSize: countryCodeField.font.pixelSize
                 text: prefixCombo.currentIndex < 0
                     ? "+xx"
                     : prefixCombo.currentItem.prefix
@@ -113,6 +144,7 @@ BlockingInfoPageBase {
 
             TextField {
                 id: numberField
+                enabled: !busy
                 anchors {
                     left: countryCodeField.right
                     right: parent.right
@@ -137,6 +169,7 @@ BlockingInfoPageBase {
 
         ComboBox {
             width: parent.width
+            enabled: !busy
 
             //: Verification method
             //% "Verification method"
@@ -169,6 +202,7 @@ BlockingInfoPageBase {
 
         IconTextSwitch {
             id: shareContacts
+            enabled: !root.busy
             //: Share contacts label
             //% "Share Contacts"
             text: qsTrId("whisperfish-share-contacts-label")

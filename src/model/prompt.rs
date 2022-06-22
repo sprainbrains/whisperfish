@@ -1,4 +1,5 @@
 use std::future::Future;
+use std::process::Command;
 
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -19,6 +20,8 @@ pub struct Prompt {
     password: qt_method!(fn(&self, password: QString)),
     captcha: qt_method!(fn(&self, captcha: QString)),
     resetPeerIdentity: qt_method!(fn(&self, confirm: QString)),
+
+    startCaptcha: qt_method!(fn(&self)),
 
     password_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
     code_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
@@ -141,5 +144,14 @@ impl Prompt {
                 }
             }
         }
+    }
+
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn startCaptcha(&mut self) {
+        Command::new("/usr/bin/sailfish-qml")
+            .args(&["harbour-whisperfish"])
+            .spawn()
+            .expect("ls command failed to start");
     }
 }

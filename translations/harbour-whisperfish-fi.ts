@@ -1498,5 +1498,11 @@ Settings page share contacts</extracomment>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
         <translation>Jaa sisältöä</translation>
     </message>
+    <message id="whisperfish-signal-recaptcha">
+        <location filename="../qml/pages/RegistrationCaptcha.qml" line="40"/>
+        <source>reCAPTCHA</source>
+        <extracomment>Registration captcha page title.</extracomment>
+        <translation>reCAPTCHA</translation>
+    </message>
 </context>
 </TS>
