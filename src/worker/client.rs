@@ -62,6 +62,7 @@ pub struct SendMessage(pub i32);
 /// Send a notification that we're typing on a certain session.
 pub struct SendTypingNotification {
     pub session_id: i32,
+    pub is_start: bool,
 }
 
 #[derive(Message)]
@@ -95,7 +96,7 @@ pub struct ClientWorker {
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
     messageNotSent: qt_signal!(sid: i32, mid: i32),
 
-    send_typing_notification: qt_method!(fn(&self, id: i32)),
+    send_typing_notification: qt_method!(fn(&self, id: i32, is_start: bool)),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
@@ -1080,7 +1081,10 @@ impl Handler<SendTypingNotification> for ClientActor {
 
     fn handle(
         &mut self,
-        SendTypingNotification { session_id }: SendTypingNotification,
+        SendTypingNotification {
+            session_id,
+            is_start,
+        }: SendTypingNotification,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         log::info!("ClientActor::SendTypingNotification({:?})", session_id);
@@ -1110,7 +1114,11 @@ impl Handler<SendTypingNotification> for ClientActor {
                 let timestamp = Utc::now().timestamp_millis() as u64;
                 let content = TypingMessage {
                     timestamp: Some(timestamp),
-                    action: Some(Action::Started as _),
+                    action: Some(if is_start {
+                        Action::Started
+                    } else {
+                        Action::Stopped
+                    } as _),
                     group_id,
                 };
 
@@ -1589,12 +1597,15 @@ impl ClientWorker {
     }
 
     #[with_executor]
-    fn send_typing_notification(&self, session_id: i32) {
+    fn send_typing_notification(&self, session_id: i32, is_start: bool) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(SendTypingNotification { session_id })
+                .send(SendTypingNotification {
+                    session_id,
+                    is_start,
+                })
                 .map(Result::unwrap),
         );
     }

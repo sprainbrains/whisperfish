@@ -40,6 +40,7 @@ Item {
 
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
     signal sendTypingNotification()
+    signal sendTypingNotificationEnd()
     signal quotedMessageClicked(var index, var quotedData)
 
     onDockMovingChanged: {

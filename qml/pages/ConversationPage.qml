@@ -203,7 +203,11 @@ Page {
             }
             onSendTypingNotification: {
                 console.log("Sending 'I am typing...' message")
-                ClientWorker.send_typing_notification(MessageModel.sessionId)
+                ClientWorker.send_typing_notification(MessageModel.sessionId, true)
+            }
+            onSendTypingNotificationEnd: {
+                console.log("Sending 'I am typing...' message")
+                ClientWorker.send_typing_notification(MessageModel.sessionId, false)
             }
         }
     }
