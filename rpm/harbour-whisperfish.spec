@@ -191,7 +191,10 @@ FEATURES="sailfish,harbour"
 %endif
 
 export RUSTFLAGS="%{?rustflags}"
-export RPM_VERSION=%{version}-%{release}
+# We could use the %(version) and %(release), but SFDK will include a datetime stamp,
+# ordering Cargo to recompile literally every second when the workspace is dirty.
+# git describe is a lot stabler, because it only uses the commit number and potentially a -dirty flag
+export GIT_VERSION=$(git describe  --exclude release,tag --dirty=-dirty)
 
 # Configure Cargo.toml
 %if 0%{?cargo_version:1}
@@ -254,7 +257,6 @@ cargo build \
 
 mkdir -p %{targetdir}/shareplugin/
 cd %{targetdir}/shareplugin/
-rm -f *.so *.o moc_*
 
 %if %{with shareplugin_v2}
     # Share plugin API v2
@@ -276,15 +278,13 @@ rm -f *.so *.o moc_*
 sccache -s
 %endif
 
+lrelease -idbased %{_sourcedir}/../translations/*.ts
+
 %install
 
 install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
-for filename in %{_sourcedir}/../translations/*.ts; do
-    base=$(basename -s .ts $filename)
-    lrelease \
-        -idbased "%{_sourcedir}/../translations/$base.ts" \
-        -qm "%{buildroot}%{_datadir}/harbour-whisperfish/translations/$base.qm";
-done
+install -Dm 644 %{_sourcedir}/../translations/*.qm \
+        %{buildroot}%{_datadir}/harbour-whisperfish/translations
 
 install -D %{targetdir}/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
 %if %{without harbour}
