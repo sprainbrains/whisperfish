@@ -152,13 +152,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kuvaus</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish on epävirallinen, mutta kehitynyt Signal-sovellus Sailfish OS -käyttöjärjestelmälle. Whisperfish on varsin käyttökelpoinen, mutta vielä beta-asteella. Tarkistathan päivitykset säännöllisesti! Tarkista myös projektin Wiki, jota olet tervetullut myös täydentämään! Ethän koskaan ole yhteydessä Signal-kehittäjiin, jos Whisperfishissä on ongelma - ole aina yhteydessä suoraan meihin!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -1519,7 +1519,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal Captcha</translation>
     </message>
 </context>
 </TS>
