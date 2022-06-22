@@ -136,6 +136,7 @@ Item {
                 restart()
             }
         }
+        Component.onDestruction: stop()
     }
 
     Timer {
@@ -144,6 +145,12 @@ Item {
         repeat: false
         interval: 6000
         onTriggered: sendTypingNotificationEnd()
+        Component.onDestruction: {
+            if(running) {
+                stop()
+                sendTypingNotificationEnd()
+            }
+        }
     }
 
     Column {
@@ -324,6 +331,8 @@ Item {
                 onClicked: {
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click")*/) {
                         _send()
+                        isTypingTimer.stop()
+                        isNotTypingTimer.stop()
                     }
                     if (buttonContainer.enabled) {
                         inputRow.toggleAttachmentButtons()
@@ -333,6 +342,8 @@ Item {
                     // TODO implement in backend
                     if (canSend /*&& SettingsBridge.boolValue("send_on_click") === false*/) {
                         _send()
+                        isTypingTimer.stop()
+                        isNotTypingTimer.stop()
                     }
                 }
             }
