@@ -82,32 +82,32 @@
         <translation>Elimina la conversazione</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish.qml" line="96"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="99"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nuovo messaggio</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish.qml" line="205"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="202"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Impossibile configurare il cliente Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish.qml" line="210"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="207"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Impossibile configurare l&apos;archiviazione dei dati</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish.qml" line="320"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="317"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Archiviazione dati Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish.qml" line="324"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="321"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Memorizzare la configurazione e i messaggi</translation>
@@ -622,26 +622,26 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Whisperfish memorizza le chiavi di identità, lo stato della sessione e i dati dei messaggi locali crittografati su disco. La password che hai impostato non è memorizzata da nessuna parte e non sarai in grado di ripristinare i tuoi dati se perdi la password. Nota: gli allegati sono attualmente archiviati non crittografati. È possibile disabilitare la memorizzazione degli allegati nella pagina Impostazioni.</translation>
     </message>
     <message id="whisperfish-registration-message">
-        <location filename="../qml/pages/RegisterPage.qml" line="16"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="17"/>
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>registration prompt text</extracomment>
         <translation>Inserisci il numero di telefono che vuoi registrare con Signal.</translation>
     </message>
     <message id="whisperfish-registration-country-or-area">
-        <location filename="../qml/pages/RegisterPage.qml" line="73"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="102"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
         <translation>Paese o area</translation>
     </message>
     <message id="whisperfish-not-selected">
-        <location filename="../qml/pages/RegisterPage.qml" line="78"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="107"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
         <translation>Non selezionato</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="174"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="208"/>
         <location filename="../qml/pages/Settings.qml" line="215"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -650,38 +650,38 @@ Settings page share contacts</extracomment>
         <translation>Condividi i contatti</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/RegisterPage.qml" line="177"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="211"/>
         <location filename="../qml/pages/Settings.qml" line="218"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation>Consenti a Signal di utilizzare l&apos;elenco dei contatti locali per trovare altri utenti di Signal.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="143"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="176"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Metodo di verifica</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="161"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="194"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Usa la verifica vocale</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="156"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="189"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Usa la verifica via SMS</translation>
     </message>
     <message id="whisperfish-registration-title">
-        <location filename="../qml/pages/RegisterPage.qml" line="12"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="13"/>
         <source>Register</source>
         <extracomment>registration page title</extracomment>
         <translation>Registrati</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
-        <location filename="../qml/pages/RegisterPage.qml" line="39"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="41"/>
         <source>Please retry with a valid phone number.</source>
         <extracomment>new registration prompt text asking to retry</extracomment>
         <translation>Riprova con un numero di telefono valido.</translation>
@@ -692,31 +692,31 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Prefisso</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="126"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="158"/>
         <source>Phone number</source>
         <extracomment>phone number input label</extracomment>
         <translation>Numero di telefono</translation>
     </message>
     <message id="whisperfish-registration-number-input-placeholder">
-        <location filename="../qml/pages/RegisterPage.qml" line="130"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="162"/>
         <source>Phone number</source>
         <extracomment>phone number input placeholder</extracomment>
         <translation>Numero di telefono</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="148"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="181"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
         <translation>Signal ti chiamerà con un codice di verifica a 6 cifre. Tieniti pronto/a a scriverlo.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="150"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="183"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <translation>Signal ti invierà un SMS con un codice di verifica a 6 cifre.</translation>
     </message>
     <message id="whisperfish-continue-button-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="190"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="224"/>
         <location filename="../qml/pages/SetupPasswordPage.qml" line="124"/>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
         <source>Continue</source>
@@ -1507,6 +1507,12 @@ Settings page share contacts</extracomment>
         <source>Share contents</source>
         <extracomment>Title of the page to select recipients and send a shared file</extracomment>
         <translation>Condividi contenuti</translation>
+    </message>
+    <message id="whisperfish-signal-captcha">
+        <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
+        <source>Signal Captcha</source>
+        <extracomment>Registration captcha page title</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
