@@ -38,7 +38,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation>%1 et %n autres écrivent are typing</translation>
+        <translation>%1 et %n autres écrivent</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/cover/SessionItem.qml" line="67"/>
