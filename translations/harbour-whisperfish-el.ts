@@ -4,12 +4,12 @@
 <context>
     <name></name>
     <message id="whisperfish-cover-new-label">
-        <location filename="../qml/cover/UnreadLabel.qml" line="25"/>
         <source>New</source>
         <extracomment>Cover new message label</extracomment>
-        <translation>Νέο</translation>
+        <translation type="vanished">Νέο</translation>
     </message>
     <message id="whisperfish-session-has-attachment">
+        <location filename="../qml/cover/SessionItem.qml" line="13"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
@@ -41,6 +41,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-note-to-self">
+        <location filename="../qml/cover/SessionItem.qml" line="67"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="174"/>
         <location filename="../qml/pages/ConversationPage.qml" line="18"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="91"/>
@@ -1248,7 +1249,7 @@ Settings page share contacts</extracomment>
         <translation>Διαμοιρασμός επαφής</translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
-        <location filename="../qml/components/ChatTextInput.qml" line="213"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="215"/>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
@@ -1257,19 +1258,19 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
-        <location filename="../qml/components/ChatTextInput.qml" line="221"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="223"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation>Γειά σου %1</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
-        <location filename="../qml/components/ChatTextInput.qml" line="225"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="227"/>
         <source>Write a message</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation>Γράψτε ένα μήνυμα</translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
-        <location filename="../qml/components/ChatTextInput.qml" line="372"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="374"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
         <translation>Επιλογή συνημμένων</translation>
@@ -1543,6 +1544,15 @@ Settings page share contacts</extracomment>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-cover-unread-label" numerus="yes">
+        <location filename="../qml/cover/CoverPage.qml" line="33"/>
+        <source>Unread&lt;br/&gt;message(s)</source>
+        <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 </TS>
