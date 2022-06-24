@@ -134,6 +134,8 @@ Item {
         onTriggered: {
             if(shouldSend) {
                 restart()
+            } else {
+                sendTypingNotificationEnd()
             }
         }
         Component.onDestruction: stop()
