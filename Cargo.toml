@@ -31,28 +31,21 @@ futures = "0.3"
 
 libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
-libsignal-protocol = { git = "https://github.com/signalapp/libsignal-client", branch = "main" }
-zkgroup = { version = "0.9.0", git = "https://github.com/signalapp/libsignal-client", branch = "main" }
+libsignal-protocol = { version = "0.1.0", git = "https://github.com/signalapp/libsignal-client", tag = "v0.17.0" }
+zkgroup = { version = "0.9.0", git = "https://github.com/signalapp/libsignal-client", tag = "v0.17.0" }
 
-# Newer versions break MSRV in patch version
-proc-macro2 = "=1.0.26"
-quote = "=1.0.10"
-
-# Newer versions don't compile with Rust 1.52 (nightly-2021-05-06),
-# which is what Sailfish SDK 3.9.3 (4.4.0.58) comes with
-# Due to that, we need to pin the sha2 and sha-1 versions too.
-pbkdf2 = { version = "=0.9.0", default-features = false }
-hmac = "=0.11"
-sha2 = "=0.9"
-sha-1 = "=0.9"
+pbkdf2 = { version = "0.9.0", default-features = false }
+hmac = "0.11"
+sha2 = "0.9"
+sha-1 = "0.9"
 aes = "0.7"
 block-modes = "0.8"
 
-qttypes = "=0.2.6"
-qmetaobject = { version = "=0.2.5" }
+qttypes = "0.2.8"
+qmetaobject = { version = "0.2.7" }
 qmeta-async = { git = "https://gitlab.com/rubdos/qmeta-async.git" }
-time = "=0.3.5"
-scrypt = { version = "=0.8.1", default-features = false, features=["std"] }
+time = "0.3.5"
+scrypt = { version = "0.8.1", default-features = false, features=["std"] }
 
 getrandom = "0.2"
 
@@ -126,12 +119,8 @@ debug = true
 
 [features]
 bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
-sailfish = ["bundled-sqlcipher", "sailors", "libsignal-protocol/whisperfork", "zkgroup/whisperfork"]
+sailfish = ["bundled-sqlcipher", "sailors"]
 harbour = ["sailfish"]
-
-[patch."https://github.com/signalapp/libsignal-client"]
-libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
-zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 
 # [patch.crates-io]
 # qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
