@@ -1549,9 +1549,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/cover/CoverPage.qml" line="33"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Messaggio&lt;br/&gt;non letto</numerusform>
+            <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
         </translation>
     </message>
 </context>
