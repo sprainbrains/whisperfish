@@ -55,7 +55,7 @@ stages:
         - Cargo.lock
 
 .build-sailfishos: &build-sailfishos
-  image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
+  image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:1-61
   stage: build
   artifacts:
     paths:
