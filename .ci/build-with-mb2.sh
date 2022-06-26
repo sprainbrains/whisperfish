@@ -16,9 +16,6 @@ sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
         openssl-devel \
         zlib-devel \
 
-# For i486, we lie.
-# https://gitlab.com/whisperfish/whisperfish/-/issues/24
-
 if [ -z "$CI_COMMIT_TAG" ]; then
     CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
     GIT_REF="$(git rev-parse --short HEAD)"
