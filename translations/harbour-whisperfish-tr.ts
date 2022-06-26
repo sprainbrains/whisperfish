@@ -1541,7 +1541,6 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Okunmamış&lt;br/&gt;mesaj</numerusform>
-            <numerusform>Okunmamış&lt;br/&gt;mesajlar</numerusform>
         </translation>
     </message>
 </context>
