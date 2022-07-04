@@ -86,7 +86,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation>Terugzetten naar postvak in</translation>
+        <translation>Terugzetten naar postvak IN</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
@@ -135,13 +135,13 @@
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation>Toon gearchiveerde gesprekken</translation>
+        <translation>Gearchiveerde gesprekken tonen</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation>Keer terug naar gesprekken</translation>
+        <translation>Terug naar gesprekken</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
@@ -207,7 +207,7 @@
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation>Whisperfish in een onofficiële, maar geavanceerde Signal-client voor Sailfish OS. Whisperfish is erg bruikbaar, maar wordt nog beschouwd als beta software. Zorg ervoor dat je regelmatig updatet! Kijk ook eens naar onze Wiki en voel je vrij om erin te schrijven! Contacteer nooit de Signal ontwikkelaars met een Whisperfish-probleem, maar contacteer ons direct!.</translation>
+        <translation>Whisperfish in een onofficiële, maar geavanceerde Signal-cliënt voor Sailfish OS. Whisperfish is erg bruikbaar, maar wordt nog beschouwd als bètasoftware. Zorg ervoor dat je regelmatig updatet! Kijk ook eens naar onze Wiki en voel je vrij om erin te schrijven! Neem nooit contact op met de Signal-ontwikkelaars over een Whisperfish-probleem, maar meld het aan ons!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -914,7 +914,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="102"/>
         <source>Enable typing indicators</source>
         <extracomment>Settings page use typing indicators</extracomment>
-        <translation>Typindicatoren activeren</translation>
+        <translation>Typindicatoren inschakelen</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators-description">
         <location filename="../qml/pages/Settings.qml" line="105"/>
@@ -1540,15 +1540,15 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
-        <translation>Signal Captcha</translation>
+        <translation>Signal-captcha</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
         <location filename="../qml/cover/CoverPage.qml" line="33"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>ongelezen&lt;br/&gt;bericht</numerusform>
+            <numerusform>ongelezen&lt;br/&gt;berichten</numerusform>
         </translation>
     </message>
 </context>
