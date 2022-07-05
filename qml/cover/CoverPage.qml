@@ -116,7 +116,7 @@ CoverBackground {
 
     Image {
         source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.centerIn: parent
         width: Math.max(parent.width, parent.height)
         height: width
         fillMode: Image.PreserveAspectFit
