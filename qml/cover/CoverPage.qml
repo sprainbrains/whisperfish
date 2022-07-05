@@ -2,17 +2,18 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 CoverBackground {
-    CoverActionList {
-        id: coverAction
-        CoverAction {
-            iconSource: "image://theme/icon-cover-message"
-            onTriggered: {
-                if(!SetupWorker.locked) {
-                    mainWindow.activate()
-                    mainWindow.newMessage(PageStackAction.Immediate)
-                }
-            }
-        }
+    Label {
+        id: placeholderLabel
+        visible: sessionList.count === 0
+        text: "Whisperfish"
+        anchors.centerIn: parent
+
+        width: Math.min(parent.width, parent.height) * 0.8
+        height: width
+        font.pixelSize: Theme.fontSizeHuge
+        fontSizeMode: Text.Fit
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
     }
 
     Label {
@@ -114,5 +115,19 @@ CoverBackground {
         height: sourceSize.height * (parent.width / sourceSize.width)
         fillMode: Image.PreserveAspectFit
         opacity: 0.1
+    }
+
+    CoverActionList {
+        id: coverAction
+        enabled: !placeholderLabel.visible
+        CoverAction {
+            iconSource: "image://theme/icon-cover-message"
+            onTriggered: {
+                if(!SetupWorker.locked) {
+                    mainWindow.activate()
+                    mainWindow.newMessage(PageStackAction.Immediate)
+                }
+            }
+        }
     }
 }
