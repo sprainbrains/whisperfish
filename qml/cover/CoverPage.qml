@@ -111,7 +111,15 @@ CoverBackground {
         id: coverAction
         enabled: !placeholderLabel.visible
         CoverAction {
-            iconSource: "image://theme/icon-cover-message"
+            iconSource: {
+                if (ClientWorker.connected) {
+                    return "/usr/share/harbour-whisperfish/icons/172x172/connected.png"
+                } else if (!ClientWorker.connected) {
+                    return "/usr/share/harbour-whisperfish/icons/172x172/disconnected.png"
+                } else {
+                    return "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+                }
+            }
             onTriggered: {
                 if(!SetupWorker.locked) {
                     mainWindow.activate()
