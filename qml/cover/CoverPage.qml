@@ -99,20 +99,10 @@ CoverBackground {
     }
 
     Image {
-        source: {
-            if(SessionModel.unread > 0) {
-                return "/usr/share/harbour-whisperfish/icons/172x172/gold.png"
-            } else if (ClientWorker.connected) {
-                return "/usr/share/harbour-whisperfish/icons/172x172/connected.png"
-            } else if (!ClientWorker.connected) {
-                return "/usr/share/harbour-whisperfish/icons/172x172/disconnected.png"
-            } else {
-                return "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
-            }
-        }
+        source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
         anchors.verticalCenter: parent.verticalCenter
-        width: parent.width
-        height: sourceSize.height * (parent.width / sourceSize.width)
+        width: Math.max(parent.width, parent.height)
+        height: width
         fillMode: Image.PreserveAspectFit
         opacity: 0.1
     }
