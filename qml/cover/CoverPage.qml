@@ -19,8 +19,12 @@ CoverBackground {
     Label {
         id: unreadCount
         text: SessionModel.unread
-        x: Theme.paddingLarge
-        y: Theme.paddingMedium
+        anchors {
+            top: parent.top
+            left: parent.left
+            topMargin: Theme.paddingMedium
+            leftMargin: Theme.paddingLarge
+        }
         font.pixelSize: Theme.fontSizeHuge
 
         visible: SessionModel.unread > 0
@@ -43,6 +47,7 @@ CoverBackground {
         visible: SessionModel.unread > 0
         anchors {
             right: parent.right
+            rightMargin: Theme.paddingMedium
             left: unreadCount.right
             leftMargin: Theme.paddingMedium
             baseline: unreadCount.baseline
@@ -50,11 +55,11 @@ CoverBackground {
         }
     }
 
-
     OpacityRampEffect {
-        offset: 0.5
+        offset: 0.75
+        slope: 4
         sourceItem: unreadLabel
-        enabled: unreadLabel.implicitWidth > Math.ceil(unreadLabel.width)
+        enabled: unreadLabel.contentWidth > unreadLabel.width
     }
 
     Column {
@@ -63,9 +68,13 @@ CoverBackground {
         x: Theme.paddingLarge
         spacing: Theme.paddingSmall
         width: parent.width - 2*Theme.paddingLarge
+        clip: true
 
         anchors {
-            top: unreadLabel.visible ? unreadLabel.bottom : unreadLabel.top
+            top: parent.top
+            left: parent.left
+            topMargin: Theme.paddingMedium + (SessionModel.unread > 0 ? unreadCount.height : Theme.paddingMedium)
+            leftMargin: Theme.paddingLarge
             bottom: coverActionArea.top
         }
 
@@ -93,7 +102,8 @@ CoverBackground {
     }
 
     OpacityRampEffect {
-        offset: 0.7
+        offset: 0.75
+        slope: 4
         sourceItem: contentColumn
         direction: OpacityRamp.TopToBottom
     }
