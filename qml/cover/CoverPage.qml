@@ -27,7 +27,9 @@ CoverBackground {
         }
         font.pixelSize: Theme.fontSizeHuge
 
-        visible: SessionModel.unread > 0
+        visible: opacity > 0.0
+        opacity: SessionModel.unread > 0 ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation {} }
     }
 
     Label {
@@ -44,7 +46,10 @@ CoverBackground {
         height: implicitHeight/0.8
         verticalAlignment: Text.AlignVCenter
 
-        visible: SessionModel.unread > 0
+        visible: opacity > 0.0
+        opacity: SessionModel.unread > 0 ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation {} }
+
         anchors {
             right: parent.right
             rightMargin: Theme.paddingMedium
@@ -76,6 +81,7 @@ CoverBackground {
             topMargin: Theme.paddingMedium + (SessionModel.unread > 0 ? unreadCount.height : Theme.paddingMedium)
             leftMargin: Theme.paddingLarge
             bottom: coverActionArea.top
+            Behavior on topMargin { NumberAnimation {} }
         }
 
         Item {
