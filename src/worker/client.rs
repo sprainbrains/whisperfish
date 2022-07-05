@@ -1585,8 +1585,8 @@ impl ClientWorker {
 
     #[with_executor]
     pub fn delete_file(&self, file_name: String) {
-        let _result = remove_file(&file_name);
-        let _result = match _result {
+        let result = remove_file(&file_name);
+        match result {
             Ok(()) => {
                 log::trace!("Deleted file {}", file_name);
             }
