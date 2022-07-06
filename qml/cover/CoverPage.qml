@@ -2,27 +2,34 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 CoverBackground {
-    CoverActionList {
-        id: coverAction
-        CoverAction {
-            iconSource: "image://theme/icon-cover-message"
-            onTriggered: {
-                if(!SetupWorker.locked) {
-                    mainWindow.activate()
-                    mainWindow.newMessage(PageStackAction.Immediate)
-                }
-            }
-        }
+    Label {
+        id: placeholderLabel
+        visible: sessionList.count === 0
+        text: "Whisperfish"
+        anchors.centerIn: parent
+
+        width: Math.min(parent.width, parent.height) * 0.8
+        height: width
+        font.pixelSize: Theme.fontSizeHuge
+        fontSizeMode: Text.Fit
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
     }
 
     Label {
         id: unreadCount
         text: SessionModel.unread
-        x: Theme.paddingLarge
-        y: Theme.paddingMedium
+        anchors {
+            top: parent.top
+            left: parent.left
+            topMargin: Theme.paddingMedium
+            leftMargin: Theme.paddingLarge
+        }
         font.pixelSize: Theme.fontSizeHuge
 
-        visible: SessionModel.unread > 0
+        visible: opacity > 0.0
+        opacity: SessionModel.unread > 0 ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation {} }
     }
 
     Label {
@@ -39,9 +46,13 @@ CoverBackground {
         height: implicitHeight/0.8
         verticalAlignment: Text.AlignVCenter
 
-        visible: SessionModel.unread > 0
+        visible: opacity > 0.0
+        opacity: SessionModel.unread > 0 ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation {} }
+
         anchors {
             right: parent.right
+            rightMargin: Theme.paddingMedium
             left: unreadCount.right
             leftMargin: Theme.paddingMedium
             baseline: unreadCount.baseline
@@ -49,11 +60,11 @@ CoverBackground {
         }
     }
 
-
     OpacityRampEffect {
-        offset: 0.5
+        offset: 0.75
+        slope: 4
         sourceItem: unreadLabel
-        enabled: unreadLabel.implicitWidth > Math.ceil(unreadLabel.width)
+        enabled: unreadLabel.contentWidth > unreadLabel.width
     }
 
     Column {
@@ -62,10 +73,15 @@ CoverBackground {
         x: Theme.paddingLarge
         spacing: Theme.paddingSmall
         width: parent.width - 2*Theme.paddingLarge
+        clip: true
 
         anchors {
-            top: unreadLabel.visible ? unreadLabel.bottom : unreadLabel.top
+            top: parent.top
+            left: parent.left
+            topMargin: Theme.paddingMedium + (SessionModel.unread > 0 ? unreadCount.height : Theme.paddingMedium)
+            leftMargin: Theme.paddingLarge
             bottom: coverActionArea.top
+            Behavior on topMargin { NumberAnimation {} }
         }
 
         Item {
@@ -92,27 +108,40 @@ CoverBackground {
     }
 
     OpacityRampEffect {
-        offset: 0.7
+        offset: 0.75
+        slope: 4
         sourceItem: contentColumn
         direction: OpacityRamp.TopToBottom
     }
 
     Image {
-        source: {
-            if(SessionModel.unread > 0) {
-                return "/usr/share/harbour-whisperfish/icons/172x172/gold.png"
-            } else if (ClientWorker.connected) {
-                return "/usr/share/harbour-whisperfish/icons/172x172/connected.png"
-            } else if (!ClientWorker.connected) {
-                return "/usr/share/harbour-whisperfish/icons/172x172/disconnected.png"
-            } else {
-                return "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
-            }
-        }
-        anchors.verticalCenter: parent.verticalCenter
-        width: parent.width
-        height: sourceSize.height * (parent.width / sourceSize.width)
+        source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+        anchors.centerIn: parent
+        width: Math.max(parent.width, parent.height)
+        height: width
         fillMode: Image.PreserveAspectFit
         opacity: 0.1
+    }
+
+    CoverActionList {
+        id: coverAction
+        enabled: !placeholderLabel.visible
+        CoverAction {
+            iconSource: {
+                if (ClientWorker.connected) {
+                    return "/usr/share/harbour-whisperfish/icons/172x172/connected.png"
+                } else if (!ClientWorker.connected) {
+                    return "/usr/share/harbour-whisperfish/icons/172x172/disconnected.png"
+                } else {
+                    return "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+                }
+            }
+            onTriggered: {
+                if(!SetupWorker.locked) {
+                    mainWindow.activate()
+                    mainWindow.newMessage(PageStackAction.Immediate)
+                }
+            }
+        }
     }
 }
