@@ -71,7 +71,7 @@ var Style = { // could be initialized on startup with user-configured values
 // Required raster resolutions: Qt cannot scale inline images up, only down.
 // Sizes available from Emojipedia: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
 //var rasterSizes = [144, 120, 72, 60] // decreasing
-var rasterSizes = [144, 72, 60] // decreasing
+var rasterSizes = [144, 72] // decreasing
 var rasterSizesCache = {}
 
 // Styles are checked once (raster styles once per resolution) and the results
