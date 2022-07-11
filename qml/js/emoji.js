@@ -60,7 +60,7 @@ var emojiSubDirectory = 'sailor-emoji' // subdirectory below DataBaseDirectory
 // required in multiple resolutions.
 // Path: base/subdir/<style>/<version>/[<resolution>/]<codepoint>.<ext>
 var Style = { // could be initialized on startup with user-configured values
-    'openmoji': { name: 'OpenMoji', dir: 'openmoji/13.1.0', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
+    'openmoji': { name: 'OpenMoji', dir: 'openmoji/14.0.0', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
     'twemoji': { name: 'Twemoji', dir: 'twemoji/14.0.2', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
     'whatsapp': { name: 'WhatsApp', dir: 'whatsapp/2.22.8.79', ext: 'png', type: 'r' }, // proprietary
     'apple': { name: 'Apple', dir: 'apple/15.4', ext: 'png', type: 'r' }, // proprietary
