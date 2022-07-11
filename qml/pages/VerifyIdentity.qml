@@ -14,10 +14,25 @@ Page {
 
         PullDownMenu {
             MenuItem {
+                //: Reset identity key menu item
+                //% "Reset identity key"
+                text: qsTrId("whisperfish-reset-identity-menu")
+                enabled: ! MessageModel.group && SettingsBridge.boolValue("debug_mode")
+                onClicked: {
+                    //: Reset identity key remorse message (past tense)
+                    //% "Identity key reset"
+                    remorse.execute(qsTrId("whisperfish-reset-identity-message"),
+                        function() {
+                            console.log("Resetting identity key: " + MessageModel.peerTel)
+                            SessionModel.removeIdentities(MessageModel.sessionId)
+                        })
+                }
+            }
+            MenuItem {
                 //: Reset secure session menu item
                 //% "Reset Secure Session"
                 text: qsTrId("whisperfish-reset-session-menu")
-                enabled: ! MessageModel.group
+                enabled: ! MessageModel.group && SettingsBridge.boolValue("debug_mode")
                 onClicked: {
                     //: Reset secure session remorse message (past tense)
                     //% "Secure session reset"

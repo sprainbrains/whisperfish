@@ -402,7 +402,10 @@ impl Storage {
         Some(IdentityKey::decode(&found.record).expect("only valid identity keys in db"))
     }
 
-    fn delete_identity_key(&self, addr: &ProtocolAddress) -> bool {
+    /// Removes the identity matching `addr` from the database
+    ///
+    /// Does not lock the protocol storage.
+    pub fn delete_identity_key(&self, addr: &ProtocolAddress) -> bool {
         let db = self.db.lock();
         use crate::schema::identity_records::dsl::*;
         let addr = addr.name();
