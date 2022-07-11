@@ -315,7 +315,7 @@ impl Handler<RemoveIdentities> for SessionActor {
     fn handle(
         &mut self,
         RemoveIdentities { session_id }: RemoveIdentities,
-        _ctx: &mut Self::Context,
+        ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.as_ref().unwrap();
         let session = if let Some(s) = storage.fetch_session_by_id(session_id) {
@@ -355,6 +355,9 @@ impl Handler<RemoveIdentities> for SessionActor {
                 log::warn!("Removing identity key failed somehow.  Please file a bug.");
             }
         }
+
+        // Schedule session update to relead identity key.
+        ctx.notify(UpdateSession { id: session_id });
     }
 }
 
