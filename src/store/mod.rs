@@ -1827,11 +1827,16 @@ impl Storage {
         log::trace!("Called fetch_all_messages_augmented({})", sid);
         let messages = self.fetch_all_messages(sid);
 
+        let order = (
+            schema::messages::columns::server_timestamp.desc(),
+            schema::messages::columns::id.desc(),
+        );
+
         let attachments: Vec<orm::Attachment> = schema::attachments::table
             .select(schema::attachments::all_columns)
             .inner_join(schema::messages::table.inner_join(schema::sessions::table))
             .filter(schema::sessions::id.eq(sid))
-            .order_by(schema::attachments::message_id.desc())
+            .order_by(order)
             .load(&*db)
             .expect("db");
 
@@ -1843,7 +1848,7 @@ impl Storage {
             ))
             .inner_join(schema::messages::table.inner_join(schema::sessions::table))
             .filter(schema::sessions::id.eq(sid))
-            .order_by(schema::receipts::message_id.desc())
+            .order_by(order)
             .load(&*db)
             .expect("db");
         let reactions: Vec<(orm::Reaction, orm::Recipient)> = schema::reactions::table
@@ -1854,7 +1859,7 @@ impl Storage {
             ))
             .inner_join(schema::messages::table.inner_join(schema::sessions::table))
             .filter(schema::sessions::id.eq(sid))
-            .order_by(schema::reactions::message_id.desc())
+            .order_by(order)
             .load(&*db)
             .expect("db");
 
