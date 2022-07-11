@@ -430,27 +430,39 @@
         <extracomment>Resend message menu item</extracomment>
         <translation>Herzenden</translation>
     </message>
-    <message id="whisperfish-reset-session-menu">
+    <message id="whisperfish-reset-identity-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
+        <source>Reset identity key</source>
+        <extracomment>Reset identity key menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-reset-identity-message">
+        <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
+        <source>Identity key reset</source>
+        <extracomment>Reset identity key remorse message (past tense)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-reset-session-menu">
+        <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Beveiligde sessie herinstellen</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="39"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>De beveiligde sessie is heringesteld</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="49"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Contact tônen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="73"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="88"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Vergelijkt de cijferkes hierboven me’ de die op ’t toestel van %1 voôr de veiligheid van u eind-tot-eind-versleuteling te verifiëren.</translation>
@@ -991,9 +1003,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
         <location filename="../qml/pages/Settings.qml" line="381"/>
-        <source>Show debugging information in the user interface.</source>
+        <source>Show debugging information and controls in the user interface.</source>
+        <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation>Toônt ontwikkelaarsinformatie in den app.</translation>
+        <translation type="unfinished">Toônt ontwikkelaarsinformatie in den app.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="396"/>
@@ -1087,7 +1100,7 @@ Settings page share contacts</extracomment>
         <translation>Uitgeschakeld</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="53"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="68"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
