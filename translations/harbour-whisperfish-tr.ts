@@ -433,13 +433,13 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kimlik anahtarını sıfırla</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kimlik anahtarı sıfırlandı</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -1008,7 +1008,7 @@ Settings page share contacts</extracomment>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished">Kullanıcı arayüzünde hata ayıklama bilgilerini göster.</translation>
+        <translation>Kullanıcı arayüzünde hata ayıklama bilgilerini ve denetimleri göster.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="396"/>
@@ -1554,6 +1554,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Okunmamış&lt;br/&gt;mesaj</numerusform>
+            <numerusform>Okunmamış&lt;br/&gt;mesajlar</numerusform>
         </translation>
     </message>
 </context>
