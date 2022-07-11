@@ -62,6 +62,8 @@ pub struct SessionModel {
     markMuted: qt_method!(fn(&self, idx: usize, muted: bool)),
     markArchived: qt_method!(fn(&self, idx: usize, archived: bool)),
     markPinned: qt_method!(fn(&self, idx: usize, pinned: bool)),
+
+    removeIdentities: qt_method!(fn(&self, session_id: i32)),
 }
 
 impl SessionModel {
@@ -258,6 +260,18 @@ impl SessionModel {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched actor::MarkSessionPinned({}, {})", idx, pinned);
+    }
+
+    #[with_executor]
+    fn removeIdentities(&self, session_id: i32) {
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(actor::RemoveIdentities { session_id })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched SessionActor::RemoveIdentities({})", session_id);
     }
 
     // Event handlers below this line

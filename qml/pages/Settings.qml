@@ -377,7 +377,7 @@ Page {
                 //% "Debug mode"
                 text: qsTrId("whisperfish-settings-debug-mode")
                 //: Settings page: debug info toggle extended description
-                //% "Show debugging information in the user interface."
+                //% "Show debugging information and controls in the user interface."
                 description: qsTrId("whisperfish-settings-debug-mode-description")
                 checked: SettingsBridge.boolValue("debug_mode")
                 icon.source: "image://theme/icon-m-developer-mode"

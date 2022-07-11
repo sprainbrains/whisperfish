@@ -8,6 +8,7 @@ use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 
 use actix::prelude::*;
+use libsignal_protocol::ProtocolAddress;
 use qmetaobject::prelude::*;
 
 mod typing_notifications;
@@ -68,6 +69,12 @@ pub struct DeleteSession {
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct LoadAllSessions;
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct RemoveIdentities {
+    pub session_id: i32,
+}
 
 pub struct SessionActor {
     inner: QObjectBox<SessionModel>,
@@ -299,6 +306,58 @@ impl Handler<DeleteSession> for SessionActor {
         self.storage.as_ref().unwrap().delete_session(id);
 
         self.inner.pinned().borrow_mut().handle_delete_session(idx);
+    }
+}
+
+impl Handler<RemoveIdentities> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        RemoveIdentities { session_id }: RemoveIdentities,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        let storage = self.storage.as_ref().unwrap();
+        let session = if let Some(s) = storage.fetch_session_by_id(session_id) {
+            s
+        } else {
+            log::warn!(
+                "Requested removal of identities for session {}, but session not found.",
+                session_id
+            );
+            return;
+        };
+        let recipient = match session.r#type {
+            orm::SessionType::DirectMessage(r) => r,
+            orm::SessionType::GroupV1(_) => {
+                log::warn!("Cannot remove identities for a group v1");
+                return;
+            }
+            orm::SessionType::GroupV2(_) => {
+                log::warn!("Cannot remove identities for a group v1");
+                return;
+            }
+        };
+
+        let identities = match (recipient.e164, recipient.uuid) {
+            (None, None) => {
+                log::debug!("No identities to remove");
+                return;
+            }
+            (None, Some(uuid)) => vec![uuid],
+            (Some(e164), None) => vec![e164],
+            (Some(e164), Some(uuid)) => vec![e164, uuid],
+        };
+        for identity in identities {
+            log::debug!("Removing identity {}", identity);
+            let addr = ProtocolAddress::new(identity, 1);
+            if !storage.delete_identity_key(&addr) {
+                log::warn!("Removing identity key failed somehow.  Please file a bug.");
+            }
+        }
+
+        // Schedule session update to relead identity key.
+        ctx.notify(UpdateSession { id: session_id });
     }
 }
 
