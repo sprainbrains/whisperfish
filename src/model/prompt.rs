@@ -152,6 +152,6 @@ impl Prompt {
         Command::new("/usr/bin/sailfish-qml")
             .args(&["harbour-whisperfish"])
             .spawn()
-            .expect("ls command failed to start");
+            .expect("/usr/bin/sailfish-qml not found, libsailfishapp-launcher not installed?");
     }
 }
