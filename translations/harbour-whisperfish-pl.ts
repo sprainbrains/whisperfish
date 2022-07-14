@@ -26,19 +26,19 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="79"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 pisze</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="83"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 i %2 piszą</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 i %n innych pisze</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/cover/SessionItem.qml" line="67"/>
@@ -60,39 +60,39 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="294"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Odepnij</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="297"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Przypnij u góry</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="306"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wyłącz wyciszenie rozmowy</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="309"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wycisz rozmowę</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Przywróć do listy rozmów</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Archiwizuj rozmowę</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="327"/>
@@ -123,43 +123,43 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="317"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Magazyn danych Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish-main.qml" line="321"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zapisz konfigurację i wiadomości</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokaż zarchiwizowane rozmowy</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Powrót do listy rozmów</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lista rozmów</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zarchiwizowane rozmowy</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Przypięte</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
@@ -201,13 +201,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Opis</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish to nieoficjalny i zaawansowany klient Signal dla systemu Sailfish OS. Pomimo tego, że Whisperfish oferuje wiele funkcjonalności, wciąż jest uważany za oprogramowanie w fazie rozwoju beta. Pamiętaj o częstych aktualizacjach! Odwiedź również nasze Wiki i pomóż w tworzeniu! Nigdy nie kontaktuj się z twórcami oficjalnego klienta Signal w związku z problemami Whisperfish, kontaktuj się bezpośrednio z nami!.</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -352,13 +352,13 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sprawdź aktualizacje</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>To wydanie Whisperfish jest starsze niż 90 dni. Sprawdź aktualizacje, żeby Whisperfish wciąż działał prawidłowo.</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
@@ -435,13 +435,13 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Resetuj klucz tożsamości</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zresetowano klucz tożsamości</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -664,13 +664,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="102"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kraj lub obszar</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="107"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nie wybrano</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="208"/>
@@ -930,13 +930,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="102"/>
         <source>Enable typing indicators</source>
         <extracomment>Settings page use typing indicators</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Włącz wskaźniki pisania</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators-description">
         <location filename="../qml/pages/Settings.qml" line="105"/>
         <source>See when others are typing, and let others see when you are typing, if they also have this enabled.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zobacz kiedy piszą inni i pozwól innym widzieć kiedy piszesz, jeśli oni również na to pozwalają.</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise">
         <location filename="../qml/pages/Settings.qml" line="151"/>
@@ -1010,7 +1010,7 @@ Settings page share contacts</extracomment>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished">Pokaż informacje o debugowaniu w interfejsie użytkownika.</translation>
+        <translation>Pokaż informacje i sterowanie debugowaniem w interfejsie użytkownika.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="396"/>
@@ -1138,7 +1138,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Odśwież grupę</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
@@ -1447,7 +1447,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ContactCardPage.qml" line="52"/>
         <source>Save to address book</source>
         <extracomment>Menu item to save a shared contact to the local address book</extracomment>
-        <translation>zapisz w książce adresowej</translation>
+        <translation>Zapisz w książce adresowej</translation>
     </message>
     <message id="whisperfish-expanded-message-page-header">
         <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
@@ -1471,7 +1471,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewImagePage.qml" line="251"/>
         <source>Loading image</source>
         <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
-        <translation>Full message</translation>
+        <translation>Ładowanie obrazu</translation>
     </message>
     <message id="whisperfish-view-image-page-error">
         <location filename="../qml/pages/ViewImagePage.qml" line="261"/>
@@ -1491,9 +1491,9 @@ Settings page share contacts</extracomment>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
-            <numerusform>wybrano %n wiadomość</numerusform>
-            <numerusform>wybrano %n wiadomości</numerusform>
-            <numerusform>wybrano %n wiadomości</numerusform>
+            <numerusform>Wybrano %n wiadomość</numerusform>
+            <numerusform>Wybrano %n wiadomości</numerusform>
+            <numerusform>Wybrano %n wiadomości</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1501,9 +1501,9 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
-            <numerusform>Wyczyść wybór</numerusform>
-            <numerusform>Wyczyść wybór</numerusform>
-            <numerusform>Wyczyść wybór</numerusform>
+            <numerusform>Wyczyść wybrany</numerusform>
+            <numerusform>Wyczyść wybrane</numerusform>
+            <numerusform>Wyczyść wybrane</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1566,16 +1566,16 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Captcha Signal</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
         <location filename="../qml/cover/CoverPage.qml" line="40"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Nieprzeczytana&lt;br/&gt;wiadomość</numerusform>
+            <numerusform>Nieprzeczytane&lt;br/&gt;wiadomości</numerusform>
+            <numerusform>Nieprzeczytane&lt;br/&gt;wiadomości</numerusform>
         </translation>
     </message>
 </context>
