@@ -44,24 +44,23 @@ impl Default for Settings {
 
             inner: unsafe {
                 cpp!([] -> *mut QSettings as "QSettings *" {
-                    QString newSettingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf";
-                    QString oldSettingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/harbour-whisperfish/harbour-whisperfish.conf";
-                    QString tmpSettingsFile = newSettingsFile + ".bak";
+                    QString settingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
+                                                + "/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf";
 
+                    QSettings* settings = new QSettings(settingsFile, QSettings::NativeFormat);
 
-                    if(QFile::exists(oldSettingsFile)) {
-                        QFile::remove(tmpSettingsFile);
-                        if(QFile::exists(newSettingsFile)) {
-                            QFile::copy(newSettingsFile, tmpSettingsFile);
-                            QFile::remove(newSettingsFile);
-                        }
-                        if(QFile::copy(oldSettingsFile, newSettingsFile)) {
-                            QFile::remove(oldSettingsFile);
-                            QFile::remove(tmpSettingsFile);
+                    QStringList path_keys;
+                    path_keys << "attachment_dir" << "camera_dir";
+                    QString old_path = ".local/share/harbour-whisperfish";
+                    QString new_path = ".local/share/be.rubdos/harbour-whisperfish";
+
+                    foreach(const QString &key, path_keys) {
+                        if(settings->contains(key) && settings->value(key).toString().contains(old_path)) {
+                            settings->setValue(key, settings->value(key).toString().replace(old_path, new_path));
                         }
                     }
 
-                    return new QSettings(newSettingsFile, QSettings::NativeFormat);
+                    return settings;
                 })
             },
         }
