@@ -181,7 +181,9 @@ pub fn temp() -> StorageLocation<tempdir::TempDir> {
 pub fn default_location() -> Result<StorageLocation<PathBuf>, anyhow::Error> {
     let data_dir = dirs::data_local_dir().context("Could not find data directory.")?;
 
-    Ok(StorageLocation::Path(data_dir.join("harbour-whisperfish")))
+    Ok(StorageLocation::Path(
+        data_dir.join("be.rubdos").join("harbour-whisperfish"),
+    ))
 }
 
 impl<P: AsRef<Path>> std::ops::Deref for StorageLocation<P> {

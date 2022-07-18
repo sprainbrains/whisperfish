@@ -1,4 +1,5 @@
 use anyhow::Context;
+use fs_extra;
 
 /// Global Config
 ///
@@ -50,9 +51,137 @@ impl Default for SignalConfig {
 }
 
 impl SignalConfig {
+    pub fn migrate_config() -> Result<(), anyhow::Error> {
+        let config_dir = dirs::config_dir().expect("No config directory found");
+
+        let old_path = config_dir.join("harbour-whisperfish");
+
+        let new_path = config_dir.join("be.rubdos").join("harbour-whisperfish");
+
+        let old_file = &old_path.join("config.yml");
+        let new_file = &new_path.join("config.yml");
+
+        if new_file.exists() {
+            return Ok(());
+        }
+
+        if !new_path.exists() {
+            eprintln!("Creating new config path...");
+            std::fs::create_dir_all(&new_path)?;
+        }
+
+        if !old_file.exists() {
+            if !new_file.exists() {
+                eprintln!("Creating empty config file...");
+                std::fs::File::create(new_file)?;
+                return Ok(());
+            }
+            eprintln!("Old config doesn't exist, migration not needed");
+            return Ok(());
+        }
+
+        // Sailjail mounts the old and new paths separately, which makes
+        // std::fs::rename fail. That means we have to use copy-and-delete.
+        eprintln!("Migrating old config file...");
+        std::fs::copy(old_file, new_file)?;
+        std::fs::remove_file(old_file)?;
+        eprintln!("Config file migrated");
+        Ok(())
+    }
+
+    pub fn migrate_qsettings() -> Result<(), anyhow::Error> {
+        let config_dir = dirs::config_dir().expect("No config directory found");
+
+        let old_path = config_dir.join("harbour-whisperfish");
+
+        let new_path = config_dir.join("be.rubdos").join("harbour-whisperfish");
+
+        let old_file = &old_path.join("harbour-whisperfish.conf");
+        let new_file = &new_path.join("harbour-whisperfish.conf");
+
+        if new_file.exists() {
+            return Ok(());
+        }
+
+        if !new_path.exists() {
+            eprintln!("Creating new config path...");
+            std::fs::create_dir_all(&new_path)?;
+        }
+
+        if !old_file.exists() {
+            if !new_file.exists() {
+                eprintln!("Creating empty QSettings file...");
+                std::fs::File::create(new_file)?;
+                return Ok(());
+            }
+            eprintln!("Old QSettings file doesn't exist, migration not needed");
+            return Ok(());
+        }
+
+        // Sailjail mounts the old and new paths separately, which makes
+        // std::fs::rename fail. That means we have to use copy-and-delete.
+        eprintln!("Migrating old QSettings file...");
+        std::fs::copy(old_file, new_file)?;
+        std::fs::remove_file(old_file)?;
+        eprintln!("QSettings file migrated");
+        Ok(())
+    }
+
+    // XXX: This probably shouldn't be in signalconfig.rs
+    pub fn migrate_storage() -> Result<(), anyhow::Error> {
+        let data_dir = dirs::data_local_dir().context("No data directory found")?;
+
+        let old_path = data_dir.join("harbour-whisperfish");
+        let old_db = &old_path.join("db");
+        let old_storage = &old_path.join("storage");
+
+        let new_path = data_dir.join("be.rubdos").join("harbour-whisperfish");
+        let new_db = &new_path.join("db");
+        let new_storage = &new_path.join("storage");
+
+        if !new_path.exists() {
+            eprintln!("Creating new storage path...");
+            std::fs::create_dir_all(&new_path)?;
+        }
+
+        if new_db.exists() && new_storage.exists() {
+            return Ok(());
+        } else if !new_db.exists()
+            && !new_storage.exists()
+            && !old_db.exists()
+            && !old_storage.exists()
+        {
+            eprintln!("Creating storage and db folders...");
+            std::fs::create_dir(new_db)?;
+            std::fs::create_dir(new_storage)?;
+            return Ok(());
+        } else if (new_db.exists() ^ new_storage.exists())
+            || (old_db.exists() ^ old_storage.exists())
+        {
+            eprintln!("Storage state is abnormal, aborting!");
+            eprintln!("new db exists: {}", new_db.exists());
+            eprintln!("new storage exists: {}", new_storage.exists());
+            eprintln!("old db exists: {}", old_db.exists());
+            eprintln!("old storage exists: {}", old_storage.exists());
+            std::process::exit(1);
+        }
+
+        // Sailjail mounts the old and new paths separately, which makes
+        // std::fs::rename fail. That means we have to copy-and-delete
+        // recursively instead, handled by fs_extra::dir::move_dir.
+        let options = fs_extra::dir::CopyOptions::new();
+        eprintln!("Migrating old db folder...");
+        fs_extra::dir::move_dir(&old_db, &new_path, &options)?;
+        eprintln!("Migrating old storage folder...");
+        fs_extra::dir::move_dir(&old_storage, &new_path, &options)?;
+        eprintln!("Storage folders migrated");
+        Ok(())
+    }
+
     pub fn read_from_file() -> Result<Self, anyhow::Error> {
         let path = dirs::config_dir()
             .context("Could not get xdg config directory path")?
+            .join("be.rubdos")
             .join("harbour-whisperfish")
             .join("config.yml");
 
@@ -68,11 +197,12 @@ impl SignalConfig {
         let path = dirs::config_dir()
             // XXX use anyhow context here
             .expect("No config directory found")
+            .join("be.rubdos")
             .join("harbour-whisperfish");
 
         // create config directory if it does not exist
         if !path.exists() {
-            std::fs::create_dir(&path).with_context(|| {
+            std::fs::create_dir_all(&path).with_context(|| {
                 format!("Could not create config directory: {}", &path.display())
             })?;
         }

@@ -34,6 +34,7 @@ pub fn millis_to_naive_chrono(ts: u64) -> chrono::NaiveDateTime {
 pub fn conf_dir() -> std::path::PathBuf {
     let conf_dir = dirs::config_dir()
         .expect("config directory")
+        .join("be.rubdos")
         .join("harbour-whisperfish");
 
     if !conf_dir.exists() {

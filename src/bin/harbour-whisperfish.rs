@@ -33,12 +33,43 @@ struct Opts {
 }
 
 fn main() {
+    // Migrate the config file from
+    // ~/.config/harbour-whisperfish/config.yml to
+    // ~/.config/be.rubdos/harbour-whisperfish/config.yml
+    match config::SignalConfig::migrate_config() {
+        Ok(()) => (),
+        Err(e) => {
+            eprintln!("Could not migrate config file: {}", e);
+        }
+    };
+
+    // Migrate the QSettings file from
+    // ~/.config/harbour-whisperfish/harbour-whisperfish.conf to
+    // ~/.config/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf
+    match config::SignalConfig::migrate_qsettings() {
+        Ok(()) => (),
+        Err(e) => {
+            eprintln!("Could not migrate QSettings file: {}", e);
+        }
+    };
+
     // Read config file or get a default config
     let mut config = match config::SignalConfig::read_from_file() {
         Ok(x) => x,
         Err(e) => {
             eprintln!("Config file not found: {}", e);
             config::SignalConfig::default()
+        }
+    };
+
+    // Migrate the db and storage folders from
+    // ~/.local/share/harbour-whisperfish/[...] to
+    // ~/.local/share/rubdos.be/harbour-whisperfish/[...]
+    match config::SignalConfig::migrate_storage() {
+        Ok(()) => (),
+        Err(e) => {
+            eprintln!("Could not migrate db and storage: {}", e);
+            std::process::exit(1);
         }
     };
 
