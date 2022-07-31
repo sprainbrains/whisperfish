@@ -13,7 +13,7 @@ pub fn storage() -> impl Future<Output = InMemoryDb> {
     async {
         let temp = temp();
         (
-            Storage::new(&temp, None, 12345, "Some Password", [0; 52])
+            Storage::new(&temp, None, 12345, "Some Password", [0; 52], None)
                 .await
                 .expect("Failed to initalize storage"),
             temp,

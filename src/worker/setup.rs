@@ -4,6 +4,15 @@ use anyhow::Context;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
 
+use phonenumber::PhoneNumber;
+
+pub struct RegistrationResult {
+    regid: u32,
+    phonenumber: PhoneNumber,
+    uuid: String,
+    identity_key_pair: Option<libsignal_protocol::IdentityKeyPair>,
+}
+
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
 pub struct SetupWorker {
@@ -155,6 +164,74 @@ impl SetupWorker {
             .context("No password code provided")?
             .into();
 
+        let is_primary: bool = app
+            .prompt
+            .pinned()
+            .borrow_mut()
+            .ask_registration_type()
+            .await
+            .context("No registration type chosen")?;
+
+        // generate a random 24 bytes password
+        use rand::distributions::Alphanumeric;
+        use rand::{Rng, RngCore};
+        let rng = rand::thread_rng();
+        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+        // XXX in rand 0.8, this needs to be a Vec<u8> and be converted afterwards.
+        // let password = std::str::from_utf8(&password)?.to_string();
+
+        // generate a 52 bytes signaling key
+        let mut rng = rand::thread_rng();
+        let mut signaling_key = [0u8; 52];
+        rng.fill_bytes(&mut signaling_key);
+        let signaling_key = signaling_key;
+
+        let reg = if is_primary {
+            SetupWorker::register_as_primary(app.clone(), config, &password, &signaling_key)
+                .await?
+        } else {
+            SetupWorker::register_as_secondary(app.clone(), &password, &signaling_key).await?
+        };
+
+        let mut this = this.borrow_mut();
+
+        let storage_password = if storage_password.is_empty() {
+            None
+        } else {
+            Some(storage_password)
+        };
+
+        let e164 = reg
+            .phonenumber
+            .format()
+            .mode(phonenumber::Mode::E164)
+            .to_string();
+        this.phoneNumber = e164.clone().into();
+        this.uuid = reg.uuid.into();
+
+        // Install storage
+        let storage = Storage::new(
+            &config.get_share_dir().to_owned().into(),
+            storage_password.as_deref(),
+            reg.regid,
+            &password,
+            signaling_key,
+            reg.identity_key_pair,
+        )
+        .await?;
+        *app.storage.borrow_mut() = Some(storage);
+
+        Ok(())
+    }
+
+    async fn register_as_primary(
+        app: Rc<WhisperfishApp>,
+        config: &crate::config::SignalConfig,
+        password: &str,
+        signaling_key: &[u8; 52],
+    ) -> Result<RegistrationResult, anyhow::Error> {
+        let this = app.setup_worker.pinned();
+
         let number = loop {
             let number: String = app
                 .prompt
@@ -174,17 +251,9 @@ impl SetupWorker {
             }
         };
 
-        let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
-        log::info!("Using phone number: {}", number);
-        this.borrow_mut().phoneNumber = e164.clone().into();
-
-        // generate a random 24 bytes password
-        use rand::distributions::Alphanumeric;
-        use rand::{Rng, RngCore};
-        let rng = rand::thread_rng();
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
-        // XXX in rand 0.8, this needs to be a Vec<u8> and be converted afterwards.
-        // let password = std::str::from_utf8(&password)?.to_string();
+        //let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
+        //log::info!("Using phone number: {}", number);
+        //this.borrow_mut().phoneNumber = e164.clone().into();
 
         if let Some(captcha) = &config.override_captcha {
             log::info!("Using override captcha {}", captcha);
@@ -193,7 +262,7 @@ impl SetupWorker {
             .client_actor
             .send(super::client::Register {
                 phonenumber: number.clone(),
-                password: password.clone(),
+                password: password.to_string(),
                 use_voice: this.borrow().useVoice,
                 captcha: config.override_captcha.clone(),
             })
@@ -212,7 +281,7 @@ impl SetupWorker {
                 .client_actor
                 .send(super::client::Register {
                     phonenumber: number.clone(),
-                    password: password.clone(),
+                    password: password.to_string(),
                     use_voice: this.borrow().useVoice,
                     captcha: Some(captcha),
                 })
@@ -229,44 +298,135 @@ impl SetupWorker {
             .into();
         let code = code.parse()?;
 
-        let mut rng = rand::thread_rng();
-        let mut signaling_key = [0u8; 52];
-        rng.fill_bytes(&mut signaling_key);
-        let signaling_key = signaling_key;
-
         let (regid, res) = app
             .client_actor
             .send(super::client::ConfirmRegistration {
                 phonenumber: number.clone(),
-                password: password.clone(),
+                password: password.to_string(),
                 confirm_code: code,
-                signaling_key,
+                signaling_key: *signaling_key,
             })
             .await??;
 
         log::info!("Registration result: {:?}", res);
 
-        let mut this = this.borrow_mut();
-
-        let storage_password = if storage_password.is_empty() {
-            None
-        } else {
-            Some(storage_password)
-        };
-
-        this.uuid = res.uuid.to_string().into();
-
-        // Install storage
-        let storage = Storage::new(
-            &config.get_share_dir().to_owned().into(),
-            storage_password.as_deref(),
+        Ok(RegistrationResult {
             regid,
-            &password,
-            signaling_key,
-        )
-        .await?;
-        *app.storage.borrow_mut() = Some(storage);
+            phonenumber: number,
+            uuid: res.uuid.to_string(),
+            identity_key_pair: Option::None,
+        })
+    }
 
-        Ok(())
+    async fn register_as_secondary(
+        app: Rc<WhisperfishApp>,
+        password: &str,
+        signaling_key: &[u8; 52],
+    ) -> Result<RegistrationResult, anyhow::Error> {
+        use futures::FutureExt;
+
+        let (tx_uri, rx_uri) = futures::channel::oneshot::channel();
+
+        let res_fut = app.client_actor.send(super::client::RegisterLinked {
+            device_name: String::from("Whisperfish"),
+            password: password.to_string(),
+            signaling_key: *signaling_key,
+            tx_uri,
+        });
+
+        let res_fut = res_fut.fuse();
+        let rx_uri = rx_uri.fuse();
+
+        futures::pin_mut!(res_fut, rx_uri);
+
+        loop {
+            futures::select! {
+                uri_result = rx_uri => {
+                    app.prompt
+                        .pinned()
+                        .borrow_mut()
+                        .show_link_qr(uri_result?);
+                        //.context("No verification code provided")?
+                        //.into();
+                }
+                res = res_fut => {
+                    let res = res??;
+                    return Ok(RegistrationResult {
+                        regid: res.registration_id,
+                        phonenumber: res.phone_number,
+                        uuid: res.uuid,
+                        identity_key_pair: Some(res.identity_key_pair),
+                    });
+                }
+                complete => return Err(anyhow::Error::msg("Linking to device completed without any result")),
+            }
+        }
+
+        //let linking_handle = RefCell::new(linking_handle);
+        //let succeeded = Cell::new(false);
+        //scopeguard::defer! {
+        //// Notify UI that we are done
+        //linking_handle.borrow_mut().notify_completed(succeeded.get());
+        //};
+
+        //let mut completion_fut  = completion_fut.fuse();
+        //let mut link_device_fut = link_device_fut.fuse();
+        //loop {
+        //futures::select! {
+        //uri_result = rx => {
+        //// Tell UI to display the received provisioning URI
+        //linking_handle.borrow_mut().submit_uri(&uri_result?);
+        //},
+
+        //link_result = link_device_fut => {
+        //let link_result = link_result??;
+
+        //let mut this = this.borrow_mut();
+        //let mut cfg = this.config.as_mut().unwrap();
+        //cfg.uuid = Some(link_result.uuid.clone());
+        //cfg.tel = Some(link_result.phone_number);
+        //Self::write_config(app.clone(), cfg).await?;
+        //this.uuid = link_result.uuid.into();
+
+        //let context = libsignal_protocol::Context::default();
+        //let identity_key_pair = libsignal_protocol::keys::IdentityKeyPair::new(
+        //&libsignal_protocol::keys::PublicKey::decode_point(
+        //&context, link_result.public_key.as_slice()
+        //).unwrap(),
+        //&libsignal_protocol::keys::PrivateKey::decode_point(
+        //&context, link_result.private_key.as_slice()
+        //).unwrap(),
+        //).unwrap();
+
+        //// Install storage
+        //let storage = Storage::new_with_password(
+        //&store::default_location()?,
+        //&storage_password,
+        //link_result.registration_id,
+        //&password,
+        //signaling_key,
+        //identity_key_pair,
+        //).await?;
+        //*app.storage.borrow_mut() = Some(storage);
+
+        //// Report success to UI
+        //succeeded.set(true);
+
+        //break Ok(());
+        //},
+
+        //_ = completion_fut => {
+        //// This shouldn't be called if linking succeeded,
+        //// since this coroutine will have already exited
+        //// after initializing storage
+        //break Err(format_err!("Operation aborted by user"));
+        //},
+
+        //complete => {
+        //// XXX: This is probably unreachable now?
+        //break Err(format_err!("Linking to device completed without any result"));
+        //}
+        //}
+        //}
     }
 }

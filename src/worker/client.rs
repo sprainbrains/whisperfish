@@ -1529,6 +1529,214 @@ impl Handler<ConfirmRegistration> for ClientActor {
     }
 }
 
+//use crate::gui::WhisperfishApp;
+//use std::rc::Rc;
+
+#[derive(Message)]
+#[rtype(result = "Result<RegisterLinkedResponse, anyhow::Error>")]
+pub struct RegisterLinked {
+    pub device_name: String,
+    pub password: String,
+    pub signaling_key: [u8; 52],
+    pub tx_uri: futures::channel::oneshot::Sender<String>,
+}
+
+pub struct RegisterLinkedResponse {
+    pub phone_number: PhoneNumber,
+    pub registration_id: u32,
+    pub uuid: String,
+    pub identity_key_pair: libsignal_protocol::IdentityKeyPair,
+}
+
+impl Handler<RegisterLinked> for ClientActor {
+    type Result = ResponseActFuture<Self, Result<RegisterLinkedResponse, anyhow::Error>>;
+
+    fn handle(&mut self, reg: RegisterLinked, _ctx: &mut Self::Context) -> Self::Result {
+        use libsignal_service::provisioning::*;
+
+        let push_service = self.unauthenticated_service();
+
+        let mut provision_manager: LinkingManager<AwcPushService> =
+            LinkingManager::new(push_service, reg.password.clone());
+
+        let (tx, mut rx) = futures::channel::mpsc::channel(1);
+
+        let mut tx_uri = Some(reg.tx_uri);
+        let signaling_key = reg.signaling_key;
+
+        let registration_procedure = async move {
+            let (fut1, fut2) = future::join(
+                provision_manager.provision_secondary_device(
+                    &mut rand::thread_rng(),
+                    signaling_key,
+                    tx,
+                ),
+                async move {
+                    let mut res = Result::<RegisterLinkedResponse, anyhow::Error>::Err(
+                        anyhow::Error::msg("Registration timed out"),
+                    );
+                    while let Some(provisioning_step) = rx.next().await {
+                        match provisioning_step {
+                            SecondaryDeviceProvisioning::Url(url) => {
+                                log::info!("generating qrcode from provisioning link: {}", &url);
+                                tx_uri
+                                    .take()
+                                    .expect("that only one URI is emitted by provisioning code")
+                                    .send(url.to_string())
+                                    .expect("to forward provisioning URL to caller");
+                                //let code = QrCode::new(url.as_str())
+                                //.expect("failed to generate qrcode");
+                                //let image = code.render::<Luma<u8>>().build();
+                                //let path = std::env::temp_dir().join("device-link.png");
+                                //image.save(&path)?;
+                                //opener::open(path)?;
+                            }
+                            SecondaryDeviceProvisioning::NewDeviceRegistration {
+                                phone_number,
+                                device_id: _,
+                                registration_id,
+                                uuid,
+                                private_key,
+                                public_key,
+                                profile_key: _,
+                            } => {
+                                let identity_key_pair = libsignal_protocol::IdentityKeyPair::new(
+                                    libsignal_protocol::IdentityKey::new(public_key),
+                                    private_key,
+                                );
+
+                                res = Result::<RegisterLinkedResponse, anyhow::Error>::Ok(
+                                    RegisterLinkedResponse {
+                                        phone_number,
+                                        registration_id,
+                                        uuid: uuid.to_string(),
+                                        identity_key_pair,
+                                    },
+                                );
+                            }
+                        }
+                    }
+                    res
+                },
+            )
+            .await;
+
+            fut1?;
+            fut2
+        };
+
+        Box::pin(
+            registration_procedure
+                .into_actor(self)
+                .map(move |result, _act, _ctx| result),
+        )
+        //let RegisterLinked {
+        //device_name,
+        //password,
+        //signaling_key,
+        //tx: tx_url,
+        //} = reg;
+
+        //let mut tx_url = Some(tx_url);
+
+        //let (mut tx_srv, mut rx_srv) = futures::channel::mpsc::channel(1);
+
+        //let task_ctx = self.context.clone();
+        //let task_srv = self.service_cfg();
+        //let (task_future, task_handle) = async move {
+        //match provision_secondary_device(
+        //&task_ctx,
+        //&task_srv,
+        //&signaling_key,
+        //&password,
+        //&device_name,
+        //tx_srv.clone().with(|provisioning_step| Box::pin(async {
+        //// Wrapping each future returned here in a box isn't great,
+        //// but there does not appear to be any other way to satisfy
+        //// the `Unpin` requirement on this callback
+        ////
+        //// Ideally there would be a synchronous version of `with`
+        //// here, even better would be a `provision_secondary_device`
+        //// function that would just return its errors inline with
+        //// along other channel messages, making this whole thing
+        //// redundant.
+        //Result::<_, futures::channel::mpsc::SendError>::Ok(Ok(provisioning_step))
+        //}))
+        //).await {
+        //Ok(()) => {
+        //// A bit of a hack: An Ok result can mean either success or
+        //// timeout (probably a bug), rely on true success messages
+        //// having already closed the channel here
+        //drop(tx_srv.send(Err(ServiceError::Timeout {
+        //reason: String::from("Connection closed by peer")
+        //}.into())).await);
+        //},
+
+        //Err(err) => {
+        //tx_srv.send(Err(err))
+        //.await
+        //.expect("to send provisioning error in rx channel");
+        //},
+        //}
+        //}.remote_handle();
+        //ctx.spawn(task_future.into_actor(self));
+
+        //Box::pin(async move {
+        //// Ensure background task is cancelled by dropping its remote handle
+        //// when this future returns to prevent any future leaks for occurring
+        //scopeguard::defer! {
+        //drop(task_handle);
+        //};
+
+        //while let Some(provisioning_step) = rx_srv.next().await {
+        //match provisioning_step {
+        //Ok(SecondaryDeviceProvisioning::Url(uri)) => {
+        //log::info!("Got provisioning URI: {}", uri);
+        //// Simply forward this to the caller
+        //tx_url.take()
+        //.expect("that only one URI is emitted by provisioning code")
+        //.send(uri)
+        //.expect("to forward provisioning URL to caller");
+        //},
+
+        //// This could be greatly shortend if the result struct
+        //// weren't embedded in the enum but its own type
+        //Ok(SecondaryDeviceProvisioning::NewDeviceRegistration {
+        //phone_number,
+        //device_id,
+        //registration_id,
+        //uuid,
+        //private_key,
+        //public_key,
+        //profile_key,
+        //}) => {
+        //return Ok(RegisterLinkedResult {
+        //phone_number: phone_number,
+        //device_id: device_id,
+        //registration_id: registration_id,
+        //uuid: uuid,
+        //private_key: private_key.to_bytes()
+        //.expect("to serialize private key"),
+        //public_key: public_key.to_bytes()
+        //.expect("to serialize public key"),
+        //profile_key: profile_key,
+        //});
+        //},
+
+        //Err(err) => {
+        //return Err(err);
+        //},
+        //}
+        //}
+
+        //// We should always observe an error or success message sent by the
+        //// future task before it terminates (and hence kills the channel)
+        //unreachable!();
+
+        //}.into_actor(self).map(|result, _act, _ctx| Ok(result?)))
+    }
+}
+
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct RefreshPreKeys;

@@ -48,9 +48,9 @@ BlockingInfoPageBase {
     Connections {
         // We wait till the backend calls to continue.
         target: Prompt
-        onPromptPhoneNumber: {
+        onPromptRegistrationType: {
             root.forceActiveFocus() // to close the keyboard
-            pageStack.replace(Qt.resolvedUrl("RegisterPage.qml"),
+            pageStack.replace(Qt.resolvedUrl("SetupRegistrationTypePage.qml"),
                               PageStackAction.Animated)
         }
     }

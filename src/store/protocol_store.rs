@@ -595,7 +595,7 @@ mod tests {
         let regid = 12345;
 
         let storage =
-            super::Storage::new(&location, storage_password, regid, &password, signaling_key)
+            super::Storage::new(&location, storage_password, regid, &password, signaling_key, None)
                 .await?;
 
         Ok((storage, location))

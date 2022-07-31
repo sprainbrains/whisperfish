@@ -308,6 +308,7 @@ impl Storage {
         regid: u32,
         http_password: &str,
         signaling_key: [u8; 52],
+        identity_key_pair: Option<protocol::IdentityKeyPair>,
     ) -> Result<Storage, anyhow::Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
 
@@ -342,7 +343,8 @@ impl Storage {
         let db = Self::open_db(db_path, store_enc.as_ref().map(|x| x.get_database_key())).await?;
 
         // 3. initialize protocol store
-        let identity_key_pair = protocol::IdentityKeyPair::generate(&mut rand::thread_rng());
+        let identity_key_pair = identity_key_pair
+            .unwrap_or_else(|| protocol::IdentityKeyPair::generate(&mut rand::thread_rng()));
 
         let protocol_store =
             ProtocolStore::new(store_enc.as_ref(), path, regid, identity_key_pair).await?;
@@ -2059,7 +2061,7 @@ mod tests {
         // Registration ID
         let regid = 12345;
 
-        let storage = Storage::new(&location, None, regid, &password, signaling_key)
+        let storage = Storage::new(&location, None, regid, &password, signaling_key, None)
             .await
             .unwrap();
 
@@ -2124,6 +2126,7 @@ mod tests {
             regid,
             &password,
             signaling_key,
+            None,
         )
         .await?;
 
