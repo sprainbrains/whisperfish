@@ -79,7 +79,9 @@ diesel_migrations = "1.4"
 libsqlite3-sys = { version = "0.22.2", features = ["sqlcipher"] }
 
 serde = {version = "1.0", features = ["derive"]}
-serde_yaml = "0.8"
+
+# Serde 0.8.26 requires Rust 1.56 (aka edition 2021)
+serde_yaml = "=0.8.25"
 
 base64 = "0.13"
 
