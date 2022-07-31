@@ -76,6 +76,8 @@ hex = "0.4"
 phonenumber = "0.3"
 itertools = "0.10.3"
 
+# Diesel 2.0.0 should fix the Clippy lint failure;
+# please see .gitlab.ci.yml for details.
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 diesel_migrations = "1.4"
 libsqlite3-sys = { version = "0.22.2", features = ["sqlcipher"] }
