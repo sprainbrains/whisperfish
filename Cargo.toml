@@ -36,8 +36,10 @@ indexmap = "=1.8.1"
 # 3.0.0-rc.1 requires Rist 1.54
 actix-http = "=3.0.0-beta.19"
 
-libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
-libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
+# ServiceCipher::new() takes 8 arguments after this, Whisperfish currently supplies 6
+libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", rev = "4341b4fbff6b97a2b7ff2017f365a13dcecc0a49" }
+libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", rev = "4341b4fbff6b97a2b7ff2017f365a13dcecc0a49" }
+
 libsignal-protocol = { git = "https://github.com/signalapp/libsignal-client", branch = "main" }
 zkgroup = { version = "0.9.0", git = "https://github.com/signalapp/libsignal-client", branch = "main" }
 
