@@ -25,7 +25,7 @@ BlockingInfoPageBase {
                              qsTrId("whisperfish-verify-instructions-sms")
     squashDetails: true
 
-    property bool _canAccept: !codeField.errorHighlight &&
+    property bool _canAccept: codeField.acceptableInput &&
                               codeField.text.length !== 0
 
     signal accept
@@ -101,6 +101,15 @@ BlockingInfoPageBase {
                     }
                     textBusy = false
                 }
+            }
+
+            errorHighlight: false
+            rightItem: Image {
+                width: codeField.font.pixelSize
+                height: codeField.font.pixelSize
+                source: "image://theme/icon-m-acknowledge?" + codeField.color
+                opacity: _canAccept ? 1.0 : 0.01
+                Behavior on opacity { FadeAnimation {} }
             }
         }
 

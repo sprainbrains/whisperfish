@@ -16,7 +16,7 @@ BlockingInfoPageBase {
     //% "Enter the phone number you want to register with Signal."
     mainDescription: qsTrId("whisperfish-registration-message")
 
-    property bool _canAccept: !numberField.errorHighlight &&
+    property bool _canAccept: numberField.acceptableInput &&
                               prefixCombo.currentIndex >= 0 &&
                               numberField.text.length > 4 &&
                               numberField.text.replace(/[- ]*/, '').trim() !== ''
@@ -164,6 +164,15 @@ BlockingInfoPageBase {
                                             "image://theme/icon-m-enter-next" :
                                             "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: parent.forceActiveFocus()
+
+                errorHighlight: false
+                rightItem: Image {
+                    width: numberField.font.pixelSize
+                    height: numberField.font.pixelSize
+                    source: "image://theme/icon-s-checkmark?" + numberField.color
+                    opacity: _canAccept ? 1.0 : 0.01
+                    Behavior on opacity { FadeAnimation {} }
+                }
             }
         }
 
