@@ -2,6 +2,8 @@ use qmeta_async::with_executor;
 
 use super::*;
 
+use std::convert::TryInto;
+
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct ReloadLinkedDevices;
@@ -95,10 +97,13 @@ impl Handler<LinkDevice> for ClientActor {
         log::trace!("handle(LinkDevice)");
 
         let service = self.authenticated_service();
-        // XXX add profile key when #192 implemneted
-        let mut account_manager = AccountManager::new(service, None);
         let credentials = self.credentials.clone().unwrap();
         let store = self.storage.clone().unwrap();
+        let profile_key: Option<[u8; 32]> = store
+            .fetch_self_recipient(&self.config)
+            .and_then(|r| r.profile_key)
+            .and_then(|r| r.try_into().ok());
+        let mut account_manager = AccountManager::new(service, profile_key);
 
         Box::pin(
             // Without `async move`, service would be borrowed instead of encapsulated in a Future.
