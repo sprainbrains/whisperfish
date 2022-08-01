@@ -44,8 +44,7 @@ impl Default for SignalConfig {
         Self {
             tel: std::sync::Mutex::new(String::from("")),
             uuid: std::sync::Mutex::new(String::from("")),
-            device_id: std::sync::Mutex::new(
-                libsignal_service::push_service::DEFAULT_DEVICE_ID),
+            device_id: std::sync::Mutex::new(libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
             verbose: false,
             autostart: false,
@@ -254,7 +253,7 @@ impl SignalConfig {
     }
 
     pub fn get_device_id_clone(&self) -> u32 {
-        self.device_id.lock().unwrap().clone()
+        *self.device_id.lock().unwrap()
     }
 
     pub fn set_tel(&self, tel: String) {

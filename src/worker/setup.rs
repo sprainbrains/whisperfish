@@ -4,8 +4,8 @@ use anyhow::Context;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
 
-use phonenumber::PhoneNumber;
 use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
+use phonenumber::PhoneNumber;
 
 pub struct RegistrationResult {
     regid: u32,
@@ -66,7 +66,7 @@ impl SetupWorker {
         // XXX: nice formatting?
         this.borrow_mut().phoneNumber = config.get_tel_clone().into();
         this.borrow_mut().uuid = config.get_uuid_clone().into();
-        this.borrow_mut().deviceId = config.get_device_id_clone().into();
+        this.borrow_mut().deviceId = config.get_device_id_clone();
 
         if !this.borrow().registered {
             if let Err(e) = SetupWorker::register(app.clone(), &config).await {
@@ -193,8 +193,7 @@ impl SetupWorker {
         let signaling_key = signaling_key;
 
         let reg = if is_primary {
-            SetupWorker::register_as_primary(app.clone(), config, &password, &signaling_key)
-                .await?
+            SetupWorker::register_as_primary(app.clone(), config, &password, &signaling_key).await?
         } else {
             SetupWorker::register_as_secondary(app.clone(), &password, &signaling_key).await?
         };
@@ -331,7 +330,9 @@ impl SetupWorker {
             regid,
             phonenumber: number,
             uuid: res.uuid.to_string(),
-            device_id: DeviceId{device_id: DEFAULT_DEVICE_ID},
+            device_id: DeviceId {
+                device_id: DEFAULT_DEVICE_ID,
+            },
             identity_key_pair: None,
             profile_key: None,
         })

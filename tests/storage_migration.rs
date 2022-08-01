@@ -35,10 +35,16 @@ async fn create_old_storage(
     // Registration ID
     let regid: u32 = 12345;
 
-    let storage =
-        current_storage::Storage::new(path, storage_password, regid, &password, signaling_key, None)
-            .await
-            .unwrap();
+    let storage = current_storage::Storage::new(
+        path,
+        storage_password,
+        regid,
+        &password,
+        signaling_key,
+        None,
+    )
+    .await
+    .unwrap();
 
     storage
 }

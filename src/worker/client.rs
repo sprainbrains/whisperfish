@@ -1283,6 +1283,8 @@ impl Handler<StorageReady> for ClientActor {
                     storage,
                     rand::thread_rng(),
                     service_cfg.unidentified_sender_trust_root,
+                    uuid.expect("local uuid to initialize service cipher"),
+                    device_id,
                 );
                 // end signal service context
                 act.cipher = Some(cipher);

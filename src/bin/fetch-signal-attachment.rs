@@ -78,7 +78,7 @@ async fn main() -> Result<(), anyhow::Error> {
     // XXX: https://gitlab.com/whisperfish/whisperfish/-/issues/80
     let phonenumber = phonenumber::parse(None, config.get_tel_clone()).unwrap();
     let uuid = uuid::Uuid::parse_str(&config.get_uuid_clone()).ok();
-    let device_id = config.get_device_id_clone()
+    let device_id = config.get_device_id_clone();
     let e164 = phonenumber
         .format()
         .mode(phonenumber::Mode::E164)

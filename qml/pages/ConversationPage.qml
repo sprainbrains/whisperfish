@@ -183,10 +183,13 @@ Page {
                 // TODO Support multiple attachments in the backend.
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
                 var sid = 0
+                var recipient = ""
                 if (isGroup) {
-                    sid = MessageModel.createGroupMessage(MessageModel.groupId, text, '', firstAttachedPath, true)
+                    recipient = MessageModel.groupId
+                    sid = MessageModel.createGroupMessage(recipient, text, '', firstAttachedPath, true)
                 } else {
-                    sid = MessageModel.createMessage(MessageModel.peerTel, text, firstAttachedPath, true)
+                    recipient = MessageModel.peerTel ? MessageModel.peerTel : MessageModel.peerUuid
+                    sid = MessageModel.createMessage(recipient, text, firstAttachedPath, true)
                 }
                 if (sid > 0) SessionModel.add(sid, true) // update session model
 
@@ -194,9 +197,9 @@ Page {
                 // backend does not support sending multiple attachments at once
                 for (var i = 1; i < attachments.length; i++) {
                     if (isGroup) {
-                        sid = MessageModel.createGroupMessage(MessageModel.groupId, '', '', attachments[i].data, true)
+                        sid = MessageModel.createGroupMessage(recipient, '', '', attachments[i].data, true)
                     } else {
-                        sid = MessageModel.createMessage(MessageModel.peerTel, '', attachments[i].data, true)
+                        sid = MessageModel.createMessage(recipient, '', attachments[i].data, true)
                     }
                     if (sid > 0) SessionModel.add(sid, true) // update session model
                 }

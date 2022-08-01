@@ -594,9 +594,15 @@ mod tests {
         // Registration ID
         let regid = 12345;
 
-        let storage =
-            super::Storage::new(&location, storage_password, regid, &password, signaling_key, None)
-                .await?;
+        let storage = super::Storage::new(
+            &location,
+            storage_password,
+            regid,
+            &password,
+            signaling_key,
+            None,
+        )
+        .await?;
 
         Ok((storage, location))
     }

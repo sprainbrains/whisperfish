@@ -36,7 +36,7 @@ pub struct DeleteMessage(pub i32, pub usize);
 #[derive(actix::Message, Debug)]
 #[rtype(result = "()")]
 pub struct QueueMessage {
-    pub e164: String,
+    pub recipient: String,
     pub message: String,
     pub attachment: String,
 }
@@ -331,11 +331,17 @@ impl Handler<QueueMessage> for MessageActor {
 
         let has_attachment = !msg.attachment.is_empty();
 
+        let (source_e164, source_uuid) = if phonenumber::is_viable(&msg.recipient) {
+            (Some(msg.recipient), None)
+        } else {
+            (None, Some(msg.recipient))
+        };
+
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source_e164: Some(msg.e164),
-                source_uuid: None,
+                source_e164,
+                source_uuid,
                 text: msg.message,
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
