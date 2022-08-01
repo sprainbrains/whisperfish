@@ -16,6 +16,8 @@ pub struct SignalConfig {
     /// same time.
     // XXX use the uuid type here
     uuid: std::sync::Mutex<String>,
+    /// Same goes for the device id
+    device_id: std::sync::Mutex<u32>,
     /// Directory for persistent share files
     // XXX share dir is an ugly name, use another one
     // XXX we don't (de-)serialize this field as there is another instance that is accessing the
@@ -42,6 +44,8 @@ impl Default for SignalConfig {
         Self {
             tel: std::sync::Mutex::new(String::from("")),
             uuid: std::sync::Mutex::new(String::from("")),
+            device_id: std::sync::Mutex::new(
+                libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
             verbose: false,
             autostart: false,
@@ -249,11 +253,19 @@ impl SignalConfig {
         self.uuid.lock().unwrap().clone()
     }
 
+    pub fn get_device_id_clone(&self) -> u32 {
+        self.device_id.lock().unwrap().clone()
+    }
+
     pub fn set_tel(&self, tel: String) {
         *self.tel.lock().unwrap() = tel;
     }
 
     pub fn set_uuid(&self, uuid: String) {
         *self.uuid.lock().unwrap() = uuid;
+    }
+
+    pub fn set_device_id(&self, id: u32) {
+        *self.device_id.lock().unwrap() = id;
     }
 }

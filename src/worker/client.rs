@@ -27,7 +27,7 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
-use libsignal_service::push_service::DEFAULT_DEVICE_ID;
+use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
@@ -217,7 +217,7 @@ impl ClientActor {
             storage.clone(),
             storage,
             self.local_addr.clone().unwrap(),
-            DEFAULT_DEVICE_ID,
+            self.config.get_device_id_clone(),
         )
     }
 
@@ -1225,6 +1225,7 @@ impl Handler<StorageReady> for ClientActor {
         self.storage = Some(storageready.storage.clone());
         let tel = self.config.get_tel_clone();
         let uuid = self.config.get_uuid_clone();
+        let device_id = self.config.get_device_id_clone();
 
         storageready.storage.mark_pending_messages_failed();
 
@@ -1243,25 +1244,27 @@ impl Handler<StorageReady> for ClientActor {
             } else {
                 None
             };
+
             log::info!("Phone number: {}", phonenumber);
             log::info!("UUID: {:?}", uuid);
+            log::info!("DeviceId: {}", device_id);
 
             let password = storage_for_password.signal_password().await.unwrap();
             let signaling_key = Some(storage_for_password.signaling_key().await.unwrap());
 
-            (uuid, phonenumber, password, signaling_key)
+            (uuid, phonenumber, device_id, password, signaling_key)
         };
         let service_cfg = self.service_cfg();
 
         Box::pin(request_password.into_actor(self).map(
-            move |(uuid, phonenumber, password, signaling_key), act, ctx| {
+            move |(uuid, phonenumber, device_id, password, signaling_key), act, ctx| {
                 // Store credentials
                 let credentials = ServiceCredentials {
                     uuid,
                     phonenumber: phonenumber.clone(),
                     password: Some(password),
                     signaling_key,
-                    device_id: None, // !77
+                    device_id: Some(device_id),
                 };
                 act.credentials = Some(credentials);
                 // end store credentials
@@ -1544,8 +1547,10 @@ pub struct RegisterLinked {
 pub struct RegisterLinkedResponse {
     pub phone_number: PhoneNumber,
     pub registration_id: u32,
+    pub device_id: DeviceId,
     pub uuid: String,
     pub identity_key_pair: libsignal_protocol::IdentityKeyPair,
+    pub profile_key: Vec<u8>,
 }
 
 impl Handler<RegisterLinked> for ClientActor {
@@ -1584,21 +1589,15 @@ impl Handler<RegisterLinked> for ClientActor {
                                     .expect("that only one URI is emitted by provisioning code")
                                     .send(url.to_string())
                                     .expect("to forward provisioning URL to caller");
-                                //let code = QrCode::new(url.as_str())
-                                //.expect("failed to generate qrcode");
-                                //let image = code.render::<Luma<u8>>().build();
-                                //let path = std::env::temp_dir().join("device-link.png");
-                                //image.save(&path)?;
-                                //opener::open(path)?;
                             }
                             SecondaryDeviceProvisioning::NewDeviceRegistration {
                                 phone_number,
-                                device_id: _,
+                                device_id,
                                 registration_id,
                                 uuid,
                                 private_key,
                                 public_key,
-                                profile_key: _,
+                                profile_key,
                             } => {
                                 let identity_key_pair = libsignal_protocol::IdentityKeyPair::new(
                                     libsignal_protocol::IdentityKey::new(public_key),
@@ -1609,8 +1608,10 @@ impl Handler<RegisterLinked> for ClientActor {
                                     RegisterLinkedResponse {
                                         phone_number,
                                         registration_id,
+                                        device_id,
                                         uuid: uuid.to_string(),
                                         identity_key_pair,
+                                        profile_key,
                                     },
                                 );
                             }
@@ -1630,110 +1631,6 @@ impl Handler<RegisterLinked> for ClientActor {
                 .into_actor(self)
                 .map(move |result, _act, _ctx| result),
         )
-        //let RegisterLinked {
-        //device_name,
-        //password,
-        //signaling_key,
-        //tx: tx_url,
-        //} = reg;
-
-        //let mut tx_url = Some(tx_url);
-
-        //let (mut tx_srv, mut rx_srv) = futures::channel::mpsc::channel(1);
-
-        //let task_ctx = self.context.clone();
-        //let task_srv = self.service_cfg();
-        //let (task_future, task_handle) = async move {
-        //match provision_secondary_device(
-        //&task_ctx,
-        //&task_srv,
-        //&signaling_key,
-        //&password,
-        //&device_name,
-        //tx_srv.clone().with(|provisioning_step| Box::pin(async {
-        //// Wrapping each future returned here in a box isn't great,
-        //// but there does not appear to be any other way to satisfy
-        //// the `Unpin` requirement on this callback
-        ////
-        //// Ideally there would be a synchronous version of `with`
-        //// here, even better would be a `provision_secondary_device`
-        //// function that would just return its errors inline with
-        //// along other channel messages, making this whole thing
-        //// redundant.
-        //Result::<_, futures::channel::mpsc::SendError>::Ok(Ok(provisioning_step))
-        //}))
-        //).await {
-        //Ok(()) => {
-        //// A bit of a hack: An Ok result can mean either success or
-        //// timeout (probably a bug), rely on true success messages
-        //// having already closed the channel here
-        //drop(tx_srv.send(Err(ServiceError::Timeout {
-        //reason: String::from("Connection closed by peer")
-        //}.into())).await);
-        //},
-
-        //Err(err) => {
-        //tx_srv.send(Err(err))
-        //.await
-        //.expect("to send provisioning error in rx channel");
-        //},
-        //}
-        //}.remote_handle();
-        //ctx.spawn(task_future.into_actor(self));
-
-        //Box::pin(async move {
-        //// Ensure background task is cancelled by dropping its remote handle
-        //// when this future returns to prevent any future leaks for occurring
-        //scopeguard::defer! {
-        //drop(task_handle);
-        //};
-
-        //while let Some(provisioning_step) = rx_srv.next().await {
-        //match provisioning_step {
-        //Ok(SecondaryDeviceProvisioning::Url(uri)) => {
-        //log::info!("Got provisioning URI: {}", uri);
-        //// Simply forward this to the caller
-        //tx_url.take()
-        //.expect("that only one URI is emitted by provisioning code")
-        //.send(uri)
-        //.expect("to forward provisioning URL to caller");
-        //},
-
-        //// This could be greatly shortend if the result struct
-        //// weren't embedded in the enum but its own type
-        //Ok(SecondaryDeviceProvisioning::NewDeviceRegistration {
-        //phone_number,
-        //device_id,
-        //registration_id,
-        //uuid,
-        //private_key,
-        //public_key,
-        //profile_key,
-        //}) => {
-        //return Ok(RegisterLinkedResult {
-        //phone_number: phone_number,
-        //device_id: device_id,
-        //registration_id: registration_id,
-        //uuid: uuid,
-        //private_key: private_key.to_bytes()
-        //.expect("to serialize private key"),
-        //public_key: public_key.to_bytes()
-        //.expect("to serialize public key"),
-        //profile_key: profile_key,
-        //});
-        //},
-
-        //Err(err) => {
-        //return Err(err);
-        //},
-        //}
-        //}
-
-        //// We should always observe an error or success message sent by the
-        //// future task before it terminates (and hence kills the channel)
-        //unreachable!();
-
-        //}.into_actor(self).map(|result, _act, _ctx| Ok(result?)))
     }
 }
 
