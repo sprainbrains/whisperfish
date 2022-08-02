@@ -267,6 +267,8 @@ Page {
                 width: parent.width
                 visible: !AppState.isHarbour()
 
+                property bool hasAutostart: AppState.hasAutostartAccess()
+
                 SectionHeader {
                     //: Settings page startup and shutdown section
                     //% "Autostart and Background"
@@ -281,13 +283,26 @@ Page {
                     //: Settings page enable autostart description
                     //% "When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background."
                     description: qsTrId("whisperfish-settings-enable-autostart-description")
-                    checked: AppState.isAutostartEnabled()
+                    enabled: parent.hasAutostart
+                    checked: parent.hasAutostart && AppState.isAutostartEnabled()
                     icon.source: "image://theme/icon-m-toy"
                     onCheckedChanged: {
                         if(checked != AppState.isAutostartEnabled()) {
                             AppState.setAutostartEnabled(checked)
                         }
                     }
+                }
+                TextArea {
+                    id: autostartInfo
+                    visible: !parent.hasAutostart
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    readOnly: true
+                    width: parent.width
+                    font.pixelSize: Theme.fontSizeSmall
+                    labelVisible: false
+                    //: Settings page info how to enable autostart manually 
+                    //% "Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running 'systemctl --user enable harbour-whisperfish.service' or 'systemctl --user disable harbour-whisperfish.service'"
+                    text: qsTrId("whisperfish-settings-autostart-manual-info")
                 }
                 IconTextSwitch {
                     id: enableQuitOnUiClose
@@ -316,7 +331,6 @@ Page {
                     //% "Quit Whisperfish"
                     text: qsTrId("whisperfish-settings-quit-button")
                     onClicked: {
-                        AppState.setMayExit(true)
                         Qt.quit()
                     }
                 }

@@ -34,17 +34,18 @@ pub struct AppState {
 
     closed: bool,
     setActive: qt_method!(fn(&self)),
+    setClosed: qt_method!(fn(&self)),
     isClosed: qt_method!(fn(&self) -> bool),
     activate: qt_signal!(),
 
     pub may_exit: bool,
-    #[cfg(not(feature = "harbour"))]
     setMayExit: qt_method!(fn(&self, value: bool)),
+    mayExit: qt_method!(fn(&self) -> bool),
 
+    hasAutostartAccess: qt_method!(fn(&self) -> bool),
     isAutostartEnabled: qt_method!(fn(&self) -> bool),
     #[cfg(not(feature = "harbour"))]
     setAutostartEnabled: qt_method!(fn(&self, value: bool)),
-
     isHarbour: qt_method!(fn(&self) -> bool),
 }
 
@@ -57,17 +58,13 @@ impl AppState {
 
     #[allow(non_snake_case)]
     #[with_executor]
-    pub fn isClosed(&self) -> bool {
+    fn isClosed(&self) -> bool {
         self.closed
     }
 
+    #[allow(non_snake_case)]
     #[with_executor]
-    pub fn is_closed(&self) -> bool {
-        self.closed
-    }
-
-    #[with_executor]
-    pub fn set_closed(&mut self) {
+    fn setClosed(&mut self) {
         self.closed = true;
     }
 
@@ -75,17 +72,29 @@ impl AppState {
     pub fn activate_hidden_window(&mut self, may_exit: bool) {
         if self.closed {
             self.activate();
-            // if may_exit = true, we may already be dead when QML sets this, so we set it now.
             self.closed = false;
             self.may_exit = may_exit;
         }
     }
 
+    #[allow(non_snake_case)]
+    #[with_executor]
+    pub fn setMayExit(&mut self, value: bool) {
+        self.may_exit = value;
+    }
+
     #[cfg(not(feature = "harbour"))]
     #[allow(non_snake_case)]
     #[with_executor]
-    fn setMayExit(&mut self, value: bool) {
-        self.may_exit = value;
+    fn mayExit(&mut self) -> bool {
+        self.may_exit
+    }
+
+    #[cfg(feature = "harbour")]
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn mayExit(&mut self) -> bool {
+        true
     }
 
     #[cfg(not(feature = "harbour"))]
@@ -95,7 +104,7 @@ impl AppState {
             .expect("config directory")
             .join("systemd/user/post-user-session.target.wants/");
         if !sdir.exists() {
-            create_dir_all(&sdir).unwrap();
+            create_dir_all(&sdir).ok();
         }
         sdir
     }
@@ -112,6 +121,12 @@ impl AppState {
         } else {
             let _ = remove_file(Self::systemd_dir().join("harbour-whisperfish.service"));
         }
+    }
+
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn hasAutostartAccess(&self) -> bool {
+        Path::new("/usr/bin/systemctl").exists()
     }
 
     #[cfg(not(feature = "harbour"))]
@@ -145,10 +160,12 @@ impl AppState {
             may_exit: true,
             setActive: Default::default(),
             isClosed: Default::default(),
+            setClosed: Default::default(),
             isHarbour: Default::default(),
             activate: Default::default(),
-            #[cfg(not(feature = "harbour"))]
             setMayExit: Default::default(),
+            mayExit: Default::default(),
+            hasAutostartAccess: Default::default(),
             isAutostartEnabled: Default::default(),
             #[cfg(not(feature = "harbour"))]
             setAutostartEnabled: Default::default(),
@@ -275,6 +292,15 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
             app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
 
+            // We need to decied when to close the app based on the current setup state and
+            // background service configuration. We do that in QML in the lastWindowClosed signal
+            // emitted from the main QtGuiApplication object, since the corresponding app object in
+            // rust is occupied running the main loop.
+            // XXX: find a way to set quit_on_last_window_closed from SetupWorker and Settings at
+            // runtime to get rid of the QML part here.
+            app.set_quit_on_last_window_closed(false);
+            app.promote_gui_app_to_qml_context("RootApp".into());
+
             // We need harbour-whisperfish.qml for the QML-only reCaptcha application
             // so we have to use another filename for the main QML file for Whisperfish.
             app.set_source(QmlApp::path_to("qml/harbour-whisperfish-main.qml".into()));
@@ -288,8 +314,12 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 && cfg!(not(feature = "harbour"))
             {
                 // keep the ui closed until needed on auto-start
-                whisperfish.app_state.pinned().borrow_mut().may_exit = false;
-                whisperfish.app_state.pinned().borrow_mut().set_closed();
+                whisperfish
+                    .app_state
+                    .pinned()
+                    .borrow_mut()
+                    .setMayExit(false);
+                whisperfish.app_state.pinned().borrow_mut().setClosed();
             } else {
                 app.show_full_screen();
             }

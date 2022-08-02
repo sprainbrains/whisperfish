@@ -330,8 +330,15 @@ sed -i -E "s/buildDate: \"[0-9\-]{10}\".*/buildDate: \"${CURR_DATE}\"/g" "%{buil
 # Dbus service
 install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
     %{buildroot}%{_unitdir}/be.rubdos.whisperfish.service
-install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
-    %{buildroot}%{_userunitdir}/harbour-whisperfish.service
+# systemd service
+if [[ ! "$MAJOR_VERSION" < "4.3" ]]
+then
+	install -Dm 644 %{_sourcedir}/../harbour-whisperfish-no-jail.service \
+		%{buildroot}%{_userunitdir}/harbour-whisperfish.service
+else 
+	install -Dm 644 %{_sourcedir}/../harbour-whisperfish-sailjail.service \
+		%{buildroot}%{_userunitdir}/harbour-whisperfish.service
+fi
 
 # Share plugin
 %if %{with shareplugin_v1} || %{with shareplugin_v2}
