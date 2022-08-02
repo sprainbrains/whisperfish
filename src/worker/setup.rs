@@ -267,10 +267,6 @@ impl SetupWorker {
             }
         };
 
-        //let e164 = number.format().mode(phonenumber::Mode::E164).to_string();
-        //log::info!("Using phone number: {}", number);
-        //this.borrow_mut().phoneNumber = e164.clone().into();
-
         if let Some(captcha) = &config.override_captcha {
             log::info!("Using override captcha {}", captcha);
         }
@@ -366,8 +362,6 @@ impl SetupWorker {
                         .pinned()
                         .borrow_mut()
                         .show_link_qr(uri_result?);
-                        //.context("No verification code provided")?
-                        //.into();
                 }
                 res = res_fut => {
                     let res = res??;
@@ -383,72 +377,5 @@ impl SetupWorker {
                 complete => return Err(anyhow::Error::msg("Linking to device completed without any result")),
             }
         }
-
-        //let linking_handle = RefCell::new(linking_handle);
-        //let succeeded = Cell::new(false);
-        //scopeguard::defer! {
-        //// Notify UI that we are done
-        //linking_handle.borrow_mut().notify_completed(succeeded.get());
-        //};
-
-        //let mut completion_fut  = completion_fut.fuse();
-        //let mut link_device_fut = link_device_fut.fuse();
-        //loop {
-        //futures::select! {
-        //uri_result = rx => {
-        //// Tell UI to display the received provisioning URI
-        //linking_handle.borrow_mut().submit_uri(&uri_result?);
-        //},
-
-        //link_result = link_device_fut => {
-        //let link_result = link_result??;
-
-        //let mut this = this.borrow_mut();
-        //let mut cfg = this.config.as_mut().unwrap();
-        //cfg.uuid = Some(link_result.uuid.clone());
-        //cfg.tel = Some(link_result.phone_number);
-        //Self::write_config(app.clone(), cfg).await?;
-        //this.uuid = link_result.uuid.into();
-
-        //let context = libsignal_protocol::Context::default();
-        //let identity_key_pair = libsignal_protocol::keys::IdentityKeyPair::new(
-        //&libsignal_protocol::keys::PublicKey::decode_point(
-        //&context, link_result.public_key.as_slice()
-        //).unwrap(),
-        //&libsignal_protocol::keys::PrivateKey::decode_point(
-        //&context, link_result.private_key.as_slice()
-        //).unwrap(),
-        //).unwrap();
-
-        //// Install storage
-        //let storage = Storage::new_with_password(
-        //&store::default_location()?,
-        //&storage_password,
-        //link_result.registration_id,
-        //&password,
-        //signaling_key,
-        //identity_key_pair,
-        //).await?;
-        //*app.storage.borrow_mut() = Some(storage);
-
-        //// Report success to UI
-        //succeeded.set(true);
-
-        //break Ok(());
-        //},
-
-        //_ = completion_fut => {
-        //// This shouldn't be called if linking succeeded,
-        //// since this coroutine will have already exited
-        //// after initializing storage
-        //break Err(format_err!("Operation aborted by user"));
-        //},
-
-        //complete => {
-        //// XXX: This is probably unreachable now?
-        //break Err(format_err!("Linking to device completed without any result"));
-        //}
-        //}
-        //}
     }
 }

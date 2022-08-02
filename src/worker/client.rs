@@ -1534,9 +1534,6 @@ impl Handler<ConfirmRegistration> for ClientActor {
     }
 }
 
-//use crate::gui::WhisperfishApp;
-//use std::rc::Rc;
-
 #[derive(Message)]
 #[rtype(result = "Result<RegisterLinkedResponse, anyhow::Error>")]
 pub struct RegisterLinked {
