@@ -2,13 +2,6 @@ use std::cell::RefCell;
 #[cfg(feature = "sailfish")]
 use std::rc::Rc;
 
-#[cfg(not(feature = "harbour"))]
-use std::{
-    fs::{create_dir_all, remove_file},
-    os::unix::fs::symlink,
-    path::{Path, PathBuf},
-};
-
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
 use crate::{actor, config::Settings, model, worker};
@@ -42,10 +35,6 @@ pub struct AppState {
     setMayExit: qt_method!(fn(&self, value: bool)),
     mayExit: qt_method!(fn(&self) -> bool),
 
-    hasAutostartAccess: qt_method!(fn(&self) -> bool),
-    isAutostartEnabled: qt_method!(fn(&self) -> bool),
-    #[cfg(not(feature = "harbour"))]
-    setAutostartEnabled: qt_method!(fn(&self, value: bool)),
     isHarbour: qt_method!(fn(&self) -> bool),
 }
 
@@ -97,54 +86,6 @@ impl AppState {
         true
     }
 
-    #[cfg(not(feature = "harbour"))]
-    #[with_executor]
-    fn systemd_dir() -> PathBuf {
-        let sdir = dirs::config_dir()
-            .expect("config directory")
-            .join("systemd/user/post-user-session.target.wants/");
-        if !sdir.exists() {
-            create_dir_all(&sdir).ok();
-        }
-        sdir
-    }
-
-    #[cfg(not(feature = "harbour"))]
-    #[allow(non_snake_case)]
-    #[with_executor]
-    fn setAutostartEnabled(&self, enabled: bool) {
-        if enabled {
-            let _ = symlink(
-                Path::new("/usr/lib/systemd/user/harbour-whisperfish.service"),
-                Self::systemd_dir().join("harbour-whisperfish.service"),
-            );
-        } else {
-            let _ = remove_file(Self::systemd_dir().join("harbour-whisperfish.service"));
-        }
-    }
-
-    #[allow(non_snake_case)]
-    #[with_executor]
-    fn hasAutostartAccess(&self) -> bool {
-        Path::new("/usr/bin/systemctl").exists()
-    }
-
-    #[cfg(not(feature = "harbour"))]
-    #[allow(non_snake_case)]
-    #[with_executor]
-    fn isAutostartEnabled(&self) -> bool {
-        Self::systemd_dir()
-            .join("harbour-whisperfish.service")
-            .exists()
-    }
-
-    #[cfg(feature = "harbour")]
-    #[allow(non_snake_case)]
-    #[with_executor]
-    fn isAutostartEnabled(&self) -> bool {
-        false
-    }
-
     #[allow(non_snake_case)]
     #[with_executor]
     fn isHarbour(&mut self) -> bool {
@@ -165,10 +106,6 @@ impl AppState {
             activate: Default::default(),
             setMayExit: Default::default(),
             mayExit: Default::default(),
-            hasAutostartAccess: Default::default(),
-            isAutostartEnabled: Default::default(),
-            #[cfg(not(feature = "harbour"))]
-            setAutostartEnabled: Default::default(),
         }
     }
 }
