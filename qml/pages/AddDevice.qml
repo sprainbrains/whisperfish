@@ -6,7 +6,7 @@ Dialog {
     objectName: "addDeviceDialog"
 
     onDone: {
-        if (result == DialogResult.Accepted && !urlField.errorHighlight) {
+        if (result == DialogResult.Accepted && urlField.acceptableInput) {
             if(urlField.text.length > 0) {
                 addDevice(urlField.text)
             }
@@ -41,9 +41,18 @@ Dialog {
             //: Device URL, text input for pasting the QR-scanned code
             //% "Device URL"
             label: qsTrId("whisperfish-device-url")
-            placeholderText: "tsdevice://?uuid=FaC...&pub_key=BQ9..."
+            placeholderText: "sgnl://[...]"
             horizontalAlignment: TextInput.AlignLeft
             EnterKey.onClicked: parent.focus = true
+
+            errorHighlight: false
+            rightItem: Image {
+                width: urlField.font.pixelSize
+                height: urlField.font.pixelSize
+                source: "image://theme/icon-s-checkmark?" + urlField.color
+                opacity: urlField.text.length > 0 && urlField.acceptableInput ? 1.0 : 0.01
+                Behavior on opacity { FadeAnimation {} }
+            }
         }
 
         Label {

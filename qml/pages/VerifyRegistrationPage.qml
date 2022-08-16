@@ -25,7 +25,7 @@ BlockingInfoPageBase {
                              qsTrId("whisperfish-verify-instructions-sms")
     squashDetails: true
 
-    property bool _canAccept: !codeField.errorHighlight &&
+    property bool _canAccept: codeField.acceptableInput &&
                               codeField.text.length !== 0
 
     signal accept
@@ -89,16 +89,27 @@ BlockingInfoPageBase {
             font.pixelSize: Theme.fontSizeLarge
             EnterKey.onClicked: parent.forceActiveFocus() // CONTINUE?
 
-            property int oldLength: 0
+            property bool textBusy: false
             onTextChanged: {
-                // insert/remove a dash after the first 3 digits
-                if (text.length != 3) return
-                if (text.length > oldLength) { // getting entered
-                    text += '-'
-                } else if (text.length < oldLength) { // getting deleted
-                    text = text.slice(0, 2)
+                if(!textBusy) {
+                    textBusy = true
+                    // Keep only digits
+                    text = text.replace(/[^0-9]/g, '')
+                    if(text.length > 3) {
+                        // Insert the dash and keep the six first digits
+                        text = text.slice(0, 3) + '-' + text.slice(3, 6)
+                    }
+                    textBusy = false
                 }
-                oldLength = text.length
+            }
+
+            errorHighlight: false
+            rightItem: Image {
+                width: codeField.font.pixelSize
+                height: codeField.font.pixelSize
+                source: "image://theme/icon-m-acknowledge?" + codeField.color
+                opacity: _canAccept ? 1.0 : 0.01
+                Behavior on opacity { FadeAnimation {} }
             }
         }
 

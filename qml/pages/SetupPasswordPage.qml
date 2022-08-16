@@ -24,8 +24,8 @@ BlockingInfoPageBase {
     detailedDescription: qsTrId("whisperfish-password-info")
     squashDetails: true
 
-    property bool _canAccept: (!password1Field.errorHighlight &&
-                               !password2Field.errorHighlight &&
+    property bool _canAccept: (password1Field.acceptableInput &&
+                               password2Field.acceptableInput &&
                                password1Field.text === password2Field.text &&
                                password1Field.text !== '' &&
                                password2Field.text !== '')
@@ -65,7 +65,7 @@ BlockingInfoPageBase {
             width: parent.width - 2*Theme.horizontalPageMargin
             inputMethodHints: Qt.ImhNoPredictiveText
             validator: RegExpValidator{ regExp: /|.{6,}/ }
-            label: errorHighlight /* = validator complained */ ?
+            label: !acceptableInput /* = validator complained */ ?
                        //: Password label when too short
                        //% "Password is too short"
                        qsTrId("whisperfish-password-label-too-short") :
@@ -75,12 +75,21 @@ BlockingInfoPageBase {
             //: New password input placeholder
             //% "Your new password"
             placeholderText: qsTrId("whisperfish-new-password-placeholder")
-            placeholderColor: color
-            color: errorHighlight || (password1Field.text !== password2Field.text) ?
-                       Theme.errorColor : (focus ? Theme.highlightColor :
-                                                   Theme.secondaryColor)
             EnterKey.iconSource: "image://theme/icon-m-enter-next"
-            EnterKey.onClicked: password2Field.forceActiveFocus()
+            EnterKey.onClicked: {
+                if (acceptableInput) {
+                    password2Field.forceActiveFocus()
+                }
+            }
+        
+            errorHighlight: false
+            rightItem: Image {
+                width: password1Field.font.pixelSize
+                height: password1Field.font.pixelSize
+                source: "image://theme/icon-s-checkmark?" + password1Field.color
+                opacity: password1Field.text.length > 0 && password1Field.acceptableInput ? 1.0 : 0.01
+                Behavior on opacity { FadeAnimation {} }
+            }
         }
 
         PasswordField {
@@ -93,7 +102,7 @@ BlockingInfoPageBase {
                        //: repeated password input label
                        //% "Repeat the password"
                        qsTrId("whisperfish-password-repeated-label") :
-                       ((password1Field.text === password2Field.text && errorHighlight) ?
+                       ((password1Field.text === password2Field.text && !acceptableInput) ?
                             /* = passwords match but validator complained */
                             //: Password label when too short
                             //% "Password is too short"
@@ -105,14 +114,23 @@ BlockingInfoPageBase {
             //: Repeated new password input placeholder
             //% "Repeat your new password"
             placeholderText: qsTrId("whisperfish-new-password-repeat-placeholder")
-            placeholderColor: color
-            color: errorHighlight || (password1Field.text !== password2Field.text) ?
-                       Theme.errorColor : (focus ? Theme.highlightColor :
-                                                   Theme.secondaryColor)
             EnterKey.iconSource: _canAccept ?
                                      "image://theme/icon-m-enter-accept" :
                                      "image://theme/icon-m-enter-close"
-            EnterKey.onClicked: accept()
+            EnterKey.onClicked: {
+                if (_canAccept) {
+                    accept()
+                }
+            }
+
+            errorHighlight: false
+            rightItem: Image {
+                width: password2Field.font.pixelSize
+                height: password2Field.font.pixelSize
+                source: "image://theme/icon-s-checkmark?" + password2Field.color
+                opacity: password2Field.text.length > 0 && password1Field.text === password2Field.text ? 1.0 : 0.01
+                Behavior on opacity { FadeAnimation {} }
+            }
         }
 
         Row {
