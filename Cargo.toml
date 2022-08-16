@@ -36,8 +36,10 @@ indexmap = "=1.8.1"
 # 3.0.0-rc.1 requires Rist 1.54
 actix-http = "=3.0.0-beta.19"
 
-libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
-libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
+# ServiceCipher::new() takes 8 arguments after this, Whisperfish currently supplies 6
+libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", rev = "4341b4fbff6b97a2b7ff2017f365a13dcecc0a49" }
+libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", rev = "4341b4fbff6b97a2b7ff2017f365a13dcecc0a49" }
+
 libsignal-protocol = { git = "https://github.com/signalapp/libsignal-client", branch = "main" }
 zkgroup = { version = "0.9.0", git = "https://github.com/signalapp/libsignal-client", branch = "main" }
 
@@ -74,12 +76,16 @@ hex = "0.4"
 phonenumber = "0.3"
 itertools = "0.10.3"
 
+# Diesel 2.0.0 should fix the Clippy lint failure;
+# please see .gitlab.ci.yml for details.
 diesel = { version = "1.4", features = ["sqlite", "chrono"] }
 diesel_migrations = "1.4"
 libsqlite3-sys = { version = "0.22.2", features = ["sqlcipher"] }
 
 serde = {version = "1.0", features = ["derive"]}
-serde_yaml = "0.8"
+
+# Serde 0.8.26 requires Rust 1.56 (aka edition 2021)
+serde_yaml = "=0.8.25"
 
 base64 = "0.13"
 

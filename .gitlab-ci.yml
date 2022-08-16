@@ -265,7 +265,10 @@ clippy:stable:
     - rustup component add clippy
     # the following command should be used but needs sailfish SDK
     # - cargo clippy --all-targets --all-features -- -D warnings
-    - cargo clippy --all-targets -- -D warnings
+    # extra_unused_lifetimes is disabled until Diesel update, see
+    # https://github.com/diesel-rs/diesel/issues/3182 and
+    # https://github.com/diesel-rs/diesel/pull/3185 for more info.
+    - cargo clippy --all-targets -- -D warnings -A clippy::extra_unused_lifetimes
 
 .translations: &translations
   image: debian
