@@ -270,7 +270,7 @@
         <translation>Aygıt URL&apos;si</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
-        <location filename="../qml/pages/AddDevice.qml" line="54"/>
+        <location filename="../qml/pages/AddDevice.qml" line="63"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>Signal Desktop&apos;ı kurun. Signal Desktop&apos;ta görüntülenen QR kodunu taramak için CodeReader uygulamasını kullanın ve URL&apos;yi kopyalayıp buraya yapıştırın.</translation>
@@ -558,7 +558,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-password-label-too-short">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="71"/>
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="100"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="109"/>
         <source>Password is too short</source>
         <extracomment>Password label when too short</extracomment>
         <translation>parola çok kısa</translation>
@@ -577,26 +577,26 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Yeni parolanız</translation>
     </message>
     <message id="whisperfish-password-repeated-label">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="95"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="104"/>
         <source>Repeat the password</source>
         <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
         <translation>Parolayı tekrarlayın</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="103"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="112"/>
         <source>Passwords do not match</source>
         <extracomment>repeated password input label if passwords don&apos;t match</extracomment>
         <translation>Parolalar eşleşmiyor</translation>
     </message>
     <message id="whisperfish-new-password-repeat-placeholder">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="107"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="116"/>
         <source>Repeat your new password</source>
         <extracomment>Repeated new password input placeholder</extracomment>
         <translation>Yeni parolanızı tekrarlayın</translation>
     </message>
     <message id="whisperfish-skip-button-label">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="131"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="149"/>
         <source>Skip</source>
         <extracomment>skip button label</extracomment>
         <translation>Atla</translation>
@@ -671,7 +671,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Seçilmedi</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="208"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="217"/>
         <location filename="../qml/pages/Settings.qml" line="232"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -680,26 +680,26 @@ Settings page share contacts</extracomment>
         <translation>Kişileri Paylaş</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/RegisterPage.qml" line="211"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="220"/>
         <location filename="../qml/pages/Settings.qml" line="235"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation>Signal&apos;in diğer Signal kullanıcılarını bulmak için yerel kişi listenizi kullanmasına izin verin.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="176"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="185"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Doğrulama yöntemi</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="194"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="203"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Sesli doğrulamayı kullan</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="189"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="198"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Metin doğrulamayı kullan</translation>
@@ -734,21 +734,21 @@ Settings page share contacts</extracomment>
         <translation>Telefon numarası</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="181"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="190"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
         <translation>Signal sizi 6 basamaklı bir doğrulama kodu ile arayacak. Lütfen bunu yazmaya hazır olun.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="183"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="192"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <translation>Signal size 6 basamaklı bir doğrulama kodu gönderecek.</translation>
     </message>
     <message id="whisperfish-continue-button-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="224"/>
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="124"/>
-        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="114"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="233"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="142"/>
+        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="125"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
         <translation>Devam et</translation>
