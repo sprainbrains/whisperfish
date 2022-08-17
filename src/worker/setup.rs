@@ -93,8 +93,10 @@ impl SetupWorker {
 
         #[cfg(not(feature = "harbour"))]
         {
-            app.app_state.pinned().borrow_mut().may_exit =
-                app.settings.pinned().borrow().get_bool("quit_on_ui_close");
+            app.app_state
+                .pinned()
+                .borrow_mut()
+                .setMayExit(app.settings.pinned().borrow().get_bool("quit_on_ui_close"));
         }
 
         this.borrow().setupChanged();

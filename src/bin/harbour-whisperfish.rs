@@ -28,8 +28,24 @@ struct Opts {
     verbose: bool,
 
     /// Whether whisperfish was launched from autostart
-    #[structopt(long)]
-    autostart: bool,
+    #[structopt(short, long)]
+    prestart: bool,
+
+    // sailjail only accepts -prestart on the command line as optional argument, structopt however
+    // only supports --prestart.
+    // See: https://github.com/clap-rs/clap/issues/1210
+    // and https://github.com/sailfishos/sailjail/commit/8a239de9451685a82a2ee17fef0c1d33a089c28c
+    // XXX: Get rid of this when the situation changes
+    #[structopt(short = "r", hidden = true, parse(from_occurrences))]
+    _r: u32,
+    #[structopt(short = "e", hidden = true)]
+    _e: bool,
+    #[structopt(short = "s", hidden = true)]
+    _s: bool,
+    #[structopt(short = "a", hidden = true)]
+    _a: bool,
+    #[structopt(short = "t", hidden = true, parse(from_occurrences))]
+    _t: u32,
 }
 
 fn main() {
@@ -84,7 +100,7 @@ fn main() {
     if opt.verbose {
         config.verbose = true;
     }
-    if opt.autostart {
+    if opt.prestart {
         config.autostart = true;
     }
     config.override_captcha = opt.captcha;

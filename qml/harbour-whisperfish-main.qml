@@ -222,6 +222,16 @@ ApplicationWindow
         onActivate: mainWindow.activate()
     }
 
+    Connections {
+        target: RootApp
+        onLastWindowClosed: {
+            AppState.setClosed()
+            if (AppState.mayExit()) {
+                Qt.quit();
+            }
+        }
+    }
+
     DBusAdaptor {
         service: "be.rubdos.whisperfish"
         path: "/be/rubdos/whisperfish/app"

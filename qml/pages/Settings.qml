@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import "../js/countries_iso_only.js" as Countries
+import "../components"
 
 Page {
     id: settingsPage
@@ -10,6 +11,11 @@ Page {
         onCanceled: {
             incognitoModeSwitch.checked = !incognitoModeSwitch.checked
         }
+    }
+
+    SystemdUserService {
+        id: autostartService
+        serviceName: 'harbour-whisperfish.service'
     }
 
     SilicaFlickable {
@@ -281,13 +287,30 @@ Page {
                     //: Settings page enable autostart description
                     //% "When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background."
                     description: qsTrId("whisperfish-settings-enable-autostart-description")
-                    checked: AppState.isAutostartEnabled()
+                    enabled: autostartService.canAccessSystemd
+                    checked: autostartService.serviceEnabled
                     icon.source: "image://theme/icon-m-toy"
                     onCheckedChanged: {
-                        if(checked != AppState.isAutostartEnabled()) {
-                            AppState.setAutostartEnabled(checked)
+                        if (checked != autostartService.serviceEnabled) {
+                            if (checked) {
+                                autostartService.enableService()
+                            } else {
+                                autostartService.disableService()
+                            }
                         }
                     }
+                }
+                TextArea {
+                    id: autostartInfo
+                    visible: !autostartService.canAccessSystemd
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    readOnly: true
+                    width: parent.width
+                    font.pixelSize: Theme.fontSizeSmall
+                    labelVisible: false
+                    //: Settings page info how to enable autostart manually
+                    //% "Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running 'systemctl --user enable harbour-whisperfish.service' or 'systemctl --user disable harbour-whisperfish.service'"
+                    text: qsTrId("whisperfish-settings-autostart-manual-info")
                 }
                 IconTextSwitch {
                     id: enableQuitOnUiClose
@@ -316,7 +339,6 @@ Page {
                     //% "Quit Whisperfish"
                     text: qsTrId("whisperfish-settings-quit-button")
                     onClicked: {
-                        AppState.setMayExit(true)
                         Qt.quit()
                     }
                 }
