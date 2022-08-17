@@ -10,10 +10,17 @@ use qmetaobject::prelude::*;
 #[allow(non_snake_case)]
 pub struct Prompt {
     base: qt_base_class!(trait QObject),
+    promptRegistrationType: qt_signal!(),
     promptPhoneNumber: qt_signal!(),
     promptVerificationCode: qt_signal!(),
     promptPassword: qt_signal!(),
     promptCaptcha: qt_signal!(),
+    showLinkQR: qt_signal!(),
+
+    linkingQR: qt_property!(QString; NOTIFY qrChanged),
+    qrChanged: qt_signal!(),
+
+    registerAsPrimary: qt_method!(fn(&self, isPrimary: bool)),
 
     phoneNumber: qt_method!(fn(&self, phoneNumber: QString)),
     verificationCode: qt_method!(fn(&self, code: QString)),
@@ -24,6 +31,7 @@ pub struct Prompt {
     startCaptcha: qt_method!(fn(&self)),
 
     password_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
+    registration_type_listeners: Vec<futures::channel::oneshot::Sender<bool>>,
     code_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
     phone_number_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
     captcha_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
@@ -74,6 +82,16 @@ impl Prompt {
     #[with_executor]
     fn resetPeerIdentity(&self, _confirm: QString) {}
 
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn registerAsPrimary(&mut self, isPrimary: bool) {
+        for listener in self.registration_type_listeners.drain(..) {
+            if listener.send(isPrimary).is_err() {
+                log::warn!("Request for registration type fulfilled, but nobody listens.");
+            }
+        }
+    }
+
     pub fn ask_password(&mut self) -> impl Future<Output = Option<QString>> {
         self.promptPassword();
 
@@ -90,6 +108,48 @@ impl Prompt {
                 }
             }
         }
+    }
+
+    pub fn ask_registration_type(&mut self) -> impl Future<Output = Option<bool>> {
+        self.promptRegistrationType();
+
+        let (sender, receiver) = futures::channel::oneshot::channel();
+
+        self.registration_type_listeners.push(sender);
+
+        async {
+            match receiver.await {
+                Ok(pwd) => Some(pwd),
+                Err(_e) => {
+                    log::error!("Registration type prompt was canceled");
+                    None
+                }
+            }
+        }
+    }
+
+    pub fn show_link_qr(&mut self, url: String) {
+        let code = qrcode::QrCode::new(url.as_str()).expect("to generate qrcode for linking URI");
+        let image_buf = code.render::<image::Luma<u8>>().build();
+
+        // Export generate QR code pixmap data into a PNG data:-URI string
+        let mut image_uri = String::from("data:image/png;base64,");
+        {
+            let mut image_b64enc =
+                base64::write::EncoderStringWriter::from(&mut image_uri, base64::STANDARD);
+            image::png::PngEncoder::new(&mut image_b64enc)
+                .encode(
+                    &*image_buf,
+                    image_buf.width(),
+                    image_buf.height(),
+                    <image::Luma<u8> as image::Pixel>::COLOR_TYPE,
+                )
+                .expect("to write QR code image to data:-URI");
+        }
+
+        self.linkingQR = QString::from(image_uri);
+        self.qrChanged();
+        self.showLinkQR();
     }
 
     pub fn ask_phone_number(&mut self) -> impl Future<Output = Option<QString>> {

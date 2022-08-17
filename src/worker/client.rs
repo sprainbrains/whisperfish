@@ -27,7 +27,7 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
-use libsignal_service::push_service::DEFAULT_DEVICE_ID;
+use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
@@ -217,7 +217,7 @@ impl ClientActor {
             storage.clone(),
             storage,
             self.local_addr.clone().unwrap(),
-            DEFAULT_DEVICE_ID,
+            self.config.get_device_id(),
         )
     }
 
@@ -1225,6 +1225,7 @@ impl Handler<StorageReady> for ClientActor {
         self.storage = Some(storageready.storage.clone());
         let tel = self.config.get_tel_clone();
         let uuid = self.config.get_uuid_clone();
+        let device_id = self.config.get_device_id();
 
         storageready.storage.mark_pending_messages_failed();
 
@@ -1243,25 +1244,27 @@ impl Handler<StorageReady> for ClientActor {
             } else {
                 None
             };
+
             log::info!("Phone number: {}", phonenumber);
             log::info!("UUID: {:?}", uuid);
+            log::info!("DeviceId: {}", device_id);
 
             let password = storage_for_password.signal_password().await.unwrap();
             let signaling_key = Some(storage_for_password.signaling_key().await.unwrap());
 
-            (uuid, phonenumber, password, signaling_key)
+            (uuid, phonenumber, device_id, password, signaling_key)
         };
         let service_cfg = self.service_cfg();
 
         Box::pin(request_password.into_actor(self).map(
-            move |(uuid, phonenumber, password, signaling_key), act, ctx| {
+            move |(uuid, phonenumber, device_id, password, signaling_key), act, ctx| {
                 // Store credentials
                 let credentials = ServiceCredentials {
                     uuid,
                     phonenumber: phonenumber.clone(),
                     password: Some(password),
                     signaling_key,
-                    device_id: None, // !77
+                    device_id: Some(device_id),
                 };
                 act.credentials = Some(credentials);
                 // end store credentials
@@ -1280,6 +1283,8 @@ impl Handler<StorageReady> for ClientActor {
                     storage,
                     rand::thread_rng(),
                     service_cfg.unidentified_sender_trust_root,
+                    uuid.expect("local uuid to initialize service cipher"),
+                    device_id,
                 );
                 // end signal service context
                 act.cipher = Some(cipher);
@@ -1525,6 +1530,105 @@ impl Handler<ConfirmRegistration> for ClientActor {
             confirmation_procedure
                 .into_actor(self)
                 .map(move |result, _act, _ctx| Ok((registration_id, result?))),
+        )
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<RegisterLinkedResponse, anyhow::Error>")]
+pub struct RegisterLinked {
+    pub device_name: String,
+    pub password: String,
+    pub signaling_key: [u8; 52],
+    pub tx_uri: futures::channel::oneshot::Sender<String>,
+}
+
+pub struct RegisterLinkedResponse {
+    pub phone_number: PhoneNumber,
+    pub registration_id: u32,
+    pub device_id: DeviceId,
+    pub uuid: String,
+    pub identity_key_pair: libsignal_protocol::IdentityKeyPair,
+    pub profile_key: Vec<u8>,
+}
+
+impl Handler<RegisterLinked> for ClientActor {
+    type Result = ResponseActFuture<Self, Result<RegisterLinkedResponse, anyhow::Error>>;
+
+    fn handle(&mut self, reg: RegisterLinked, _ctx: &mut Self::Context) -> Self::Result {
+        use libsignal_service::provisioning::*;
+
+        let push_service = self.unauthenticated_service();
+
+        let mut provision_manager: LinkingManager<AwcPushService> =
+            LinkingManager::new(push_service, reg.password.clone());
+
+        let (tx, mut rx) = futures::channel::mpsc::channel(1);
+
+        let mut tx_uri = Some(reg.tx_uri);
+        let signaling_key = reg.signaling_key;
+
+        let registration_procedure = async move {
+            let (fut1, fut2) = future::join(
+                provision_manager.provision_secondary_device(
+                    &mut rand::thread_rng(),
+                    signaling_key,
+                    tx,
+                ),
+                async move {
+                    let mut res = Result::<RegisterLinkedResponse, anyhow::Error>::Err(
+                        anyhow::Error::msg("Registration timed out"),
+                    );
+                    while let Some(provisioning_step) = rx.next().await {
+                        match provisioning_step {
+                            SecondaryDeviceProvisioning::Url(url) => {
+                                log::info!("generating qrcode from provisioning link: {}", &url);
+                                tx_uri
+                                    .take()
+                                    .expect("that only one URI is emitted by provisioning code")
+                                    .send(url.to_string())
+                                    .expect("to forward provisioning URL to caller");
+                            }
+                            SecondaryDeviceProvisioning::NewDeviceRegistration {
+                                phone_number,
+                                device_id,
+                                registration_id,
+                                uuid,
+                                private_key,
+                                public_key,
+                                profile_key,
+                            } => {
+                                let identity_key_pair = libsignal_protocol::IdentityKeyPair::new(
+                                    libsignal_protocol::IdentityKey::new(public_key),
+                                    private_key,
+                                );
+
+                                res = Result::<RegisterLinkedResponse, anyhow::Error>::Ok(
+                                    RegisterLinkedResponse {
+                                        phone_number,
+                                        registration_id,
+                                        device_id,
+                                        uuid: uuid.to_string(),
+                                        identity_key_pair,
+                                        profile_key,
+                                    },
+                                );
+                            }
+                        }
+                    }
+                    res
+                },
+            )
+            .await;
+
+            fut1?;
+            fut2
+        };
+
+        Box::pin(
+            registration_procedure
+                .into_actor(self)
+                .map(move |result, _act, _ctx| result),
         )
     }
 }

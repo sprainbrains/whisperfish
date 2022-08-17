@@ -13,7 +13,7 @@ pub fn storage() -> InMemoryDb {
     rt.block_on(async {
         let temp = temp();
         (
-            Storage::new(&temp, None, 12345, "Some Password", [0; 52])
+            Storage::new(&temp, None, 12345, "Some Password", [0; 52], None)
                 .await
                 .expect("Failed to initalize storage"),
             temp,

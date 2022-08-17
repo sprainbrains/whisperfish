@@ -184,12 +184,12 @@ impl MessageModel {
     #[with_executor]
     fn createMessage(
         &mut self,
-        e164: QString,
+        recipient: QString,
         message: QString,
         attachment: QString,
         _add: bool,
     ) -> i32 {
-        let e164 = e164.to_string();
+        let recipient = recipient.to_string();
         let message = message.to_string();
         let attachment = attachment.to_string();
 
@@ -198,7 +198,7 @@ impl MessageModel {
                 .as_ref()
                 .unwrap()
                 .send(actor::QueueMessage {
-                    e164,
+                    recipient,
                     message,
                     attachment,
                 })
