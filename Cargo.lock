@@ -2517,7 +2517,7 @@ checksum = "f3f6f92acf49d1b98f7a81226834412ada05458b7364277387724a237f062695"
 [[package]]
 name = "sailors"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/sailo-rs.git#71834691bd756622a5cf93f3789a4d8a7353e854"
+source = "git+https://gitlab.com/whisperfish/sailo-rs.git#786c72ca880d742b40d2f68e2a6741beeb83269f"
 dependencies = [
  "anyhow",
  "cpp",
