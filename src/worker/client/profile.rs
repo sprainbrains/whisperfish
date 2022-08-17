@@ -39,7 +39,7 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
             storage.clone(),
             storage.clone(),
             local_addr.clone(),
-            config.get_device_id_clone(),
+            config.get_device_id(),
         );
 
         Box::pin(async move {

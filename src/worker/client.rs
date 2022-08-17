@@ -217,7 +217,7 @@ impl ClientActor {
             storage.clone(),
             storage,
             self.local_addr.clone().unwrap(),
-            self.config.get_device_id_clone(),
+            self.config.get_device_id(),
         )
     }
 
@@ -1225,7 +1225,7 @@ impl Handler<StorageReady> for ClientActor {
         self.storage = Some(storageready.storage.clone());
         let tel = self.config.get_tel_clone();
         let uuid = self.config.get_uuid_clone();
-        let device_id = self.config.get_device_id_clone();
+        let device_id = self.config.get_device_id();
 
         storageready.storage.mark_pending_messages_failed();
 

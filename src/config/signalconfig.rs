@@ -252,7 +252,7 @@ impl SignalConfig {
         self.uuid.lock().unwrap().clone()
     }
 
-    pub fn get_device_id_clone(&self) -> u32 {
+    pub fn get_device_id(&self) -> u32 {
         *self.device_id.lock().unwrap()
     }
 
