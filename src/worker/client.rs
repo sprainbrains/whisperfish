@@ -1503,7 +1503,9 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 phonenumber,
                 password,
             );
+            // XXX centralize the place where attributes are generated.
             let account_attrs = AccountAttributes {
+                // XXX probably we should remove the signaling key.
                 signaling_key: Some(signaling_key.to_vec()),
                 registration_id,
                 voice: false,
@@ -1515,11 +1517,16 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
                 capabilities: DeviceCapabilities {
-                    uuid: true,
+                    announcement_group: false,
                     gv2: true,
                     storage: false,
                     gv1_migration: true,
+                    sender_key: false,
+                    change_number: false,
+                    gift_badges: false,
+                    stories: false,
                 },
+                name: "Whisperfish".into(),
             };
             provisioning_manager
                 .confirm_verification_code(confirm_code, account_attrs)

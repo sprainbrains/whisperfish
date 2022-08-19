@@ -125,6 +125,7 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 .expect("self set by now");
 
             let mut am = AccountManager::new(service, self_recipient.profile_key());
+            // XXX centralize the place where attributes are generated.
             let account_attributes = AccountAttributes {
                 signaling_key: None,
                 registration_id,
@@ -137,11 +138,16 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
                 capabilities: DeviceCapabilities {
-                    uuid: true,
+                    announcement_group: false,
                     gv2: true,
                     storage: false,
                     gv1_migration: true,
+                    sender_key: false,
+                    change_number: false,
+                    gift_badges: false,
+                    stories: false,
                 },
+                name: "Whisperfish".into(),
             };
             am.set_account_attributes(account_attributes)
                 .await
