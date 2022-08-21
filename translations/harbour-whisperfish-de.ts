@@ -96,32 +96,32 @@
         <translation>Unterhaltung löschen</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="99"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="105"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Neue Nachricht</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="202"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="208"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Einrichtung des Signalclients fehlgeschlagen</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="207"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="213"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Einrichtung des Datenspeichers fehlgeschlagen</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="327"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="333"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Whisperfish-Datenspeicherung</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="331"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="337"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Konfiguration und Nachrichten speichern</translation>
