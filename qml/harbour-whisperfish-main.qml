@@ -47,6 +47,11 @@ ApplicationWindow
         }
     }
 
+    Notification {
+        id: quietMessageNotification
+        sound: "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
+    }
+
     function activateSession(sid, name, source) {
         console.log("Activating session for source: "+source)
         MessageModel.load(sid, name)
@@ -78,7 +83,8 @@ ApplicationWindow
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName))) {
-           return
+            quietMessageNotification.publish()
+            return
         }
 
         var m
