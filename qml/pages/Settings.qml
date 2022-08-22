@@ -287,11 +287,11 @@ Page {
                     //: Settings page enable autostart description
                     //% "When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background."
                     description: qsTrId("whisperfish-settings-enable-autostart-description")
-                    enabled: autostartService.canAccessSystemd
+                    enabled: autostartService.serviceExists
                     checked: autostartService.serviceEnabled
                     icon.source: "image://theme/icon-m-toy"
                     onCheckedChanged: {
-                        if (checked != autostartService.serviceEnabled) {
+                        if (enabled) {
                             if (checked) {
                                 autostartService.enableService()
                             } else {
@@ -302,7 +302,7 @@ Page {
                 }
                 TextArea {
                     id: autostartInfo
-                    visible: !autostartService.canAccessSystemd
+                    visible: !autostartService.serviceExists
                     anchors.horizontalCenter: parent.horizontalCenter
                     readOnly: true
                     width: parent.width

@@ -11,7 +11,7 @@ Item {
 
     property bool serviceEnabled: false
 
-    property bool canAccessSystemd: true
+    property bool serviceExists: false
 
     Component.onCompleted: {
         dbusManager.queryService()
@@ -27,16 +27,16 @@ Item {
             call('Reload')
         }
         function queryService() {
-            typedCall('GetUnit',
+            typedCall('GetUnitFileState',
                       { 'type': 's', 'value': serviceName },
                       function(result) {
-                          dbusUnit.path = result
+                          container.serviceExists = true
                           dbusUnit.queryEnabledState()
                       },
                       function(error, message) {
-                          console.log('GetUnit failed:', error)
-                          console.log('GetUnit message:', message)
-                          container.canAccessSystemd = false 
+                          console.log('GetUnitFileStatus failed:', error)
+                          console.log('GetUnitFileStatus message:', message)
+                          container.serviceExists = false 
                       })
         }
         function enableService() {
