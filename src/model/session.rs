@@ -752,13 +752,11 @@ impl AugmentedSession {
     }
 
     fn is_typing(&self) -> bool {
-        log::trace!("QML request is_typing");
         !self.typing.is_empty()
     }
 
     // XXX exposing this as a model would be nicer, but it'll do for now.
     fn typing(&self) -> qmetaobject::QVariantList {
-        log::trace!("QML request typing");
         let mut lst = qmetaobject::QVariantList::default();
         for t in &self.typing {
             lst.push(QString::from(t.e164_or_uuid()).into());
