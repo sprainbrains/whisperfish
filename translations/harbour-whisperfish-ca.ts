@@ -75,368 +75,368 @@
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Silenciar conversa</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Restaurar a la carpeta d&apos;entrada</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arxivar conversa</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="327"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar conversa</translation>
     </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../qml/harbour-whisperfish-main.qml" line="105"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nou missatge</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
         <location filename="../qml/harbour-whisperfish-main.qml" line="208"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fallo al configurar el client de Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="213"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fallo al configurar l&apos;emmagatzamatge de dades</translation>
     </message>
     <message id="permission-la-data">
         <location filename="../qml/harbour-whisperfish-main.qml" line="333"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Emmagatzamatge de Wisperfish</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish-main.qml" line="337"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Guardar configuració i missatges</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra converses arxivades</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Torna a les conversacions</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversacions</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversacions arxivades</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fixat</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avui</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../qml/pages/MainPage.qml" line="276"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ahir</translation>
     </message>
     <message id="whisperfish-session-section-older">
         <location filename="../qml/pages/MainPage.qml" line="281"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Anterior</translation>
     </message>
     <message id="whisperfish-about">
         <location filename="../qml/pages/About.qml" line="20"/>
         <source>About Whisperfish</source>
         <extracomment>Title for about page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sobre Whisperfish</translation>
     </message>
     <message id="whisperfish-version">
         <location filename="../qml/pages/About.qml" line="33"/>
         <source>Whisperfish v%1</source>
         <extracomment>Whisperfish version string</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish v%1</translation>
     </message>
     <message id="whisperfish-description">
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Client de signal per Sailfish OS</translation>
     </message>
     <message id="whisperfish-description-section">
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Descripció</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish es un client no oficial, però avançat, de Signal per Sailfish OS. Whisperfish es usable, però esta considerat programari de qualitat en fase beta. Asegurat d&apos;actualitzar regularment! També comprova la Wiki i no dubteu a contribuir an ella! No contacteu amb desenvolupadors de Signal sobre problemes amb Whisperfish, si us plau contacta&apos;ns a nosaltres!.</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
         <source>Build ID: %1</source>
         <extracomment>Whisperfish long version string and build ID</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Id de compilació: %1</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="110"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Suport a liberapay</translation>
     </message>
     <message id="whisperfish-source-code">
         <location filename="../qml/pages/About.qml" line="120"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Codi font</translation>
     </message>
     <message id="whisperfish-bug-report">
         <location filename="../qml/pages/About.qml" line="130"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reportar un error</translation>
     </message>
     <message id="whisperfish-copyright">
         <location filename="../qml/pages/About.qml" line="86"/>
         <source>Copyright</source>
         <extracomment>Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Copyright</translation>
     </message>
     <message id="whisperfish-about-wiki-link">
         <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Visita la Vikipèdia</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="149"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Copyright adicional</translation>
     </message>
     <message id="whisperfish-add-confirm">
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afegir</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afegir dispositiu</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/AddDevice.qml" line="43"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Url del dispositiu</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
         <location filename="../qml/pages/AddDevice.qml" line="63"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Instala Signal per escriptori. Utilitza l&apos;aplicació CodeReader per escanejar el codi QR mostrar al Signal per escriptori, copia i enganxa la URL aquí.</translation>
     </message>
     <message id="whisperfish-select-picture">
         <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona la imatge</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
         <source>Add</source>
         <extracomment>Menu option to add new linked device</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afegir</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Refrescar</translation>
     </message>
     <message id="whisperfish-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="39"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositius enllaçats</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
         <location filename="../qml/pages/LinkedDevices.qml" line="49"/>
         <source>Unlinked</source>
         <oldsource>Unlinking</oldsource>
         <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Desenllaçat</translation>
     </message>
     <message id="whisperfish-current-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="65"/>
         <source>Current device (Whisperfish, %1)</source>
         <extracomment>Linked device title for current Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositiu actual (Whisperfish, %1)</translation>
     </message>
     <message id="whisperfish-device-name">
         <location filename="../qml/pages/LinkedDevices.qml" line="69"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositiu %1</translation>
     </message>
     <message id="whisperfish-device-link-date">
         <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Enllaçat: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="98"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Últim cop actiu: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
         <location filename="../qml/pages/LinkedDevices.qml" line="118"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Desenllaçar</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="250"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Deslliça cap abaix per iniciar una nova conversació.</translation>
     </message>
     <message id="whisperfish-about-menu">
         <location filename="../qml/pages/MainPage.qml" line="56"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sobre Whisperfish</translation>
     </message>
     <message id="whisperfish-update-reminder-summary">
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Si us plau, comprova actualitzacions</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>La versio de Whisperfis té més de 90 dies. Si us plau, comprova les actualitzación per mantenir Whisperfish fcunionant bé.</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
         <source>Settings</source>
         <extracomment>Whisperfish settings menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Configuració</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../qml/pages/MainPage.qml" line="112"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nou missatge</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/MainPage.qml" line="242"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Es requereix registre</translation>
     </message>
     <message id="whisperfish-locked-message">
         <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bloquejat</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally" numerus="yes">
         <location filename="../qml/components/MessagesView.qml" line="142"/>
         <source>Locally deleted %n message(s)</source>
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Borrat %n missatge local</numerusform>
+            <numerusform>Borrats %n missatges locals</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="367"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reaccionar</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="381"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message id="whisperfish-forward-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="388"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reenviar</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="395"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar · més</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="374"/>
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reintentar l&apos;enviament</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reiniciar la clau d&apos;identitat</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Clau d&apos;identitat reiniciada</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reiniciar sessió segura</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="39"/>
