@@ -36,7 +36,7 @@ Dialog {
         TextField {
             id: urlField
             width: parent.width
-            inputMethodHints: Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData | Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
             validator: RegExpValidator{ regExp: /(tsdevice|sgnl):\/\/?.*/;}
             //: Device URL, text input for pasting the QR-scanned code
             //% "Device URL"
