@@ -82,14 +82,7 @@ BlockingInfoPageBase {
                 }
             }
         
-            errorHighlight: false
-            rightItem: Image {
-                width: password1Field.font.pixelSize
-                height: password1Field.font.pixelSize
-                source: "image://theme/icon-s-checkmark?" + password1Field.color
-                opacity: password1Field.text.length > 0 && password1Field.acceptableInput ? 1.0 : 0.01
-                Behavior on opacity { FadeAnimation {} }
-            }
+            errorHighlight: !(password1Field.acceptableInput)
         }
 
         PasswordField {
@@ -123,14 +116,7 @@ BlockingInfoPageBase {
                 }
             }
 
-            errorHighlight: false
-            rightItem: Image {
-                width: password2Field.font.pixelSize
-                height: password2Field.font.pixelSize
-                source: "image://theme/icon-s-checkmark?" + password2Field.color
-                opacity: password2Field.text.length > 0 && password1Field.text === password2Field.text ? 1.0 : 0.01
-                Behavior on opacity { FadeAnimation {} }
-            }
+            errorHighlight: !(password2Field.acceptableInput && password1Field.text === password2Field.text)
         }
 
         Row {
