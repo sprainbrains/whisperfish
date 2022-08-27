@@ -150,7 +150,7 @@ BlockingInfoPageBase {
                     right: parent.right
                     top: parent.top
                 }
-                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly | Qt.ImhSensitiveData
                 validator: RegExpValidator{ regExp: /|[1-9][- 0-9]{3,}/ }
 
                 //: phone number input label

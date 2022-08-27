@@ -77,7 +77,7 @@ BlockingInfoPageBase {
             id: codeField
             width: parent.width - 4*Theme.horizontalPageMargin
             anchors.horizontalCenter: parent.horizontalCenter
-            inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
             validator: RegExpValidator{ regExp: /|[0-9]{3}-[0-9]{3}/;}
             //: verification code input label
             //% "Verification code"
