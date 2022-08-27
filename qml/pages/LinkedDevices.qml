@@ -50,6 +50,7 @@ Page {
                     function() {
                         console.log("Unlink device: ", model)
                         ClientWorker.unlink_device(model.id)
+                        ClientWorker.reload_linked_devices()
                     })
             }
 
