@@ -778,7 +778,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="30"/>
         <source>Linked Devices</source>
         <extracomment>Linked devices menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dispositius enllaçats</translation>
     </message>
     <message id="whisperfish-settings-reconnect-menu">
         <location filename="../qml/pages/Settings.qml" line="39"/>
@@ -791,7 +791,7 @@ Settings page share contacts</extracomment>
         <source>Settings</source>
         <oldsource>Whisperfish Settings</oldsource>
         <extracomment>Settings page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuració</translation>
     </message>
     <message id="whisperfish-settings-identity-section-label">
         <location filename="../qml/pages/Settings.qml" line="62"/>
