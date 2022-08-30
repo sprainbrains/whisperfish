@@ -55,7 +55,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="294"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
-        <translation>Vapauta</translation>
+        <translation>Vapauta kiinnitys</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="297"/>
@@ -81,7 +81,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation>Palauta keskustelu</translation>
+        <translation>Palauta arkistosta</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
@@ -287,7 +287,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="84"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
-        <translation>Liitetty: %1</translation>
+        <translation>Linkitetty: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
         <location filename="../qml/pages/LinkedDevices.qml" line="103"/>
@@ -385,8 +385,8 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
-            <numerusform>Poistettu laitteelta %n viesti</numerusform>
-            <numerusform>Poistettu laitteelta %n viestiä</numerusform>
+            <numerusform>%n viesti poistettu laitteelta</numerusform>
+            <numerusform>%n viestiä poistettu laitteelta</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -405,7 +405,7 @@
         <location filename="../qml/components/MessagesView.qml" line="388"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
-        <translation>Lähetä eteenpäin</translation>
+        <translation>Lähetä edelleen</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
         <location filename="../qml/components/MessagesView.qml" line="395"/>
@@ -418,7 +418,7 @@
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
-        <translation>Yritä lähettää viesti uudelleen</translation>
+        <translation>Yritä lähettää uudelleen</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
@@ -614,13 +614,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="13"/>
         <source>Link as secondary device</source>
         <extracomment>register as secondary device qr page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Linkitä laitteena</translation>
     </message>
     <message id="whisperfish-register-linked-message">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="17"/>
         <source>Please scan the QR code below using the Signal app.</source>
         <extracomment>User instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lue tämä QR-koodi Signal-sovelluksellasi.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="33"/>
@@ -778,7 +778,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="30"/>
         <source>Linked Devices</source>
         <extracomment>Linked devices menu option</extracomment>
-        <translation>Liitetyt laitteet</translation>
+        <translation>Linkitetyt laitteet</translation>
     </message>
     <message id="whisperfish-settings-reconnect-menu">
         <location filename="../qml/pages/Settings.qml" line="39"/>
@@ -958,7 +958,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish ei voi muokata käynnistysasetuksia. Voit vaihtaa automaattikäynnistyken päälle tai pois ajamalla päätteessä komennon &apos;systemctl --user enable harbour-whisperfish.service&apos; tai &apos;systemctl --user disable harbour-whisperfish.service&apos;</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="340"/>
@@ -1576,7 +1576,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="17"/>
         <source>Do you want to register whisperfish as primariy device or link it as secondary device to an existing signal app?</source>
         <extracomment>registration type prompt text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Haluatko rekisteröidä Whisperfishin päälaitteeksi puhelinnumerolla, vai linkittää sen laitteeksi olemassaolevan Signal-tiliin?</translation>
     </message>
     <message id="whisperfish-register-primary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="48"/>
