@@ -96,32 +96,32 @@
         <translation>Apagar conversa</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="105"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="114"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nova mensagem</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="208"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="217"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>A configuração do Signal falhou</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="213"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="222"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>A configuração do armazenamento de dados falhou</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="333"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="342"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Armazenamento de dados do Whisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="337"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="346"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Armazenar definições e mensagens</translation>
@@ -217,7 +217,7 @@
         <translation>Endereço do dispositivo</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
-        <location filename="../qml/pages/AddDevice.qml" line="63"/>
+        <location filename="../qml/pages/AddDevice.qml" line="76"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>Instala o Signal Desktop. Usa a aplicação CodeReader para ler o código QR exibido no Signal Desktop e copia o endereço para aqui.</translation>
@@ -334,31 +334,31 @@
         <translation>Não associado</translation>
     </message>
     <message id="whisperfish-current-device-name">
-        <location filename="../qml/pages/LinkedDevices.qml" line="65"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="66"/>
         <source>Current device (Whisperfish, %1)</source>
         <extracomment>Linked device title for current Whisperfish</extracomment>
         <translation>Dispositivo atual (Whisperfish, %1)</translation>
     </message>
     <message id="whisperfish-device-name">
-        <location filename="../qml/pages/LinkedDevices.qml" line="69"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="70"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
         <translation>Dispositivo %1</translation>
     </message>
     <message id="whisperfish-device-link-date">
-        <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="84"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
         <translation>Associado: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
-        <location filename="../qml/pages/LinkedDevices.qml" line="98"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="103"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
         <translation>Última atividade: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
-        <location filename="../qml/pages/LinkedDevices.qml" line="118"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="125"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
         <translation>Desassociar</translation>
@@ -592,7 +592,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-password-label-too-short">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="71"/>
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="109"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="102"/>
         <source>Password is too short</source>
         <extracomment>Password label when too short</extracomment>
         <translation>Senha demasiado curta</translation>
@@ -611,26 +611,26 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>A tua nova senha</translation>
     </message>
     <message id="whisperfish-password-repeated-label">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="104"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="97"/>
         <source>Repeat the password</source>
         <oldsource>Repeated password</oldsource>
         <extracomment>repeated password input label</extracomment>
         <translation>Repete a senha</translation>
     </message>
     <message id="whisperfish-password-repeated-label-wrong">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="112"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="105"/>
         <source>Passwords do not match</source>
         <extracomment>repeated password input label if passwords don&apos;t match</extracomment>
         <translation>As senhas não condizem</translation>
     </message>
     <message id="whisperfish-new-password-repeat-placeholder">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="116"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="109"/>
         <source>Repeat your new password</source>
         <extracomment>Repeated new password input placeholder</extracomment>
         <translation>Repete a tua nova senha</translation>
     </message>
     <message id="whisperfish-skip-button-label">
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="149"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="135"/>
         <source>Skip</source>
         <extracomment>skip button label</extracomment>
         <translation>Saltar</translation>
@@ -738,7 +738,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="217"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="230"/>
         <location filename="../qml/pages/Settings.qml" line="238"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -747,14 +747,14 @@ Settings page share contacts</extracomment>
         <translation>Partilhar contactos</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/RegisterPage.qml" line="220"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="233"/>
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation>Permitir que o Signal use a lista de contactos local para encontrar outros utilizadores do Signal.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="185"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="198"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Método de verificação</translation>
@@ -785,34 +785,34 @@ Settings page share contacts</extracomment>
         <translation>Número de telefone</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="198"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="211"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Verificação por mensagem de texto</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="203"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="216"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Verificação por chamada de voz</translation>
     </message>
     <message id="whisperfish-continue-button-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="233"/>
-        <location filename="../qml/pages/SetupPasswordPage.qml" line="142"/>
-        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="125"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="246"/>
+        <location filename="../qml/pages/SetupPasswordPage.qml" line="128"/>
+        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="138"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
         <translation>Continuar</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="190"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="203"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
         <translation>O Signal irá efetuar uma chamada e indicar um código de 6 dígitos. Por favor prepara-te para apontar o código.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="192"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="205"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <translation>O Signal irá enviar uma mensagem de texto com um código de 6 dígitos.</translation>
     </message>
