@@ -147,18 +147,27 @@ impl SignalConfig {
             std::fs::create_dir_all(&new_path)?;
         }
 
+        // New paths already in use
         if new_db.exists() && new_storage.exists() {
             return Ok(());
-        } else if !new_db.exists()
-            && !new_storage.exists()
-            && !old_db.exists()
-            && !old_storage.exists()
-        {
-            eprintln!("Creating storage and db folders...");
-            std::fs::create_dir(new_db)?;
-            std::fs::create_dir(new_storage)?;
-            return Ok(());
-        } else if (new_db.exists() ^ new_storage.exists())
+        } else if !new_db.exists() && !new_storage.exists() && !old_db.exists() {
+            // No new or old paths exist; must be clean install
+            if !old_storage.exists() {
+                eprintln!("Creating storage and db folders...");
+                std::fs::create_dir(new_db)?;
+                std::fs::create_dir(new_storage)?;
+                return Ok(());
+            }
+            // Only old storage path exists -- this indicates that
+            // the Whisperfish was previously started but never registered.
+            // Create the old database directory, so the migration can continue.
+            else {
+                eprintln!("No old database found, creating empty directory...");
+                std::fs::create_dir(old_db)?;
+            }
+        }
+        // Try to detect incomplete migration state
+        else if (new_db.exists() ^ new_storage.exists())
             || (old_db.exists() ^ old_storage.exists())
         {
             eprintln!("Storage state is abnormal, aborting!");
