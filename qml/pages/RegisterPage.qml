@@ -150,7 +150,7 @@ BlockingInfoPageBase {
                     right: parent.right
                     top: parent.top
                 }
-                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly
+                inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhDialableCharactersOnly | Qt.ImhSensitiveData
                 validator: RegExpValidator{ regExp: /|[1-9][- 0-9]{3,}/ }
 
                 //: phone number input label
@@ -165,13 +165,26 @@ BlockingInfoPageBase {
                                             "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: parent.forceActiveFocus()
 
-                errorHighlight: false
-                rightItem: Image {
-                    width: numberField.font.pixelSize
-                    height: numberField.font.pixelSize
-                    source: "image://theme/icon-s-checkmark?" + numberField.color
-                    opacity: _canAccept ? 1.0 : 0.01
-                    Behavior on opacity { FadeAnimation {} }
+                errorHighlight: !_canAccept
+
+                Component.onCompleted: {
+                    if(typeof numberField.rightItem !== "undefined") {
+                        _numberFieldLoader.active = true
+                        numberField.rightItem = _numberFieldLoader.item
+                        numberField.errorHighlight = false
+                    }
+                }
+
+                Loader {
+                    id: _numberFieldLoader
+                    active: false
+                    sourceComponent: Image {
+                        width: numberField.font.pixelSize
+                        height: numberField.font.pixelSize
+                        source: "image://theme/icon-s-checkmark?" + numberField.color
+                        opacity: _canAccept ? 1.0 : 0.01
+                        Behavior on opacity { FadeAnimation {} }
+                    }
                 }
             }
         }

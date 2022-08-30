@@ -77,7 +77,7 @@ BlockingInfoPageBase {
             id: codeField
             width: parent.width - 4*Theme.horizontalPageMargin
             anchors.horizontalCenter: parent.horizontalCenter
-            inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
             validator: RegExpValidator{ regExp: /|[0-9]{3}-[0-9]{3}/;}
             //: verification code input label
             //% "Verification code"
@@ -103,13 +103,26 @@ BlockingInfoPageBase {
                 }
             }
 
-            errorHighlight: false
-            rightItem: Image {
-                width: codeField.font.pixelSize
-                height: codeField.font.pixelSize
-                source: "image://theme/icon-m-acknowledge?" + codeField.color
-                opacity: _canAccept ? 1.0 : 0.01
-                Behavior on opacity { FadeAnimation {} }
+            errorHighlight: !_canAccept
+
+            Component.onCompleted: {
+                if(typeof codeField.rightItem !== "undefined") {
+                    _codeFieldLoader.active = true
+                    codeField.rightItem = _codeFieldLoader.item
+                    codeField.errorHighlight = false
+                }
+            }
+
+            Loader {
+                id: _codeFieldLoader
+                active: false
+                sourceComponent: Image {
+                    width: codeField.font.pixelSize
+                    height: codeField.font.pixelSize
+                    source: "image://theme/icon-m-acknowledge?" + codeField.color
+                    opacity: _canAccept ? 1.0 : 0.01
+                    Behavior on opacity { FadeAnimation {} }
+                }
             }
         }
 

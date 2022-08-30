@@ -36,7 +36,7 @@ Dialog {
         TextField {
             id: urlField
             width: parent.width
-            inputMethodHints: Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData | Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase
             validator: RegExpValidator{ regExp: /(tsdevice|sgnl):\/\/?.*/;}
             //: Device URL, text input for pasting the QR-scanned code
             //% "Device URL"
@@ -45,13 +45,26 @@ Dialog {
             horizontalAlignment: TextInput.AlignLeft
             EnterKey.onClicked: parent.focus = true
 
-            errorHighlight: false
-            rightItem: Image {
-                width: urlField.font.pixelSize
-                height: urlField.font.pixelSize
-                source: "image://theme/icon-s-checkmark?" + urlField.color
-                opacity: urlField.text.length > 0 && urlField.acceptableInput ? 1.0 : 0.01
-                Behavior on opacity { FadeAnimation {} }
+            errorHighlight: !(urlField.text.length > 0 && urlField.acceptableInput)
+
+            Component.onCompleted: {
+                if(typeof urlField.rightItem !== "undefined") {
+                    _urlFieldLoader.active = true
+                    urlField.rightItem = _urlFieldLoader.item
+                    urlField.errorHighlight = false
+                }
+            }
+
+            Loader {
+                id: _urlFieldLoader
+                active: false
+                sourceComponent: Image {
+                    width: urlField.font.pixelSize
+                    height: urlField.font.pixelSize
+                    source: "image://theme/icon-s-checkmark?" + urlField.color
+                    opacity: urlField.text.length > 0 && urlField.acceptableInput ? 1.0 : 0.01
+                    Behavior on opacity { FadeAnimation {} }
+                }
             }
         }
 

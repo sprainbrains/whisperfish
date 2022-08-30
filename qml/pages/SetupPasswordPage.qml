@@ -63,7 +63,7 @@ BlockingInfoPageBase {
             id: password1Field
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2*Theme.horizontalPageMargin
-            inputMethodHints: Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
             validator: RegExpValidator{ regExp: /|.{6,}/ }
             label: !acceptableInput /* = validator complained */ ?
                        //: Password label when too short
@@ -82,21 +82,14 @@ BlockingInfoPageBase {
                 }
             }
         
-            errorHighlight: false
-            rightItem: Image {
-                width: password1Field.font.pixelSize
-                height: password1Field.font.pixelSize
-                source: "image://theme/icon-s-checkmark?" + password1Field.color
-                opacity: password1Field.text.length > 0 && password1Field.acceptableInput ? 1.0 : 0.01
-                Behavior on opacity { FadeAnimation {} }
-            }
+            errorHighlight: !(password1Field.acceptableInput)
         }
 
         PasswordField {
             id: password2Field
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2*Theme.horizontalPageMargin
-            inputMethodHints: Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
             validator: RegExpValidator { regExp: /|.{6,}/ }
             label: (text === '' || _canAccept) ?
                        //: repeated password input label
@@ -123,14 +116,7 @@ BlockingInfoPageBase {
                 }
             }
 
-            errorHighlight: false
-            rightItem: Image {
-                width: password2Field.font.pixelSize
-                height: password2Field.font.pixelSize
-                source: "image://theme/icon-s-checkmark?" + password2Field.color
-                opacity: password2Field.text.length > 0 && password1Field.text === password2Field.text ? 1.0 : 0.01
-                Behavior on opacity { FadeAnimation {} }
-            }
+            errorHighlight: !(password2Field.acceptableInput && password1Field.text === password2Field.text)
         }
 
         Row {

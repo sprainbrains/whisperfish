@@ -49,7 +49,14 @@ ApplicationWindow
 
     Notification {
         id: quietMessageNotification
-        sound: "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
+        property bool isSupported: false
+
+        Component.onCompleted: {
+            if(typeof quietMessageNotification.sound !== "undefined") {
+                quietMessageNotification.subText = "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
+                quietMessageNotification.isSupported = true
+            }   
+        }
     }
 
     function activateSession(sid, name, source) {
@@ -83,7 +90,9 @@ ApplicationWindow
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName))) {
-            quietMessageNotification.publish()
+            if(quietMessageNotification.isSupported) {
+                quietMessageNotification.publish()
+            }
             return
         }
 

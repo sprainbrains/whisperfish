@@ -50,6 +50,7 @@ Page {
                     function() {
                         console.log("Unlink device: ", model)
                         ClientWorker.unlink_device(model.id)
+                        ClientWorker.reload_linked_devices()
                     })
             }
 
@@ -71,6 +72,8 @@ Page {
                 anchors {
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
                 }
             }
             Label {
@@ -87,6 +90,8 @@ Page {
                     top: name.bottom
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
                 }
             }
             Label {
@@ -105,6 +110,8 @@ Page {
                     topMargin: Theme.paddingSmall
                     left: parent.left
                     leftMargin: Theme.horizontalPageMargin
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
                 }
             }
             Component {

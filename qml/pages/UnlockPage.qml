@@ -66,7 +66,7 @@ BlockingInfoPageBase {
             id: passwordField
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width - 2*Theme.horizontalPageMargin
-            inputMethodHints: Qt.ImhNoPredictiveText
+            inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
             validator: RegExpValidator{ regExp: /|.{6,}/ }
             //: Password label
             //% "Password"
