@@ -8,26 +8,26 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Erantsitako artxiboa</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="50"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ezabatutako mezu guztiak</translation>
     </message>
     <message id="whisperfish-typing-1">
         <location filename="../qml/delegates/SessionDelegate.qml" line="79"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 idazten ari da</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="83"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 eta %2 idazten ari dira</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
