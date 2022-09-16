@@ -2,6 +2,7 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 CoverBackground {
+
     Label {
         id: placeholderLabel
         visible: sessionList.count === 0
@@ -67,50 +68,60 @@ CoverBackground {
         enabled: unreadLabel.contentWidth > unreadLabel.width
     }
 
-    Column {
-        id: contentColumn
-
-        x: Theme.paddingLarge
-        spacing: Theme.paddingSmall
-        width: parent.width - 2*Theme.paddingLarge
-        clip: true
-
+    SilicaListView {
+        id: sessionList
         anchors {
             top: parent.top
             left: parent.left
+            right: parent.right
             topMargin: Theme.paddingMedium + (SessionModel.unread > 0 ? unreadCount.height : Theme.paddingMedium)
             leftMargin: Theme.paddingLarge
             bottom: coverActionArea.top
             Behavior on topMargin { NumberAnimation {} }
         }
 
-        Item {
-            width: parent.width + Theme.paddingLarge
-            height: parent.height - parent.spacing
+        // XXX Maybe we can use a delegate model to resort without pinning.
+        //     Pins don't make a lot of sense in this context
+        model: SessionModel
+        spacing: Theme.paddingSmall
 
-            ListView {
-                id: sessionList
+        delegate: Item {
+            width: sessionList.width
+            height: messageLabel.height + recipientLabel.height
 
-                // XXX Maybe we can use a delegate model to resort without pinning.
-                //     Pins don't make a lot of sense in this context
-                model: SessionModel
-
-                width: parent.width
-                height: parent.height - Theme.paddingSmall
-                spacing: Theme.paddingSmall
-
-                delegate: SessionItem {
-                    session: model
-                    width: sessionList.width
+            Label {
+                id: messageLabel
+                anchors {
+                    top: parent.top
+                    left: parent.left
+                    right: parent.right
                 }
+                width: parent.width
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.primaryColor
+                truncationMode: TruncationMode.Fade
+                text: model.message
+            }
+
+            Label {
+                id: recipientLabel
+                property var contact: (model.isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
+                anchors {
+                    top: messageLabel.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+                font.pixelSize: Theme.fontSizeTiny
+                color: Theme.highlightColor
+                truncationMode: TruncationMode.Fade
+                text: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
             }
         }
     }
-
     OpacityRampEffect {
         offset: 0.75
         slope: 4
-        sourceItem: contentColumn
+        sourceItem: sessionList
         direction: OpacityRamp.TopToBottom
     }
 
