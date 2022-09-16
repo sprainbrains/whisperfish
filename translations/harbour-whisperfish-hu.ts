@@ -4,7 +4,6 @@
 <context>
     <name></name>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/cover/SessionItem.qml" line="13"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
@@ -36,7 +35,6 @@
         <translation>%1 és %n személy gépel</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/cover/SessionItem.qml" line="67"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="174"/>
         <location filename="../qml/pages/ConversationPage.qml" line="18"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="91"/>
@@ -385,7 +383,6 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
-            <numerusform>%n üzenet törölve helyileg</numerusform>
             <numerusform>%n üzenet törölve helyileg</numerusform>
         </translation>
     </message>
@@ -1272,7 +1269,6 @@ Settings page share contacts</extracomment>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
             <numerusform>%n csatolmány</numerusform>
-            <numerusform>%n csatolmány</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1299,7 +1295,6 @@ Settings page share contacts</extracomment>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
-            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1308,7 +1303,6 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>és még %n</numerusform>
             <numerusform>és még %n</numerusform>
         </translation>
     </message>
@@ -1493,7 +1487,6 @@ Settings page share contacts</extracomment>
         <extracomment>Info label shown while selecting messages</extracomment>
         <translation>
             <numerusform>%n üzenet kijelölve</numerusform>
-            <numerusform>%n üzenet kijelölve</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1502,7 +1495,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
             <numerusform>Kijelölt törlése</numerusform>
-            <numerusform>Kijelöltek törlése</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1511,7 +1503,6 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>%n üzenet másolása</numerusform>
             <numerusform>%n üzenet másolása</numerusform>
         </translation>
     </message>
@@ -1528,7 +1519,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>%n üzenet törlése helyileg</numerusform>
-            <numerusform>%n üzenet törlése helyileg</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1538,7 +1528,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>%n üzenet törlése mindenki számára</numerusform>
-            <numerusform>%n üzenet törlése mindenki számára</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1547,7 +1536,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Próbáld újraküldeni a sikertelen üzenetet</numerusform>
-            <numerusform>Próbáld újraküldeni a sikertelen üzeneteket</numerusform>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
@@ -1564,11 +1552,10 @@ Settings page share contacts</extracomment>
         <translation type="unfinished">Signal Captcha</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
-        <location filename="../qml/cover/CoverPage.qml" line="40"/>
+        <location filename="../qml/cover/CoverPage.qml" line="41"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
-            <numerusform>Olvasatlan&lt;br/&gt;üzenet</numerusform>
             <numerusform>Olvasatlan&lt;br/&gt;üzenet</numerusform>
         </translation>
     </message>

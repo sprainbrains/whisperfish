@@ -4,7 +4,6 @@
 <context>
     <name></name>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/cover/SessionItem.qml" line="13"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
@@ -36,7 +35,6 @@
         <translation>%1 ve %n kişi daha yazıyor</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/cover/SessionItem.qml" line="67"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="174"/>
         <location filename="../qml/pages/ConversationPage.qml" line="18"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="91"/>
@@ -1554,7 +1552,7 @@ Settings page share contacts</extracomment>
         <translation>Signal Captcha&apos;sı</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
-        <location filename="../qml/cover/CoverPage.qml" line="40"/>
+        <location filename="../qml/cover/CoverPage.qml" line="41"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
