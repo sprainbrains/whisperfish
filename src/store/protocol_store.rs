@@ -467,7 +467,7 @@ impl protocol::SessionStoreExt for Storage {
         let db = self.db.lock();
         use crate::schema::session_records::dsl::*;
 
-        let num = diesel::delete(session_records)
+        let mut num = diesel::delete(session_records)
             .filter(
                 address
                     .eq(addr.name())
@@ -476,7 +476,30 @@ impl protocol::SessionStoreExt for Storage {
             .execute(&*db)
             .expect("db");
 
-        if num != 1 {
+        if num == 0 && addr.name().starts_with("+") {
+            let recipient = self.fetch_recipient_by_e164(addr.name());
+            if recipient.is_some() {
+                let uuid = recipient.unwrap().uuid;
+                if uuid.is_some() {
+                    let uuid_id = format!("{}.{}", uuid.unwrap(), addr.device_id());
+                    log::debug!(
+                        "Could not delete session {}, trying {} instead.",
+                        addr.to_string(),
+                        uuid_id
+                    );
+                    num = num + diesel::delete(session_records)
+                        .filter(
+                            address
+                                .eq(uuid_id)
+                                .and(device_id.eq(addr.device_id() as i32)),
+                        )
+                        .execute(&*db)
+                        .expect("db");
+                }
+            }
+        }
+
+        if num < 1 {
             log::debug!(
                 "Could not delete session {}, assuming non-existing.",
                 addr.to_string(),
