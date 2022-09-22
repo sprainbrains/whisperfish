@@ -456,7 +456,11 @@ impl protocol::SessionStoreExt for Storage {
 
         let records: Vec<i32> = session_records
             .select(device_id)
-            .filter(address.eq(addr))
+            .filter(
+                address
+                    .eq(addr)
+                    .and(device_id.ne(libsignal_service::push_service::DEFAULT_DEVICE_ID as i32)),
+            )
             .load(&*db)
             .expect("db");
         Ok(records.into_iter().map(|x| x as u32).collect())
