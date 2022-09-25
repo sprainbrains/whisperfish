@@ -23,7 +23,7 @@ Item {
     readonly property string effectiveText: text !== '' ?
                                                 text : (_contact !== null ? _contact.displayLabel : source)
     property var _contact: (source === '' || outbound || text !== '') ?
-                               null : resolvePeopleModel.personByPhoneNumber(source)
+                               null : resolvePeopleModel.personByPhoneNumber(source, true)
 
     property bool defaultClickAction: true
     signal clicked(var mouse)

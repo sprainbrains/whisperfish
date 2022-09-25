@@ -10,7 +10,7 @@ Page {
 
     property string _originName: _contact !== null ? _contact.displayLabel : ''
     property var _contact: (modelData !== null && mainWindow.contactsReady) ?
-                               resolvePeopleModel.personByPhoneNumber(modelData.source) : null
+                               resolvePeopleModel.personByPhoneNumber(modelData.source, true) : null
 
     SilicaFlickable {
         id: flick

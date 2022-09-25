@@ -153,7 +153,7 @@ Page {
                 showSeparator: false
                 enableSending: recipientNumber.length > 0
                 clearAfterSend: recipientNumber.length > 0
-                property var _contact: mainWindow.contactsReady ? resolvePeopleModel.personByPhoneNumber(recipientNumber) : null
+                property var _contact: mainWindow.contactsReady ? resolvePeopleModel.personByPhoneNumber(recipientNumber, true) : null
 
                 onSendMessage: {
                     // TODO This should be handled completely in the backend.

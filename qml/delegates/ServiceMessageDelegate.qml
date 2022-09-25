@@ -21,7 +21,7 @@ ListItem {
     property string _origin: "none" /* modelData.serviceMessageOrigin */ // "self" or "peer"
     property string _originName: _contact !== null ? _contact.displayLabel : ''
     property var _contact: (modelData !== null && mainWindow.contactsReady) ?
-                               resolvePeopleModel.personByPhoneNumber(modelData.source) : null
+                               resolvePeopleModel.personByPhoneNumber(modelData.source, true) : null
 
     property bool _canShowDetails: (_type === "fingerprintChanged" /*||
                                     _type === "sessionReset"*/) ?
