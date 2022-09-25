@@ -47,6 +47,8 @@ Page {
                 //: Show a peer's system contact page (menu item)
                 //% "Show contact"
                 text: qsTrId("whisperfish-show-contact-page-menu")
+                enabled: MessageModel.peerTel.length > 0
+                visible: enabled
                 // TODO maybe: replace with a custom link handler
                 onClicked: phoneNumberLinker.linkActivated('tel:'+MessageModel.peerTel)
                 LinkedText { id: phoneNumberLinker; visible: false }
