@@ -37,7 +37,7 @@ Item {
     // TODO This is an ugly hack that relies on 'source' being a phone number.
     //      - Remove if/when contacts move to UUIDs
     //      - Implement custom contact page for Whisperfish contacts
-    onClicked: (source !== '' && defaultClickAction) ?
+    onClicked: (defaultClickAction && source.length > 0 && source[0] === "+") ?
                    hackishClickHandler.linkActivated('tel:'+source) : {}
 
     TextMetrics {
