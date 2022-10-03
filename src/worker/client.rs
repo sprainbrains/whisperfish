@@ -45,12 +45,17 @@ pub use linked_devices::*;
 mod profile;
 pub use profile::*;
 
+mod profile_upload;
+pub use profile_upload::*;
+
 mod groupv2;
 pub use groupv2::*;
 
 use crate::millis_to_naive_chrono;
 
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
+
+use super::profile_refresh::OutdatedProfileStream;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -143,6 +148,8 @@ pub struct ClientActor {
     config: std::sync::Arc<crate::config::SignalConfig>,
 
     start_time: DateTime<Local>,
+
+    outdated_profile_stream_handle: Option<SpawnHandle>,
 }
 
 impl ClientActor {
@@ -168,6 +175,8 @@ impl ClientActor {
             config,
 
             start_time: Local::now(),
+
+            outdated_profile_stream_handle: None,
         })
     }
 
@@ -1310,6 +1319,7 @@ impl Handler<Restart> for ClientActor {
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
         let service = self.authenticated_service();
         let credentials = self.credentials.clone().unwrap();
+        let storage = self.storage.clone().expect("initialized storage");
 
         self.inner.pinned().borrow_mut().connected = false;
         self.inner.pinned().borrow().connectedChanged();
@@ -1323,9 +1333,16 @@ impl Handler<Restart> for ClientActor {
             .map(move |pipe, act, ctx| match pipe {
                 Ok(pipe) => {
                     ctx.add_stream(pipe.stream());
+
                     ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
                     act.inner.pinned().borrow().connectedChanged();
+
+                    // If profile stream was running, restart.
+                    if let Some(handle) = act.outdated_profile_stream_handle.take() {
+                        ctx.cancel_future(handle);
+                    }
+                    ctx.add_stream(OutdatedProfileStream::new(storage));
                 }
                 Err(e) => {
                     log::error!("Error starting stream: {}", e);
