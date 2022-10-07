@@ -49,9 +49,13 @@ impl OutdatedProfileStream {
         let db = self.storage.db.lock();
         let out_of_date_profiles: Vec<Recipient> = recipients
             .filter(
-                last_profile_fetch
-                    .is_null()
-                    .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
+                profile_key.is_not_null().and(
+                    uuid.is_not_null().and(
+                        last_profile_fetch
+                            .is_null()
+                            .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
+                    ),
+                ),
             )
             .order_by(last_profile_fetch.asc())
             .load(&*db)
@@ -60,12 +64,7 @@ impl OutdatedProfileStream {
         log::info!("Found {} out-of-date profiles.", out_of_date_profiles.len());
 
         for recipient in out_of_date_profiles {
-            let recipient_uuid = if let Some(x) = &recipient.uuid {
-                Uuid::parse_str(x).expect("valid uuid in db")
-            } else {
-                log::trace!("Old contact {}", recipient.e164_or_uuid());
-                continue;
-            };
+            let recipient_uuid = recipient.uuid.as_ref().expect("database precondition");
             match self
                 .ignore_set
                 .binary_search_by(|(_time, other_uuid)| other_uuid.cmp(&recipient_uuid))
@@ -99,6 +98,7 @@ impl OutdatedProfileStream {
 
         let db = self.storage.db.lock();
         let next_wake: Option<Recipient> = recipients
+            .filter(uuid.is_not_null())
             .order_by(last_profile_fetch.asc())
             .first(&*db)
             .optional()
