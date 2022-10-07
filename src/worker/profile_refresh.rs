@@ -8,6 +8,7 @@ use chrono::prelude::*;
 use diesel::prelude::*;
 use futures::Stream;
 use uuid::Uuid;
+use zkgroup::profiles::ProfileKey;
 
 use crate::store::orm::Recipient;
 use crate::store::Storage;
@@ -23,7 +24,7 @@ pub struct OutdatedProfileStream {
     next_wake: Option<Pin<Box<tokio::time::Sleep>>>,
 }
 
-pub struct OutdatedProfile(pub Uuid);
+pub struct OutdatedProfile(pub Uuid, pub ProfileKey);
 
 impl OutdatedProfileStream {
     pub fn new(storage: Storage) -> Self {
@@ -65,6 +66,19 @@ impl OutdatedProfileStream {
 
         for recipient in out_of_date_profiles {
             let recipient_uuid = recipient.uuid.as_ref().expect("database precondition");
+            let recipient_uuid = Uuid::parse_str(recipient_uuid).expect("valid uuid in db");
+            let profile_key_bytes = if let Some(key) = &recipient.profile_key {
+                key as &[u8]
+            } else {
+                // TODO: actually fetch this too and make the key optional.
+                // The fetching logic supports it, although it will return less information.
+                log::trace!("Ignoring out-of-date profile without profile key.");
+                continue;
+            };
+            if profile_key_bytes.len() != 32 {
+                log::warn!("Invalid profile key in db. Skipping.");
+                continue;
+            }
             match self
                 .ignore_set
                 .binary_search_by(|(_time, other_uuid)| other_uuid.cmp(&recipient_uuid))
@@ -73,7 +87,12 @@ impl OutdatedProfileStream {
                 Err(idx) => {
                     self.ignore_set
                         .insert(idx, (Instant::now() + REYIELD_DELAY, recipient_uuid));
-                    return Some(OutdatedProfile(recipient_uuid));
+                    let mut profile_key_arr = [0u8; 32];
+                    profile_key_arr.copy_from_slice(profile_key_bytes);
+                    return Some(OutdatedProfile(
+                        recipient_uuid,
+                        ProfileKey::create(profile_key_arr),
+                    ));
                 }
             }
         }

@@ -6,13 +6,15 @@ use crate::worker::profile_refresh::OutdatedProfile;
 use super::*;
 
 impl StreamHandler<OutdatedProfile> for ClientActor {
-    fn handle(&mut self, OutdatedProfile(uuid): OutdatedProfile, ctx: &mut Self::Context) {
+    fn handle(&mut self, OutdatedProfile(uuid, key): OutdatedProfile, ctx: &mut Self::Context) {
         let mut service = self.authenticated_service();
         ctx.spawn(
             async move {
                 (
                     uuid,
-                    service.retrieve_profile_by_id(&uuid.to_string()).await,
+                    service
+                        .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(key))
+                        .await,
                 )
             }
             .into_actor(self)
