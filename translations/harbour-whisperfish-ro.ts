@@ -7,32 +7,32 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Atașament</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="50"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Toate mesajele au fost șterse</translation>
     </message>
     <message id="whisperfish-typing-1">
         <location filename="../qml/delegates/SessionDelegate.qml" line="79"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 scrie</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="83"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 și %2 scriu</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 și %n alții scriu</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="174"/>
@@ -41,7 +41,7 @@
         <location filename="../qml/pages/ShareDestinationV2.qml" line="90"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Notă către sine</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="193"/>
@@ -85,19 +85,19 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arhivează conversația</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="327"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Șterge conversația</translation>
     </message>
     <message id="whisperfish-notification-default-message">
         <location filename="../qml/harbour-whisperfish-main.qml" line="114"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mesaj Nou</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
         <location filename="../qml/harbour-whisperfish-main.qml" line="217"/>
@@ -128,7 +128,7 @@
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Arată conversații arhivate</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
@@ -140,13 +140,13 @@
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversații</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversații arhivate</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
@@ -158,13 +158,13 @@
         <location filename="../qml/pages/MainPage.qml" line="271"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Azi</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../qml/pages/MainPage.qml" line="276"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ieri</translation>
     </message>
     <message id="whisperfish-session-section-older">
         <location filename="../qml/pages/MainPage.qml" line="281"/>
@@ -176,7 +176,7 @@
         <location filename="../qml/pages/About.qml" line="20"/>
         <source>About Whisperfish</source>
         <extracomment>Title for about page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Despre Whisperfish</translation>
     </message>
     <message id="whisperfish-version">
         <location filename="../qml/pages/About.qml" line="33"/>
@@ -194,7 +194,7 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Descriere</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
@@ -248,13 +248,13 @@
         <location filename="../qml/pages/AddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Adaugă</translation>
     </message>
     <message id="whisperfish-add-device">
         <location filename="../qml/pages/AddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Adaugă dispozitiv</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/AddDevice.qml" line="43"/>
@@ -1597,7 +1597,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="57"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispozitiv secundar</translation>
     </message>
 </context>
 </TS>
