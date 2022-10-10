@@ -278,7 +278,7 @@
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
         <source>Add</source>
         <extracomment>Menu option to add new linked device</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Adaugă</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
         <location filename="../qml/pages/LinkedDevices.qml" line="30"/>
@@ -339,7 +339,7 @@
         <location filename="../qml/pages/MainPage.qml" line="56"/>
         <source>About Whisperfish</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Despre Whisperfish</translation>
     </message>
     <message id="whisperfish-update-reminder-summary">
         <location filename="../qml/pages/MainPage.qml" line="22"/>
@@ -363,7 +363,7 @@
         <location filename="../qml/pages/MainPage.qml" line="112"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mesaj Nou</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/MainPage.qml" line="242"/>
@@ -1343,7 +1343,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atașament</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="176"/>
