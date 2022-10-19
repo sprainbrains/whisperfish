@@ -1,3 +1,4 @@
+use libsignal_protocol::DeviceId;
 use std::path::PathBuf;
 
 use harbour_whisperfish::store;
@@ -64,18 +65,22 @@ async fn add_dummy_data(storage: &mut store::Storage) {
     // Invent two users with devices
     let user_id = uuid::Uuid::from_str("5844fce4-4407-401a-9dbc-fc86c6def4e6").unwrap();
     let device_id = 1;
-    let addr_1 =
-        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+    let addr_1 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+        user_id.to_string(),
+        DeviceId::from(device_id),
+    );
 
     let user_id = uuid::Uuid::from_str("7bec59e1-140d-4b53-98f1-dc8fd2c011c8").unwrap();
     let device_id = 2;
-    let addr_2 =
-        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+    let addr_2 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+        user_id.to_string(),
+        DeviceId::from(device_id),
+    );
 
     let device_id = 3;
     let addr_3 = libsignal_service::prelude::protocol::ProtocolAddress::new(
         "+32412345678".into(),
-        device_id,
+        DeviceId::from(device_id),
     );
 
     // Create two identities and two sessions

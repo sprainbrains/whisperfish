@@ -1,5 +1,6 @@
 use anyhow::Context;
 use fs_extra;
+use libsignal_protocol::DeviceId;
 
 /// Global Config
 ///
@@ -261,8 +262,8 @@ impl SignalConfig {
         self.uuid.lock().unwrap().clone()
     }
 
-    pub fn get_device_id(&self) -> u32 {
-        *self.device_id.lock().unwrap()
+    pub fn get_device_id(&self) -> DeviceId {
+        DeviceId::from(*self.device_id.lock().unwrap())
     }
 
     pub fn set_tel(&self, tel: String) {

@@ -20,7 +20,7 @@ actix = "0.12"
 rand = "0.7"
 parking_lot = "0.12"
 dbus = "0.9"
-uuid = { version = "0.8", features=["v4"] }
+uuid = { version = "1", features=["v4"] }
 mime = "0.3.16"
 mime_guess = "2.0"
 mime_classifier = "0.0.1"
@@ -36,11 +36,11 @@ indexmap = "=1.8.1"
 # 3.0.0-rc.1 requires Rist 1.54
 actix-http = "=3.0.0-beta.19"
 
-libsignal-service = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
-libsignal-service-actix = { git = "https://github.com/Michael-F-Bryan/libsignal-service-rs", branch = "master" }
+libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "master" }
+libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "master" }
 
-libsignal-protocol = { git = "https://github.com/signalapp/libsignal-client", branch = "main" }
-zkgroup = { version = "0.9.0", git = "https://github.com/signalapp/libsignal-client", branch = "main" }
+libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.20.0" }
+zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.20.0" }
 
 # Newer versions break MSRV in patch version
 proc-macro2 = "=1.0.26"
@@ -143,7 +143,7 @@ bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
 sailfish = ["bundled-sqlcipher", "sailors", "libsignal-protocol/whisperfork", "zkgroup/whisperfork"]
 harbour = ["sailfish"]
 
-[patch."https://github.com/signalapp/libsignal-client"]
+[patch."https://github.com/signalapp/libsignal"]
 libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 
@@ -154,6 +154,6 @@ zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "w
 curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = 'lizard2' }
 libsqlite3-sys = { git = "https://github.com/rusqlite/rusqlite", rev = "8770e7d4433de942122d37f073dd80519a8d67c0" }
 
-# [patch."https://github.com/Michael-F-Bryan/libsignal-service-rs"]
+# [patch."https://github.com/whisperfish/libsignal-service-rs"]
 # libsignal-service = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service" }
 # libsignal-service-actix = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service-actix/" }

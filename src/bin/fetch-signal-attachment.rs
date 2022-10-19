@@ -90,7 +90,7 @@ async fn main() -> Result<(), anyhow::Error> {
         phonenumber,
         password: None,
         signaling_key,
-        device_id: Some(device_id),
+        device_id: Some(device_id.into()),
     };
 
     // Connect to OWS
