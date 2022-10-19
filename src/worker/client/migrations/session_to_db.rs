@@ -139,7 +139,10 @@ impl SessionStorageMigration {
                 let name =
                     option_warn(name_to_service_addr(name), "unparsable file name")?.identifier();
 
-                Some(ProtocolAddress::new(name, id))
+                Some(ProtocolAddress::new(
+                    name,
+                    libsignal_protocol::DeviceId::from(id),
+                ))
             });
 
         // Now read the files, put them in the database, and remove the file
@@ -178,7 +181,7 @@ impl SessionStorageMigration {
                 use diesel::prelude::*;
                 let session_record = SessionRecord {
                     address: addr.name().to_string(),
-                    device_id: addr.device_id() as i32,
+                    device_id: u32::from(addr.device_id()) as i32,
                     record: buf,
                 };
                 let db = self.0.db.lock();
@@ -268,7 +271,10 @@ impl SessionStorageMigration {
                 let addr =
                     option_warn(name_to_service_addr(addr), "unparsable file name")?.identifier();
 
-                Some(ProtocolAddress::new(addr, DEFAULT_DEVICE_ID))
+                Some(ProtocolAddress::new(
+                    addr,
+                    libsignal_protocol::DeviceId::from(DEFAULT_DEVICE_ID),
+                ))
             });
 
         for addr in identities {

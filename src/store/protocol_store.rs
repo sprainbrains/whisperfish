@@ -233,11 +233,15 @@ impl protocol::IdentityKeyStore for Storage {
 
 #[async_trait::async_trait(?Send)]
 impl protocol::PreKeyStore for Storage {
-    async fn get_pre_key(&self, id: u32, _: Context) -> Result<PreKeyRecord, SignalProtocolError> {
+    async fn get_pre_key(
+        &self,
+        id: PreKeyId,
+        _: Context,
+    ) -> Result<PreKeyRecord, SignalProtocolError> {
         log::trace!("Loading prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = match self.read_file(self.prekey_path(id)).await {
+        let contents = match self.read_file(self.prekey_path(id.into())).await {
             Ok(x) => x,
             Err(e) => {
                 log::error!("Invalid pre key id: {}", e);
@@ -250,7 +254,7 @@ impl protocol::PreKeyStore for Storage {
 
     async fn save_pre_key(
         &mut self,
-        id: u32,
+        id: PreKeyId,
         body: &PreKeyRecord,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
@@ -258,17 +262,21 @@ impl protocol::PreKeyStore for Storage {
         let _lock = self.protocol_store.write().await;
 
         let contents = quirk::pre_key_to_0_5(&body.serialize()?).unwrap();
-        self.write_file(self.prekey_path(id), contents)
+        self.write_file(self.prekey_path(id.into()), contents)
             .await
             .expect("written file");
         Ok(())
     }
 
-    async fn remove_pre_key(&mut self, id: u32, _: Context) -> Result<(), SignalProtocolError> {
+    async fn remove_pre_key(
+        &mut self,
+        id: PreKeyId,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
         log::trace!("Removing prekey {}", id);
         let _lock = self.protocol_store.write().await;
 
-        let path = self.prekey_path(id);
+        let path = self.prekey_path(id.into());
         std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
         Ok(())
     }
@@ -304,7 +312,7 @@ impl protocol::SessionStore for Storage {
             .filter(
                 address
                     .eq(addr.name())
-                    .and(device_id.eq(addr.device_id() as i32)),
+                    .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
             .first(&*db)
             .optional()
@@ -334,7 +342,7 @@ impl protocol::SessionStore for Storage {
                 .filter(
                     address
                         .eq(addr.name())
-                        .and(device_id.eq(addr.device_id() as i32)),
+                        .and(device_id.eq(u32::from(addr.device_id()) as i32)),
                 )
                 .set(record.eq(session.serialize()?))
                 .execute(&*db)
@@ -343,7 +351,7 @@ impl protocol::SessionStore for Storage {
             diesel::insert_into(session_records)
                 .values((
                     address.eq(addr.name()),
-                    device_id.eq(addr.device_id() as i32),
+                    device_id.eq(u32::from(addr.device_id()) as i32),
                     record.eq(session.serialize()?),
                 ))
                 .execute(&*db)
@@ -376,7 +384,7 @@ impl Storage {
             .filter(
                 address
                     .eq(addr.name())
-                    .and(device_id.eq(addr.device_id() as i32)),
+                    .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
             .first(&*db)
             .expect("db");
@@ -471,7 +479,7 @@ impl protocol::SessionStoreExt for Storage {
             .filter(
                 address
                     .eq(addr.name())
-                    .and(device_id.eq(addr.device_id() as i32)),
+                    .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
             .execute(&*db)
             .expect("db");
@@ -506,13 +514,13 @@ impl protocol::SessionStoreExt for Storage {
 impl protocol::SignedPreKeyStore for Storage {
     async fn get_signed_pre_key(
         &self,
-        id: u32,
+        id: SignedPreKeyId,
         _: Context,
     ) -> Result<SignedPreKeyRecord, SignalProtocolError> {
         log::trace!("Loading signed prekey {}", id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = match self.read_file(self.signed_prekey_path(id)).await {
+        let contents = match self.read_file(self.signed_prekey_path(id.into())).await {
             Ok(x) => x,
             Err(e) => {
                 log::error!("Invalid signed pre key id: {}", e);
@@ -526,7 +534,7 @@ impl protocol::SignedPreKeyStore for Storage {
 
     async fn save_signed_pre_key(
         &mut self,
-        id: u32,
+        id: SignedPreKeyId,
         body: &SignedPreKeyRecord,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
@@ -534,7 +542,7 @@ impl protocol::SignedPreKeyStore for Storage {
         let _lock = self.protocol_store.write().await;
 
         let contents = quirk::signed_pre_key_to_0_5(&body.serialize()?).unwrap();
-        self.write_file(self.signed_prekey_path(id), contents)
+        self.write_file(self.signed_prekey_path(id.into()), contents)
             .await
             .expect("written file");
         Ok(())
@@ -610,7 +618,7 @@ mod tests {
         let user_id = uuid::Uuid::new_v4();
         let device_id = rng.gen_range(2, 20);
 
-        ProtocolAddress::new(user_id.to_string(), device_id)
+        ProtocolAddress::new(user_id.to_string(), DeviceId::from(device_id))
     }
 
     fn create_random_identity_key() -> IdentityKey {
@@ -628,7 +636,7 @@ mod tests {
         let key_pair = KeyPair::generate(&mut rng);
         let id: u32 = rng.gen();
 
-        PreKeyRecord::new(id, &key_pair)
+        PreKeyRecord::new(PreKeyId::from(id), &key_pair)
     }
 
     fn create_random_signed_prekey() -> SignedPreKeyRecord {
@@ -640,7 +648,7 @@ mod tests {
         let timestamp: u64 = rng.gen();
         let signature = vec![0; 3];
 
-        SignedPreKeyRecord::new(id, timestamp, &key_pair, &signature)
+        SignedPreKeyRecord::new(SignedPreKeyId::from(id), timestamp, &key_pair, &signature)
     }
 
     /// XXX Right now, this functions seems a bit unnecessary, but we will change the creation of a
@@ -787,7 +795,7 @@ mod tests {
         // XXX Doesn't implement equality *arg*
         assert_eq!(
             storage
-                .get_pre_key(id1, None)
+                .get_pre_key(PreKeyId::from(id1), None)
                 .await
                 .unwrap_err()
                 .to_string(),
@@ -795,13 +803,19 @@ mod tests {
         );
 
         // Storing both keys and testing retrieval
-        storage.save_pre_key(id1, &key1, None).await.unwrap();
-        storage.save_pre_key(id2, &key2, None).await.unwrap();
+        storage
+            .save_pre_key(PreKeyId::from(id1), &key1, None)
+            .await
+            .unwrap();
+        storage
+            .save_pre_key(PreKeyId::from(id2), &key2, None)
+            .await
+            .unwrap();
 
         // Now, we should get both keys
         assert_eq!(
             storage
-                .get_pre_key(id1, None)
+                .get_pre_key(PreKeyId::from(id1), None)
                 .await
                 .unwrap()
                 .serialize()
@@ -810,7 +824,7 @@ mod tests {
         );
         assert_eq!(
             storage
-                .get_pre_key(id2, None)
+                .get_pre_key(PreKeyId::from(id2), None)
                 .await
                 .unwrap()
                 .serialize()
@@ -819,11 +833,14 @@ mod tests {
         );
 
         // After removing key2, it shouldn't be there
-        storage.remove_pre_key(id2, None).await.unwrap();
+        storage
+            .remove_pre_key(PreKeyId::from(id2), None)
+            .await
+            .unwrap();
         // XXX Doesn't implement equality *arg*
         assert_eq!(
             storage
-                .get_pre_key(id2, None)
+                .get_pre_key(PreKeyId::from(id2), None)
                 .await
                 .unwrap_err()
                 .to_string(),
@@ -831,7 +848,10 @@ mod tests {
         );
 
         // Let's check whether we can overwrite a key
-        storage.save_pre_key(id1, &key2, None).await.unwrap();
+        storage
+            .save_pre_key(PreKeyId::from(id1), &key2, None)
+            .await
+            .unwrap();
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
@@ -852,7 +872,7 @@ mod tests {
         // XXX Doesn't implement equality *arg*
         assert_eq!(
             storage
-                .get_signed_pre_key(id1, None)
+                .get_signed_pre_key(SignedPreKeyId::from(id1), None)
                 .await
                 .unwrap_err()
                 .to_string(),
@@ -860,13 +880,19 @@ mod tests {
         );
 
         // Storing both keys and testing retrieval
-        storage.save_signed_pre_key(id1, &key1, None).await.unwrap();
-        storage.save_signed_pre_key(id2, &key2, None).await.unwrap();
+        storage
+            .save_signed_pre_key(SignedPreKeyId::from(id1), &key1, None)
+            .await
+            .unwrap();
+        storage
+            .save_signed_pre_key(SignedPreKeyId::from(id2), &key2, None)
+            .await
+            .unwrap();
 
         // Now, we should get both keys
         assert_eq!(
             storage
-                .get_signed_pre_key(id1, None)
+                .get_signed_pre_key(SignedPreKeyId::from(id1), None)
                 .await
                 .unwrap()
                 .serialize()
@@ -875,7 +901,7 @@ mod tests {
         );
         assert_eq!(
             storage
-                .get_signed_pre_key(id2, None)
+                .get_signed_pre_key(SignedPreKeyId::from(id2), None)
                 .await
                 .unwrap()
                 .serialize()
@@ -884,7 +910,10 @@ mod tests {
         );
 
         // Let's check whether we can overwrite a key
-        storage.save_signed_pre_key(id1, &key2, None).await.unwrap();
+        storage
+            .save_signed_pre_key(SignedPreKeyId::from(id1), &key2, None)
+            .await
+            .unwrap();
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
@@ -899,7 +928,10 @@ mod tests {
         let addr1 = create_random_protocol_address();
         let addr2 = create_random_protocol_address();
         let addr3 = create_random_protocol_address();
-        let addr4 = ProtocolAddress::new(addr3.name().to_string(), addr3.device_id() + 1);
+        let addr4 = ProtocolAddress::new(
+            addr3.name().to_string(),
+            DeviceId::from(u32::from(addr3.device_id()) + 1),
+        );
         let session1 = SessionRecord::new_fresh();
         let session2 = SessionRecord::new_fresh();
         let session3 = SessionRecord::new_fresh();
@@ -958,8 +990,14 @@ mod tests {
         // Get all device ids for the same address
         let mut ids = storage.get_sub_device_sessions(addr3.name()).await.unwrap();
         ids.sort_unstable();
-        assert_eq!(ids[0], std::cmp::min(addr3.device_id(), addr4.device_id()));
-        assert_eq!(ids[1], std::cmp::max(addr3.device_id(), addr4.device_id()));
+        assert_eq!(
+            DeviceId::from(ids[0]),
+            std::cmp::min(addr3.device_id(), addr4.device_id())
+        );
+        assert_eq!(
+            DeviceId::from(ids[1]),
+            std::cmp::max(addr3.device_id(), addr4.device_id())
+        );
 
         // If we call delete all sessions, all sessions of one person/address should be removed
         assert_eq!(storage.delete_all_sessions(addr3.name()).await.unwrap(), 2);
@@ -994,9 +1032,18 @@ mod tests {
         assert_eq!(storage.next_pre_key_ids().await, (0, 0));
 
         // Now, we add our keys
-        storage.save_pre_key(0, &key1, None).await.unwrap();
-        storage.save_pre_key(1, &key2, None).await.unwrap();
-        storage.save_signed_pre_key(0, &key3, None).await.unwrap();
+        storage
+            .save_pre_key(PreKeyId::from(0), &key1, None)
+            .await
+            .unwrap();
+        storage
+            .save_pre_key(PreKeyId::from(1), &key2, None)
+            .await
+            .unwrap();
+        storage
+            .save_signed_pre_key(SignedPreKeyId::from(0), &key3, None)
+            .await
+            .unwrap();
 
         // Adapt to keys in the storage
         assert_eq!(storage.next_pre_key_ids().await, (1, 2));

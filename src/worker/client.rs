@@ -1264,7 +1264,7 @@ impl Handler<StorageReady> for ClientActor {
                     phonenumber: phonenumber.clone(),
                     password: Some(password),
                     signaling_key,
-                    device_id: Some(device_id),
+                    device_id: Some(device_id.into()),
                 };
                 act.credentials = Some(credentials);
                 // end store credentials
@@ -1284,7 +1284,7 @@ impl Handler<StorageReady> for ClientActor {
                     rand::thread_rng(),
                     service_cfg.unidentified_sender_trust_root,
                     uuid.expect("local uuid to initialize service cipher"),
-                    device_id,
+                    device_id.into(),
                 );
                 // end signal service context
                 act.cipher = Some(cipher);

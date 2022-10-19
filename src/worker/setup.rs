@@ -66,7 +66,7 @@ impl SetupWorker {
         // XXX: nice formatting?
         this.borrow_mut().phoneNumber = config.get_tel_clone().into();
         this.borrow_mut().uuid = config.get_uuid_clone().into();
-        this.borrow_mut().deviceId = config.get_device_id();
+        this.borrow_mut().deviceId = config.get_device_id().into();
 
         if !this.borrow().registered {
             if let Err(e) = SetupWorker::register(app.clone(), &config).await {

@@ -9,7 +9,7 @@
 
 use harbour_whisperfish::store as current_storage;
 
-use libsignal_service::prelude::protocol::{IdentityKeyStore, SessionStore};
+use libsignal_service::prelude::protocol::{DeviceId, IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::ops::Deref;
 
@@ -67,7 +67,10 @@ fn create_random_protocol_address() -> libsignal_service::prelude::protocol::Pro
     let user_id = uuid::Uuid::new_v4();
     let device_id = rng.gen_range(2, 20);
 
-    libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id)
+    libsignal_service::prelude::protocol::ProtocolAddress::new(
+        user_id.to_string(),
+        DeviceId::from(device_id),
+    )
 }
 
 fn create_random_identity_key() -> libsignal_service::prelude::protocol::IdentityKey {
@@ -283,13 +286,17 @@ async fn test_2022_06_migration(
 
     let user_id = uuid::Uuid::from_str("5844fce4-4407-401a-9dbc-fc86c6def4e6").unwrap();
     let device_id = 1;
-    let addr_1 =
-        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+    let addr_1 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+        user_id.to_string(),
+        DeviceId::from(device_id),
+    );
 
     let user_id = uuid::Uuid::from_str("7bec59e1-140d-4b53-98f1-dc8fd2c011c8").unwrap();
     let device_id = 2;
-    let addr_2 =
-        libsignal_service::prelude::protocol::ProtocolAddress::new(user_id.to_string(), device_id);
+    let addr_2 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+        user_id.to_string(),
+        DeviceId::from(device_id),
+    );
 
     let identity_key_1 = storage.get_identity(&addr_1, None).await.unwrap();
     let identity_key_2 = storage.get_identity(&addr_2, None).await.unwrap();

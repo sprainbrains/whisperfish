@@ -2013,7 +2013,8 @@ impl Storage {
         ext: &str,
         attachment: &[u8],
     ) -> Result<PathBuf, anyhow::Error> {
-        let fname = Uuid::new_v4().to_simple();
+        let fname = uuid::Uuid::new_v4();
+        let fname = fname.as_simple();
         let fname_formatted = format!("{}", fname);
         let fname_path = Path::new(&fname_formatted);
 

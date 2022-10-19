@@ -1460,7 +1460,7 @@ dependencies = [
 [[package]]
 name = "libsignal-protocol"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#f87a641614cb021ec4a193dfe22ba39addc85307"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#ce2034996ae2262a833e4395322df99ade9d5e6b"
 dependencies = [
  "aes",
  "aes-gcm-siv",
@@ -1488,7 +1488,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#f9b54478c5413252e810089fd9648b6351bcc3bf"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=master#6763c56ddf8e41621dc363d2867839abb0019cfc"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1506,11 +1506,11 @@ dependencies = [
  "libsignal-protocol",
  "log",
  "phonenumber",
- "pin-project",
  "prost 0.10.4",
  "prost-build 0.10.4",
  "rand 0.7.3",
  "serde",
+ "serde_json",
  "sha2 0.10.2",
  "thiserror",
  "url",
@@ -1521,7 +1521,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/Michael-F-Bryan/libsignal-service-rs?branch=master#f9b54478c5413252e810089fd9648b6351bcc3bf"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=master#6763c56ddf8e41621dc363d2867839abb0019cfc"
 dependencies = [
  "actix",
  "actix-http",
@@ -2061,7 +2061,7 @@ dependencies = [
 [[package]]
 name = "poksho"
 version = "0.7.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#f87a641614cb021ec4a193dfe22ba39addc85307"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#ce2034996ae2262a833e4395322df99ade9d5e6b"
 dependencies = [
  "curve25519-dalek",
  "hmac 0.11.0",
@@ -2741,9 +2741,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.82"
+version = "1.0.85"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82c2c1fdcd807d1098552c5b9a36e425e42e9fbd7c6a37a8425f390f781f7fa7"
+checksum = "e55a28e3aaef9d5ce0506d0a14dbba8054ddc7e499ef522dd8b26859ec9d4a44"
 dependencies = [
  "itoa 1.0.2",
  "ryu",
@@ -3243,9 +3243,9 @@ dependencies = [
 
 [[package]]
 name = "uuid"
-version = "0.8.2"
+version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+checksum = "dd6469f4314d5f1ffec476e05f17cc9a78bc7a27a6a857842170bdf8d6f98d2f"
 dependencies = [
  "getrandom 0.2.7",
  "serde",
@@ -3516,7 +3516,7 @@ dependencies = [
 [[package]]
 name = "zkgroup"
 version = "0.9.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#f87a641614cb021ec4a193dfe22ba39addc85307"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#ce2034996ae2262a833e4395322df99ade9d5e6b"
 dependencies = [
  "aead",
  "aes-gcm-siv",

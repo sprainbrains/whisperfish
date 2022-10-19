@@ -8,7 +8,7 @@ use crate::qmlapp::QmlApp;
 use crate::store::{orm, Storage};
 
 use actix::prelude::*;
-use libsignal_protocol::ProtocolAddress;
+use libsignal_protocol::{DeviceId, ProtocolAddress};
 use qmetaobject::prelude::*;
 
 mod typing_notifications;
@@ -350,7 +350,7 @@ impl Handler<RemoveIdentities> for SessionActor {
         };
         for identity in identities {
             log::debug!("Removing identity {}", identity);
-            let addr = ProtocolAddress::new(identity, 1);
+            let addr = ProtocolAddress::new(identity, DeviceId::from(1));
             if !storage.delete_identity_key(&addr) {
                 log::warn!("Removing identity key failed somehow.  Please file a bug.");
             }

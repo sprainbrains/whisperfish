@@ -37,8 +37,10 @@ impl Handler<E164ToUuid> for ClientActor {
                         .into_iter()
                         .chain(std::iter::once(1))
                     {
-                        let e164_addr = ProtocolAddress::new(e164.clone(), sub_device_session);
-                        let uuid_addr = ProtocolAddress::new(uuid.clone(), sub_device_session);
+                        let e164_addr =
+                            ProtocolAddress::new(e164.clone(), sub_device_session.into());
+                        let uuid_addr =
+                            ProtocolAddress::new(uuid.clone(), sub_device_session.into());
 
                         if let Some(e164_session) = storage
                             .load_session(&e164_addr, None)
