@@ -4,14 +4,14 @@ use rstest::rstest;
 
 use chrono::prelude::*;
 
-use harbour_whisperfish::store::GroupV1;
-use harbour_whisperfish::store::NewMessage;
+use whisperfish::store::GroupV1;
+use whisperfish::store::NewMessage;
 
 mod common;
 use common::*;
 
 #[rstest]
-#[actix_rt::test]
+#[actix_rt::test]lib
 async fn fetch_session_none(storage: impl Future<Output = InMemoryDb>) {
     let (storage, _temp_dir) = storage.await;
 

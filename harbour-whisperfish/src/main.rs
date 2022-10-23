@@ -1,4 +1,4 @@
-use harbour_whisperfish::*;
+use whisperfish::*;
 
 use anyhow::Context;
 use dbus::blocking::Connection;
@@ -23,7 +23,7 @@ struct Opts {
     /// Verbosity.
     ///
     /// Equivalent with setting
-    /// `RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,harbour_whisperfish=trace`.
+    /// `RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,whisperfish=trace`.
     #[structopt(short, long)]
     verbose: bool,
 
@@ -110,7 +110,7 @@ fn main() {
         env_logger::Builder::from_default_env()
             .filter_module("libsignal_service_actix", log::LevelFilter::Trace)
             .filter_module("libsignal_service", log::LevelFilter::Trace)
-            .filter_module("harbour_whisperfish", log::LevelFilter::Trace)
+            .filter_module("whisperfish", log::LevelFilter::Trace)
             .init()
     } else {
         env_logger::init()

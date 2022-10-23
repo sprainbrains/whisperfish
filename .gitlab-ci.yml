@@ -200,6 +200,7 @@ test:stable:diesel-schema:
     # compilation time for small overhead when running the binary.
     - cargo install -f --debug diesel_cli --version ^1
     - export PATH="$CARGO_HOME/bin:$PATH"
+    - cd whisperfish
     - export DATABASE_URL=test_whisperfish.db
     - diesel setup
     - diesel migration run

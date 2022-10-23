@@ -650,6 +650,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "create-store"
+version = "0.6.0-dev"
+dependencies = [
+ "actix-rt",
+ "anyhow",
+ "env_logger",
+ "libsignal-protocol",
+ "libsignal-service",
+ "rand 0.7.3",
+ "structopt",
+ "uuid",
+ "whisperfish",
+]
+
+[[package]]
 name = "criterion"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -950,6 +965,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "fetch-signal-attachment"
+version = "0.6.0-dev"
+dependencies = [
+ "actix-rt",
+ "anyhow",
+ "env_logger",
+ "futures",
+ "hex",
+ "libsignal-service",
+ "libsignal-service-actix",
+ "log",
+ "mime",
+ "mime_classifier",
+ "structopt",
+ "uuid",
+ "whisperfish",
+]
+
+[[package]]
 name = "fixedbitset"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1153,72 +1187,13 @@ checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
 name = "harbour-whisperfish"
 version = "0.6.0-dev"
 dependencies = [
- "actix",
- "actix-http",
- "actix-rt",
- "aes",
  "anyhow",
- "async-trait",
- "base64",
- "bincode",
- "block-modes",
- "cc",
- "chrono",
- "cpp",
- "cpp_build",
- "criterion",
  "dbus",
- "diesel",
- "diesel_migrations",
- "dirs",
  "env_logger",
- "fs_extra",
- "futures",
- "getrandom 0.2.7",
- "hex",
- "hmac 0.11.0",
- "image",
- "indexmap",
- "itertools 0.10.3",
- "libsignal-protocol",
- "libsignal-service",
- "libsignal-service-actix",
- "libsqlite3-sys",
  "log",
- "mime",
- "mime_classifier",
- "mime_guess",
- "parking_lot 0.12.1",
- "pbkdf2 0.9.0",
- "phonenumber",
- "proc-macro2",
- "prost 0.9.0",
- "prost-build 0.9.0",
- "qmeta-async",
- "qmetaobject",
- "qrcode",
- "qttypes",
- "quote",
- "rand 0.7.3",
- "regex",
- "rpassword",
- "rstest",
- "rstest_reuse",
- "sailors",
- "scrypt",
- "secrecy",
- "serde",
- "serde_yaml",
- "sha-1 0.9.8",
- "sha2 0.9.9",
  "single-instance",
  "structopt",
- "tempdir",
- "thiserror",
- "time 0.3.5",
- "tokio",
- "uuid",
- "zkgroup",
+ "whisperfish",
 ]
 
 [[package]]
@@ -3390,6 +3365,89 @@ dependencies = [
  "either",
  "lazy_static",
  "libc",
+]
+
+[[package]]
+name = "whisperfish"
+version = "0.6.0-dev"
+dependencies = [
+ "actix",
+ "actix-http",
+ "actix-rt",
+ "aes",
+ "anyhow",
+ "async-trait",
+ "base64",
+ "bincode",
+ "block-modes",
+ "cc",
+ "chrono",
+ "cpp",
+ "cpp_build",
+ "criterion",
+ "diesel",
+ "diesel_migrations",
+ "dirs",
+ "env_logger",
+ "fs_extra",
+ "futures",
+ "getrandom 0.2.7",
+ "hex",
+ "hmac 0.11.0",
+ "image",
+ "indexmap",
+ "itertools 0.10.3",
+ "libsignal-protocol",
+ "libsignal-service",
+ "libsignal-service-actix",
+ "libsqlite3-sys",
+ "log",
+ "mime",
+ "mime_classifier",
+ "mime_guess",
+ "parking_lot 0.12.1",
+ "pbkdf2 0.9.0",
+ "phonenumber",
+ "proc-macro2",
+ "prost 0.9.0",
+ "prost-build 0.9.0",
+ "qmeta-async",
+ "qmetaobject",
+ "qrcode",
+ "qttypes",
+ "quote",
+ "rand 0.7.3",
+ "regex",
+ "rpassword",
+ "rstest",
+ "rstest_reuse",
+ "sailors",
+ "scrypt",
+ "secrecy",
+ "serde",
+ "serde_yaml",
+ "sha-1 0.9.8",
+ "sha2 0.9.9",
+ "tempdir",
+ "thiserror",
+ "time 0.3.5",
+ "tokio",
+ "uuid",
+ "zkgroup",
+]
+
+[[package]]
+name = "whisperfish-migration-dry-run"
+version = "0.6.0-dev"
+dependencies = [
+ "anyhow",
+ "diesel",
+ "diesel_migrations",
+ "hex",
+ "log",
+ "rpassword",
+ "scrypt",
+ "whisperfish",
 ]
 
 [[package]]

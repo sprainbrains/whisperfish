@@ -9,9 +9,9 @@ use crate::migrations::orm;
 use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel_migrations::Migration;
-use harbour_whisperfish::schema::migrations as schemas;
 use rstest::*;
 use rstest_reuse::{self, *};
+use whisperfish::schema::migrations as schemas;
 
 type MigrationList = Vec<(String, Box<dyn Migration + 'static>)>;
 
@@ -98,7 +98,7 @@ mod original_data {
 }
 
 fn assert_foreign_keys(db: &SqliteConnection) {
-    harbour_whisperfish::check_foreign_keys(db).expect("foreign keys intact");
+    whisperfish::check_foreign_keys(db).expect("foreign keys intact");
 }
 
 #[fixture]
@@ -112,7 +112,7 @@ fn empty_db() -> SqliteConnection {
 #[fixture]
 fn migration_params() -> MigrationList {
     let mut migrations = Vec::new();
-    for subdir in std::fs::read_dir("migrations").unwrap() {
+    for subdir in std::fs::read_dir("../migrations").unwrap() {
         let subdir = subdir.unwrap().path();
 
         if !subdir.is_dir() {
@@ -278,7 +278,7 @@ fn load_sessions(
 // As of here, we inject data in an old database, and test whether the data is still intact after
 // running all the migrations.
 // Insertion of the data can be done through the old models (found in `old_schemes`), and
-// assertions should be done against `harbour_whisperfish::schema`.
+// assertions should be done against `whisperfish::schema`.
 //
 // Tests usually use the following pattern:
 // - a method assert_FOO(db) that puts assertions on the db in the "current" setting.
@@ -723,7 +723,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
     for _ in 0..count {
         let ts: u64 = rng.gen_range(0, 1614425253000);
         message.timestamp = ts as i64;
-        let ts = harbour_whisperfish::millis_to_naive_chrono(ts);
+        let ts = whisperfish::millis_to_naive_chrono(ts);
         timestamps.push(ts);
 
         diesel::insert_into(message::table)
