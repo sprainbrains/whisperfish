@@ -1,8 +1,4 @@
 #![recursion_limit = "512"]
-#![warn(rust_2018_idioms)]
-
-#[macro_use]
-extern crate cpp;
 
 #[macro_use]
 extern crate diesel;

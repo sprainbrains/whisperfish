@@ -1,3 +1,4 @@
+use cpp::{cpp, cpp_class};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
