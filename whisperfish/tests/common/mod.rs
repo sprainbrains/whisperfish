@@ -1,8 +1,8 @@
 use std::future::Future;
 
-use harbour_whisperfish::store::temp;
-use harbour_whisperfish::store::{Storage, StorageLocation};
 use rstest::fixture;
+use whisperfish::store::temp;
+use whisperfish::store::{Storage, StorageLocation};
 
 pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
 

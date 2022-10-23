@@ -4,8 +4,8 @@ use rstest::rstest;
 
 use chrono::prelude::*;
 
-use harbour_whisperfish::store::GroupV1;
-use harbour_whisperfish::store::NewMessage;
+use whisperfish::store::GroupV1;
+use whisperfish::store::NewMessage;
 
 mod common;
 use common::*;

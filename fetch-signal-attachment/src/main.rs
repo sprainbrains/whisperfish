@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use futures::io::AsyncReadExt;
-use harbour_whisperfish::store::{self, Storage};
 use structopt::StructOpt;
+use whisperfish::store::{self, Storage};
 
 use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
@@ -51,8 +51,8 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let mut opt = Opt::from_args();
 
-    let config = harbour_whisperfish::config::SignalConfig::read_from_file()?;
-    let settings = harbour_whisperfish::config::Settings::default();
+    let config = whisperfish::config::SignalConfig::read_from_file()?;
+    let settings = whisperfish::config::Settings::default();
     let dir = settings.get_string("attachment_dir");
     let dest = Path::new(&dir);
 
@@ -97,7 +97,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut service = AwcPushService::new(
         SignalServers::Production,
         Some(credentials.clone()),
-        harbour_whisperfish::user_agent(),
+        whisperfish::user_agent(),
     );
 
     // Download the attachment
