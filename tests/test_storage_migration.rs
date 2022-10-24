@@ -262,8 +262,8 @@ async fn copy_to_temp(root: std::path::PathBuf) -> tempdir::TempDir {
 ///
 /// https://gitlab.com/whisperfish/whisperfish/-/merge_requests/249
 #[rstest]
-#[case("tests/storage_migration/without-password-2022-06".into(), None)]
-#[case("tests/storage_migration/with-password-123456-2022-06".into(), Some("123456".into()))]
+#[case("tests/resources/storage_migration/without-password-2022-06".into(), None)]
+#[case("tests/resources/storage_migration/with-password-123456-2022-06".into(), Some("123456".into()))]
 #[actix_rt::test]
 async fn test_2022_06_migration(
     #[case] path: std::path::PathBuf,

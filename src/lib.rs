@@ -1,8 +1,4 @@
 #![recursion_limit = "512"]
-#![warn(rust_2018_idioms)]
-
-#[macro_use]
-extern crate cpp;
 
 #[macro_use]
 extern crate diesel;
@@ -10,18 +6,14 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-pub mod config;
-pub mod qmlapp;
-
 pub mod actor;
-pub mod model;
-
-pub mod worker;
-
-pub mod schema;
-
+pub mod config;
 pub mod gui;
+pub mod model;
+pub mod qmlapp;
+pub mod schema;
 pub mod store;
+pub mod worker;
 
 pub fn user_agent() -> String {
     format!("Whisperfish/{}", env!("CARGO_PKG_VERSION"))

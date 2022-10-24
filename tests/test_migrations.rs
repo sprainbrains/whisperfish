@@ -3,19 +3,17 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use diesel_migrations::Migration;
+mod migrations;
 
+use crate::migrations::orm;
 use chrono::prelude::*;
 use diesel::prelude::*;
+use diesel_migrations::Migration;
+use harbour_whisperfish::schema::migrations as schemas;
 use rstest::*;
 use rstest_reuse::{self, *};
 
 type MigrationList = Vec<(String, Box<dyn Migration + 'static>)>;
-
-#[path = "migrations/orm/mod.rs"]
-pub mod orm;
-#[path = "migrations/schemas/mod.rs"]
-pub mod schemas;
 
 mod original_data {
     use super::*;
@@ -112,7 +110,7 @@ fn empty_db() -> SqliteConnection {
 }
 
 #[fixture]
-fn migrations() -> MigrationList {
+fn migration_params() -> MigrationList {
     let mut migrations = Vec::new();
     for subdir in std::fs::read_dir("migrations").unwrap() {
         let subdir = subdir.unwrap().path();
@@ -157,16 +155,19 @@ fn original_go_db(empty_db: SqliteConnection) -> SqliteConnection {
 }
 
 #[fixture]
-fn fixed_go_db(empty_db: SqliteConnection, mut migrations: MigrationList) -> SqliteConnection {
-    drop(migrations.split_off(3));
-    assert_eq!(migrations.len(), 3);
-    assert_eq!(migrations[0].0, "2020-04-26-145028_0-5-message");
-    assert_eq!(migrations[1].0, "2020-04-26-145033_0-5-sentq");
-    assert_eq!(migrations[2].0, "2020-04-26-145036_0-5-session");
+fn fixed_go_db(
+    empty_db: SqliteConnection,
+    mut migration_params: MigrationList,
+) -> SqliteConnection {
+    drop(migration_params.split_off(3));
+    assert_eq!(migration_params.len(), 3);
+    assert_eq!(migration_params[0].0, "2020-04-26-145028_0-5-message");
+    assert_eq!(migration_params[1].0, "2020-04-26-145033_0-5-sentq");
+    assert_eq!(migration_params[2].0, "2020-04-26-145036_0-5-session");
 
     diesel_migrations::run_migrations(
         &empty_db,
-        migrations.into_iter().map(|m| m.1),
+        migration_params.into_iter().map(|m| m.1),
         &mut std::io::stdout(),
     )
     .unwrap();
@@ -181,7 +182,7 @@ embed_migrations!();
     db,
     case::empty_db(empty_db()),
     case::original_go_db(original_go_db(empty_db())),
-    case::fixed_go_db(fixed_go_db(empty_db(), migrations()))
+    case::fixed_go_db(fixed_go_db(empty_db(), migration_params()))
 )]
 fn initial_dbs(db: SqliteConnection) {}
 
@@ -192,8 +193,8 @@ fn run_plain_migrations(db: SqliteConnection) {
 }
 
 #[apply(initial_dbs)]
-fn one_by_one(db: SqliteConnection, migrations: MigrationList) {
-    for (migration_name, migration) in migrations {
+fn one_by_one(db: SqliteConnection, migration_params: MigrationList) {
+    for (migration_name, migration) in migration_params {
         dbg!(migration_name);
         diesel_migrations::run_migrations(&db, vec![migration], &mut std::io::stdout()).unwrap();
         assert_foreign_keys(&db);

@@ -9,10 +9,8 @@ use std::path::Path;
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::sql_types::*;
+use harbour_whisperfish::schema::migrations as schemas;
 use harbour_whisperfish::store;
-
-#[path = "../../tests/migrations/schemas/mod.rs"]
-pub mod schemas;
 
 #[derive(Queryable, QueryableByName, Debug)]
 #[allow(dead_code)]

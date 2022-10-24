@@ -1,3 +1,5 @@
+pub mod migrations;
+
 table! {
     attachments (id) {
         id -> Integer,

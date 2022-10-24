@@ -1,7 +1,7 @@
 //! Helper structs that map directly on `old_schema::*`
 
-use super::schemas;
 use chrono::prelude::*;
+use harbour_whisperfish::schema::migrations as schemas;
 
 pub mod original {
     use super::*;
