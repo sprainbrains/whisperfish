@@ -9,6 +9,7 @@ extern crate diesel_migrations;
 pub mod actor;
 pub mod config;
 pub mod gui;
+pub mod gui_traits;
 pub mod model;
 pub mod platform;
 pub mod schema;

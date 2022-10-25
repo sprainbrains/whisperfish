@@ -9,6 +9,8 @@ use crate::{actor, config::Settings, model, worker};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
+use crate::gui_traits::{PromptApi, Registrable};
+use crate::model::{PromptBox};
 use actix::prelude::*;
 
 #[derive(actix::Message, Clone)]
@@ -98,12 +100,16 @@ impl AppState {
     }
 }
 
+pub trait QmlAppPromptApi: PromptApi + Registrable<QmlApp> {}
+
+impl QmlAppPromptApi for PromptBox {}
+
 pub struct WhisperfishApp {
     pub app_state: QObjectBox<AppState>,
     pub session_actor: Addr<actor::SessionActor>,
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
-    pub prompt: QObjectBox<model::Prompt>,
+    pub prompt: Box<dyn QmlAppPromptApi>,
     pub file_picker: QObjectBox<model::FilePicker>,
 
     pub client_actor: Addr<worker::ClientActor>,
@@ -158,6 +164,14 @@ fn long_version() -> String {
 }
 
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
+    let prompt = Box::new(PromptBox::new());
+    handle_run(config, prompt)
+}
+
+fn handle_run(
+    config: crate::config::SignalConfig,
+    prompt: Box<dyn QmlAppPromptApi>,
+) -> Result<(), anyhow::Error> {
     qmeta_async::run(|| {
         let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
             // XXX this arc thing should be removed in the future and refactored
@@ -192,7 +206,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 message_actor,
                 client_actor,
                 contact_model: QObjectBox::new(model::ContactModel::default()),
-                prompt: QObjectBox::new(model::Prompt::default()),
+                prompt,
                 file_picker: QObjectBox::new(model::FilePicker::default()),
 
                 setup_worker: QObjectBox::new(worker::SetupWorker::default()),
@@ -208,7 +222,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             let ci_job_url = ci_job_url.map(Into::into).unwrap_or_else(|| false.into());
             app.set_property("CiJobUrl".into(), ci_job_url);
 
-            app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
+            whisperfish.prompt.register_in(&mut app);
             app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
             app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
             app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());

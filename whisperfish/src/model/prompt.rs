@@ -1,6 +1,8 @@
-use std::future::Future;
+use async_trait::async_trait;
 use std::process::Command;
 
+use crate::gui_traits::{PromptApi, Registrable};
+use crate::platform::QmlApp;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
@@ -92,43 +94,129 @@ impl Prompt {
         }
     }
 
-    pub fn ask_password(&mut self) -> impl Future<Output = Option<QString>> {
-        self.promptPassword();
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn startCaptcha(&mut self) {
+        Command::new("/usr/bin/sailfish-qml")
+            .args(&["harbour-whisperfish"])
+            .spawn()
+            .expect("/usr/bin/sailfish-qml not found, libsailfishapp-launcher not installed?");
+    }
+}
+
+pub struct PromptBox {
+    inner: QObjectBox<Prompt>,
+}
+
+impl PromptBox {
+    pub fn new() -> Self {
+        PromptBox {
+            inner: QObjectBox::new(Prompt::default()),
+        }
+    }
+}
+
+#[async_trait(?Send)]
+impl PromptApi for PromptBox {
+    async fn ask_phone_number(&self) -> Option<String> {
+        let prompt = self.inner.pinned();
+        let mut prompt = prompt.borrow_mut();
+
+        prompt.promptPhoneNumber();
 
         let (sender, receiver) = futures::channel::oneshot::channel();
 
-        self.password_listeners.push(sender);
+        prompt.phone_number_listeners.push(sender);
 
-        async {
-            match receiver.await {
-                Ok(pwd) => Some(pwd),
-                Err(_e) => {
-                    log::error!("Password prompt was canceled");
-                    None
-                }
+        match receiver.await {
+            Ok(pwd) => Some(pwd.into()),
+            Err(_e) => {
+                log::error!("Phone number prompt was canceled");
+                None
             }
         }
     }
 
-    pub fn ask_registration_type(&mut self) -> impl Future<Output = Option<bool>> {
-        self.promptRegistrationType();
+    async fn ask_verification_code(&self) -> Option<String> {
+        let prompt = self.inner.pinned();
+        let mut prompt = prompt.borrow_mut();
+
+        prompt.promptVerificationCode();
 
         let (sender, receiver) = futures::channel::oneshot::channel();
 
-        self.registration_type_listeners.push(sender);
+        prompt.code_listeners.push(sender);
 
-        async {
-            match receiver.await {
-                Ok(pwd) => Some(pwd),
-                Err(_e) => {
-                    log::error!("Registration type prompt was canceled");
-                    None
-                }
+        match receiver.await {
+            Ok(pwd) => Some(pwd.into()),
+            Err(_e) => {
+                log::error!("Code prompt was canceled");
+                None
             }
         }
     }
 
-    pub fn show_link_qr(&mut self, url: String) {
+    async fn ask_captcha(&self) -> Option<String> {
+        let prompt = self.inner.pinned();
+        let mut prompt = prompt.borrow_mut();
+
+        prompt.promptCaptcha();
+
+        let (sender, receiver) = futures::channel::oneshot::channel();
+
+        prompt.captcha_listeners.push(sender);
+
+        match receiver.await {
+            Ok(pwd) => Some(pwd.into()),
+            Err(_e) => {
+                log::error!("Captcha prompt was canceled");
+                None
+            }
+        }
+    }
+
+    async fn ask_registration_type(&self) -> Option<bool> {
+        let prompt = self.inner.pinned();
+        let mut prompt = prompt.borrow_mut();
+
+        prompt.promptRegistrationType();
+
+        let (sender, receiver) = futures::channel::oneshot::channel();
+
+        prompt.registration_type_listeners.push(sender);
+
+        match receiver.await {
+            Ok(pwd) => Some(pwd.into()),
+            Err(_e) => {
+                log::error!("Registration type prompt was canceled");
+                None
+            }
+        }
+    }
+
+    async fn ask_password(&self) -> Option<String> {
+        let prompt = self.inner.pinned();
+        let mut prompt = prompt.borrow_mut();
+
+        prompt.promptPassword();
+
+        let (sender, receiver) = futures::channel::oneshot::channel();
+
+        prompt.password_listeners.push(sender);
+
+        match receiver.await {
+            Ok(pwd) => Some(pwd.into()),
+            Err(_e) => {
+                log::error!("Password prompt was canceled");
+                None
+            }
+        }
+    }
+
+    fn show_link_qr(&self, url: String) {
+        let prompt = self.inner.pinned();
+        let mut prompt = prompt.borrow_mut();
+
         let code = qrcode::QrCode::new(url.as_str()).expect("to generate qrcode for linking URI");
         let image_buf = code.render::<image::Luma<u8>>().build();
 
@@ -147,71 +235,14 @@ impl Prompt {
                 .expect("to write QR code image to data:-URI");
         }
 
-        self.linkingQR = QString::from(image_uri);
-        self.qrChanged();
-        self.showLinkQR();
+        prompt.linkingQR = QString::from(image_uri);
+        prompt.qrChanged();
+        prompt.showLinkQR();
     }
+}
 
-    pub fn ask_phone_number(&mut self) -> impl Future<Output = Option<QString>> {
-        self.promptPhoneNumber();
-
-        let (sender, receiver) = futures::channel::oneshot::channel();
-
-        self.phone_number_listeners.push(sender);
-
-        async {
-            match receiver.await {
-                Ok(pwd) => Some(pwd),
-                Err(_e) => {
-                    log::error!("Phone number prompt was canceled");
-                    None
-                }
-            }
-        }
-    }
-
-    pub fn ask_verification_code(&mut self) -> impl Future<Output = Option<QString>> {
-        self.promptVerificationCode();
-
-        let (sender, receiver) = futures::channel::oneshot::channel();
-
-        self.code_listeners.push(sender);
-
-        async {
-            match receiver.await {
-                Ok(pwd) => Some(pwd),
-                Err(_e) => {
-                    log::error!("Code prompt was canceled");
-                    None
-                }
-            }
-        }
-    }
-
-    pub fn ask_captcha(&mut self) -> impl Future<Output = Option<QString>> {
-        self.promptCaptcha();
-
-        let (sender, receiver) = futures::channel::oneshot::channel();
-
-        self.captcha_listeners.push(sender);
-
-        async {
-            match receiver.await {
-                Ok(pwd) => Some(pwd),
-                Err(_e) => {
-                    log::error!("Captcha prompt was canceled");
-                    None
-                }
-            }
-        }
-    }
-
-    #[allow(non_snake_case)]
-    #[with_executor]
-    fn startCaptcha(&mut self) {
-        Command::new("/usr/bin/sailfish-qml")
-            .args(&["harbour-whisperfish"])
-            .spawn()
-            .expect("/usr/bin/sailfish-qml not found, libsailfishapp-launcher not installed?");
+impl Registrable<QmlApp> for PromptBox {
+    fn register_in(&self, target: &mut QmlApp) {
+        target.set_object_property("Prompt".into(), self.inner.pinned());
     }
 }

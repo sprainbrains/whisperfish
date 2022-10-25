@@ -116,12 +116,9 @@ impl SetupWorker {
         for i in 1..=SetupWorker::MAX_PASSWORD_ENTER_ATTEMPTS {
             let password: String = app
                 .prompt
-                .pinned()
-                .borrow_mut()
                 .ask_password()
                 .await
-                .context("No password provided")?
-                .into();
+                .context("No password provided")?;
 
             match Storage::open(&config.get_share_dir().to_owned().into(), Some(password)).await {
                 Ok(storage) => return Ok(storage),
@@ -161,17 +158,12 @@ impl SetupWorker {
 
         let storage_password: String = app
             .prompt
-            .pinned()
-            .borrow_mut()
             .ask_password()
             .await
-            .context("No password code provided")?
-            .into();
+            .context("No password code provided")?;
 
         let is_primary: bool = app
             .prompt
-            .pinned()
-            .borrow_mut()
             .ask_registration_type()
             .await
             .context("No registration type chosen")?;
@@ -249,12 +241,9 @@ impl SetupWorker {
         let number = loop {
             let number: String = app
                 .prompt
-                .pinned()
-                .borrow_mut()
                 .ask_phone_number()
                 .await
-                .context("No phone number provided")?
-                .into();
+                .context("No phone number provided")?;
 
             match phonenumber::parse(None, number) {
                 Ok(number) => break number,
@@ -281,12 +270,9 @@ impl SetupWorker {
         while res == super::client::VerificationCodeResponse::CaptchaRequired {
             let captcha: String = app
                 .prompt
-                .pinned()
-                .borrow_mut()
                 .ask_captcha()
                 .await
-                .context("No captcha result provided")?
-                .into();
+                .context("No captcha result provided")?;
             res = app
                 .client_actor
                 .send(super::client::Register {
@@ -300,12 +286,9 @@ impl SetupWorker {
 
         let code: String = app
             .prompt
-            .pinned()
-            .borrow_mut()
             .ask_verification_code()
             .await
-            .context("No verification code provided")?
-            .into();
+            .context("No verification code provided")?;
         let code = code.parse()?;
 
         let (regid, res) = app
@@ -357,8 +340,6 @@ impl SetupWorker {
             futures::select! {
                 uri_result = rx_uri => {
                     app.prompt
-                        .pinned()
-                        .borrow_mut()
                         .show_link_qr(uri_result?);
                 }
                 res = res_fut => {
