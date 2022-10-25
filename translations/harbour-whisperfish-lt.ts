@@ -66,26 +66,26 @@
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Išjungti pokalbio nutildymą</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="309"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nutildyti pokalbį</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Atkurti į gautuosius</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Archyvuoti pokalbį</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="327"/>
@@ -116,43 +116,43 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="342"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish duomenų saugykla</translation>
     </message>
     <message id="permission-la-data_description">
         <location filename="../qml/harbour-whisperfish-main.qml" line="346"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Saugoti konfigūraciją ir žinutes</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rodyti archyvuotus pokalbius</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Grįžti į pokalbius</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pokalbiai</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Archyvuoti pokalbiai</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prisegta</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
@@ -194,13 +194,13 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aprašymas</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish yra neoficialus, bet pažangus Signal klientas, skirtas Sailfish OS. Whisperfish yra labai patogi naudoti, tačiau vis dar laikoma beta kokybės programine įranga. Būtinai reguliariai atnaujinkite! Taip pat patikrinkite mūsų Wiki ir nedvejodami prisidėkite prie jos plėtojimo! Niekada nesikreipkite į Signal kūrėjus dėl Whisperfish problemos, susisiekite su mumis!.</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
