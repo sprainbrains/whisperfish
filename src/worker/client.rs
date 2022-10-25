@@ -15,7 +15,7 @@ use qmetaobject::prelude::*;
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
 use crate::model::DeviceModel;
-use crate::qmlapp::QmlApp;
+use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
 
 use libsignal_service::configuration::SignalServers;

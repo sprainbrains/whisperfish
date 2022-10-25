@@ -1,6 +1,6 @@
 use crate::gui::StorageReady;
 use crate::model::message::MessageModel;
-use crate::qmlapp::QmlApp;
+use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
 use crate::worker::ClientActor;
 
