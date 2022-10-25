@@ -103,7 +103,7 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="217"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Nepavyko nustatyti „Signal“ kliento</translation>
+        <translation>Nepavyko nustatyti Signal kliento</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="222"/>
@@ -188,7 +188,7 @@
         <location filename="../qml/pages/About.qml" line="43"/>
         <source>Signal client for Sailfish OS</source>
         <extracomment>Whisperfish description</extracomment>
-        <translation>„Signal“ klientas, skirtas „Sailfish OS“</translation>
+        <translation>Signal klientas, skirtas „Sailfish OS“</translation>
     </message>
     <message id="whisperfish-description-section">
         <location filename="../qml/pages/About.qml" line="49"/>
@@ -345,13 +345,13 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Patikrinkite, ar nėra atnaujinimų</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Šis Whisperfish versija yra senesnė nei 90 dienų. Patikrinkite, ar nėra naujinimų, kad Whisperfish veiktų sklandžiai.</translation>
     </message>
     <message id="whisperfish-settings-menu">
         <location filename="../qml/pages/MainPage.qml" line="62"/>
@@ -423,13 +423,13 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tapatybės rakto nustatymas iš naujo</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tapatybės raktas nustatytas iš naujo</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -613,13 +613,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="13"/>
         <source>Link as secondary device</source>
         <extracomment>register as secondary device qr page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Susieti kaip antrinį įrenginį</translation>
     </message>
     <message id="whisperfish-register-linked-message">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="17"/>
         <source>Please scan the QR code below using the Signal app.</source>
         <extracomment>User instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nuskaitykite toliau pateiktą QR kodą naudodami Signal programėlę.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="33"/>
@@ -659,19 +659,19 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>registration prompt text</extracomment>
-        <translation>Įveskite telefono numerį, kurį norite užregistruoti „Signal“.</translation>
+        <translation>Įveskite telefono numerį, kurį norite užregistruoti Signal.</translation>
     </message>
     <message id="whisperfish-registration-country-or-area">
         <location filename="../qml/pages/RegisterPage.qml" line="102"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Šalis arba vietovė</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="107"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nepasirinkta</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="230"/>
@@ -687,7 +687,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="241"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
-        <translation>Leiskite „Signal“ naudoti vietinį kontaktų sąrašą, kad surastumėte kitus „Signal“ vartotojus.</translation>
+        <translation>Leiskite Signal naudoti vietinį kontaktų sąrašą, kad surastumėte kitus Signal vartotojus.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
         <location filename="../qml/pages/RegisterPage.qml" line="198"/>
@@ -737,12 +737,12 @@ Settings page share contacts</extracomment>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
-        <translation>„Signal“ paskambins jums ir nurodys 6 skaitmenų patvirtinimo kodą. Pasiruoškite jį užsirašyti.</translation>
+        <translation>Signal paskambins jums ir nurodys 6 skaitmenų patvirtinimo kodą. Pasiruoškite jį užsirašyti.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
         <location filename="../qml/pages/RegisterPage.qml" line="205"/>
         <source>Signal will text you a 6-digit verification code.</source>
-        <translation>„Signal“ jums atsiųs 6 skaitmenų patvirtinimo kodą.</translation>
+        <translation>Signal jums atsiųs 6 skaitmenų patvirtinimo kodą.</translation>
     </message>
     <message id="whisperfish-continue-button-label">
         <location filename="../qml/pages/RegisterPage.qml" line="246"/>
@@ -927,13 +927,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="108"/>
         <source>Enable typing indicators</source>
         <extracomment>Settings page use typing indicators</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Įjungti rašymo indikatorius</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators-description">
         <location filename="../qml/pages/Settings.qml" line="111"/>
         <source>See when others are typing, and let others see when you are typing, if they also have this enabled.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Matykite, kada kiti rašo, ir leiskite kitiems matyti, kada jūs rašote, jei jie taip pat yra įjungę šią funkciją.</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise">
         <location filename="../qml/pages/Settings.qml" line="157"/>
@@ -957,7 +957,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish neturi leidimo keisti automatinio paleidimo nustatymų. Galite įjungti arba išjungti automatinį paleidimą rankiniu būdu iš komandinės eilutės paleisdami „systemctl --user enable harbour-whisperfish.service“ arba „systemctl --user disable harbour-whisperfish.service“</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="340"/>
@@ -1013,7 +1013,7 @@ Settings page share contacts</extracomment>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished">Naudotojo sąsajoje rodyti derinimo informaciją.</translation>
+        <translation>Rodyti derinimo informaciją ir valdiklius vartotojo sąsajoje.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="418"/>
@@ -1068,7 +1068,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="464"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
-        <translation>„Signal“ kontaktai</translation>
+        <translation>Signal kontaktai</translation>
     </message>
     <message id="whisperfish-settings-encrypted-keystore">
         <location filename="../qml/pages/Settings.qml" line="470"/>
@@ -1227,19 +1227,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="13"/>
         <source>Please enter the code you received from Signal.</source>
         <extracomment>verify registration prompt</extracomment>
-        <translation>Įveskite kodą, kurį gavote iš „Signal“.</translation>
+        <translation>Įveskite kodą, kurį gavote iš Signal.</translation>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="20"/>
         <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation>„Signal“ turėjo paskambinti jums ir nurodyti 6 skaitmenų patvirtinimo kodą. Jei skambučio nesulaukėte, palaukite akimirką arba pradėkite procesą iš naujo.</translation>
+        <translation>Signal turėjo paskambinti jums ir nurodyti 6 skaitmenų patvirtinimo kodą. Jei skambučio nesulaukėte, palaukite akimirką arba pradėkite procesą iš naujo.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="25"/>
         <source>Signal should have sent you a 6-digit verification code via text message. Please wait a moment, or restart the process if you have not received a message.</source>
         <extracomment>verify registration instructions: text message</extracomment>
-        <translation>„Signal“ turėjo atsiųsti 6 skaitmenų patvirtinimo kodą SMS žinute. Palaukite akimirką arba pradėkite procesą iš naujo, jei žinutės negavote.</translation>
+        <translation>Signal turėjo atsiųsti 6 skaitmenų patvirtinimo kodą SMS žinute. Palaukite akimirką arba pradėkite procesą iš naujo, jei žinutės negavote.</translation>
     </message>
     <message id="whisperfish-verify-retry-prompt">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="43"/>
@@ -1569,35 +1569,35 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal Captcha</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
         <location filename="../qml/cover/CoverPage.qml" line="41"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Neskaitytas&lt;br/&gt;pranešimas</numerusform>
+            <numerusform>Neskaityti&lt;br/&gt;pranešimai</numerusform>
+            <numerusform>Neskaitytų&lt;br/&gt;pranešimų</numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="17"/>
         <source>Do you want to register whisperfish as primariy device or link it as secondary device to an existing signal app?</source>
         <extracomment>registration type prompt text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ar norite užregistruoti Whisperfish kaip pagrindinį įrenginį arba susieti ją kaip antrinį įrenginį su esama Signal programėle?</translation>
     </message>
     <message id="whisperfish-register-primary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="48"/>
         <source>Primary device</source>
         <extracomment>register as primary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pagrindinis įrenginys</translation>
     </message>
     <message id="whisperfish-register-secondary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="57"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Antrinis įrenginys</translation>
     </message>
 </context>
 </TS>
