@@ -29,3 +29,7 @@ whisperfish.wiki
 .rpm
 cobertura.xml
 tarpaulin-report.html
+
+# IDEs
+.idea
+*.iml
