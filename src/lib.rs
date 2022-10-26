@@ -10,7 +10,7 @@ pub mod actor;
 pub mod config;
 pub mod gui;
 pub mod model;
-pub mod qmlapp;
+pub mod platform;
 pub mod schema;
 pub mod store;
 pub mod worker;

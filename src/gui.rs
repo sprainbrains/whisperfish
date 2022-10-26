@@ -1,13 +1,10 @@
 use std::cell::RefCell;
-#[cfg(feature = "sailfish")]
 use std::rc::Rc;
 
+use crate::platform::{is_harbour, MayExit, QmlApp};
 use crate::store::Storage;
 #[allow(unused_imports)] // XXX: review
 use crate::{actor, config::Settings, model, worker};
-
-#[cfg(feature = "sailfish")]
-use sailors::sailfishapp::QmlApp;
 
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -31,7 +28,7 @@ pub struct AppState {
     isClosed: qt_method!(fn(&self) -> bool),
     activate: qt_signal!(),
 
-    pub may_exit: bool,
+    may_exit: MayExit,
     setMayExit: qt_method!(fn(&self, value: bool)),
     mayExit: qt_method!(fn(&self) -> bool),
 
@@ -62,43 +59,34 @@ impl AppState {
         if self.closed {
             self.activate();
             self.closed = false;
-            self.may_exit = may_exit;
+            self.may_exit.set_may_exit(may_exit);
         }
     }
 
     #[allow(non_snake_case)]
     #[with_executor]
     pub fn setMayExit(&mut self, value: bool) {
-        self.may_exit = value;
+        self.may_exit.set_may_exit(value);
     }
 
-    #[cfg(not(feature = "harbour"))]
     #[allow(non_snake_case)]
     #[with_executor]
     fn mayExit(&mut self) -> bool {
-        self.may_exit
-    }
-
-    #[cfg(feature = "harbour")]
-    #[allow(non_snake_case)]
-    #[with_executor]
-    fn mayExit(&mut self) -> bool {
-        true
+        self.may_exit.may_exit()
     }
 
     #[allow(non_snake_case)]
     #[with_executor]
     fn isHarbour(&mut self) -> bool {
-        cfg!(feature = "harbour")
+        is_harbour()
     }
 
-    #[cfg(feature = "sailfish")]
     #[with_executor]
     fn new() -> Self {
         Self {
             base: Default::default(),
             closed: false,
-            may_exit: true,
+            may_exit: MayExit::default(),
             setActive: Default::default(),
             isClosed: Default::default(),
             setClosed: Default::default(),
@@ -154,10 +142,8 @@ impl WhisperfishApp {
     }
 }
 
-#[cfg(feature = "sailfish")]
 fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
-    let git_version = env!("GIT_VERSION");
 
     // if not CI, append [commit]-dirty
     // CI changes the version name, because of RPM, so we can just use that.
@@ -166,11 +152,11 @@ fn long_version() -> String {
     {
         format!("v{}", pkg)
     } else {
-        format!("v{}", git_version)
+        let git_version = option_env!("GIT_VERSION");
+        format!("v{}", git_version.unwrap_or("dev"))
     }
 }
 
-#[cfg(feature = "sailfish")]
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     qmeta_async::run(|| {
         let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
@@ -219,7 +205,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             app.set_property("AppVersion".into(), version.into());
             app.set_property("LongAppVersion".into(), long_version.into());
             let ci_job_url: Option<QString> = option_env!("CI_JOB_URL").map(Into::into);
-            let ci_job_url = ci_job_url.map(Into::into).unwrap_or(false.into());
+            let ci_job_url = ci_job_url.map(Into::into).unwrap_or_else(|| false.into());
             app.set_property("CiJobUrl".into(), ci_job_url);
 
             app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
@@ -248,7 +234,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                     .pinned()
                     .borrow()
                     .get_bool("quit_on_ui_close")
-                && cfg!(not(feature = "harbour"))
+                && !is_harbour()
             {
                 // keep the ui closed until needed on auto-start
                 whisperfish

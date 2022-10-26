@@ -4,7 +4,7 @@ use crate::actor::{FetchSession, UpdateSession};
 
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
-use crate::qmlapp::QmlApp;
+use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
 
 use actix::prelude::*;
