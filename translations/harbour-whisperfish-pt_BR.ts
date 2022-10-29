@@ -20,19 +20,19 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="79"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 está digitando</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="83"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 e %2 estão digitando</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 e %n outros estão digitando</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="174"/>
@@ -59,7 +59,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="297"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fixar no topo</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="306"/>
@@ -85,7 +85,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arquivar conversa</translation>
     </message>
     <message id="whisperfish-session-delete">
         <location filename="../qml/delegates/SessionDelegate.qml" line="327"/>
@@ -128,25 +128,25 @@
         <location filename="../qml/pages/MainPage.qml" line="91"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar conversas arquivadas</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="94"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Retornar às conversas</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
         <location filename="../qml/pages/MainPage.qml" line="227"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversas</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="230"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversas arquivadas</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="266"/>
@@ -194,7 +194,7 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Descrição</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
@@ -345,7 +345,7 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verifique por favor para atualizações</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
@@ -422,7 +422,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reinicializar chave de identidade</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
@@ -618,7 +618,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="17"/>
         <source>Please scan the QR code below using the Signal app.</source>
         <extracomment>User instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor, digitalize o código QR abaixo usando o aplicativo Signal.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="33"/>
@@ -664,13 +664,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="102"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>País ou área</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="107"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Não selecionado</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="230"/>
@@ -926,13 +926,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="108"/>
         <source>Enable typing indicators</source>
         <extracomment>Settings page use typing indicators</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Habilitar indicadores de digitação</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators-description">
         <location filename="../qml/pages/Settings.qml" line="111"/>
         <source>See when others are typing, and let others see when you are typing, if they also have this enabled.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Veja quando os outros estão digitando, e deixe os outros verem quando você está digitando, se eles também tiverem isso habilitado.</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise">
         <location filename="../qml/pages/Settings.qml" line="157"/>
@@ -1580,13 +1580,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="48"/>
         <source>Primary device</source>
         <extracomment>register as primary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo principal</translation>
     </message>
     <message id="whisperfish-register-secondary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="57"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo secundário</translation>
     </message>
 </context>
 </TS>
