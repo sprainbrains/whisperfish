@@ -422,13 +422,13 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επαναφορά κλειδιού ταυτότητας</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Έγινε επαναφορά του κλειδιού ταυτότητας</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
@@ -612,13 +612,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="13"/>
         <source>Link as secondary device</source>
         <extracomment>register as secondary device qr page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Σύνδεση ως δευτερεύουσα συσκευή</translation>
     </message>
     <message id="whisperfish-register-linked-message">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="17"/>
         <source>Please scan the QR code below using the Signal app.</source>
         <extracomment>User instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Σαρώστε τον κωδικό QR χρησιμοποιώντας την εφαρμογή Signal.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="33"/>
@@ -956,7 +956,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Το Whisperfish δεν έχει την απαιτούμενη άδεια για να αλλάξει τις ρυθμίσεις αυτόματης εκκίνησης. Μπορείτε να ενεργοποιήσετε ή να απενεργοποιήσετε την αυτόματη εκκίνηση χειροκίνητα εκτελώντας στο τερματικό την εντολή &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="340"/>
@@ -1012,7 +1012,7 @@ Settings page share contacts</extracomment>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished">Εμφάνιση πληροφοριών για εύρεση σφαλμάτων στο παράθυρο της εφαρμογής.</translation>
+        <translation>Εμφάνιση πληροφοριών προγραμματιστή και χειριστηρίων στο παράθυρο της εφαρμογής.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="418"/>
@@ -1574,19 +1574,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="17"/>
         <source>Do you want to register whisperfish as primariy device or link it as secondary device to an existing signal app?</source>
         <extracomment>registration type prompt text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Θέλετε να καταχωρήσετε το Whisperfish σαν κύρια συσκευή ή να στο συνδέσετε σαν δευτερεύουσα συσκεύη με μια ήδη υπάρχουσα εφαρμογή Signal;</translation>
     </message>
     <message id="whisperfish-register-primary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="48"/>
         <source>Primary device</source>
         <extracomment>register as primary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κύρια συσκευή</translation>
     </message>
     <message id="whisperfish-register-secondary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="57"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Δευτερεύουσα συσκευή</translation>
     </message>
 </context>
 </TS>
