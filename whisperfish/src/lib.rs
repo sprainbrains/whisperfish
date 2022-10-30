@@ -15,6 +15,7 @@ pub mod platform;
 pub mod schema;
 pub mod store;
 pub mod worker;
+pub mod service;
 
 pub fn user_agent() -> String {
     format!("Whisperfish/{}", env!("CARGO_PKG_VERSION"))

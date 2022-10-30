@@ -9,13 +9,20 @@ license = "AGPL-3.0-or-later"
 description = "Private messaging using Signal for SailfishOS."
 
 [dependencies]
+async-trait = "0.1"
 whisperfish = { path = "../whisperfish" }
 dbus = "0.9"
 single-instance = "0.3.3"
 log = "0.4"
+qmetaobject = { version = "=0.2.5" }
+qmeta-async = { git = "https://gitlab.com/rubdos/qmeta-async.git" }
+futures = "0.3"
 anyhow = "1.0"
 structopt = "0.3"
 env_logger = "0.9"
+qrcode = "0.12"
+image = { version = "0.23", default-features = false, features=["png"] }
+base64 = "0.13"
 
 [features]
 bundled-sqlcipher = ["whisperfish/bundled-sqlcipher"]

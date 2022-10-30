@@ -6,6 +6,7 @@ use std::time::Duration;
 
 use single_instance::SingleInstance;
 use structopt::StructOpt;
+use harbour_whisperfish::model::prompt::PromptBox;
 
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]
@@ -164,7 +165,8 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     }
 
     // This will panic here if feature `sailfish` is not enabled
-    gui::run(config).unwrap();
+    let prompt = Box::new(PromptBox::new());
+    gui::run(config, prompt).unwrap();
 
     log::info!("Shut down.");
 

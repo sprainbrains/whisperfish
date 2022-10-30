@@ -46,7 +46,7 @@ pub struct SetupWorker {
 impl SetupWorker {
     const MAX_PASSWORD_ENTER_ATTEMPTS: i8 = 3;
 
-    pub async fn run(app: Rc<WhisperfishApp>, config: std::sync::Arc<crate::config::SignalConfig>) {
+    pub async fn run(app: Rc<Box<WhisperfishApp>>, config: std::sync::Arc<crate::config::SignalConfig>) {
         log::info!("SetupWorker::run");
         let this = app.setup_worker.pinned();
 
@@ -100,7 +100,7 @@ impl SetupWorker {
     }
 
     async fn open_storage(
-        app: Rc<WhisperfishApp>,
+        app: Rc<Box<WhisperfishApp>>,
         config: &crate::config::SignalConfig,
     ) -> Result<Storage, anyhow::Error> {
         let res = Storage::open(&config.get_share_dir().to_owned().into(), None).await;
@@ -135,7 +135,7 @@ impl SetupWorker {
     }
 
     async fn setup_storage(
-        app: Rc<WhisperfishApp>,
+        app: Rc<Box<WhisperfishApp>>,
         config: &crate::config::SignalConfig,
     ) -> Result<(), anyhow::Error> {
         let storage = SetupWorker::open_storage(app.clone(), config).await?;
@@ -146,7 +146,7 @@ impl SetupWorker {
     }
 
     async fn register(
-        app: Rc<WhisperfishApp>,
+        app: Rc<Box<WhisperfishApp>>,
         config: &crate::config::SignalConfig,
     ) -> Result<(), anyhow::Error> {
         let this = app.setup_worker.pinned();
@@ -231,7 +231,7 @@ impl SetupWorker {
     }
 
     async fn register_as_primary(
-        app: Rc<WhisperfishApp>,
+        app: Rc<Box<WhisperfishApp>>,
         config: &crate::config::SignalConfig,
         password: &str,
         signaling_key: &[u8; 52],
@@ -316,7 +316,7 @@ impl SetupWorker {
     }
 
     async fn register_as_secondary(
-        app: Rc<WhisperfishApp>,
+        app: Rc<Box<WhisperfishApp>>,
         password: &str,
         signaling_key: &[u8; 52],
     ) -> Result<RegistrationResult, anyhow::Error> {

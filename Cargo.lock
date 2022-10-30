@@ -1188,9 +1188,16 @@ name = "harbour-whisperfish"
 version = "0.6.0-dev"
 dependencies = [
  "anyhow",
+ "async-trait",
+ "base64",
  "dbus",
  "env_logger",
+ "futures",
+ "image",
  "log",
+ "qmeta-async",
+ "qmetaobject",
+ "qrcode",
  "single-instance",
  "structopt",
  "whisperfish",

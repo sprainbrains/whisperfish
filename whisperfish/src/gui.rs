@@ -9,9 +9,9 @@ use crate::{actor, config::Settings, model, worker};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
-use crate::gui_traits::{PromptApi, Registrable};
-use crate::model::{PromptBox};
+use crate::gui_traits::{InitializeWithService, PromptApi, RegisterIn};
 use actix::prelude::*;
+use crate::service::{Service, SharedServiceApi};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -100,9 +100,7 @@ impl AppState {
     }
 }
 
-pub trait QmlAppPromptApi: PromptApi + Registrable<QmlApp> {}
-
-impl QmlAppPromptApi for PromptBox {}
+pub trait QmlAppPromptApi: PromptApi + RegisterIn<QmlApp> + InitializeWithService {}
 
 pub struct WhisperfishApp {
     pub app_state: QObjectBox<AppState>,
@@ -118,6 +116,8 @@ pub struct WhisperfishApp {
     pub settings: QObjectBox<Settings>,
 
     pub storage: RefCell<Option<Storage>>,
+
+    service: SharedServiceApi,
 }
 
 impl WhisperfishApp {
@@ -163,12 +163,7 @@ fn long_version() -> String {
     }
 }
 
-pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
-    let prompt = Box::new(PromptBox::new());
-    handle_run(config, prompt)
-}
-
-fn handle_run(
+pub fn run(
     config: crate::config::SignalConfig,
     prompt: Box<dyn QmlAppPromptApi>,
 ) -> Result<(), anyhow::Error> {
@@ -200,7 +195,8 @@ fn handle_run(
             )
             .start();
 
-            let whisperfish = Rc::new(WhisperfishApp {
+            let service: SharedServiceApi = Rc::new(Box::new(Service::default()));
+            let whisperfish = Rc::new(Box::new(WhisperfishApp {
                 app_state: QObjectBox::new(AppState::new()),
                 session_actor,
                 message_actor,
@@ -214,7 +210,9 @@ fn handle_run(
                 settings: QObjectBox::new(Settings::default()),
 
                 storage: RefCell::new(None),
-            });
+
+                service: service.clone()
+            }));
 
             app.set_property("AppVersion".into(), version.into());
             app.set_property("LongAppVersion".into(), long_version.into());
@@ -223,6 +221,7 @@ fn handle_run(
             app.set_property("CiJobUrl".into(), ci_job_url);
 
             whisperfish.prompt.register_in(&mut app);
+            whisperfish.prompt.initialize_with_service(service.clone());
             app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
             app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
             app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());

@@ -1,10 +1,11 @@
 use async_trait::async_trait;
 use std::process::Command;
 
-use crate::gui_traits::{PromptApi, Registrable};
-use crate::platform::QmlApp;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
+use whisperfish::gui_traits::{InitializeWithService, PromptApi, RegisterIn};
+use whisperfish::platform::QmlApp;
+use whisperfish::service::SharedServiceApi;
 
 // XXX code duplication.
 
@@ -37,6 +38,8 @@ pub struct Prompt {
     code_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
     phone_number_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
     captcha_listeners: Vec<futures::channel::oneshot::Sender<QString>>,
+
+    service: Option<SharedServiceApi>,
 }
 
 impl Prompt {
@@ -215,34 +218,27 @@ impl PromptApi for PromptBox {
 
     fn show_link_qr(&self, url: String) {
         let prompt = self.inner.pinned();
-        let mut prompt = prompt.borrow_mut();
+            let mut prompt = prompt.borrow_mut();
+        if let Some(service) = prompt.service.as_ref() {
 
-        let code = qrcode::QrCode::new(url.as_str()).expect("to generate qrcode for linking URI");
-        let image_buf = code.render::<image::Luma<u8>>().build();
+            let image_uri = service.generate_qr(url);
 
-        // Export generate QR code pixmap data into a PNG data:-URI string
-        let mut image_uri = String::from("data:image/png;base64,");
-        {
-            let mut image_b64enc =
-                base64::write::EncoderStringWriter::from(&mut image_uri, base64::STANDARD);
-            image::png::PngEncoder::new(&mut image_b64enc)
-                .encode(
-                    &*image_buf,
-                    image_buf.width(),
-                    image_buf.height(),
-                    <image::Luma<u8> as image::Pixel>::COLOR_TYPE,
-                )
-                .expect("to write QR code image to data:-URI");
+            prompt.linkingQR = QString::from(image_uri);
+            prompt.qrChanged();
+            prompt.showLinkQR();
         }
 
-        prompt.linkingQR = QString::from(image_uri);
-        prompt.qrChanged();
-        prompt.showLinkQR();
     }
 }
 
-impl Registrable<QmlApp> for PromptBox {
+impl RegisterIn<QmlApp> for PromptBox {
     fn register_in(&self, target: &mut QmlApp) {
         target.set_object_property("Prompt".into(), self.inner.pinned());
+    }
+}
+
+impl InitializeWithService for PromptBox {
+    fn initialize_with_service(&self, service: SharedServiceApi) {
+        self.inner.pinned().borrow_mut().service = Some(service);
     }
 }
