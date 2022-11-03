@@ -239,7 +239,10 @@ Page {
             // TODO This is an ugly hack that relies on contactId being a phone number.
             //      - Remove if/when contacts move to UUIDs
             //      - Implement custom contact page for Whisperfish contacts
-            onClicked: phonenumberLink.linkActivated('tel:'+contactId)
+            onClicked: 
+                if(contactId.length > 0 && contactId[0] === "+") {
+                    phonenumberLink.linkActivated('tel:'+contactId)
+                }
 
             menu: Component {
                 ContextMenu {

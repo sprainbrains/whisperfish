@@ -83,7 +83,7 @@ ApplicationWindow
     }
 
     function newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup) {
-        var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier);
+        var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier, true);
         var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
         var contactName = contact ? contact.displayLabel : senderIdentifier;
 

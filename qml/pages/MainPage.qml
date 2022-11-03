@@ -202,7 +202,7 @@ Page {
                 onClicked: {
                     MessageModel.load(model.id, contact ? contact.displayLabel : model.source)
                     console.log("Activating session: "+model.id)
-                    var contact = resolvePeopleModel.personByPhoneNumber(model.source)
+                    var contact = resolvePeopleModel.personByPhoneNumber(model.source, true)
                     pageStack.push(Qt.resolvedUrl("ConversationPage.qml"))
                 }
 

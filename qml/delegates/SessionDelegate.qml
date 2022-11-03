@@ -76,15 +76,15 @@ ListItem {
             else if (model.typing.length == 1)
                 //: Text shown when one person is typing
                 //% "%1 is typing"
-                typing = qsTrId("whisperfish-typing-1").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0]).displayLabel)
+                typing = qsTrId("whisperfish-typing-1").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel)
             else if (model.typing.length == 2)
                 //: Text shown when two persons are typing
                 //% "%1 and %2 are typing"
-                typing = qsTrId("whisperfish-typing-2").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0]).displayLabel).arg(resolvePeopleModel.personByPhoneNumber(model.typing[1]).displayLabel)
+                typing = qsTrId("whisperfish-typing-2").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel).arg(resolvePeopleModel.personByPhoneNumber(model.typing[1], true).displayLabel)
             else if (model.typing.length >= 3)
                 //: Text shown when three or more persons are typing
                 //% "%1 and %n others are typing"
-                typing = qsTrId("whisperfish-typing-3-plus").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0]).displayLabel).arg(model.typing.length - 1)
+                typing = qsTrId("whisperfish-typing-3-plus").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel).arg(model.typing.length - 1)
             else typing = ""
             pageStack.currentPage.setTyping(typing)
         }

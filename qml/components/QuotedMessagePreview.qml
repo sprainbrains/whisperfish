@@ -18,7 +18,7 @@ BackgroundItem {
 
     readonly property bool shown: (messageData !== null && visible)
     property var _contact: (messageData !== null && mainWindow.contactsReady) ?
-                                     resolvePeopleModel.personByPhoneNumber(messageData.source) :
+                                     resolvePeopleModel.personByPhoneNumber(messageData.source, true) :
                                      null
     property string _contactName: _contact !== null ? _contact.displayLabel : ''
 

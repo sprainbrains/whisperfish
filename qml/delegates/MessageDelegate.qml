@@ -41,7 +41,7 @@ ListItem {
 
     // SETTINGS PROPERTIES
     property var contactName: contact !== null ? contact.displayLabel : _source
-    property var contact: isOutbound || !hasSource ? null : resolvePeopleModel.personByPhoneNumber(_source)
+    property var contact: isOutbound || !hasSource ? null : resolvePeopleModel.personByPhoneNumber(_source, true)
 
     // All children are placed inside a bubble, positioned left or right for
     // incoming/outbound messages. The bubble extends slightly over the contents.
