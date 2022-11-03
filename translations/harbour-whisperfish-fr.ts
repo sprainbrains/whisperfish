@@ -319,31 +319,31 @@
         <translation>Créer un lien d’invitation</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="254"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Message pour %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="263"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Ajouter aux contacts</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="267"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="270"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Vérifier le numéro de sécurité</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="281"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="284"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Retirer de ce groupe</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="319"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Vous</translation>
@@ -1179,13 +1179,13 @@ Settings page share contacts</extracomment>
         <translation>Afficher le contact</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="68"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="70"/>
         <source>Verify safety numbers</source>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Vérifier les numéros de sécurité</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="88"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="90"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Si vous souhaitez vérifier la fiabilité de votre chiffrement de bout en bout avec %1, comparez les chiffres ci-dessus avec les chiffres sur votre appareil.</translation>

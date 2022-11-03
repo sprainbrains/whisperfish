@@ -450,7 +450,7 @@
         <translation>Contact tônen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="88"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="90"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Vergelijkt de cijferkes hierboven me’ de die op ’t toestel van %1 voôr de veiligheid van u eind-tot-eind-versleuteling te verifiëren.</translation>
@@ -1103,7 +1103,7 @@ Settings page share contacts</extracomment>
         <translation>Uitgeschakeld</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="68"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="70"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
@@ -1160,31 +1160,31 @@ Settings page share contacts</extracomment>
         <translation>Uitnôdigingslink aanmaken</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="254"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Bericht aan %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="263"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Toevoegen aan contacten</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="267"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="270"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Veiligheidsnumero verifiëren</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="281"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="284"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Verwijderen uit deze groep</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="316"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="319"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Gij</translation>
