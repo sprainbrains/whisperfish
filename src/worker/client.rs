@@ -8,6 +8,7 @@ use anyhow::Context;
 use chrono::prelude::*;
 use futures::prelude::*;
 use libsignal_service::proto::typing_message::Action;
+use libsignal_service::websocket::SignalWebSocket;
 use phonenumber::PhoneNumber;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -128,6 +129,7 @@ pub struct ClientActor {
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
+    ws: Option<SignalWebSocket>,
     // XXX The cipher should be behind a Mutex.
     // By considering the session that needs to be accessed,
     // we could lock only a single session to enforce serialized access.
@@ -172,6 +174,7 @@ impl ClientActor {
             local_addr: None,
             storage: None,
             cipher: None,
+            ws: None,
             config,
 
             start_time: Local::now(),
@@ -1327,15 +1330,19 @@ impl Handler<Restart> for ClientActor {
             async move {
                 let mut receiver = MessageReceiver::new(service.clone());
 
-                receiver.create_message_pipe(credentials).await
+                receiver
+                    .create_message_pipe(credentials)
+                    .await
+                    .map(|pipe| (pipe.ws(), pipe))
             }
             .into_actor(self)
             .map(move |pipe, act, ctx| match pipe {
-                Ok(pipe) => {
+                Ok((ws, pipe)) => {
                     ctx.add_stream(pipe.stream());
 
                     ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
+                    act.ws = Some(ws);
                     act.inner.pinned().borrow().connectedChanged();
 
                     // If profile stream was running, restart.

@@ -93,6 +93,9 @@ pub struct Recipient {
     pub capabilities: i32,
     pub last_gv1_migrate_reminder: Option<NaiveDateTime>,
     pub last_session_reset: Option<NaiveDateTime>,
+
+    pub about: Option<String>,
+    pub about_emoji: Option<String>,
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]

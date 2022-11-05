@@ -1,5 +1,8 @@
 use actix::prelude::*;
-use libsignal_service::{profile_cipher::ProfileCipher, push_service::SignalServiceProfile};
+use libsignal_service::{
+    profile_cipher::ProfileCipher, profile_service::ProfileService,
+    push_service::SignalServiceProfile,
+};
 
 use crate::worker::profile_refresh::OutdatedProfile;
 
@@ -7,7 +10,12 @@ use super::*;
 
 impl StreamHandler<OutdatedProfile> for ClientActor {
     fn handle(&mut self, OutdatedProfile(uuid, key): OutdatedProfile, ctx: &mut Self::Context) {
-        let mut service = self.authenticated_service();
+        let mut service = if let Some(ws) = self.ws.clone() {
+            ProfileService::from_socket(ws)
+        } else {
+            log::debug!("Ignoring outdated profiles until reconnected.");
+            return;
+        };
         ctx.spawn(
             async move {
                 (
@@ -77,14 +85,22 @@ impl ClientActor {
             anyhow::bail!("Fetched a profile for a contact that did not share the profile key.");
         };
 
-        let name = profile.name.map(|x| cipher.decrypt_name(x)).transpose()?;
-        let about = profile.about.map(|x| cipher.decrypt_about(x)).transpose()?;
-        let emoji = profile
-            .about_emoji
-            .map(|x| cipher.decrypt_emoji(x))
-            .transpose()?;
+        let profile = profile.decrypt(cipher)?;
 
-        log::info!("Decrypted profile {:?} {:?} {:?}", name, about, emoji);
+        log::info!("Decrypted profile {:?}.  Updating database.", profile);
+
+        diesel::update(recipients)
+            .set((
+                profile_given_name.eq(profile.name.as_ref().map(|x| &x.given_name)),
+                profile_family_name.eq(profile.name.as_ref().and_then(|x| x.family_name.as_ref())),
+                about.eq(profile.about),
+                about_emoji.eq(profile.about_emoji),
+                last_profile_fetch.eq(Utc::now().naive_utc()),
+            ))
+            .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
+            .execute(&*db)
+            .expect("db");
+        // TODO For completeness, we should tickle the GUI for an update.
 
         Ok(())
     }

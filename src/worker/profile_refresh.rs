@@ -62,8 +62,6 @@ impl OutdatedProfileStream {
             .load(&*db)
             .expect("db");
 
-        log::info!("Found {} out-of-date profiles.", out_of_date_profiles.len());
-
         for recipient in out_of_date_profiles {
             let recipient_uuid = recipient.uuid.as_ref().expect("database precondition");
             let recipient_uuid = Uuid::parse_str(recipient_uuid).expect("valid uuid in db");
