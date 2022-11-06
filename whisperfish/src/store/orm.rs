@@ -114,6 +114,16 @@ pub struct IdentityRecord {
     pub record: Vec<u8>,
 }
 
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+#[primary_key(address, device, distribution_id)]
+pub struct SenderKeyRecord {
+    pub address: String,
+    pub device: i32,
+    pub distribution_id: String,
+    pub record: Vec<u8>,
+    pub created_at: NaiveDateTime,
+}
+
 impl Recipient {
     pub fn profile_key(&self) -> Option<[u8; 32]> {
         if let Some(pk) = self.profile_key.as_ref() {
