@@ -155,6 +155,16 @@ table! {
 }
 
 table! {
+    sender_key_records (address, device, distribution_id) {
+        address -> Text,
+        device -> Integer,
+        distribution_id -> Text,
+        record -> Binary,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
     session_records (address, device_id) {
         address -> Text,
         device_id -> Integer,
@@ -221,6 +231,7 @@ allow_tables_to_appear_in_same_query!(
     reactions,
     receipts,
     recipients,
+    sender_key_records,
     session_records,
     sessions,
     stickers,
