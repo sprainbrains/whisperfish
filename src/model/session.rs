@@ -641,6 +641,19 @@ impl AugmentedSession {
         }
     }
 
+    // FIXME we have them separated now... Get QML to understand it.
+    fn group_member_names(&self) -> Option<String> {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_group) => {
+                Some(self.group_members.iter().map(|r| r.name()).join(","))
+            }
+            orm::SessionType::GroupV2(_group) => {
+                Some(self.group_members.iter().map(|r| r.name()).join(","))
+            }
+            orm::SessionType::DirectMessage(_) => None,
+        }
+    }
+
     fn sent(&self) -> bool {
         if let Some(m) = &self.last_message {
             m.message.sent_timestamp.is_some()
@@ -654,6 +667,14 @@ impl AugmentedSession {
             orm::SessionType::GroupV1(_group) => "",
             orm::SessionType::GroupV2(_group) => "",
             orm::SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
+        }
+    }
+
+    fn recipient_name(&self) -> &str {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_group) => "",
+            orm::SessionType::GroupV2(_group) => "",
+            orm::SessionType::DirectMessage(recipient) => recipient.name(),
         }
     }
 
@@ -771,11 +792,14 @@ define_model_roles! {
     enum SessionRoles for AugmentedSession {
         Id(id):                                                            "id",
         Source(fn source(&self) via QString::from):                        "source",
+        RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
         IsGroup(fn is_group(&self)):                                       "isGroup",
         IsGroupV2(fn is_group_v2(&self)):                                  "isGroupV2",
         GroupId(fn group_id(&self) via qstring_from_option):               "groupId",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
+        GroupMemberNames(fn group_member_names(&self) via qstring_from_option):
+                                                                           "groupMemberNames",
         Message(fn text(&self) via qstring_from_option):                   "message",
         Section(fn section(&self) via QString::from):                      "section",
         Timestamp(fn timestamp(&self) via qdatetime_from_naive_option):    "timestamp",

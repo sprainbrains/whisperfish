@@ -16,6 +16,7 @@ Page {
     property string groupAvatar: '' // TODO implement in backend
 
     readonly property string groupMembers: MessageModel.groupMembers
+    readonly property string groupMemberNames: MessageModel.groupMemberNames
     onGroupMembersChanged: contactListModel.refresh()
     Component.onCompleted: contactListModel.refresh()
 
@@ -23,22 +24,27 @@ Page {
         id: contactListModel
         function refresh() {
             clear()
-            var lst = groupMembers.split(",")
-            for (var i = 0; i < lst.length; i++) {
-                var member = resolvePeopleModel.personByPhoneNumber(lst[i], true)
-                var name = member ? member.displayLabel : lst[i]
+            var members = groupMembers.split(",")
+            var names = groupMemberNames.split(",")
+            var useNames = members.length === names.length // sanity check really
+            if(useNames === false) {
+                console.warn("Group uuid/e164 count doesn't match group name count. Does someone have a comma in their name?")
+            }
+            for (var i = 0; i < members.length; i++) {
+                if (!members[i]) continue // skip empty/invalid values
+
+                var member = resolvePeopleModel.personByPhoneNumber(members[i], true)
+                var name = member ? member.displayLabel : (useNames && names[i] !== '' ? names[i] : members[i])
                 var isUnknown = false // checked below
                 var isVerified = false // TODO implement in backend
-
-                if (!lst[i]) continue // skip empty/invalid values
 
                 // TODO localId is available but not used by the backend, i.e. always empty
                 //      Related to #138. We need a way to check our own id.
                 // TODO 'self' should always be the first entry in the list because the entry
                 //      will not be clickable and act as a header.
-                var isSelf = (lst[i] === SetupWorker.localId) // currently always false
+                var isSelf = (members[i] === SetupWorker.localId) // currently always false
 
-                if (name === lst[i]) {
+                if (name === members[i]) {
                     // TODO Use nickname defined in the profile (#192)
                     // Unknown contact
                     //: Unknown contact in group member list
@@ -47,7 +53,7 @@ Page {
                     isUnknown = true
                 }
 
-                append({"contactId": lst[i],
+                append({"contactId": members[i],
                            "name": name,
                            "isUnknown": isUnknown,
                            "isVerified": isVerified,
@@ -239,7 +245,7 @@ Page {
             // TODO This is an ugly hack that relies on contactId being a phone number.
             //      - Remove if/when contacts move to UUIDs
             //      - Implement custom contact page for Whisperfish contacts
-            onClicked: 
+            onClicked:
                 if(contactId.length > 0 && contactId[0] === "+") {
                     phonenumberLink.linkActivated('tel:'+contactId)
                 }

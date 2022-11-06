@@ -42,13 +42,13 @@ impl Handler<ParseOldReaction> for ClientActor {
             while let Some(reaction) = reaction_messages.next() {
                 let reaction_text = reaction.text.as_ref().expect("non-null text because of query");
                 let m = regex.captures_iter(reaction_text).next().expect("match because of matching query");
-                let ts: u64 = (&m[1]).parse().expect("parse as int because of matching regex");
+                let ts: u64 = (m[1]).parse().expect("parse as int because of matching regex");
 
                 if let Some(next) = reaction_messages.peek() {
                     // .order_by((message_id, sender_recipient_id, received_timestamp))
                     let reaction_text = reaction.text.as_ref().expect("non-null text because of query");
                     let m = regex.captures_iter(reaction_text).next().expect("match because of matching query");
-                    let next_ts: u64 = (&m[1]).parse().expect("parse as int because of matching regex");
+                    let next_ts: u64 = (m[1]).parse().expect("parse as int because of matching regex");
                     if reaction.sender_recipient_id == next.sender_recipient_id && ts == next_ts {
                         log::trace!("Next reaction is same author and same target, deleting and skipping this one.");
 

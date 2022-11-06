@@ -37,10 +37,11 @@ ListItem {
     // treated as extra long messages.
     readonly property string _message: hasData && modelData.message ? modelData.message.trim() : ''
     readonly property string _source: hasData && modelData.source ? modelData.source.trim() : ''
+    readonly property string _name: hasData && modelData.peerName ? modelData.peerName.trim() : ''
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
 
     // SETTINGS PROPERTIES
-    property var contactName: contact !== null ? contact.displayLabel : _source
+    property var contactName: contact !== null ? contact.displayLabel : (_name !== '' ? _name : _source)
     property var contact: isOutbound || !hasSource ? null : resolvePeopleModel.personByPhoneNumber(_source, true)
 
     // All children are placed inside a bubble, positioned left or right for
@@ -68,8 +69,12 @@ ListItem {
     property bool showExpand: !isEmpty && _message.length > shortenThreshold
 
     readonly property bool hasData: modelData !== null && typeof modelData !== 'undefined'
+    readonly property bool hasReactions: hasData && typeof modelData.reactions !== 'undefined'
     readonly property bool hasQuotedMessage: quotedMessageData !== null
-    readonly property bool hasAttachments: hasData && (modelData.thumbsAttachments.count + modelData.detailAttachments.count > 0)
+    readonly property bool hasAttachments: hasData && (
+        (typeof modelData.thumbsAttachments !== 'undefined' ? modelData.thumbsAttachments.count : 0)
+        + (typeof modelData.detailAttachments !== 'undefined' ? modelData.detailAttachments.count : 0)
+        > 0)
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && _source !== ''
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
@@ -78,7 +83,7 @@ ListItem {
     property bool isExpanded: false
     property bool isSelected: listView.selectedMessages[modelData.id] !== undefined
 
-    property var reactions: modelData !== null ? modelData.reactions.split(',') : []
+    property var reactions: hasReactions ? modelData.reactions.split(',') : []
 
     function handleExternalPressAndHold(mouse) {
         if (openMenuOnPressAndHold) openMenu()

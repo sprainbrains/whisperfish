@@ -11,11 +11,13 @@ Loader {
     readonly property var thumbsRe: /^(image|video)\//
 
     property var thumbsAttachments: modelData.thumbsAttachments
+    property int thumbsAttachmentCount: thumbsAttachments !== undefined ? thumbsAttachments.count : 0
     property var detailAttachments: modelData.detailAttachments
-    property real thumbsHeight: thumbsAttachments.count > 0 ? Math.min(2*Theme.itemSizeExtraLarge, width) : 0
+    property int detailAttachmentCount: detailAttachments !== undefined ? detailAttachments.count : 0
+    property real thumbsHeight: thumbsAttachmentCount > 0 ? Math.min(2*Theme.itemSizeExtraLarge, width) : 0
     property real detailItemHeight: Theme.itemSizeMedium
-    property real detailHeight: detailAttachments.count > 0 ? Math.min(maxDetails, detailAttachments.count)*detailItemHeight : 0
-    property real spacing: (thumbsAttachments.count > 0 && detailAttachments.count > 0) ? Theme.paddingMedium : 0
+    property real detailHeight: detailAttachmentCount > 0 ? Math.min(maxDetails, detailAttachmentCount)*detailItemHeight : 0
+    property real spacing: (thumbsAttachments > 0 && detailAttachmentCount > 0) ? Theme.paddingMedium : 0
 
     property bool cornersOutbound: false
     property bool cornersQuoted: false
@@ -57,12 +59,12 @@ Loader {
                     width: parent.width
                     height: thumbsHeight
                     sourceComponent: {
-                        if (thumbsAttachments.count === 0) null
-                        else if (thumbsAttachments.count === 1) mediaComponent_1
-                        else if (thumbsAttachments.count === 2) mediaComponent_2
-                        else if (thumbsAttachments.count === 3) mediaComponent_3
-                        else if (thumbsAttachments.count === 4) mediaComponent_4
-                        else if (thumbsAttachments.count >= 5) mediaComponent_5_plus
+                        if (thumbsAttachmentCount === 0) null
+                        else if (thumbsAttachmentCount === 1) mediaComponent_1
+                        else if (thumbsAttachmentCount === 2) mediaComponent_2
+                        else if (thumbsAttachmentCount === 3) mediaComponent_3
+                        else if (thumbsAttachmentCount === 4) mediaComponent_4
+                        else if (thumbsAttachmentCount >= 5) mediaComponent_5_plus
                     }
                 }
 
@@ -207,7 +209,7 @@ Loader {
 
                     Rectangle {
                         id: thumbsOverlay
-                        visible: thumbsAttachments.count > maxThumbs
+                        visible: thumbsAttachmentCount > maxThumbs
                         anchors.fill: parent
                         color: Theme.highlightDimmerColor
                         opacity: parent.highlighted ? 0.7 : 0.85
@@ -217,7 +219,7 @@ Loader {
                             anchors.fill: parent
                             //: Label hinting at more attachments than are currently shown. Read as "and %n more".
                             //% "+%n"
-                            text: qsTrId("whisperfish-attachments-plus-n", thumbsAttachments.count-maxThumbs)
+                            text: qsTrId("whisperfish-attachments-plus-n", thumbsAttachmentCount - maxThumbs)
                             fontSizeMode: Text.Fit
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
@@ -244,8 +246,8 @@ Loader {
             Loader {
                 property int currentAttachmentIndex: 0
                 width: parent.width
-                height: parent.height/Math.min(maxDetails, detailAttachments.count)
-                sourceComponent: detailAttachments.count >= 1 ?
+                height: parent.height/Math.min(maxDetails, detailAttachmentCount)
+                sourceComponent: detailAttachmentCount >= 1 ?
                                      parent.componentForMime(detailAttachments[0].type) : null
             }
 
@@ -258,7 +260,7 @@ Loader {
                     anchors.fill: parent
                     property int currentAttachmentIndex: 1
                     opacity: detailOverlay.visible ? Theme.opacityFaint : 1.0
-                    sourceComponent: detailAttachments.count >= maxDetails ?
+                    sourceComponent: detailAttachmentCount >= maxDetails ?
                                          detailColumn.componentForMime(detailAttachments[0].type) : null
 
                 }
@@ -273,7 +275,7 @@ Loader {
 
                 Rectangle {
                     id: detailOverlay
-                    visible: detailAttachments.count > maxDetails
+                    visible: detailAttachmentCount > maxDetails
                     color: Theme.highlightDimmerColor
                     anchors.fill: showMoreDetail
                 }
@@ -285,7 +287,7 @@ Loader {
                     //: Note if some message attachments are hidden instead of being shown inline
                     //% "and %n more"
                     text: qsTrId("whisperfish-attachments-loader-show-more",
-                                 detailAttachments.count-maxDetails+1)
+                                 detailAttachmentCount - maxDetails+1)
                     fontSizeMode: Text.Fit
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter

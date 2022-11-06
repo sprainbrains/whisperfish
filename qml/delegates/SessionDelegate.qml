@@ -23,7 +23,7 @@ ListItem {
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
-    property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
+    property string name: model.isGroup ? model.groupName : ( contact == null ? model.recipientName : contact.displayLabel )
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
         (hasAttachment && model.message === ''
@@ -288,7 +288,7 @@ ListItem {
                 onClicked: toggleReadState()
             } */
             MenuItem {
-                text: isPinned 
+                text: isPinned
                         //: 'Unpin' conversation from the top of the view
                         //% "Unpin"
                       ? qsTrId("whisperfish-session-mark-unpinned")

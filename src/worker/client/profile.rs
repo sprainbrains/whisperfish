@@ -93,6 +93,7 @@ impl ClientActor {
             .set((
                 profile_given_name.eq(profile.name.as_ref().map(|x| &x.given_name)),
                 profile_family_name.eq(profile.name.as_ref().and_then(|x| x.family_name.as_ref())),
+                profile_joined_name.eq(profile.name.as_ref().map(|x| x.to_string())),
                 about.eq(profile.about),
                 about_emoji.eq(profile.about_emoji),
                 last_profile_fetch.eq(Utc::now().naive_utc()),

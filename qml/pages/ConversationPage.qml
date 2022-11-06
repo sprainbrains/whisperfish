@@ -15,7 +15,7 @@ Page {
     property var contact: isGroup ? null : resolvePeopleModel.personByPhoneNumber(MessageModel.peerTel, true)
     //: Name of the conversation with one's own number
     //% "Note to self"
-    property string conversationName: isGroup ? MessageModel.peerName : (contact ? contact.displayLabel : ( MessageModel.peerTel === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : MessageModel.peerTel))
+    property string conversationName: MessageModel.peerName !== '' ? MessageModel.peerName : (contact ? contact.displayLabel : ( MessageModel.peerTel === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : MessageModel.peerTel))
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
