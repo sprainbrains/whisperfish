@@ -551,6 +551,27 @@ impl protocol::SignedPreKeyStore for Storage {
     }
 }
 
+#[async_trait::async_trait(?Send)]
+impl SenderKeyStore for Storage {
+    async fn store_sender_key(
+        &mut self,
+        addr: &ProtocolAddress,
+        distribution_id: Uuid,
+        record: &SenderKeyRecord,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
+        todo!()
+    }
+    async fn load_sender_key(
+        &mut self,
+        addr: &ProtocolAddress,
+        distribution_id: Uuid,
+        _: Context,
+    ) -> Result<Option<SenderKeyRecord>, SignalProtocolError> {
+        todo!()
+    }
+}
+
 impl Storage {
     #[allow(dead_code)]
     async fn remove_signed_pre_key(&self, id: u32) -> Result<(), SignalProtocolError> {

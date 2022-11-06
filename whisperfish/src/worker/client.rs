@@ -137,6 +137,7 @@ pub struct ClientActor {
             crate::store::Storage,
             crate::store::Storage,
             crate::store::Storage,
+            crate::store::Storage,
             rand::rngs::ThreadRng,
         >,
     >,
@@ -207,6 +208,7 @@ impl ClientActor {
         &self,
     ) -> MessageSender<
         AwcPushService,
+        crate::store::Storage,
         crate::store::Storage,
         crate::store::Storage,
         crate::store::Storage,
@@ -1284,6 +1286,7 @@ impl Handler<StorageReady> for ClientActor {
                 };
                 let storage = act.storage.clone().unwrap();
                 let cipher = ServiceCipher::new(
+                    storage.clone(),
                     storage.clone(),
                     storage.clone(),
                     storage.clone(),
