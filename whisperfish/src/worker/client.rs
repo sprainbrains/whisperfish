@@ -638,7 +638,7 @@ impl ClientActor {
             };
 
             Ok::<_, anyhow::Error>(())
-        }.map(|v| if let Err(e) = v {log::error!("{:?}", e)}));
+        }.map(|v| if let Err(e) = v {log::error!("{:?} in handle_sync_request()", e)}));
     }
 
     fn process_receipt(&mut self, msg: &Envelope) {
@@ -958,7 +958,7 @@ impl Handler<FetchAttachment> for ClientActor {
                         "Error fetching attachment for message with ID `{}` {:?}: {:?}",
                         message_id, ptr2, e
                     );
-                    log::error!("{}", e);
+                    log::error!("{} in handle()", e);
                     let mut log = act.attachment_log();
                     if let Err(e) = writeln!(log, "{}", e) {
                         log::error!("Could not write error to error log: {}", e);
@@ -1861,7 +1861,7 @@ impl ClientWorker {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
             if let Err(e) = actor.send(CompactDb(0)).await {
-                log::error!("{:?}", e);
+                log::error!("{:?} in compress_db()", e);
             }
         });
     }
