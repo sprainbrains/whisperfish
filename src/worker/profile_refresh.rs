@@ -1,5 +1,6 @@
 use std::{
     pin::Pin,
+    sync::Arc,
     task::{Context, Poll},
     time::{Duration, Instant},
 };
@@ -10,8 +11,8 @@ use futures::Stream;
 use uuid::Uuid;
 use zkgroup::profiles::ProfileKey;
 
-use crate::store::orm::Recipient;
 use crate::store::Storage;
+use crate::{config::SignalConfig, store::orm::Recipient};
 
 const REYIELD_DELAY: Duration = Duration::from_secs(5 * 60);
 
@@ -21,16 +22,18 @@ const REYIELD_DELAY: Duration = Duration::from_secs(5 * 60);
 pub struct OutdatedProfileStream {
     ignore_set: Vec<(Instant, Uuid)>,
     storage: Storage,
+    config: Arc<SignalConfig>,
     next_wake: Option<Pin<Box<tokio::time::Sleep>>>,
 }
 
 pub struct OutdatedProfile(pub Uuid, pub ProfileKey);
 
 impl OutdatedProfileStream {
-    pub fn new(storage: Storage) -> Self {
+    pub fn new(storage: Storage, config: Arc<SignalConfig>) -> Self {
         Self {
             ignore_set: Vec::new(),
             storage,
+            config,
             next_wake: None,
         }
     }
@@ -51,11 +54,13 @@ impl OutdatedProfileStream {
         let out_of_date_profiles: Vec<Recipient> = recipients
             .filter(
                 profile_key.is_not_null().and(
-                    uuid.is_not_null().and(
-                        last_profile_fetch
-                            .is_null()
-                            .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
-                    ),
+                    uuid.is_not_null()
+                        .and(
+                            last_profile_fetch
+                                .is_null()
+                                .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
+                        )
+                        .and(uuid.ne(self.config.get_uuid_clone())),
                 ),
             )
             .order_by(last_profile_fetch.asc())

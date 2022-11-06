@@ -1349,7 +1349,7 @@ impl Handler<Restart> for ClientActor {
                     if let Some(handle) = act.outdated_profile_stream_handle.take() {
                         ctx.cancel_future(handle);
                     }
-                    ctx.add_stream(OutdatedProfileStream::new(storage));
+                    ctx.add_stream(OutdatedProfileStream::new(storage, act.config.clone()));
                 }
                 Err(e) => {
                     log::error!("Error starting stream: {}", e);
