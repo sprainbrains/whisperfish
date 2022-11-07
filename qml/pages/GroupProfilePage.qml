@@ -17,6 +17,7 @@ Page {
 
     readonly property string groupMembers: MessageModel.groupMembers
     readonly property string groupMemberNames: MessageModel.groupMemberNames
+    readonly property string groupMemberUuids: MessageModel.groupMemberUuids
     onGroupMembersChanged: contactListModel.refresh()
     Component.onCompleted: contactListModel.refresh()
 
@@ -26,10 +27,18 @@ Page {
             clear()
             var members = groupMembers.split(",")
             var names = groupMemberNames.split(",")
+            var uuids = groupMemberUuids.split(",")
+
             var useNames = members.length === names.length // sanity check really
             if(useNames === false) {
                 console.warn("Group uuid/e164 count doesn't match group name count. Does someone have a comma in their name?")
             }
+
+            var useAvatars = members.length === uuids.length // sanity check really
+            if(useAvatars === false) {
+                console.warn("Group uuid/e164 count doesn't match group uuid count. Does someone not have UUID yet? That's a bug!")
+            }
+
             for (var i = 0; i < members.length; i++) {
                 if (!members[i]) continue // skip empty/invalid values
 
@@ -58,6 +67,8 @@ Page {
                            "isUnknown": isUnknown,
                            "isVerified": isVerified,
                            "isSelf": isSelf,
+                           // TODO implement in model (#192)
+                           "profilePicture": useAvatars ? SettingsBridge.stringValue("avatar_dir") + "/" + uuids[i] : ''
                        })
             }
         }
@@ -95,7 +106,10 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                imageSource: groupAvatar
+                // TODO implement in model (#192)
+                imageSource: typeof MessageModel.groupId !== 'undefined' && MessageModel.groupId !== ''
+                    ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.groupId
+                    : ''
                 isGroup: true
                 showInfoMark: true
                 infoMark.source: 'image://theme/icon-s-group-chat' // edit
@@ -108,12 +122,10 @@ Page {
                     //      Note: adding a PullDownMenu would be best but is not possible.
                     //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
                     //      but PullDownMenu requires a SilicaFlickable as parent.
-                    if (groupAvatar === '') {
-                        remorse.execute("Changing the avatar is not yet implemented.", function() {})
-                        return
-                    }
-                    pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), {
-                                   'title': groupName, 'source': groupAvatar })
+
+                    //pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { 'title': groupName, 'source': imageSource })
+
+                    remorse.execute("Changing the avatar is not yet implemented.", function() {})
                 }
             }
 
@@ -241,6 +253,7 @@ Page {
             property bool isUnknownContact: model.isUnknown
             property bool isVerified: model.isVerified
             property bool isSelf: model.isSelf
+            property string profilePicture: model.profilePicture
 
             // TODO This is an ugly hack that relies on contactId being a phone number.
             //      - Remove if/when contacts move to UUIDs
@@ -303,7 +316,7 @@ Page {
                 ProfilePicture {
                     highlighted: item.down
                     labelsHighlighted: highlighted
-                    imageSource: '' // TODO implement somewhere
+                    imageSource: profilePicture
                     isGroup: false // groups can't be members of groups
                     showInfoMark: false
                     anchors.verticalCenter: parent.verticalCenter

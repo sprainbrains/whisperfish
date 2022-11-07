@@ -73,6 +73,11 @@ Page {
             else return (MessageModel.peerName === MessageModel.peerTel ?
                              "" : MessageModel.peerTel)
         }
+        // TODO implement in model (#192)
+        profilePicture: typeof MessageModel !== 'undefined' ? (isGroup
+            ? (typeof MessageModel.groupId  !== 'undefined' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.groupId  :  '')
+            : (typeof MessageModel.peerUuid !== 'undefined' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.peerUuid :  '')
+        ) : ''
     }
 
     // Desired design:
