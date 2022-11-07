@@ -301,14 +301,14 @@ impl ClientActor {
 
         if (source_e164.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
-                let (_, was_updated) = storage.update_profile_key(
+                let (recipient, was_updated) = storage.update_profile_key(
                     source_e164.as_deref(),
                     source_uuid.as_deref(),
                     key,
                     crate::store::TrustLevel::Certain,
                 );
                 if was_updated {
-                    ctx.notify(RestartOutdatedProfileStream);
+                    ctx.notify(RefreshProfile::ByRecipientId(recipient.id));
                 }
             }
         }
@@ -1370,6 +1370,7 @@ impl Handler<Restart> for ClientActor {
 #[rtype(result = "()")]
 pub enum RefreshProfile {
     BySession(i32),
+    ByRecipientId(i32),
 }
 
 impl Handler<RefreshProfile> for ClientActor {
@@ -1377,19 +1378,10 @@ impl Handler<RefreshProfile> for ClientActor {
 
     fn handle(&mut self, profile: RefreshProfile, ctx: &mut Self::Context) {
         let storage = self.storage.as_ref().unwrap();
-        let recipient_uuid: uuid::Uuid = match profile {
+        let recipient = match profile {
             RefreshProfile::BySession(session_id) => {
                 match storage.fetch_session_by_id(session_id).map(|x| x.r#type) {
-                    Some(orm::SessionType::DirectMessage(recipient)) => match recipient.uuid {
-                        Some(uuid) => uuid.parse().expect("valid uuid in db"),
-                        None => {
-                            log::error!(
-                                "Recipient without uuid; not refreshing profile: {:?}",
-                                recipient
-                            );
-                            return;
-                        }
-                    },
+                    Some(orm::SessionType::DirectMessage(recipient)) => recipient,
                     None => {
                         log::error!("No session with id {}", session_id);
                         return;
@@ -1399,6 +1391,23 @@ impl Handler<RefreshProfile> for ClientActor {
                         return;
                     }
                 }
+            }
+            RefreshProfile::ByRecipientId(id) => match storage.fetch_recipient_by_id(id) {
+                Some(r) => r,
+                None => {
+                    log::error!("No recipient with id {}", id);
+                    return;
+                }
+            },
+        };
+        let recipient_uuid = match recipient.uuid {
+            Some(uuid) => uuid.parse().expect("valid uuid in db"),
+            None => {
+                log::error!(
+                    "Recipient without uuid; not refreshing profile: {:?}",
+                    recipient
+                );
+                return;
             }
         };
         storage.mark_profile_outdated(recipient_uuid);
@@ -1417,6 +1426,7 @@ impl Handler<RestartOutdatedProfileStream> for ClientActor {
     type Result = ();
 
     fn handle(&mut self, _: RestartOutdatedProfileStream, ctx: &mut Self::Context) {
+        log::trace!("Restarting profile worker");
         // If profile stream was running, restart.
         if let Some(handle) = self.outdated_profile_stream_handle.take() {
             ctx.cancel_future(handle);
