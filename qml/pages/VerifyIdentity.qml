@@ -72,6 +72,7 @@ Page {
 
             PageHeader {
                 title: MessageModel.peerName
+                description: MessageModel.aboutText
             }
 
             ProfilePicture {

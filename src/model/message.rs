@@ -98,6 +98,7 @@ pub struct MessageModel {
     peerTel: qt_property!(QString; NOTIFY peerChanged),
     peerUuid: qt_property!(QString; NOTIFY peerChanged),
     aboutEmoji: qt_property!(QString; NOTIFY peerChanged),
+    aboutText: qt_property!(QString; NOTIFY peerChanged),
 
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
     groupMemberNames: qt_property!(QString; NOTIFY groupMembersChanged),
@@ -490,6 +491,7 @@ impl MessageModel {
                 self.peerUuid = QString::from("");
                 self.peerName = QString::from(group.name.deref());
                 self.aboutEmoji = QString::from("");
+                self.aboutText = QString::from("");
                 self.peerChanged();
 
                 self.group = true;
@@ -515,6 +517,7 @@ impl MessageModel {
                 self.peerUuid = QString::from("");
                 self.peerName = QString::from(group.name.deref());
                 self.aboutEmoji = QString::from("");
+                self.aboutText = QString::from("");
                 self.peerChanged();
 
                 self.group = true;
@@ -546,6 +549,7 @@ impl MessageModel {
                 self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
                 self.peerName = QString::from(recipient.name());
                 self.aboutEmoji = QString::from(recipient.about_emoji.as_deref().unwrap_or(""));
+                self.aboutText = QString::from(recipient.about.as_deref().unwrap_or(""));
                 self.peerChanged();
             }
         };
