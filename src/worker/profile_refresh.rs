@@ -53,6 +53,7 @@ impl OutdatedProfileStream {
         let db = self.storage.db.lock();
         let out_of_date_profiles: Vec<Recipient> = recipients
             .filter(
+                // Keep this filter in sync with the one below
                 profile_key.is_not_null().and(
                     uuid.is_not_null()
                         .and(
@@ -120,7 +121,14 @@ impl OutdatedProfileStream {
 
         let db = self.storage.db.lock();
         let next_wake: Option<Recipient> = recipients
-            .filter(uuid.is_not_null())
+            .filter(
+                // Keep this filter in sync with the one above
+                profile_key
+                    .is_not_null()
+                    .and(uuid.is_not_null())
+                    .and(uuid.ne(self.config.get_uuid_clone()))
+                    .and(last_profile_fetch.is_not_null()),
+            )
             .order_by(last_profile_fetch.asc())
             .first(&*db)
             .optional()
@@ -128,7 +136,7 @@ impl OutdatedProfileStream {
         if let Some(recipient) = next_wake {
             let time = recipient
                 .last_profile_fetch
-                .expect("empty last_profile_fetch should be in ignore set");
+                .expect("recipient with last_profile_fetch==null should be in ignore set");
             let time = chrono::offset::Utc.from_utc_datetime(&time);
             let delta = Utc::now() - time;
             self.next_wake = Some(Box::pin(tokio::time::sleep(
