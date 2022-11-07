@@ -28,9 +28,13 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
             .into_actor(self)
             .map(|(recipient_uuid, profile), _act, ctx| {
                 match profile {
-                    Ok(profile) => ctx.notify(ProfileFetched(recipient_uuid, profile)),
+                    Ok(profile) => ctx.notify(ProfileFetched(recipient_uuid, Some(profile))),
                     Err(e) => {
-                        log::error!("During profile fetch: {}", e);
+                        if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                            ctx.notify(ProfileFetched(recipient_uuid, None))
+                        } else {
+                            log::error!("During profile fetch: {}", e);
+                        }
                     }
                 };
             }),
@@ -40,7 +44,7 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-struct ProfileFetched(uuid::Uuid, SignalServiceProfile);
+struct ProfileFetched(uuid::Uuid, Option<SignalServiceProfile>);
 
 impl Handler<ProfileFetched> for ClientActor {
     type Result = ();
@@ -63,7 +67,7 @@ impl ClientActor {
     fn handle_profile_fetched(
         &mut self,
         recipient_uuid: Uuid,
-        profile: SignalServiceProfile,
+        profile: Option<SignalServiceProfile>,
     ) -> anyhow::Result<()> {
         log::info!("Fetched profile: {:?}", profile);
         let storage = self.storage.clone().unwrap();
@@ -77,30 +81,41 @@ impl ClientActor {
             .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
             .first(&*db)
             .expect("db");
-        let cipher = if let Some(key) = key {
-            let mut bytes = [0u8; 32];
-            bytes.copy_from_slice(&key);
-            ProfileCipher::from(zkgroup::profiles::ProfileKey::create(bytes))
+        if let Some(profile) = profile {
+            let cipher = if let Some(key) = key {
+                let mut bytes = [0u8; 32];
+                bytes.copy_from_slice(&key);
+                ProfileCipher::from(zkgroup::profiles::ProfileKey::create(bytes))
+            } else {
+                anyhow::bail!(
+                    "Fetched a profile for a contact that did not share the profile key."
+                );
+            };
+
+            let profile = profile.decrypt(cipher)?;
+
+            log::info!("Decrypted profile {:?}.  Updating database.", profile);
+
+            diesel::update(recipients)
+                .set((
+                    profile_given_name.eq(profile.name.as_ref().map(|x| &x.given_name)),
+                    profile_family_name
+                        .eq(profile.name.as_ref().and_then(|x| x.family_name.as_ref())),
+                    profile_joined_name.eq(profile.name.as_ref().map(|x| x.to_string())),
+                    about.eq(profile.about),
+                    about_emoji.eq(profile.about_emoji),
+                    last_profile_fetch.eq(Utc::now().naive_utc()),
+                ))
+                .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
+                .execute(&*db)
+                .expect("db");
         } else {
-            anyhow::bail!("Fetched a profile for a contact that did not share the profile key.");
-        };
-
-        let profile = profile.decrypt(cipher)?;
-
-        log::info!("Decrypted profile {:?}.  Updating database.", profile);
-
-        diesel::update(recipients)
-            .set((
-                profile_given_name.eq(profile.name.as_ref().map(|x| &x.given_name)),
-                profile_family_name.eq(profile.name.as_ref().and_then(|x| x.family_name.as_ref())),
-                profile_joined_name.eq(profile.name.as_ref().map(|x| x.to_string())),
-                about.eq(profile.about),
-                about_emoji.eq(profile.about_emoji),
-                last_profile_fetch.eq(Utc::now().naive_utc()),
-            ))
-            .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
-            .execute(&*db)
-            .expect("db");
+            diesel::update(recipients)
+                .set((last_profile_fetch.eq(Utc::now().naive_utc()),))
+                .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
+                .execute(&*db)
+                .expect("db");
+        }
         // TODO For completeness, we should tickle the GUI for an update.
 
         Ok(())
