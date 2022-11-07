@@ -161,13 +161,15 @@ impl Stream for OutdatedProfileStream {
         }
 
         self.compute_next_wake();
-        let next_wake: Pin<&mut _> = self
-            .next_wake
-            .as_mut()
-            .expect("next wake should have been set")
-            .as_mut();
-
-        futures::ready!(std::future::Future::poll(next_wake, cx));
+        if let Some(next_wake) = self.next_wake.as_mut() {
+            let next_wake: Pin<_> = next_wake.as_mut();
+            futures::ready!(std::future::Future::poll(next_wake, cx));
+        } else {
+            // XXX inefficient consumers of a stream will poll this independently of a timer.
+            // We could add some artificial timeout of a few minutes to ensure the stream does not
+            // die...
+            log::warn!("Profile refresh worker has nothing to wake to.");
+        }
 
         Poll::Pending
     }
