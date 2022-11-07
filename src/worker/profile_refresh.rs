@@ -156,6 +156,7 @@ impl Stream for OutdatedProfileStream {
         self.clean_ignore_set();
 
         if let Some(out_of_date_profile) = self.next_out_of_date_profile() {
+            log::trace!("Yielding out-of-date profile {}", out_of_date_profile.0);
             return Poll::Ready(Some(out_of_date_profile));
         }
 

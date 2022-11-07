@@ -10,6 +10,7 @@ use super::*;
 
 impl StreamHandler<OutdatedProfile> for ClientActor {
     fn handle(&mut self, OutdatedProfile(uuid, key): OutdatedProfile, ctx: &mut Self::Context) {
+        log::trace!("Received OutdatedProfile({}, [..]), fetching.", uuid);
         let mut service = if let Some(ws) = self.ws.clone() {
             ProfileService::from_socket(ws)
         } else {
@@ -55,7 +56,22 @@ impl Handler<ProfileFetched> for ClientActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         match self.handle_profile_fetched(uuid, profile) {
-            Ok(()) => (),
+            Ok(()) => {
+                // XXX this is basically incomplete.
+                // SessionActor should probably receive some NotifyRecipientUpdated
+                let session = self
+                    .inner
+                    .pinned()
+                    .borrow_mut()
+                    .session_actor
+                    .clone()
+                    .unwrap();
+                actix::spawn(async move {
+                    if let Err(e) = session.send(LoadAllSessions).await {
+                        log::error!("Could not reload sessions {}", e);
+                    }
+                });
+            }
             Err(e) => {
                 log::warn!("Error with fetched profile: {}", e);
             }
