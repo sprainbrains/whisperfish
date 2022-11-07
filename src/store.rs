@@ -675,7 +675,7 @@ impl Storage {
         uuid: Option<&str>,
         new_profile_key: &[u8],
         trust_level: TrustLevel,
-    ) -> orm::Recipient {
+    ) -> (orm::Recipient, bool) {
         // XXX check profile_key length
         let recipient = self.merge_and_fetch_recipient(e164, uuid, trust_level);
 
@@ -685,7 +685,7 @@ impl Storage {
         if is_unset || trust_level == TrustLevel::Certain {
             if recipient.profile_key.as_deref() == Some(new_profile_key) {
                 log::trace!("Profile key up-to-date");
-                return recipient;
+                return (recipient, false);
             }
 
             use crate::schema::recipients::dsl::*;
@@ -698,8 +698,11 @@ impl Storage {
             log::info!("Updated profile key for {}", recipient.e164_or_uuid());
         }
         // Re-fetch recipient with updated key
-        self.fetch_recipient_by_id(recipient.id)
-            .expect("fetch existing record")
+        (
+            self.fetch_recipient_by_id(recipient.id)
+                .expect("fetch existing record"),
+            true,
+        )
     }
 
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.

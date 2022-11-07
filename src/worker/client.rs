@@ -299,12 +299,15 @@ impl ClientActor {
 
         if source_e164.is_some() || source_uuid.is_some() {
             if let Some(key) = msg.profile_key.as_deref() {
-                storage.update_profile_key(
+                let (_, was_updated) = storage.update_profile_key(
                     source_e164.as_deref(),
                     source_uuid.as_deref(),
                     key,
                     crate::store::TrustLevel::Certain,
                 );
+                if was_updated {
+                    ctx.notify(RestartOutdatedProfileStream);
+                }
             }
         }
 
@@ -1322,7 +1325,6 @@ impl Handler<Restart> for ClientActor {
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
         let service = self.authenticated_service();
         let credentials = self.credentials.clone().unwrap();
-        let storage = self.storage.clone().expect("initialized storage");
 
         self.inner.pinned().borrow_mut().connected = false;
         self.inner.pinned().borrow().connectedChanged();
@@ -1345,11 +1347,7 @@ impl Handler<Restart> for ClientActor {
                     act.ws = Some(ws);
                     act.inner.pinned().borrow().connectedChanged();
 
-                    // If profile stream was running, restart.
-                    if let Some(handle) = act.outdated_profile_stream_handle.take() {
-                        ctx.cancel_future(handle);
-                    }
-                    ctx.add_stream(OutdatedProfileStream::new(storage, act.config.clone()));
+                    ctx.notify(RestartOutdatedProfileStream);
                 }
                 Err(e) => {
                     log::error!("Error starting stream: {}", e);
@@ -1362,6 +1360,28 @@ impl Handler<Restart> for ClientActor {
                 }
             }),
         )
+    }
+}
+
+/// Send this message to restart the profile fetching subsystem.
+///
+/// This is useful when e.g. a profile key gets updated.
+#[derive(Message)]
+#[rtype(result = "()")]
+struct RestartOutdatedProfileStream;
+
+impl Handler<RestartOutdatedProfileStream> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, _: RestartOutdatedProfileStream, ctx: &mut Self::Context) {
+        // If profile stream was running, restart.
+        if let Some(handle) = self.outdated_profile_stream_handle.take() {
+            ctx.cancel_future(handle);
+        }
+        ctx.add_stream(OutdatedProfileStream::new(
+            self.storage.clone().unwrap(),
+            self.config.clone(),
+        ));
     }
 }
 
