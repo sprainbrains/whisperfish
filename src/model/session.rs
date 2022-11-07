@@ -678,6 +678,24 @@ impl AugmentedSession {
         }
     }
 
+    fn recipient_uuid(&self) -> &str {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_group) => "",
+            orm::SessionType::GroupV2(_group) => "",
+            orm::SessionType::DirectMessage(recipient) => recipient.uuid(),
+        }
+    }
+
+    fn recipient_emoji(&self) -> &str {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_group) => "",
+            orm::SessionType::GroupV2(_group) => "",
+            orm::SessionType::DirectMessage(recipient) => {
+                recipient.about_emoji.as_deref().unwrap_or_default()
+            }
+        }
+    }
+
     fn has_attachment(&self) -> bool {
         if let Some(m) = &self.last_message {
             !m.attachments.is_empty()
@@ -793,6 +811,8 @@ define_model_roles! {
         Id(id):                                                            "id",
         Source(fn source(&self) via QString::from):                        "source",
         RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
+        RecipientUuid(fn recipient_uuid(&self) via QString::from):         "recipientUuid",
+        RecipientEmoji(fn recipient_emoji(&self) via QString::from):       "recipientEmoji",
         IsGroup(fn is_group(&self)):                                       "isGroup",
         IsGroupV2(fn is_group_v2(&self)):                                  "isGroupV2",
         GroupId(fn group_id(&self) via qstring_from_option):               "groupId",
