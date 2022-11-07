@@ -44,7 +44,6 @@ impl OutdatedProfileStream {
         // refreshing a profile.  Currently, this external trigger will only be able to fire every
         // 5 minutes.
         self.ignore_map.retain(|_uuid, time| *time > Instant::now());
-        log::debug!("Ignoring profiles for outdatedness: {:?}", self.ignore_map);
     }
 
     fn next_out_of_date_profile(&mut self) -> Option<OutdatedProfile> {
