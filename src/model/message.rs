@@ -23,7 +23,6 @@ define_model_roles! {
         Id(id):                                               "id",
         Sid(session_id):                                      "sid",
         Source(fn source(&self) via QString::from):           "source",
-        PeerName(fn peerName(&self) via QString::from):       "peerName",
         Message(text via qstring_from_option):                "message",
         Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
 
@@ -731,13 +730,6 @@ impl QtAugmentedMessage {
 
     fn visual_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
         self.visual_attachments.pinned()
-    }
-
-    fn peerName(&self) -> &str {
-        match &self.sender {
-            Some(s) => s.name(),
-            None => "",
-        }
     }
 }
 
