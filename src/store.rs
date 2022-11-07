@@ -669,13 +669,24 @@ impl Storage {
         by_uuid.or(by_e164)
     }
 
+    pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) {
+        use crate::schema::recipients::dsl::*;
+        let db = self.db.lock();
+        diesel::update(recipients)
+            .set(last_profile_fetch.eq(Option::<NaiveDateTime>::None))
+            .filter(uuid.eq(recipient_uuid.to_string()))
+            .execute(&*db)
+            .expect("existing record updated");
+        log::info!("Marked profile for {:?} as outdated.", recipient_uuid);
+    }
+
     pub fn update_profile_key(
         &self,
         e164: Option<&str>,
         uuid: Option<&str>,
         new_profile_key: &[u8],
         trust_level: TrustLevel,
-    ) -> orm::Recipient {
+    ) -> (orm::Recipient, bool) {
         // XXX check profile_key length
         let recipient = self.merge_and_fetch_recipient(e164, uuid, trust_level);
 
@@ -685,7 +696,7 @@ impl Storage {
         if is_unset || trust_level == TrustLevel::Certain {
             if recipient.profile_key.as_deref() == Some(new_profile_key) {
                 log::trace!("Profile key up-to-date");
-                return recipient;
+                return (recipient, false);
             }
 
             use crate::schema::recipients::dsl::*;
@@ -698,8 +709,11 @@ impl Storage {
             log::info!("Updated profile key for {}", recipient.e164_or_uuid());
         }
         // Re-fetch recipient with updated key
-        self.fetch_recipient_by_id(recipient.id)
-            .expect("fetch existing record")
+        (
+            self.fetch_recipient_by_id(recipient.id)
+                .expect("fetch existing record"),
+            true,
+        )
     }
 
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.

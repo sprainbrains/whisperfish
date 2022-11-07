@@ -93,6 +93,9 @@ pub struct Recipient {
     pub capabilities: i32,
     pub last_gv1_migrate_reminder: Option<NaiveDateTime>,
     pub last_session_reset: Option<NaiveDateTime>,
+
+    pub about: Option<String>,
+    pub about_emoji: Option<String>,
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
@@ -145,6 +148,13 @@ impl Recipient {
             .as_deref()
             .or(self.uuid.as_deref())
             .expect("either uuid or e164")
+    }
+
+    pub fn name(&self) -> &str {
+        self.profile_joined_name
+            .as_deref()
+            .or_else(|| Some(self.e164_or_uuid()))
+            .expect("either joined name, uuid or e164")
     }
 }
 
@@ -413,6 +423,14 @@ impl AugmentedMessage {
     pub fn source(&self) -> &str {
         if let Some(sender) = &self.sender {
             sender.e164_or_uuid()
+        } else {
+            ""
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        if let Some(sender) = &self.sender {
+            sender.name()
         } else {
             ""
         }

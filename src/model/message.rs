@@ -23,6 +23,7 @@ define_model_roles! {
         Id(id):                                               "id",
         Sid(session_id):                                      "sid",
         Source(fn source(&self) via QString::from):           "source",
+        PeerName(fn peerName(&self) via QString::from):       "peerName",
         Message(text via qstring_from_option):                "message",
         Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
 
@@ -98,6 +99,7 @@ pub struct MessageModel {
     peerUuid: qt_property!(QString; NOTIFY peerChanged),
 
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
+    groupMemberNames: qt_property!(QString; NOTIFY groupMembersChanged),
     groupId: qt_property!(QString; NOTIFY groupChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
     groupV1: qt_property!(bool; NOTIFY groupChanged),
@@ -448,6 +450,8 @@ impl MessageModel {
                         capabilities: 0,
                         last_gv1_migrate_reminder: None,
                         last_session_reset: None,
+                        about: None,
+                        about_emoji: None,
                     },
                 ));
             }
@@ -497,6 +501,8 @@ impl MessageModel {
                         .map(|r| r.e164_or_uuid())
                         .join(","),
                 );
+                self.groupMemberNames =
+                    QString::from(self.group_members.iter().map(|r| r.name()).join(","));
                 self.groupMembersChanged();
             }
             orm::SessionType::GroupV2(group) => {
@@ -517,6 +523,8 @@ impl MessageModel {
                         .map(|r| r.e164_or_uuid())
                         .join(","),
                 );
+                self.groupMemberNames =
+                    QString::from(self.group_members.iter().map(|r| r.name()).join(","));
                 self.groupMembersChanged();
             }
             orm::SessionType::DirectMessage(recipient) => {
@@ -528,7 +536,7 @@ impl MessageModel {
 
                 self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
                 self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
-                self.peerName = QString::from(recipient.e164_or_uuid());
+                self.peerName = QString::from(recipient.name());
                 self.peerChanged();
             }
         };
@@ -710,6 +718,13 @@ impl QtAugmentedMessage {
 
     fn visual_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
         self.visual_attachments.pinned()
+    }
+
+    fn peerName(&self) -> &str {
+        match &self.sender {
+            Some(s) => s.name(),
+            None => "",
+        }
     }
 }
 

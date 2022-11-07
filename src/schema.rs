@@ -147,6 +147,8 @@ table! {
         capabilities -> Integer,
         last_gv1_migrate_reminder -> Nullable<Timestamp>,
         last_session_reset -> Nullable<Timestamp>,
+        about -> Nullable<Text>,
+        about_emoji -> Nullable<Text>,
     }
 }
 

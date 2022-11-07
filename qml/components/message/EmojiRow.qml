@@ -14,7 +14,7 @@ Row {
     property real minContentWidth: delegateContentWidth
 
     LinkedEmojiLabel {
-        text: modelData.reactions
+        text: typeof modelData !== 'undefined' && typeof modelData.reactions !== 'undefined' ? modelData.reactions : ""
         font.pixelSize: Theme.fontSizeExtraSmall
         color: isOutbound ?
                    (highlighted ? Theme.secondaryHighlightColor :

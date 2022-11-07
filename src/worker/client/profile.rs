@@ -1,158 +1,139 @@
 use actix::prelude::*;
+use libsignal_service::{
+    profile_cipher::ProfileCipher, profile_service::ProfileService,
+    push_service::SignalServiceProfile,
+};
 
-use libsignal_service::profile_name::ProfileName;
-use libsignal_service::push_service::AccountAttributes;
-use libsignal_service::push_service::DeviceCapabilities;
-use rand::Rng;
-use zkgroup::profiles::ProfileKey;
-
-use crate::store::TrustLevel;
+use crate::worker::profile_refresh::OutdatedProfile;
 
 use super::*;
 
-/// Generate and upload a profile for the self recipient.
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct GenerateEmptyProfileIfNeeded;
-
-/// Synchronize multi-device profile information.
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct MultideviceSyncProfile;
-
-/// Synchronize profile attributes.
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct RefreshProfileAttributes;
-
-impl Handler<MultideviceSyncProfile> for ClientActor {
-    type Result = ResponseFuture<()>;
-    fn handle(&mut self, _: MultideviceSyncProfile, _ctx: &mut Self::Context) -> Self::Result {
-        let storage = self.storage.clone().unwrap();
-        let local_addr = self.local_addr.clone().unwrap();
-        let config = self.config.clone();
-
-        let mut sender = MessageSender::new(
-            self.authenticated_service(),
-            self.cipher.clone().unwrap(),
-            rand::thread_rng(),
-            storage.clone(),
-            storage.clone(),
-            local_addr.clone(),
-            config.get_device_id(),
+impl StreamHandler<OutdatedProfile> for ClientActor {
+    fn handle(&mut self, OutdatedProfile(uuid, key): OutdatedProfile, ctx: &mut Self::Context) {
+        log::trace!("Received OutdatedProfile({}, [..]), fetching.", uuid);
+        let mut service = if let Some(ws) = self.ws.clone() {
+            ProfileService::from_socket(ws)
+        } else {
+            log::debug!("Ignoring outdated profiles until reconnected.");
+            return;
+        };
+        ctx.spawn(
+            async move {
+                (
+                    uuid,
+                    service
+                        .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(key))
+                        .await,
+                )
+            }
+            .into_actor(self)
+            .map(|(recipient_uuid, profile), _act, ctx| {
+                match profile {
+                    Ok(profile) => ctx.notify(ProfileFetched(recipient_uuid, Some(profile))),
+                    Err(e) => {
+                        if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                            ctx.notify(ProfileFetched(recipient_uuid, None))
+                        } else {
+                            log::error!("During profile fetch: {}", e);
+                        }
+                    }
+                };
+            }),
         );
-
-        Box::pin(async move {
-            let self_recipient = storage
-                .fetch_self_recipient(&config)
-                .expect("self recipient should be set by now");
-
-            use libsignal_service::sender::ContactDetails;
-
-            let contacts = std::iter::once(ContactDetails {
-                number: self_recipient.e164.clone(),
-                uuid: self_recipient.uuid.clone(),
-                name: self_recipient.profile_joined_name.clone(),
-                profile_key: self_recipient.profile_key,
-                // XXX other profile stuff
-                ..Default::default()
-            });
-
-            if let Err(e) = sender
-                .send_contact_details(&local_addr, None, contacts, false, false)
-                .await
-            {
-                log::warn!("Could not sync profile key: {}", e);
-            }
-        })
     }
 }
 
-impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
-    type Result = ResponseFuture<()>;
-    fn handle(&mut self, _: GenerateEmptyProfileIfNeeded, ctx: &mut Self::Context) -> Self::Result {
-        let storage = self.storage.clone().unwrap();
-        let service = self.authenticated_service();
-        let client = ctx.address();
-        let config = self.config.clone();
-        let uuid = config.get_uuid_clone();
-        let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+struct ProfileFetched(uuid::Uuid, Option<SignalServiceProfile>);
 
-        Box::pin(async move {
-            let self_recipient = storage
-                .fetch_self_recipient(&config)
-                .expect("self recipient should be set by now");
-            if let Some(key) = self_recipient.profile_key {
-                log::trace!(
-                    "Profile key is already set ({} bytes); not overwriting",
-                    key.len()
+impl Handler<ProfileFetched> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        ProfileFetched(uuid, profile): ProfileFetched,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        match self.handle_profile_fetched(uuid, profile) {
+            Ok(()) => {
+                // XXX this is basically incomplete.
+                // SessionActor should probably receive some NotifyRecipientUpdated
+                let session = self
+                    .inner
+                    .pinned()
+                    .borrow_mut()
+                    .session_actor
+                    .clone()
+                    .unwrap();
+                actix::spawn(async move {
+                    if let Err(e) = session.send(LoadAllSessions).await {
+                        log::error!("Could not reload sessions {}", e);
+                    }
+                });
+            }
+            Err(e) => {
+                log::warn!("Error with fetched profile: {}", e);
+            }
+        }
+    }
+}
+
+impl ClientActor {
+    fn handle_profile_fetched(
+        &mut self,
+        recipient_uuid: Uuid,
+        profile: Option<SignalServiceProfile>,
+    ) -> anyhow::Result<()> {
+        log::info!("Fetched profile: {:?}", profile);
+        let storage = self.storage.clone().unwrap();
+        let db = storage.db.lock();
+
+        use crate::schema::recipients::dsl::*;
+        use diesel::prelude::*;
+
+        let key: Option<Vec<u8>> = recipients
+            .select(profile_key)
+            .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
+            .first(&*db)
+            .expect("db");
+        if let Some(profile) = profile {
+            let cipher = if let Some(key) = key {
+                let mut bytes = [0u8; 32];
+                bytes.copy_from_slice(&key);
+                ProfileCipher::from(zkgroup::profiles::ProfileKey::create(bytes))
+            } else {
+                anyhow::bail!(
+                    "Fetched a profile for a contact that did not share the profile key."
                 );
-                return;
-            }
-
-            log::info!("Generating profile key");
-            let profile_key = ProfileKey::generate(rand::thread_rng().gen());
-            let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
-            am.upload_versioned_profile_without_avatar(uuid, ProfileName::empty(), None, None)
-                .await
-                .expect("upload profile");
-
-            // Now also set the database
-            storage.update_profile_key(
-                None,
-                Some(&uuid.to_string()),
-                &profile_key.get_bytes(),
-                TrustLevel::Certain,
-            );
-
-            client.send(RefreshProfileAttributes).await.unwrap();
-            client.send(MultideviceSyncProfile).await.unwrap();
-        })
-    }
-}
-
-impl Handler<RefreshProfileAttributes> for ClientActor {
-    type Result = ResponseFuture<()>;
-    fn handle(&mut self, _: RefreshProfileAttributes, _ctx: &mut Self::Context) -> Self::Result {
-        let storage = self.storage.clone().unwrap();
-        let service = self.authenticated_service();
-        let config = self.config.clone();
-
-        Box::pin(async move {
-            let registration_id = storage.get_local_registration_id(None).await.unwrap();
-            let self_recipient = storage
-                .fetch_self_recipient(&config)
-                .expect("self set by now");
-
-            let mut am = AccountManager::new(service, self_recipient.profile_key());
-            // XXX centralize the place where attributes are generated.
-            let account_attributes = AccountAttributes {
-                signaling_key: None,
-                registration_id,
-                voice: false,
-                video: false,
-                fetches_messages: true,
-                pin: None,
-                registration_lock: None,
-                unidentified_access_key: None,
-                unrestricted_unidentified_access: false,
-                discoverable_by_phone_number: true,
-                capabilities: DeviceCapabilities {
-                    announcement_group: false,
-                    gv2: true,
-                    storage: false,
-                    gv1_migration: true,
-                    sender_key: false,
-                    change_number: false,
-                    gift_badges: false,
-                    stories: false,
-                },
-                name: "Whisperfish".into(),
             };
-            am.set_account_attributes(account_attributes)
-                .await
-                .expect("upload profile");
-            log::info!("Profile attributes refreshed");
-        })
+
+            let profile = profile.decrypt(cipher)?;
+
+            log::info!("Decrypted profile {:?}.  Updating database.", profile);
+
+            diesel::update(recipients)
+                .set((
+                    profile_given_name.eq(profile.name.as_ref().map(|x| &x.given_name)),
+                    profile_family_name
+                        .eq(profile.name.as_ref().and_then(|x| x.family_name.as_ref())),
+                    profile_joined_name.eq(profile.name.as_ref().map(|x| x.to_string())),
+                    about.eq(profile.about),
+                    about_emoji.eq(profile.about_emoji),
+                    last_profile_fetch.eq(Utc::now().naive_utc()),
+                ))
+                .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
+                .execute(&*db)
+                .expect("db");
+        } else {
+            diesel::update(recipients)
+                .set((last_profile_fetch.eq(Utc::now().naive_utc()),))
+                .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
+                .execute(&*db)
+                .expect("db");
+        }
+        // TODO For completeness, we should tickle the GUI for an update.
+
+        Ok(())
     }
 }

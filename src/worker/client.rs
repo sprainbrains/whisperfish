@@ -8,6 +8,7 @@ use anyhow::Context;
 use chrono::prelude::*;
 use futures::prelude::*;
 use libsignal_service::proto::typing_message::Action;
+use libsignal_service::websocket::SignalWebSocket;
 use phonenumber::PhoneNumber;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -45,12 +46,17 @@ pub use linked_devices::*;
 mod profile;
 pub use profile::*;
 
+mod profile_upload;
+pub use profile_upload::*;
+
 mod groupv2;
 pub use groupv2::*;
 
 use crate::millis_to_naive_chrono;
 
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
+
+use super::profile_refresh::OutdatedProfileStream;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -114,6 +120,8 @@ pub struct ClientWorker {
     refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
 
     delete_file: qt_method!(fn(&self, file_name: String)),
+
+    refresh_profile: qt_method!(fn(&self, session_id: i32)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -123,6 +131,7 @@ pub struct ClientActor {
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
+    ws: Option<SignalWebSocket>,
     // XXX The cipher should be behind a Mutex.
     // By considering the session that needs to be accessed,
     // we could lock only a single session to enforce serialized access.
@@ -143,6 +152,8 @@ pub struct ClientActor {
     config: std::sync::Arc<crate::config::SignalConfig>,
 
     start_time: DateTime<Local>,
+
+    outdated_profile_stream_handle: Option<SpawnHandle>,
 }
 
 impl ClientActor {
@@ -165,9 +176,12 @@ impl ClientActor {
             local_addr: None,
             storage: None,
             cipher: None,
+            ws: None,
             config,
 
             start_time: Local::now(),
+
+            outdated_profile_stream_handle: None,
         })
     }
 
@@ -285,14 +299,17 @@ impl ClientActor {
             // XXX Update profile key (which happens just below); don't insert this message.
         }
 
-        if source_e164.is_some() || source_uuid.is_some() {
+        if (source_e164.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
-                storage.update_profile_key(
+                let (recipient, was_updated) = storage.update_profile_key(
                     source_e164.as_deref(),
                     source_uuid.as_deref(),
                     key,
                     crate::store::TrustLevel::Certain,
                 );
+                if was_updated {
+                    ctx.notify(RefreshProfile::ByRecipientId(recipient.id));
+                }
             }
         }
 
@@ -1316,15 +1333,29 @@ impl Handler<Restart> for ClientActor {
             async move {
                 let mut receiver = MessageReceiver::new(service.clone());
 
-                receiver.create_message_pipe(credentials).await
+                receiver
+                    .create_message_pipe(credentials)
+                    .await
+                    .map(|pipe| (pipe.ws(), pipe))
             }
             .into_actor(self)
             .map(move |pipe, act, ctx| match pipe {
-                Ok(pipe) => {
+                Ok((ws, pipe)) => {
                     ctx.add_stream(pipe.stream());
+
                     ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
+                    act.ws = Some(ws);
                     act.inner.pinned().borrow().connectedChanged();
+
+                    // If profile stream was running, restart.
+                    if let Some(handle) = act.outdated_profile_stream_handle.take() {
+                        ctx.cancel_future(handle);
+                    }
+                    ctx.add_stream(OutdatedProfileStream::new(
+                        act.storage.clone().unwrap(),
+                        act.config.clone(),
+                    ));
                 }
                 Err(e) => {
                     log::error!("Error starting stream: {}", e);
@@ -1337,6 +1368,58 @@ impl Handler<Restart> for ClientActor {
                 }
             }),
         )
+    }
+}
+
+/// Queue a force-refresh of a profile fetch
+#[derive(Message)]
+#[rtype(result = "()")]
+pub enum RefreshProfile {
+    BySession(i32),
+    ByRecipientId(i32),
+}
+
+impl Handler<RefreshProfile> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, profile: RefreshProfile, _ctx: &mut Self::Context) {
+        let storage = self.storage.as_ref().unwrap();
+        let recipient = match profile {
+            RefreshProfile::BySession(session_id) => {
+                match storage.fetch_session_by_id(session_id).map(|x| x.r#type) {
+                    Some(orm::SessionType::DirectMessage(recipient)) => recipient,
+                    None => {
+                        log::error!("No session with id {}", session_id);
+                        return;
+                    }
+                    _ => {
+                        log::error!("Can only refresh profiles for DirectMessage sessions.");
+                        return;
+                    }
+                }
+            }
+            RefreshProfile::ByRecipientId(id) => match storage.fetch_recipient_by_id(id) {
+                Some(r) => r,
+                None => {
+                    log::error!("No recipient with id {}", id);
+                    return;
+                }
+            },
+        };
+        let recipient_uuid = match recipient.uuid {
+            Some(uuid) => uuid.parse().expect("valid uuid in db"),
+            None => {
+                log::error!(
+                    "Recipient without uuid; not refreshing profile: {:?}",
+                    recipient
+                );
+                return;
+            }
+        };
+        storage.mark_profile_outdated(recipient_uuid);
+        // Polling the actor will poll the OutdatedProfileStream, which should immediately fire the
+        // necessary events.  This is hacky, we should in fact wake the stream somehow to ensure
+        // correct behaviour.
     }
 }
 
@@ -1704,6 +1787,16 @@ impl ClientWorker {
                 log::trace!("Could not delete file {}: {:?}", file_name, e);
             }
         };
+    }
+
+    #[with_executor]
+    pub fn refresh_profile(&self, session_id: i32) {
+        let actor = self.actor.clone().unwrap();
+        actix::spawn(async move {
+            if let Err(e) = actor.send(RefreshProfile::BySession(session_id)).await {
+                log::error!("{:?}", e);
+            }
+        });
     }
 
     #[with_executor]

@@ -84,7 +84,8 @@ Page {
             }
             */
             MenuItem {
-                visible: SessionModel.hasArchived // TODO implement in backend
+                // TODO implement in backend
+                visible: typeof SessionModel !== 'undefined' ? SessionModel.hasArchived : false
                 text: visualSessionModel.filterOnGroup === "active"
                         //: Menu item for showing archived conversations
                         //% "Show archived conversations"
