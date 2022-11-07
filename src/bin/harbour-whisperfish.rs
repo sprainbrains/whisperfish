@@ -155,6 +155,7 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     for dir in &[
         settings.get_string("attachment_dir"),
         settings.get_string("camera_dir"),
+        settings.get_string("avatar_dir"),
     ] {
         let path = std::path::Path::new(dir.trim());
         if !path.exists() {

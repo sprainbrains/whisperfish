@@ -17,13 +17,19 @@ ListItem {
     property bool isArchived: model.isArchived
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
-    property string profilePicture: '' // TODO implement in model (#192)
+    // TODO implement in model (#192)
+    property string profilePicture: typeof model !== 'undefined' ? (isGroup
+        ? (model.groupId       !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId       :  '')
+        : (model.recipientUuid !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.recipientUuid :  '')
+    ) : ''
+
     property bool isPreviewDelivered: model.deliveryCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewRead: model.readCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
     property string name: model.isGroup ? model.groupName : ( contact == null ? model.recipientName : contact.displayLabel )
+    property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
         (hasAttachment && model.message === ''
@@ -129,8 +135,9 @@ ListItem {
             imageSource: profilePicture
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
-            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || hasAttachment || isMuted
-            infoMark.source: {
+            // TODO: Rework infomarks to four corners or something like that; we can currently show only one status or emoji
+            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || hasAttachment || isMuted || infoMarkEmoji !== ''
+            infoMarkSource: {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (isPinned) 'image://theme/icon-s-high-importance'
@@ -139,7 +146,8 @@ ListItem {
                 else if (hasAttachment) 'image://theme/icon-s-attach'
                 else ''
             }
-            infoMark.rotation: {
+            infoMarkEmoji: delegate.emoji
+            infoMarkRotation: {
                 if (hasDraft) -90
                 else 0
             }

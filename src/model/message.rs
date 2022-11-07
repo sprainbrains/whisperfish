@@ -97,9 +97,11 @@ pub struct MessageModel {
     peerName: qt_property!(QString; NOTIFY peerChanged),
     peerTel: qt_property!(QString; NOTIFY peerChanged),
     peerUuid: qt_property!(QString; NOTIFY peerChanged),
+    aboutEmoji: qt_property!(QString; NOTIFY peerChanged),
 
     groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
     groupMemberNames: qt_property!(QString; NOTIFY groupMembersChanged),
+    groupMemberUuids: qt_property!(QString; NOTIFY groupMembersChanged),
     groupId: qt_property!(QString; NOTIFY groupChanged),
     group: qt_property!(bool; NOTIFY groupChanged),
     groupV1: qt_property!(bool; NOTIFY groupChanged),
@@ -487,6 +489,7 @@ impl MessageModel {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
                 self.peerName = QString::from(group.name.deref());
+                self.aboutEmoji = QString::from("");
                 self.peerChanged();
 
                 self.group = true;
@@ -503,12 +506,15 @@ impl MessageModel {
                 );
                 self.groupMemberNames =
                     QString::from(self.group_members.iter().map(|r| r.name()).join(","));
+                self.groupMemberUuids =
+                    QString::from(self.group_members.iter().map(|r| r.uuid()).join(","));
                 self.groupMembersChanged();
             }
             orm::SessionType::GroupV2(group) => {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
                 self.peerName = QString::from(group.name.deref());
+                self.aboutEmoji = QString::from("");
                 self.peerChanged();
 
                 self.group = true;
@@ -525,6 +531,8 @@ impl MessageModel {
                 );
                 self.groupMemberNames =
                     QString::from(self.group_members.iter().map(|r| r.name()).join(","));
+                self.groupMemberUuids =
+                    QString::from(self.group_members.iter().map(|r| r.uuid()).join(","));
                 self.groupMembersChanged();
             }
             orm::SessionType::DirectMessage(recipient) => {
@@ -537,6 +545,7 @@ impl MessageModel {
                 self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
                 self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
                 self.peerName = QString::from(recipient.name());
+                self.aboutEmoji = QString::from(recipient.about_emoji.as_deref().unwrap_or(""));
                 self.peerChanged();
             }
         };

@@ -143,6 +143,10 @@ impl Recipient {
         }
     }
 
+    pub fn uuid(&self) -> &str {
+        self.uuid.as_deref().or(Some("")).expect("uuid")
+    }
+
     pub fn e164_or_uuid(&self) -> &str {
         self.e164
             .as_deref()

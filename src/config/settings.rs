@@ -185,6 +185,13 @@ impl Settings {
         self.set_bool_if_unset("attachment_log", false);
         self.set_bool_if_unset("quit_on_ui_close", true);
         self.set_string_if_unset(
+            "avatar_dir",
+            // XXX this has to be adapted to current config struct
+            &crate::config::SignalConfig::default()
+                .get_avatar_dir()
+                .to_string_lossy(),
+        );
+        self.set_string_if_unset(
             "attachment_dir",
             // XXX this has to be adapted to current config struct
             &crate::config::SignalConfig::default()
