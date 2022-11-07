@@ -44,6 +44,15 @@ Page {
                 }
             }
             MenuItem {
+                //: Refresh contact profile menu item
+                //% "Refresh Signal profile"
+                text: qsTrId("whisperfish-refresh-profile-menu")
+                enabled: ! MessageModel.group
+                onClicked: {
+                    ClientWorker.refresh_profile(MessageModel.sessionId)
+                }
+            }
+            MenuItem {
                 //: Show a peer's system contact page (menu item)
                 //% "Show contact"
                 text: qsTrId("whisperfish-show-contact-page-menu")

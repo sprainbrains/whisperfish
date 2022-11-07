@@ -120,6 +120,8 @@ pub struct ClientWorker {
     refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
 
     delete_file: qt_method!(fn(&self, file_name: String)),
+
+    refresh_profile: qt_method!(fn(&self, session_id: i32)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -1363,6 +1365,47 @@ impl Handler<Restart> for ClientActor {
     }
 }
 
+/// Queue a force-refresh of a profile fetch
+#[derive(Message)]
+#[rtype(result = "()")]
+pub enum RefreshProfile {
+    BySession(i32),
+}
+
+impl Handler<RefreshProfile> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, profile: RefreshProfile, ctx: &mut Self::Context) {
+        let storage = self.storage.as_ref().unwrap();
+        let recipient_uuid: uuid::Uuid = match profile {
+            RefreshProfile::BySession(session_id) => {
+                match storage.fetch_session_by_id(session_id).map(|x| x.r#type) {
+                    Some(orm::SessionType::DirectMessage(recipient)) => match recipient.uuid {
+                        Some(uuid) => uuid.parse().expect("valid uuid in db"),
+                        None => {
+                            log::error!(
+                                "Recipient without uuid; not refreshing profile: {:?}",
+                                recipient
+                            );
+                            return;
+                        }
+                    },
+                    None => {
+                        log::error!("No session with id {}", session_id);
+                        return;
+                    }
+                    _ => {
+                        log::error!("Can only refresh profiles for DirectMessage sessions.");
+                        return;
+                    }
+                }
+            }
+        };
+        storage.mark_profile_outdated(recipient_uuid);
+        ctx.notify(RestartOutdatedProfileStream);
+    }
+}
+
 /// Send this message to restart the profile fetching subsystem.
 ///
 /// This is useful when e.g. a profile key gets updated.
@@ -1749,6 +1792,16 @@ impl ClientWorker {
                 log::trace!("Could not delete file {}: {:?}", file_name, e);
             }
         };
+    }
+
+    #[with_executor]
+    pub fn refresh_profile(&self, session_id: i32) {
+        let actor = self.actor.clone().unwrap();
+        actix::spawn(async move {
+            if let Err(e) = actor.send(RefreshProfile::BySession(session_id)).await {
+                log::error!("{:?}", e);
+            }
+        });
     }
 
     #[with_executor]

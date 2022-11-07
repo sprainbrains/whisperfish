@@ -669,6 +669,17 @@ impl Storage {
         by_uuid.or(by_e164)
     }
 
+    pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) {
+        use crate::schema::recipients::dsl::*;
+        let db = self.db.lock();
+        diesel::update(recipients)
+            .set(last_profile_fetch.eq(Option::<NaiveDateTime>::None))
+            .filter(uuid.eq(recipient_uuid.to_string()))
+            .execute(&*db)
+            .expect("existing record updated");
+        log::info!("Marked profile for {:?} as outdated.", recipient_uuid);
+    }
+
     pub fn update_profile_key(
         &self,
         e164: Option<&str>,
