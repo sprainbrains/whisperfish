@@ -1077,6 +1077,20 @@ impl Storage {
         Ok(())
     }
 
+    pub fn fetch_recipient_by_uuid(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
+        use crate::schema::recipients::dsl::*;
+
+        let db = self.db.lock();
+        if let Ok(recipient) = recipients
+            .filter(uuid.eq(&recipient_uuid.to_string()))
+            .first(&*db)
+        {
+            Some(recipient)
+        } else {
+            None
+        }
+    }
+
     pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 

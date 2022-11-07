@@ -43,6 +43,108 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
     }
 }
 
+/// Queue a force-refresh of a profile avatar
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RefreshProfileAvatar(uuid::Uuid);
+
+impl Handler<RefreshProfileAvatar> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        RefreshProfileAvatar(uuid): RefreshProfileAvatar,
+        ctx: &mut Self::Context,
+    ) {
+        log::trace!("Received RefreshProfileAvatar(..), fetching.");
+        let storage = self.storage.as_ref().unwrap();
+        let recipient = {
+            match storage.fetch_recipient_by_uuid(uuid) {
+                Some(r) => r,
+                None => {
+                    log::error!("No recipient with uuid {}", uuid);
+                    return;
+                }
+            }
+        };
+        let (avatar, key) = match recipient.signal_profile_avatar {
+            Some(avatar) => (
+                avatar,
+                recipient.profile_key.expect("avatar comes with a key"),
+            ),
+            None => {
+                log::error!(
+                    "Recipient without avatar; not refreshing avatar: {:?}",
+                    recipient
+                );
+                return;
+            }
+        };
+        let mut service = self.authenticated_service();
+        ctx.spawn(
+            async move {
+                let mut bytes = [0u8; 32];
+                bytes.copy_from_slice(&key);
+                let key = zkgroup::profiles::ProfileKey::create(bytes);
+                let cipher = ProfileCipher::from(key);
+                let mut avatar = service.retrieve_profile_avatar(&avatar).await?;
+                // 10MB is what Signal Android allocates
+                let mut contents = Vec::with_capacity(10 * 1024 * 1024);
+                let len = avatar.read_to_end(&mut contents).await?;
+                contents.truncate(len);
+                Ok((uuid, cipher.decrypt_avatar(&contents)?))
+            }
+            .into_actor(self)
+            .map(|res: anyhow::Result<_>, _act, ctx| {
+                match res {
+                    Ok((recipient_uuid, avatar)) => {
+                        ctx.notify(ProfileAvatarFetched(recipient_uuid, avatar))
+                    }
+                    Err(e) => {
+                        log::error!("During profile fetch: {}", e);
+                    }
+                };
+            }),
+        );
+    }
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct ProfileAvatarFetched(uuid::Uuid, Vec<u8>);
+
+impl Handler<ProfileAvatarFetched> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        ProfileAvatarFetched(uuid, bytes): ProfileAvatarFetched,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        match self.handle_profile_avatar_fetched(ctx, uuid, bytes) {
+            Ok(()) => {
+                // XXX this is basically incomplete.
+                // SessionActor should probably receive some NotifyRecipientUpdated
+                let session = self
+                    .inner
+                    .pinned()
+                    .borrow_mut()
+                    .session_actor
+                    .clone()
+                    .unwrap();
+                actix::spawn(async move {
+                    if let Err(e) = session.send(LoadAllSessions).await {
+                        log::error!("Could not reload sessions {}", e);
+                    }
+                });
+            }
+            Err(e) => {
+                log::warn!("Error with fetched avatar: {}", e);
+            }
+        }
+    }
+}
+
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 struct ProfileFetched(uuid::Uuid, Option<SignalServiceProfile>);
@@ -53,9 +155,9 @@ impl Handler<ProfileFetched> for ClientActor {
     fn handle(
         &mut self,
         ProfileFetched(uuid, profile): ProfileFetched,
-        _ctx: &mut Self::Context,
+        ctx: &mut Self::Context,
     ) -> Self::Result {
-        match self.handle_profile_fetched(uuid, profile) {
+        match self.handle_profile_fetched(ctx, uuid, profile) {
             Ok(()) => {
                 // XXX this is basically incomplete.
                 // SessionActor should probably receive some NotifyRecipientUpdated
@@ -82,6 +184,7 @@ impl Handler<ProfileFetched> for ClientActor {
 impl ClientActor {
     fn handle_profile_fetched(
         &mut self,
+        ctx: &mut <Self as Actor>::Context,
         recipient_uuid: Uuid,
         profile: Option<SignalServiceProfile>,
     ) -> anyhow::Result<()> {
@@ -115,6 +218,12 @@ impl ClientActor {
                 profile_decrypted
             );
 
+            if let Some(avatar) = &profile.avatar {
+                if !avatar.is_empty() {
+                    ctx.notify(RefreshProfileAvatar(recipient_uuid));
+                }
+            }
+
             diesel::update(recipients)
                 .set((
                     profile_given_name.eq(profile_decrypted.name.as_ref().map(|x| &x.given_name)),
@@ -139,6 +248,18 @@ impl ClientActor {
                 .expect("db");
         }
         // TODO For completeness, we should tickle the GUI for an update.
+
+        Ok(())
+    }
+
+    fn handle_profile_avatar_fetched(
+        &mut self,
+        _ctx: &mut <Self as Actor>::Context,
+        _recipient_uuid: Uuid,
+        bytes: Vec<u8>,
+    ) -> anyhow::Result<()> {
+        let mut f = std::fs::File::create("/tmp/avatar.jpg")?;
+        f.write_all(&bytes)?;
 
         Ok(())
     }
