@@ -1349,7 +1349,14 @@ impl Handler<Restart> for ClientActor {
                     act.ws = Some(ws);
                     act.inner.pinned().borrow().connectedChanged();
 
-                    ctx.notify(RestartOutdatedProfileStream);
+                    // If profile stream was running, restart.
+                    if let Some(handle) = act.outdated_profile_stream_handle.take() {
+                        ctx.cancel_future(handle);
+                    }
+                    ctx.add_stream(OutdatedProfileStream::new(
+                        act.storage.clone().unwrap(),
+                        act.config.clone(),
+                    ));
                 }
                 Err(e) => {
                     log::error!("Error starting stream: {}", e);
@@ -1376,7 +1383,7 @@ pub enum RefreshProfile {
 impl Handler<RefreshProfile> for ClientActor {
     type Result = ();
 
-    fn handle(&mut self, profile: RefreshProfile, ctx: &mut Self::Context) {
+    fn handle(&mut self, profile: RefreshProfile, _ctx: &mut Self::Context) {
         let storage = self.storage.as_ref().unwrap();
         let recipient = match profile {
             RefreshProfile::BySession(session_id) => {
@@ -1411,30 +1418,9 @@ impl Handler<RefreshProfile> for ClientActor {
             }
         };
         storage.mark_profile_outdated(recipient_uuid);
-        ctx.notify(RestartOutdatedProfileStream);
-    }
-}
-
-/// Send this message to restart the profile fetching subsystem.
-///
-/// This is useful when e.g. a profile key gets updated.
-#[derive(Message)]
-#[rtype(result = "()")]
-struct RestartOutdatedProfileStream;
-
-impl Handler<RestartOutdatedProfileStream> for ClientActor {
-    type Result = ();
-
-    fn handle(&mut self, _: RestartOutdatedProfileStream, ctx: &mut Self::Context) {
-        log::trace!("Restarting profile worker");
-        // If profile stream was running, restart.
-        if let Some(handle) = self.outdated_profile_stream_handle.take() {
-            ctx.cancel_future(handle);
-        }
-        ctx.add_stream(OutdatedProfileStream::new(
-            self.storage.clone().unwrap(),
-            self.config.clone(),
-        ));
+        // Polling the actor will poll the OutdatedProfileStream, which should immediately fire the
+        // necessary events.  This is hacky, we should in fact wake the stream somehow to ensure
+        // correct behaviour.
     }
 }
 

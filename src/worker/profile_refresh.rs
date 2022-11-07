@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
@@ -20,7 +21,7 @@ const REYIELD_DELAY: Duration = Duration::from_secs(5 * 60);
 ///
 /// Only yields a UUID once every 5 minutes.
 pub struct OutdatedProfileStream {
-    ignore_set: Vec<(Instant, Uuid)>,
+    ignore_map: HashMap<Uuid, Instant>,
     storage: Storage,
     config: Arc<SignalConfig>,
     next_wake: Option<Pin<Box<tokio::time::Sleep>>>,
@@ -31,7 +32,7 @@ pub struct OutdatedProfile(pub Uuid, pub ProfileKey);
 impl OutdatedProfileStream {
     pub fn new(storage: Storage, config: Arc<SignalConfig>) -> Self {
         Self {
-            ignore_set: Vec::new(),
+            ignore_map: HashMap::new(),
             storage,
             config,
             next_wake: None,
@@ -39,8 +40,11 @@ impl OutdatedProfileStream {
     }
 
     fn clean_ignore_set(&mut self) {
-        self.ignore_set
-            .retain(|(time, _uuid)| *time > Instant::now());
+        // XXX The ignore set should also get cleaned if an external trigger is fired for
+        // refreshing a profile.  Currently, this external trigger will only be able to fire every
+        // 5 minutes.
+        self.ignore_map.retain(|_uuid, time| *time > Instant::now());
+        log::debug!("Ignoring profiles for outdatedness: {:?}", self.ignore_map);
     }
 
     fn next_out_of_date_profile(&mut self) -> Option<OutdatedProfile> {
@@ -83,14 +87,11 @@ impl OutdatedProfileStream {
                 log::warn!("Invalid profile key in db. Skipping.");
                 continue;
             }
-            match self
-                .ignore_set
-                .binary_search_by(|(_time, other_uuid)| other_uuid.cmp(&recipient_uuid))
-            {
-                Ok(_present) => continue,
-                Err(idx) => {
-                    self.ignore_set
-                        .insert(idx, (Instant::now() + REYIELD_DELAY, recipient_uuid));
+            match self.ignore_map.get(&recipient_uuid) {
+                Some(_present) => continue,
+                None => {
+                    self.ignore_map
+                        .insert(recipient_uuid, Instant::now() + REYIELD_DELAY);
                     let mut profile_key_arr = [0u8; 32];
                     profile_key_arr.copy_from_slice(profile_key_bytes);
                     return Some(OutdatedProfile(
@@ -107,7 +108,7 @@ impl OutdatedProfileStream {
     fn compute_next_wake(&mut self) -> bool {
         // Either the next wake is because of the ignore set, or if that's empty, the next one in
         // the database.
-        if let Some((time, _)) = self.ignore_set.iter().min_by_key(|(time, _)| time) {
+        if let Some((_, time)) = self.ignore_map.iter().min_by_key(|(_, time)| *time) {
             self.next_wake = Some(Box::pin(tokio::time::sleep_until(
                 tokio::time::Instant::from_std(*time),
             )));
