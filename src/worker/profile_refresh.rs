@@ -54,15 +54,15 @@ impl OutdatedProfileStream {
         let out_of_date_profiles: Vec<Recipient> = recipients
             .filter(
                 // Keep this filter in sync with the one below
-                profile_key.is_not_null().and(
-                    uuid.is_not_null()
-                        .and(
-                            last_profile_fetch
-                                .is_null()
-                                .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
-                        )
-                        .and(uuid.ne(self.config.get_uuid_clone())),
-                ),
+                profile_key
+                    .is_not_null()
+                    .and(uuid.is_not_null())
+                    .and(
+                        last_profile_fetch
+                            .is_null()
+                            .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
+                    )
+                    .and(uuid.ne(self.config.get_uuid_clone())),
             )
             .order_by(last_profile_fetch.asc())
             .load(&*db)
