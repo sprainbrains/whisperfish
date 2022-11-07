@@ -85,8 +85,9 @@ Page {
                     : ''
                 isGroup: true
                 showInfoMark: true
-                infoMark.source: 'image://theme/icon-s-chat'
-                infoMark.size: 0.9*Theme.iconSizeSmallPlus
+                infoMarkSource: 'image://theme/icon-s-chat'
+                infoMarkSize: 0.9*Theme.iconSizeSmallPlus
+                infoMarkEmoji: MessageModel.aboutEmoji
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: {
                     // TODO Implement a new page derived from ViewImagePage for showing

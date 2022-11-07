@@ -112,7 +112,7 @@ Page {
                     : ''
                 isGroup: true
                 showInfoMark: true
-                infoMark.source: 'image://theme/icon-s-group-chat' // edit
+                infoMarkSource: 'image://theme/icon-s-group-chat' // edit
                 infoMarkSize: 0.9*Theme.iconSizeSmallPlus
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: {

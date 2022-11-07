@@ -29,6 +29,7 @@ ListItem {
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
     property string name: model.isGroup ? model.groupName : ( contact == null ? model.recipientName : contact.displayLabel )
+    property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
         (hasAttachment && model.message === ''
@@ -134,8 +135,9 @@ ListItem {
             imageSource: profilePicture
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
-            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || hasAttachment || isMuted
-            infoMark.source: {
+            // TODO: Rework infomarks to four corners or something like that; we can currently show only one status or emoji
+            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || hasAttachment || isMuted || infoMarkEmoji !== ''
+            infoMarkSource: {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (isPinned) 'image://theme/icon-s-high-importance'
@@ -144,7 +146,8 @@ ListItem {
                 else if (hasAttachment) 'image://theme/icon-s-attach'
                 else ''
             }
-            infoMark.rotation: {
+            infoMarkEmoji: delegate.emoji
+            infoMarkRotation: {
                 if (hasDraft) -90
                 else 0
             }
