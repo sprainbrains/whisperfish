@@ -3,6 +3,7 @@ use libsignal_service::{
     profile_cipher::ProfileCipher, profile_service::ProfileService,
     push_service::SignalServiceProfile,
 };
+use tokio::io::AsyncWriteExt;
 
 use crate::worker::profile_refresh::OutdatedProfile;
 
@@ -114,34 +115,55 @@ impl Handler<RefreshProfileAvatar> for ClientActor {
 pub struct ProfileAvatarFetched(uuid::Uuid, Vec<u8>);
 
 impl Handler<ProfileAvatarFetched> for ClientActor {
-    type Result = ();
+    type Result = ResponseActFuture<Self, ()>;
 
     fn handle(
         &mut self,
         ProfileAvatarFetched(uuid, bytes): ProfileAvatarFetched,
-        ctx: &mut Self::Context,
+        _ctx: &mut Self::Context,
     ) -> Self::Result {
-        match self.handle_profile_avatar_fetched(ctx, uuid, bytes) {
-            Ok(()) => {
-                // XXX this is basically incomplete.
-                // SessionActor should probably receive some NotifyRecipientUpdated
-                let session = self
-                    .inner
-                    .pinned()
-                    .borrow_mut()
-                    .session_actor
-                    .clone()
-                    .unwrap();
-                actix::spawn(async move {
-                    if let Err(e) = session.send(LoadAllSessions).await {
-                        log::error!("Could not reload sessions {}", e);
+        Box::pin(
+            async move {
+                let settings = crate::config::Settings::default();
+                let avatar_dir = settings.get_string("avatar_dir");
+                let avatar_dir = Path::new(&avatar_dir);
+
+                if !avatar_dir.exists() {
+                    std::fs::create_dir(avatar_dir)?;
+                }
+
+                let out_path = avatar_dir.join(uuid.to_string());
+
+                let mut f = tokio::fs::File::create(out_path).await?;
+                f.write_all(&bytes).await?;
+
+                Ok(())
+            }
+            .into_actor(self)
+            .map(move |res: anyhow::Result<_>, act, _ctx| {
+                match res {
+                    Ok(()) => {
+                        // XXX this is basically incomplete.
+                        // SessionActor should probably receive some NotifyRecipientUpdated
+                        let session = act
+                            .inner
+                            .pinned()
+                            .borrow_mut()
+                            .session_actor
+                            .clone()
+                            .unwrap();
+                        actix::spawn(async move {
+                            if let Err(e) = session.send(LoadAllSessions).await {
+                                log::error!("Could not reload sessions {}", e);
+                            }
+                        });
                     }
-                });
-            }
-            Err(e) => {
-                log::warn!("Error with fetched avatar: {}", e);
-            }
-        }
+                    Err(e) => {
+                        log::warn!("Error with fetched avatar: {}", e);
+                    }
+                }
+            }),
+        )
     }
 }
 
@@ -248,18 +270,6 @@ impl ClientActor {
                 .expect("db");
         }
         // TODO For completeness, we should tickle the GUI for an update.
-
-        Ok(())
-    }
-
-    fn handle_profile_avatar_fetched(
-        &mut self,
-        _ctx: &mut <Self as Actor>::Context,
-        _recipient_uuid: Uuid,
-        bytes: Vec<u8>,
-    ) -> anyhow::Result<()> {
-        let mut f = std::fs::File::create("/tmp/avatar.jpg")?;
-        f.write_all(&bytes)?;
 
         Ok(())
     }
