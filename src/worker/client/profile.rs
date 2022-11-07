@@ -108,18 +108,24 @@ impl ClientActor {
                 );
             };
 
-            let profile = profile.decrypt(cipher)?;
+            let profile_decrypted = profile.decrypt(cipher)?;
 
-            log::info!("Decrypted profile {:?}.  Updating database.", profile);
+            log::info!(
+                "Decrypted profile {:?}.  Updating database.",
+                profile_decrypted
+            );
 
             diesel::update(recipients)
                 .set((
-                    profile_given_name.eq(profile.name.as_ref().map(|x| &x.given_name)),
-                    profile_family_name
-                        .eq(profile.name.as_ref().and_then(|x| x.family_name.as_ref())),
-                    profile_joined_name.eq(profile.name.as_ref().map(|x| x.to_string())),
-                    about.eq(profile.about),
-                    about_emoji.eq(profile.about_emoji),
+                    profile_given_name.eq(profile_decrypted.name.as_ref().map(|x| &x.given_name)),
+                    profile_family_name.eq(profile_decrypted
+                        .name
+                        .as_ref()
+                        .and_then(|x| x.family_name.as_ref())),
+                    profile_joined_name.eq(profile_decrypted.name.as_ref().map(|x| x.to_string())),
+                    about.eq(profile_decrypted.about),
+                    about_emoji.eq(profile_decrypted.about_emoji),
+                    signal_profile_avatar.eq(profile.avatar),
                     last_profile_fetch.eq(Utc::now().naive_utc()),
                 ))
                 .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
