@@ -967,11 +967,10 @@ impl Handler<SendMessage> for ClientActor {
                             .context("reading attachment")?;
                     let attachment_path = attachment.attachment_path.as_ref().unwrap();
                     let spec = AttachmentSpec {
-                        content_type: mime_guess::from_path(&attachment_path)
-                            .first()
-                            .unwrap()
-                            .essence_str()
-                            .into(),
+                        content_type: match mime_guess::from_path(&attachment_path).first() {
+                            Some(mime) => mime.essence_str().into(),
+                            None => String::from("application/octet-stream"),
+                        },
                         length: contents.len(),
                         file_name: Path::new(&attachment_path)
                             .file_name()
