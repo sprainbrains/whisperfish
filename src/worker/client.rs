@@ -299,7 +299,7 @@ impl ClientActor {
             // XXX Update profile key (which happens just below); don't insert this message.
         }
 
-        if source_e164.is_some() || source_uuid.is_some() {
+        if (source_e164.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
                 let (_, was_updated) = storage.update_profile_key(
                     source_e164.as_deref(),
