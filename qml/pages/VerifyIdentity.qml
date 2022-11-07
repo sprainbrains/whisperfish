@@ -47,7 +47,7 @@ Page {
                 //: Refresh contact profile menu item
                 //% "Refresh Signal profile"
                 text: qsTrId("whisperfish-refresh-profile-menu")
-                enabled: ! MessageModel.group
+                visible: ! MessageModel.group && SettingsBridge.boolValue("debug_mode")
                 onClicked: {
                     ClientWorker.refresh_profile(MessageModel.sessionId)
                 }
