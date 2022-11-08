@@ -31,6 +31,9 @@ pub struct GroupV2 {
     pub access_required_for_attributes: i32,
     pub access_required_for_members: i32,
     pub access_required_for_add_from_invite_link: i32,
+
+    pub avatar: Option<String>,
+    pub description: Option<String>,
 }
 
 #[derive(Queryable, Insertable, Debug, Clone)]

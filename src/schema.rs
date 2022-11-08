@@ -72,6 +72,8 @@ table! {
         access_required_for_attributes -> Integer,
         access_required_for_members -> Integer,
         access_required_for_add_from_invite_link -> Integer,
+        avatar -> Nullable<Text>,
+        description -> Nullable<Text>,
     }
 }
 
