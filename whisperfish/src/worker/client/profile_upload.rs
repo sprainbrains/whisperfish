@@ -2,8 +2,6 @@ use super::*;
 use crate::store::TrustLevel;
 use actix::prelude::*;
 use libsignal_service::profile_name::ProfileName;
-use libsignal_service::push_service::AccountAttributes;
-use libsignal_service::push_service::DeviceCapabilities;
 use rand::Rng;
 use zkgroup::profiles::ProfileKey;
 
@@ -122,7 +120,6 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 .expect("self set by now");
 
             let mut am = AccountManager::new(service, self_recipient.profile_key());
-            // XXX centralize the place where attributes are generated.
             let account_attributes = AccountAttributes {
                 signaling_key: None,
                 registration_id,
@@ -134,16 +131,7 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 unidentified_access_key: None,
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
-                capabilities: DeviceCapabilities {
-                    announcement_group: false,
-                    gv2: true,
-                    storage: false,
-                    gv1_migration: true,
-                    sender_key: false,
-                    change_number: false,
-                    gift_badges: false,
-                    stories: false,
-                },
+                capabilities: whisperfish_device_capabilities(),
                 name: "Whisperfish".into(),
             };
             am.set_account_attributes(account_attributes)

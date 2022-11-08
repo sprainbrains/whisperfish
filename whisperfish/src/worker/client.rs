@@ -35,7 +35,9 @@ use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::typing_message::Action;
 use libsignal_service::provisioning::ProvisioningManager;
-use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
+use libsignal_service::push_service::{
+    AccountAttributes, DeviceCapabilities, DeviceId, DEFAULT_DEVICE_ID,
+};
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::websocket::SignalWebSocket;
 use libsignal_service::AccountManager;
@@ -146,6 +148,19 @@ pub struct ClientActor {
     start_time: DateTime<Local>,
 
     outdated_profile_stream_handle: Option<SpawnHandle>,
+}
+
+fn whisperfish_device_capabilities() -> DeviceCapabilities {
+    DeviceCapabilities {
+        announcement_group: false,
+        gv2: true,
+        storage: false,
+        gv1_migration: true,
+        sender_key: true,
+        change_number: false,
+        gift_badges: false,
+        stories: false,
+    }
 }
 
 impl ClientActor {
@@ -1555,7 +1570,6 @@ impl Handler<ConfirmRegistration> for ClientActor {
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
         use libsignal_service::provisioning::*;
-        use libsignal_service::push_service::{AccountAttributes, DeviceCapabilities};
 
         let ConfirmRegistration {
             phonenumber,
@@ -1593,16 +1607,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 unidentified_access_key: None,
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
-                capabilities: DeviceCapabilities {
-                    announcement_group: false,
-                    gv2: true,
-                    storage: false,
-                    gv1_migration: true,
-                    sender_key: false,
-                    change_number: false,
-                    gift_badges: false,
-                    stories: false,
-                },
+                capabilities: whisperfish_device_capabilities(),
                 name: "Whisperfish".into(),
             };
             provisioning_manager
