@@ -32,13 +32,14 @@ ListItem {
     property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
-        (hasAttachment && model.message === ''
-            // TODO we could show an icon in front
-            //: Session contains an attachment label
-            //% "Attachment"
-            ? qsTrId("whisperfish-session-has-attachment")
-            : model.message
-        )
+        (hasAttachment
+            ? ("📎 " + (model.message === ''
+                // TODO we could show an icon in front
+                //: Session contains an attachment label
+                //% "Attachment"
+                ? qsTrId("whisperfish-session-has-attachment") : '')
+            ) : ''
+        ) + model.message
 
     signal relocateItem(int sessionId)
 
@@ -136,14 +137,13 @@ ListItem {
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
             // TODO: Rework infomarks to four corners or something like that; we can currently show only one status or emoji
-            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || hasAttachment || isMuted || infoMarkEmoji !== ''
+            showInfoMark: isPinned || isArchived || hasDraft || isNoteToSelf || isMuted || infoMarkEmoji !== ''
             infoMarkSource: {
                 if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (isPinned) 'image://theme/icon-s-high-importance'
                 else if (isArchived) 'image://theme/icon-s-time'
                 else if (isMuted) 'image://theme/icon-s-low-importance'
-                else if (hasAttachment) 'image://theme/icon-s-attach'
                 else ''
             }
             infoMarkEmoji: delegate.emoji
