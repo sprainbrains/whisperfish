@@ -696,6 +696,14 @@ impl AugmentedSession {
         }
     }
 
+    fn has_avatar(&self) -> bool {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_) => false,
+            orm::SessionType::GroupV2(group) => group.avatar.is_some(),
+            orm::SessionType::DirectMessage(recipient) => recipient.signal_profile_avatar.is_some(),
+        }
+    }
+
     fn has_attachment(&self) -> bool {
         if let Some(m) = &self.last_message {
             !m.attachments.is_empty()
@@ -832,6 +840,7 @@ define_model_roles! {
         IsPinned(fn is_pinned(&self)):                                     "isPinned",
         Viewed(fn viewed(&self)):                                          "viewCount",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment",
+        HasAvatar(fn has_avatar(&self)):                                   "hasAvatar",
 
         IsTyping(fn is_typing(&self)):                                     "isTyping",
         Typing(fn typing(&self)):                                          "typing",
