@@ -450,7 +450,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="50"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Atnaujinti Signal profilį</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="59"/>
