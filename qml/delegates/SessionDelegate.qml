@@ -28,7 +28,7 @@ ListItem {
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
-    property string name: model.isGroup ? model.groupName : ( contact == null ? model.recipientName : contact.displayLabel )
+    property string name: model.isGroup ? model.groupName : ( model.recipientName !== '' ? model.recipientName : (contact ? contact.displayLabel : ( model.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : model.source)))
     property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
