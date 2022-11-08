@@ -74,11 +74,11 @@ Page {
                              "" : MessageModel.peerTel)
         }
         // TODO implement in model (#192)
-        property string profilePicturePath: typeof model !== 'undefined' ? (isGroup
+        property string profilePicturePath: model !== undefined ? (isGroup
             ? (model.groupId       !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId       :  '')
             : (model.recipientUuid !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.recipientUuid :  '')
         ) : ''
-        property string profilePicture: model.hasAvatar ? profilePicturePath : (contact ? contact.avatarPath : '')
+        property string profilePicture: model !== undefined && model.hasAvatar ? profilePicturePath : (contact ? contact.avatarPath : '')
     }
 
     // Desired design:

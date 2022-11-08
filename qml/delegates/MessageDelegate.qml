@@ -82,7 +82,7 @@ ListItem {
     readonly property bool isInGroup: MessageModel.group
     readonly property bool isEmpty: !hasText && !hasAttachments
     property bool isExpanded: false
-    property bool isSelected: listView.selectedMessages[modelData.id] !== undefined
+    property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 
     property var reactions: hasReactions ? modelData.reactions.split(',') : []
 
@@ -187,7 +187,7 @@ ListItem {
             width: delegateContentWidth
             backgroundGrow: contentPadding/2
             backgroundItem.radius: backgroundCornerRadius
-            enabled: !listView.isSelecting
+            enabled: listView !== null && !listView.isSelecting
         }
 
         Item { width: 1; height: showSender ? senderNameLabel.backgroundGrow+Theme.paddingSmall : 0 }
@@ -255,7 +255,7 @@ ListItem {
                                     (emojiCount <= 2 ? 1.5*Theme.fontSizeLarge :
                                                        1.0*Theme.fontSizeLarge) :
                                     Theme.fontSizeSmall // TODO make configurable
-                defaultLinkActions: !listView.isSelecting
+                defaultLinkActions: listView !== null && !listView.isSelecting
             }
         }
 
@@ -263,7 +263,7 @@ ListItem {
 
         EmojiRow {
             id: emojiRow
-            property real minContentWidth: item && item.minContentWidth ? item.minContentWidth : 0
+            property real minContentWidth: item !== undefined && item.minContentWidth ? item.minContentWidth : 0
             width: delegateContentWidth
         }
 
@@ -271,7 +271,7 @@ ListItem {
 
         Loader {
             id: infoRow
-            property real minContentWidth: item ? item.minContentWidth : 0
+            property real minContentWidth: item !== undefined ? item.minContentWidth : 0
             width: delegateContentWidth
             height: Theme.fontSizeExtraSmall
             asynchronous: true
