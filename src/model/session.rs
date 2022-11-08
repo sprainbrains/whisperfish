@@ -674,7 +674,9 @@ impl AugmentedSession {
         match &self.session.r#type {
             orm::SessionType::GroupV1(_group) => "",
             orm::SessionType::GroupV2(_group) => "",
-            orm::SessionType::DirectMessage(recipient) => recipient.name(),
+            orm::SessionType::DirectMessage(recipient) => {
+                recipient.profile_joined_name.as_deref().unwrap_or_default()
+            }
         }
     }
 
