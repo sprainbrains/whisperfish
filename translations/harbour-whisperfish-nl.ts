@@ -620,13 +620,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="13"/>
         <source>Link as secondary device</source>
         <extracomment>register as secondary device qr page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Als secundair apparaat koppelen</translation>
     </message>
     <message id="whisperfish-register-linked-message">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="17"/>
         <source>Please scan the QR code below using the Signal app.</source>
         <extracomment>User instructions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Scan de onderstaande QR-code met de Signal app.</translation>
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="33"/>
@@ -961,7 +961,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish heeft niet de toestemming om de instellingen voor automatisch starten te wijzigen. Je kan automatisch starten manueel aan- of uitzetten van de commandolijn door &apos;systemctl --user enable harbour-whisperfish.service&apos; of &apos;systemctl --user disable harbour-whisperfish.service&apos; uit te voeren</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="340"/>
@@ -1579,19 +1579,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="17"/>
         <source>Do you want to register whisperfish as primariy device or link it as secondary device to an existing signal app?</source>
         <extracomment>registration type prompt text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wil je Whisperfish registreren als primair apparaat of het linken als secundair apparaat aan en bestaande Signal app?</translation>
     </message>
     <message id="whisperfish-register-primary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="48"/>
         <source>Primary device</source>
         <extracomment>register as primary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Primair apparaat</translation>
     </message>
     <message id="whisperfish-register-secondary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="57"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Secundair apparaat</translation>
     </message>
 </context>
 </TS>
