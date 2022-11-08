@@ -61,14 +61,15 @@ Page {
                     name = qsTrId("whisperfish-unknown-contact")
                     isUnknown = true
                 }
+                // XXX accessing the hasAvatar property is impossible here, for now
+                var profilePicture =  SettingsBridge.stringValue("avatar_dir") + "/" + uuids[i]
 
                 append({"contactId": members[i],
                            "name": name,
                            "isUnknown": isUnknown,
                            "isVerified": isVerified,
                            "isSelf": isSelf,
-                           // TODO implement in model (#192)
-                           "profilePicture": useAvatars ? SettingsBridge.stringValue("avatar_dir") + "/" + uuids[i] : ''
+                           "profilePicture": profilePicture
                        })
             }
         }

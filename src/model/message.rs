@@ -96,6 +96,7 @@ pub struct MessageModel {
     peerName: qt_property!(QString; NOTIFY peerChanged),
     peerTel: qt_property!(QString; NOTIFY peerChanged),
     peerUuid: qt_property!(QString; NOTIFY peerChanged),
+    peerHasAvatar: qt_property!(bool; NOTIFY peerChanged),
     aboutEmoji: qt_property!(QString; NOTIFY peerChanged),
     aboutText: qt_property!(QString; NOTIFY peerChanged),
 
@@ -488,6 +489,7 @@ impl MessageModel {
             orm::SessionType::GroupV1(group) => {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
+                self.peerHasAvatar = false;
                 self.peerName = QString::from(group.name.deref());
                 self.aboutEmoji = QString::from("");
                 self.aboutText = QString::from("");
@@ -514,6 +516,7 @@ impl MessageModel {
             orm::SessionType::GroupV2(group) => {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
+                self.peerHasAvatar = false;
                 self.peerName = QString::from(group.name.deref());
                 self.aboutEmoji = QString::from("");
                 self.aboutText = QString::from("");
@@ -546,6 +549,7 @@ impl MessageModel {
 
                 self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
                 self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
+                self.peerHasAvatar = recipient.signal_profile_avatar.is_some();
                 self.peerName = QString::from(recipient.name());
                 self.aboutEmoji = QString::from(recipient.about_emoji.as_deref().unwrap_or(""));
                 self.aboutText = QString::from(recipient.about.as_deref().unwrap_or(""));
