@@ -221,81 +221,81 @@
         <translation>Instala o Signal Desktop. Usa a aplicação CodeReader para ler o código QR exibido no Signal Desktop e copia o endereço para aqui.</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="230"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Adicionar membro</translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="46"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="52"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>Desconhecido</translation>
     </message>
     <message id="whisperfish-group-updated-to-groupv2">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="78"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="84"/>
         <source>Updated to the new group format</source>
         <extracomment>Indicator for updated groups</extracomment>
         <translation>Grupo atualizado para o novo formato</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="81"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="87"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Grupo não atualizado para o novo formato</translation>
     </message>
     <message id="whisperfish-group-refresh">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="187"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
         <translation>Atualizar grupo</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="202"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Sair deste grupo</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="204"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="210"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>Saíste do grupo e todas as mensagens do grupo foram apagadas</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="223"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Criar ligação de convite</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="254"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Mensagem para %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="263"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="269"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Adicionar aos contactos</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="270"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="276"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Verificar número de segurança</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="284"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="290"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Remover deste grupo</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="319"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="325"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Tu</translation>
@@ -386,73 +386,73 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-archived-menu">
-        <location filename="../qml/pages/MainPage.qml" line="91"/>
+        <location filename="../qml/pages/MainPage.qml" line="92"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
-        <location filename="../qml/pages/MainPage.qml" line="94"/>
+        <location filename="../qml/pages/MainPage.qml" line="95"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-new-message-menu">
-        <location filename="../qml/pages/MainPage.qml" line="112"/>
+        <location filename="../qml/pages/MainPage.qml" line="113"/>
         <source>New Message</source>
         <extracomment>Whisperfish new message menu item</extracomment>
         <translation>Nova mensagem</translation>
     </message>
     <message id="whisperfish-subtitle-active-conversations">
-        <location filename="../qml/pages/MainPage.qml" line="227"/>
+        <location filename="../qml/pages/MainPage.qml" line="228"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
-        <location filename="../qml/pages/MainPage.qml" line="230"/>
+        <location filename="../qml/pages/MainPage.qml" line="231"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-registration-required-message">
-        <location filename="../qml/pages/MainPage.qml" line="242"/>
+        <location filename="../qml/pages/MainPage.qml" line="243"/>
         <source>Registration required</source>
         <extracomment>Whisperfish registration required message</extracomment>
         <translation>Registo necessário</translation>
     </message>
     <message id="whisperfish-locked-message">
-        <location filename="../qml/pages/MainPage.qml" line="246"/>
+        <location filename="../qml/pages/MainPage.qml" line="247"/>
         <source>Locked</source>
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Bloqueado</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="250"/>
+        <location filename="../qml/pages/MainPage.qml" line="251"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Desliza para baixo para iniciar uma nova conversa.</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
-        <location filename="../qml/pages/MainPage.qml" line="266"/>
+        <location filename="../qml/pages/MainPage.qml" line="267"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/MainPage.qml" line="271"/>
+        <location filename="../qml/pages/MainPage.qml" line="272"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Hoje</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/MainPage.qml" line="276"/>
+        <location filename="../qml/pages/MainPage.qml" line="277"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Ontem</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="281"/>
+        <location filename="../qml/pages/MainPage.qml" line="282"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Mais antigas</translation>
@@ -1169,20 +1169,26 @@ Settings page share contacts</extracomment>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>Repor a sessão segura</translation>
     </message>
-    <message id="whisperfish-show-contact-page-menu">
+    <message id="whisperfish-refresh-profile-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="49"/>
+        <source>Refresh Signal profile</source>
+        <extracomment>Refresh contact profile menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-show-contact-page-menu">
+        <location filename="../qml/pages/VerifyIdentity.qml" line="58"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Mostrar contacto</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="70"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="79"/>
         <source>Verify safety numbers</source>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Verificar números de segurança</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="90"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="99"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Para verificar a segurança da criptografia ponta-a-ponta com %1, compara os números acima com os números no outro dispositivo.</translation>
@@ -1287,7 +1293,7 @@ Settings page share contacts</extracomment>
         <translation>Seleciona anexos</translation>
     </message>
     <message id="whisperfish-attachments-plus-n" numerus="yes">
-        <location filename="../qml/components/message/AttachmentsLoader.qml" line="220"/>
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="222"/>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
@@ -1296,7 +1302,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
-        <location filename="../qml/components/message/AttachmentsLoader.qml" line="287"/>
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="289"/>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
@@ -1337,13 +1343,13 @@ Settings page share contacts</extracomment>
         <translation>Anexo</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="176"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="181"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation>sem remetente</translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="231"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="236"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation>esta mensagem está vazia</translation>
