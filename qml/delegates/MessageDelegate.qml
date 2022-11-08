@@ -33,9 +33,10 @@ ListItem {
     // DATA PROPERTIES: bound to modelData, proxied because the delegate is not used directly
     property ListView listView: ListView.view
     property int index: hasData ? modelData.index : -1
-    // TODO Attachments with mimetype text/x-signal-plain have to be
-    // treated as extra long messages.
-    readonly property string _message: hasData && modelData.message ? modelData.message.trim() : ''
+
+    property string fullMessageText: ""
+
+    readonly property string _message: fullMessageText !== "" ? fullMessageText : (hasData && modelData.message ? modelData.message.trim() : '')
     readonly property string _source: hasData && modelData.source ? modelData.source.trim() : ''
     readonly property string _name: hasData && modelData.peerName ? modelData.peerName.trim() : ''
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
