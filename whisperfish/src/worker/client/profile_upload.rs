@@ -1,7 +1,7 @@
 use super::*;
 use crate::store::TrustLevel;
 use actix::prelude::*;
-use libsignal_service::profile_name::ProfileName;
+use libsignal_service::{profile_name::ProfileName, push_service};
 use rand::Rng;
 use zkgroup::profiles::ProfileKey;
 
@@ -119,7 +119,13 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 .fetch_self_recipient(&config)
                 .expect("self set by now");
 
-            let mut am = AccountManager::new(service, self_recipient.profile_key());
+            let profile_key = self_recipient.profile_key();
+            let mut am = AccountManager::new(service, profile_key);
+            let unidentified_access_key = profile_key
+                .map(push_service::ProfileKey)
+                .as_ref()
+                .map(push_service::ProfileKey::derive_access_key);
+
             let account_attributes = AccountAttributes {
                 signaling_key: None,
                 registration_id,
@@ -128,7 +134,7 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 fetches_messages: true,
                 pin: None,
                 registration_lock: None,
-                unidentified_access_key: None,
+                unidentified_access_key,
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
                 capabilities: whisperfish_device_capabilities(),
