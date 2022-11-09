@@ -4,38 +4,40 @@
 <context>
     <name></name>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="33"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="41"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Bijlage</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="50"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="58"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation>Alle berichten zijn verwijderd</translation>
     </message>
     <message id="whisperfish-typing-1">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="79"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
         <translation>%1 is aan ’t typen</translation>
     </message>
     <message id="whisperfish-typing-2">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="83"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="91"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
         <translation>%1 en %2 zijn aan ’t typen</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="95"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
         <translation>%1 en nog %n andere zijn aan ’t typen</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="174"/>
+        <location filename="../qml/cover/CoverPage.qml" line="117"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="32"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="183"/>
         <location filename="../qml/pages/ConversationPage.qml" line="18"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="91"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="90"/>
@@ -44,51 +46,51 @@
         <translation>Nota aan mijn eigen</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="193"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="202"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Concept: %1</translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="294"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="303"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
         <translation>Losmaken</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="297"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="306"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
         <translation>Vanboven vastpinnen</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="306"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="315"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation>Dempen opheffen</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="309"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="318"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation>Dempen</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="326"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
         <translation>Terugzetten naar postvak IN</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="329"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
         <translation>Gesprek archiveren</translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="327"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="336"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Gesprek verwijderen</translation>
@@ -419,44 +421,44 @@
         <translation>Herzenden</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="19"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="20"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation>Identiteitssleutel herinstellen</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="25"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation>Identiteitssleutel heringesteld</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="34"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="35"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Beveiligde sessie herinstellen</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="39"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="40"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>De beveiligde sessie is heringesteld</translation>
     </message>
     <message id="whisperfish-refresh-profile-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="49"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="50"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="58"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="59"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Contact tônen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="99"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="130"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Vergelijkt de cijferkes hierboven me’ de die op ’t toestel van %1 voôr de veiligheid van u eind-tot-eind-versleuteling te verifiëren.</translation>
@@ -1109,88 +1111,88 @@ Settings page share contacts</extracomment>
         <translation>Uitgeschakeld</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="79"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="110"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Veiligheidsnumero’s verifiëren</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="230"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Lid toevoegen</translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="52"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="61"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>Ongekend</translation>
     </message>
     <message id="whisperfish-group-updated-to-groupv2">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="84"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="96"/>
         <source>Updated to the new group format</source>
         <extracomment>Indicator for updated groups</extracomment>
         <translation>Bijgewèrkt naar ’t nief groepsformaat</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="87"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="99"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Ni bijgewèrkt naar ’t nief groepsformaat</translation>
     </message>
     <message id="whisperfish-group-refresh">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="206"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
         <translation>Groep vernieven</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="202"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Deze groep verlaten</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="210"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="223"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>G’hed de groep verlaten en alle berichten dervan zijn verwijderd</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="223"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Uitnôdigingslink aanmaken</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="260"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="274"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Bericht aan %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="269"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="283"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Toevoegen aan contacten</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="276"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="290"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Veiligheidsnumero verifiëren</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="290"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="304"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Verwijderen uit deze groep</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="325"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="339"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Gij</translation>
@@ -1345,13 +1347,13 @@ Settings page share contacts</extracomment>
         <translation>Bijlage</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="181"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="182"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation>gênen afzender</translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="236"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="237"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation>da’s hier gewoôn e leeg bericht se, awel merci</translation>
@@ -1452,19 +1454,19 @@ Settings page share contacts</extracomment>
         <translation>Opslaan in den adresboek</translation>
     </message>
     <message id="whisperfish-expanded-message-page-header">
-        <location filename="../qml/pages/ExpandedMessagePage.qml" line="30"/>
+        <location filename="../qml/pages/ExpandedMessagePage.qml" line="57"/>
         <source>Full message</source>
         <extracomment>Page title for a very long message shown on a page of its own</extracomment>
         <translation>Gans ’t bericht</translation>
     </message>
     <message id="whisperfish-expanded-message-info-outbound">
-        <location filename="../qml/pages/ExpandedMessagePage.qml" line="34"/>
+        <location filename="../qml/pages/ExpandedMessagePage.qml" line="61"/>
         <source>to %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
         <translation>aan %1</translation>
     </message>
     <message id="whisperfish-expanded-message-info-inbound">
-        <location filename="../qml/pages/ExpandedMessagePage.qml" line="37"/>
+        <location filename="../qml/pages/ExpandedMessagePage.qml" line="64"/>
         <source>from %1</source>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
         <translation>van %1</translation>
@@ -1488,7 +1490,7 @@ Settings page share contacts</extracomment>
         <translation>’t Afspelen is mislukt</translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="274"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="279"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
@@ -1498,7 +1500,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="298"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="303"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
@@ -1507,7 +1509,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="307"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="312"/>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1517,13 +1519,13 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="315"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="320"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation>Berichtinfo tônen</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="329"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="334"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1533,7 +1535,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="338"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="343"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1543,7 +1545,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="350"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="355"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
