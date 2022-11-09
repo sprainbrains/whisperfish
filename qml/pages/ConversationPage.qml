@@ -73,6 +73,11 @@ Page {
             else return (MessageModel.peerName === MessageModel.peerTel ?
                              "" : MessageModel.peerTel)
         }
+        // TODO implement in model (#192)
+        property string profilePicturePath: isGroup
+            ? (MessageModel.groupId       !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.groupId       :  '')
+            : (MessageModel.peerUuid !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.peerUuid :  '')
+        profilePicture: MessageModel.peerHasAvatar ? profilePicturePath : (contact ? contact.avatarPath : '')
     }
 
     // Desired design:

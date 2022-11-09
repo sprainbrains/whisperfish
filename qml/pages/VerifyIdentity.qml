@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.TextLinking 1.0
+import "../components"
 
 Page {
     id: verifyIdentity
@@ -71,6 +72,36 @@ Page {
 
             PageHeader {
                 title: MessageModel.peerName
+                description: MessageModel.aboutText
+            }
+
+            ProfilePicture {
+                height: 2*Theme.itemSizeLarge
+                width: height
+                highlighted: false
+                labelsHighlighted: false
+                // TODO implement in model (#192)
+                imageSource: typeof MessageModel.peerUuid !== 'undefined' && MessageModel.peerUuid !== ''
+                    ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.peerUuid
+                    : ''
+                isGroup: true
+                showInfoMark: true
+                infoMarkSource: 'image://theme/icon-s-chat'
+                infoMarkSize: 0.9*Theme.iconSizeSmallPlus
+                infoMarkEmoji: MessageModel.aboutEmoji
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: {
+                    // TODO Implement a new page derived from ViewImagePage for showing
+                    //      profile pictures. A new action overlay at the bottom can provide
+                    //      options to change or delete the profile picture.
+                    //      Note: adding a PullDownMenu would be best but is not possible.
+                    //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
+                    //      but PullDownMenu requires a SilicaFlickable as parent.
+
+                    //pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { 'title': groupName, 'source': imageSource })
+
+                    remorse.execute("Changing the avatar is not yet implemented.", function() {})
+                }
             }
 
             SectionHeader {

@@ -487,7 +487,7 @@ impl ClientActor {
             let session_name: &str = match &session.r#type {
                 orm::SessionType::GroupV1(group) => &group.name,
                 orm::SessionType::GroupV2(group) => &group.name,
-                orm::SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
+                orm::SessionType::DirectMessage(recipient) => recipient.name(),
             };
 
             self.inner.pinned().borrow_mut().notifyMessage(

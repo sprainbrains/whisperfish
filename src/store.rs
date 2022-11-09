@@ -280,6 +280,7 @@ impl Storage {
             root.join("storage"),
             root.join("storage").join("identity"),
             root.join("storage").join("attachments"),
+            root.join("storage").join("avatars"),
             root.join("storage").join("prekeys"),
             root.join("storage").join("signed_prekeys"),
             root.join("storage").join("groups"),
@@ -1077,6 +1078,20 @@ impl Storage {
         Ok(())
     }
 
+    pub fn fetch_recipient_by_uuid(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
+        use crate::schema::recipients::dsl::*;
+
+        let db = self.db.lock();
+        if let Ok(recipient) = recipients
+            .filter(uuid.eq(&recipient_uuid.to_string()))
+            .first(&*db)
+        {
+            Some(recipient)
+        } else {
+            None
+        }
+    }
+
     pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
@@ -1516,6 +1531,9 @@ impl Storage {
             access_required_for_attributes: 0,
             access_required_for_members: 0,
             access_required_for_add_from_invite_link: 0,
+
+            avatar: None,
+            description: Some("Group is being updated".into()),
         };
 
         // Group does not exist, insert first.

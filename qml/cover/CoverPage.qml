@@ -114,7 +114,7 @@ CoverBackground {
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.highlightColor
                 truncationMode: TruncationMode.Fade
-                text: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
+                text: model.isGroup ? model.groupName : ( model.recipientName !== '' ? model.recipientName : (contact ? contact.displayLabel : ( model.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : model.source)))
             }
         }
     }

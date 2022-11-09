@@ -13,7 +13,9 @@ MouseArea {
     property bool isGroup
     property bool isNoteToSelf
     property bool showInfoMark
-    property alias infoMark: infoMarkIcon
+    property alias infoMarkSource: infoMark.source
+    property alias infoMarkEmoji: infoMark.emoji
+    property alias infoMarkRotation: infoMarkIcon.rotation
     property real infoMarkSize: Theme.iconSizeSmall // set this, don't change infoMark.{width,height}
     property real infoMarkMaskFactor: 1.2 // how much larger than the icon should the mask be?
 
@@ -121,15 +123,29 @@ MouseArea {
         radius: width/2
         visible: showInfoMark
         color: "transparent"
+        property string source: 'image://theme/icon-s-installed'
+        property string emoji: ''
 
         HighlightImage {
             id: infoMarkIcon
-            // source: 'image://theme/icon-s-checkmark' // outline looks too busy
-            source: 'image://theme/icon-s-installed'
+            visible: parent.emoji == ''
+            enabled: visible
+            source: parent.source
             anchors.fill: parent
             color: Theme.primaryColor
             highlighted: _labelsHighlighted
             highlightColor: Theme.secondaryHighlightColor
+        }
+
+        LinkedEmojiLabel {
+            id: infoMarkEmoji
+            visible: parent.emoji !== ''
+            enabled: visible
+            anchors.fill: parent
+            horizontalAlignment: Text.AlignHCenter
+            plainText: parent.emoji
+            emojiSizeMult: 1.0
+            font.pixelSize: height * 0.75
         }
     }
 }

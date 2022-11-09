@@ -33,9 +33,10 @@ ListItem {
     // DATA PROPERTIES: bound to modelData, proxied because the delegate is not used directly
     property ListView listView: ListView.view
     property int index: hasData ? modelData.index : -1
-    // TODO Attachments with mimetype text/x-signal-plain have to be
-    // treated as extra long messages.
-    readonly property string _message: hasData && modelData.message ? modelData.message.trim() : ''
+
+    property string fullMessageText: ""
+
+    readonly property string _message: fullMessageText !== "" ? fullMessageText : (hasData && modelData.message ? modelData.message.trim() : '')
     readonly property string _source: hasData && modelData.source ? modelData.source.trim() : ''
     readonly property string _name: hasData && modelData.peerName ? modelData.peerName.trim() : ''
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
@@ -81,7 +82,7 @@ ListItem {
     readonly property bool isInGroup: MessageModel.group
     readonly property bool isEmpty: !hasText && !hasAttachments
     property bool isExpanded: false
-    property bool isSelected: listView.selectedMessages[modelData.id] !== undefined
+    property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 
     property var reactions: hasReactions ? modelData.reactions.split(',') : []
 
@@ -186,7 +187,7 @@ ListItem {
             width: delegateContentWidth
             backgroundGrow: contentPadding/2
             backgroundItem.radius: backgroundCornerRadius
-            enabled: !listView.isSelecting
+            enabled: listView !== null && !listView.isSelecting
         }
 
         Item { width: 1; height: showSender ? senderNameLabel.backgroundGrow+Theme.paddingSmall : 0 }
@@ -254,7 +255,7 @@ ListItem {
                                     (emojiCount <= 2 ? 1.5*Theme.fontSizeLarge :
                                                        1.0*Theme.fontSizeLarge) :
                                     Theme.fontSizeSmall // TODO make configurable
-                defaultLinkActions: !listView.isSelecting
+                defaultLinkActions: listView !== null && !listView.isSelecting
             }
         }
 
@@ -262,7 +263,7 @@ ListItem {
 
         EmojiRow {
             id: emojiRow
-            property real minContentWidth: item && item.minContentWidth ? item.minContentWidth : 0
+            property real minContentWidth: item !== undefined && item.minContentWidth ? item.minContentWidth : 0
             width: delegateContentWidth
         }
 
@@ -270,7 +271,7 @@ ListItem {
 
         Loader {
             id: infoRow
-            property real minContentWidth: item ? item.minContentWidth : 0
+            property real minContentWidth: item !== undefined ? item.minContentWidth : 0
             width: delegateContentWidth
             height: Theme.fontSizeExtraSmall
             asynchronous: true

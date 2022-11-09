@@ -234,7 +234,7 @@ Loader {
         id: detailComponent
         Column {
             id: detailColumn
-            enabled: !listView.isSelecting
+            enabled: listView !== null && !listView.isSelecting
 
             function componentForMime(mimeType) {
                 if (/^audio\//.test(mimeType)) return detail_audioComponent
@@ -247,7 +247,7 @@ Loader {
                 property int currentAttachmentIndex: 0
                 width: parent.width
                 height: parent.height/Math.min(maxDetails, detailAttachmentCount)
-                sourceComponent: detailAttachmentCount >= 1 ?
+                sourceComponent: detailAttachmentCount >= 1 && detailAttachments[0].type !== undefined ?
                                      parent.componentForMime(detailAttachments[0].type) : null
             }
 

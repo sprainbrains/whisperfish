@@ -6,16 +6,43 @@ import "../delegates"
 Page {
     id: root
     property QtObject modelData
-    property string messageText: modelData.message.trim()
+    property string messageText: ""
+
+    property var detailAttachments: modelData.detailAttachments
+    property int detailAttachmentCount: detailAttachments !== undefined ? detailAttachments.count : 0
 
     property string _originName: _contact !== null ? _contact.displayLabel : ''
     property var _contact: (modelData !== null && mainWindow.contactsReady) ?
                                resolvePeopleModel.personByPhoneNumber(modelData.source, true) : null
 
+    Component.onCompleted: {
+        var textFound = false
+        var attachment = null
+        for (var i = 0; i < detailAttachmentCount; i++) {
+            attachment = JSON.parse(detailAttachments.get(i))
+            if (attachment.type == "text/x-signal-plain") {
+                textFound = true
+                break
+            }
+        }
+        if(textFound) {
+            var xhr = new XMLHttpRequest
+            xhr.open("GET", attachment.data)
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    root.messageText = xhr.responseText
+                }
+            }
+            xhr.send()
+        } else {
+            root.messageText = modelData.message.trim()
+        }
+    }
+
     SilicaFlickable {
         id: flick
         anchors.fill: parent
-        contentHeight: column.height
+        contentHeight: column.height + Theme.horizontalPageMargin
 
         VerticalScrollDecorator { flickable: flick }
 
@@ -45,10 +72,9 @@ Page {
                 delegateContentWidth: root.width - 4*Theme.horizontalPageMargin
                 isExpanded: true
                 showExpand: false
+                fullMessageText: messageText
                 extraPageTreshold: _message.length
             }
-
-            Item { width: parent.width; height: Theme.horizontalPageMargin }
         }
     }
 }
