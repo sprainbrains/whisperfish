@@ -94,6 +94,7 @@ pub struct NewMessage {
     pub mime_type: Option<String>,
     pub has_attachment: bool,
     pub outgoing: bool,
+    pub is_unidentified: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -1734,6 +1735,7 @@ impl Storage {
                     server_timestamp.eq(server_time),
                     is_read.eq(new_message.is_read),
                     is_outbound.eq(new_message.outgoing),
+                    use_unidentified.eq(new_message.is_unidentified),
                     flags.eq(new_message.flags),
                 ))
                 .execute(&*db)

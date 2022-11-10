@@ -308,6 +308,7 @@ impl Handler<QueueGroupMessage> for MessageActor {
                 received: false,
                 sent: false,
                 is_read: true,
+                is_unidentified: false,
             },
             Some(group),
         );
@@ -364,6 +365,7 @@ impl Handler<QueueMessage> for MessageActor {
                 received: false,
                 sent: false,
                 is_read: true,
+                is_unidentified: false,
             },
             None,
         );
@@ -401,6 +403,7 @@ impl Handler<EndSession> for MessageActor {
                 received: false,
                 sent: false,
                 is_read: true,
+                is_unidentified: false,
             },
             None,
         );

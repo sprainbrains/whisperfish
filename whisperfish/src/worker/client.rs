@@ -260,8 +260,9 @@ impl ClientActor {
         source_uuid: Option<String>,
         msg: DataMessage,
         is_sync_sent: bool,
-        timestamp: u64,
+        metadata: Metadata,
     ) {
+        let timestamp = metadata.timestamp;
         let settings = crate::config::Settings::default();
 
         let storage = self.storage.as_mut().expect("storage");
@@ -391,6 +392,7 @@ impl ClientActor {
             text,
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
+            is_unidentified: metadata.unidentified_sender,
             sent: is_sync_sent,
             timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
                 timestamp
@@ -625,7 +627,7 @@ impl ClientActor {
             ContentBody::DataMessage(message) => {
                 let e164 = metadata.sender.e164();
                 let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
-                self.handle_message(ctx, e164, uuid, message, false, metadata.timestamp)
+                self.handle_message(ctx, e164, uuid, message, false, metadata)
             }
             ContentBody::SynchronizeMessage(message) => {
                 if let Some(sent) = message.sent {
@@ -641,7 +643,7 @@ impl ClientActor {
                         sent.destination_uuid,
                         message,
                         true,
-                        0,
+                        metadata,
                     );
                 } else if let Some(request) = message.request {
                     log::trace!("Sync request message");
