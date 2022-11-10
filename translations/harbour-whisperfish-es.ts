@@ -449,7 +449,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="50"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Actualizar el perfil Signal</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="59"/>
@@ -1148,7 +1148,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="206"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
-        <translation>Actualizar grupo</translation>
+        <translation>Actualizar el grupo</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
