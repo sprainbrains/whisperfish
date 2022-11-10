@@ -82,6 +82,7 @@ impl Handler<E164ToUuid> for ClientActor {
                                     is_read: false,
                                     mime_type: None,
                                     outgoing: false,
+                                    is_unidentified: false,
                                 }, None);
                             } else {
                                 storage

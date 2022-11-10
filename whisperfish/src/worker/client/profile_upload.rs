@@ -8,7 +8,12 @@ use zkgroup::profiles::ProfileKey;
 /// Generate and upload a profile for the self recipient.
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct GenerateEmptyProfileIfNeeded;
+pub struct RefreshOwnProfile;
+
+/// Generate and upload a profile for the self recipient.
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct UploadProfile;
 
 /// Synchronize multi-device profile information.
 #[derive(Message)]
@@ -63,9 +68,72 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
     }
 }
 
-impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
+impl Handler<RefreshOwnProfile> for ClientActor {
     type Result = ResponseFuture<()>;
-    fn handle(&mut self, _: GenerateEmptyProfileIfNeeded, ctx: &mut Self::Context) -> Self::Result {
+
+    fn handle(&mut self, _: RefreshOwnProfile, ctx: &mut Self::Context) -> Self::Result {
+        let storage = self.storage.clone().unwrap();
+        let mut service = self.authenticated_service();
+        let client = ctx.address();
+        let config = self.config.clone();
+        let uuid = config.get_uuid_clone();
+        let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
+
+        Box::pin(async move {
+            let self_recipient = storage
+                .fetch_self_recipient(&config)
+                .expect("self recipient should be set by now");
+            let profile_key = self_recipient.profile_key.map(|bytes| {
+                let mut key = [0u8; 32];
+                key.copy_from_slice(&bytes);
+                ProfileKey::create(key)
+            });
+            let profile_key = if let Some(k) = profile_key {
+                k
+            } else {
+                // UploadProfile will generate a profile key if needed
+                client.send(UploadProfile).await.unwrap();
+                return;
+            };
+
+            let online = service
+                .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(profile_key))
+                .await;
+
+            let outdated = match online {
+                Ok(profile) => {
+                    let unidentified_access_enabled = profile.unidentified_access.is_some();
+                    let capabilities = profile.capabilities.clone();
+                    client
+                        .send(ProfileFetched(uuid, Some(profile)))
+                        .await
+                        .unwrap();
+
+                    !unidentified_access_enabled
+                        || capabilities != whisperfish_device_capabilities()
+                }
+                Err(e) => {
+                    if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                        // No profile of ours online, let's upload one.
+                        true
+                    } else {
+                        log::error!("During profile fetch: {}", e);
+                        false
+                    }
+                }
+            };
+
+            if outdated {
+                client.send(UploadProfile).await.unwrap();
+            }
+        })
+    }
+}
+
+impl Handler<UploadProfile> for ClientActor {
+    type Result = ResponseFuture<()>;
+
+    fn handle(&mut self, _: UploadProfile, ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
         let client = ctx.address();
@@ -77,16 +145,18 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
             let self_recipient = storage
                 .fetch_self_recipient(&config)
                 .expect("self recipient should be set by now");
-            if let Some(key) = self_recipient.profile_key {
-                log::trace!(
-                    "Profile key is already set ({} bytes); not overwriting",
-                    key.len()
-                );
-                return;
-            }
+            let profile_key = self_recipient
+                .profile_key
+                .map(|bytes| {
+                    let mut key = [0u8; 32];
+                    key.copy_from_slice(&bytes);
+                    ProfileKey::create(key)
+                })
+                .unwrap_or_else(|| {
+                    log::info!("Generating profile key");
+                    ProfileKey::generate(rand::thread_rng().gen())
+                });
 
-            log::info!("Generating profile key");
-            let profile_key = ProfileKey::generate(rand::thread_rng().gen());
             let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
             am.upload_versioned_profile_without_avatar(uuid, ProfileName::empty(), None, None)
                 .await
@@ -109,6 +179,8 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
 impl Handler<RefreshProfileAttributes> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: RefreshProfileAttributes, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!("Sending profile attributes");
+
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
         let config = self.config.clone();

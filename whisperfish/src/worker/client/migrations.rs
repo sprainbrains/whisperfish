@@ -28,7 +28,7 @@ impl ClientActor {
         ctx.notify(MoveSessionsToDatabase);
         ctx.notify(E164ToUuid);
         ctx.notify(ComputeGroupV2ExpectedIds);
-        ctx.notify(GenerateEmptyProfileIfNeeded);
+        ctx.notify(RefreshOwnProfile);
         ctx.notify(ParseOldReaction);
     }
 }
