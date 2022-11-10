@@ -448,7 +448,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="50"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal-Profil aktualisieren</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="59"/>
