@@ -13,6 +13,15 @@ Row {
     property real minContentWidth: statusIcon.width+infoLabel.width+debugLabel.width
 
     HighlightImage {
+        id: privacyIcon
+        visible: SettingsBridge.boolValue("debug_mode")
+        width: visible ? Theme.iconSizeSmall : 0
+        height: width
+        color: unidentifiedSender ? "green" : "red"
+        source: "image://theme/icon-m-device-lock"
+    }
+
+    HighlightImage {
         id: statusIcon
         visible: isOutbound
         width: visible ? Theme.iconSizeSmall : 0
