@@ -156,11 +156,21 @@ impl Handler<UploadProfile> for ClientActor {
                     log::info!("Generating profile key");
                     ProfileKey::generate(rand::thread_rng().gen())
                 });
+            let name = ProfileName {
+                given_name: self_recipient.profile_given_name.as_deref().unwrap_or(""),
+                family_name: self_recipient.profile_family_name.as_deref(),
+            };
 
             let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
-            am.upload_versioned_profile_without_avatar(uuid, ProfileName::empty(), None, None)
-                .await
-                .expect("upload profile");
+            am.upload_versioned_profile_without_avatar(
+                uuid,
+                name,
+                self_recipient.about,
+                self_recipient.about_emoji,
+                true,
+            )
+            .await
+            .expect("upload profile");
 
             // Now also set the database
             storage.update_profile_key(
