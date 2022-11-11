@@ -95,6 +95,7 @@ pub struct NewMessage {
     pub has_attachment: bool,
     pub outgoing: bool,
     pub is_unidentified: bool,
+    pub quote_timestamp: Option<u64>,
 }
 
 #[derive(Clone, Debug)]
@@ -1710,6 +1711,17 @@ impl Storage {
             None
         };
 
+        let quoted_message_id = new_message
+            .quote_timestamp
+            .and_then(|ts| {
+                let msg = self.fetch_message_by_timestamp(millis_to_naive_chrono(ts));
+                if msg.is_none() {
+                    log::warn!("No message to quote for ts={}", ts);
+                }
+                msg
+            })
+            .map(|message| message.id);
+
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
         let server_time = millis_to_naive_chrono(new_message.timestamp.timestamp_millis() as u64);
@@ -1737,6 +1749,7 @@ impl Storage {
                     is_outbound.eq(new_message.outgoing),
                     use_unidentified.eq(new_message.is_unidentified),
                     flags.eq(new_message.flags),
+                    quote_id.eq(quoted_message_id),
                 ))
                 .execute(&*db)
                 .expect("inserting a message")

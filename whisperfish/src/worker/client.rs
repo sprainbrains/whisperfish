@@ -440,6 +440,7 @@ impl ClientActor {
             session_id: None, // Canary value checked later
             attachment: None,
             is_read: is_sync_sent,
+            quote_timestamp: msg.quote.as_ref().and_then(|x| x.id),
         };
 
         let group = if let Some(group) = msg.group.as_ref() {
