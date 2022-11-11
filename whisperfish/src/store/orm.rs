@@ -426,6 +426,8 @@ pub struct AugmentedMessage {
     pub attachments: Vec<Attachment>,
     pub reactions: Vec<(Reaction, Recipient)>,
     pub receipts: Vec<(Receipt, Recipient)>,
+    // Constraint: don't make this nested more than one level deep.
+    pub quoted_message: Option<Box<AugmentedMessage>>,
 }
 
 impl std::ops::Deref for AugmentedMessage {

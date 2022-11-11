@@ -4,6 +4,7 @@ mod encryption;
 mod protocol_store;
 mod utils;
 
+use self::orm::AugmentedMessage;
 use crate::schema;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
@@ -1859,6 +1860,42 @@ impl Storage {
             .expect("database")
     }
 
+    pub fn fetch_augmented_message(
+        &self,
+        id: i32,
+        fetch_quote: bool,
+    ) -> Option<orm::AugmentedMessage> {
+        let message = self.fetch_message_by_id(id)?;
+        let receipts = self.fetch_message_receipts(message.id);
+        let attachments = self.fetch_attachments_for_message(message.id);
+        let reactions = self.fetch_reactions_for_message(message.id);
+        let sender = if let Some(id) = message.sender_recipient_id {
+            self.fetch_recipient_by_id(id)
+        } else {
+            None
+        };
+        let quoted_message = if fetch_quote {
+            message
+                .quote_id
+                .and_then(|id| self.fetch_augmented_message(id, false))
+        } else {
+            None
+        };
+
+        if fetch_quote && (quoted_message.is_none() != message.quote_id.is_none()) {
+            unreachable!("database constraint violation, quoted message does not exist");
+        }
+
+        Some(AugmentedMessage {
+            inner: message,
+            receipts,
+            attachments,
+            reactions,
+            sender,
+            quoted_message: quoted_message.map(Box::new),
+        })
+    }
+
     /// Returns a vector of tuples of messages with their sender.
     ///
     /// When the sender is None, it is a sent message, not a received message.
@@ -1955,12 +1992,19 @@ impl Storage {
             } else {
                 vec![]
             };
+            let quoted_message = message
+                .quote_id
+                .and_then(|id| self.fetch_augmented_message(id, false));
+            if quoted_message.is_none() != message.quote_id.is_none() {
+                unreachable!("database constraint violation, quoted message does not exist");
+            }
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
                 sender,
                 attachments,
                 receipts,
                 reactions,
+                quoted_message: quoted_message.map(Box::new),
             });
         }
         aug_messages

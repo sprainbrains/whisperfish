@@ -256,6 +256,7 @@ impl MessageModel {
                 receipts: Vec::new(),
                 // No reactions yet.
                 reactions: Vec::new(),
+                quoted_message: None,
             }
             .into(),
         );
@@ -571,14 +572,7 @@ impl MessageModel {
         log::trace!("Dispatched actor::FetchAllMessages({})", sess.id);
     }
 
-    pub fn handle_fetch_message(
-        &mut self,
-        message: orm::Message,
-        recipient: Option<orm::Recipient>,
-        attachments: Vec<orm::Attachment>,
-        receipts: Vec<(orm::Receipt, orm::Recipient)>,
-        reactions: Vec<(orm::Reaction, orm::Recipient)>,
-    ) {
+    pub fn handle_fetch_message(&mut self, message: orm::AugmentedMessage) {
         log::trace!("handle_fetch_message({})", message.id);
 
         let idx = self.messages.binary_search_by(|am| {
@@ -588,14 +582,7 @@ impl MessageModel {
                 .reverse()
         });
 
-        let am = AugmentedMessage {
-            inner: message,
-            sender: recipient,
-            attachments,
-            receipts,
-            reactions,
-        }
-        .into();
+        let am = message.into();
 
         match idx {
             Ok(idx) => {
