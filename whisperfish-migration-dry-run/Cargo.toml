@@ -1,0 +1,25 @@
+cargo-features = ["strip"]
+
+[package]
+name = "whisperfish-migration-dry-run"
+version = "0.6.0-dev"
+authors = ["Ruben De Smet <ruben.de.smet@rubdos.be>"]
+edition = "2018"
+license = "AGPL-3.0-or-later"
+description = "An utility for whisperfish to do database migrations"
+
+[dependencies]
+whisperfish = { path = "../whisperfish" }
+diesel = { version = "1.4", features = ["sqlite", "chrono"] }
+diesel_migrations = "1.4"
+anyhow = "1.0"
+log = "0.4"
+scrypt = { version = "=0.8.1", default-features = false, features=["std"] }
+rpassword = "5.0"
+hex = "0.4"
+
+
+[features]
+bundled-sqlcipher = ["whisperfish/bundled-sqlcipher"]
+sailfish = ["whisperfish/sailfish"]
+harbour = ["whisperfish/harbour"]

@@ -1,8 +1,8 @@
 use libsignal_protocol::DeviceId;
 use std::path::PathBuf;
 
-use harbour_whisperfish::store;
 use structopt::StructOpt;
+use whisperfish::store;
 
 /// Initializes a storage, meant for creating storage migration tests.
 #[derive(StructOpt, Debug)]

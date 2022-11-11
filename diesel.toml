@@ -2,5 +2,5 @@
 # see diesel.rs/guides/configuring-diesel-cli
 
 [print_schema]
-file = "src/schema.rs"
-patch_file = "src/schema.patch"
+file = "whisperfish/src/schema.rs"
+patch_file = "whisperfish/src/schema.patch"

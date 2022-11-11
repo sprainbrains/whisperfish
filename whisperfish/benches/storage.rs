@@ -1,6 +1,6 @@
-use harbour_whisperfish::store::{temp, NewMessage};
-use harbour_whisperfish::store::{Storage, StorageLocation};
 use libsignal_service::proto::AttachmentPointer;
+use whisperfish::store::{temp, NewMessage};
+use whisperfish::store::{Storage, StorageLocation};
 
 pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
 
