@@ -104,7 +104,6 @@ pub struct WhisperfishApp {
     pub message_actor: Addr<actor::MessageActor>,
     pub contact_model: QObjectBox<model::ContactModel>,
     pub prompt: QObjectBox<model::Prompt>,
-    pub file_picker: QObjectBox<model::FilePicker>,
 
     pub client_actor: Addr<worker::ClientActor>,
     pub setup_worker: QObjectBox<worker::SetupWorker>,
@@ -193,7 +192,6 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 client_actor,
                 contact_model: QObjectBox::new(model::ContactModel::default()),
                 prompt: QObjectBox::new(model::Prompt::default()),
-                file_picker: QObjectBox::new(model::FilePicker::default()),
 
                 setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
@@ -210,7 +208,6 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
 
             app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
             app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
-            app.set_object_property("FilePicker".into(), whisperfish.file_picker.pinned());
             app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
             app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
             app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
