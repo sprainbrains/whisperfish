@@ -11,10 +11,11 @@ use futures::prelude::*;
 use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
-use qmetaobject::{QObjectBox, QObjectPinned};
+use qmetaobject::{QMetaType, QObjectBox, QObjectPinned};
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::process::Command;
+use std::rc::Rc;
 
 define_model_roles! {
     enum MessageRoles for QtAugmentedMessage {
@@ -39,14 +40,20 @@ define_model_roles! {
         Failed(sending_has_failed):                           "failed",
 
         Unidentified(use_unidentified):                       "unidentifiedSender",
+        QuotedMessage(fn quote(&self)):                       "quote",
     }
 }
 
+#[derive(Clone, Default)]
 struct QtAugmentedMessage {
     inner: AugmentedMessage,
-    visual_attachments: QObjectBox<AttachmentModel>,
-    detail_attachments: QObjectBox<AttachmentModel>,
+    visual_attachments: Rc<QObjectBox<AttachmentModel>>,
+    detail_attachments: Rc<QObjectBox<AttachmentModel>>,
+
+    quoted_message: Option<Box<QtAugmentedMessage>>,
 }
+
+impl QMetaType for QtAugmentedMessage {}
 
 impl Deref for QtAugmentedMessage {
     type Target = AugmentedMessage;
@@ -71,10 +78,13 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
             attachments: detail,
             ..Default::default()
         };
+
+        let quoted_message = inner.quoted_message.clone().map(|x| Box::new((*x).into()));
         Self {
             inner,
-            visual_attachments: QObjectBox::new(visual_attachments),
-            detail_attachments: QObjectBox::new(detail_attachments),
+            visual_attachments: Rc::new(QObjectBox::new(visual_attachments)),
+            detail_attachments: Rc::new(QObjectBox::new(detail_attachments)),
+            quoted_message,
         }
     }
 }
@@ -721,6 +731,14 @@ impl QtAugmentedMessage {
 
     fn visual_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
         self.visual_attachments.pinned()
+    }
+
+    fn quote(&self) -> QVariant {
+        self.quoted_message
+            .clone()
+            .as_deref()
+            .map(QMetaType::to_qvariant)
+            .unwrap_or_default()
     }
 }
 

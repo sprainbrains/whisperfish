@@ -69,6 +69,31 @@ pub struct Message {
     pub quote_id: Option<i32>,
 }
 
+impl Default for Message {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            session_id: Default::default(),
+            text: Default::default(),
+            sender_recipient_id: Default::default(),
+            received_timestamp: Default::default(),
+            sent_timestamp: Default::default(),
+            server_timestamp: NaiveDateTime::from_timestamp(0, 0),
+            is_read: Default::default(),
+            is_outbound: Default::default(),
+            flags: Default::default(),
+            expires_in: Default::default(),
+            expiry_started: Default::default(),
+            schedule_send_time: Default::default(),
+            is_bookmarked: Default::default(),
+            use_unidentified: Default::default(),
+            is_remote_deleted: Default::default(),
+            sending_has_failed: Default::default(),
+            quote_id: Default::default(),
+        }
+    }
+}
+
 #[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct Recipient {
     pub id: i32,
@@ -420,6 +445,7 @@ impl SessionType {
 // Some extras
 
 /// [`Message`] augmented with its sender, attachments, reactions and receipts.
+#[derive(Clone, Default)]
 pub struct AugmentedMessage {
     pub inner: Message,
     pub sender: Option<Recipient>,
