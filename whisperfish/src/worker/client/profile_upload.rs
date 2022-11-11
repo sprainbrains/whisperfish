@@ -5,7 +5,7 @@ use libsignal_service::{profile_name::ProfileName, push_service};
 use rand::Rng;
 use zkgroup::profiles::ProfileKey;
 
-/// Generate and upload a profile for the self recipient.
+/// Refresh the profile for the self recipient.
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct RefreshOwnProfile;
@@ -88,6 +88,7 @@ impl Handler<RefreshOwnProfile> for ClientActor {
                 key.copy_from_slice(&bytes);
                 ProfileKey::create(key)
             });
+
             let profile_key = if let Some(k) = profile_key {
                 k
             } else {
@@ -95,6 +96,13 @@ impl Handler<RefreshOwnProfile> for ClientActor {
                 client.send(UploadProfile).await.unwrap();
                 return;
             };
+
+            if let Some(lpf) = &self_recipient.last_profile_fetch {
+                if Utc.from_utc_datetime(lpf) > Utc::now() - chrono::Duration::days(1) {
+                    log::info!("Our own profile is up-to-date, not fetching.");
+                    return;
+                }
+            }
 
             let online = service
                 .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(profile_key))
