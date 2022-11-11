@@ -65,6 +65,8 @@ pub struct Message {
     pub is_remote_deleted: bool,
 
     pub sending_has_failed: bool,
+
+    pub quote_id: Option<i32>,
 }
 
 #[derive(Queryable, Identifiable, Debug, Clone)]
