@@ -1161,7 +1161,7 @@ Settings page share contacts</extracomment>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
-        <translation>Ryhmästä poistuttu ja kaikki viestit poistettu</translation>
+        <translation>Poistuttu ryhmästä ja kaikki viestit poistettu</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
