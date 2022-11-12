@@ -271,10 +271,9 @@
         <translation>Instala Signal per escriptori. Utilitza l&apos;aplicació CodeReader per escanejar el codi QR mostrar al Signal per escriptori, copia i enganxa la URL aquí.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Selecciona la imatge</translation>
+        <translation type="vanished">Selecciona la imatge</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

@@ -271,10 +271,9 @@
         <translation>Instale Signal Escritorio. Use la aplicación CodeReader para escanear el código QR que se muestra en Signal Escritorio y copiar y pegar la URL aquí.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Elegir imagen</translation>
+        <translation type="vanished">Elegir imagen</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

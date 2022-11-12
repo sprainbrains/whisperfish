@@ -271,10 +271,9 @@
         <translation>Signal Desktop&apos;ı kurun. Signal Desktop&apos;ta görüntülenen QR kodunu taramak için CodeReader uygulamasını kullanın ve URL&apos;yi kopyalayıp buraya yapıştırın.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Resim seç</translation>
+        <translation type="vanished">Resim seç</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

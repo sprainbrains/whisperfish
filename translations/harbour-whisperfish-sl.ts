@@ -271,10 +271,9 @@
         <translation>Namestite Signal namizno aplikacijo. Z CodeReader aplikacijo odčitajte QR kodo prikazano na Signal namizni aplikaciji in tu prilepite URL.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Izberite sliko</translation>
+        <translation type="vanished">Izberite sliko</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

@@ -271,10 +271,9 @@
         <translation>Instale o Signal Desktop. Use a aplicação CodeReader para ler o código QR exibido no Signal Desktop e copie o endereço aqui.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Escolha a imagem</translation>
+        <translation type="vanished">Escolha a imagem</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

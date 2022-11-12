@@ -271,10 +271,9 @@
         <translation>Installiere Signal Desktop. Nutze einen QR-Code-Scanner, um die URL aus dem dort angezeigten QR-Code hinzuzufügen.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Wähle ein Foto</translation>
+        <translation type="vanished">Wähle ein Foto</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

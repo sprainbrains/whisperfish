@@ -241,10 +241,9 @@
         <translation>Asenna Signal Desktop, lue siinä näkyvä QR-koodi CodeReader-sovelluksella ja liitä osoite tähän.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Valitse kuva</translation>
+        <translation type="vanished">Valitse kuva</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

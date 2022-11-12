@@ -271,10 +271,9 @@
         <translation>Telepítsd a Signal Desktopot. Használd a CodeReader alkalmazást a Signal Desktopban megjelenő Qr-kód beolvasásához, majd másold be ide az URL-t.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Kép kiválasztása</translation>
+        <translation type="vanished">Kép kiválasztása</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

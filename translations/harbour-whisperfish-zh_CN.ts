@@ -271,10 +271,9 @@
         <translation>安装 Signal 桌面端。使用 CodeReader 软件扫描显示在 Signal 桌面端的二维码然后复制并粘贴到此处。</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>选择图片</translation>
+        <translation type="vanished">选择图片</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>

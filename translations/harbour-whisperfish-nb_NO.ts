@@ -271,10 +271,9 @@
         <translation type="unfinished">Installer Signal for skrivebordet. Bruk QR-kodeleserprogrammet for å skanne QR-koden som vises der og lim inn nettadressen her.</translation>
     </message>
     <message id="whisperfish-select-picture">
-        <location filename="../qml/pages/ImagePicker.qml" line="44"/>
         <source>Select picture</source>
         <extracomment>Title for image picker page</extracomment>
-        <translation>Velg bilde</translation>
+        <translation type="vanished">Velg bilde</translation>
     </message>
     <message id="whisperfish-add-linked-device">
         <location filename="../qml/pages/LinkedDevices.qml" line="17"/>
