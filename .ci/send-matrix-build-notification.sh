@@ -2,7 +2,7 @@
 
 set -e
 
-CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
+CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' harbour-whisperfish/Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
 echo "Looking for builds for version $CARGO_VERSION"
 GIT_REF="$(git rev-parse --short HEAD)"
 echo "Filtering on $GIT_REF"

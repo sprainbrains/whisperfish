@@ -17,7 +17,7 @@ sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
         zlib-devel \
 
 if [ -z "$CI_COMMIT_TAG" ]; then
-    CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
+    CARGO_VERSION="$(grep -m1 -e '^version\s=\s"' harbour-whisperfish/Cargo.toml | sed -e 's/.*"\(.*-dev\).*"/\1/')"
     GIT_REF="$(git rev-parse --short HEAD)"
     VERSION="$CARGO_VERSION.b$CI_PIPELINE_IID.$GIT_REF"
 else
