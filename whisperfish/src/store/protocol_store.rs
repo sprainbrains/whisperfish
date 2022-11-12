@@ -1,12 +1,10 @@
-use std::path::Path;
-
-use libsignal_service::prelude::protocol::{self, Context};
-use protocol::IdentityKeyPair;
-use protocol::SignalProtocolError;
-
 mod quirk;
 
 use super::*;
+use libsignal_service::prelude::protocol::{self, Context};
+use protocol::IdentityKeyPair;
+use protocol::SignalProtocolError;
+use std::path::Path;
 
 pub struct ProtocolStore;
 

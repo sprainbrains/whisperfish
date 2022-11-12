@@ -1,14 +1,11 @@
-use std::path::Path;
-
 use futures::io::AsyncReadExt;
-use structopt::StructOpt;
-use whisperfish::store::{self, Storage};
-
 use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
-
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
+use std::path::Path;
+use structopt::StructOpt;
+use whisperfish::store::{self, Storage};
 
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]

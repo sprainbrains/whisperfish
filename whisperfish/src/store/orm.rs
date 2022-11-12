@@ -1,8 +1,6 @@
-use std::time::Duration;
-
-use chrono::prelude::*;
-
 use super::schema::*;
+use chrono::prelude::*;
+use std::time::Duration;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV1 {

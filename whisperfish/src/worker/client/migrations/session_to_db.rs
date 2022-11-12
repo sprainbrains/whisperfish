@@ -1,14 +1,11 @@
-use actix::prelude::*;
-use libsignal_service::prelude::protocol::ProtocolAddress;
-
-use libsignal_service::prelude::protocol;
-use protocol::SignalProtocolError;
-
-use crate::store::orm::SessionRecord;
+mod quirk;
 
 use super::*;
-
-mod quirk;
+use crate::store::orm::SessionRecord;
+use actix::prelude::*;
+use libsignal_service::prelude::protocol;
+use libsignal_service::prelude::protocol::ProtocolAddress;
+use protocol::SignalProtocolError;
 
 #[derive(Message)]
 #[rtype(result = "()")]

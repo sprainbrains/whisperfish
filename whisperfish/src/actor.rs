@@ -1,5 +1,5 @@
 pub mod messageactor;
 pub mod sessionactor;
 
-pub use messageactor::*;
-pub use sessionactor::*;
+pub use self::messageactor::*;
+pub use self::sessionactor::*;

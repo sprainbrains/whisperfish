@@ -1,11 +1,9 @@
-use whisperfish::*;
-
 use anyhow::Context;
 use dbus::blocking::Connection;
-use std::time::Duration;
-
 use single_instance::SingleInstance;
+use std::time::Duration;
 use structopt::StructOpt;
+use whisperfish::*;
 
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]

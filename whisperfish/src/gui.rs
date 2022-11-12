@@ -1,15 +1,11 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use crate::platform::{is_harbour, MayExit, QmlApp};
 use crate::store::Storage;
-#[allow(unused_imports)] // XXX: review
 use crate::{actor, config::Settings, model, worker};
-
+use actix::prelude::*;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
-
-use actix::prelude::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]

@@ -7,11 +7,10 @@
 //! e8ef69ba76b5f40fc149bf1c240df99b62f19b60. Be aware that only necessary parts were copied that
 //! were changed in later commits.
 
-use whisperfish::store as current_storage;
-
 use libsignal_service::prelude::protocol::{DeviceId, IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::ops::Deref;
+use whisperfish::store as current_storage;
 
 async fn create_old_storage(
     storage_password: Option<&str>,

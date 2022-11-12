@@ -1,13 +1,10 @@
-use actix::prelude::*;
-use libsignal_service::{
-    profile_cipher::ProfileCipher, profile_service::ProfileService,
-    push_service::SignalServiceProfile,
-};
-use tokio::io::AsyncWriteExt;
-
-use crate::worker::profile_refresh::OutdatedProfile;
-
 use super::*;
+use crate::worker::profile_refresh::OutdatedProfile;
+use actix::prelude::*;
+use libsignal_service::profile_cipher::ProfileCipher;
+use libsignal_service::profile_service::ProfileService;
+use libsignal_service::push_service::SignalServiceProfile;
+use tokio::io::AsyncWriteExt;
 
 impl StreamHandler<OutdatedProfile> for ClientActor {
     fn handle(&mut self, OutdatedProfile(uuid, key): OutdatedProfile, ctx: &mut Self::Context) {

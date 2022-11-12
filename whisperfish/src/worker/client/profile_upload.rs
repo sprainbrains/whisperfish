@@ -1,14 +1,11 @@
+use super::*;
+use crate::store::TrustLevel;
 use actix::prelude::*;
-
 use libsignal_service::profile_name::ProfileName;
 use libsignal_service::push_service::AccountAttributes;
 use libsignal_service::push_service::DeviceCapabilities;
 use rand::Rng;
 use zkgroup::profiles::ProfileKey;
-
-use crate::store::TrustLevel;
-
-use super::*;
 
 /// Generate and upload a profile for the self recipient.
 #[derive(Message)]

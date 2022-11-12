@@ -1,7 +1,6 @@
+use super::*;
 use actix::prelude::*;
 use diesel::prelude::*;
-
-use super::*;
 
 /// Find GroupV1 sessions without v2 pending id,
 /// and populate that field.

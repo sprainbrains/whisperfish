@@ -1,12 +1,9 @@
 #![allow(non_snake_case)]
 
-use std::collections::HashMap;
-
-use libsignal_service::push_service::DeviceInfo;
-
-use qmetaobject::prelude::*;
-
 use super::*;
+use libsignal_service::push_service::DeviceInfo;
+use qmetaobject::prelude::*;
+use std::collections::HashMap;
 
 #[derive(QObject, Default)]
 pub struct DeviceModel {

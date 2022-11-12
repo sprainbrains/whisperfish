@@ -1,18 +1,16 @@
-use std::collections::VecDeque;
+mod typing_notifications;
+
+pub use self::typing_notifications::*;
 
 use crate::actor::{FetchSession, UpdateSession};
-
 use crate::gui::StorageReady;
 use crate::model::session::SessionModel;
 use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
-
 use actix::prelude::*;
 use libsignal_protocol::{DeviceId, ProtocolAddress};
 use qmetaobject::prelude::*;
-
-mod typing_notifications;
-pub use typing_notifications::*;
+use std::collections::VecDeque;
 
 #[derive(Message)]
 #[rtype(result = "()")]

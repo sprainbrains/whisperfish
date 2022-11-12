@@ -1,9 +1,8 @@
+use super::*;
 use actix::prelude::*;
 use libsignal_service::prelude::protocol::{
     IdentityKeyStore, ProtocolAddress, SessionStore, SessionStoreExt,
 };
-
-use super::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]
