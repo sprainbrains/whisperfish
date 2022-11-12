@@ -1,22 +1,20 @@
 #![allow(non_snake_case)]
 
-use std::collections::HashMap;
-use std::ops::Deref;
-use std::process::Command;
-
 use crate::actor;
 use crate::model::*;
 use crate::store::orm::Receipt;
 use crate::store::orm::Recipient;
 use crate::store::orm::{self, Attachment, AugmentedMessage};
 use crate::worker::{ClientActor, SendMessage};
-
 use actix::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use qmetaobject::{QObjectBox, QObjectPinned};
+use std::collections::HashMap;
+use std::ops::Deref;
+use std::process::Command;
 
 define_model_roles! {
     enum MessageRoles for QtAugmentedMessage {

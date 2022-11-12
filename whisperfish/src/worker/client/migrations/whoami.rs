@@ -1,6 +1,5 @@
-use actix::prelude::*;
-
 use super::*;
+use actix::prelude::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]

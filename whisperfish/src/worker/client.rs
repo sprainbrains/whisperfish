@@ -1,24 +1,29 @@
-use std::fs::remove_file;
-use std::io::Write;
-use std::path::{Path, PathBuf};
-use std::time::Duration;
+// XXX maybe the session-to-db migration should move into the store module.
+pub mod migrations;
 
+mod groupv2;
+mod linked_devices;
+mod profile;
+mod profile_upload;
+
+pub use self::groupv2::*;
+pub use self::linked_devices::*;
+pub use self::profile::*;
+pub use self::profile_upload::*;
+pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
+pub use libsignal_service::push_service::DeviceInfo;
+
+use super::profile_refresh::OutdatedProfileStream;
+use crate::actor::{LoadAllSessions, SessionActor};
+use crate::gui::StorageReady;
+use crate::millis_to_naive_chrono;
+use crate::model::DeviceModel;
+use crate::platform::QmlApp;
+use crate::store::{orm, Storage};
 use actix::prelude::*;
 use anyhow::Context;
 use chrono::prelude::*;
 use futures::prelude::*;
-use libsignal_service::proto::typing_message::Action;
-use libsignal_service::websocket::SignalWebSocket;
-use phonenumber::PhoneNumber;
-use qmeta_async::with_executor;
-use qmetaobject::prelude::*;
-
-use crate::actor::{LoadAllSessions, SessionActor};
-use crate::gui::StorageReady;
-use crate::model::DeviceModel;
-use crate::platform::QmlApp;
-use crate::store::{orm, Storage};
-
 use libsignal_service::configuration::SignalServers;
 use libsignal_service::content::sync_message::Request as SyncRequest;
 use libsignal_service::content::DataMessageFlags;
@@ -28,35 +33,21 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
+use libsignal_service::proto::typing_message::Action;
+use libsignal_service::provisioning::ProvisioningManager;
 use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
 use libsignal_service::sender::AttachmentSpec;
+use libsignal_service::websocket::SignalWebSocket;
 use libsignal_service::AccountManager;
 use libsignal_service_actix::prelude::*;
-
-use libsignal_service::provisioning::ProvisioningManager;
-pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
-pub use libsignal_service::push_service::DeviceInfo;
-
-// XXX maybe the session-to-db migration should move into the store module.
-pub mod migrations;
-
-mod linked_devices;
-pub use linked_devices::*;
-
-mod profile;
-pub use profile::*;
-
-mod profile_upload;
-pub use profile_upload::*;
-
-mod groupv2;
-pub use groupv2::*;
-
-use crate::millis_to_naive_chrono;
-
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
-
-use super::profile_refresh::OutdatedProfileStream;
+use phonenumber::PhoneNumber;
+use qmeta_async::with_executor;
+use qmetaobject::prelude::*;
+use std::fs::remove_file;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 #[derive(Message)]
 #[rtype(result = "()")]

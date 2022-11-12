@@ -1,9 +1,8 @@
-use std::future::Future;
-
-use rstest::{fixture, rstest};
-
 mod common;
-use common::*;
+
+use self::common::*;
+use rstest::{fixture, rstest};
+use std::future::Future;
 
 const E164: &str = "+32474";
 const UUID: &str = "abcd-ef123";

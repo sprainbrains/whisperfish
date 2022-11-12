@@ -1,6 +1,5 @@
 use libsignal_protocol::DeviceId;
 use std::path::PathBuf;
-
 use structopt::StructOpt;
 use whisperfish::store;
 

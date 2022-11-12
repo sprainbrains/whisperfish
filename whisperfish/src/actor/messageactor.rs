@@ -3,7 +3,6 @@ use crate::model::message::MessageModel;
 use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
 use crate::worker::ClientActor;
-
 use actix::prelude::*;
 use qmetaobject::prelude::*;
 

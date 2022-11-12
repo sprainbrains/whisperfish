@@ -1,31 +1,26 @@
-use std::panic::AssertUnwindSafe;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+pub mod orm;
 
+mod encryption;
+mod protocol_store;
+mod utils;
+
+use crate::schema;
+use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
-
+use chrono::prelude::*;
+use diesel::debug_query;
+use diesel::prelude::*;
+use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::{attachment_pointer, data_message::Reaction, DataMessage};
 use parking_lot::ReentrantMutex;
-
-use crate::schema;
-use crate::{config::SignalConfig, millis_to_naive_chrono};
-
-use chrono::prelude::*;
-use diesel::debug_query;
-use diesel::prelude::*;
-use itertools::Itertools;
-
-use zkgroup::api::groups::GroupSecretParams;
-
-mod encryption;
-mod protocol_store;
-mod utils;
 use protocol_store::ProtocolStore;
-
-pub mod orm;
+use std::panic::AssertUnwindSafe;
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
+use zkgroup::api::groups::GroupSecretParams;
 
 embed_migrations!();
 

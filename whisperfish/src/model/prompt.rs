@@ -1,8 +1,7 @@
-use std::future::Future;
-use std::process::Command;
-
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
+use std::future::Future;
+use std::process::Command;
 
 // XXX code duplication.
 

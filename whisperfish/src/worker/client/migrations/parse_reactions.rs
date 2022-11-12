@@ -1,11 +1,9 @@
+use super::*;
 use crate::schema;
 use crate::store::orm;
-
 use anyhow::Context;
 use chrono::Utc;
 use diesel::prelude::*;
-
-use super::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]

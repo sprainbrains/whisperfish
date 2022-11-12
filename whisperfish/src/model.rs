@@ -55,12 +55,11 @@ pub mod session;
 
 pub mod prompt;
 
-pub use contact::*;
-pub use device::*;
-pub use message::*;
-pub use session::*;
-
-pub use prompt::*;
+pub use self::contact::*;
+pub use self::device::*;
+pub use self::message::*;
+pub use self::prompt::*;
+pub use self::session::*;
 
 use chrono::prelude::*;
 use qmetaobject::prelude::*;

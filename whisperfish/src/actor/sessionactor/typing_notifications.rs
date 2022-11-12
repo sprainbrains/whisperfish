@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
 use super::*;
 use chrono::prelude::*;
 use libsignal_service::{
     proto::{typing_message, TypingMessage},
     ServiceAddress,
 };
+use std::collections::HashMap;
 
 // FIXME: chrono::Duration::seconds is not a const_fn.
 const TYPING_EXIPIRY_DELAY: std::time::Duration = std::time::Duration::from_secs(5);

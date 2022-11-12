@@ -1,16 +1,11 @@
+use super::*;
+use crate::actor::FetchSession;
+use crate::store::{GroupV2, TrustLevel};
 use actix::prelude::*;
 use diesel::prelude::*;
-use qmeta_async::with_executor;
-
 use libsignal_service::groups_v2::*;
+use qmeta_async::with_executor;
 use tokio::io::AsyncWriteExt;
-
-use crate::{
-    actor::FetchSession,
-    store::{GroupV2, TrustLevel},
-};
-
-use super::*;
 
 #[derive(Message)]
 #[rtype(result = "()")]

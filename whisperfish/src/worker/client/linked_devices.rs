@@ -1,7 +1,5 @@
-use qmeta_async::with_executor;
-
 use super::*;
-
+use qmeta_async::with_executor;
 use std::convert::TryInto;
 
 #[derive(Message)]

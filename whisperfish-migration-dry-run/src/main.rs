@@ -3,12 +3,11 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-use std::io::Read;
-use std::path::Path;
-
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::sql_types::*;
+use std::io::Read;
+use std::path::Path;
 use whisperfish::schema::migrations as schemas;
 use whisperfish::store;
 

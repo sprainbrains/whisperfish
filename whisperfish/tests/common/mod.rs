@@ -1,6 +1,5 @@
-use std::future::Future;
-
 use rstest::fixture;
+use std::future::Future;
 use whisperfish::store::temp;
 use whisperfish::store::{Storage, StorageLocation};
 

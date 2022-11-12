@@ -1,18 +1,16 @@
 #![allow(non_snake_case)]
 
-use std::collections::HashMap;
-use std::collections::HashSet;
-
 use crate::actor;
 use crate::model::*;
 use crate::store::orm;
-
 use actix::prelude::*;
 use chrono::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 // XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {

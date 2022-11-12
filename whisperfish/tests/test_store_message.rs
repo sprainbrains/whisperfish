@@ -1,14 +1,11 @@
-use std::future::Future;
+mod common;
 
-use rstest::rstest;
-
+use self::common::*;
 use chrono::prelude::*;
-
+use rstest::rstest;
+use std::future::Future;
 use whisperfish::store::GroupV1;
 use whisperfish::store::NewMessage;
-
-mod common;
-use common::*;
 
 #[rstest]
 #[actix_rt::test]
