@@ -34,6 +34,7 @@ use libsignal_service::content::{
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::typing_message::Action;
+use libsignal_service::proto::{receipt_message, ReceiptMessage};
 use libsignal_service::provisioning::ProvisioningManager;
 use libsignal_service::push_service::{
     AccountAttributes, DeviceCapabilities, DeviceId, DEFAULT_DEVICE_ID,
@@ -248,6 +249,40 @@ impl ClientActor {
         SignalServers::Production.into()
     }
 
+    pub fn handle_needs_delivery_receipt(
+        &mut self,
+        message: &DataMessage,
+        metadata: &Metadata,
+    ) -> Option<()> {
+        let e164 = metadata.sender.e164();
+        let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
+        let storage = self.storage.as_mut().expect("storage");
+        let recipient = storage.fetch_recipient(e164.as_deref(), uuid.as_deref())?;
+
+        let receipt = ReceiptMessage {
+            r#type: Some(receipt_message::Type::Delivery as _),
+            timestamp: vec![message.timestamp?],
+        };
+
+        let mut svc = self.message_sender();
+        actix::spawn(async move {
+            if let Err(e) = svc
+                .send_message(
+                    &recipient.to_service_address(),
+                    None,
+                    receipt,
+                    Utc::now().timestamp_millis() as u64,
+                    false,
+                )
+                .await
+            {
+                log::error!("Could not deliver delivery receipt: {}", e);
+            }
+        });
+
+        Some(())
+    }
+
     /// Process incoming message from Signal
     ///
     /// This was `MessageHandler` in Go.
@@ -258,10 +293,10 @@ impl ClientActor {
         ctx: &mut <Self as Actor>::Context,
         source_e164: Option<String>,
         source_uuid: Option<String>,
-        msg: DataMessage,
+        msg: &DataMessage,
         is_sync_sent: bool,
-        metadata: Metadata,
-    ) {
+        metadata: &Metadata,
+    ) -> Option<i32> {
         let timestamp = metadata.timestamp;
         let settings = crate::config::Settings::default();
 
@@ -383,7 +418,7 @@ impl ClientActor {
             body
         } else {
             log::debug!("Message without (alt) body, not inserting");
-            return;
+            return None;
         };
 
         let mut new_message = crate::store::NewMessage {
@@ -470,7 +505,7 @@ impl ClientActor {
         }
 
         if settings.get_bool("save_attachments") && !settings.get_bool("incognito") {
-            for attachment in msg.attachments {
+            for attachment in &msg.attachments {
                 // Go used to always set has_attachment and mime_type, but also
                 // in this method, as well as the generated path.
                 // We have this function that returns a filesystem path, so we can
@@ -482,7 +517,7 @@ impl ClientActor {
                     session_id: session.id,
                     message_id: message.id,
                     dest: dest.to_path_buf(),
-                    ptr: attachment,
+                    ptr: attachment.clone(),
                 });
             }
         }
@@ -511,6 +546,7 @@ impl ClientActor {
                 session.is_group(),
             );
         }
+        Some(message.id)
     }
 
     fn handle_sync_request(&mut self, meta: Metadata, req: SyncRequest) {
@@ -627,7 +663,26 @@ impl ClientActor {
             ContentBody::DataMessage(message) => {
                 let e164 = metadata.sender.e164();
                 let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
-                self.handle_message(ctx, e164, uuid, message, false, metadata)
+                let message_id = self.handle_message(
+                    ctx,
+                    e164.clone(),
+                    uuid.clone(),
+                    &message,
+                    false,
+                    &metadata,
+                );
+                if metadata.needs_receipt {
+                    if let Some(_message_id) = message_id {
+                        self.handle_needs_delivery_receipt(&message, &metadata);
+                    }
+                }
+                if !metadata.unidentified_sender && message_id.is_some() {
+                    // TODO: if the contact should have our profile key already, send it again.
+                    //       if the contact should not yet have our profile key, this is ok, and we
+                    //       should offer the user a message request.
+                    //       Cfr. MessageContentProcessor, grep for handleNeedsDeliveryReceipt.
+                    log::warn!("Received an unsealed message from {:?}/{:?}. Assert that they have our profile key.", uuid, e164);
+                }
             }
             ContentBody::SynchronizeMessage(message) => {
                 if let Some(sent) = message.sent {
@@ -641,9 +696,9 @@ impl ClientActor {
                         // but maybe needs a check. TODO
                         sent.destination_e164,
                         sent.destination_uuid,
-                        message,
+                        &message,
                         true,
-                        metadata,
+                        &metadata,
                     );
                 } else if let Some(request) = message.request {
                     log::trace!("Sync request message");
