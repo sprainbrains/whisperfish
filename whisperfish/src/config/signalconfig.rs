@@ -184,9 +184,9 @@ impl SignalConfig {
         // recursively instead, handled by fs_extra::dir::move_dir.
         let options = fs_extra::dir::CopyOptions::new();
         eprintln!("Migrating old db folder...");
-        fs_extra::dir::move_dir(&old_db, &new_path, &options)?;
+        fs_extra::dir::move_dir(old_db, &new_path, &options)?;
         eprintln!("Migrating old storage folder...");
-        fs_extra::dir::move_dir(&old_storage, &new_path, &options)?;
+        fs_extra::dir::move_dir(old_storage, &new_path, &options)?;
         eprintln!("Storage folders migrated");
         Ok(())
     }

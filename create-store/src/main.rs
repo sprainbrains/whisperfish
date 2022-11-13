@@ -42,7 +42,7 @@ async fn create_storage(
     // Registration ID
     let regid: u32 = 12345;
 
-    let storage = store::Storage::new(
+    store::Storage::new(
         &path,
         storage_password,
         regid,
@@ -51,9 +51,7 @@ async fn create_storage(
         None,
     )
     .await
-    .unwrap();
-
-    storage
+    .unwrap()
 }
 
 async fn add_dummy_data(storage: &mut store::Storage) {

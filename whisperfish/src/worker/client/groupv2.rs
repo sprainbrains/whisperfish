@@ -377,7 +377,7 @@ impl Handler<GroupAvatarFetched> for ClientActor {
                     std::fs::create_dir(avatar_dir)?;
                 }
 
-                let out_path = avatar_dir.join(group_id.to_string());
+                let out_path = avatar_dir.join(group_id);
 
                 let mut f = tokio::fs::File::create(out_path).await?;
                 f.write_all(&bytes).await?;
