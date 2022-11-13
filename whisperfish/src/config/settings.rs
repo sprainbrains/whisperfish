@@ -26,8 +26,6 @@ pub struct Settings {
     boolSet: qt_method!(fn(&self, key: String, value: bool)),
     boolValue: qt_method!(fn(&self, key: String) -> bool),
 
-    defaults: qt_method!(fn(&self)),
-
     inner: *mut QSettings,
 }
 
@@ -40,8 +38,6 @@ impl Default for Settings {
 
             boolSet: Default::default(),
             boolValue: Default::default(),
-
-            defaults: Default::default(),
 
             inner: unsafe {
                 cpp!([] -> *mut QSettings as "QSettings *" {
@@ -170,7 +166,6 @@ impl Settings {
         self.get_bool(key)
     }
 
-    #[with_executor]
     pub fn defaults(&mut self) {
         log::info!("Setting default settings.");
 
