@@ -12,6 +12,13 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FO
 OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
+// XXX Rust 2021
+//     Many functions take `impl IntoIterator<&str>`, which is satisfied in Rust 2021 by [&str; _]
+//     arrays, but not in 2018.  Clippy considers this an error, so we disable the lint globally
+//     for now in build.rs.
+#![allow(clippy::needless_borrow)]
+
 use std::path::Path;
 use std::process::Command;
 
