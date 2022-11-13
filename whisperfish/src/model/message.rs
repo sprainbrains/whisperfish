@@ -11,7 +11,7 @@ use futures::prelude::*;
 use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
-use qmetaobject::{QMetaType, QObjectBox, QObjectPinned};
+use qmetaobject::{QObjectBox, QObjectPinned};
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::process::Command;
@@ -52,8 +52,6 @@ struct QtAugmentedMessage {
 
     quoted_message: Option<Box<QtAugmentedMessage>>,
 }
-
-impl QMetaType for QtAugmentedMessage {}
 
 impl Deref for QtAugmentedMessage {
     type Target = AugmentedMessage;
@@ -733,12 +731,21 @@ impl QtAugmentedMessage {
         self.visual_attachments.pinned()
     }
 
+    // XXX When we're able to run Rust 1.a-bit-more, with qmetaobject 0.2.7+, we have QVariantMap.
     fn quote(&self) -> QVariant {
-        self.quoted_message
-            .clone()
-            .as_deref()
-            .map(QMetaType::to_qvariant)
-            .unwrap_or_default()
+        if let Some(quote) = &self.quoted_message {
+            let mut map = qmetaobject::QJsonObject::default();
+
+            for (k, v) in MessageRoles::role_names() {
+                map.insert(
+                    v.to_str().expect("only utf8 role names"),
+                    MessageRoles::from(k).get(quote).into(),
+                );
+            }
+            QVariant::from(map.to_json())
+        } else {
+            QVariant::default()
+        }
     }
 }
 
