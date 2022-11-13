@@ -86,7 +86,7 @@ serde_yaml = "=0.8.25"
 
 base64 = "0.13"
 
-prost = "0.9"
+prost = "0.10"
 
 tempdir = "0.3"
 
@@ -101,7 +101,7 @@ sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", optional = true
 cpp_build = "0.5"
 cc = "1.0"
 anyhow = "1.0"
-prost-build = "0.9"
+prost-build = "0.10"
 
 [dev-dependencies]
 actix-rt = "2.7.0"
