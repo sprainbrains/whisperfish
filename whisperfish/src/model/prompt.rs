@@ -138,7 +138,7 @@ impl Prompt {
                 base64::write::EncoderStringWriter::from(&mut image_uri, base64::STANDARD);
             image::png::PngEncoder::new(&mut image_b64enc)
                 .encode(
-                    &*image_buf,
+                    &image_buf,
                     image_buf.width(),
                     image_buf.height(),
                     <image::Luma<u8> as image::Pixel>::COLOR_TYPE,
@@ -208,6 +208,8 @@ impl Prompt {
     #[allow(non_snake_case)]
     #[with_executor]
     fn startCaptcha(&mut self) {
+        // Rust 2021
+        #[allow(clippy::needless_borrow)]
         Command::new("/usr/bin/sailfish-qml")
             .args(&["harbour-whisperfish"])
             .spawn()
