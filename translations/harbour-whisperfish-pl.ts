@@ -1322,19 +1322,19 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
-        <location filename="../qml/components/message/InfoRow.qml" line="41"/>
+        <location filename="../qml/components/message/InfoRow.qml" line="50"/>
         <source>no time</source>
         <extracomment>Placeholder note if a message doesn&apos;t have a timestamp (which must not happen).</extracomment>
         <translation>brak czasu</translation>
     </message>
     <message id="whisperfish-message-show-less">
-        <location filename="../qml/components/message/InfoRow.qml" line="78"/>
+        <location filename="../qml/components/message/InfoRow.qml" line="87"/>
         <source>show less</source>
         <extracomment>Hint for very long messages, while expanded</extracomment>
         <translation>pokaż mniej</translation>
     </message>
     <message id="whisperfish-message-show-more">
-        <location filename="../qml/components/message/InfoRow.qml" line="81"/>
+        <location filename="../qml/components/message/InfoRow.qml" line="90"/>
         <source>show more</source>
         <extracomment>Hint for very long messages, while not expanded</extracomment>
         <translation>pokaż więcej</translation>
@@ -1353,13 +1353,13 @@ Settings page share contacts</extracomment>
         <translation>Załącznik</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="182"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="183"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation>brak nadawcy</translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="237"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="238"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation>ta wiadomość jest pusta</translation>
