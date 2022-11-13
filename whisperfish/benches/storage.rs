@@ -47,6 +47,7 @@ fn fetch_augmented_messages(c: &mut Criterion) {
                         has_attachment: false,
                         outgoing: false,
                         is_unidentified: false,
+                        quote_timestamp: None,
                     },
                     None,
                 );
