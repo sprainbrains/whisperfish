@@ -37,8 +37,8 @@ actix-http = "=3.0.0-beta.19"
 libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "master" }
 libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "master" }
 
-libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.20.0" }
-zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.20.0" }
+libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.21.1" }
+zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.21.1" }
 
 # Newer versions break MSRV in patch version
 proc-macro2 = "=1.0.26"

@@ -34,7 +34,7 @@ async fn create_old_storage(
     // Registration ID
     let regid: u32 = 12345;
 
-    let storage = current_storage::Storage::new(
+    current_storage::Storage::new(
         path,
         storage_password,
         regid,
@@ -43,20 +43,16 @@ async fn create_old_storage(
         None,
     )
     .await
-    .unwrap();
-
-    storage
+    .unwrap()
 }
 
 async fn open_storage(
     storage_password: Option<String>,
     path: &whisperfish::store::StorageLocation<std::path::PathBuf>,
 ) -> whisperfish::store::Storage {
-    let storage = whisperfish::store::Storage::open(path, storage_password)
+    whisperfish::store::Storage::open(path, storage_password)
         .await
-        .unwrap();
-
-    storage
+        .unwrap()
 }
 
 fn create_random_protocol_address() -> libsignal_service::prelude::protocol::ProtocolAddress {

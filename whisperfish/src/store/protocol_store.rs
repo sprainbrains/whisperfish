@@ -551,6 +551,67 @@ impl protocol::SignedPreKeyStore for Storage {
     }
 }
 
+#[async_trait::async_trait(?Send)]
+impl SenderKeyStore for Storage {
+    async fn store_sender_key(
+        &mut self,
+        addr: &ProtocolAddress,
+        distr_id: Uuid,
+        record: &SenderKeyRecord,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
+        log::trace!("Storing sender key {} {}", addr, distr_id);
+
+        let db = self.db.lock();
+
+        let to_insert = orm::SenderKeyRecord {
+            address: addr.name().to_owned(),
+            device: u32::from(addr.device_id()) as i32,
+            distribution_id: distr_id.to_string(),
+            record: record.serialize()?,
+            created_at: Utc::now().naive_utc(),
+        };
+
+        {
+            use crate::schema::sender_key_records::dsl::*;
+            diesel::insert_into(sender_key_records)
+                .values(to_insert)
+                .execute(&*db)
+                .expect("db");
+        }
+        Ok(())
+    }
+    async fn load_sender_key(
+        &mut self,
+        addr: &ProtocolAddress,
+        distr_id: Uuid,
+        _: Context,
+    ) -> Result<Option<SenderKeyRecord>, SignalProtocolError> {
+        log::trace!("Loading sender key {} {}", addr, distr_id);
+
+        let db = self.db.lock();
+
+        let found: Option<orm::SenderKeyRecord> = {
+            use crate::schema::sender_key_records::dsl::*;
+            sender_key_records
+                .filter(
+                    address
+                        .eq(addr.name())
+                        .and(device.eq(u32::from(addr.device_id()) as i32))
+                        .and(distribution_id.eq(distr_id.to_string())),
+                )
+                .first(&*db)
+                .optional()
+                .expect("db")
+        };
+
+        match found {
+            Some(x) => Ok(Some(SenderKeyRecord::deserialize(&x.record)?)),
+            None => Ok(None),
+        }
+    }
+}
+
 impl Storage {
     #[allow(dead_code)]
     async fn remove_signed_pre_key(&self, id: u32) -> Result<(), SignalProtocolError> {

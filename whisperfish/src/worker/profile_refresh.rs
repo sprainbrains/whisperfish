@@ -1,13 +1,14 @@
+use crate::store::orm::Recipient;
 use crate::store::Storage;
-use crate::{config::SignalConfig, store::orm::Recipient};
 use chrono::prelude::*;
 use diesel::prelude::*;
 use futures::Stream;
-use std::collections::HashMap;
-use std::pin::Pin;
-use std::sync::Arc;
-use std::task::{Context, Poll};
-use std::time::{Duration, Instant};
+use std::{
+    collections::HashMap,
+    pin::Pin,
+    task::{Context, Poll},
+    time::{Duration, Instant},
+};
 use uuid::Uuid;
 use zkgroup::profiles::ProfileKey;
 
@@ -19,18 +20,16 @@ const REYIELD_DELAY: Duration = Duration::from_secs(5 * 60);
 pub struct OutdatedProfileStream {
     ignore_map: HashMap<Uuid, Instant>,
     storage: Storage,
-    config: Arc<SignalConfig>,
     next_wake: Option<Pin<Box<tokio::time::Sleep>>>,
 }
 
 pub struct OutdatedProfile(pub Uuid, pub ProfileKey);
 
 impl OutdatedProfileStream {
-    pub fn new(storage: Storage, config: Arc<SignalConfig>) -> Self {
+    pub fn new(storage: Storage) -> Self {
         Self {
             ignore_map: HashMap::new(),
             storage,
-            config,
             next_wake: None,
         }
     }
@@ -53,15 +52,11 @@ impl OutdatedProfileStream {
         let out_of_date_profiles: Vec<Recipient> = recipients
             .filter(
                 // Keep this filter in sync with the one below
-                profile_key
-                    .is_not_null()
-                    .and(uuid.is_not_null())
-                    .and(
-                        last_profile_fetch
-                            .is_null()
-                            .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
-                    )
-                    .and(uuid.ne(self.config.get_uuid_clone())),
+                profile_key.is_not_null().and(uuid.is_not_null()).and(
+                    last_profile_fetch
+                        .is_null()
+                        .or(last_profile_fetch.le(last_fetch_threshold.naive_utc())),
+                ),
             )
             .order_by(last_profile_fetch.asc())
             .load(&*db)
@@ -122,7 +117,6 @@ impl OutdatedProfileStream {
                 profile_key
                     .is_not_null()
                     .and(uuid.is_not_null())
-                    .and(uuid.ne(self.config.get_uuid_clone()))
                     .and(last_profile_fetch.is_not_null()),
             )
             .order_by(last_profile_fetch.asc())

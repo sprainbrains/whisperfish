@@ -37,6 +37,8 @@ define_model_roles! {
         Outgoing(is_outbound):                                "outgoing",
         Queued(fn queued(&self)):                             "queued",
         Failed(sending_has_failed):                           "failed",
+
+        Unidentified(use_unidentified):                       "unidentifiedSender",
     }
 }
 

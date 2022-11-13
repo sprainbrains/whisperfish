@@ -78,6 +78,7 @@ ListItem {
         > 0)
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && _source !== ''
+    readonly property bool unidentifiedSender: modelData.unidentifiedSender
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: MessageModel.group
     readonly property bool isEmpty: !hasText && !hasAttachments

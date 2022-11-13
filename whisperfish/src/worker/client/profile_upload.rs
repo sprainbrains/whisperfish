@@ -1,16 +1,19 @@
 use super::*;
 use crate::store::TrustLevel;
 use actix::prelude::*;
-use libsignal_service::profile_name::ProfileName;
-use libsignal_service::push_service::AccountAttributes;
-use libsignal_service::push_service::DeviceCapabilities;
+use libsignal_service::{profile_name::ProfileName, push_service};
 use rand::Rng;
 use zkgroup::profiles::ProfileKey;
+
+/// Refresh the profile for the self recipient.
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct RefreshOwnProfile;
 
 /// Generate and upload a profile for the self recipient.
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct GenerateEmptyProfileIfNeeded;
+pub struct UploadProfile;
 
 /// Synchronize multi-device profile information.
 #[derive(Message)]
@@ -65,9 +68,80 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
     }
 }
 
-impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
+impl Handler<RefreshOwnProfile> for ClientActor {
     type Result = ResponseFuture<()>;
-    fn handle(&mut self, _: GenerateEmptyProfileIfNeeded, ctx: &mut Self::Context) -> Self::Result {
+
+    fn handle(&mut self, _: RefreshOwnProfile, ctx: &mut Self::Context) -> Self::Result {
+        let storage = self.storage.clone().unwrap();
+        let mut service = self.authenticated_service();
+        let client = ctx.address();
+        let config = self.config.clone();
+        let uuid = config.get_uuid_clone();
+        let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
+
+        Box::pin(async move {
+            let self_recipient = storage
+                .fetch_self_recipient(&config)
+                .expect("self recipient should be set by now");
+            let profile_key = self_recipient.profile_key.map(|bytes| {
+                let mut key = [0u8; 32];
+                key.copy_from_slice(&bytes);
+                ProfileKey::create(key)
+            });
+
+            let profile_key = if let Some(k) = profile_key {
+                k
+            } else {
+                // UploadProfile will generate a profile key if needed
+                client.send(UploadProfile).await.unwrap();
+                return;
+            };
+
+            if let Some(lpf) = &self_recipient.last_profile_fetch {
+                if Utc.from_utc_datetime(lpf) > Utc::now() - chrono::Duration::days(1) {
+                    log::info!("Our own profile is up-to-date, not fetching.");
+                    return;
+                }
+            }
+
+            let online = service
+                .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(profile_key))
+                .await;
+
+            let outdated = match online {
+                Ok(profile) => {
+                    let unidentified_access_enabled = profile.unidentified_access.is_some();
+                    let capabilities = profile.capabilities.clone();
+                    client
+                        .send(ProfileFetched(uuid, Some(profile)))
+                        .await
+                        .unwrap();
+
+                    !unidentified_access_enabled
+                        || capabilities != whisperfish_device_capabilities()
+                }
+                Err(e) => {
+                    if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                        // No profile of ours online, let's upload one.
+                        true
+                    } else {
+                        log::error!("During profile fetch: {}", e);
+                        false
+                    }
+                }
+            };
+
+            if outdated {
+                client.send(UploadProfile).await.unwrap();
+            }
+        })
+    }
+}
+
+impl Handler<UploadProfile> for ClientActor {
+    type Result = ResponseFuture<()>;
+
+    fn handle(&mut self, _: UploadProfile, ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
         let client = ctx.address();
@@ -79,20 +153,32 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
             let self_recipient = storage
                 .fetch_self_recipient(&config)
                 .expect("self recipient should be set by now");
-            if let Some(key) = self_recipient.profile_key {
-                log::trace!(
-                    "Profile key is already set ({} bytes); not overwriting",
-                    key.len()
-                );
-                return;
-            }
+            let profile_key = self_recipient
+                .profile_key
+                .map(|bytes| {
+                    let mut key = [0u8; 32];
+                    key.copy_from_slice(&bytes);
+                    ProfileKey::create(key)
+                })
+                .unwrap_or_else(|| {
+                    log::info!("Generating profile key");
+                    ProfileKey::generate(rand::thread_rng().gen())
+                });
+            let name = ProfileName {
+                given_name: self_recipient.profile_given_name.as_deref().unwrap_or(""),
+                family_name: self_recipient.profile_family_name.as_deref(),
+            };
 
-            log::info!("Generating profile key");
-            let profile_key = ProfileKey::generate(rand::thread_rng().gen());
             let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
-            am.upload_versioned_profile_without_avatar(uuid, ProfileName::empty(), None, None)
-                .await
-                .expect("upload profile");
+            am.upload_versioned_profile_without_avatar(
+                uuid,
+                name,
+                self_recipient.about,
+                self_recipient.about_emoji,
+                true,
+            )
+            .await
+            .expect("upload profile");
 
             // Now also set the database
             storage.update_profile_key(
@@ -111,6 +197,8 @@ impl Handler<GenerateEmptyProfileIfNeeded> for ClientActor {
 impl Handler<RefreshProfileAttributes> for ClientActor {
     type Result = ResponseFuture<()>;
     fn handle(&mut self, _: RefreshProfileAttributes, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!("Sending profile attributes");
+
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
         let config = self.config.clone();
@@ -121,8 +209,13 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 .fetch_self_recipient(&config)
                 .expect("self set by now");
 
-            let mut am = AccountManager::new(service, self_recipient.profile_key());
-            // XXX centralize the place where attributes are generated.
+            let profile_key = self_recipient.profile_key();
+            let mut am = AccountManager::new(service, profile_key);
+            let unidentified_access_key = profile_key
+                .map(push_service::ProfileKey)
+                .as_ref()
+                .map(push_service::ProfileKey::derive_access_key);
+
             let account_attributes = AccountAttributes {
                 signaling_key: None,
                 registration_id,
@@ -131,19 +224,10 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 fetches_messages: true,
                 pin: None,
                 registration_lock: None,
-                unidentified_access_key: None,
+                unidentified_access_key,
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
-                capabilities: DeviceCapabilities {
-                    announcement_group: false,
-                    gv2: true,
-                    storage: false,
-                    gv1_migration: true,
-                    sender_key: false,
-                    change_number: false,
-                    gift_badges: false,
-                    stories: false,
-                },
+                capabilities: whisperfish_device_capabilities(),
                 name: "Whisperfish".into(),
             };
             am.set_account_attributes(account_attributes)

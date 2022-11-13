@@ -34,8 +34,11 @@ use libsignal_service::content::{
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::typing_message::Action;
+use libsignal_service::proto::{receipt_message, ReceiptMessage};
 use libsignal_service::provisioning::ProvisioningManager;
-use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
+use libsignal_service::push_service::{
+    AccountAttributes, DeviceCapabilities, DeviceId, DEFAULT_DEVICE_ID,
+};
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::websocket::SignalWebSocket;
 use libsignal_service::AccountManager;
@@ -137,6 +140,7 @@ pub struct ClientActor {
             crate::store::Storage,
             crate::store::Storage,
             crate::store::Storage,
+            crate::store::Storage,
             rand::rngs::ThreadRng,
         >,
     >,
@@ -145,6 +149,19 @@ pub struct ClientActor {
     start_time: DateTime<Local>,
 
     outdated_profile_stream_handle: Option<SpawnHandle>,
+}
+
+fn whisperfish_device_capabilities() -> DeviceCapabilities {
+    DeviceCapabilities {
+        announcement_group: false,
+        gv2: true,
+        storage: false,
+        gv1_migration: true,
+        sender_key: true,
+        change_number: false,
+        gift_badges: false,
+        stories: false,
+    }
 }
 
 impl ClientActor {
@@ -211,6 +228,7 @@ impl ClientActor {
         crate::store::Storage,
         crate::store::Storage,
         crate::store::Storage,
+        crate::store::Storage,
         rand::rngs::ThreadRng,
     > {
         let storage = self.storage.clone().unwrap();
@@ -231,6 +249,40 @@ impl ClientActor {
         SignalServers::Production.into()
     }
 
+    pub fn handle_needs_delivery_receipt(
+        &mut self,
+        message: &DataMessage,
+        metadata: &Metadata,
+    ) -> Option<()> {
+        let e164 = metadata.sender.e164();
+        let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
+        let storage = self.storage.as_mut().expect("storage");
+        let recipient = storage.fetch_recipient(e164.as_deref(), uuid.as_deref())?;
+
+        let receipt = ReceiptMessage {
+            r#type: Some(receipt_message::Type::Delivery as _),
+            timestamp: vec![message.timestamp?],
+        };
+
+        let mut svc = self.message_sender();
+        actix::spawn(async move {
+            if let Err(e) = svc
+                .send_message(
+                    &recipient.to_service_address(),
+                    None,
+                    receipt,
+                    Utc::now().timestamp_millis() as u64,
+                    false,
+                )
+                .await
+            {
+                log::error!("Could not deliver delivery receipt: {}", e);
+            }
+        });
+
+        Some(())
+    }
+
     /// Process incoming message from Signal
     ///
     /// This was `MessageHandler` in Go.
@@ -241,10 +293,11 @@ impl ClientActor {
         ctx: &mut <Self as Actor>::Context,
         source_e164: Option<String>,
         source_uuid: Option<String>,
-        msg: DataMessage,
+        msg: &DataMessage,
         is_sync_sent: bool,
-        timestamp: u64,
-    ) {
+        metadata: &Metadata,
+    ) -> Option<i32> {
+        let timestamp = metadata.timestamp;
         let settings = crate::config::Settings::default();
 
         let storage = self.storage.as_mut().expect("storage");
@@ -365,7 +418,7 @@ impl ClientActor {
             body
         } else {
             log::debug!("Message without (alt) body, not inserting");
-            return;
+            return None;
         };
 
         let mut new_message = crate::store::NewMessage {
@@ -374,6 +427,7 @@ impl ClientActor {
             text,
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
+            is_unidentified: metadata.unidentified_sender,
             sent: is_sync_sent,
             timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
                 timestamp
@@ -451,7 +505,7 @@ impl ClientActor {
         }
 
         if settings.get_bool("save_attachments") && !settings.get_bool("incognito") {
-            for attachment in msg.attachments {
+            for attachment in &msg.attachments {
                 // Go used to always set has_attachment and mime_type, but also
                 // in this method, as well as the generated path.
                 // We have this function that returns a filesystem path, so we can
@@ -463,7 +517,7 @@ impl ClientActor {
                     session_id: session.id,
                     message_id: message.id,
                     dest: dest.to_path_buf(),
-                    ptr: attachment,
+                    ptr: attachment.clone(),
                 });
             }
         }
@@ -492,6 +546,7 @@ impl ClientActor {
                 session.is_group(),
             );
         }
+        Some(message.id)
     }
 
     fn handle_sync_request(&mut self, meta: Metadata, req: SyncRequest) {
@@ -608,7 +663,26 @@ impl ClientActor {
             ContentBody::DataMessage(message) => {
                 let e164 = metadata.sender.e164();
                 let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
-                self.handle_message(ctx, e164, uuid, message, false, metadata.timestamp)
+                let message_id = self.handle_message(
+                    ctx,
+                    e164.clone(),
+                    uuid.clone(),
+                    &message,
+                    false,
+                    &metadata,
+                );
+                if metadata.needs_receipt {
+                    if let Some(_message_id) = message_id {
+                        self.handle_needs_delivery_receipt(&message, &metadata);
+                    }
+                }
+                if !metadata.unidentified_sender && message_id.is_some() {
+                    // TODO: if the contact should have our profile key already, send it again.
+                    //       if the contact should not yet have our profile key, this is ok, and we
+                    //       should offer the user a message request.
+                    //       Cfr. MessageContentProcessor, grep for handleNeedsDeliveryReceipt.
+                    log::warn!("Received an unsealed message from {:?}/{:?}. Assert that they have our profile key.", uuid, e164);
+                }
             }
             ContentBody::SynchronizeMessage(message) => {
                 if let Some(sent) = message.sent {
@@ -622,9 +696,9 @@ impl ClientActor {
                         // but maybe needs a check. TODO
                         sent.destination_e164,
                         sent.destination_uuid,
-                        message,
+                        &message,
                         true,
-                        0,
+                        &metadata,
                     );
                 } else if let Some(request) = message.request {
                     log::trace!("Sync request message");
@@ -1287,6 +1361,7 @@ impl Handler<StorageReady> for ClientActor {
                     storage.clone(),
                     storage.clone(),
                     storage.clone(),
+                    storage.clone(),
                     storage,
                     rand::thread_rng(),
                     service_cfg.unidentified_sender_trust_root,
@@ -1343,11 +1418,9 @@ impl Handler<Restart> for ClientActor {
                     if let Some(handle) = act.outdated_profile_stream_handle.take() {
                         ctx.cancel_future(handle);
                     }
-                    act.outdated_profile_stream_handle =
-                        Some(ctx.add_stream(OutdatedProfileStream::new(
-                            act.storage.clone().unwrap(),
-                            act.config.clone(),
-                        )));
+                    act.outdated_profile_stream_handle = Some(
+                        ctx.add_stream(OutdatedProfileStream::new(act.storage.clone().unwrap())),
+                    );
                 }
                 Err(e) => {
                     log::error!("Error starting stream: {}", e);
@@ -1552,7 +1625,6 @@ impl Handler<ConfirmRegistration> for ClientActor {
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
         use libsignal_service::provisioning::*;
-        use libsignal_service::push_service::{AccountAttributes, DeviceCapabilities};
 
         let ConfirmRegistration {
             phonenumber,
@@ -1590,16 +1662,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 unidentified_access_key: None,
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
-                capabilities: DeviceCapabilities {
-                    announcement_group: false,
-                    gv2: true,
-                    storage: false,
-                    gv1_migration: true,
-                    sender_key: false,
-                    change_number: false,
-                    gift_badges: false,
-                    stories: false,
-                },
+                capabilities: whisperfish_device_capabilities(),
                 name: "Whisperfish".into(),
             };
             provisioning_manager

@@ -125,6 +125,7 @@ async fn process_message_no_session_source(storage: impl Future<Output = InMemor
         mime_type: None,
         has_attachment: false,
         outgoing: false,
+        is_unidentified: false,
     };
 
     let (msg_inserted, session_inserted) = storage.process_message(new_message.clone(), None);
@@ -162,6 +163,7 @@ async fn process_message_unresolved_session_source_resolved(
         mime_type: None,
         has_attachment: false,
         outgoing: false,
+        is_unidentified: false,
     };
 
     let (_msg, session) = storage.process_message(new_message, None);
@@ -195,6 +197,7 @@ async fn process_message_exists_session_source(storage: impl Future<Output = InM
             mime_type: None,
             has_attachment: false,
             outgoing: false,
+            is_unidentified: false,
         };
 
         let (msg, session) = storage.process_message(new_message, None);
@@ -235,6 +238,7 @@ async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
         mime_type: None,
         has_attachment: false,
         outgoing: false,
+        is_unidentified: false,
     };
 
     storage.process_message(new_message, None);
@@ -259,6 +263,7 @@ async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
         mime_type: Some(String::from("text/plain")),
         has_attachment: true,
         outgoing: false,
+        is_unidentified: false,
     };
 
     storage.process_message(other_message, None);
@@ -288,6 +293,7 @@ async fn process_inbound_group_message_without_sender(storage: impl Future<Outpu
         mime_type: None,
         has_attachment: false,
         outgoing: false,
+        is_unidentified: false,
     };
 
     // Here the client worker will have resolved a group exists
@@ -337,6 +343,7 @@ async fn process_outbound_group_message_without_sender(storage: impl Future<Outp
         mime_type: None,
         has_attachment: false,
         outgoing: true,
+        is_unidentified: false,
     };
 
     // Here the client worker will have resolved a group exists
@@ -386,6 +393,7 @@ async fn process_message_with_group(storage: impl Future<Output = InMemoryDb>) {
         mime_type: None,
         has_attachment: false,
         outgoing: false,
+        is_unidentified: false,
     };
 
     // Here the client worker will have resolved a group exists

@@ -15,6 +15,14 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
             log::debug!("Ignoring outdated profiles until reconnected.");
             return;
         };
+
+        // If our own Profile is outdated, schedule a profile refresh
+        if self.config.get_uuid_clone() == uuid.to_string() {
+            log::trace!("Scheduling a refresh for our own profile");
+            ctx.notify(RefreshOwnProfile);
+            return;
+        }
+
         ctx.spawn(
             async move {
                 (
@@ -166,7 +174,7 @@ impl Handler<ProfileAvatarFetched> for ClientActor {
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-struct ProfileFetched(uuid::Uuid, Option<SignalServiceProfile>);
+pub(super) struct ProfileFetched(pub uuid::Uuid, pub Option<SignalServiceProfile>);
 
 impl Handler<ProfileFetched> for ClientActor {
     type Result = ();
