@@ -265,7 +265,12 @@ clippy:stable:
     - rustup component add clippy
     # the following command should be used but needs sailfish SDK
     # - cargo clippy --all-targets --all-features -- -D warnings
-    - cargo clippy --all-targets
+    #
+    # Two allows are put in globally, because they occur from macro invocations.
+    # derive_partial_eq_without_eq occurs by prost, and prost suggests to disable the lint globally:
+    #   https://github.com/tokio-rs/prost/issues/661
+    # useless-transmute
+    - cargo clippy --all-targets -- -A clippy::derive_partial_eq_without_eq -A clippy::useless_transmute
 
 clippy:stable-warnings:
   <<: *rust-stable
@@ -277,7 +282,9 @@ clippy:stable-warnings:
     - rustup component add clippy
     # the following command should be used but needs sailfish SDK
     # - cargo clippy --all-targets --all-features -- -D warnings
-    - cargo clippy --all-targets -- -D warnings
+    #
+    # For allows, see above
+    - cargo clippy --all-targets -- -D warnings -A clippy::derive_partial_eq_without_eq -A clippy::useless_transmute
 
 .translations: &translations
   image: debian
