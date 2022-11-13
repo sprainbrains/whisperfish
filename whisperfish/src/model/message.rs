@@ -22,6 +22,7 @@ define_model_roles! {
         Id(id):                                               "id",
         Sid(session_id):                                      "sid",
         Source(fn source(&self) via QString::from):           "source",
+        PeerName(fn peerName(&self) via QString::from):       "peerName",
         Message(text via qstring_from_option):                "message",
         Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
 
@@ -745,6 +746,13 @@ impl QtAugmentedMessage {
             QVariant::from(map.to_json())
         } else {
             QVariant::default()
+        }
+    }
+
+    fn peerName(&self) -> &str {
+        match &self.sender {
+            Some(s) => s.profile_joined_name.as_deref().unwrap_or_default(),
+            None => "",
         }
     }
 }
