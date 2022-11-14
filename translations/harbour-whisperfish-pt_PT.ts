@@ -35,6 +35,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-note-to-self">
+        <location filename="../qml/components/QuotedMessagePreview.qml" line="21"/>
         <location filename="../qml/cover/CoverPage.qml" line="117"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="32"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="183"/>
@@ -1331,14 +1332,14 @@ Settings page share contacts</extracomment>
         <translation>mostrar mais</translation>
     </message>
     <message id="whisperfish-sender-name-label-outgoing">
-        <location filename="../qml/components/QuotedMessagePreview.qml" line="98"/>
+        <location filename="../qml/components/QuotedMessagePreview.qml" line="101"/>
         <location filename="../qml/components/SenderNameLabel.qml" line="81"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
         <translation>Tu</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
-        <location filename="../qml/components/QuotedMessagePreview.qml" line="121"/>
+        <location filename="../qml/components/QuotedMessagePreview.qml" line="124"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
         <translation>Anexo</translation>
