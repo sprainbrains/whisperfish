@@ -194,11 +194,16 @@ impl protocol::PreKeyStore for Storage {
 
         let db = self.db.lock();
 
-        let prekey_record: crate::store::orm::Prekey = prekeys
+        let prekey_record: Option<crate::store::orm::Prekey> = prekeys
             .filter(id.eq(u32::from(prekey_id) as i32))
             .first(&*db)
+            .optional()
             .expect("db");
-        Ok(PreKeyRecord::deserialize(&prekey_record.record)?)
+        if let Some(pkr) = prekey_record {
+            Ok(PreKeyRecord::deserialize(&pkr.record)?)
+        } else {
+            Err(SignalProtocolError::InvalidPreKeyId)
+        }
     }
 
     async fn save_pre_key(
@@ -504,11 +509,16 @@ impl protocol::SignedPreKeyStore for Storage {
 
         let db = self.db.lock();
 
-        let prekey_record: crate::store::orm::SignedPrekey = signed_prekeys
+        let prekey_record: Option<crate::store::orm::SignedPrekey> = signed_prekeys
             .filter(id.eq(u32::from(signed_prekey_id) as i32))
             .first(&*db)
+            .optional()
             .expect("db");
-        Ok(SignedPreKeyRecord::deserialize(&prekey_record.record)?)
+        if let Some(pkr) = prekey_record {
+            Ok(SignedPreKeyRecord::deserialize(&pkr.record)?)
+        } else {
+            Err(SignalProtocolError::InvalidSignedPreKeyId)
+        }
     }
 
     async fn save_signed_pre_key(
