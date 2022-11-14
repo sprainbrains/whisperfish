@@ -1,5 +1,3 @@
-mod quirk;
-
 use super::*;
 use libsignal_service::prelude::protocol::{self, Context};
 use protocol::IdentityKeyPair;
@@ -7,6 +5,8 @@ use protocol::SignalProtocolError;
 use std::path::Path;
 
 pub struct ProtocolStore;
+
+pub const DJB_TYPE: u8 = 0x05;
 
 impl ProtocolStore {
     pub async fn new(
@@ -22,7 +22,7 @@ impl ProtocolStore {
         let mut identity_key = Vec::new();
         let public = identity_key_pair.public_key().serialize();
         assert_eq!(public.len(), 32 + 1);
-        assert_eq!(public[0], quirk::DJB_TYPE);
+        assert_eq!(public[0], DJB_TYPE);
         identity_key.extend(&public[1..]);
 
         let private = identity_key_pair.private_key().serialize();
@@ -54,79 +54,29 @@ impl ProtocolStore {
 }
 
 impl Storage {
-    fn prekey_path(&self, id: u32) -> PathBuf {
-        self.path
-            .join("storage")
-            .join("prekeys")
-            .join(format!("{:09}", id))
-    }
-
-    fn signed_prekey_path(&self, id: u32) -> PathBuf {
-        self.path
-            .join("storage")
-            .join("signed_prekeys")
-            .join(format!("{:09}", id))
-    }
-
     /// Returns a tuple of the next free signed pre-key ID and the next free pre-key ID
     pub async fn next_pre_key_ids(&self) -> (u32, u32) {
+        use diesel::dsl::*;
+        use diesel::prelude::*;
+
         let _lock = self.protocol_store.read().await;
+        let db = self.db.lock();
 
-        let mut pre_key_ids: Vec<u32> =
-            std::fs::read_dir(self.path.join("storage").join("prekeys"))
-                .expect("initialized storage")
-                .filter_map(|entry| {
-                    let entry = entry.expect("directory listing");
-                    if !entry.path().is_file() {
-                        log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                        return None;
-                    }
+        let prekey_max: Option<i32> = {
+            use crate::schema::prekeys::dsl::*;
 
-                    // XXX: *maybe* Signal could become a cross-platform desktop app.
-                    use std::os::unix::ffi::OsStrExt;
-                    let name = entry.file_name();
-                    let name = name.as_os_str().as_bytes();
-
-                    log::trace!("parsing {:?}", entry);
-                    let id = std::str::from_utf8(name).ok()?;
-                    id.parse().ok()
-                })
-                .collect();
-        pre_key_ids.sort_unstable();
-
-        let mut signed_pre_key_ids: Vec<u32> =
-            std::fs::read_dir(self.path.join("storage").join("signed_prekeys"))
-                .expect("initialized storage")
-                .filter_map(|entry| {
-                    let entry = entry.expect("directory listing");
-                    if !entry.path().is_file() {
-                        log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                        return None;
-                    }
-
-                    // XXX: *maybe* Signal could become a cross-platform desktop app.
-                    use std::os::unix::ffi::OsStrExt;
-                    let name = entry.file_name();
-                    let name = name.as_os_str().as_bytes();
-
-                    log::trace!("parsing {:?}", entry);
-                    let id = std::str::from_utf8(name).ok()?;
-                    id.parse().ok()
-                })
-                .collect();
-        signed_pre_key_ids.sort_unstable();
-
-        let next_pre_key_id = if pre_key_ids.is_empty() {
-            0
-        } else {
-            pre_key_ids[pre_key_ids.len() - 1] + 1
+            prekeys.select(max(id)).first(&*db).expect("db")
         };
-        let next_signed_pre_key_id = if signed_pre_key_ids.is_empty() {
-            0
-        } else {
-            signed_pre_key_ids[signed_pre_key_ids.len() - 1] + 1
+        let signed_prekey_max: Option<i32> = {
+            use crate::schema::signed_prekeys::dsl::*;
+
+            signed_prekeys.select(max(id)).first(&*db).expect("db")
         };
-        (next_signed_pre_key_id, next_pre_key_id)
+
+        (
+            (signed_prekey_max.unwrap_or(-1) + 1) as u32,
+            (prekey_max.unwrap_or(-1) + 1) as u32,
+        )
     }
 
     pub async fn delete_identity(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
@@ -155,7 +105,7 @@ impl protocol::IdentityKeyStore for Storage {
             let mut buf = self.read_file(path).await.map_err(|e| {
                 SignalProtocolError::InvalidArgument(format!("Cannot read own identity key {}", e))
             })?;
-            buf.insert(0, quirk::DJB_TYPE);
+            buf.insert(0, DJB_TYPE);
             let public = IdentityKey::decode(&buf[0..33])?;
             let private = PrivateKey::try_from(&buf[33..])?;
             IdentityKeyPair::new(public, private)
@@ -233,49 +183,66 @@ impl protocol::IdentityKeyStore for Storage {
 impl protocol::PreKeyStore for Storage {
     async fn get_pre_key(
         &self,
-        id: PreKeyId,
+        prekey_id: PreKeyId,
         _: Context,
     ) -> Result<PreKeyRecord, SignalProtocolError> {
-        log::trace!("Loading prekey {}", id);
+        log::trace!("Loading prekey {}", prekey_id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = match self.read_file(self.prekey_path(id.into())).await {
-            Ok(x) => x,
-            Err(e) => {
-                log::error!("Invalid pre key id: {}", e);
-                return Err(SignalProtocolError::InvalidPreKeyId);
-            }
-        };
-        let contents = quirk::pre_key_from_0_5(&contents).unwrap();
-        Ok(PreKeyRecord::deserialize(&contents)?)
+        use crate::schema::prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        let prekey_record: crate::store::orm::Prekey = prekeys
+            .filter(id.eq(u32::from(prekey_id) as i32))
+            .first(&*db)
+            .expect("db");
+        Ok(PreKeyRecord::deserialize(&prekey_record.record)?)
     }
 
     async fn save_pre_key(
         &mut self,
-        id: PreKeyId,
+        prekey_id: PreKeyId,
         body: &PreKeyRecord,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
-        log::trace!("Storing prekey {}", id);
+        log::trace!("Storing prekey {}", prekey_id);
         let _lock = self.protocol_store.write().await;
 
-        let contents = quirk::pre_key_to_0_5(&body.serialize()?).unwrap();
-        self.write_file(self.prekey_path(id.into()), contents)
-            .await
-            .expect("written file");
+        use crate::schema::prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        diesel::insert_into(prekeys)
+            .values(crate::store::orm::Prekey {
+                id: u32::from(prekey_id) as _,
+                record: body.serialize()?,
+            })
+            .execute(&*db)
+            .expect("db");
+
         Ok(())
     }
 
     async fn remove_pre_key(
         &mut self,
-        id: PreKeyId,
+        prekey_id: PreKeyId,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
-        log::trace!("Removing prekey {}", id);
+        log::trace!("Removing prekey {}", prekey_id);
         let _lock = self.protocol_store.write().await;
 
-        let path = self.prekey_path(id.into());
-        std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
+        use crate::schema::prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        diesel::delete(prekeys)
+            .filter(id.eq(u32::from(prekey_id) as i32))
+            .execute(&*db)
+            .expect("db");
         Ok(())
     }
 }
@@ -283,11 +250,21 @@ impl protocol::PreKeyStore for Storage {
 impl Storage {
     // XXX Rewrite in terms of get_pre_key
     #[allow(dead_code)]
-    async fn contains_pre_key(&self, id: u32) -> bool {
-        log::trace!("Checking for prekey {}", id);
+    async fn contains_pre_key(&self, prekey_id: u32) -> bool {
+        log::trace!("Checking for prekey {}", prekey_id);
         let _lock = self.protocol_store.read().await;
 
-        self.prekey_path(id).is_file()
+        use crate::schema::prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        let prekey_record: Option<crate::store::orm::Prekey> = prekeys
+            .filter(id.eq(prekey_id as i32))
+            .first(&*db)
+            .optional()
+            .expect("db");
+        prekey_record.is_some()
     }
 }
 
@@ -516,37 +493,47 @@ impl protocol::SessionStoreExt for Storage {
 impl protocol::SignedPreKeyStore for Storage {
     async fn get_signed_pre_key(
         &self,
-        id: SignedPreKeyId,
+        signed_prekey_id: SignedPreKeyId,
         _: Context,
     ) -> Result<SignedPreKeyRecord, SignalProtocolError> {
-        log::trace!("Loading signed prekey {}", id);
+        log::trace!("Loading signed prekey {}", signed_prekey_id);
         let _lock = self.protocol_store.read().await;
 
-        let contents = match self.read_file(self.signed_prekey_path(id.into())).await {
-            Ok(x) => x,
-            Err(e) => {
-                log::error!("Invalid signed pre key id: {}", e);
-                return Err(SignalProtocolError::InvalidSignedPreKeyId);
-            }
-        };
-        let contents = quirk::signed_pre_key_from_0_5(&contents).unwrap();
+        use crate::schema::signed_prekeys::dsl::*;
+        use diesel::prelude::*;
 
-        Ok(SignedPreKeyRecord::deserialize(&contents)?)
+        let db = self.db.lock();
+
+        let prekey_record: crate::store::orm::SignedPrekey = signed_prekeys
+            .filter(id.eq(u32::from(signed_prekey_id) as i32))
+            .first(&*db)
+            .expect("db");
+        Ok(SignedPreKeyRecord::deserialize(&prekey_record.record)?)
     }
 
     async fn save_signed_pre_key(
         &mut self,
-        id: SignedPreKeyId,
+        signed_prekey_id: SignedPreKeyId,
         body: &SignedPreKeyRecord,
         _: Context,
     ) -> Result<(), SignalProtocolError> {
-        log::trace!("Storing prekey {}", id);
+        log::trace!("Storing prekey {}", signed_prekey_id);
         let _lock = self.protocol_store.write().await;
 
-        let contents = quirk::signed_pre_key_to_0_5(&body.serialize()?).unwrap();
-        self.write_file(self.signed_prekey_path(id.into()), contents)
-            .await
-            .expect("written file");
+        use crate::schema::signed_prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        // Insert or replace?
+        diesel::insert_into(signed_prekeys)
+            .values(crate::store::orm::SignedPrekey {
+                id: u32::from(signed_prekey_id) as _,
+                record: body.serialize()?,
+            })
+            .execute(&*db)
+            .expect("db");
+
         Ok(())
     }
 }
@@ -614,22 +601,42 @@ impl SenderKeyStore for Storage {
 
 impl Storage {
     #[allow(dead_code)]
-    async fn remove_signed_pre_key(&self, id: u32) -> Result<(), SignalProtocolError> {
-        log::trace!("Removing signed prekey {}", id);
+    async fn remove_signed_pre_key(
+        &self,
+        signed_prekey_id: u32,
+    ) -> Result<(), SignalProtocolError> {
+        log::trace!("Removing signed prekey {}", signed_prekey_id);
         let _lock = self.protocol_store.write().await;
 
-        let path = self.signed_prekey_path(id);
-        std::fs::remove_file(path).map_err(|_| SignalProtocolError::InvalidPreKeyId)?;
+        use crate::schema::signed_prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        diesel::delete(signed_prekeys)
+            .filter(id.eq(u32::from(signed_prekey_id) as i32))
+            .execute(&*db)
+            .expect("db");
         Ok(())
     }
 
     // XXX rewrite in terms of get_signed_pre_key
     #[allow(dead_code)]
-    async fn contains_signed_pre_key(&self, id: u32) -> bool {
-        log::trace!("Checking for signed prekey {}", id);
+    async fn contains_signed_pre_key(&self, signed_prekey_id: u32) -> bool {
+        log::trace!("Checking for signed prekey {}", signed_prekey_id);
         let _lock = self.protocol_store.read().await;
 
-        self.signed_prekey_path(id).is_file()
+        use crate::schema::signed_prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let db = self.db.lock();
+
+        let signed_prekey_record: Option<crate::store::orm::SignedPrekey> = signed_prekeys
+            .filter(id.eq(signed_prekey_id as i32))
+            .first(&*db)
+            .optional()
+            .expect("db");
+        signed_prekey_record.is_some()
     }
 }
 
