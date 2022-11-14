@@ -1883,7 +1883,10 @@ impl Storage {
         };
 
         if fetch_quote && (quoted_message.is_none() != message.quote_id.is_none()) {
-            unreachable!("database constraint violation, quoted message does not exist");
+            log::debug!(
+                "Quoted message ts={} does not exist",
+                message.quote_id.unwrap()
+            );
         }
 
         Some(AugmentedMessage {
@@ -1996,7 +1999,11 @@ impl Storage {
                 .quote_id
                 .and_then(|id| self.fetch_augmented_message(id, false));
             if quoted_message.is_none() != message.quote_id.is_none() {
-                unreachable!("database constraint violation, quoted message does not exist");
+                // XXX the UI should show a "quote does not exist" message for this.
+                log::debug!(
+                    "Quoted message ts={} does not exist",
+                    message.quote_id.unwrap()
+                );
             }
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
