@@ -1,0 +1,2 @@
+ALTER TABLE messages
+    ADD COLUMN quote_id INTEGER DEFAULT NULL;

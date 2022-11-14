@@ -19,7 +19,7 @@ ListItem {
     // TODO we need a way to get a valid index from a message id
     //      (we must rely on the message's id instead of its index, as the latter may change)
     // TODO 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
-    property var quotedMessageData: null // required properties: message, source, outgoing, attachments, AND id, index
+    property var quotedMessageData: typeof modelData.quote !== 'undefined' ? JSON.parse(modelData.quote) : null // required properties: message, source, outgoing, attachments, AND id, index
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
     // Signal signature: \c{replySignal(var index, var modelData)}.

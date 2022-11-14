@@ -4,6 +4,7 @@ mod encryption;
 mod protocol_store;
 mod utils;
 
+use self::orm::AugmentedMessage;
 use crate::schema;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
@@ -95,6 +96,7 @@ pub struct NewMessage {
     pub has_attachment: bool,
     pub outgoing: bool,
     pub is_unidentified: bool,
+    pub quote_timestamp: Option<u64>,
 }
 
 #[derive(Clone, Debug)]
@@ -1710,6 +1712,17 @@ impl Storage {
             None
         };
 
+        let quoted_message_id = new_message
+            .quote_timestamp
+            .and_then(|ts| {
+                let msg = self.fetch_message_by_timestamp(millis_to_naive_chrono(ts));
+                if msg.is_none() {
+                    log::warn!("No message to quote for ts={}", ts);
+                }
+                msg
+            })
+            .map(|message| message.id);
+
         // The server time needs to be the rounded-down version;
         // chrono does nanoseconds.
         let server_time = millis_to_naive_chrono(new_message.timestamp.timestamp_millis() as u64);
@@ -1737,6 +1750,7 @@ impl Storage {
                     is_outbound.eq(new_message.outgoing),
                     use_unidentified.eq(new_message.is_unidentified),
                     flags.eq(new_message.flags),
+                    quote_id.eq(quoted_message_id),
                 ))
                 .execute(&*db)
                 .expect("inserting a message")
@@ -1846,6 +1860,45 @@ impl Storage {
             .expect("database")
     }
 
+    pub fn fetch_augmented_message(
+        &self,
+        id: i32,
+        fetch_quote: bool,
+    ) -> Option<orm::AugmentedMessage> {
+        let message = self.fetch_message_by_id(id)?;
+        let receipts = self.fetch_message_receipts(message.id);
+        let attachments = self.fetch_attachments_for_message(message.id);
+        let reactions = self.fetch_reactions_for_message(message.id);
+        let sender = if let Some(id) = message.sender_recipient_id {
+            self.fetch_recipient_by_id(id)
+        } else {
+            None
+        };
+        let quoted_message = if fetch_quote {
+            message
+                .quote_id
+                .and_then(|id| self.fetch_augmented_message(id, false))
+        } else {
+            None
+        };
+
+        if fetch_quote && (quoted_message.is_none() != message.quote_id.is_none()) {
+            log::debug!(
+                "Quoted message ts={} does not exist",
+                message.quote_id.unwrap()
+            );
+        }
+
+        Some(AugmentedMessage {
+            inner: message,
+            receipts,
+            attachments,
+            reactions,
+            sender,
+            quoted_message: quoted_message.map(Box::new),
+        })
+    }
+
     /// Returns a vector of tuples of messages with their sender.
     ///
     /// When the sender is None, it is a sent message, not a received message.
@@ -1942,12 +1995,23 @@ impl Storage {
             } else {
                 vec![]
             };
+            let quoted_message = message
+                .quote_id
+                .and_then(|id| self.fetch_augmented_message(id, false));
+            if quoted_message.is_none() != message.quote_id.is_none() {
+                // XXX the UI should show a "quote does not exist" message for this.
+                log::debug!(
+                    "Quoted message ts={} does not exist",
+                    message.quote_id.unwrap()
+                );
+            }
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
                 sender,
                 attachments,
                 receipts,
                 reactions,
+                quoted_message: quoted_message.map(Box::new),
             });
         }
         aug_messages

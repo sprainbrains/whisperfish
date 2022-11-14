@@ -103,6 +103,7 @@ table! {
         use_unidentified -> Bool,
         is_remote_deleted -> Bool,
         sending_has_failed -> Bool,
+        quote_id -> Nullable<Integer>,
     }
 }
 

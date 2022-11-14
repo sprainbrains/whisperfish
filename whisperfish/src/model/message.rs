@@ -15,12 +15,14 @@ use qmetaobject::{QObjectBox, QObjectPinned};
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::process::Command;
+use std::rc::Rc;
 
 define_model_roles! {
     enum MessageRoles for QtAugmentedMessage {
         Id(id):                                               "id",
         Sid(session_id):                                      "sid",
         Source(fn source(&self) via QString::from):           "source",
+        PeerName(fn peerName(&self) via QString::from):       "peerName",
         Message(text via qstring_from_option):                "message",
         Timestamp(server_timestamp via qdatetime_from_naive): "timestamp",
 
@@ -39,13 +41,17 @@ define_model_roles! {
         Failed(sending_has_failed):                           "failed",
 
         Unidentified(use_unidentified):                       "unidentifiedSender",
+        QuotedMessage(fn quote(&self)):                       "quote",
     }
 }
 
+#[derive(Clone, Default)]
 struct QtAugmentedMessage {
     inner: AugmentedMessage,
-    visual_attachments: QObjectBox<AttachmentModel>,
-    detail_attachments: QObjectBox<AttachmentModel>,
+    visual_attachments: Rc<QObjectBox<AttachmentModel>>,
+    detail_attachments: Rc<QObjectBox<AttachmentModel>>,
+
+    quoted_message: Option<Box<QtAugmentedMessage>>,
 }
 
 impl Deref for QtAugmentedMessage {
@@ -71,10 +77,13 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
             attachments: detail,
             ..Default::default()
         };
+
+        let quoted_message = inner.quoted_message.clone().map(|x| Box::new((*x).into()));
         Self {
             inner,
-            visual_attachments: QObjectBox::new(visual_attachments),
-            detail_attachments: QObjectBox::new(detail_attachments),
+            visual_attachments: Rc::new(QObjectBox::new(visual_attachments)),
+            detail_attachments: Rc::new(QObjectBox::new(detail_attachments)),
+            quoted_message,
         }
     }
 }
@@ -256,6 +265,7 @@ impl MessageModel {
                 receipts: Vec::new(),
                 // No reactions yet.
                 reactions: Vec::new(),
+                quoted_message: None,
             }
             .into(),
         );
@@ -571,14 +581,7 @@ impl MessageModel {
         log::trace!("Dispatched actor::FetchAllMessages({})", sess.id);
     }
 
-    pub fn handle_fetch_message(
-        &mut self,
-        message: orm::Message,
-        recipient: Option<orm::Recipient>,
-        attachments: Vec<orm::Attachment>,
-        receipts: Vec<(orm::Receipt, orm::Recipient)>,
-        reactions: Vec<(orm::Reaction, orm::Recipient)>,
-    ) {
+    pub fn handle_fetch_message(&mut self, message: orm::AugmentedMessage) {
         log::trace!("handle_fetch_message({})", message.id);
 
         let idx = self.messages.binary_search_by(|am| {
@@ -588,14 +591,7 @@ impl MessageModel {
                 .reverse()
         });
 
-        let am = AugmentedMessage {
-            inner: message,
-            sender: recipient,
-            attachments,
-            receipts,
-            reactions,
-        }
-        .into();
+        let am = message.into();
 
         match idx {
             Ok(idx) => {
@@ -734,6 +730,30 @@ impl QtAugmentedMessage {
 
     fn visual_attachments(&self) -> QObjectPinned<'_, AttachmentModel> {
         self.visual_attachments.pinned()
+    }
+
+    // XXX When we're able to run Rust 1.a-bit-more, with qmetaobject 0.2.7+, we have QVariantMap.
+    fn quote(&self) -> QVariant {
+        if let Some(quote) = &self.quoted_message {
+            let mut map = qmetaobject::QJsonObject::default();
+
+            for (k, v) in MessageRoles::role_names() {
+                map.insert(
+                    v.to_str().expect("only utf8 role names"),
+                    MessageRoles::from(k).get(quote).into(),
+                );
+            }
+            QVariant::from(map.to_json())
+        } else {
+            QVariant::default()
+        }
+    }
+
+    fn peerName(&self) -> &str {
+        match &self.sender {
+            Some(s) => s.profile_joined_name.as_deref().unwrap_or_default(),
+            None => "",
+        }
     }
 }
 

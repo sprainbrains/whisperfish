@@ -17,10 +17,13 @@ BackgroundItem {
     property alias backgroundItem: bgRect
 
     readonly property bool shown: (messageData !== null && visible)
-    property var _contact: (messageData !== null && mainWindow.contactsReady) ?
-                                     resolvePeopleModel.personByPhoneNumber(messageData.source, true) :
-                                     null
-    property string _contactName: _contact !== null ? _contact.displayLabel : ''
+    property var contact: (mainWindow.contactsReady && messageData !== null) ? resolvePeopleModel.personByPhoneNumber(messageData.source, true) : null
+    property string contactName: messageData !== null ? ( messageData.peerName !== '' ? messageData.peerName : (contact ? contact.displayLabel : ( messageData.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : messageData.source))) : ''
+    readonly property bool hasAttachments: false
+    // readonly property bool hasAttachments: (
+    //     (typeof messageData.thumbsAttachments !== 'undefined' ? messageData.thumbsAttachments.count : 0)
+    //     + (typeof messageData.detailAttachments !== 'undefined' ? messageData.detailAttachments.count : 0)
+    //     > 0)
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
                                              metrics.width), maximumWidth) : 0
@@ -96,7 +99,7 @@ BackgroundItem {
                            //: Name shown when replying to own messages
                            //% "You"
                            qsTrId("whisperfish-sender-name-label-outgoing") :
-                           _contactName) :
+                           contactName) :
                       ''
             source: (messageData !== null && !messageData.outgoing) ?
                         messageData.source : ''
@@ -141,8 +144,10 @@ BackgroundItem {
         }
         width: attach === null ? 0 : Theme.itemSizeMedium
         height: width
-        attach: (messageData !== null && messageData.attachments.length > 0) ?
-                    messageData.attachments[0] : null
+        attach: null
+        // XXX: This will work when we expose the quoted message data as QVariantMap instead of a JSON object. Cfr. QtAugmentedMessage::quote(&self).
+        // attach: (messageData !== null && messageData.thumbsAttachments.count > 0) ?
+        //             messageData.thumbsAttachments.get(0) : null
         enabled: false
         layer.enabled: true
         layer.smooth: true
