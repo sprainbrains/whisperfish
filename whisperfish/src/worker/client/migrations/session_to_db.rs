@@ -83,47 +83,52 @@ impl SessionStorageMigration {
         }
     }
 
-    async fn migrate_sessions(&self) {
-        let session_dir = self.path().join("storage").join("sessions");
-
-        let entries = match std::fs::read_dir(session_dir) {
+    fn read_dir_and_filter(&self, dir: impl AsRef<Path>) -> Box<dyn Iterator<Item = String>> {
+        let entries = match std::fs::read_dir(dir) {
             Ok(entries) => entries,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
                 // Potentially in the future also e.kind() == std::io::ErrorKind::NotADirectory
                 log::info!("Migrating sessions is not necessary; there's no session directory.");
-                return;
+                return Box::new(std::iter::empty());
             }
             Err(e) => {
                 panic!("Something went wrong reading the session directory: {}", e);
             }
         };
 
-        let sessions = entries
+        Box::new(entries.filter_map(|entry| {
+            let entry = entry.expect("directory listing");
+            if !entry.path().is_file() {
+                log::warn!("Non-file directory entry: {:?}. Skipping", entry);
+                return None;
+            }
+
+            // XXX: *maybe* Signal could become a cross-platform desktop app.
+            //      Issue #77
+            use std::os::unix::ffi::OsStringExt;
+            let name = entry.file_name().into_vec();
+
+            match String::from_utf8(name) {
+                Ok(s) => Some(s),
+                Err(_e) => {
+                    log::warn!("non-UTF8 session name; skipping");
+                    None
+                }
+            }
+        }))
+    }
+
+    async fn migrate_sessions(&self) {
+        let session_dir = self.path().join("storage").join("sessions");
+
+        let sessions = self
+            .read_dir_and_filter(session_dir)
             // Parse the session file names
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                //      Issue #77
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-
+            .filter_map(|name| {
                 if name.len() < 3 {
-                    log::warn!(
-                        "Strange session name; skipping ({})",
-                        String::from_utf8_lossy(name)
-                    );
+                    log::warn!("Strange session name; skipping ({})", name);
                     return None;
                 }
-                let name = option_warn(
-                    std::str::from_utf8(name).ok(),
-                    "non-UTF8 session name; skipping",
-                )?;
 
                 log::info!("Migrating session {}", name);
 
@@ -214,40 +219,10 @@ impl SessionStorageMigration {
     async fn migrate_identities(&self) {
         let identity_dir = self.0.path().join("storage").join("identity");
 
-        let entries = match std::fs::read_dir(identity_dir) {
-            Ok(entries) => entries,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                // Potentially in the future also e.kind() == std::io::ErrorKind::NotADirectory
-                log::info!("Migrating identities is not necessary; there's no identity directory.");
-                return;
-            }
-            Err(e) => {
-                panic!(
-                    "Something went wrong reading the identities directory: {}",
-                    e
-                );
-            }
-        };
-
-        let identities = entries
+        let identities = self
+            .read_dir_and_filter(identity_dir)
             // Parse the session file names
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file identity entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                //      Issue #77
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-                let name = option_warn(
-                    std::str::from_utf8(name).ok(),
-                    "non-UTF8 identity name; skipping",
-                )?;
-
+            .filter_map(|name| {
                 if !name.starts_with("remote_") {
                     let allow_list = [
                         "http_password",
@@ -255,7 +230,7 @@ impl SessionStorageMigration {
                         "identity_key",
                         "regid",
                     ];
-                    if !allow_list.contains(&name) {
+                    if !allow_list.contains(&name.as_str()) {
                         log::warn!(
                             "Identity file `{}` does not start with `remote_`; skipping",
                             name
