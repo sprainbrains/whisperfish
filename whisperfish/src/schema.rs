@@ -108,6 +108,13 @@ table! {
 }
 
 table! {
+    prekeys (id) {
+        id -> Integer,
+        record -> Binary,
+    }
+}
+
+table! {
     reactions (reaction_id) {
         reaction_id -> Integer,
         message_id -> Integer,
@@ -189,6 +196,13 @@ table! {
 }
 
 table! {
+    signed_prekeys (id) {
+        id -> Integer,
+        record -> Binary,
+    }
+}
+
+table! {
     stickers (pack_id, sticker_id) {
         pack_id -> Nullable<Text>,
         sticker_id -> Integer,
@@ -229,11 +243,13 @@ allow_tables_to_appear_in_same_query!(
     group_v2s,
     identity_records,
     messages,
+    prekeys,
     reactions,
     receipts,
     recipients,
     sender_key_records,
     session_records,
     sessions,
+    signed_prekeys,
     stickers,
 );

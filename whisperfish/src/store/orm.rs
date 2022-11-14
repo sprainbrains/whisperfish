@@ -142,6 +142,18 @@ pub struct IdentityRecord {
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+pub struct SignedPrekey {
+    pub id: i32,
+    pub record: Vec<u8>,
+}
+
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+pub struct Prekey {
+    pub id: i32,
+    pub record: Vec<u8>,
+}
+
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 #[primary_key(address, device, distribution_id)]
 pub struct SenderKeyRecord {
     pub address: String,

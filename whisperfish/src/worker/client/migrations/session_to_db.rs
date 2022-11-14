@@ -1,7 +1,7 @@
 mod quirk;
 
 use super::*;
-use crate::store::orm::SessionRecord;
+use crate::store::orm::{Prekey, SessionRecord, SignedPrekey};
 use actix::prelude::*;
 use libsignal_service::prelude::protocol;
 use libsignal_service::prelude::protocol::ProtocolAddress;
@@ -81,49 +81,224 @@ impl SessionStorageMigration {
             log::trace!("calling migrate_identities");
             self.migrate_identities().await;
         }
+
+        if self.0.path().join("storage").join("prekeys").exists() {
+            log::trace!("calling migrate_prekeys");
+            self.migrate_prekeys().await;
+        }
+
+        if self
+            .0
+            .path()
+            .join("storage")
+            .join("signed_prekeys")
+            .exists()
+        {
+            log::trace!("calling migrate_signed_prekeys");
+            self.migrate_signed_prekeys().await;
+        }
     }
 
-    async fn migrate_sessions(&self) {
-        let session_dir = self.path().join("storage").join("sessions");
-
-        let entries = match std::fs::read_dir(session_dir) {
+    fn read_dir_and_filter(&self, dir: impl AsRef<Path>) -> Box<dyn Iterator<Item = String>> {
+        let entries = match std::fs::read_dir(dir) {
             Ok(entries) => entries,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
                 // Potentially in the future also e.kind() == std::io::ErrorKind::NotADirectory
                 log::info!("Migrating sessions is not necessary; there's no session directory.");
-                return;
+                return Box::new(std::iter::empty());
             }
             Err(e) => {
                 panic!("Something went wrong reading the session directory: {}", e);
             }
         };
 
-        let sessions = entries
-            // Parse the session file names
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file session entry: {:?}. Skipping", entry);
-                    return None;
+        Box::new(entries.filter_map(|entry| {
+            let entry = entry.expect("directory listing");
+            if !entry.path().is_file() {
+                log::warn!("Non-file directory entry: {:?}. Skipping", entry);
+                return None;
+            }
+
+            // XXX: *maybe* Signal could become a cross-platform desktop app.
+            //      Issue #77
+            use std::os::unix::ffi::OsStringExt;
+            let name = entry.file_name().into_vec();
+
+            match String::from_utf8(name) {
+                Ok(s) => Some(s),
+                Err(_e) => {
+                    log::warn!("non-UTF8 session name; skipping");
+                    None
                 }
+            }
+        }))
+    }
 
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                //      Issue #77
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
+    async fn migrate_prekeys(&self) {
+        let prekey_dir = self.path().join("storage").join("prekeys");
+        let prekeys = self.read_dir_and_filter(prekey_dir).filter_map(|name| {
+            let id = name
+                .parse::<u32>()
+                .map_err(|_| log::warn!("Unparseable prekey id {}", name))
+                .ok()?;
 
-                if name.len() < 3 {
-                    log::warn!(
-                        "Strange session name; skipping ({})",
-                        String::from_utf8_lossy(name)
+            Some(PreKeyId::from(id))
+        });
+
+        for prekey in prekeys {
+            let path = self.prekey_path(prekey);
+
+            log::trace!("Loading prekey {} for migration", prekey);
+            let _lock = self.protocol_store.read().await;
+            let buf = match self.read_file(&path).await {
+                Ok(buf) => buf,
+                Err(e) if !path.exists() => {
+                    log::trace!(
+                        "Skipping prekey because {} does not exist ({})",
+                        path.display(),
+                        e
                     );
+
+                    continue;
+                }
+                Err(e) => {
+                    log::error!("Problem reading prekey at {} ({})", path.display(), e);
+                    continue;
+                }
+            };
+
+            let buf = quirk::pre_key_from_0_5(&buf).unwrap();
+
+            {
+                use crate::schema::prekeys::dsl::*;
+                use diesel::prelude::*;
+                let prekey_record = Prekey {
+                    id: u32::from(prekey) as _,
+                    record: buf,
+                };
+                let db = self.0.db.lock();
+                let res = diesel::insert_into(prekeys)
+                    .values(prekey_record)
+                    .execute(&*db);
+
+                use diesel::result::{DatabaseErrorKind, Error};
+                match res {
+                    Ok(1) => (),
+                    Ok(n) => unreachable!(
+                        "inserting a single record cannot return {} rows changed.",
+                        n
+                    ),
+                    Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+                        log::warn!(
+                            "Already found prekey {} in the database.",
+                            u32::from(prekey)
+                        );
+                    }
+                    Err(e) => Err(e).expect("well behaving database"),
+                }
+            }
+
+            // By now, the session is safely stored in the database, so we can remove the file.
+            if let Err(e) = std::fs::remove_file(path) {
+                log::debug!(
+                    "Could not delete prekey {}, assuming non-existing: {}",
+                    prekey,
+                    e
+                );
+            }
+        }
+    }
+
+    async fn migrate_signed_prekeys(&self) {
+        let prekey_dir = self.path().join("storage").join("signed_prekeys");
+        let prekeys = self.read_dir_and_filter(prekey_dir).filter_map(|name| {
+            let id = name
+                .parse::<u32>()
+                .map_err(|_| log::warn!("Unparseable prekey id {}", name))
+                .ok()?;
+
+            Some(SignedPreKeyId::from(id))
+        });
+
+        for prekey in prekeys {
+            let path = self.signed_prekey_path(prekey);
+
+            log::trace!("Loading signed prekey {} for migration", prekey);
+            let _lock = self.protocol_store.read().await;
+            let buf = match self.read_file(&path).await {
+                Ok(buf) => buf,
+                Err(e) if !path.exists() => {
+                    log::trace!(
+                        "Skipping signed prekey because {} does not exist ({})",
+                        path.display(),
+                        e
+                    );
+
+                    continue;
+                }
+                Err(e) => {
+                    log::error!(
+                        "Problem reading signed prekey at {} ({})",
+                        path.display(),
+                        e
+                    );
+                    continue;
+                }
+            };
+
+            let buf = quirk::signed_pre_key_from_0_5(&buf).unwrap();
+
+            {
+                use crate::schema::signed_prekeys::dsl::*;
+                use diesel::prelude::*;
+                let signed_prekey_record = SignedPrekey {
+                    id: u32::from(prekey) as _,
+                    record: buf,
+                };
+                let db = self.0.db.lock();
+                let res = diesel::insert_into(signed_prekeys)
+                    .values(signed_prekey_record)
+                    .execute(&*db);
+
+                use diesel::result::{DatabaseErrorKind, Error};
+                match res {
+                    Ok(1) => (),
+                    Ok(n) => unreachable!(
+                        "inserting a single record cannot return {} rows changed.",
+                        n
+                    ),
+                    Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+                        log::warn!(
+                            "Already found signed prekey {} in the database.",
+                            u32::from(prekey)
+                        );
+                    }
+                    Err(e) => Err(e).expect("well behaving database"),
+                }
+            }
+
+            // By now, the session is safely stored in the database, so we can remove the file.
+            if let Err(e) = std::fs::remove_file(path) {
+                log::debug!(
+                    "Could not delete prekey {}, assuming non-existing: {}",
+                    prekey,
+                    e
+                );
+            }
+        }
+    }
+
+    async fn migrate_sessions(&self) {
+        let session_dir = self.path().join("storage").join("sessions");
+
+        let sessions = self
+            .read_dir_and_filter(session_dir)
+            // Parse the session file names
+            .filter_map(|name| {
+                if name.len() < 3 {
+                    log::warn!("Strange session name; skipping ({})", name);
                     return None;
                 }
-                let name = option_warn(
-                    std::str::from_utf8(name).ok(),
-                    "non-UTF8 session name; skipping",
-                )?;
 
                 log::info!("Migrating session {}", name);
 
@@ -214,40 +389,10 @@ impl SessionStorageMigration {
     async fn migrate_identities(&self) {
         let identity_dir = self.0.path().join("storage").join("identity");
 
-        let entries = match std::fs::read_dir(identity_dir) {
-            Ok(entries) => entries,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                // Potentially in the future also e.kind() == std::io::ErrorKind::NotADirectory
-                log::info!("Migrating identities is not necessary; there's no identity directory.");
-                return;
-            }
-            Err(e) => {
-                panic!(
-                    "Something went wrong reading the identities directory: {}",
-                    e
-                );
-            }
-        };
-
-        let identities = entries
+        let identities = self
+            .read_dir_and_filter(identity_dir)
             // Parse the session file names
-            .filter_map(|entry| {
-                let entry = entry.expect("directory listing");
-                if !entry.path().is_file() {
-                    log::warn!("Non-file identity entry: {:?}. Skipping", entry);
-                    return None;
-                }
-
-                // XXX: *maybe* Signal could become a cross-platform desktop app.
-                //      Issue #77
-                use std::os::unix::ffi::OsStrExt;
-                let name = entry.file_name();
-                let name = name.as_os_str().as_bytes();
-                let name = option_warn(
-                    std::str::from_utf8(name).ok(),
-                    "non-UTF8 identity name; skipping",
-                )?;
-
+            .filter_map(|name| {
                 if !name.starts_with("remote_") {
                     let allow_list = [
                         "http_password",
@@ -255,7 +400,7 @@ impl SessionStorageMigration {
                         "identity_key",
                         "regid",
                     ];
-                    if !allow_list.contains(&name) {
+                    if !allow_list.contains(&name.as_str()) {
                         log::warn!(
                             "Identity file `{}` does not start with `remote_`; skipping",
                             name
@@ -340,6 +485,22 @@ impl SessionStorageMigration {
             .join("storage")
             .join("identity")
             .join(format!("remote_{}", recipient_id,))
+    }
+
+    fn prekey_path(&self, id: PreKeyId) -> PathBuf {
+        self.0
+            .path()
+            .join("storage")
+            .join("prekeys")
+            .join(format!("{:09}", u32::from(id)))
+    }
+
+    fn signed_prekey_path(&self, id: SignedPreKeyId) -> PathBuf {
+        self.0
+            .path()
+            .join("storage")
+            .join("signed_prekeys")
+            .join(format!("{:09}", u32::from(id)))
     }
 
     async fn read_identity_key_file(

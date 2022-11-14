@@ -80,3 +80,25 @@ fn unquirk_identity(id: &mut Vec<u8>) -> Result<(), SignalProtocolError> {
         ))
     }
 }
+
+/// Removes quirks to the pre key data format that are apparent in Whisperfish 0.5
+pub fn pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = PreKeyRecordStructure::decode(input).map_err(prost_err_to_signal)?;
+
+    // begin quirking
+    unquirk_identity(&mut obj.public_key)?;
+    // end quirking
+
+    Ok(obj.encode_to_vec())
+}
+
+/// Removes quirks to the signed pre key data format that are apparent in Whisperfish 0.5
+pub fn signed_pre_key_from_0_5(input: &[u8]) -> Result<Vec<u8>, SignalProtocolError> {
+    let mut obj = SignedPreKeyRecordStructure::decode(input).map_err(prost_err_to_signal)?;
+
+    // begin quirking
+    unquirk_identity(&mut obj.public_key)?;
+    // end quirking
+
+    Ok(obj.encode_to_vec())
+}
