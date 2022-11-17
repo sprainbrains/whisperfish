@@ -123,21 +123,10 @@ pub struct MessageModel {
     sessionIdChanged: qt_signal!(),
     groupChanged: qt_signal!(),
 
-    createGroupMessage: qt_method!(
-        fn(
-            &self,
-            group_id: QString,
-            message: QString,
-            groupName: QString,
-            attachment: QString,
-            quote: i32,
-            add: bool,
-        ) -> i32
-    ),
     createMessage: qt_method!(
         fn(
             &self,
-            source: QString,
+            session_id: i32,
             message: QString,
             attachment: QString,
             quote: i32,
@@ -166,56 +155,14 @@ pub struct MessageModel {
 
 impl MessageModel {
     #[with_executor]
-    fn createGroupMessage(
-        &mut self,
-        group_id: QString,
-        message: QString,
-        _group_name: QString,
-        attachment: QString,
-        quote: i32,
-        _add: bool,
-    ) -> i32 {
-        let group_id = group_id.to_string();
-        let message = message.to_string();
-        let attachment = attachment.to_string();
-
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                // XXX hackermannnnnn
-                .send(match group_id.len() {
-                    32 => actor::QueueGroupMessage::GroupV1Message {
-                        group_id,
-                        message,
-                        attachment,
-                        quote,
-                    },
-                    64 => actor::QueueGroupMessage::GroupV2Message {
-                        group_id,
-                        message,
-                        attachment,
-                        quote,
-                    },
-                    _ => unreachable!("Illegal group ID"),
-                })
-                .map(Result::unwrap),
-        );
-
-        // TODO: QML should *not* synchronously wait for a session ID to be returned.
-        -1
-    }
-
-    #[with_executor]
     fn createMessage(
         &mut self,
-        recipient: QString,
+        session_id: i32,
         message: QString,
         attachment: QString,
         quote: i32,
         _add: bool,
     ) -> i32 {
-        let recipient = recipient.to_string();
         let message = message.to_string();
         let attachment = attachment.to_string();
 
@@ -224,7 +171,7 @@ impl MessageModel {
                 .as_ref()
                 .unwrap()
                 .send(actor::QueueMessage {
-                    recipient,
+                    session_id,
                     message,
                     attachment,
                     quote,
