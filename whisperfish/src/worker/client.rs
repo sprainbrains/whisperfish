@@ -1003,16 +1003,16 @@ impl Handler<SendMessage> for ClientActor {
                 let online = false;
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
 
-                let quote = msg.quoted_message.as_ref().map(|quote| {
-                    if !quote.attachments.is_empty() {
+                let quote = msg.quoted_message.as_ref().map(|quoted_message| {
+                    if !quoted_message.attachments.is_empty() {
                         log::warn!("Quoting attachments is incomplete.  Here be dragons.");
                     }
 
                     Quote {
-                        id: Some(quote.server_timestamp.timestamp_millis() as u64),
-                        author_e164: self_recipient.as_ref().and_then(|r| r.e164.clone()),
-                        author_uuid: self_recipient.as_ref().and_then(|r| r.uuid.clone()),
-                        text: quote.text.clone(),
+                        id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
+                        author_e164: quoted_message.sender.as_ref().and_then(|r| r.e164.clone()),
+                        author_uuid: quoted_message.sender.as_ref().and_then(|r| r.uuid.clone()),
+                        text: quoted_message.text.clone(),
 
                         ..Default::default()
                     }
