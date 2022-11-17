@@ -93,62 +93,113 @@ See here for more information.
 Building from source
 -------------------------------------------------------------------------------
 
-Whisperfish is written in Rust, and Rust is a bit of a special guest for SailfishOS.
-Luckily, since SailfishOS 3.4, Jolla provides a Rust compiler that runs more or less decently.
-Their compiler still has a few issues (which are being discussed and solved),
-and in the meanwhile you need a patched version.  This should be resolved by the time
-SailfishOS 4.3 tooling and targets are around.
-Jolla's Rust compiler works as a cross-compiler, unlike the C and C++ compilers,
-which are emulated. This means a bit of preparation is necessary in the *tooling*
-as well as in the target.
+Whisperfish is written in Rust (and QML), and Rust is a bit of a special entity
+in Sailfish OS. Luckily, Jolla has provided a more or less decent Rust compiler
+since Sailfish OS 3.4, but it has a few issues, at least up to and including
+Sailfish OS 4.4. The issues are already fixed and upstreamed, but as they are
+not yet released (this _should_ happen with SFOS 4.5),
+compiling Whisperfish requires a patched version of Rust.
 
-Make sure you have access to the `sfdk` tool; we will use it for setting up the environment.
+Unlike the C and C++ compilers, which are emulated, the Rust compiler in SFDK
+works as a cross-compiler. This means a bit of preparation is necessary in the
+_tooling_ as well as in the target.
 
-1. Make sure you have a tooling and target later than 4.1.0.24 (tested with 4.3.0.12, too).
-   Use the SDK Maintenance tool to upgrade if necessary.
-2. On versions before 4.1, you need to set up a patched version of Rust.
+The installation instructions below are for 4.4.0.58, but they work with 4.3.0.12
+and 4.1.0.24 as well. Make sure you have both the tooling and the target(s)
+installed. Use the SDK Maintenance tool to install or upgrade if necessary.
 
-   First, enable the repository that contains the patched Rust compiler and cargo tooling.
+Only the Docker build engine supports Rust compiling.
+VirtualBox build engine will not work.
+
+If you are running Sailfish SDK 3.9.6 or older and/or your build target
+is 4.4.0.58 or older, you need to set up a patched version of Rust.
+
+1. Make sure you have access to the `sfdk` tool; we will use it for setting
+   up the environment.
+
+   Clone Whisperfish to a subdirectory of your SFDK project root,
+   just like any other Sailfish OS project.
+
+2. Enable the repository that contains the patched Rust compiler and cargo tooling.
    This repository contains `rubdos.key`, which is used to sign the packages, if you want to check.::
 
-    $ sfdk tools exec SailfishOS-4.1.0.24 ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-    $ sfdk tools exec SailfishOS-4.1.0.24-armv7hl ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+    $ sfdk tools exec SailfishOS-4.4.0.58 \
+        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+    $ sfdk tools exec SailfishOS-4.4.0.58-aarch64 \
+        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+    $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
+        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+    $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
+        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
 
-   Then, install the tooling::
+3. Install the tooling and development packages::
 
-    $ sfdk tools exec SailfishOS-4.1.0.24 \
-        zypper install --oldpackage -y --allow-vendor-change \
-        rust=1.52.1+git1-1 cargo=1.52.1+git1-1 \
-        rust-std-static-aarch64-unknown-linux-gnu=1.52.1+git1-1 \
-        rust-std-static-armv7-unknown-linux-gnueabihf=1.52.1+git1-1 \
-        rust-std-static-i686-unknown-linux-gnu=1.52.1+git1-1
-    $ sfdk tools exec SailfishOS-4.1.0.24 \
-        zypper install -y zlib-devel sqlcipher-devel
+    $ sfdk tools exec SailfishOS-4.4.0.58 \
+      zypper install --oldpackage -y \
+        rust=1.52.1+git3-1 \
+        cargo=1.52.1+git3-1 \
+        rust-std-static-aarch64-unknown-linux-gnu=1.52.1+git3-1 \
+        rust-std-static-armv7-unknown-linux-gnueabihf=1.52.1+git3-1 \
+        rust-std-static-i686-unknown-linux-gnu=1.52.1+git3-1
     $ sfdk engine exec \
-        sudo zypper install sqlcipher-devel
+      sudo zypper install -y openssl-devel sqlcipher-devel
 
-   Then, install the stub compilers (for armv7hl and aarch64)::
+4. Install the stub compilers.
 
-    $ sfdk tools exec SailfishOS-4.1.0.24-armv7hl \
-        zypper install --oldpackage --repo rubdos -y \
-          rust=1.52.1+git1-1 cargo=1.52.1+git1-1 \
-          rust-std-static=1.0+git3-1.2.1 \
-          rust-std-static-i686-unknown-linux-gnu=1.0+git3-1.2.1
+   For aarch64::
 
-   on i486 use this instead::
+    $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
+      zypper install --oldpackage --repo rubdos -y \
+        rust=1.52.1+git3-1 \
+        cargo=1.52.1+git3-1 \
+        rust-std-static-aarch64-unknown-linux-gnu=1.0+git3-1 \
+        rust-std-static-i686-unknown-linux-gnu=1.0+git3-1
 
-    $ sfdk tools exec SailfishOS-4.1.0.24-i486 \
-        zypper install --from rubdos -y \
-          rust=1.52.1+git1-1 cargo=1.52.1+git1-1 \
-          rust-std-static=1.52.1+git1-1 \
-          rust-std-static-i686-unknown-linux-gnu=1.52.1+git1-1
+   For armv7hl::
 
-3. You can now proceed to build as you would with a normal SailfishOS application::
+    $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
+      zypper install --oldpackage --repo rubdos -y \
+        rust=1.52.1+git3-1 \
+        cargo=1.52.1+git3-1 \
+        ust-std-static-armv7-unknown-linux-gnueabihf=1.0+git3-1 \
+        rust-std-static-i686-unknown-linux-gnu=1.0+git3-1
 
-    $ sfdk config --push target SailfishOS-4.1.0.24-armv7hl
+   For i486::
+
+    $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
+      zypper install --oldpackage --repo rubdos -y \
+        rust=1.52.1+git3-1 \
+        cargo=1.52.1+git3-1 \
+        rust-std-static-i686-unknown-linux-gnu=1.52.1+git3-1
+
+   If there are errors with the commands, you can try adding `--allow-vendor-change`
+   to explicitly tell it's ok to use "third-party" packages, and `--force` to
+   re-download and re-install packages.
+
+5. You can now proceed to build as you would with a normal SailfishOS application::
+
+   Choose your architecture::
+
+    $ sfdk config --push target SailfishOS-4.4.0.58-aarch64 # or
+    $ sfdk config --push target SailfishOS-4.4.0.58-armv7hl # or
+    $ sfdk config --push target SailfishOS-4.4.0.58-i486
+
+   Then start the build::
+
     $ sfdk build
 
-Because of a bug in `sb2`, it is currently not possible to (reliably) build using more than a single thread.
+   Or in a single command. e.g. for aarch64::
+
+    $ sfdk -c target=SailfishOS-4.4.0.58-aarch64 build
+
+6. If you want to also build the sharing plugin for SFOS 4.3+, use this command::
+
+    $ sfdk -c target=SailfishOS-4.4.0.58-aarch64 build -- --with shareplugin_v2
+
+   For Sailfish 4.2 and older, use `shareplugin_v1` instead.
+
+Because of a bug in `sb2`, it is currently not possible to (reliably) build
+Whisperfish (or any other Rust project) using more than a single thread.
 This means your compilation is going to take a while, especially the first time.
 Get yourself some coffee!
 
