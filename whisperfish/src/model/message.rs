@@ -130,11 +130,19 @@ pub struct MessageModel {
             message: QString,
             groupName: QString,
             attachment: QString,
+            quote: i32,
             add: bool,
         ) -> i32
     ),
     createMessage: qt_method!(
-        fn(&self, source: QString, message: QString, attachment: QString, add: bool) -> i32
+        fn(
+            &self,
+            source: QString,
+            message: QString,
+            attachment: QString,
+            quote: i32,
+            add: bool,
+        ) -> i32
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
@@ -164,6 +172,7 @@ impl MessageModel {
         message: QString,
         _group_name: QString,
         attachment: QString,
+        quote: i32,
         _add: bool,
     ) -> i32 {
         let group_id = group_id.to_string();
@@ -180,11 +189,13 @@ impl MessageModel {
                         group_id,
                         message,
                         attachment,
+                        quote,
                     },
                     64 => actor::QueueGroupMessage::GroupV2Message {
                         group_id,
                         message,
                         attachment,
+                        quote,
                     },
                     _ => unreachable!("Illegal group ID"),
                 })
@@ -201,6 +212,7 @@ impl MessageModel {
         recipient: QString,
         message: QString,
         attachment: QString,
+        quote: i32,
         _add: bool,
     ) -> i32 {
         let recipient = recipient.to_string();
@@ -215,6 +227,7 @@ impl MessageModel {
                     recipient,
                     message,
                     attachment,
+                    quote,
                 })
                 .map(Result::unwrap),
         );
@@ -247,28 +260,14 @@ impl MessageModel {
         );
     }
 
-    pub fn handle_queue_message(&mut self, msg: orm::Message, attachments: Vec<orm::Attachment>) {
+    pub fn handle_queue_message(&mut self, msg: orm::AugmentedMessage) {
         self.sendMessage(msg.id);
 
         // TODO: Go version modified the `self` model appropriately,
         //       with the `add`/`_add` parameter from createMessage.
         // if add {
         (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
-        self.messages.insert(
-            0,
-            AugmentedMessage {
-                inner: msg,
-                sender: None,
-                // XXX
-                attachments,
-                // No receipts yet.
-                receipts: Vec::new(),
-                // No reactions yet.
-                reactions: Vec::new(),
-                quoted_message: None,
-            }
-            .into(),
-        );
+        self.messages.insert(0, msg.into());
         (self as &mut dyn QAbstractListModel).end_insert_rows();
         // }
     }

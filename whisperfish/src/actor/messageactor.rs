@@ -38,6 +38,7 @@ pub struct QueueMessage {
     pub recipient: String,
     pub message: String,
     pub attachment: String,
+    pub quote: i32,
 }
 
 #[derive(actix::Message, Debug)]
@@ -47,11 +48,13 @@ pub enum QueueGroupMessage {
         group_id: String,
         message: String,
         attachment: String,
+        quote: i32,
     },
     GroupV2Message {
         group_id: String,
         message: String,
         attachment: String,
+        quote: i32,
     },
 }
 
@@ -242,32 +245,46 @@ impl Handler<QueueGroupMessage> for MessageActor {
 
         let storage = self.storage.as_mut().unwrap();
 
-        let (group, message, attachment) = match msg {
+        let (group, message, attachment, quote) = match msg {
             QueueGroupMessage::GroupV1Message {
                 group_id,
                 message,
                 attachment,
+                quote,
             } => (
                 storage
                     .fetch_session_by_group_v1_id(&group_id)
                     .expect("existing session"),
                 message,
                 attachment,
+                quote,
             ),
             QueueGroupMessage::GroupV2Message {
                 group_id,
                 message,
                 attachment,
+                quote,
             } => (
                 storage
                     .fetch_session_by_group_v2_id(&group_id)
                     .expect("existing session"),
                 message,
                 attachment,
+                quote,
             ),
         };
 
         let has_attachment = !attachment.is_empty();
+
+        let quote = if quote >= 0 {
+            Some(
+                storage
+                    .fetch_message_by_id(quote)
+                    .expect("existing quote id"),
+            )
+        } else {
+            None
+        };
 
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
@@ -298,17 +315,16 @@ impl Handler<QueueGroupMessage> for MessageActor {
                 sent: false,
                 is_read: true,
                 is_unidentified: false,
-                quote_timestamp: None,
+                quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
             },
             Some(group),
         );
 
-        let attachments = storage.fetch_attachments_for_message(msg.id);
+        let msg = storage
+            .fetch_augmented_message(msg.id, true)
+            .expect("inserted message exists");
 
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_queue_message(msg, attachments);
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }
 }
 
@@ -325,6 +341,16 @@ impl Handler<QueueMessage> for MessageActor {
             (Some(msg.recipient), None)
         } else {
             (None, Some(msg.recipient))
+        };
+
+        let quote = if msg.quote >= 0 {
+            Some(
+                storage
+                    .fetch_message_by_id(msg.quote)
+                    .expect("existing quote id"),
+            )
+        } else {
+            None
         };
 
         let (msg, _session) = storage.process_message(
@@ -356,17 +382,16 @@ impl Handler<QueueMessage> for MessageActor {
                 sent: false,
                 is_read: true,
                 is_unidentified: false,
-                quote_timestamp: None,
+                quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
             },
             None,
         );
 
-        let attachments = storage.fetch_attachments_for_message(msg.id);
+        let msg = storage
+            .fetch_augmented_message(msg.id, true)
+            .expect("inserted message exists");
 
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_queue_message(msg, attachments);
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }
 }
 
@@ -400,10 +425,11 @@ impl Handler<EndSession> for MessageActor {
             None,
         );
 
-        self.inner
-            .pinned()
-            .borrow_mut()
-            .handle_queue_message(msg, vec![]);
+        let msg = storage
+            .fetch_augmented_message(msg.id, false /* there's no quote here */)
+            .expect("inserted message exists");
+
+        self.inner.pinned().borrow_mut().handle_queue_message(msg);
     }
 }
 

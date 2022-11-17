@@ -10,6 +10,7 @@ pub use self::groupv2::*;
 pub use self::linked_devices::*;
 pub use self::profile::*;
 pub use self::profile_upload::*;
+use libsignal_service::proto::data_message::Quote;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
 
@@ -961,8 +962,7 @@ impl Handler<SendMessage> for ClientActor {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
-        let msg = storage.fetch_message_by_id(mid).unwrap();
-
+        let msg = storage.fetch_augmented_message(mid, true).unwrap();
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
         let session_id = session.id;
 
@@ -973,7 +973,7 @@ impl Handler<SendMessage> for ClientActor {
 
         let self_recipient = storage.fetch_self_recipient(&self.config);
         log::trace!("Sending for session: {:?}", session);
-        log::trace!("Sending message: {:?}", msg);
+        log::trace!("Sending message: {:?}", msg.inner);
 
         let local_addr = self.local_addr.clone().unwrap();
         let storage = storage.clone();
@@ -1002,6 +1002,22 @@ impl Handler<SendMessage> for ClientActor {
                 // XXX online status goes in that bool
                 let online = false;
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
+
+                let quote = msg.quoted_message.as_ref().map(|quote| {
+                    if !quote.attachments.is_empty() {
+                        log::warn!("Quoting attachments is incomplete.  Here be dragons.");
+                    }
+
+                    Quote {
+                        id: Some(quote.server_timestamp.timestamp_millis() as u64),
+                        author_e164: self_recipient.as_ref().and_then(|r| r.e164.clone()),
+                        author_uuid: self_recipient.as_ref().and_then(|r| r.uuid.clone()),
+                        text: quote.text.clone(),
+
+                        ..Default::default()
+                    }
+                });
+
                 let mut content = DataMessage {
                     body: msg.text.clone(),
                     flags: if msg.flags != 0 {
@@ -1016,6 +1032,7 @@ impl Handler<SendMessage> for ClientActor {
                     group_v2,
 
                     profile_key: self_recipient.and_then(|r| r.profile_key),
+                    quote,
                     ..Default::default()
                 };
 
@@ -1126,7 +1143,7 @@ impl Handler<SendMessage> for ClientActor {
                 // Mark as sent
                 storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
 
-                Ok((session.id, mid, msg.text))
+                Ok((session.id, mid, msg.inner.text))
             }
             .into_actor(self)
             .map(move |res, act, _ctx| {
