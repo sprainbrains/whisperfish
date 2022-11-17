@@ -11,9 +11,8 @@ MouseArea {
 
     onPressAndHold: handleExternalPressAndHold(mouse)
     onClicked: {
-        // TODO: re-enable signal when replying is actually implemented (#256)
-        // if (replySignal) replySignal(index, modelData)
-        // else console.error("reply requested but not signal specified")
+        if (replySignal) replySignal(index, modelData)
+        else console.error("reply requested but not signal specified")
     }
 
     HighlightImage {
@@ -24,9 +23,7 @@ MouseArea {
         anchors.verticalCenter: parent.verticalCenter
         opacity: replyHintBackground.opacity
         enabled: false
-        // TODO: re-enable reply arrow when replying is actually implemented (#256)
-        // visible: down && !isSelected
-        visible: false
+        visible: down && !isSelected
         color: Theme.secondaryColor
         anchors.margins: Theme.horizontalPageMargin
     }
