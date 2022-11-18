@@ -26,7 +26,7 @@ impl std::ops::DerefMut for SessionStorageMigration {
 }
 
 impl Handler<MoveSessionsToDatabase> for ClientActor {
-    type Result = ResponseFuture<()>;
+    type Result = ResponseActFuture<Self, ()>;
     fn handle(&mut self, _: MoveSessionsToDatabase, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().expect("initialized storage");
 
@@ -35,7 +35,10 @@ impl Handler<MoveSessionsToDatabase> for ClientActor {
             migration.execute().await;
         };
 
-        std::pin::Pin::from(Box::new(proc))
+        Box::pin(
+            proc.into_actor(self)
+                .map(|_, act, _| act.migration_state.notify_protocol_store_in_db()),
+        )
     }
 }
 

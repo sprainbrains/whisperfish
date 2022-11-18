@@ -9,10 +9,14 @@ use libsignal_service::prelude::protocol::{
 pub struct E164ToUuid;
 
 impl Handler<E164ToUuid> for ClientActor {
-    type Result = ResponseFuture<()>;
+    type Result = ResponseActFuture<Self, ()>;
+
     fn handle(&mut self, _: E164ToUuid, _ctx: &mut Self::Context) -> Self::Result {
         let mut storage = self.storage.clone().unwrap();
         let config = std::sync::Arc::clone(&self.config);
+
+        let self_uuid_is_known = self.migration_state.self_uuid_is_known();
+        let protocol_store_ready = self.migration_state.protocol_store_in_db();
 
         // Stuff to migrate:
         // 1. The session with yourself.
@@ -20,6 +24,10 @@ impl Handler<E164ToUuid> for ClientActor {
         // 2. The identities with all e164-known recipients.
 
         Box::pin(async move {
+            // We need to wait until we know our own UUID and until the protocol store is ready
+            self_uuid_is_known.await;
+            protocol_store_ready.await;
+
             if config.get_uuid_clone().is_empty() {
                 log::error!("We don't have our own UUID yet. Let's retry at the next start.");
                 return;
@@ -136,6 +144,10 @@ impl Handler<E164ToUuid> for ClientActor {
                     }
                 }
             }
-        })
+        }
+        .into_actor(self)
+        .map(move |(), act, _ctx| {
+            act.migration_state.notify_e164_to_uuid();
+        }))
     }
 }

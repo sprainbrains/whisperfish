@@ -41,6 +41,8 @@ impl Handler<WhoAmI> for ClientActor {
                 } else {
                     log::error!("Credentials was none while setting UUID");
                 }
+
+                act.migration_state.notify_whoami();
             }),
         )
     }
