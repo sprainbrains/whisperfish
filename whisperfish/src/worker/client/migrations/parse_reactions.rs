@@ -26,14 +26,12 @@ impl Handler<ParseOldReaction> for ClientActor {
                 .expect("fetch reaction messages")
         };
 
-        if reaction_messages.is_empty() {
-            return;
+        if !reaction_messages.is_empty() {
+            log::info!(
+                "Found {} R@{{}}:{{}} emoji reactions. Migrating.",
+                reaction_messages.len()
+            );
         }
-
-        log::info!(
-            "Found {} R@{{}}:{{}} emoji reactions. Migrating.",
-            reaction_messages.len()
-        );
         db.transaction(|| -> anyhow::Result<()> {
             let regex = regex::Regex::new(r"R@(\d+):(.*)").expect("reaction regex");
             let mut reaction_messages = reaction_messages.into_iter().peekable();
@@ -108,5 +106,7 @@ impl Handler<ParseOldReaction> for ClientActor {
             Ok(())
         })
         .expect("migrate reactions");
+
+        self.migration_state.notify_reactions_ready();
     }
 }

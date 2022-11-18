@@ -69,7 +69,7 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
 }
 
 impl Handler<RefreshOwnProfile> for ClientActor {
-    type Result = ResponseFuture<()>;
+    type Result = ResponseActFuture<Self, ()>;
 
     fn handle(&mut self, _: RefreshOwnProfile, ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
@@ -79,62 +79,66 @@ impl Handler<RefreshOwnProfile> for ClientActor {
         let uuid = config.get_uuid_clone();
         let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
 
-        Box::pin(async move {
-            let self_recipient = storage
-                .fetch_self_recipient(&config)
-                .expect("self recipient should be set by now");
-            let profile_key = self_recipient.profile_key.map(|bytes| {
-                let mut key = [0u8; 32];
-                key.copy_from_slice(&bytes);
-                ProfileKey::create(key)
-            });
+        Box::pin(
+            async move {
+                let self_recipient = storage
+                    .fetch_self_recipient(&config)
+                    .expect("self recipient should be set by now");
+                let profile_key = self_recipient.profile_key.map(|bytes| {
+                    let mut key = [0u8; 32];
+                    key.copy_from_slice(&bytes);
+                    ProfileKey::create(key)
+                });
 
-            let profile_key = if let Some(k) = profile_key {
-                k
-            } else {
-                // UploadProfile will generate a profile key if needed
-                client.send(UploadProfile).await.unwrap();
-                return;
-            };
-
-            if let Some(lpf) = &self_recipient.last_profile_fetch {
-                if Utc.from_utc_datetime(lpf) > Utc::now() - chrono::Duration::days(1) {
-                    log::info!("Our own profile is up-to-date, not fetching.");
+                let profile_key = if let Some(k) = profile_key {
+                    k
+                } else {
+                    // UploadProfile will generate a profile key if needed
+                    client.send(UploadProfile).await.unwrap();
                     return;
-                }
-            }
+                };
 
-            let online = service
-                .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(profile_key))
-                .await;
-
-            let outdated = match online {
-                Ok(profile) => {
-                    let unidentified_access_enabled = profile.unidentified_access.is_some();
-                    let capabilities = profile.capabilities.clone();
-                    client
-                        .send(ProfileFetched(uuid, Some(profile)))
-                        .await
-                        .unwrap();
-
-                    !unidentified_access_enabled
-                        || capabilities != whisperfish_device_capabilities()
-                }
-                Err(e) => {
-                    if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
-                        // No profile of ours online, let's upload one.
-                        true
-                    } else {
-                        log::error!("During profile fetch: {}", e);
-                        false
+                if let Some(lpf) = &self_recipient.last_profile_fetch {
+                    if Utc.from_utc_datetime(lpf) > Utc::now() - chrono::Duration::days(1) {
+                        log::info!("Our own profile is up-to-date, not fetching.");
+                        return;
                     }
                 }
-            };
 
-            if outdated {
-                client.send(UploadProfile).await.unwrap();
+                let online = service
+                    .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(profile_key))
+                    .await;
+
+                let outdated = match online {
+                    Ok(profile) => {
+                        let unidentified_access_enabled = profile.unidentified_access.is_some();
+                        let capabilities = profile.capabilities.clone();
+                        client
+                            .send(ProfileFetched(uuid, Some(profile)))
+                            .await
+                            .unwrap();
+
+                        !unidentified_access_enabled
+                            || capabilities != whisperfish_device_capabilities()
+                    }
+                    Err(e) => {
+                        if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                            // No profile of ours online, let's upload one.
+                            true
+                        } else {
+                            log::error!("During profile fetch: {}", e);
+                            false
+                        }
+                    }
+                };
+
+                if outdated {
+                    client.send(UploadProfile).await.unwrap();
+                }
             }
-        })
+            .into_actor(self)
+            .map(|_, act, _| act.migration_state.notify_self_profile_ready()),
+        )
     }
 }
 

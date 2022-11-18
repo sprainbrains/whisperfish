@@ -8,6 +8,7 @@ mod profile_upload;
 
 pub use self::groupv2::*;
 pub use self::linked_devices::*;
+use self::migrations::MigrationCondVar;
 pub use self::profile::*;
 pub use self::profile_upload::*;
 use libsignal_service::proto::data_message::Quote;
@@ -123,6 +124,8 @@ pub struct ClientWorker {
 pub struct ClientActor {
     inner: QObjectBox<ClientWorker>,
 
+    migration_state: MigrationCondVar,
+
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
@@ -181,6 +184,7 @@ impl ClientActor {
 
         Ok(Self {
             inner,
+            migration_state: MigrationCondVar::new(),
             credentials: None,
             local_addr: None,
             storage: None,
@@ -1410,11 +1414,13 @@ impl Handler<Restart> for ClientActor {
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
         let service = self.authenticated_service();
         let credentials = self.credentials.clone().unwrap();
+        let migrations_ready = self.migration_state.ready();
 
         self.inner.pinned().borrow_mut().connected = false;
         self.inner.pinned().borrow().connectedChanged();
         Box::pin(
             async move {
+                migrations_ready.await;
                 let mut receiver = MessageReceiver::new(service.clone());
 
                 receiver
