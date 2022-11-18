@@ -35,27 +35,10 @@ pub struct DeleteMessage(pub i32, pub usize);
 #[derive(actix::Message, Debug)]
 #[rtype(result = "()")]
 pub struct QueueMessage {
-    pub recipient: String,
+    pub session_id: i32,
     pub message: String,
     pub attachment: String,
     pub quote: i32,
-}
-
-#[derive(actix::Message, Debug)]
-#[rtype(result = "()")]
-pub enum QueueGroupMessage {
-    GroupV1Message {
-        group_id: String,
-        message: String,
-        attachment: String,
-        quote: i32,
-    },
-    GroupV2Message {
-        group_id: String,
-        message: String,
-        attachment: String,
-        quote: i32,
-    },
 }
 
 #[derive(Message)]
@@ -237,97 +220,6 @@ impl Handler<DeleteMessage> for MessageActor {
     }
 }
 
-impl Handler<QueueGroupMessage> for MessageActor {
-    type Result = ();
-
-    fn handle(&mut self, msg: QueueGroupMessage, _ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("MessageActor::handle({:?})", msg);
-
-        let storage = self.storage.as_mut().unwrap();
-
-        let (group, message, attachment, quote) = match msg {
-            QueueGroupMessage::GroupV1Message {
-                group_id,
-                message,
-                attachment,
-                quote,
-            } => (
-                storage
-                    .fetch_session_by_group_v1_id(&group_id)
-                    .expect("existing session"),
-                message,
-                attachment,
-                quote,
-            ),
-            QueueGroupMessage::GroupV2Message {
-                group_id,
-                message,
-                attachment,
-                quote,
-            } => (
-                storage
-                    .fetch_session_by_group_v2_id(&group_id)
-                    .expect("existing session"),
-                message,
-                attachment,
-                quote,
-            ),
-        };
-
-        let has_attachment = !attachment.is_empty();
-
-        let quote = if quote >= 0 {
-            Some(
-                storage
-                    .fetch_message_by_id(quote)
-                    .expect("existing quote id"),
-            )
-        } else {
-            None
-        };
-
-        let (msg, _session) = storage.process_message(
-            crate::store::NewMessage {
-                session_id: None,
-                source_e164: None,
-                source_uuid: None,
-                text: message,
-                timestamp: chrono::Utc::now().naive_utc(),
-                has_attachment,
-                mime_type: if has_attachment {
-                    Some(
-                        mime_guess::from_path(&attachment)
-                            .first_or_octet_stream()
-                            .essence_str()
-                            .into(),
-                    )
-                } else {
-                    None
-                },
-                attachment: if has_attachment {
-                    Some(attachment)
-                } else {
-                    None
-                },
-                flags: 0,
-                outgoing: true,
-                received: false,
-                sent: false,
-                is_read: true,
-                is_unidentified: false,
-                quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
-            },
-            Some(group),
-        );
-
-        let msg = storage
-            .fetch_augmented_message(msg.id, true)
-            .expect("inserted message exists");
-
-        self.inner.pinned().borrow_mut().handle_queue_message(msg);
-    }
-}
-
 impl Handler<QueueMessage> for MessageActor {
     type Result = ();
 
@@ -336,12 +228,12 @@ impl Handler<QueueMessage> for MessageActor {
         let storage = self.storage.as_mut().unwrap();
 
         let has_attachment = !msg.attachment.is_empty();
-
-        let (source_e164, source_uuid) = if phonenumber::is_viable(&msg.recipient) {
-            (Some(msg.recipient), None)
-        } else {
-            (None, Some(msg.recipient))
-        };
+        let self_recipient = storage
+            .fetch_self_recipient(&self.config)
+            .expect("self recipient set when sending");
+        let session = storage
+            .fetch_session_by_id(msg.session_id)
+            .expect("existing session when sending");
 
         let quote = if msg.quote >= 0 {
             Some(
@@ -355,9 +247,9 @@ impl Handler<QueueMessage> for MessageActor {
 
         let (msg, _session) = storage.process_message(
             crate::store::NewMessage {
-                session_id: None,
-                source_e164,
-                source_uuid,
+                session_id: Some(msg.session_id),
+                source_e164: self_recipient.e164,
+                source_uuid: self_recipient.uuid,
                 text: msg.message,
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment,
@@ -384,7 +276,7 @@ impl Handler<QueueMessage> for MessageActor {
                 is_unidentified: false,
                 quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
             },
-            None,
+            Some(session),
         );
 
         let msg = storage
