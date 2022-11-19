@@ -20,19 +20,19 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="87"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 está a digitar</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="91"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 e %2 estão a digitar</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="95"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 e %n outros estão a digitar</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="21"/>
@@ -149,7 +149,7 @@
         <location filename="../qml/pages/About.qml" line="49"/>
         <source>Description</source>
         <extracomment>Description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Descrição</translation>
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="62"/>
@@ -379,7 +379,7 @@
         <location filename="../qml/pages/MainPage.qml" line="22"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verifique por favor para atualizações</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="26"/>
@@ -391,13 +391,13 @@
         <location filename="../qml/pages/MainPage.qml" line="92"/>
         <source>Show archived conversations</source>
         <extracomment>Menu item for showing archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar conversas arquivadas</translation>
     </message>
     <message id="whisperfish-show-inbox-menu">
         <location filename="../qml/pages/MainPage.qml" line="95"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Retornar às conversas</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../qml/pages/MainPage.qml" line="113"/>
@@ -409,13 +409,13 @@
         <location filename="../qml/pages/MainPage.qml" line="228"/>
         <source>Conversations</source>
         <extracomment>Whisperfish subtitle for active conversations aka. &quot;inbox&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversas</translation>
     </message>
     <message id="whisperfish-subtitle-archived-conversations">
         <location filename="../qml/pages/MainPage.qml" line="231"/>
         <source>Archived conversations</source>
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Conversas arquivadas</translation>
     </message>
     <message id="whisperfish-registration-required-message">
         <location filename="../qml/pages/MainPage.qml" line="243"/>
@@ -729,13 +729,13 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/RegisterPage.qml" line="102"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>País ou área</translation>
     </message>
     <message id="whisperfish-not-selected">
         <location filename="../qml/pages/RegisterPage.qml" line="107"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Não selecionado</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
         <location filename="../qml/pages/RegisterPage.qml" line="230"/>
@@ -1568,9 +1568,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/cover/CoverPage.qml" line="41"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Mensagem&lt;br/&gt;não lida</numerusform>
+            <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
@@ -1583,13 +1583,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="48"/>
         <source>Primary device</source>
         <extracomment>register as primary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aparelho principal</translation>
     </message>
     <message id="whisperfish-register-secondary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="57"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aparelho secundário</translation>
     </message>
 </context>
 </TS>
