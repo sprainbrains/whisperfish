@@ -148,6 +148,17 @@ impl SignalConfig {
             std::fs::create_dir_all(&new_path)?;
         }
 
+        // Remove unused directories, if empty
+        for dir_name in &["groups", "prekeys", "signed_prekeys"] {
+            let dir_path = &new_storage.join(dir_name);
+            if dir_path.exists() {
+                match std::fs::remove_dir(dir_path) {
+                    Ok(()) => eprintln!("Empty '{}' directory removed", dir_name),
+                    _ => eprintln!("Couldn't remove '{}' directory, is it empty?", dir_name),
+                }
+            }
+        }
+
         // New paths already in use
         if new_db.exists() && new_storage.exists() {
             return Ok(());
