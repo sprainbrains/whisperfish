@@ -217,7 +217,7 @@ Item {
                 hideLabelOnEmptyField: false
                 textRightMargin: 0
                 font.pixelSize: Theme.fontSizeSmall
-                placeholderText: (enablePersonalizedPlaceholder && placeholderContactName.length > 0) ?
+                placeholderText: ((enablePersonalizedPlaceholder || isLandscape) && placeholderContactName.length > 0) ?
                                      //: Personalized placeholder for chat input, e.g. "Hi John"
                                      //% "Hi %1"
                                      qsTrId("whisperfish-chat-input-placeholder-personal").arg(
