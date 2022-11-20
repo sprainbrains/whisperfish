@@ -7,13 +7,10 @@ Page {
     id: root
     property QtObject modelData
     property string messageText: ""
+    property string contactName: ""
 
     property var detailAttachments: modelData.detailAttachments
     property int detailAttachmentCount: detailAttachments !== undefined ? detailAttachments.count : 0
-
-    property string _originName: _contact !== null ? _contact.displayLabel : ''
-    property var _contact: (modelData !== null && mainWindow.contactsReady) ?
-                               resolvePeopleModel.personByPhoneNumber(modelData.source, true) : null
 
     Component.onCompleted: {
         var textFound = false
@@ -62,7 +59,7 @@ Page {
                                   //: Page description for a very long message shown on a page of its own
                                   //% "from %1"
                                   qsTrId("whisperfish-expanded-message-info-inbound")).
-                              arg(_originName)
+                              arg(contactName)
             }
 
             MessageDelegate {

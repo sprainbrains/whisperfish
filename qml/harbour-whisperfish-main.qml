@@ -59,6 +59,45 @@ ApplicationWindow
         }
     }
 
+    // Return either given peer name or device contacts name based on
+    // user selected preference. Fallback to e164.
+    //
+    // e164:           phone number
+    // peerName:       Signal profile username
+    // showNoteToSelf: true:      show "You"
+    //                 false:     show "Note to self"
+    //                 undefined: show own name instead
+    function getRecipientName(e164, peerName, shownNoteToSelf) {
+        if(!e164) {
+            return peerName
+        }
+        if(!peerName) {
+            peerName = e164
+        }
+        if(shownNoteToSelf !== undefined && e164 && e164 === SetupWorker.phoneNumber) {
+            if(shownNoteToSelf) {
+                //: Name of the conversation with one's own number
+                //% "Note to self"
+                return qsTrId("whisperfish-session-note-to-self")
+            } else {
+                //: Name shown when replying to own messages
+                //% "You"
+                qsTrId("whisperfish-sender-name-label-outgoing")
+            }
+
+        }
+
+        // Only try to search for contact name if contact is a phone number
+        var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        var name = null
+        if(SettingsBridge.boolValue("prefer_device_contacts")) {
+            name = (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
+        } else {
+            name = peerName !== '' ? peerName : (contact ? contact.displayLabel : peerName)
+        }
+        return name
+    }
+
     function activateSession(sid, name, source) {
         console.log("Activating session for source: "+source)
         MessageModel.load(sid, name)

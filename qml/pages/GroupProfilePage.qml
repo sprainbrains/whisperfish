@@ -69,8 +69,7 @@ Page {
 
                 var isSelf = (myUuid === uuids[i] || myPhone === members[i])
 
-                var member = resolvePeopleModel.personByPhoneNumber(members[i], true)
-                var name = member ? member.displayLabel : (useNames && names[i] !== '' ? names[i] : members[i])
+                var name = useNames ? getRecipientName(members[i], names[i], false) : members[i]
                 var isUnknown = false // checked below
                 var isVerified = false // TODO implement in backend
 

@@ -33,9 +33,8 @@ Page {
         delegate: ListItem {
             id: conversation
             property bool isGroup: model.isGroup
-            property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
             property string profilePicture: ''
-            property string name: model.isGroup ? model.groupName : ( contact == null ? model.source : contact.displayLabel )
+            property string name: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, false)
             property bool isNoteToSelf: false
             property bool selected: sessionList.recipients.hasOwnProperty("indexOf") ? (sessionList.recipients.indexOf(model.id) > -1) : false
 

@@ -6,8 +6,7 @@ import Sailfish.TextLinking 1.0
 
 Item {
     id: root
-    property string text: '' // overrides contact name set through \c source
-    property string source: '' // phone number to look up
+    property string source: ''
     property bool outbound: false
     property real maximumWidth: metrics.width
 
@@ -19,11 +18,6 @@ Item {
 
     property alias down: bgItem.down
     property alias highlighted: bgItem.highlighted
-
-    readonly property string effectiveText: text !== '' ?
-                                                text : (_contact !== null ? _contact.displayLabel : source)
-    property var _contact: (source === '' || outbound || text !== '') ?
-                               null : resolvePeopleModel.personByPhoneNumber(source, true)
 
     property bool defaultClickAction: true
     signal clicked(var mouse)
@@ -79,7 +73,7 @@ Item {
                        //: Name shown when replying to own messages
                        //% "You"
                        qsTrId("whisperfish-sender-name-label-outgoing") :
-                       effectiveText
+                       source
         width: parent.implicitWidth
         height: parent.implicitHeight
         maximumLineCount: 1
@@ -88,7 +82,7 @@ Item {
         font.bold: true
         linkColor: color
         color: Qt.tint(highlighted ? Theme.highlightColor : Theme.primaryColor,
-                       '#'+Qt.md5(text !== '' ? text : source).substr(0, 6)+'0F')
+                       '#'+Qt.md5(source).substr(0, 6)+'0F')
         defaultLinkActions: false
         onLinkActivated: root.clicked(null)
     }

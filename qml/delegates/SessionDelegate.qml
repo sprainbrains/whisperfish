@@ -1,13 +1,11 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
-import org.nemomobile.contacts 1.0
 import "../components"
 
 ListItem {
     id: delegate
     property string date: Format.formatDate(model.timestamp, _dateFormat)
     property bool isGroup: model.isGroup
-    property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
     property bool isRead: model.read // TODO investigate: is this really a bool?
     property bool isMuted: model.isMuted
@@ -29,7 +27,7 @@ ListItem {
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
-    property string name: model.isGroup ? model.groupName : ( model.recipientName !== '' ? model.recipientName : (contact ? contact.displayLabel : ( model.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : model.source)))
+    property string name: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, true)
     property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
@@ -84,15 +82,15 @@ ListItem {
             else if (model.typing.length == 1)
                 //: Text shown when one person is typing
                 //% "%1 is typing"
-                typing = qsTrId("whisperfish-typing-1").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel)
+                typing = qsTrId("whisperfish-typing-1").arg(getRecipientName(model.typing[0], null, false))
             else if (model.typing.length == 2)
                 //: Text shown when two persons are typing
                 //% "%1 and %2 are typing"
-                typing = qsTrId("whisperfish-typing-2").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel).arg(resolvePeopleModel.personByPhoneNumber(model.typing[1], true).displayLabel)
+                typing = qsTrId("whisperfish-typing-2").arg(getRecipientName(model.typing[0], null, false)).arg(getRecipientName(model.typing[1], null, false))
             else if (model.typing.length >= 3)
                 //: Text shown when three or more persons are typing
                 //% "%1 and %n others are typing"
-                typing = qsTrId("whisperfish-typing-3-plus").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel).arg(model.typing.length - 1)
+                typing = qsTrId("whisperfish-typing-3-plus").arg(getRecipientName(model.typing[0], null, false)).arg(model.typing.length - 1)
             else typing = ""
             pageStack.currentPage.setTyping(typing)
         }
@@ -162,7 +160,7 @@ ListItem {
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { peerName: delegate.name })
                 }
             }
         }

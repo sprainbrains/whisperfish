@@ -71,7 +71,7 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: MessageModel.peerName
+                title: getRecipientName(MessageModel.peerTel, MessageModel.peerName)
                 description: MessageModel.aboutText
             }
 

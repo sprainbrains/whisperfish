@@ -37,13 +37,9 @@ ListItem {
     property string fullMessageText: ""
 
     readonly property string _message: fullMessageText !== "" ? fullMessageText : (hasData && modelData.message ? modelData.message.trim() : '')
-    readonly property string _source: hasData && modelData.source ? modelData.source.trim() : ''
-    readonly property string _name: hasData && modelData.peerName ? modelData.peerName.trim() : ''
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
 
-    // SETTINGS PROPERTIES
-    property var contactName: contact !== null ? contact.displayLabel : (_name !== '' ? _name : _source)
-    property var contact: isOutbound || !hasSource ? null : resolvePeopleModel.personByPhoneNumber(_source, true)
+    readonly property string contactName: showSender ? getRecipientName(modelData.source, modelData.peerName, false) : ''
 
     // All children are placed inside a bubble, positioned left or right for
     // incoming/outbound messages. The bubble extends slightly over the contents.
@@ -77,7 +73,7 @@ ListItem {
         + (typeof modelData.detailAttachments !== 'undefined' ? modelData.detailAttachments.count : 0)
         > 0)
     readonly property bool hasText: hasData && _message !== ''
-    readonly property bool hasSource: hasData && _source !== ''
+    readonly property bool hasSource: hasData && modelData.source !== ''
     readonly property bool unidentifiedSender: modelData.unidentifiedSender
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: MessageModel.group
@@ -99,7 +95,7 @@ ListItem {
             // TODO Cache the page object, so we can return to the
             // same scroll position where the user left the page.
             // It is not possible to re-use the returned object from pageStack.push().
-            pageStack.push("../pages/ExpandedMessagePage.qml", { 'modelData': modelData })
+            pageStack.push("../pages/ExpandedMessagePage.qml", { 'modelData': modelData, 'contactName': contactName })
         } else {
             isExpanded = !isExpanded
             // We make sure the list item is visible immediately
@@ -176,12 +172,11 @@ ListItem {
         SenderNameLabel {
             id: senderNameLabel
             visible: showSender
-            text: hasSource ?
+            source: hasSource ?
                       contactName :
                       //: Label shown if a message doesn't have a sender.
                       //% "no sender"
                       qsTrId("whisperfish-sender-label-empty")
-            source: (isOutbound || !hasSource) ? '' : _source
             outbound: root.isOutbound
             maximumWidth: maxMessageWidth
             highlighted: down || root.highlighted
