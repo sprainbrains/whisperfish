@@ -80,10 +80,7 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                // TODO implement in model (#192)
-                imageSource: typeof MessageModel.peerUuid !== 'undefined' && MessageModel.peerUuid !== ''
-                    ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.peerUuid
-                    : ''
+                imageSource: getRecipientAvatar(MessageModel.peerTel, MessageModel.peerUuid)
                 isGroup: true
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'

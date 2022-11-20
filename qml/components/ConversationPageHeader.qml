@@ -49,7 +49,7 @@ SilicaItem {
     id: pageHeader
 
     property bool isGroup: false
-    property string profilePicture: '' // TODO implement in model (#192, #154, #204)
+    property string profilePicture: ''
 
     property alias title: headerText.text
     property string description: ''

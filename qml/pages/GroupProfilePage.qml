@@ -63,7 +63,6 @@ Page {
                 }
             }
 
-            var avatar_dir = SettingsBridge.stringValue("avatar_dir");
             for (var i = 0; i < members.length; i++) {
                 if (!members[i]) continue // skip empty/invalid values
 
@@ -82,7 +81,7 @@ Page {
                     isUnknown = true
                 }
                 // XXX accessing the hasAvatar property is impossible here, for now
-                var profilePicture =  avatar_dir + "/" + uuids[i]
+                var profilePicture = useAvatars ? getRecipientAvatar(members[i], uuids[i]) : ''
 
                 append({"contactId": members[i],
                            "name": name,
@@ -328,7 +327,7 @@ Page {
                 ProfilePicture {
                     highlighted: item.down
                     labelsHighlighted: highlighted
-                    imageSource: profilePicture
+                    imageSource: item.profilePicture
                     isGroup: false // groups can't be members of groups
                     showInfoMark: false
                     anchors.verticalCenter: parent.verticalCenter

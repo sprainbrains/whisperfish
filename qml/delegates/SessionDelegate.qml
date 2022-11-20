@@ -15,13 +15,10 @@ ListItem {
     property bool isArchived: model.isArchived
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
-    // TODO implement in model (#192)
-    property string profilePicturePath: typeof model !== 'undefined' ? (isGroup
-        ? (model.groupId       !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId       :  '')
-        : (model.recipientUuid !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.recipientUuid :  '')
+    property string profilePicture: model !== undefined && model.hasAvatar ? (isGroup
+        ? (model.groupId !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId : '')
+        : getRecipientAvatar(model.source, model.recipientUuid)
     ) : ''
-    property string profilePicture: model.hasAvatar ? profilePicturePath : (contact ? contact.avatarPath : '')
-
     property bool isPreviewDelivered: model.deliveryCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewRead: model.readCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)

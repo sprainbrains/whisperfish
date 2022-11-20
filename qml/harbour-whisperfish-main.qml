@@ -55,8 +55,21 @@ ApplicationWindow
             if(typeof quietMessageNotification.sound !== "undefined") {
                 quietMessageNotification.sound = "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
                 quietMessageNotification.isSupported = true
-            }   
+            }
         }
+    }
+
+    // Return peer contacts avatar or Signal profile avatar based on
+    // user selected preference. Do not use for groups (there's no choice).
+    function getRecipientAvatar(e164, uuid) {
+        // Only try to search for contact name if contact is a phone number
+        var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        var avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
+        if(SettingsBridge.boolValue("prefer_device_contacts")) {
+            var path = (contact && contact.avatarPath) ? contact.avatarPath.toString() : null
+            avatar = (path && path !== 'image://theme/icon-m-telephony-contact-avatar') ? path : avatar
+        }
+        return avatar
     }
 
     // Return either given peer name or device contacts name based on
