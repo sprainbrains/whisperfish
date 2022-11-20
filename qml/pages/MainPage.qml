@@ -201,9 +201,8 @@ Page {
             model: SessionModel
             delegate: SessionDelegate {
                 onClicked: {
-                    MessageModel.load(model.id, contact ? contact.displayLabel : model.source)
+                    MessageModel.load(model.id)
                     console.log("Activating session: "+model.id)
-                    var contact = resolvePeopleModel.personByPhoneNumber(model.source, true)
                     pageStack.push(Qt.resolvedUrl("ConversationPage.qml"))
                 }
 

@@ -111,9 +111,8 @@ ApplicationWindow
         return name
     }
 
-    function activateSession(sid, name, source) {
-        console.log("Activating session for source: "+source)
-        MessageModel.load(sid, name)
+    function activateSession(sid) {
+        MessageModel.load(sid)
     }
 
     function closeMessageNotification(sid, mid) {
@@ -185,7 +184,7 @@ ApplicationWindow
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
-            mainWindow.activateSession(sid, name, sessionName)
+            mainWindow.activateSession(sid)
             pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), {}, PageStackAction.Immediate)
         })
         // This is needed to call default action

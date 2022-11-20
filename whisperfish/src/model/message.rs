@@ -140,7 +140,7 @@ pub struct MessageModel {
     sendMessage: qt_method!(fn(&self, mid: i32)),
     endSession: qt_method!(fn(&self, e164: QString)),
 
-    load: qt_method!(fn(&self, sid: i32, peer_name: QString)),
+    load: qt_method!(fn(&self, sid: i32)),
     reload_message: qt_method!(fn(&self, mid: i32)),
     add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(
@@ -235,7 +235,7 @@ impl MessageModel {
     }
 
     #[with_executor]
-    fn load(&mut self, sid: i32, _peer_name: QString) {
+    fn load(&mut self, sid: i32) {
         self.begin_reset_model();
 
         self.messages.clear();

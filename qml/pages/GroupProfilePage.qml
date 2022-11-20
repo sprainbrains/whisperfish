@@ -305,7 +305,7 @@ Page {
                         //      This is blocked by #105 and maybe #183.
                         //
                         // Not possible:
-                        //      MessageModel.load(contactId, ContactModel.name(contactId))
+                        //      MessageModel.load(contactId)
                         //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
                     }
                     MenuItem {

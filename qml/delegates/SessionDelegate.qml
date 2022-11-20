@@ -153,7 +153,7 @@ ListItem {
             }
             onPressAndHold: delegate.openMenu()
             onClicked: {
-                MessageModel.load(model.id, delegate.name)
+                MessageModel.load(model.id)
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
                 } else {
