@@ -164,8 +164,8 @@ impl SessionModel {
             if let Some(message) = &mut session.last_message {
                 message.message.is_read = true;
             }
-            let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+            let idx = self.row_index(idx as i32);
+            self.data_changed(idx, idx);
         }
 
         self.unread_count_changed();
@@ -186,8 +186,8 @@ impl SessionModel {
             if let Some(message) = &mut session.last_message {
                 message.message.is_read = true;
             }
-            let idx = (self as &mut dyn QAbstractListModel).row_index(idx as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+            let idx = self.row_index(idx as i32);
+            self.data_changed(idx, idx);
         }
 
         self.unread_count_changed();
@@ -291,7 +291,7 @@ impl SessionModel {
         )>,
     ) {
         // XXX: maybe this should be called before even accessing the db?
-        (self as &mut dyn QAbstractListModel).begin_reset_model();
+        self.begin_reset_model();
         self.content = sessions
             .into_iter()
             .map(|(session, group_members, last_message)| AugmentedSession {
@@ -320,7 +320,7 @@ impl SessionModel {
             });
         // Stable sort, such that this retains the above ordering.
         self.content.sort_by_key(|k| !k.is_pinned);
-        (self as &mut dyn QAbstractListModel).end_reset_model();
+        self.end_reset_model();
 
         self.unread_count_changed();
     }
@@ -350,9 +350,9 @@ impl SessionModel {
             log::trace!("Removing the session from qml");
 
             // Remove from this place so it can be added back in later
-            (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            self.begin_remove_rows(idx as i32, idx as i32);
             self.content.remove(idx);
-            (self as &mut dyn QAbstractListModel).end_remove_rows();
+            self.end_remove_rows();
         };
 
         if !last_message.is_read && mark_read {
@@ -393,7 +393,7 @@ impl SessionModel {
 
         log::trace!("Inserting the session back in qml into position {}", newIdx);
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(newIdx as i32, newIdx as i32);
+        self.begin_insert_rows(newIdx as i32, newIdx as i32);
         self.content.insert(
             newIdx,
             AugmentedSession {
@@ -407,7 +407,7 @@ impl SessionModel {
                 typing: Vec::new(),
             },
         );
-        (self as &mut dyn QAbstractListModel).end_insert_rows();
+        self.end_insert_rows();
 
         self.unread_count_changed();
     }
@@ -431,10 +431,10 @@ impl SessionModel {
             log::trace!("Removing the session from qml");
 
             // Remove from this place so it can be added back in later
-            (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+            self.begin_remove_rows(idx as i32, idx as i32);
             let typing = std::mem::take(&mut self.content[idx].typing);
             self.content.remove(idx);
-            (self as &mut dyn QAbstractListModel).end_remove_rows();
+            self.end_remove_rows();
             typing
         } else {
             Vec::new()
@@ -451,7 +451,7 @@ impl SessionModel {
 
         log::trace!("Inserting the session back in qml into position {}", newIdx);
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(newIdx as i32, newIdx as i32);
+        self.begin_insert_rows(newIdx as i32, newIdx as i32);
         self.content.insert(
             newIdx,
             AugmentedSession {
@@ -465,7 +465,7 @@ impl SessionModel {
                 typing,
             },
         );
-        (self as &mut dyn QAbstractListModel).end_insert_rows();
+        self.end_insert_rows();
 
         self.unread_count_changed();
     }
@@ -516,8 +516,8 @@ impl SessionModel {
             if let Some(m) = &mut session.last_message {
                 m.message.is_read = true;
             }
-            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+            let idx = self.row_index(i as i32);
+            self.data_changed(idx, idx);
         } else {
             log::warn!("Could not call data_changed for non-existing session!");
         }
@@ -541,8 +541,8 @@ impl SessionModel {
             .find(|(_, s)| s.session.id == sid)
         {
             session.session.is_muted = muted;
-            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+            let idx = self.row_index(i as i32);
+            self.data_changed(idx, idx);
         } else {
             log::warn!("Could not call data_changed for non-existing session!");
         }
@@ -556,8 +556,8 @@ impl SessionModel {
             .find(|(_, s)| s.session.id == sid)
         {
             session.session.is_archived = archived;
-            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+            let idx = self.row_index(i as i32);
+            self.data_changed(idx, idx);
         } else {
             log::warn!("Could not call data_changed for non-existing session!");
         }
@@ -589,9 +589,9 @@ impl SessionModel {
 
     /// Remove deleted session from QML
     pub fn handle_delete_session(&mut self, idx: usize) {
-        (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+        self.begin_remove_rows(idx as i32, idx as i32);
         self.content.remove(idx);
-        (self as &mut dyn QAbstractListModel).end_remove_rows();
+        self.end_remove_rows();
 
         self.unread_count_changed();
     }

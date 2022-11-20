@@ -216,9 +216,9 @@ impl MessageModel {
         // TODO: Go version modified the `self` model appropriately,
         //       with the `add`/`_add` parameter from createMessage.
         // if add {
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, 0);
+        self.begin_insert_rows(0, 0);
         self.messages.insert(0, msg.into());
-        (self as &mut dyn QAbstractListModel).end_insert_rows();
+        self.end_insert_rows();
         // }
     }
 
@@ -236,11 +236,11 @@ impl MessageModel {
 
     #[with_executor]
     fn load(&mut self, sid: i32, _peer_name: QString) {
-        (self as &mut dyn QAbstractListModel).begin_reset_model();
+        self.begin_reset_model();
 
         self.messages.clear();
 
-        (self as &mut dyn QAbstractListModel).end_reset_model();
+        self.end_reset_model();
 
         actix::spawn(
             self.actor
@@ -422,8 +422,8 @@ impl MessageModel {
             // , MessageRoles::Received);
             // We'll also have troubles with the mutable borrow over `msg`, but that's nothing we
             // cannot solve.  We're saved by NLL here.
-            let idx = (self as &mut dyn QAbstractListModel).row_index(i as i32);
-            (self as &mut dyn QAbstractListModel).data_changed(idx, idx);
+            let idx = self.row_index(i as i32);
+            self.data_changed(idx, idx);
         } else {
             log::error!("Message not found");
         }
@@ -548,15 +548,15 @@ impl MessageModel {
         match idx {
             Ok(idx) => {
                 log::trace!("Fetched message exists at idx = {}; replacing", idx);
-                let model_idx = (self as &mut dyn QAbstractListModel).row_index(idx as _);
+                let model_idx = self.row_index(idx as _);
 
                 self.messages[idx] = am;
-                (self as &mut dyn QAbstractListModel).data_changed(model_idx, model_idx);
+                self.data_changed(model_idx, model_idx);
             }
             Err(idx) => {
-                (self as &mut dyn QAbstractListModel).begin_insert_rows(idx as _, idx as _);
+                self.begin_insert_rows(idx as _, idx as _);
                 self.messages.insert(idx, am);
-                (self as &mut dyn QAbstractListModel).end_insert_rows();
+                self.end_insert_rows();
             }
         };
     }
@@ -570,11 +570,11 @@ impl MessageModel {
             messages.len()
         );
 
-        (self as &mut dyn QAbstractListModel).begin_insert_rows(0, messages.len() as i32);
+        self.begin_insert_rows(0, messages.len() as i32);
 
         self.messages.extend(messages.into_iter().map(Into::into));
 
-        (self as &mut dyn QAbstractListModel).end_insert_rows();
+        self.end_insert_rows();
     }
 
     pub fn handle_delete_message(&mut self, id: i32, idx: usize, del_rows: usize) {
@@ -585,11 +585,11 @@ impl MessageModel {
             idx
         );
 
-        (self as &mut dyn QAbstractListModel).begin_remove_rows(idx as i32, idx as i32);
+        self.begin_remove_rows(idx as i32, idx as i32);
 
         self.messages.remove(idx);
 
-        (self as &mut dyn QAbstractListModel).end_remove_rows();
+        self.end_remove_rows();
     }
 }
 
