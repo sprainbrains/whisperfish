@@ -83,7 +83,7 @@ Item {
         width: parent.implicitWidth
         height: parent.implicitHeight
         maximumLineCount: 1
-        horizontalAlignment: outbound ? Text.AlignRight : Text.AlignLeft
+        wrapMode: Text.NoWrap
         font.pixelSize: Theme.fontSizeExtraSmall
         font.bold: true
         linkColor: color
