@@ -260,23 +260,30 @@ ListItem {
             }
         }
 
-        Item { width: 1; height: reactions.length > 0 ? Theme.paddingSmall : 0 }
-
-        EmojiRow {
-            id: emojiRow
-            property real minContentWidth: item !== undefined && item.minContentWidth ? item.minContentWidth : 0
-            width: delegateContentWidth
-        }
-
-        Item { width: 1; height: Theme.paddingSmall }
-
-        Loader {
+        Item {
             id: infoRow
-            property real minContentWidth: item !== undefined ? item.minContentWidth : 0
+            anchors {
+                topMargin: Theme.paddingSmall * (reactions.length > 0 ? 2 : 1)
+            }
+            property real minContentWidth: emojiItem.width + Theme.paddingSmall + infoItem.width
             width: delegateContentWidth
-            height: Theme.fontSizeExtraSmall
-            asynchronous: true
-            sourceComponent: Component { InfoRow { } }
+            height: emojiItem.visible ? (emojiItem.height + Theme.paddingSmall) : infoItem.height
+
+            EmojiItem {
+                id: emojiItem
+                anchors.top: parent.top
+                anchors.left: isOutbound ? parent.left : undefined
+                anchors.right: isOutbound ? undefined : parent.right
+            }
+            Loader {
+                id: infoItem
+                height: Theme.fontSizeExtraSmall
+                asynchronous: true
+                sourceComponent: Component { InfoItem { } }
+                anchors.bottom: parent.bottom
+                anchors.left: isOutbound ?  undefined : parent.left
+                anchors.right: isOutbound ? parent.right : undefined
+            }
         }
     }
 

@@ -4,16 +4,17 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 
 // This component must be a child of MessageDelegate.
-Row {
+Item {
     id: infoRow
-    spacing: 0
-    layoutDirection: isOutbound ? Qt.RightToLeft : Qt.LeftToRight
-    width: delegateContentWidth
-
-    property real minContentWidth: statusIcon.width+infoLabel.width+debugLabel.width
+    width: privacyIcon.width + statusIcon.width + infoLabel.width + debugLabel.width
+    height: Math.max(privacyIcon.height, statusIcon.height, infoLabel.height, debugLabel.height)
 
     HighlightImage {
         id: privacyIcon
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+        }
         visible: SettingsBridge.boolValue("debug_mode")
         width: visible ? Theme.iconSizeSmall : 0
         height: width
@@ -25,6 +26,10 @@ Row {
         id: statusIcon
         visible: isOutbound
         width: visible ? Theme.iconSizeSmall : 0
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: privacyIcon.right
+        }
         height: width
         color: infoLabel.color
         source: {
@@ -42,6 +47,10 @@ Row {
 
     Label {
         id: infoLabel
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: statusIcon.right
+        }
         text: hasData ?
                   (modelData.timestamp ?
                        Format.formatDate(modelData.timestamp, Formatter.TimeValue) :
@@ -60,6 +69,10 @@ Row {
 
     Label {
         id: debugLabel
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: infoLabel.right
+        }
         visible: SettingsBridge.boolValue("debug_mode")
         width: visible ? implicitWidth : 0
         text: (visible && modelData) ? " [%1] ".arg(modelData.id) : ""
