@@ -540,7 +540,15 @@ impl AugmentedMessage {
         self.reactions
             .iter()
             .map(|(reaction, _recipient)| &reaction.emoji)
-            .join(",")
+            .join(" ")
+    }
+
+    pub fn reactions_full(&self) -> String {
+        use itertools::Itertools;
+        self.reactions
+            .iter()
+            .map(|(reaction, recipient)| format!("{} - {}", &reaction.emoji, &recipient.name()))
+            .join("\n")
     }
 
     #[deprecated]
