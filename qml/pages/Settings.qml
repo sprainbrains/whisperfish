@@ -248,6 +248,22 @@ Page {
                 }
             }
             IconTextSwitch {
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page prefer phone contacts
+                //% "Prefer device contacts"
+                text: qsTrId("whisperfish-settings-notifications-prefer-device-contacts")
+                //: Settings page prefer phone contacts description
+                //% "Use the device address book contact names and avatars over Signal profile ones."
+                description: qsTrId("whisperfish-settings-notifications-prefer-device-contacts-description")
+                checked: SettingsBridge.boolValue("prefer_device_contacts")
+                icon.source: "image://theme/icon-m-people"
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.boolValue("prefer_device_contacts")) {
+                        SettingsBridge.boolSet("prefer_device_contacts", checked)
+                    }
+                }
+            }
+            IconTextSwitch {
                 id: enableEnterSend
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page enable enter send

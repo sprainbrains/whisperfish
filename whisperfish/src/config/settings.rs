@@ -172,6 +172,7 @@ impl Settings {
         self.set_bool_if_unset("incognito", false);
         self.set_bool_if_unset("enable_notify", true);
         self.set_bool_if_unset("show_notify_message", false);
+        self.set_bool_if_unset("prefer_device_contacts", false);
         self.set_bool_if_unset("minimise_notify", false);
         self.set_bool_if_unset("save_attachments", true);
         self.set_bool_if_unset("share_contacts", true);
