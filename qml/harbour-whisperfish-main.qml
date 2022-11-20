@@ -53,7 +53,7 @@ ApplicationWindow
 
         Component.onCompleted: {
             if(typeof quietMessageNotification.sound !== "undefined") {
-                quietMessageNotification.subText = "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
+                quietMessageNotification.sound = "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
                 quietMessageNotification.isSupported = true
             }   
         }
