@@ -612,6 +612,14 @@ impl AugmentedSession {
         }
     }
 
+    fn group_description(&self) -> Option<String> {
+        match &self.session.r#type {
+            orm::SessionType::GroupV1(_) => None,
+            orm::SessionType::GroupV2(group) => group.description.to_owned(),
+            orm::SessionType::DirectMessage(_) => None,
+        }
+    }
+
     fn group_id(&self) -> Option<&str> {
         match &self.session.r#type {
             orm::SessionType::GroupV1(group) => Some(&group.id),
@@ -825,6 +833,8 @@ define_model_roles! {
         IsGroupV2(fn is_group_v2(&self)):                                  "isGroupV2",
         GroupId(fn group_id(&self) via qstring_from_option):               "groupId",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
+        GroupDescription(fn group_description(&self) via qstring_from_option):
+                                                                           "groupDescription",
         GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
         GroupMemberNames(fn group_member_names(&self) via qstring_from_option):
                                                                            "groupMemberNames",

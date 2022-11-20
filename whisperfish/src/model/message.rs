@@ -118,6 +118,7 @@ pub struct MessageModel {
     group: qt_property!(bool; NOTIFY groupChanged),
     groupV1: qt_property!(bool; NOTIFY groupChanged),
     groupV2: qt_property!(bool; NOTIFY groupChanged),
+    groupDescription: qt_property!(QString; NOTIFY peerChanged),
 
     peerIdentityChanged: qt_signal!(),
     peerChanged: qt_signal!(),
@@ -457,6 +458,7 @@ impl MessageModel {
                 self.groupV1 = true;
                 self.groupV2 = false;
                 self.groupId = QString::from(group.id);
+                self.groupDescription = QString::from("");
                 self.groupChanged();
 
                 self.groupMembers = QString::from(
@@ -474,7 +476,7 @@ impl MessageModel {
             orm::SessionType::GroupV2(group) => {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
-                self.peerHasAvatar = false;
+                self.peerHasAvatar = group.avatar.is_some();
                 self.peerName = QString::from(group.name.deref());
                 self.aboutEmoji = QString::from("");
                 self.aboutText = QString::from("");
@@ -484,6 +486,7 @@ impl MessageModel {
                 self.groupV1 = false;
                 self.groupV2 = true;
                 self.groupId = QString::from(group.id);
+                self.groupDescription = QString::from(group.description.unwrap_or_default());
                 self.groupChanged();
 
                 self.groupMembers = QString::from(
@@ -503,6 +506,7 @@ impl MessageModel {
                 self.groupV1 = false;
                 self.groupV2 = false;
                 self.groupId = QString::from("");
+                self.groupDescription = QString::from("");
                 self.groupChanged();
 
                 self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));

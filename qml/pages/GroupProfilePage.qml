@@ -11,13 +11,18 @@ Page {
     // a background image. A group admin should be able to change it, too.
     /* property string groupWallpaper: '' */
 
+    property bool groupV2: MessageModel.groupV2 // works until groupV3
+    property string groupId: MessageModel.groupId
     property string groupName: MessageModel.peerName
-    property string groupDescription: '' // TODO implement in backend
-    property string groupAvatar: '' // TODO implement in backend
+    property string groupDescription: MessageModel.groupDescription
 
     readonly property string groupMembers: MessageModel.groupMembers
     readonly property string groupMemberNames: MessageModel.groupMemberNames
     readonly property string groupMemberUuids: MessageModel.groupMemberUuids
+
+    readonly property string myUuid: SetupWorker.uuid
+    readonly property string myPhone: SetupWorker.phoneNumber
+
     onGroupMembersChanged: contactListModel.refresh()
     Component.onCompleted: contactListModel.refresh()
 
@@ -39,19 +44,35 @@ Page {
                 console.warn("Group uuid/e164 count doesn't match group uuid count. Does someone not have UUID yet? That's a bug!")
             }
 
+            // TODO localId is available but not used by the backend, i.e. always empty
+            //      Related to #138. We need a way to check our own id.
+            // Insert self as the first item if all lists are same length
+            if(useNames && useAvatars) {
+                var myIndex = members.indexOf(myUuid)
+                if(myIndex === -1) {
+                    myIndex = members.indexOf(myPhone)
+                }
+                if(myIndex > -1) {
+                    var tmp;
+                    tmp = members.splice(myIndex, 1)
+                    members.unshift(tmp[0])
+                    tmp = names.splice(myIndex, 1)
+                    names.unshift(tmp[0])
+                    tmp = uuids.splice(myIndex, 1)
+                    uuids.unshift(tmp[0])
+                }
+            }
+
+            var avatar_dir = SettingsBridge.stringValue("avatar_dir");
             for (var i = 0; i < members.length; i++) {
                 if (!members[i]) continue // skip empty/invalid values
+
+                var isSelf = (myUuid === uuids[i] || myPhone === members[i])
 
                 var member = resolvePeopleModel.personByPhoneNumber(members[i], true)
                 var name = member ? member.displayLabel : (useNames && names[i] !== '' ? names[i] : members[i])
                 var isUnknown = false // checked below
                 var isVerified = false // TODO implement in backend
-
-                // TODO localId is available but not used by the backend, i.e. always empty
-                //      Related to #138. We need a way to check our own id.
-                // TODO 'self' should always be the first entry in the list because the entry
-                //      will not be clickable and act as a header.
-                var isSelf = (members[i] === SetupWorker.localId) // currently always false
 
                 if (name === members[i]) {
                     // TODO Use nickname defined in the profile (#192)
@@ -62,7 +83,7 @@ Page {
                     isUnknown = true
                 }
                 // XXX accessing the hasAvatar property is impossible here, for now
-                var profilePicture =  SettingsBridge.stringValue("avatar_dir") + "/" + uuids[i]
+                var profilePicture =  avatar_dir + "/" + uuids[i]
 
                 append({"contactId": members[i],
                            "name": name,
@@ -86,19 +107,11 @@ Page {
 
             PageHeader {
                 title: groupName
-                description: {
-                    // TODO Consider removing the description label for updated groups
-                    //      because this should become the standard. Only show a hint
-                    //      for non-updated groups.
-                    // This can be expanded once there are more group versions.
-                    //: Indicator for updated groups
-                    //% "Updated to the new group format"
-                    if (MessageModel.groupV2) qsTrId("whisperfish-group-updated-to-groupv2")
+                description: !groupV2
                     //: Indicator for not yet updated groups
                     //% "Not updated to the new group format"
-                    else if (MessageModel.groupV1) qsTrId("whisperfish-group-not-updated-to-groupv2")
-                    else "" // we could shown an error here, or we don't
-                }
+                    ? qsTrId("whisperfish-group-not-updated-to-groupv2")
+                    : ""
             }
 
             ProfilePicture {
@@ -107,13 +120,12 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                // TODO implement in model (#192)
-                imageSource: typeof MessageModel.groupId !== 'undefined' && MessageModel.groupId !== ''
-                    ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.groupId
+                imageSource: typeof groupId !== 'undefined' && groupId !== ''
+                    ? SettingsBridge.stringValue("avatar_dir") + "/" + groupId
                     : ''
                 isGroup: true
-                showInfoMark: true
-                infoMarkSource: 'image://theme/icon-s-group-chat' // edit
+                showInfoMark: infoMarkSource !== ''
+                infoMarkSource: groupV2 ? '' : 'image://theme/icon-s-filled-warning'
                 infoMarkSize: 0.9*Theme.iconSizeSmallPlus
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: {
@@ -156,7 +168,7 @@ Page {
                     // height: maximumLineCount*font.pixelSize
                     maximumLineCount: expanded ? 100000 : 5
                     emojiSizeMult: 1.0
-                    horizontalAlignment: Text.AlignLeft
+                    horizontalAlignment: Text.AlignHCenter
                     color: expandDescriptionArea.pressed ?
                                Theme.secondaryHighlightColor :
                                Theme.secondaryColor
