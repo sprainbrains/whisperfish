@@ -6,7 +6,7 @@ import ".."
 
 // This component must be a child of MessageDelegate.
 LinkedEmojiLabel {
-    plainText: (typeof modelData !== 'undefined' && modelData.reactions !== 'undefined') ? modelData.reactions : ""
+    plainText: (modelData !== undefined && modelData.reactions !== undefined) ? modelData.reactions : ""
     id: emojiLabel
     anchors.margins: Theme.paddingMedium
     visible: plainText.length > 0

@@ -19,7 +19,8 @@ ListItem {
     // TODO we need a way to get a valid index from a message id
     //      (we must rely on the message's id instead of its index, as the latter may change)
     // TODO 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
-    property var quotedMessageData: typeof modelData.quote !== 'undefined' ? JSON.parse(modelData.quote) : null // required properties: message, source, outgoing, attachments, AND id, index
+    // required properties: message, source, outgoing, attachments, AND id, index
+    property var quotedMessageData: modelData.quote !== undefined ? JSON.parse(modelData.quote) : null
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
     // Signal signature: \c{replySignal(var index, var modelData)}.
@@ -65,16 +66,16 @@ ListItem {
     property bool showQuotedMessage: hasQuotedMessage
     property bool showExpand: !isEmpty && _message.length > shortenThreshold
 
-    readonly property bool hasData: modelData !== null && typeof modelData !== 'undefined'
-    readonly property bool hasReactions: hasData && typeof modelData.reactions !== 'undefined'
+    readonly property bool hasData: modelData !== null && modelData !== undefined
+    readonly property bool hasReactions: hasData && modelData.reactions !== undefined
     readonly property bool hasQuotedMessage: quotedMessageData !== null
     readonly property bool hasAttachments: hasData && (
-        (typeof modelData.thumbsAttachments !== 'undefined' ? modelData.thumbsAttachments.count : 0)
-        + (typeof modelData.detailAttachments !== 'undefined' ? modelData.detailAttachments.count : 0)
+        (modelData.thumbsAttachments !== undefined ? modelData.thumbsAttachments.count : 0)
+        + (modelData.detailAttachments !== undefined ? modelData.detailAttachments.count : 0)
         > 0)
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && modelData.source !== ''
-    readonly property bool unidentifiedSender: modelData.unidentifiedSender
+    readonly property bool unidentifiedSender: modelData.unidentifiedSender !== undefined ? modelData.unidentifiedSender : true
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: MessageModel.group
     readonly property bool isEmpty: !hasText && !hasAttachments

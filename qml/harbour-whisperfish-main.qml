@@ -52,7 +52,7 @@ ApplicationWindow
         property bool isSupported: false
 
         Component.onCompleted: {
-            if(typeof quietMessageNotification.sound !== "undefined") {
+            if(quietMessageNotification.sound !== undefined) {
                 quietMessageNotification.sound = "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
                 quietMessageNotification.isSupported = true
             }
@@ -123,7 +123,7 @@ ApplicationWindow
                     notificationMap[sid][i].close()
                     delete notificationMap[sid][i]
                     notificationMap[sid].splice(i, 1)
-                    
+
                     if(notificationMap[sid].length === 0) {
                         delete notificationMap[sid]
                     }
@@ -177,7 +177,7 @@ ApplicationWindow
         m.previewSummary = name
         m.previewBody = m.body
         m.summary = name
-        if(typeof m.subText !== "undefined") {
+        if(m.subText !== undefined) {
             m.subText = contactName
         }
         m.clicked.connect(function() {

@@ -448,10 +448,10 @@ Page {
                 //: Settings page websocket status
                 //% "Websocket Status"
                 label: qsTrId("whisperfish-settings-websocket")
-                value: ClientWorker.connected ? 
+                value: ClientWorker.connected ?
                     //: Settings page connected message
                     //% "Connected"
-                    qsTrId("whisperfish-settings-connected") : 
+                    qsTrId("whisperfish-settings-connected") :
                     //: Settings page disconnected message
                     //% "Disconnected"
                     qsTrId("whisperfish-settings-disconnected")
@@ -484,10 +484,10 @@ Page {
                 //: Settings page encrypted key store
                 //% "Encrypted Key Store"
                 label: qsTrId("whisperfish-settings-encrypted-keystore")
-                value: SetupWorker.encryptedKeystore ? 
+                value: SetupWorker.encryptedKeystore ?
                     //: Settings page encrypted key store enabled
                     //% "Enabled"
-                    qsTrId("whisperfish-settings-encrypted-keystore-enabled") : 
+                    qsTrId("whisperfish-settings-encrypted-keystore-enabled") :
                     //: Settings page encrypted key store disabled
                     //% "Disabled"
                     qsTrId("whisperfish-settings-encrypted-keystore-disabled")
@@ -496,10 +496,10 @@ Page {
                 //: Settings page encrypted database
                 //% "Encrypted Database"
                 label: qsTrId("whisperfish-settings-encrypted-db")
-                value: SettingsBridge.boolValue("encrypt_database") ? 
+                value: SettingsBridge.boolValue("encrypt_database") ?
                     //: Settings page encrypted db enabled
                     //% "Enabled"
-                    qsTrId("whisperfish-settings-encrypted-db-enabled") : 
+                    qsTrId("whisperfish-settings-encrypted-db-enabled") :
                     //: Settings page encrypted db disabled
                     //% "Disabled"
                     qsTrId("whisperfish-settings-encrypted-db-disabled")

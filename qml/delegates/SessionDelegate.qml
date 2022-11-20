@@ -70,8 +70,8 @@ ListItem {
     }
 
     function sendTypingToHeader() {
-        console.log("onTypingChanged for", model.id, ":", model.typing);
         if(model.id == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+            console.log("onTypingChanged for", model.id, ":", model.typing);
             // XXX look up names instead of showing phone numbers
             // FIXME after the session model is stable with row-moving instead of reinsertion (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271), the typing variable can be 100% declarative and in the page header.
             var typing;

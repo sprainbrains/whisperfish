@@ -81,7 +81,7 @@ BlockingInfoPageBase {
                     password2Field.forceActiveFocus()
                 }
             }
-        
+
             errorHighlight: !(password1Field.acceptableInput)
         }
 

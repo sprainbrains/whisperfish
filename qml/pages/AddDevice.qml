@@ -48,7 +48,7 @@ Dialog {
             errorHighlight: !(urlField.text.length > 0 && urlField.acceptableInput)
 
             Component.onCompleted: {
-                if(typeof urlField.rightItem !== "undefined") {
+                if(urlField.rightItem !== undefined) {
                     _urlFieldLoader.active = true
                     urlField.rightItem = _urlFieldLoader.item
                     urlField.errorHighlight = false

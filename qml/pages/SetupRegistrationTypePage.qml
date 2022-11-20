@@ -18,13 +18,13 @@ BlockingInfoPageBase {
 
     signal registerPrimary
     onRegisterPrimary: {
-        busy = true // we have to wait for the backend to create qr code 
+        busy = true // we have to wait for the backend to create qr code
         Prompt.registerAsPrimary(true)
     }
 
     signal registerSecondary
     onRegisterSecondary: {
-        busy = true // we have to wait for the backend to create qr code 
+        busy = true // we have to wait for the backend to create qr code
         Prompt.registerAsPrimary(false)
     }
 

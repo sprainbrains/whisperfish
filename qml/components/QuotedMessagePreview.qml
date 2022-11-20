@@ -19,8 +19,8 @@ BackgroundItem {
     readonly property bool shown: (messageData !== null && visible)
     readonly property bool hasAttachments: false
     // readonly property bool hasAttachments: (
-    //     (typeof messageData.thumbsAttachments !== 'undefined' ? messageData.thumbsAttachments.count : 0)
-    //     + (typeof messageData.detailAttachments !== 'undefined' ? messageData.detailAttachments.count : 0)
+    //     (messageData.thumbsAttachments !== undefined ? messageData.thumbsAttachments.count : 0)
+    //     + (messageData.detailAttachments !== undefined ? messageData.detailAttachments.count : 0)
     //     > 0)
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,

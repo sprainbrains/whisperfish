@@ -118,7 +118,7 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                imageSource: typeof groupId !== 'undefined' && groupId !== ''
+                imageSource: groupId !== undefined && groupId !== ''
                     ? SettingsBridge.stringValue("avatar_dir") + "/" + groupId
                     : ''
                 isGroup: true
