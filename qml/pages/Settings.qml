@@ -253,7 +253,7 @@ Page {
                 //% "Prefer device contacts"
                 text: qsTrId("whisperfish-settings-notifications-prefer-device-contacts")
                 //: Settings page prefer phone contacts description
-                //% "Use the device address book contact names and avatars over Signal profile ones."
+                //% "Prefer Sailfish OS address book contact names and avatars over Signal Profile data."
                 description: qsTrId("whisperfish-settings-notifications-prefer-device-contacts-description")
                 checked: SettingsBridge.boolValue("prefer_device_contacts")
                 icon.source: "image://theme/icon-m-people"
