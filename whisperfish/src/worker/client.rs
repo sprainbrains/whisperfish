@@ -90,7 +90,9 @@ pub struct ClientWorker {
         sid: i32,
         mid: i32,
         sessionName: QString,
+        senderName: QString,
         senderIdentifier: QString,
+        senderUuid: QString,
         message: QString,
         isGroup: bool
     ),
@@ -546,7 +548,15 @@ impl ClientActor {
                 message.id,
                 session_name.into(),
                 sender_recipient
+                    .as_ref()
+                    .map(|x| x.name().into())
+                    .unwrap_or_else(|| "".into()),
+                sender_recipient
+                    .as_ref()
                     .map(|x| x.e164_or_uuid().into())
+                    .unwrap_or_else(|| "".into()),
+                sender_recipient
+                    .map(|x| x.uuid().into())
                     .unwrap_or_else(|| "".into()),
                 message.text.as_deref().unwrap_or("").into(),
                 session.is_group(),

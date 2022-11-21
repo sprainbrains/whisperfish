@@ -139,10 +139,9 @@ ApplicationWindow
         }
     }
 
-    function newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup) {
-        var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier, true);
-        var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
-        var contactName = contact ? contact.displayLabel : senderIdentifier;
+    function newMessageNotification(sid, mid, sessionName, senderName, senderIdentifier, senderUuid, message, isGroup) {
+        var name = getRecipientName(senderIdentifier, senderName)
+        var contactName = isGroup ? sessionName : name
 
         var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
 
@@ -246,7 +245,7 @@ ApplicationWindow
             }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup)
+            newMessageNotification(sid, mid, sessionName, senderName, senderIdentifier, senderUuid, message, isGroup)
         }
         onMessageNotSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
