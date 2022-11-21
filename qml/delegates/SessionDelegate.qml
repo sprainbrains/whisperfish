@@ -15,7 +15,7 @@ ListItem {
     property bool isArchived: model.isArchived
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
-    property string profilePicture: model !== undefined && model.hasAvatar ? (isGroup
+    property string profilePicture: model !== undefined ? (isGroup
         ? (model.groupId !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId : '')
         : getRecipientAvatar(model.source, model.recipientUuid)
     ) : ''
@@ -157,7 +157,7 @@ ListItem {
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { peerName: delegate.name })
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { peerName: delegate.name, profilePicture: delegate.profilePicture })
                 }
             }
         }

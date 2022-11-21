@@ -4,7 +4,8 @@ import Sailfish.TextLinking 1.0
 import "../components"
 
 Page {
-    id: root
+    id: groupProfile
+    objectName: "groupProfile"
 
     // Group wallpapers/background are inherently un-sailfishy. We
     // should show them somewhere, somehow nonetheless - just not as
@@ -306,7 +307,7 @@ Page {
                         //
                         // Not possible:
                         //      MessageModel.load(contactId)
-                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
+                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), {...})
                     }
                     MenuItem {
                         //: Menu item to remove a member from a group (requires admin privileges)

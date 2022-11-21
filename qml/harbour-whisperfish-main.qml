@@ -144,6 +144,8 @@ ApplicationWindow
         var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
         var contactName = contact ? contact.displayLabel : senderIdentifier;
 
+        var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
+
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
            (sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName))) {
@@ -191,7 +193,7 @@ ApplicationWindow
             mainWindow.activate()
             showMainPage()
             mainWindow.activateSession(sid)
-            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), {}, PageStackAction.Immediate)
+            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { peerName: contactName, profilePicture: avatar }, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {

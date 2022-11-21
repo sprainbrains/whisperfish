@@ -13,6 +13,7 @@ Page {
 
     property bool isGroup: MessageModel.group
     property string conversationName: isGroup ? MessageModel.peerName : getRecipientName(MessageModel.peerTel, MessageModel.peerName, true)
+    property string profilePicture: ""
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
@@ -25,10 +26,15 @@ Page {
         if (status == PageStatus.Active) {
             SessionModel.markRead(MessageModel.sessionId)
             mainWindow.clearNotifications(MessageModel.sessionId)
-            if (root.isGroup) {
+
+            var nextPage = pageStack.nextPage()
+            var nextPageName = nextPage ? nextPage.objectName : ''
+
+            if (root.isGroup && nextPageName !== 'groupProfile') {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
-            } else {
-                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"))
+            }
+            if(!root.isGroup && nextPageName !== 'verifyIdentity'){
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { peerName: root.conversationName, profilePicture: root.profilePicture })
             }
         }
     }
@@ -58,9 +64,7 @@ Page {
             else return (MessageModel.peerName === MessageModel.peerTel ?
                              "" : MessageModel.peerTel)
         }
-        profilePicture: root.isGroup
-            ? (MessageModel.groupId !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.groupId : '')
-            : getRecipientAvatar(MessageModel.peerTel, MessageModel.peerUuid)
+        profilePicture: root.profilePicture
 
         opacity: isPortrait ? 1.0 : 0.0
         Behavior on opacity { FadeAnimator { } }

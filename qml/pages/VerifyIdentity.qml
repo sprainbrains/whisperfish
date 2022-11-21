@@ -7,6 +7,9 @@ Page {
     id: verifyIdentity
     objectName: "verifyIdentity"
 
+    property string peerName: ""
+    property string profilePicture: ""
+
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height
@@ -71,7 +74,7 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: getRecipientName(MessageModel.peerTel, MessageModel.peerName)
+                title: verifyIdentity.peerName
                 description: MessageModel.aboutText
             }
 
@@ -80,7 +83,7 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                imageSource: getRecipientAvatar(MessageModel.peerTel, MessageModel.peerUuid)
+                imageSource: verifyIdentity.profilePicture
                 isGroup: true
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'
