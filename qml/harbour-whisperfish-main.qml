@@ -87,13 +87,13 @@ ApplicationWindow
     //                 false:     show "Note to self"
     //                 undefined: show own name instead
     function getRecipientName(e164, peerName, shownNoteToSelf) {
+        if(!peerName) {
+            peerName = ''
+        }
         if(!e164) {
             return peerName
         }
-        if(!peerName) {
-            peerName = e164
-        }
-        if(shownNoteToSelf !== undefined && e164 && e164 === SetupWorker.phoneNumber) {
+        if((shownNoteToSelf !== undefined) && (e164 === SetupWorker.phoneNumber)) {
             if(shownNoteToSelf) {
                 //: Name of the conversation with one's own number
                 //% "Note to self"
@@ -101,20 +101,17 @@ ApplicationWindow
             } else {
                 //: Name shown when replying to own messages
                 //% "You"
-                qsTrId("whisperfish-sender-name-label-outgoing")
+                return qsTrId("whisperfish-sender-name-label-outgoing")
             }
-
         }
 
         // Only try to search for contact name if contact is a phone number
         var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
-        var name = null
         if(SettingsBridge.boolValue("prefer_device_contacts")) {
-            name = (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
+            return (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
         } else {
-            name = peerName !== '' ? peerName : (contact ? contact.displayLabel : peerName)
+            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : peerName)
         }
-        return name
     }
 
     function activateSession(sid) {
