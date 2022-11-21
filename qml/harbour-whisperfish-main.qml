@@ -64,12 +64,18 @@ ApplicationWindow
     function getRecipientAvatar(e164, uuid) {
         // Only try to search for contact name if contact is a phone number
         var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
-        var avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
+
+        var contact_avatar = (contact && contact.avatarPath) ? contact.avatarPath.toString() : null
+        var contact_avatar_ok = (contact_avatar !== null) && (contact_avatar !== 'image://theme/icon-m-telephony-contact-avatar')
+
+        var signal_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
+        var signal_avatar_ok = SettingsBridge.avatarExists(uuid)
+
         if(SettingsBridge.boolValue("prefer_device_contacts")) {
-            var path = (contact && contact.avatarPath) ? contact.avatarPath.toString() : null
-            avatar = (path && path !== 'image://theme/icon-m-telephony-contact-avatar') ? path : avatar
+            return contact_avatar_ok ? contact_avatar : signal_avatar
+        } else {
+            return signal_avatar_ok ? signal_avatar : contact_avatar
         }
-        return avatar
     }
 
     // Return either given peer name or device contacts name based on
