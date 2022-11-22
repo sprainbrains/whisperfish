@@ -279,7 +279,6 @@ impl Storage {
             root.join("storage").join("identity"),
             root.join("storage").join("attachments"),
             root.join("storage").join("avatars"),
-            root.join("storage").join("groups"),
         ];
 
         for dir in &directories {

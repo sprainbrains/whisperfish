@@ -52,23 +52,11 @@ Page {
         isGroup: root.isGroup
         anchors.top: parent.top
         description: {
-            // Attempt to display group member names
-            // TODO This should be rewritten once the backend supports it (#223).
             if (root.isGroup) {
-                // XXX code duplication with Group.qml
-                var members = []
-                var lst = MessageModel.groupMembers.split(",")
-                for (var i = 0; i < lst.length; i++) {
-                    if (lst[i] !== SetupWorker.localId) {
-                        var member = resolvePeopleModel.personByPhoneNumber(lst[i], true)
-                        if (!member) {
-                            members.push(lst[i])
-                        } else {
-                            members.push(member.displayLabel)
-                        }
-                    }
-                }
-                return members.join(", ")
+                var members = MessageModel.groupMembers.split(",")
+                //: The number of members in a group, you included
+                //% "%n member(s)"
+                return qsTrId("whisperfish-group-n-members", members.length)
             }
             else return (MessageModel.peerName === MessageModel.peerTel ?
                              "" : MessageModel.peerTel)
@@ -78,6 +66,9 @@ Page {
             ? (MessageModel.groupId       !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.groupId       :  '')
             : (MessageModel.peerUuid !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + MessageModel.peerUuid :  '')
         profilePicture: MessageModel.peerHasAvatar ? profilePicturePath : (contact ? contact.avatarPath : '')
+
+        opacity: isPortrait ? 1.0 : 0.0
+        Behavior on opacity { FadeAnimator { } }
     }
 
     // Desired design:
@@ -102,11 +93,13 @@ Page {
     MessagesView {
         id: messages
         focus: true
-        height: parent.height - pageHeader.height
         contentHeight: height
+        Behavior on anchors.top { AnchorAnimation { } }
         anchors {
-            top: pageHeader.bottom; bottom: root.bottom
-            left: parent.left; right: parent.right
+            top: isPortrait ? pageHeader.bottom : pageHeader.top;
+            bottom: root.bottom
+            left: parent.left;
+            right: parent.right
         }
         model: MessageModel
         clip: true // to prevent the view from flowing through the page header
@@ -196,11 +189,9 @@ Page {
                 }
             }
             onSendTypingNotification: {
-                console.log("Sending 'I am typing...' message")
                 ClientWorker.send_typing_notification(MessageModel.sessionId, true)
             }
             onSendTypingNotificationEnd: {
-                console.log("Sending 'I am not typing anymore...' message")
                 ClientWorker.send_typing_notification(MessageModel.sessionId, false)
             }
         }

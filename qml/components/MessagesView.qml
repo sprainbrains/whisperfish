@@ -156,11 +156,18 @@ SilicaListView {
     }
 
     function showMessageInfo() { // call through messageAction()
-        // TODO implement: open a separate page and show some info on
-        // the currently selected message. This requires direct access to
-        // message data through the model. It should silently fail
-        // when multiple messages are selected.
-        Remorse.popupAction(root, "Message info is not yet implemented.", function(){})
+        if (selectedCount !== 1)
+            return
+
+        for (var i in selectedMessages) {
+            if (selectedMessages.hasOwnProperty(i)) {
+                pageStack.push(Qt.resolvedUrl("../pages/MessageInfoPage.qml"), {
+                    message: selectedMessages[i]
+                })
+                return
+            }
+        }
+        console.error("Only one message was selected but wasn't found!")
     }
 
     /* ↑↑↑↑ message action functions to be used through messageAction(action, ...) */
@@ -185,7 +192,7 @@ SilicaListView {
     onSelectedCountChanged: if (selectedCount === 0) isSelecting = false
     onItemSelectionToggled: {
         if (selectedMessages[modelData.id] === undefined) {
-            selectedMessages[modelData.id] = {id: modelData.id, index: modelData.index}
+            selectedMessages[modelData.id] = modelData
             selectedCount++
         } else {
             delete selectedMessages[modelData.id]

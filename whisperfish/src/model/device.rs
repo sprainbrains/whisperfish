@@ -22,9 +22,9 @@ define_model_roles! {
 
 impl DeviceModel {
     pub fn set_devices(&mut self, content: Vec<DeviceInfo>) {
-        (self as &mut dyn QAbstractListModel).begin_reset_model();
+        self.begin_reset_model();
         self.content = content;
-        (self as &mut dyn QAbstractListModel).end_reset_model();
+        self.end_reset_model();
     }
 }
 
