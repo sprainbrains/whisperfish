@@ -59,6 +59,17 @@ ApplicationWindow
         }
     }
 
+    function getGroupAvatar(groupId) {
+        if(!groupId || groupId === '') {
+            return ''
+        }
+
+        var group_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + groupId
+        var group_avatar_ok = SettingsBridge.avatarExists(groupId)
+
+        return group_avatar_ok ? group_avatar : ''
+    }
+
     // Return peer contacts avatar or Signal profile avatar based on
     // user selected preference. Do not use for groups (there's no choice).
     function getRecipientAvatar(e164, uuid) {

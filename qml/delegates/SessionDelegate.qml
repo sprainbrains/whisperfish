@@ -16,7 +16,7 @@ ListItem {
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
     property string profilePicture: model !== undefined ? (isGroup
-        ? (model.groupId !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId : '')
+        ? getGroupAvatar(model.groupId)
         : getRecipientAvatar(model.source, model.recipientUuid)
     ) : ''
     property bool isPreviewDelivered: model.deliveryCount > 0 // TODO investigate: not updated for new message (#151, #55?)
