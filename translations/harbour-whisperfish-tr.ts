@@ -1502,7 +1502,6 @@ Settings page share contacts</extracomment>
         <extracomment>The number of members in a group, you included</extracomment>
         <translation>
             <numerusform>%n üye</numerusform>
-            <numerusform>%n üye</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
