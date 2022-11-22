@@ -82,6 +82,10 @@ ApplicationWindow
         var signal_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
         var signal_avatar_ok = SettingsBridge.avatarExists(uuid)
 
+        if(!contact_avatar_ok && !signal_avatar_ok) {
+            return ''
+        }
+
         if(SettingsBridge.boolValue("prefer_device_contacts")) {
             return contact_avatar_ok ? contact_avatar : signal_avatar
         } else {
