@@ -344,16 +344,9 @@ impl SessionModel {
             .enumerate()
             .find(|(_i, s)| s.id == sess.id);
 
-        if let Some((idx, _session)) = found {
+        if found.is_some() {
             already_unread = !last_message.is_read;
-
-            log::trace!("Removing the session from qml");
-
-            // Remove from this place so it can be added back in later
-            self.begin_remove_rows(idx as i32, idx as i32);
-            self.content.remove(idx);
-            self.end_remove_rows();
-        };
+        }
 
         if !last_message.is_read && mark_read {
             actix::spawn(
@@ -384,30 +377,88 @@ impl SessionModel {
 
         let mut newIdx = 0_usize;
 
-        for (idx, s) in self.content.iter().enumerate() {
-            if s.is_pinned == sess.is_pinned {
-                newIdx = idx;
-                break;
+        if let Some((idx, _session)) = found {
+            let src_idx = self.row_index(idx as i32);
+            let mut dest_idx = self.row_index(idx as i32);
+
+            for (idx, s) in self.content.iter().enumerate() {
+                if s.is_pinned == sess.is_pinned {
+                    newIdx = idx;
+                    dest_idx = self.row_index(newIdx as i32);
+                    break;
+                }
             }
-        }
 
-        log::trace!("Inserting the session back in qml into position {}", newIdx);
+            if src_idx == dest_idx {
+                log::trace!("Updating the session in QML in pos {}", idx);
 
-        self.begin_insert_rows(newIdx as i32, newIdx as i32);
-        self.content.insert(
-            newIdx,
-            AugmentedSession {
-                session: sess,
-                group_members,
-                last_message: Some(LastMessage {
+                let mut s = &mut self.content[idx];
+                s.session = sess;
+                s.group_members = group_members;
+                s.last_message = Some(LastMessage {
                     message: last_message,
                     attachments: last_message_attachments,
                     receipts: last_message_receipts,
-                }),
-                typing: Vec::new(),
-            },
-        );
-        self.end_insert_rows();
+                });
+                s.typing = Vec::new();
+                self.data_changed(src_idx, src_idx);
+            } else {
+                log::trace!(
+                    "Moving the session in qml from position {} to {}",
+                    idx,
+                    newIdx
+                );
+
+                self.begin_move_rows(
+                    src_idx,
+                    idx as i32,
+                    idx as i32,
+                    dest_idx,
+                    newIdx as i32,
+                );
+                let mut s = self.content.remove(idx);
+                s.session = sess;
+                s.group_members = group_members;
+                s.last_message = Some(LastMessage {
+                    message: last_message,
+                    attachments: last_message_attachments,
+                    receipts: last_message_receipts,
+                });
+                s.typing = Vec::new();
+
+                if newIdx > idx {
+                    newIdx = newIdx - 1;
+                }
+
+                self.content.insert(newIdx, s);
+                self.end_move_rows();
+            }
+        } else {
+            for (idx, s) in self.content.iter().enumerate() {
+                if s.is_pinned == sess.is_pinned {
+                    newIdx = idx;
+                    break;
+                }
+            }
+
+            log::trace!("Inserting a new session to qml into position {}", newIdx);
+
+            self.begin_insert_rows(newIdx as i32, newIdx as i32);
+            self.content.insert(
+                newIdx,
+                AugmentedSession {
+                    session: sess,
+                    group_members,
+                    last_message: Some(LastMessage {
+                        message: last_message,
+                        attachments: last_message_attachments,
+                        receipts: last_message_receipts,
+                    }),
+                    typing: Vec::new(),
+                },
+            );
+            self.end_insert_rows();
+        };
 
         self.unread_count_changed();
     }
