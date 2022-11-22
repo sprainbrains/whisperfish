@@ -624,7 +624,7 @@ impl Storage {
         let db = self.db.lock();
 
         diesel::delete(signed_prekeys)
-            .filter(id.eq(u32::from(signed_prekey_id) as i32))
+            .filter(id.eq(signed_prekey_id as i32))
             .execute(&*db)
             .expect("db");
         Ok(())

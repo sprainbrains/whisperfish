@@ -403,18 +403,12 @@ impl SessionModel {
                 s.typing = Vec::new();
             } else {
                 log::trace!(
-                    "Moving the session in qml from position {} to {}",
+                    "Moving the session in qml from position {:?} to {:?}",
                     idx,
                     newIdx
                 );
 
-                self.begin_move_rows(
-                    src_idx,
-                    idx as i32,
-                    idx as i32,
-                    dest_idx,
-                    newIdx as i32,
-                );
+                self.begin_move_rows(src_idx, idx as i32, idx as i32, dest_idx, newIdx as i32);
                 let mut s = self.content.remove(idx);
                 s.session = sess;
                 s.group_members = group_members;
@@ -426,7 +420,7 @@ impl SessionModel {
                 s.typing = Vec::new();
 
                 if newIdx > idx {
-                    newIdx = newIdx - 1;
+                    newIdx -= 1;
                 }
 
                 self.content.insert(newIdx, s);

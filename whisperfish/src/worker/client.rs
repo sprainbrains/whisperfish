@@ -376,7 +376,7 @@ impl ClientActor {
                     .clone()
                     .or_else(|| storage.fetch_self_recipient(&config))
                     .expect("sender or self-sent"),
-                &msg,
+                msg,
                 reaction,
             ) {
                 log::info!("Reaction saved for message {}/{}", session.id, message.id);
