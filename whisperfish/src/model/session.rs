@@ -401,7 +401,6 @@ impl SessionModel {
                     receipts: last_message_receipts,
                 });
                 s.typing = Vec::new();
-                self.data_changed(src_idx, src_idx);
             } else {
                 log::trace!(
                     "Moving the session in qml from position {} to {}",
@@ -432,6 +431,11 @@ impl SessionModel {
 
                 self.content.insert(newIdx, s);
                 self.end_move_rows();
+            }
+            if src_idx.row() < dest_idx.row() {
+                self.data_changed(src_idx, dest_idx)
+            } else {
+                self.data_changed(dest_idx, src_idx)
             }
         } else {
             for (idx, s) in self.content.iter().enumerate() {
