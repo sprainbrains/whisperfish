@@ -27,7 +27,7 @@ Dialog {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.bold: true
-            //: Peer identity not trusted 
+            //: Peer identity not trusted
             //% "Peer identity is not trusted"
             text: qsTrId("whisperfish-peer-not-trusted")
         }

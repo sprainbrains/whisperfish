@@ -106,7 +106,7 @@ BlockingInfoPageBase {
             errorHighlight: !_canAccept
 
             Component.onCompleted: {
-                if(typeof codeField.rightItem !== "undefined") {
+                if(codeField.rightItem !== undefined) {
                     _codeFieldLoader.active = true
                     codeField.rightItem = _codeFieldLoader.item
                     codeField.errorHighlight = false

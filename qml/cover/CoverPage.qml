@@ -105,7 +105,6 @@ CoverBackground {
 
             Label {
                 id: recipientLabel
-                property var contact: (model.isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
                 anchors {
                     top: messageLabel.bottom
                     left: parent.left
@@ -114,7 +113,7 @@ CoverBackground {
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.highlightColor
                 truncationMode: TruncationMode.Fade
-                text: model.isGroup ? model.groupName : ( model.recipientName !== '' ? model.recipientName : (contact ? contact.displayLabel : ( model.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : model.source)))
+                text: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, false)
             }
         }
     }

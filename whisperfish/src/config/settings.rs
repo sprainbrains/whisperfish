@@ -25,6 +25,7 @@ pub struct Settings {
     // stringListValue: qt_method!(fn (&self, key: String, value: String)),
     boolSet: qt_method!(fn(&self, key: String, value: bool)),
     boolValue: qt_method!(fn(&self, key: String) -> bool),
+    avatarExists: qt_method!(fn(&self, key: String) -> bool),
 
     inner: *mut QSettings,
 }
@@ -38,6 +39,7 @@ impl Default for Settings {
 
             boolSet: Default::default(),
             boolValue: Default::default(),
+            avatarExists: Default::default(),
 
             inner: unsafe {
                 cpp!([] -> *mut QSettings as "QSettings *" {
@@ -166,12 +168,19 @@ impl Settings {
         self.get_bool(key)
     }
 
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn avatarExists(&mut self, uuid: String) -> bool {
+        self.avatar_exists(uuid)
+    }
+
     pub fn defaults(&mut self) {
         log::info!("Setting default settings.");
 
         self.set_bool_if_unset("incognito", false);
         self.set_bool_if_unset("enable_notify", true);
         self.set_bool_if_unset("show_notify_message", false);
+        self.set_bool_if_unset("prefer_device_contacts", false);
         self.set_bool_if_unset("minimise_notify", false);
         self.set_bool_if_unset("save_attachments", true);
         self.set_bool_if_unset("share_contacts", true);
@@ -208,5 +217,12 @@ impl Settings {
 
     pub fn get_bool(&self, key: impl AsRef<str>) -> bool {
         self.value_bool(key.as_ref())
+    }
+
+    pub fn avatar_exists(&self, uuid: impl AsRef<str>) -> bool {
+        crate::config::SignalConfig::default()
+            .get_avatar_dir()
+            .join(uuid.as_ref())
+            .exists()
     }
 }

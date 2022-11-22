@@ -85,7 +85,7 @@ Page {
             */
             MenuItem {
                 // TODO implement in backend
-                visible: typeof SessionModel !== 'undefined' ? SessionModel.hasArchived : false
+                visible: SessionModel !== undefined ? SessionModel.hasArchived : false
                 text: visualSessionModel.filterOnGroup === "active"
                         //: Menu item for showing archived conversations
                         //% "Show archived conversations"
@@ -200,11 +200,11 @@ Page {
             ]
             model: SessionModel
             delegate: SessionDelegate {
+                id: sessionDelegate
                 onClicked: {
-                    MessageModel.load(model.id, contact ? contact.displayLabel : model.source)
+                    MessageModel.load(model.id)
                     console.log("Activating session: "+model.id)
-                    var contact = resolvePeopleModel.personByPhoneNumber(model.source, true)
-                    pageStack.push(Qt.resolvedUrl("ConversationPage.qml"))
+                    pageStack.push(Qt.resolvedUrl("ConversationPage.qml"), { peerAvatar: sessionDelegate.name, profilePicture: sessionDelegate.profilePicture })
                 }
 
                 // On certain conditions, the session can request

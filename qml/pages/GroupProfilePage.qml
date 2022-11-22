@@ -4,7 +4,8 @@ import Sailfish.TextLinking 1.0
 import "../components"
 
 Page {
-    id: root
+    id: groupProfile
+    objectName: "groupProfile"
 
     // Group wallpapers/background are inherently un-sailfishy. We
     // should show them somewhere, somehow nonetheless - just not as
@@ -63,14 +64,12 @@ Page {
                 }
             }
 
-            var avatar_dir = SettingsBridge.stringValue("avatar_dir");
             for (var i = 0; i < members.length; i++) {
                 if (!members[i]) continue // skip empty/invalid values
 
                 var isSelf = (myUuid === uuids[i] || myPhone === members[i])
 
-                var member = resolvePeopleModel.personByPhoneNumber(members[i], true)
-                var name = member ? member.displayLabel : (useNames && names[i] !== '' ? names[i] : members[i])
+                var name = useNames ? getRecipientName(members[i], names[i], false) : members[i]
                 var isUnknown = false // checked below
                 var isVerified = false // TODO implement in backend
 
@@ -83,7 +82,7 @@ Page {
                     isUnknown = true
                 }
                 // XXX accessing the hasAvatar property is impossible here, for now
-                var profilePicture =  avatar_dir + "/" + uuids[i]
+                var profilePicture = useAvatars ? getRecipientAvatar(members[i], uuids[i]) : ''
 
                 append({"contactId": members[i],
                            "name": name,
@@ -120,7 +119,7 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                imageSource: typeof groupId !== 'undefined' && groupId !== ''
+                imageSource: groupId !== undefined && groupId !== ''
                     ? SettingsBridge.stringValue("avatar_dir") + "/" + groupId
                     : ''
                 isGroup: true
@@ -307,8 +306,8 @@ Page {
                         //      This is blocked by #105 and maybe #183.
                         //
                         // Not possible:
-                        //      MessageModel.load(contactId, ContactModel.name(contactId))
-                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
+                        //      MessageModel.load(contactId)
+                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), {...})
                     }
                     MenuItem {
                         //: Menu item to remove a member from a group (requires admin privileges)
@@ -329,7 +328,7 @@ Page {
                 ProfilePicture {
                     highlighted: item.down
                     labelsHighlighted: highlighted
-                    imageSource: profilePicture
+                    imageSource: item.profilePicture
                     isGroup: false // groups can't be members of groups
                     showInfoMark: false
                     anchors.verticalCenter: parent.verticalCenter

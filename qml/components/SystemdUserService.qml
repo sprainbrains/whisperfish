@@ -36,7 +36,7 @@ Item {
                       function(error, message) {
                           console.log('GetUnitFileStatus failed:', error)
                           console.log('GetUnitFileStatus message:', message)
-                          container.serviceExists = false 
+                          container.serviceExists = false
                       })
         }
         function enableService() {

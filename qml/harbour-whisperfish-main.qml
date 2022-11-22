@@ -52,16 +52,70 @@ ApplicationWindow
         property bool isSupported: false
 
         Component.onCompleted: {
-            if(typeof quietMessageNotification.sound !== "undefined") {
+            if(quietMessageNotification.sound !== undefined) {
                 quietMessageNotification.sound = "/usr/share/sounds/jolla-ambient/stereo/jolla-related-message.wav"
                 quietMessageNotification.isSupported = true
-            }   
+            }
         }
     }
 
-    function activateSession(sid, name, source) {
-        console.log("Activating session for source: "+source)
-        MessageModel.load(sid, name)
+    // Return peer contacts avatar or Signal profile avatar based on
+    // user selected preference. Do not use for groups (there's no choice).
+    function getRecipientAvatar(e164, uuid) {
+        // Only try to search for contact name if contact is a phone number
+        var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+
+        var contact_avatar = (contact && contact.avatarPath) ? contact.avatarPath.toString() : null
+        var contact_avatar_ok = (contact_avatar !== null) && (contact_avatar !== 'image://theme/icon-m-telephony-contact-avatar')
+
+        var signal_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
+        var signal_avatar_ok = SettingsBridge.avatarExists(uuid)
+
+        if(SettingsBridge.boolValue("prefer_device_contacts")) {
+            return contact_avatar_ok ? contact_avatar : signal_avatar
+        } else {
+            return signal_avatar_ok ? signal_avatar : contact_avatar
+        }
+    }
+
+    // Return either given peer name or device contacts name based on
+    // user selected preference. Fallback to e164.
+    //
+    // e164:           phone number
+    // peerName:       Signal profile username
+    // showNoteToSelf: true:      show "You"
+    //                 false:     show "Note to self"
+    //                 undefined: show own name instead
+    function getRecipientName(e164, peerName, shownNoteToSelf) {
+        if(!peerName) {
+            peerName = ''
+        }
+        if(!e164) {
+            return peerName
+        }
+        if((shownNoteToSelf !== undefined) && (e164 === SetupWorker.phoneNumber)) {
+            if(shownNoteToSelf) {
+                //: Name of the conversation with one's own number
+                //% "Note to self"
+                return qsTrId("whisperfish-session-note-to-self")
+            } else {
+                //: Name shown when replying to own messages
+                //% "You"
+                return qsTrId("whisperfish-sender-name-label-outgoing")
+            }
+        }
+
+        // Only try to search for contact name if contact is a phone number
+        var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        if(SettingsBridge.boolValue("prefer_device_contacts")) {
+            return (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
+        } else {
+            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : peerName)
+        }
+    }
+
+    function activateSession(sid) {
+        MessageModel.load(sid)
     }
 
     function closeMessageNotification(sid, mid) {
@@ -72,7 +126,7 @@ ApplicationWindow
                     notificationMap[sid][i].close()
                     delete notificationMap[sid][i]
                     notificationMap[sid].splice(i, 1)
-                    
+
                     if(notificationMap[sid].length === 0) {
                         delete notificationMap[sid]
                     }
@@ -82,10 +136,11 @@ ApplicationWindow
         }
     }
 
-    function newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup) {
-        var contact = resolvePeopleModel.personByPhoneNumber(senderIdentifier, true);
-        var name = (isGroup || !contact) ? sessionName : contact.displayLabel;
-        var contactName = contact ? contact.displayLabel : senderIdentifier;
+    function newMessageNotification(sid, mid, sessionName, senderName, senderIdentifier, senderUuid, message, isGroup) {
+        var name = getRecipientName(senderIdentifier, senderName)
+        var contactName = isGroup ? sessionName : name
+
+        var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
 
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
@@ -126,15 +181,15 @@ ApplicationWindow
         m.previewSummary = name
         m.previewBody = m.body
         m.summary = name
-        if(typeof m.subText !== "undefined") {
+        if(m.subText !== undefined) {
             m.subText = contactName
         }
         m.clicked.connect(function() {
             console.log("Activating session: "+sid)
             mainWindow.activate()
             showMainPage()
-            mainWindow.activateSession(sid, name, sessionName)
-            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), {}, PageStackAction.Immediate)
+            mainWindow.activateSession(sid)
+            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { peerName: contactName, profilePicture: avatar }, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -187,7 +242,7 @@ ApplicationWindow
             }
         }
         onNotifyMessage: {
-            newMessageNotification(sid, mid, sessionName, senderIdentifier, message, isGroup)
+            newMessageNotification(sid, mid, sessionName, senderName, senderIdentifier, senderUuid, message, isGroup)
         }
         onMessageNotSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {

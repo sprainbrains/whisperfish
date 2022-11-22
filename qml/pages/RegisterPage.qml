@@ -168,7 +168,7 @@ BlockingInfoPageBase {
                 errorHighlight: !_canAccept
 
                 Component.onCompleted: {
-                    if(typeof numberField.rightItem !== "undefined") {
+                    if(numberField.rightItem !== undefined) {
                         _numberFieldLoader.active = true
                         numberField.rightItem = _numberFieldLoader.item
                         numberField.errorHighlight = false

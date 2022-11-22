@@ -1,13 +1,11 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
-import org.nemomobile.contacts 1.0
 import "../components"
 
 ListItem {
     id: delegate
     property string date: Format.formatDate(model.timestamp, _dateFormat)
     property bool isGroup: model.isGroup
-    property var contact: (isGroup || !mainWindow.contactsReady) ? null : resolvePeopleModel.personByPhoneNumber(model.source, true)
     property int unreadCount: 0 // TODO implement in model
     property bool isRead: model.read // TODO investigate: is this really a bool?
     property bool isMuted: model.isMuted
@@ -17,19 +15,16 @@ ListItem {
     property bool isArchived: model.isArchived
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
-    // TODO implement in model (#192)
-    property string profilePicturePath: typeof model !== 'undefined' ? (isGroup
-        ? (model.groupId       !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId       :  '')
-        : (model.recipientUuid !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.recipientUuid :  '')
+    property string profilePicture: model !== undefined ? (isGroup
+        ? (model.groupId !== '' ? SettingsBridge.stringValue("avatar_dir") + "/" + model.groupId : '')
+        : getRecipientAvatar(model.source, model.recipientUuid)
     ) : ''
-    property string profilePicture: model.hasAvatar ? profilePicturePath : (contact ? contact.avatarPath : '')
-
     property bool isPreviewDelivered: model.deliveryCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewRead: model.readCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
-    property string name: model.isGroup ? model.groupName : ( model.recipientName !== '' ? model.recipientName : (contact ? contact.displayLabel : ( model.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : model.source)))
+    property string name: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, true)
     property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
@@ -75,8 +70,8 @@ ListItem {
     }
 
     function sendTypingToHeader() {
-        console.log("onTypingChanged for", model.id, ":", model.typing);
         if(model.id == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+            console.log("onTypingChanged for", model.id, ":", model.typing);
             // XXX look up names instead of showing phone numbers
             // FIXME after the session model is stable with row-moving instead of reinsertion (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271), the typing variable can be 100% declarative and in the page header.
             var typing;
@@ -84,15 +79,15 @@ ListItem {
             else if (model.typing.length == 1)
                 //: Text shown when one person is typing
                 //% "%1 is typing"
-                typing = qsTrId("whisperfish-typing-1").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel)
+                typing = qsTrId("whisperfish-typing-1").arg(getRecipientName(model.typing[0], null, false))
             else if (model.typing.length == 2)
                 //: Text shown when two persons are typing
                 //% "%1 and %2 are typing"
-                typing = qsTrId("whisperfish-typing-2").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel).arg(resolvePeopleModel.personByPhoneNumber(model.typing[1], true).displayLabel)
+                typing = qsTrId("whisperfish-typing-2").arg(getRecipientName(model.typing[0], null, false)).arg(getRecipientName(model.typing[1], null, false))
             else if (model.typing.length >= 3)
                 //: Text shown when three or more persons are typing
                 //% "%1 and %n others are typing"
-                typing = qsTrId("whisperfish-typing-3-plus").arg(resolvePeopleModel.personByPhoneNumber(model.typing[0], true).displayLabel).arg(model.typing.length - 1)
+                typing = qsTrId("whisperfish-typing-3-plus").arg(getRecipientName(model.typing[0], null, false)).arg(model.typing.length - 1)
             else typing = ""
             pageStack.currentPage.setTyping(typing)
         }
@@ -158,11 +153,11 @@ ListItem {
             }
             onPressAndHold: delegate.openMenu()
             onClicked: {
-                MessageModel.load(model.id, delegate.name)
+                MessageModel.load(model.id)
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"))
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { peerName: delegate.name, profilePicture: delegate.profilePicture })
                 }
             }
         }

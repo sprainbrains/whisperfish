@@ -17,12 +17,10 @@ BackgroundItem {
     property alias backgroundItem: bgRect
 
     readonly property bool shown: (messageData !== null && visible)
-    property var contact: (mainWindow.contactsReady && messageData !== null) ? resolvePeopleModel.personByPhoneNumber(messageData.source, true) : null
-    property string contactName: messageData !== null ? ( messageData.peerName !== '' ? messageData.peerName : (contact ? contact.displayLabel : ( messageData.source === SetupWorker.phoneNumber ? qsTrId("whisperfish-session-note-to-self") : messageData.source))) : ''
     readonly property bool hasAttachments: false
     // readonly property bool hasAttachments: (
-    //     (typeof messageData.thumbsAttachments !== 'undefined' ? messageData.thumbsAttachments.count : 0)
-    //     + (typeof messageData.detailAttachments !== 'undefined' ? messageData.detailAttachments.count : 0)
+    //     (messageData.thumbsAttachments !== undefined ? messageData.thumbsAttachments.count : 0)
+    //     + (messageData.detailAttachments !== undefined ? messageData.detailAttachments.count : 0)
     //     > 0)
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
@@ -94,15 +92,7 @@ BackgroundItem {
 
         SenderNameLabel {
             id: senderNameLabel
-            text: messageData !== null ?
-                      (messageData.outgoing ?
-                           //: Name shown when replying to own messages
-                           //% "You"
-                           qsTrId("whisperfish-sender-name-label-outgoing") :
-                           contactName) :
-                      ''
-            source: (messageData !== null && !messageData.outgoing) ?
-                        messageData.source : ''
+            source: messageData !== null ? getRecipientName(messageData.peerTel, messageData.peerName, false) : ''
             defaultClickAction: false
             anchors { left: parent.left; right: parent.right }
             maximumWidth: parent.width
