@@ -158,7 +158,7 @@ build:host:stable:docs:
   needs:
     - build:host:stable
   script:
-    - cargo doc --no-deps --document-private-items -p harbour-whisperfish -p libsignal-service -p libsignal-protocol -p zkgroup 
+    - cargo doc --no-deps --document-private-items -p harbour-whisperfish -p libsignal-service -p libsignal-protocol -p zkgroup  -p whisperfish
   artifacts:
     paths:
       - target/doc
