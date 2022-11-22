@@ -125,7 +125,7 @@ ApplicationWindow
         if(SettingsBridge.boolValue("prefer_device_contacts")) {
             return (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
         } else {
-            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : peerName)
+            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : e164)
         }
     }
 
