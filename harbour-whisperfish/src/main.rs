@@ -105,6 +105,9 @@ fn main() {
 
     // Initiate logger facility
     if config.verbose {
+        // Enable QML debug output (for Sailjail).
+        std::env::set_var("QT_LOGGING_TO_CONSOLE", "1");
+
         env_logger::Builder::from_default_env()
             .filter_module("libsignal_service_actix", log::LevelFilter::Trace)
             .filter_module("libsignal_service", log::LevelFilter::Trace)
