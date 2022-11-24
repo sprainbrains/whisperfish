@@ -103,7 +103,7 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="287"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>No se pudo configurar el cliente Signal</translation>
+        <translation>No se pudo instalar el cliente Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="292"/>
@@ -236,7 +236,7 @@
         <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Visitar el Wiki</translation>
+        <translation>Visitar la Whisperfish Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="149"/>
@@ -955,13 +955,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="254"/>
         <source>Prefer device contacts</source>
         <extracomment>Settings page prefer phone contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Preferir los contactos del dispositivo</translation>
     </message>
     <message id="whisperfish-settings-notifications-prefer-device-contacts-description">
         <location filename="../qml/pages/Settings.qml" line="257"/>
         <source>Prefer Sailfish OS address book contact names and avatars over Signal Profile data.</source>
         <extracomment>Settings page prefer phone contacts description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prefiere los nombres y las imágenes de los contactos de la libreta de direcciones de Sailfish OS a los datos de perfil de Signal.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="305"/>
@@ -1312,8 +1312,8 @@ Settings page share contacts</extracomment>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
-            <numerusform>+%n</numerusform>
-            <numerusform>+%n</numerusform>
+            <numerusform>y %n archivo adjunto</numerusform>
+            <numerusform>y más de %n archivos adjuntos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1322,8 +1322,8 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>y %n más</numerusform>
-            <numerusform>y %n más</numerusform>
+            <numerusform>y %n archivo adjunto oculto</numerusform>
+            <numerusform>y %n archivos adjuntos ocultos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1504,9 +1504,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="62"/>
         <source>%n member(s)</source>
         <extracomment>The number of members in a group, you included</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n miembro</numerusform>
+            <numerusform>%n miembros</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1524,8 +1524,8 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
-            <numerusform>Anular la selección</numerusform>
-            <numerusform>Anular la selección</numerusform>
+            <numerusform>Borrar la elección</numerusform>
+            <numerusform>Borrar las selecciones</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1617,31 +1617,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="37"/>
         <source>Message Info</source>
         <extracomment>Page title for message info/details page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Información del mensaje</translation>
     </message>
     <message id="whisperfish-message-info-details">
         <location filename="../qml/pages/MessageInfoPage.qml" line="74"/>
         <source>Details</source>
         <extracomment>Details section header</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Detalles</translation>
     </message>
     <message id="whisperfish-message-message-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="79"/>
         <source>Message ID</source>
         <extracomment>Label for id of the message (in database)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identificación del mensaje</translation>
     </message>
     <message id="whisperfish-message-session-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="85"/>
         <source>Session ID</source>
         <extracomment>Label for session id of the message (in database)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identificación de la sesión</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="98"/>
         <source>Reactions</source>
         <extracomment>Reactions section header</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reacciones</translation>
     </message>
 </context>
 </TS>
