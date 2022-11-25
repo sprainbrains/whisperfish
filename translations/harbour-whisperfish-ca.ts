@@ -36,7 +36,7 @@
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="178"/>
-        <location filename="../qml/harbour-whisperfish-main.qml" line="100"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="115"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="90"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="89"/>
         <source>Note to self</source>
@@ -94,32 +94,32 @@
         <translation>Eliminar conversa</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="169"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="184"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Nou missatge</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="272"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="287"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Fallo al configurar el client de Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="277"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="292"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Fallo al configurar l&apos;emmagatzamatge de dades</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="397"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="412"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Emmagatzamatge de Wisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="401"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="416"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Guardar configuració i missatges</translation>
@@ -1341,7 +1341,7 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-sender-name-label-outgoing">
         <location filename="../qml/components/SenderNameLabel.qml" line="75"/>
-        <location filename="../qml/harbour-whisperfish-main.qml" line="104"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="119"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
         <translation type="unfinished"></translation>
