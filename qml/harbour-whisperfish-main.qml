@@ -59,6 +59,17 @@ ApplicationWindow
         }
     }
 
+    function getGroupAvatar(groupId) {
+        if(!groupId || groupId === '') {
+            return ''
+        }
+
+        var group_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + groupId
+        var group_avatar_ok = SettingsBridge.avatarExists(groupId)
+
+        return group_avatar_ok ? group_avatar : ''
+    }
+
     // Return peer contacts avatar or Signal profile avatar based on
     // user selected preference. Do not use for groups (there's no choice).
     function getRecipientAvatar(e164, uuid) {
@@ -70,6 +81,10 @@ ApplicationWindow
 
         var signal_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
         var signal_avatar_ok = SettingsBridge.avatarExists(uuid)
+
+        if(!contact_avatar_ok && !signal_avatar_ok) {
+            return ''
+        }
 
         if(SettingsBridge.boolValue("prefer_device_contacts")) {
             return contact_avatar_ok ? contact_avatar : signal_avatar
@@ -110,7 +125,7 @@ ApplicationWindow
         if(SettingsBridge.boolValue("prefer_device_contacts")) {
             return (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
         } else {
-            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : peerName)
+            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : e164)
         }
     }
 
