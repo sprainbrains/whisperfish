@@ -487,18 +487,6 @@ Page {
                 value: ContactModel.total
             }
             DetailItem {
-                //: Settings page encrypted key store
-                //% "Encrypted Key Store"
-                label: qsTrId("whisperfish-settings-encrypted-keystore")
-                value: SetupWorker.encryptedKeystore ?
-                    //: Settings page encrypted key store enabled
-                    //% "Enabled"
-                    qsTrId("whisperfish-settings-encrypted-keystore-enabled") :
-                    //: Settings page encrypted key store disabled
-                    //% "Disabled"
-                    qsTrId("whisperfish-settings-encrypted-keystore-disabled")
-            }
-            DetailItem {
                 //: Settings page encrypted database
                 //% "Encrypted Database"
                 label: qsTrId("whisperfish-settings-encrypted-db")
