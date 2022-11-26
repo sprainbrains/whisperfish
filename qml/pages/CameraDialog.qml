@@ -10,7 +10,7 @@ Dialog {
     property string fileType: ""
     property string discardedFile: ""
 
-    readonly property string photoPath: SettingsBridge.stringValue("camera_dir")
+    readonly property string photoPath: SettingsBridge.camera_dir
     readonly property bool active: Qt.application.active
 
     canAccept: fileName.length > 0

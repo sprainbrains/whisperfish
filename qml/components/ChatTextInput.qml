@@ -26,7 +26,7 @@ Item {
     property bool enableSending: true
     property bool enableAttachments: true
     property bool dockMoving
-    property bool enableTypingIndicators: SettingsBridge.boolValue("enable_typing_indicators")
+    property bool enableTypingIndicators: SettingsBridge.enable_typing_indicators
 
     readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
     readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
@@ -86,7 +86,7 @@ Item {
     function _send() {
         Qt.inputMethod.commit()
         if (text.length === 0 && attachments.length === 0) return
-        if(SettingsBridge.boolValue("enable_enter_send")) {
+        if(SettingsBridge.enable_enter_send) {
             text = text.replace(/(\r\n\t|\n|\r\t)/gm, '')
         }
         // TODO implement replies in the model
@@ -226,7 +226,7 @@ Item {
                                      //% "Write a message"
                                      qsTrId("whisperfish-chat-input-placeholder-default")
                 EnterKey.onClicked: {
-                    if (canSend && SettingsBridge.boolValue("enable_enter_send")) {
+                    if (canSend && SettingsBridge.enable_enter_send) {
                         _send()
                     }
                 }
@@ -331,7 +331,7 @@ Item {
                 icon.source: "image://theme/icon-m-send"
                 enabled: canSend
                 onClicked: {
-                    if (canSend /*&& SettingsBridge.boolValue("send_on_click")*/) {
+                    if (canSend /*&& SettingsBridge.send_on_click*/) {
                         _send()
                         isTypingTimer.stop()
                         isNotTypingTimer.stop()
@@ -342,7 +342,7 @@ Item {
                 }
                 onPressAndHold: {
                     // TODO implement in backend
-                    if (canSend /*&& SettingsBridge.boolValue("send_on_click") === false*/) {
+                    if (canSend /*&& SettingsBridge.send_on_click === false*/) {
                         _send()
                         isTypingTimer.stop()
                         isNotTypingTimer.stop()

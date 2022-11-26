@@ -120,7 +120,7 @@ Page {
                 highlighted: false
                 labelsHighlighted: false
                 imageSource: groupId !== undefined && groupId !== ''
-                    ? SettingsBridge.stringValue("avatar_dir") + "/" + groupId
+                    ? SettingsBridge.avatar_dir + "/" + groupId
                     : ''
                 isGroup: true
                 showInfoMark: infoMarkSource !== ''
