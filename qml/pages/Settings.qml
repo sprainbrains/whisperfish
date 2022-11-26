@@ -207,7 +207,13 @@ Page {
                     }
                 }
                 onCurrentIndexChanged: {
-                    SettingsBridge.country_code = currentItem.iso
+                    if(
+                        currentIndex > -1
+                        && currentItem !== null
+                        && SettingsBridge.country_code !== currentItem.iso
+                    ) {
+                        SettingsBridge.country_code = currentItem.iso
+                    }
                 }
             }
             IconTextSwitch {
