@@ -241,6 +241,7 @@ impl ClientActor {
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
         MessageSender::new(
+            self.ws.clone().unwrap(),
             service,
             self.cipher.clone().unwrap(),
             rand::thread_rng(),

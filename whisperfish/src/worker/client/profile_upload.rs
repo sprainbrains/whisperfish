@@ -32,15 +32,7 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
         let local_addr = self.local_addr.clone().unwrap();
         let config = self.config.clone();
 
-        let mut sender = MessageSender::new(
-            self.authenticated_service(),
-            self.cipher.clone().unwrap(),
-            rand::thread_rng(),
-            storage.clone(),
-            storage.clone(),
-            local_addr.clone(),
-            config.get_device_id(),
-        );
+        let mut sender = self.message_sender();
 
         Box::pin(async move {
             let self_recipient = storage
