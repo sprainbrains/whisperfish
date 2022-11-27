@@ -20,7 +20,8 @@ pub fn user_agent() -> String {
 }
 
 pub fn millis_to_naive_chrono(ts: u64) -> chrono::NaiveDateTime {
-    chrono::NaiveDateTime::from_timestamp((ts / 1000) as i64, ((ts % 1000) * 1_000_000) as u32)
+    chrono::NaiveDateTime::from_timestamp_opt((ts / 1000) as i64, ((ts % 1000) * 1_000_000) as u32)
+        .unwrap()
 }
 
 pub fn conf_dir() -> std::path::PathBuf {
