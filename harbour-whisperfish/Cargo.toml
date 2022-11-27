@@ -10,6 +10,7 @@ description = "Private messaging using Signal for SailfishOS."
 
 [dependencies]
 whisperfish = { path = "../whisperfish" }
+whisperfish-qt = { path = "../whisperfish-qt" }
 dbus = "0.9"
 single-instance = "0.3.3"
 log = "0.4"

@@ -1,16 +1,6 @@
-use cpp::{cpp, cpp_class};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
-
-cpp! {{
-    #include <QtCore/QSettings>
-    #include <QtCore/QStandardPaths>
-    #include <QtCore/QFile>
-}}
-
-cpp_class! (
-    unsafe struct QSettings as "QSettings"
-);
+use whisperfish_traits::{ReadSettings, Settings};
 
 #[derive(QObject)]
 #[allow(non_snake_case, dead_code)]
@@ -22,7 +12,7 @@ pub struct SettingsBridge {
     // stringListValue: qt_method!(fn (&self, key: String, value: String)),
     avatarExists: qt_method!(fn(&self, key: String) -> bool),
 
-    inner: *mut QSettings,
+    inner: Box<dyn Settings>,
 
     incognito: qt_property!(bool; READ get_incognito WRITE set_incognito NOTIFY incognito_changed),
     enable_notify: qt_property!(bool; READ get_enable_notify WRITE set_enable_notify NOTIFY enable_notify_changed),
@@ -61,34 +51,42 @@ pub struct SettingsBridge {
     camera_dir_changed: qt_signal!(value: String),
 }
 
-impl Default for SettingsBridge {
-    fn default() -> Self {
+impl ReadSettings for SettingsBridge {
+    fn get_bool(&self, key: &str) -> bool {
+        self.inner.get_bool(key)
+    }
+
+    fn get_string(&self, key: &str) -> String {
+        self.inner.get_string(key)
+    }
+}
+
+impl Settings for SettingsBridge {
+    fn set_bool(&mut self, key: &str, value: bool) {
+        self.inner.set_bool(key, value)
+    }
+
+    fn set_bool_if_unset(&mut self, key: &str, value: bool) {
+        self.inner.set_bool_if_unset(key, value)
+    }
+
+    fn set_string(&mut self, key: &str, value: &str) {
+        self.inner.set_string(key, value)
+    }
+
+    fn set_string_if_unset(&mut self, key: &str, value: &str) {
+        self.inner.set_string_if_unset(key, value)
+    }
+}
+
+impl SettingsBridge {
+    pub fn new(inner: Box<dyn Settings>) -> Self {
         Self {
             base: Default::default(),
 
             avatarExists: Default::default(),
 
-            inner: unsafe {
-                cpp!([] -> *mut QSettings as "QSettings *" {
-                    QString settingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                                                + "/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf";
-
-                    QSettings* settings = new QSettings(settingsFile, QSettings::NativeFormat);
-
-                    QStringList path_keys;
-                    path_keys << "attachment_dir" << "camera_dir";
-                    QString old_path = ".local/share/harbour-whisperfish";
-                    QString new_path = ".local/share/be.rubdos/harbour-whisperfish";
-
-                    foreach(const QString &key, path_keys) {
-                        if(settings->contains(key) && settings->value(key).toString().contains(old_path)) {
-                            settings->setValue(key, settings->value(key).toString().replace(old_path, new_path));
-                        }
-                    }
-
-                    return settings;
-                })
-            },
+            inner,
 
             incognito: false,
             enable_notify: true,
@@ -125,83 +123,6 @@ impl Default for SettingsBridge {
             avatar_dir_changed: Default::default(),
             attachment_dir_changed: Default::default(),
             camera_dir_changed: Default::default(),
-        }
-    }
-}
-
-impl Drop for SettingsBridge {
-    fn drop(&mut self) {
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *"] {
-                delete settings;
-            })
-        }
-    }
-}
-
-impl SettingsBridge {
-    fn contains(&self, key: &str) -> bool {
-        let key = QString::from(key);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString"] -> bool as "bool" {
-                return settings->contains(key);
-            })
-        }
-    }
-
-    fn value_bool(&self, key: &str) -> bool {
-        let key = QString::from(key);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString"] -> bool as "bool" {
-                return settings->value(key).toBool();
-            })
-        }
-    }
-
-    pub fn set_bool(&mut self, key: &str, value: bool) {
-        let key = QString::from(key);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString", value as "bool"] {
-                settings->setValue(key, value);
-            })
-        };
-    }
-
-    pub fn set_bool_if_unset(&mut self, key: &str, value: bool) {
-        if !self.contains(key) {
-            self.set_bool(key, value);
-        }
-    }
-
-    fn value_string(&self, key: &str) -> String {
-        let key = QString::from(key);
-        let settings = self.inner;
-        let val = unsafe {
-            cpp!([settings as "QSettings *", key as "QString"] -> QString as "QString" {
-                return settings->value(key).toString();
-            })
-        };
-        val.into()
-    }
-
-    pub fn set_string(&mut self, key: &str, value: &str) {
-        let key = QString::from(key);
-        let value = QString::from(value);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString", value as "QString"] {
-                settings->setValue(key, value);
-            })
-        };
-    }
-
-    pub fn set_string_if_unset(&mut self, key: &str, value: &str) {
-        if !self.contains(key) {
-            self.set_string(key, value);
         }
     }
 
@@ -404,79 +325,10 @@ impl SettingsBridge {
         );
     }
 
-    pub fn get_string(&self, key: impl AsRef<str>) -> String {
-        self.value_string(key.as_ref())
-    }
-
-    pub fn get_bool(&self, key: impl AsRef<str>) -> bool {
-        self.value_bool(key.as_ref())
-    }
-
     pub fn avatar_exists(&self, uuid: impl AsRef<str>) -> bool {
         crate::config::SignalConfig::default()
             .get_avatar_dir()
             .join(uuid.as_ref())
             .exists()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs;
-    use std::fs::File;
-    use std::io::{Read, Write};
-    use std::path::Path;
-
-    struct SettingsDeleter<'a>(&'a Path);
-
-    impl<'a> Drop for SettingsDeleter<'a> {
-        fn drop(&mut self) {
-            fs::remove_file(self.0).unwrap();
-        }
-    }
-
-    #[test]
-    fn settings_integration_smoke_tests() {
-        qmeta_async::run(|| {
-            // Prevent overriding the file in the test by mistake
-            let config_dir = dirs::config_dir().unwrap();
-            let settings_dir = config_dir.join("be.rubdos/harbour-whisperfish");
-            fs::create_dir_all(&settings_dir).unwrap();
-
-            let settings_file = settings_dir.join("harbour-whisperfish.conf");
-            assert!(
-                !settings_file.exists(),
-                "{} exists. To make sure that tests do not override it, please back it up manually",
-                settings_file.display()
-            );
-
-            // Test read a sample settings
-            let _deleter = SettingsDeleter(&settings_file);
-
-            let mut file = File::create(&settings_file).unwrap();
-            file.write_all(b"[General]\n").unwrap();
-            file.write_all(b"test_bool=true\n").unwrap();
-            file.write_all(b"test_string=Hello world\n").unwrap();
-            drop(file);
-
-            let mut settings = SettingsBridge::default();
-            assert_eq!(settings.get_bool("test_bool"), true);
-            assert_eq!(
-                settings.get_string("test_string"),
-                "Hello world".to_string()
-            );
-
-            settings.set_bool("test_bool", false);
-            settings.set_string("test_string", "Hello Qt");
-            drop(settings);
-
-            let mut file = File::open(&settings_file).unwrap();
-            let mut content = String::new();
-            file.read_to_string(&mut content).unwrap();
-            assert!(content.contains("test_bool=false"));
-            assert!(content.contains("test_string=Hello Qt"));
-        })
-        .unwrap();
     }
 }

@@ -6,6 +6,7 @@ use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 use std::path::Path;
 use structopt::StructOpt;
 use whisperfish::store::{self, Storage};
+use whisperfish_qt::new_traits;
 
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]
@@ -49,7 +50,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut opt = Opt::from_args();
 
     let config = whisperfish::config::SignalConfig::read_from_file()?;
-    let settings = whisperfish::config::SettingsBridge::default();
+    let settings = new_traits().new_read_settings();
     let dir = settings.get_string("attachment_dir");
     let dest = Path::new(&dir);
 

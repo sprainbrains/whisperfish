@@ -1,0 +1,19 @@
+cargo-features = ["strip"]
+
+[package]
+name = "whisperfish-qt"
+version = "0.6.0-dev"
+authors = ["Ruben De Smet <ruben.de.smet@rubdos.be>"]
+edition = "2018"
+build = "build.rs"
+license = "AGPL-3.0-or-later"
+description = "Private messaging using Signal for SailfishOS -- Qt library."
+
+[dependencies]
+cpp = "0.5"
+dirs = "4.0"
+qttypes = "=0.2.6"
+whisperfish-traits = {path = "../whisperfish-traits"}
+
+[build-dependencies]
+cpp_build = "0.5"

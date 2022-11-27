@@ -127,9 +127,9 @@ impl Handler<ProfileAvatarFetched> for ClientActor {
         ProfileAvatarFetched(uuid, bytes): ProfileAvatarFetched,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
+        let settings = self.traits.new_read_settings();
         Box::pin(
             async move {
-                let settings = crate::config::SettingsBridge::default();
                 let avatar_dir = settings.get_string("avatar_dir");
                 let avatar_dir = Path::new(&avatar_dir);
 

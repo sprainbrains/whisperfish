@@ -8,13 +8,12 @@ mod profile_upload;
 
 pub use self::groupv2::*;
 pub use self::linked_devices::*;
-use self::migrations::MigrationCondVar;
 pub use self::profile::*;
 pub use self::profile_upload::*;
-use libsignal_service::proto::data_message::Quote;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
 
+use self::migrations::MigrationCondVar;
 use super::profile_refresh::OutdatedProfileStream;
 use crate::actor::{LoadAllSessions, SessionActor};
 use crate::gui::StorageReady;
@@ -35,6 +34,7 @@ use libsignal_service::content::{
 };
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
+use libsignal_service::proto::data_message::Quote;
 use libsignal_service::proto::typing_message::Action;
 use libsignal_service::proto::{receipt_message, ReceiptMessage};
 use libsignal_service::provisioning::ProvisioningManager;
@@ -53,6 +53,7 @@ use std::fs::remove_file;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
+use whisperfish_traits::SharedTraits;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -124,6 +125,7 @@ pub struct ClientWorker {
 
 /// ClientActor keeps track of the connection state.
 pub struct ClientActor {
+    traits: SharedTraits,
     inner: QObjectBox<ClientWorker>,
 
     migration_state: MigrationCondVar,
@@ -172,6 +174,7 @@ fn whisperfish_device_capabilities() -> DeviceCapabilities {
 
 impl ClientActor {
     pub fn new(
+        traits: SharedTraits,
         app: &mut QmlApp,
         session_actor: Addr<SessionActor>,
         config: std::sync::Arc<crate::config::SignalConfig>,
@@ -185,6 +188,7 @@ impl ClientActor {
         inner.pinned().borrow_mut().device_model = Some(device_model);
 
         Ok(Self {
+            traits,
             inner,
             migration_state: MigrationCondVar::new(),
             credentials: None,
@@ -306,7 +310,7 @@ impl ClientActor {
         metadata: &Metadata,
     ) -> Option<i32> {
         let timestamp = metadata.timestamp;
-        let settings = crate::config::SettingsBridge::default();
+        let settings = self.traits.new_read_settings();
 
         let storage = self.storage.as_mut().expect("storage");
         let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {

@@ -65,7 +65,6 @@ scrypt = { version = "=0.8.1", default-features = false, features=["std"] }
 
 getrandom = "0.2"
 
-cpp = "0.5"
 dirs = "4.0"
 anyhow = "1.0"
 thiserror = "1"
@@ -99,10 +98,9 @@ secrecy = "0.7"
 regex = "1.5"
 
 sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", optional = true }
+whisperfish-traits = { path = "../whisperfish-traits" }
 
 [build-dependencies]
-cpp_build = "0.5"
-cc = "1.0"
 anyhow = "1.0"
 prost-build = "0.10"
 

@@ -1050,6 +1050,7 @@ dependencies = [
  "structopt",
  "uuid",
  "whisperfish",
+ "whisperfish-qt",
 ]
 
 [[package]]
@@ -1262,6 +1263,7 @@ dependencies = [
  "single-instance",
  "structopt",
  "whisperfish",
+ "whisperfish-qt",
 ]
 
 [[package]]
@@ -3484,11 +3486,8 @@ dependencies = [
  "base64",
  "bincode",
  "block-modes",
- "cc",
  "chrono",
  "cmake",
- "cpp",
- "cpp_build",
  "criterion",
  "diesel",
  "diesel_migrations",
@@ -3540,6 +3539,7 @@ dependencies = [
  "time 0.3.5",
  "tokio",
  "uuid",
+ "whisperfish-traits",
  "zkgroup",
 ]
 
@@ -3556,6 +3556,21 @@ dependencies = [
  "scrypt",
  "whisperfish",
 ]
+
+[[package]]
+name = "whisperfish-qt"
+version = "0.6.0-dev"
+dependencies = [
+ "cpp",
+ "cpp_build",
+ "dirs",
+ "qttypes",
+ "whisperfish-traits",
+]
+
+[[package]]
+name = "whisperfish-traits"
+version = "0.6.0-dev"
 
 [[package]]
 name = "widestring"

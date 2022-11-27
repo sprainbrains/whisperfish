@@ -4,6 +4,7 @@ use single_instance::SingleInstance;
 use std::time::Duration;
 use structopt::StructOpt;
 use whisperfish::*;
+use whisperfish_qt::new_traits;
 
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]
@@ -151,7 +152,7 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     // Right now, we only create the attachment (and storage) directory if necessary
     // With more refactoring there should be probably more initialization here
     // Not creating the storage/attachment directory is fatal and we return here.
-    let settings = crate::config::SettingsBridge::default();
+    let settings = new_traits().new_read_settings();
 
     for dir in &[
         settings.get_string("attachment_dir"),
@@ -166,7 +167,7 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     }
 
     // This will panic here if feature `sailfish` is not enabled
-    gui::run(config).unwrap();
+    gui::run(new_traits(), config).unwrap();
 
     log::info!("Shut down.");
 

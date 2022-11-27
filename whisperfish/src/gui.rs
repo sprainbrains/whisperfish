@@ -6,6 +6,7 @@ use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+use whisperfish_traits::{ReadSettings, SharedTraits};
 
 #[derive(actix::Message, Clone)]
 #[rtype(result = "()")]
@@ -152,7 +153,7 @@ fn long_version() -> String {
     }
 }
 
-pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
+pub fn run(traits: SharedTraits, config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     qmeta_async::run(|| {
         let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
             // XXX this arc thing should be removed in the future and refactored
@@ -169,6 +170,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             // XXX Spaghetti
             let session_actor = actor::SessionActor::new(&mut app).start();
             let client_actor = worker::ClientActor::new(
+                traits.clone(),
                 &mut app,
                 session_actor.clone(),
                 std::sync::Arc::clone(&config),
@@ -186,12 +188,12 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 session_actor,
                 message_actor,
                 client_actor,
-                contact_model: QObjectBox::new(model::ContactModel::default()),
+                contact_model: QObjectBox::new(model::ContactModel::new(traits.clone())),
                 prompt: QObjectBox::new(model::Prompt::default()),
 
                 setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
-                settings_bridge: QObjectBox::new(SettingsBridge::default()),
+                settings_bridge: QObjectBox::new(SettingsBridge::new(traits.new_settings())),
 
                 storage: RefCell::new(None),
             });

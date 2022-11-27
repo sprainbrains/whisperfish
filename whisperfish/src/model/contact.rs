@@ -1,11 +1,13 @@
-use crate::config::SettingsBridge;
 use phonenumber::Mode;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::str::FromStr;
+use whisperfish_traits::SharedTraits;
 
-#[derive(QObject, Default)]
+#[derive(QObject)]
 pub struct ContactModel {
+    traits: SharedTraits,
+
     base: qt_base_class!(trait QObject),
 
     format: qt_method!(fn(&self, string: QString) -> QString),
@@ -16,10 +18,20 @@ pub struct ContactModel {
 }
 
 impl ContactModel {
+    pub fn new(traits: SharedTraits) -> Self {
+        ContactModel {
+            traits,
+            base: Default::default(),
+            format: Default::default(),
+            total: Default::default(),
+            contacts_changed: Default::default(),
+        }
+    }
+
     // The default formatter expected by QML
     #[with_executor]
     fn format(&self, number: QString) -> QString {
-        let settings = SettingsBridge::default();
+        let settings = self.traits.new_read_settings();
         let country_code = settings.get_string("country_code");
 
         format_with_country(&number.to_string(), &country_code)

@@ -4,6 +4,8 @@ members = [
     "fetch-signal-attachment",
     "harbour-whisperfish",
     "whisperfish",
+    "whisperfish-qt",
+    "whisperfish-traits",
     "whisperfish-migration-dry-run"
 ]
 

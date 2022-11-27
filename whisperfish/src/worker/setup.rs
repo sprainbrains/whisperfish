@@ -5,6 +5,7 @@ use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
 use phonenumber::PhoneNumber;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
+use whisperfish_traits::ReadSettings;
 
 pub struct RegistrationResult {
     regid: u32,
