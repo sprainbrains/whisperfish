@@ -14,7 +14,7 @@ cpp_class! (
 
 #[derive(QObject)]
 #[allow(non_snake_case, dead_code)]
-pub struct Settings {
+pub struct SettingsBridge {
     base: qt_base_class!(trait QObject),
 
     // XXX
@@ -61,7 +61,7 @@ pub struct Settings {
     camera_dir_changed: qt_signal!(value: String),
 }
 
-impl Default for Settings {
+impl Default for SettingsBridge {
     fn default() -> Self {
         Self {
             base: Default::default(),
@@ -129,7 +129,7 @@ impl Default for Settings {
     }
 }
 
-impl Drop for Settings {
+impl Drop for SettingsBridge {
     fn drop(&mut self) {
         let settings = self.inner;
         unsafe {
@@ -140,7 +140,7 @@ impl Drop for Settings {
     }
 }
 
-impl Settings {
+impl SettingsBridge {
     fn contains(&self, key: &str) -> bool {
         let key = QString::from(key);
         let settings = self.inner;
@@ -460,7 +460,7 @@ mod tests {
             file.write_all(b"test_string=Hello world\n").unwrap();
             drop(file);
 
-            let mut settings = Settings::default();
+            let mut settings = SettingsBridge::default();
             assert_eq!(settings.get_bool("test_bool"), true);
             assert_eq!(
                 settings.get_string("test_string"),

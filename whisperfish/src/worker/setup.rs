@@ -60,7 +60,7 @@ impl SetupWorker {
         this.borrow().setupChanged();
 
         // Defaults does not override unset settings
-        app.settings.pinned().borrow_mut().defaults();
+        app.settings_bridge.pinned().borrow_mut().defaults();
 
         // XXX: nice formatting?
         this.borrow_mut().phoneNumber = config.get_tel_clone().into();
@@ -89,10 +89,12 @@ impl SetupWorker {
         }
 
         app.storage_ready().await;
-        app.app_state
-            .pinned()
-            .borrow_mut()
-            .setMayExit(app.settings.pinned().borrow().get_bool("quit_on_ui_close"));
+        app.app_state.pinned().borrow_mut().setMayExit(
+            app.settings_bridge
+                .pinned()
+                .borrow()
+                .get_bool("quit_on_ui_close"),
+        );
 
         this.borrow().setupChanged();
         this.borrow().setupComplete();

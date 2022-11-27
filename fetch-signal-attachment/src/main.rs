@@ -49,7 +49,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut opt = Opt::from_args();
 
     let config = whisperfish::config::SignalConfig::read_from_file()?;
-    let settings = whisperfish::config::Settings::default();
+    let settings = whisperfish::config::SettingsBridge::default();
     let dir = settings.get_string("attachment_dir");
     let dest = Path::new(&dir);
 

@@ -305,7 +305,7 @@ impl ClientActor {
         metadata: &Metadata,
     ) -> Option<i32> {
         let timestamp = metadata.timestamp;
-        let settings = crate::config::Settings::default();
+        let settings = crate::config::SettingsBridge::default();
 
         let storage = self.storage.as_mut().expect("storage");
         let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {

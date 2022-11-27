@@ -151,7 +151,7 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     // Right now, we only create the attachment (and storage) directory if necessary
     // With more refactoring there should be probably more initialization here
     // Not creating the storage/attachment directory is fatal and we return here.
-    let settings = crate::config::Settings::default();
+    let settings = crate::config::SettingsBridge::default();
 
     for dir in &[
         settings.get_string("attachment_dir"),

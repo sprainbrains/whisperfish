@@ -1,6 +1,6 @@
 use crate::platform::{is_harbour, MayExit, QmlApp};
 use crate::store::Storage;
-use crate::{actor, config::Settings, model, worker};
+use crate::{actor, config::SettingsBridge, model, worker};
 use actix::prelude::*;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -104,7 +104,7 @@ pub struct WhisperfishApp {
     pub client_actor: Addr<worker::ClientActor>,
     pub setup_worker: QObjectBox<worker::SetupWorker>,
 
-    pub settings: QObjectBox<Settings>,
+    pub settings_bridge: QObjectBox<SettingsBridge>,
 
     pub storage: RefCell<Option<Storage>>,
 }
@@ -191,7 +191,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
 
                 setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
-                settings: QObjectBox::new(Settings::default()),
+                settings_bridge: QObjectBox::new(SettingsBridge::default()),
 
                 storage: RefCell::new(None),
             });
@@ -203,7 +203,10 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             app.set_property("CiJobUrl".into(), ci_job_url);
 
             app.set_object_property("Prompt".into(), whisperfish.prompt.pinned());
-            app.set_object_property("SettingsBridge".into(), whisperfish.settings.pinned());
+            app.set_object_property(
+                "SettingsBridge".into(),
+                whisperfish.settings_bridge.pinned(),
+            );
             app.set_object_property("ContactModel".into(), whisperfish.contact_model.pinned());
             app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
             app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
@@ -223,7 +226,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
 
             if config.autostart
                 && !whisperfish
-                    .settings
+                    .settings_bridge
                     .pinned()
                     .borrow()
                     .get_bool("quit_on_ui_close")
