@@ -674,7 +674,7 @@ impl ClientActor {
         Content { body, metadata }: Content,
         ctx: &mut <Self as Actor>::Context,
     ) {
-        let storage = self.storage.as_mut().expect("storage initialized");
+        let storage = self.storage.clone().expect("storage initialized");
 
         match body {
             ContentBody::DataMessage(message) => {
@@ -702,7 +702,9 @@ impl ClientActor {
                 }
             }
             ContentBody::SynchronizeMessage(message) => {
+                let mut handled = false;
                 if let Some(sent) = message.sent {
+                    handled = true;
                     log::trace!("Sync sent message");
                     // These are messages sent through a paired device.
 
@@ -717,10 +719,14 @@ impl ClientActor {
                         true,
                         &metadata,
                     );
-                } else if let Some(request) = message.request {
+                }
+                if let Some(request) = message.request {
+                    handled = true;
                     log::trace!("Sync request message");
                     self.handle_sync_request(metadata, request);
-                } else if !message.read.is_empty() {
+                }
+                if !message.read.is_empty() {
+                    handled = true;
                     log::trace!("Sync read message");
                     for read in &message.read {
                         // XXX: this should probably not be based on ts alone.
@@ -743,7 +749,24 @@ impl ClientActor {
                             log::warn!("Could not mark as received!");
                         }
                     }
-                } else {
+                }
+                if let Some(fetch) = message.fetch_latest {
+                    handled = true;
+                    match fetch.r#type() {
+                        sync_message::fetch_latest::Type::Unknown => {
+                            log::warn!("Sync FetchLatest with unknown type")
+                        }
+                        sync_message::fetch_latest::Type::LocalProfile => {
+                            log::trace!("Scheduling local profile refresh");
+                            ctx.notify(RefreshOwnProfile);
+                        }
+                        sync_message::fetch_latest::Type::StorageManifest => {
+                            // XXX
+                            log::warn!("Unimplemented: synchronize fetch request StorageManifest")
+                        }
+                    }
+                }
+                if !handled {
                     log::warn!("Sync message without known sync type");
                 }
             }
