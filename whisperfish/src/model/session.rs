@@ -734,8 +734,8 @@ impl AugmentedSession {
         // XXX: stub
         let now = chrono::Utc::now();
         let today = Utc
-            .ymd(now.year(), now.month(), now.day())
-            .and_hms(0, 0, 0)
+            .with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0)
+            .unwrap()
             .naive_utc();
 
         let last_message = if let Some(m) = &self.last_message {
