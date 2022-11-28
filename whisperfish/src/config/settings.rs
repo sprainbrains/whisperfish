@@ -14,7 +14,7 @@ cpp_class! (
 
 #[derive(QObject)]
 #[allow(non_snake_case, dead_code)]
-pub struct Settings {
+pub struct SettingsBridge {
     base: qt_base_class!(trait QObject),
 
     // XXX
@@ -61,7 +61,7 @@ pub struct Settings {
     camera_dir_changed: qt_signal!(value: String),
 }
 
-impl Default for Settings {
+impl Default for SettingsBridge {
     fn default() -> Self {
         Self {
             base: Default::default(),
@@ -129,7 +129,7 @@ impl Default for Settings {
     }
 }
 
-impl Drop for Settings {
+impl Drop for SettingsBridge {
     fn drop(&mut self) {
         let settings = self.inner;
         unsafe {
@@ -140,7 +140,7 @@ impl Drop for Settings {
     }
 }
 
-impl Settings {
+impl SettingsBridge {
     fn contains(&self, key: &str) -> bool {
         let key = QString::from(key);
         let settings = self.inner;
@@ -417,5 +417,66 @@ impl Settings {
             .get_avatar_dir()
             .join(uuid.as_ref())
             .exists()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::fs::File;
+    use std::io::{Read, Write};
+    use std::path::Path;
+
+    struct SettingsDeleter<'a>(&'a Path);
+
+    impl<'a> Drop for SettingsDeleter<'a> {
+        fn drop(&mut self) {
+            fs::remove_file(self.0).unwrap();
+        }
+    }
+
+    #[test]
+    fn settings_integration_smoke_tests() {
+        qmeta_async::run(|| {
+            // Prevent overriding the file in the test by mistake
+            let config_dir = dirs::config_dir().unwrap();
+            let settings_dir = config_dir.join("be.rubdos/harbour-whisperfish");
+            fs::create_dir_all(&settings_dir).unwrap();
+
+            let settings_file = settings_dir.join("harbour-whisperfish.conf");
+            assert!(
+                !settings_file.exists(),
+                "{} exists. To make sure that tests do not override it, please back it up manually",
+                settings_file.display()
+            );
+
+            // Test read a sample settings
+            let _deleter = SettingsDeleter(&settings_file);
+
+            let mut file = File::create(&settings_file).unwrap();
+            file.write_all(b"[General]\n").unwrap();
+            file.write_all(b"test_bool=true\n").unwrap();
+            file.write_all(b"test_string=Hello world\n").unwrap();
+            drop(file);
+
+            let mut settings = SettingsBridge::default();
+            assert_eq!(settings.get_bool("test_bool"), true);
+            assert_eq!(
+                settings.get_string("test_string"),
+                "Hello world".to_string()
+            );
+
+            settings.set_bool("test_bool", false);
+            settings.set_string("test_string", "Hello Qt");
+            drop(settings);
+
+            let mut file = File::open(&settings_file).unwrap();
+            let mut content = String::new();
+            file.read_to_string(&mut content).unwrap();
+            assert!(content.contains("test_bool=false"));
+            assert!(content.contains("test_string=Hello Qt"));
+        })
+        .unwrap();
     }
 }

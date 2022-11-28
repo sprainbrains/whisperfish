@@ -1,4 +1,4 @@
-use crate::config::Settings;
+use crate::config::SettingsBridge;
 use phonenumber::Mode;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -19,7 +19,7 @@ impl ContactModel {
     // The default formatter expected by QML
     #[with_executor]
     fn format(&self, number: QString) -> QString {
-        let settings = Settings::default();
+        let settings = SettingsBridge::default();
         let country_code = settings.get_string("country_code");
 
         format_with_country(&number.to_string(), &country_code)
