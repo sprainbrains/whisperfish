@@ -15,7 +15,7 @@ Item {
             verticalCenter: parent.verticalCenter
             left: parent.left
         }
-        visible: SettingsBridge.boolValue("debug_mode")
+        visible: SettingsBridge.debug_mode
         width: visible ? Theme.iconSizeSmall : 0
         height: width
         color: unidentifiedSender ? "green" : "red"
@@ -73,7 +73,7 @@ Item {
             verticalCenter: parent.verticalCenter
             left: infoLabel.right
         }
-        visible: SettingsBridge.boolValue("debug_mode")
+        visible: SettingsBridge.debug_mode
         width: visible ? implicitWidth : 0
         text: (visible && modelData) ? " [%1] ".arg(modelData.id) : ""
         color: infoLabel.color

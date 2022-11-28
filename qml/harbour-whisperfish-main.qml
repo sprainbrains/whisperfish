@@ -64,7 +64,7 @@ ApplicationWindow
             return ''
         }
 
-        var group_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + groupId
+        var group_avatar = "file://" + SettingsBridge.avatar_dir + "/" + groupId
         var group_avatar_ok = SettingsBridge.avatarExists(groupId)
 
         return group_avatar_ok ? group_avatar : ''
@@ -79,14 +79,14 @@ ApplicationWindow
         var contact_avatar = (contact && contact.avatarPath) ? contact.avatarPath.toString() : null
         var contact_avatar_ok = (contact_avatar !== null) && (contact_avatar !== 'image://theme/icon-m-telephony-contact-avatar')
 
-        var signal_avatar = "file://" + SettingsBridge.stringValue("avatar_dir") + "/" + uuid
+        var signal_avatar = "file://" + SettingsBridge.avatar_dir + "/" + uuid
         var signal_avatar_ok = SettingsBridge.avatarExists(uuid)
 
         if(!contact_avatar_ok && !signal_avatar_ok) {
             return ''
         }
 
-        if(SettingsBridge.boolValue("prefer_device_contacts")) {
+        if(SettingsBridge.prefer_device_contacts) {
             return contact_avatar_ok ? contact_avatar : signal_avatar
         } else {
             return signal_avatar_ok ? signal_avatar : contact_avatar
@@ -122,7 +122,7 @@ ApplicationWindow
 
         // Only try to search for contact name if contact is a phone number
         var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
-        if(SettingsBridge.boolValue("prefer_device_contacts")) {
+        if(SettingsBridge.prefer_device_contacts) {
             return (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
         } else {
             return (peerName !== '') ? peerName : (contact ? contact.displayLabel : e164)
@@ -167,7 +167,7 @@ ApplicationWindow
         }
 
         var m
-        if(SettingsBridge.boolValue("show_notify_message")) {
+        if(SettingsBridge.show_notify_message) {
             m = messageNotification.createObject(null)
             m.body = message
             m.itemCount = 1
@@ -184,7 +184,7 @@ ApplicationWindow
             m.body = qsTrId("whisperfish-notification-default-message")
         }
 
-        if (SettingsBridge.boolValue("minimise_notify") && (sid in notificationMap)) {
+        if (SettingsBridge.minimise_notify && (sid in notificationMap)) {
             var first_message = notificationMap[sid][0]
             m.replacesId = first_message.replacesId
             m.itemCount = first_message.itemCount + 1

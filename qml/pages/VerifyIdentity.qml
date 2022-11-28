@@ -21,7 +21,7 @@ Page {
                 //: Reset identity key menu item
                 //% "Reset identity key"
                 text: qsTrId("whisperfish-reset-identity-menu")
-                visible: ! MessageModel.group && SettingsBridge.boolValue("debug_mode")
+                visible: ! MessageModel.group && SettingsBridge.debug_mode
                 onClicked: {
                     //: Reset identity key remorse message (past tense)
                     //% "Identity key reset"
@@ -36,7 +36,7 @@ Page {
                 //: Reset secure session menu item
                 //% "Reset Secure Session"
                 text: qsTrId("whisperfish-reset-session-menu")
-                visible: ! MessageModel.group && SettingsBridge.boolValue("debug_mode")
+                visible: ! MessageModel.group && SettingsBridge.debug_mode
                 onClicked: {
                     //: Reset secure session remorse message (past tense)
                     //% "Secure session reset"
@@ -51,7 +51,7 @@ Page {
                 //: Refresh contact profile menu item
                 //% "Refresh Signal profile"
                 text: qsTrId("whisperfish-refresh-profile-menu")
-                visible: ! MessageModel.group && SettingsBridge.boolValue("debug_mode")
+                visible: ! MessageModel.group && SettingsBridge.debug_mode
                 onClicked: {
                     ClientWorker.refresh_profile(MessageModel.sessionId)
                 }

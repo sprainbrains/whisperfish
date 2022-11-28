@@ -21,7 +21,7 @@ struct Opts {
     /// Verbosity.
     ///
     /// Equivalent with setting
-    /// `RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,whisperfish=trace`.
+    /// `QT_LOGGING_TO_CONSOLE=1 RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,whisperfish=trace`.
     #[structopt(short, long)]
     verbose: bool,
 

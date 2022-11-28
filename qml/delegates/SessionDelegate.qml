@@ -39,7 +39,7 @@ ListItem {
 
     signal relocateItem(int sessionId)
 
-    property bool _debugMode: SettingsBridge.boolValue("debug_mode")
+    property bool _debugMode: SettingsBridge.debug_mode
     property bool _labelsHighlighted: highlighted || isUnread
     property int _dateFormat: model.section === 'older' ? Formatter.DateMedium : (model.section === 'pinned' ? Formatter.Timepoint : Formatter.TimeValue)
 

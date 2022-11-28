@@ -20,7 +20,7 @@ MouseArea {
             _isAnimatedPaused = false
             animationLoader.item.paused = false
         } else {
-            var _debugMode = SettingsBridge.boolValue("debug_mode")
+            var _debugMode = SettingsBridge.debug_mode
             var _viewPage = '../../pages/ViewImagePage.qml'
             if (_isVideo) _viewPage = '../../pages/ViewVideoPage.qml'
 

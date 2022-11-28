@@ -32,7 +32,7 @@ Page {
     property bool recipientSelected: recipientField.selectedContacts.count == 1
     property QtObject selectedContact: recipientSelected ? recipientField.selectedContacts.get(0) : null
     property bool isValid: recipientSelected && recipientNumber != ""
-    property bool localAllowed: String(SettingsBridge.stringValue("country_code")) !== ""
+    property bool localAllowed: String(SettingsBridge.country_code) !== ""
 
     property string recipientNumberRaw: recipientSelected && selectedContact.propertyType === "phoneNumber" ? selectedContact.property.number : ""
     property string recipientNumber: ContactModel.format(recipientNumberRaw)

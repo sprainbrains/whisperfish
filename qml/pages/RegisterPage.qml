@@ -27,7 +27,7 @@ BlockingInfoPageBase {
         if (!_canAccept) return
         busy = true // we have to wait for the backend to prompt the next step
         var iso = prefixCombo.currentItem.iso
-        SettingsBridge.stringSet("country_code", iso)
+        SettingsBridge.country_code = iso
         if (iso === "") console.warn("registering without ISO country code")
         Prompt.phoneNumber(prefixCombo.currentItem.prefix+numberField.text)
     }
@@ -231,11 +231,11 @@ BlockingInfoPageBase {
             //: Share contacts description
             //% "Allow Signal to use your local contact list, to find other Signal users."
             description: qsTrId("whisperfish-share-contacts-description")
-            checked: SettingsBridge.boolValue("share_contacts")
+            checked: SettingsBridge.share_contacts
             icon.source: "image://theme/icon-m-file-vcard"
             onCheckedChanged: {
-                if (checked !== SettingsBridge.boolValue("share_contacts")) {
-                    SettingsBridge.boolSet("share_contacts", checked)
+                if (checked !== SettingsBridge.share_contacts) {
+                    SettingsBridge.share_contacts = checked
                 }
             }
         }
