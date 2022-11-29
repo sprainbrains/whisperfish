@@ -8,7 +8,9 @@ use zkgroup::profiles::ProfileKey;
 /// Refresh the profile for the self recipient.
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct RefreshOwnProfile;
+pub struct RefreshOwnProfile {
+    pub force: bool,
+}
 
 /// Generate and upload a profile for the self recipient.
 #[derive(Message)]
@@ -63,7 +65,11 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
 impl Handler<RefreshOwnProfile> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
-    fn handle(&mut self, _: RefreshOwnProfile, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(
+        &mut self,
+        RefreshOwnProfile { force }: RefreshOwnProfile,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
         let storage = self.storage.clone().unwrap();
         let mut service = self.authenticated_service();
         let client = ctx.address();
@@ -91,7 +97,8 @@ impl Handler<RefreshOwnProfile> for ClientActor {
                 };
 
                 if let Some(lpf) = &self_recipient.last_profile_fetch {
-                    if Utc.from_utc_datetime(lpf) > Utc::now() - chrono::Duration::days(1) {
+                    if Utc.from_utc_datetime(lpf) > Utc::now() - chrono::Duration::days(1) && !force
+                    {
                         log::info!("Our own profile is up-to-date, not fetching.");
                         return;
                     }

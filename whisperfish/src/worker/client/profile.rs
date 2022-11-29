@@ -19,7 +19,7 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
         // If our own Profile is outdated, schedule a profile refresh
         if self.config.get_uuid_clone() == uuid.to_string() {
             log::trace!("Scheduling a refresh for our own profile");
-            ctx.notify(RefreshOwnProfile);
+            ctx.notify(RefreshOwnProfile { force: false });
             return;
         }
 

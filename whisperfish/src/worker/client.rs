@@ -758,7 +758,7 @@ impl ClientActor {
                         }
                         sync_message::fetch_latest::Type::LocalProfile => {
                             log::trace!("Scheduling local profile refresh");
-                            ctx.notify(RefreshOwnProfile);
+                            ctx.notify(RefreshOwnProfile { force: true });
                         }
                         sync_message::fetch_latest::Type::StorageManifest => {
                             // XXX
