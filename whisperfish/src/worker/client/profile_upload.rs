@@ -125,6 +125,7 @@ impl Handler<RefreshOwnProfile> for ClientActor {
                 };
 
                 if outdated {
+                    log::info!("Considering our profile as outdated, uploading new one.");
                     client.send(UploadProfile).await.unwrap();
                 }
             }
