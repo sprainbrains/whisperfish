@@ -123,7 +123,7 @@ impl ClientActor {
         ctx.notify(MoveSessionsToDatabase);
         ctx.notify(E164ToUuid);
         ctx.notify(ComputeGroupV2ExpectedIds);
-        ctx.notify(RefreshOwnProfile);
+        ctx.notify(RefreshOwnProfile { force: false });
         ctx.notify(ParseOldReaction);
     }
 }
