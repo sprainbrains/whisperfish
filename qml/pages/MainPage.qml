@@ -204,7 +204,7 @@ Page {
                 onClicked: {
                     MessageModel.load(model.id)
                     console.log("Activating session: "+model.id)
-                    pageStack.push(Qt.resolvedUrl("ConversationPage.qml"), { peerAvatar: sessionDelegate.name, profilePicture: sessionDelegate.profilePicture })
+                    pageStack.push(Qt.resolvedUrl("ConversationPage.qml"), { peerName: sessionDelegate.name, profilePicture: sessionDelegate.profilePicture })
                 }
 
                 // On certain conditions, the session can request
