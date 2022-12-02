@@ -708,17 +708,23 @@ impl ClientActor {
                     log::trace!("Sync sent message");
                     // These are messages sent through a paired device.
 
-                    let message = sent.message.expect("sync sent with message");
-                    self.handle_message(
-                        ctx,
-                        // Empty string mainly when groups,
-                        // but maybe needs a check. TODO
-                        sent.destination_e164,
-                        sent.destination_uuid,
-                        &message,
-                        true,
-                        &metadata,
-                    );
+                    if let Some(message) = sent.message {
+                        self.handle_message(
+                            ctx,
+                            // Empty string mainly when groups,
+                            // but maybe needs a check. TODO
+                            sent.destination_e164,
+                            sent.destination_uuid,
+                            &message,
+                            true,
+                            &metadata,
+                        );
+                    } else {
+                        log::warn!(
+                            "Dropping sync-sent without message; probably Stories related: {:?}",
+                            sent
+                        );
+                    }
                 }
                 if let Some(request) = message.request {
                     handled = true;
