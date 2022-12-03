@@ -111,7 +111,8 @@ Page {
                 //: Whisperfish new message menu item
                 //% "New Message"
                 text: qsTrId("whisperfish-new-message-menu")
-                visible: !SetupWorker.locked
+                // visible: !SetupWorker.locked
+                visible: false
                 onClicked: pageStack.push(Qt.resolvedUrl("NewMessage.qml"))
             }
         }
