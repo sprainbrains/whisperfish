@@ -48,7 +48,7 @@ Page {
                     delete sessionList.recipients[index]
                     selected = false
                 } else {
-                    sessionList.recipients[index] = { source: model.isGroup ? model.groupId : model.source, isGroup: model.isGroup }
+                    sessionList.recipients[index] = model
                     selected = true
                 }
                 textInput.enableSending = Object.keys(sessionList.recipients).length > 0
@@ -146,11 +146,7 @@ Page {
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
                 var sid = 0
 
-                if (recp.isGroup) {
-                    sid = MessageModel.createGroupMessage(recp.source, text, '', firstAttachedPath, true)
-                } else {
-                    sid = MessageModel.createMessage(recp.source, text, firstAttachedPath, true)
-                }
+                sid = MessageModel.createMessage(recp.id, text, firstAttachedPath, -1, true)
                 if (sid > 0) SessionModel.add(sid, true) // update session model
             }
             pageStack.pop()
