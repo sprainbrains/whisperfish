@@ -69,26 +69,48 @@ ListItem {
         }
     }
 
+    // FIXME after the session model is stable with row-moving instead of reinsertion
+    // (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271)
+    // the typing variable can be 100% declarative and in the page header.
     function sendTypingToHeader() {
         if(model.id == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-            console.log("onTypingChanged for", model.id, ":", model.typing);
-            // XXX look up names instead of showing phone numbers
-            // FIXME after the session model is stable with row-moving instead of reinsertion (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271), the typing variable can be 100% declarative and in the page header.
+            var count = model.typing.length
+            console.log("onTypingChanged for", model.id, ":", count, "typing");
             var typing;
-            if (! model.isTyping) typing = ""
-            else if (model.typing.length == 1)
-                //: Text shown when one person is typing
-                //% "%1 is typing"
-                typing = qsTrId("whisperfish-typing-1").arg(getRecipientName(model.typing[0], null, false))
-            else if (model.typing.length == 2)
-                //: Text shown when two persons are typing
-                //% "%1 and %2 are typing"
-                typing = qsTrId("whisperfish-typing-2").arg(getRecipientName(model.typing[0], null, false)).arg(getRecipientName(model.typing[1], null, false))
-            else if (model.typing.length >= 3)
-                //: Text shown when three or more persons are typing
-                //% "%1 and %n others are typing"
-                typing = qsTrId("whisperfish-typing-3-plus").arg(getRecipientName(model.typing[0], null, false)).arg(model.typing.length - 1)
-            else typing = ""
+            if (!model.isTyping || count === 0) {
+                typing = ""
+            }
+            else {
+                // XXX I really wish this was a model, or even a QStringList
+                var cutpos = 0
+                var numbers = []
+                var names = []
+                var peer = ""
+                for(var i = 0; (i < 2) && (i < count); i++) {
+                    peer = model.typing[i]
+                    cutpos = peer.indexOf("|")
+                    if(cutpos > 0) {
+                        numbers[i] = peer.substr(0, cutpos)
+                        names[i] = peer.substr(cutpos + 1)
+                    } else {
+                        numbers[i] = peer
+                        names[i] = peer
+                    }
+                }
+                if (count == 1)
+                    //: Text shown when one person is typing
+                    //% "%1 is typing"
+                    typing = qsTrId("whisperfish-typing-1").arg(getRecipientName(numbers[0], names[0], false))
+                else if (count == 2)
+                    //: Text shown when two persons are typing
+                    //% "%1 and %2 are typing"
+                    typing = qsTrId("whisperfish-typing-2").arg(getRecipientName(numbers[0], names[0], false)).arg(getRecipientName(numbers[1], names[1], false))
+                else if (count >= 3)
+                    //: Text shown when three or more persons are typing
+                    //% "%1 and %n others are typing"
+                    typing = qsTrId("whisperfish-typing-3-plus").arg(getRecipientName(numbers[0], names[0], false)).arg(count - 1)
+                else typing = ""
+            }
             pageStack.currentPage.setTyping(typing)
         }
     }
