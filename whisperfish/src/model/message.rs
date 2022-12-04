@@ -563,10 +563,14 @@ impl MessageModel {
 
     #[allow(clippy::type_complexity)]
     pub fn handle_fetch_all_messages(&mut self, messages: Vec<orm::AugmentedMessage>, sid: i32) {
-        log::trace!("handle_fetch_all_messages({}) count {}", sid, messages.len());
+        log::trace!(
+            "handle_fetch_all_messages({}) count {}",
+            sid,
+            messages.len()
+        );
 
         if messages.len() == 0 {
-            return
+            return;
         }
 
         self.begin_insert_rows(0, messages.len() as i32);
