@@ -990,13 +990,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="260"/>
         <source>Prefer device contacts</source>
         <extracomment>Settings page prefer phone contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Préférer les contacts de l’appareil</translation>
     </message>
     <message id="whisperfish-settings-notifications-prefer-device-contacts-description">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Prefer Sailfish OS address book contact names and avatars over Signal Profile data.</source>
         <extracomment>Settings page prefer phone contacts description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Préférer les noms de contact et les avatars du carnet d’adresses de Sailfish OS aux données de du profil Signal.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="311"/>
@@ -1499,9 +1499,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="62"/>
         <source>%n member(s)</source>
         <extracomment>The number of members in a group, you included</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n membre</numerusform>
+            <numerusform>%n membres</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1612,31 +1612,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="37"/>
         <source>Message Info</source>
         <extracomment>Page title for message info/details page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Infos sur le message</translation>
     </message>
     <message id="whisperfish-message-info-details">
         <location filename="../qml/pages/MessageInfoPage.qml" line="74"/>
         <source>Details</source>
         <extracomment>Details section header</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Détails</translation>
     </message>
     <message id="whisperfish-message-message-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="79"/>
         <source>Message ID</source>
         <extracomment>Label for id of the message (in database)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identifiant du message</translation>
     </message>
     <message id="whisperfish-message-session-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="85"/>
         <source>Session ID</source>
         <extracomment>Label for session id of the message (in database)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Identifiant de la session</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="98"/>
         <source>Reactions</source>
         <extracomment>Reactions section header</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Réactions</translation>
     </message>
 </context>
 </TS>
