@@ -264,6 +264,9 @@ ApplicationWindow
                 MessageModel.markFailed(mid)
             }
         }
+        onProofRequested: {
+            console.log("Proof of type", type, "with token", token, "requested")
+        }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 SessionModel.markSent(sid, message)

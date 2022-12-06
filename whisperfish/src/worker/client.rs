@@ -99,6 +99,7 @@ pub struct ClientWorker {
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
     messageNotSent: qt_signal!(sid: i32, mid: i32),
+    proofRequested: qt_signal!(token: QString, r#type: QString),
 
     send_typing_notification: qt_method!(fn(&self, id: i32, is_start: bool)),
 
@@ -1002,7 +1003,7 @@ impl Handler<SendMessage> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
     // Equiv of worker/send.go
-    fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, SendMessage(mid): SendMessage, ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
@@ -1021,6 +1022,7 @@ impl Handler<SendMessage> for ClientActor {
 
         let local_addr = self.local_addr.clone().unwrap();
         let storage = storage.clone();
+        let addr = ctx.address();
         Box::pin(
             async move {
                 let group = if let orm::SessionType::GroupV1(group) = &session.r#type {
@@ -1179,6 +1181,18 @@ impl Handler<SendMessage> for ClientActor {
                             .await
                         {
                             storage.fail_message(mid);
+                            match &e {
+                                // XXX Assume reCaptcha for now
+                                MessageSenderError::ProofRequired { token, options: _ } => {
+                                    addr.send(ProofRequired {
+                                        token: token.to_owned(),
+                                        r#type: String::from("recaptcha"),
+                                    })
+                                    .await
+                                    .expect("deliver captcha required");
+                                },
+                                _ => {},
+                            }
                             anyhow::bail!("Error sending message: {}", e);
                         }
                     }
@@ -1942,5 +1956,23 @@ impl Handler<CompactDb> for ClientActor {
         let res = store.compress_db();
         log::trace!("  res = {}", res);
         res
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProofRequired {
+    token: String,
+    r#type: String,
+}
+
+impl Handler<ProofRequired> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, proof: ProofRequired, _ctx: &mut Self::Context) -> Self::Result {
+        self.inner
+            .pinned()
+            .borrow()
+            .proofRequested(proof.token.into(), proof.r#type.into());
     }
 }
