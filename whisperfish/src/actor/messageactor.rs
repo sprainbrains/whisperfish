@@ -199,7 +199,7 @@ impl Handler<FetchAllMessages> for MessageActor {
         self.inner
             .pinned()
             .borrow_mut()
-            .handle_fetch_all_messages(messages);
+            .handle_fetch_all_messages(messages, sid);
     }
 }
 
