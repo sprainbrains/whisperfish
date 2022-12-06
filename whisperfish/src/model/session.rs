@@ -863,8 +863,7 @@ impl AugmentedSession {
     fn typing(&self) -> qmetaobject::QVariantList {
         let mut lst = qmetaobject::QVariantList::default();
         for t in &self.typing {
-            let str = format!("{}|{}", t.e164_or_uuid(), t.name());
-            lst.push(QString::from(str).into());
+            lst.push(QString::from(format!("{}|{}", t.e164_or_uuid(), t.name())).into());
         }
         lst
     }

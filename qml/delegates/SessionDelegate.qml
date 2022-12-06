@@ -79,8 +79,7 @@ ListItem {
             var typing;
             if (!model.isTyping || count === 0) {
                 typing = ""
-            }
-            else {
+            } else {
                 // XXX I really wish this was a model, or even a QStringList
                 var cutpos = 0
                 var numbers = []
