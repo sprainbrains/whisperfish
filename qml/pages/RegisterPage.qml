@@ -75,7 +75,7 @@ BlockingInfoPageBase {
 
     Timer {
 		id: captchaTimer
-		interval: 2500
+		interval: 100
 		running: false
 		repeat: false
 		onTriggered: {
