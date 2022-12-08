@@ -44,7 +44,19 @@ ApplicationWindow
         id: messageNotification
         Notification {
             property int mid
+            appIcon: "harbour-whisperfish"
+            appName: "Whisperfish"
+            category: "harbour-whisperfish-message"
         }
+    }
+
+    Notification {
+        id: genericNotification
+        appIcon: "harbour-whisperfish"
+        appName: "Whisperfish"
+        category: "harbour-whisperfish-message"
+        previewBody: genericNotification.body
+        previewSummary: genericNotification.summary
     }
 
     Notification {
@@ -190,9 +202,6 @@ ApplicationWindow
             m.itemCount = first_message.itemCount + 1
         }
 
-        m.appIcon = "harbour-whisperfish"
-        m.appName = "Whisperfish"
-        m.category = "harbour-whisperfish-message"
         m.previewSummary = name
         m.previewBody = m.body
         m.summary = name
@@ -266,6 +275,13 @@ ApplicationWindow
         }
         onProofRequested: {
             console.log("Proof of type", type, "with token", token, "requested")
+            //: Notification text of Signal server requesting a proof (reCaptcha or similar) verification
+            //% "Signal requests you to complete a captcha to verify that you are not a bot. Please check your linked Signal Desktop."
+            genericNotification.body = qsTrId("whisperfish-notification-proof-requested-body")
+            //: Notification preview text of Signal server requesting a proof (reCaptcha or similar) verification
+            //% "Verification required"
+            genericNotification.summary = qsTrId("whisperfish-notification-proof-requested-previewbody")
+            genericNotification.publish()
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
