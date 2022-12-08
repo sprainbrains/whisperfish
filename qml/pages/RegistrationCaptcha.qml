@@ -14,6 +14,7 @@ WebViewPage {
 	backNavigation: false
 	forwardNavigation: false
 	showNavigationIndicator: false
+	property bool captchaCaptured: false
 
     DBusInterface {
         id: whisperfishApp
@@ -70,8 +71,9 @@ WebViewPage {
 
 		function filterUrl(uri) {
 			var codeMatch = /^signalcaptcha:\/\/(.*)$/.exec(uri);
-			if (codeMatch !== null && codeMatch[1] != '') {
-				console.log("Captcha Code Received", codeMatch[1]);
+			if (!captchaCaptured && codeMatch !== null && codeMatch[1] != '') {
+				captchaCaptured = true
+				console.log("Captcha response parsed:", codeMatch[1]);
 				complete(codeMatch[1]);
 				return true;
 			}
@@ -107,7 +109,7 @@ WebViewPage {
 
 		onRecvAsyncMessage: {
 			if (message == "Whisperfish:CaptchaDone") {
-				console.log("Captcha Code Received:", data.code);
+				console.log("CaptchaDone Received!");
 				complete(data.code);
 			}
 		}
