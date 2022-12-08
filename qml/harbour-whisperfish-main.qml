@@ -275,13 +275,7 @@ ApplicationWindow
         }
         onProofRequested: {
             console.log("Proof of type", type, "with token", token, "requested")
-            //: Notification text of Signal server requesting a proof (reCaptcha or similar) verification
-            //% "Signal requests you to complete a captcha to verify that you are not a bot. Please check your linked Signal Desktop."
-            genericNotification.body = qsTrId("whisperfish-notification-proof-requested-body")
-            //: Notification preview text of Signal server requesting a proof (reCaptcha or similar) verification
-            //% "Verification required"
-            genericNotification.summary = qsTrId("whisperfish-notification-proof-requested-previewbody")
-            genericNotification.publish()
+            pageStack.push(Qt.resolvedUrl("ProofSubmitPage.qml"), { recaptchaToken: token })
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
