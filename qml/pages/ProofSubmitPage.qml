@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import Sailfish.Silica 1.0
+import Nemo.Configuration 1.0
 import Nemo.DBus 2.0
 import "../components"
 
@@ -17,6 +18,14 @@ BlockingInfoPageBase {
 
     property bool captchaReceived: false
     property string captchaToken
+
+    ConfigurationValue {
+        key: "/apps/harbour-whisperfish/captchaType"
+        Component.onCompleted: {
+            value = "challenge"
+            sync()
+        }
+    }
 
     DBusAdaptor {
         service: "be.rubdos.whisperfish"
