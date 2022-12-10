@@ -135,7 +135,9 @@ CoverBackground {
 
     CoverActionList {
         id: coverAction
-        enabled: !placeholderLabel.visible
+        // enabled: !placeholderLabel.visible
+        // XXX https://gitlab.com/whisperfish/whisperfish/-/issues/481
+        enabled: false
         CoverAction {
             iconSource: {
                 if (ClientWorker.connected) {
