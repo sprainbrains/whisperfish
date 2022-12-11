@@ -16,6 +16,7 @@ BlockingInfoPageBase {
     //% "Signal has requested additional capcha from you. Continue the captcha in order to restore ability to send messages."
     mainDescription: qsTrId("whisperfish-captcha-requested-message")
 
+    busy: false
     property bool captchaReceived: false
     property string captchaToken
 
@@ -24,6 +25,23 @@ BlockingInfoPageBase {
         Component.onCompleted: {
             value = "challenge"
             sync()
+        }
+    }
+
+    Connections {
+        target: ClientWorker
+        // Called when the captcha has been completed and ack'd or err'd by server
+        onProofCaptchaResult: {
+            if (success) {
+                pageStack.pop()
+            } else {
+                root.busy = false
+                captchaReceived = false
+                mainDescription = (qsTrId("whisperfish-captcha-requested-message") +
+                    //: Rate limit captcha has to be tried again
+                    //% "The reCaptcha wasn't accepted, please try again."
+                    "\n\n" + qsTrId("whisperfish-captcha-requested-try-again"))
+            }
         }
     }
 
@@ -39,9 +57,8 @@ BlockingInfoPageBase {
                 mainWindow.activate()
                 console.log("Submit token:", captchaToken)
                 console.log("Submit captcha:",captchaResponse)
-                //Prompt.proofCaptcha(captchaToken, captchaResponse)
-                root.busy = false
-                popTimer.restart()
+                ClientWorker.submit_proof_captcha(captchaToken, captchaResponse)
+                // Busy, until proofCaptchaResult(bool) arrives.
             }
         }
     }
@@ -76,11 +93,11 @@ BlockingInfoPageBase {
                 //: Done button label
                 //% "Done"
                 ? qsTrId("whisperfish-done-button-label")
-                //: Continue button label
+                //: continue button label
                 //% "Continue"
                 : qsTrId("whisperfish-continue-button-label")
             )
-            enabled: !busy
+            enabled: !root.busy
             onClicked: {
                 if (captchaReceived) {
                     popTimer.restart()
