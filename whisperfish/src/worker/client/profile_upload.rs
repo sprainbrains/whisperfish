@@ -174,15 +174,27 @@ impl Handler<UploadProfile> for ClientActor {
             };
 
             let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
-            am.upload_versioned_profile_without_avatar(
-                uuid,
-                name,
-                self_recipient.about,
-                self_recipient.about_emoji,
-                true,
-            )
-            .await
-            .expect("upload profile");
+            if let Err(e) = am
+                .upload_versioned_profile_without_avatar(
+                    uuid,
+                    name,
+                    self_recipient.about,
+                    self_recipient.about_emoji,
+                    true,
+                )
+                .await
+            {
+                log::error!("Error uploading profile: {}. Retrying in 60 seconds.", e);
+                actix::spawn(async move {
+                    actix::clock::sleep(std::time::Duration::from_secs(60)).await;
+                    client
+                        .send(UploadProfile)
+                        .await
+                        .expect("client still running");
+                });
+
+                return;
+            }
 
             // Now also set the database
             storage.update_profile_key(
@@ -200,12 +212,13 @@ impl Handler<UploadProfile> for ClientActor {
 
 impl Handler<RefreshProfileAttributes> for ClientActor {
     type Result = ResponseFuture<()>;
-    fn handle(&mut self, _: RefreshProfileAttributes, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, _: RefreshProfileAttributes, ctx: &mut Self::Context) -> Self::Result {
         log::info!("Sending profile attributes");
 
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
         let config = self.config.clone();
+        let address = ctx.address();
 
         Box::pin(async move {
             let registration_id = storage.get_local_registration_id(None).await.unwrap();
@@ -234,10 +247,18 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 capabilities: whisperfish_device_capabilities(),
                 name: "Whisperfish".into(),
             };
-            am.set_account_attributes(account_attributes)
-                .await
-                .expect("upload profile");
-            log::info!("Profile attributes refreshed");
+            if let Err(e) = am.set_account_attributes(account_attributes).await {
+                log::error!("Error refreshing profile attributes: {}", e);
+                actix::spawn(async move {
+                    actix::clock::sleep(std::time::Duration::from_secs(60)).await;
+                    address
+                        .send(UploadProfile)
+                        .await
+                        .expect("client still running");
+                });
+            } else {
+                log::info!("Profile attributes refreshed");
+            }
         })
     }
 }
