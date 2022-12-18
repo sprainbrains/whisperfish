@@ -17,25 +17,25 @@
         <translation type="unfinished">Slett alle meldinger</translation>
     </message>
     <message id="whisperfish-typing-1">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="82"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="102"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-typing-2">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="86"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="106"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-typing-3-plus">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="90"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="110"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="178"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="199"/>
         <location filename="../qml/harbour-whisperfish-main.qml" line="115"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="90"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="89"/>
@@ -44,51 +44,51 @@
         <translation type="unfinished">Melding til meg selv</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="197"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="218"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Kladd: %1</translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="298"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="319"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="301"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="322"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="310"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="331"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="313"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="334"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="321"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="342"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-archived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="324"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="345"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="331"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="352"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Slett samtale</translation>
