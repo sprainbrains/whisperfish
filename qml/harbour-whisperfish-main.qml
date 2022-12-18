@@ -244,7 +244,7 @@ ApplicationWindow
             }
         }
         onMessageReceipt: {
-            if(mid > 0 && pageStack.currentPage.objectName == conversationPageName) {
+            if(mid > 0 && sid === MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 MessageModel.markReceived(mid)
             }
 
