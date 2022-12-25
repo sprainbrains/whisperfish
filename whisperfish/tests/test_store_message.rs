@@ -183,7 +183,7 @@ async fn process_message_exists_session_source(storage: impl Future<Output = InM
     let sess1 = storage.fetch_or_insert_session_by_e164("+358501234567");
 
     for second in 1..11 {
-        let timestamp = Utc.timestamp(second, 0).naive_utc();
+        let timestamp = Utc.timestamp_opt(second, 0).unwrap().naive_utc();
 
         let new_message = NewMessage {
             session_id: Some(1),
