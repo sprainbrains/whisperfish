@@ -36,7 +36,7 @@
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="197"/>
-        <location filename="../qml/harbour-whisperfish-main.qml" line="115"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="127"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="90"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="89"/>
         <source>Note to self</source>
@@ -94,32 +94,32 @@
         <translation>Διαγραφή συνομιλίας</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="184"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="196"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Νέο Μήνυμα</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="287"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="300"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Αποτυχία ρύθμισης του Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="292"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="305"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Αποτυχία ρύθμισης του χώρου αποθήκευσης</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="412"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="425"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Whisperfish αποθηκευτικός χώρος</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="416"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="429"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Αποθήκευση ρυθμίσεων και μηνυμάτων</translation>
@@ -661,26 +661,26 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Το Whisperfish αποθηκεύει τα κλειδιά ταυτοποίησης, την κατάσταση συνεδρίας και τα δεδομένα μηνύματων με κρυπτογράφηση στο δίσκο. Ο κωδικός πρόσβασης που καθορίζετε δεν αποθηκεύεται πουθενά και κατά συνέπεια δε μπορείτε να ανακτήσετε τα δεδομένα σας εάν χάσετε τον κωδικό σας. Σημείωση: Τα συνημμένα προς το παρόν αποθηκεύονται χωρίς κρυπτογράφηση. Μπορείτε να απενεργοποιήσετε την αποθήκευση δεδομένων στη σελίδα Ρυθμίσεων.</translation>
     </message>
     <message id="whisperfish-registration-message">
-        <location filename="../qml/pages/RegisterPage.qml" line="17"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="18"/>
         <source>Enter the phone number you want to register with Signal.</source>
         <oldsource>Connect with Signal</oldsource>
         <extracomment>registration prompt text</extracomment>
         <translation>Εισάγετε τον αριθμό τηλεφώνου που θέλετε να κάνετε εγγραφή στο Signal.</translation>
     </message>
     <message id="whisperfish-registration-country-or-area">
-        <location filename="../qml/pages/RegisterPage.qml" line="102"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="111"/>
         <source>Country or area</source>
         <extracomment>Label for country selection menu</extracomment>
         <translation>Χώρα ή περιοχή</translation>
     </message>
     <message id="whisperfish-not-selected">
-        <location filename="../qml/pages/RegisterPage.qml" line="107"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="116"/>
         <source>Not selected</source>
         <extracomment>Placeholder for country not selected</extracomment>
         <translation>Δέν έχει επιλεχθεί</translation>
     </message>
     <message id="whisperfish-share-contacts-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="230"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="239"/>
         <location filename="../qml/pages/Settings.qml" line="244"/>
         <source>Share Contacts</source>
         <extracomment>Share contacts label
@@ -689,69 +689,95 @@ Settings page share contacts</extracomment>
         <translation>Διαμοιρασμός Επαφών</translation>
     </message>
     <message id="whisperfish-share-contacts-description">
-        <location filename="../qml/pages/RegisterPage.qml" line="233"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="242"/>
         <location filename="../qml/pages/Settings.qml" line="247"/>
         <source>Allow Signal to use your local contact list, to find other Signal users.</source>
         <extracomment>Share contacts description</extracomment>
         <translation>Εξουσιοδοτήστε το Signal για να χρησιμοποιήσεις τη λίστα επαφών σας, ώστε να βρεί άλλους χρήστες του Signal.</translation>
     </message>
     <message id="whisperfish-verification-method-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="198"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="207"/>
         <source>Verification method</source>
         <extracomment>Verification method</extracomment>
         <translation>Μέθοδος πιστοποίησης</translation>
     </message>
     <message id="whisperfish-use-voice-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="216"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="225"/>
         <source>Use voice verification</source>
         <extracomment>Voice verification</extracomment>
         <translation>Πιστοποίηση μέσω φωνής</translation>
     </message>
     <message id="whisperfish-use-text-verification">
-        <location filename="../qml/pages/RegisterPage.qml" line="211"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="220"/>
         <source>Use text verification</source>
         <extracomment>Text verification</extracomment>
         <translation>Πιστοποίηση μέσω SMS</translation>
     </message>
     <message id="whisperfish-registration-title">
-        <location filename="../qml/pages/RegisterPage.qml" line="13"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="14"/>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="13"/>
         <source>Register</source>
         <extracomment>registration page title</extracomment>
         <translation>Εγγραφή</translation>
     </message>
     <message id="whisperfish-registration-retry-message">
-        <location filename="../qml/pages/RegisterPage.qml" line="41"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="50"/>
         <source>Please retry with a valid phone number.</source>
         <extracomment>new registration prompt text asking to retry</extracomment>
         <translation>Προσπαθήστε ξανά με έγκυρο αριθμό τηλεφώνου.</translation>
     </message>
     <message id="whisperfish-registration-number-input-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="158"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="167"/>
         <source>Phone number</source>
         <extracomment>phone number input label</extracomment>
         <translation>Αριθμός τηλεφώνου</translation>
     </message>
     <message id="whisperfish-registration-number-input-placeholder">
-        <location filename="../qml/pages/RegisterPage.qml" line="162"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="171"/>
         <source>Phone number</source>
         <extracomment>phone number input placeholder</extracomment>
         <translation>Αριθμός τηλεφώνου</translation>
     </message>
     <message id="whisperfish-voice-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="203"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="212"/>
         <source>Signal will call you with a 6-digit verification code. Please be ready to write it down.</source>
         <oldsource>Signal will call you with a 6-digit verification code. Please be ready to write this down.</oldsource>
         <extracomment>Registration directions</extracomment>
         <translation>Το Signal θα σας καλέσει παρέχοντας εναν 6-ψηφιο κωδικό επιβεβαίωσης. Παρακαλώ να είστε έτοιμοι να τον σημειώσετε.</translation>
     </message>
     <message id="whisperfish-text-registration-directions">
-        <location filename="../qml/pages/RegisterPage.qml" line="205"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="214"/>
         <source>Signal will text you a 6-digit verification code.</source>
         <translation>Το Signal θα σας αποστείλει έναν 6-ψήφιο κωδικό επιβεβαίωσης μέσω SMS.</translation>
     </message>
+    <message id="whisperfish-captcha-requested-title">
+        <location filename="../qml/pages/ProofSubmitPage.qml" line="13"/>
+        <source>reCaptcha requested</source>
+        <extracomment>Signal has requested additional captcha page title</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-captcha-requested-message">
+        <location filename="../qml/pages/ProofSubmitPage.qml" line="17"/>
+        <location filename="../qml/pages/ProofSubmitPage.qml" line="40"/>
+        <source>Signal has requested additional capcha from you. Continue the captcha in order to restore ability to send messages.</source>
+        <extracomment>Signal has requested additional captcha description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-captcha-requested-try-again">
+        <location filename="../qml/pages/ProofSubmitPage.qml" line="43"/>
+        <source>The reCaptcha wasn&apos;t accepted, please try again.</source>
+        <extracomment>Rate limit captcha has to be tried again</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-done-button-label">
+        <location filename="../qml/pages/ProofSubmitPage.qml" line="95"/>
+        <source>Done</source>
+        <extracomment>Done button label</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-continue-button-label">
-        <location filename="../qml/pages/RegisterPage.qml" line="246"/>
+        <location filename="../qml/pages/ProofSubmitPage.qml" line="98"/>
+        <location filename="../qml/pages/RegisterPage.qml" line="255"/>
         <location filename="../qml/pages/SetupPasswordPage.qml" line="128"/>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="138"/>
         <source>Continue</source>
@@ -1345,7 +1371,7 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-sender-name-label-outgoing">
         <location filename="../qml/components/SenderNameLabel.qml" line="75"/>
-        <location filename="../qml/harbour-whisperfish-main.qml" line="119"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="131"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
         <translation>Εσείς</translation>
@@ -1580,7 +1606,7 @@ Settings page share contacts</extracomment>
         <translation>Διαμοιρασμός αρχείων</translation>
     </message>
     <message id="whisperfish-signal-captcha">
-        <location filename="../qml/pages/RegistrationCaptcha.qml" line="37"/>
+        <location filename="../qml/pages/RegistrationCaptcha.qml" line="53"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
         <translation>Captcha για την εφαρμογή Signal</translation>
