@@ -3,13 +3,10 @@
 use crate::actor;
 use crate::gui::AppState;
 use crate::model::*;
-use crate::store::orm::Receipt;
-use crate::store::orm::Recipient;
-use crate::store::orm::{self, Attachment, AugmentedMessage};
+use crate::store::orm::{Attachment, AugmentedMessage};
 use crate::worker::{ClientActor, SendMessage};
 use actix::prelude::*;
 use futures::prelude::*;
-use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use qmetaobject::{QObjectBox, QObjectPinned};
@@ -123,15 +120,18 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
 #[derive(QObject, Default)]
 pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
+
+    messages: Vec<QtAugmentedMessage>,
+}
+
+#[derive(QObject, Default)]
+pub struct MessageMethods {
+    base: qt_base_class!(trait QObject),
     pub actor: Option<Addr<actor::MessageActor>>,
     pub client_actor: Option<Addr<ClientActor>>,
 
-    messages: Vec<QtAugmentedMessage>,
-
-    group_members: Vec<orm::Recipient>,
+    // XXX move into Session
     fingerprint: Option<String>,
-
-    sessionId: qt_property!(i32; NOTIFY sessionIdChanged),
 
     numericFingerprint: qt_property!(QString; NOTIFY peerIdentityChanged READ fingerprint),
     peerName: qt_property!(QString; NOTIFY peerChanged),
@@ -170,29 +170,21 @@ pub struct MessageModel {
     sendMessage: qt_method!(fn(&self, mid: i32)),
     endSession: qt_method!(fn(&self, e164: QString)),
 
-    load: qt_method!(fn(&self, sid: i32)),
-    reload_message: qt_method!(fn(&self, mid: i32)),
-    add: qt_method!(fn(&self, id: i32)),
     remove: qt_method!(
         fn(
             &self,
-            id: usize, /* FIXME the implemented method takes an *index* but should take a message ID */
+            id: i32, /* FIXME the implemented method takes an *index* but should take a message ID */
         )
     ),
-
-    markSent: qt_method!(fn(&self, id: i32)),
-    markReceived: qt_method!(fn(&self, id: i32)),
-    markFailed: qt_method!(fn(&self, id: i32)),
-    markPending: qt_method!(fn(&self, id: i32)),
 }
 
-impl Drop for MessageModel {
+impl Drop for MessageMethods {
     fn drop(&mut self) {
         todo!()
     }
 }
 
-impl MessageModel {
+impl MessageMethods {
     #[with_executor]
     fn createMessage(
         &mut self,
@@ -246,93 +238,18 @@ impl MessageModel {
         );
     }
 
-    pub fn handle_queue_message(&mut self, msg: orm::AugmentedMessage) {
-        self.sendMessage(msg.id);
-
-        // TODO: Go version modified the `self` model appropriately,
-        //       with the `add`/`_add` parameter from createMessage.
-        // if add {
-        self.begin_insert_rows(0, 0);
-        self.messages.insert(0, msg.into());
-        self.end_insert_rows();
-        // }
-    }
-
+    /// Remove a message from the database.
     #[with_executor]
-    fn reload_message(&mut self, mid: i32) {
+    pub fn remove(&self, id: i32) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::FetchMessage(mid))
-                .map(Result::unwrap),
-        );
-        log::trace!("Dispatched actor::FetchMessage({})", mid);
-    }
-
-    #[with_executor]
-    fn load(&mut self, sid: i32) {
-        self.begin_reset_model();
-
-        self.messages.clear();
-
-        self.end_reset_model();
-
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(actor::FetchSession {
-                    id: sid,
-                    mark_read: false,
-                })
-                .map(Result::unwrap),
-        );
-        log::trace!("Dispatched actor::FetchSession({})", sid);
-    }
-
-    /// Adds a message to QML list.
-    ///
-    /// This retrieves a `Message` by the given id and adds it to the UI.
-    ///
-    /// Note that the id argument was i64 in Go.
-    #[with_executor]
-    fn add(&mut self, id: i32) {
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(actor::FetchMessage(id))
-                .map(Result::unwrap),
-        );
-        log::trace!("Dispatched actor::FetchMessage({})", id);
-    }
-
-    /// Remove a message from both QML and database
-    ///
-    /// Note the Go code said main thread only. This is
-    /// satisfied in Rust by sending the request to the
-    /// main thread.
-    ///
-    /// FIXME Take a message ID instead of an index.
-    #[with_executor]
-    pub fn remove(&self, idx: usize) {
-        let msg = if let Some(msg) = self.messages.get(idx) {
-            msg
-        } else {
-            log::error!("[remove] Message not found at index {}", idx);
-            return;
-        };
-
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(actor::DeleteMessage(msg.id, idx))
+                .send(actor::DeleteMessage(id))
                 .map(Result::unwrap),
         );
 
-        log::trace!("Dispatched actor::DeleteMessage({}, {})", msg.id, idx);
+        log::trace!("Dispatched actor::DeleteMessage({})", id);
     }
 
     #[with_executor]
@@ -341,294 +258,6 @@ impl MessageModel {
             .as_deref()
             .unwrap_or("no fingerprint")
             .into()
-    }
-
-    /// Mark a message sent in QML.
-    ///
-    /// Called through QML. Maybe QML doesn't know how
-    /// to pass booleans, because this and `mark_received`
-    /// simply wrap the real workhorse.
-    ///
-    /// Note that the id argument was i64 in Go.
-    #[with_executor]
-    fn markSent(&mut self, id: i32) {
-        self.mark(id, true, false, false, false)
-    }
-
-    /// Mark a message received in QML.
-    ///
-    /// Called through QML. Maybe QML doesn't know how
-    /// to pass booleans, because this and `mark_sent`
-    /// simply wrap the real workhorse.
-    ///
-    /// Note that the id argument was i64 in Go.
-    #[with_executor]
-    fn markReceived(&mut self, id: i32) {
-        self.mark(id, false, true, false, false)
-    }
-
-    /// Mark a message failed
-    #[with_executor]
-    fn markFailed(&mut self, id: i32) {
-        self.mark(id, false, false, true, false)
-    }
-
-    /// Mark a message pending/queued
-    #[with_executor]
-    fn markPending(&mut self, id: i32) {
-        self.mark(id, false, false, false, true)
-    }
-
-    /// Mark a message sent or received in QML. No database involved.
-    ///
-    /// Note that the id argument was i64 in Go.
-    #[with_executor]
-    fn mark(
-        &mut self,
-        id: i32,
-        mark_sent: bool,
-        mark_received: bool,
-        mark_failed: bool,
-        mark_pending: bool,
-    ) {
-        if mark_sent && mark_received {
-            log::trace!("Cannot mark message both sent and received");
-            return;
-        }
-
-        if let Some((i, mut msg)) = self
-            .messages
-            .iter_mut()
-            .enumerate()
-            .find(|(_, msg)| msg.id == id)
-        {
-            if mark_sent {
-                log::trace!("Mark message {} sent '{}'", id, mark_sent);
-
-                // XXX: fetch the correct time
-                msg.inner.inner.sent_timestamp = Some(chrono::Utc::now().naive_utc());
-            } else if mark_failed {
-                log::trace!("Mark message {} failed'", id);
-                msg.inner.inner.sending_has_failed = true;
-            } else if mark_pending {
-                log::trace!("Mark message {} failed'", id);
-                msg.inner.inner.sending_has_failed = false;
-            } else if mark_received {
-                log::trace!("Mark message {} received '{}'", id, mark_received);
-
-                // XXX: fetch the correct time and person
-                msg.inner.inner.received_timestamp = Some(chrono::Utc::now().naive_utc());
-                // Dummy
-                msg.inner.receipts.push((
-                    Receipt {
-                        message_id: 0,
-                        recipient_id: 0,
-                        delivered: msg.inner.received_timestamp,
-                        read: None,
-                        viewed: None,
-                    },
-                    Recipient {
-                        id,
-                        e164: None,
-                        uuid: None,
-                        username: None,
-                        email: None,
-                        blocked: false,
-                        profile_key: None,
-                        profile_key_credential: None,
-                        profile_given_name: None,
-                        profile_family_name: None,
-                        profile_joined_name: None,
-                        signal_profile_avatar: None,
-                        profile_sharing: false,
-                        last_profile_fetch: None,
-                        unidentified_access_mode: false,
-                        storage_service_id: None,
-                        storage_proto: None,
-                        capabilities: 0,
-                        last_gv1_migrate_reminder: None,
-                        last_session_reset: None,
-                        about: None,
-                        about_emoji: None,
-                    },
-                ));
-            }
-            // In fact, we should only update the necessary roles, but qmetaobject, in its current
-            // state, does not allow this.
-            // , MessageRoles::Received);
-            // We'll also have troubles with the mutable borrow over `msg`, but that's nothing we
-            // cannot solve.  We're saved by NLL here.
-            let idx = self.row_index(i as i32);
-            self.data_changed(idx, idx);
-        } else {
-            log::error!("Message not found");
-        }
-    }
-
-    // Event handlers below this line
-
-    /// Handle a fetched session from message's point of view
-    pub fn handle_fetch_session(
-        &mut self,
-        sess: orm::Session,
-        group_members: Vec<orm::Recipient>,
-        fingerprint: Option<String>,
-    ) {
-        log::trace!("handle_fetch_session({})", sess.id);
-        self.sessionId = sess.id;
-        self.sessionIdChanged();
-
-        self.group_members = group_members;
-
-        match sess.r#type {
-            orm::SessionType::GroupV1(group) => {
-                self.peerTel = QString::from("");
-                self.peerUuid = QString::from("");
-                self.peerHasAvatar = false;
-                self.peerName = QString::from(group.name.deref());
-                self.aboutEmoji = QString::from("");
-                self.aboutText = QString::from("");
-                self.peerChanged();
-
-                self.group = true;
-                self.groupV1 = true;
-                self.groupV2 = false;
-                self.groupId = QString::from(group.id);
-                self.groupDescription = QString::from("");
-                self.groupChanged();
-
-                self.groupMembers = QString::from(
-                    self.group_members
-                        .iter()
-                        .map(|r| r.e164_or_uuid())
-                        .join(","),
-                );
-                self.groupMemberNames =
-                    QString::from(self.group_members.iter().map(|r| r.name()).join(","));
-                self.groupMemberUuids =
-                    QString::from(self.group_members.iter().map(|r| r.uuid()).join(","));
-                self.groupMembersChanged();
-            }
-            orm::SessionType::GroupV2(group) => {
-                self.peerTel = QString::from("");
-                self.peerUuid = QString::from("");
-                self.peerHasAvatar = group.avatar.is_some();
-                self.peerName = QString::from(group.name.deref());
-                self.aboutEmoji = QString::from("");
-                self.aboutText = QString::from("");
-                self.peerChanged();
-
-                self.group = true;
-                self.groupV1 = false;
-                self.groupV2 = true;
-                self.groupId = QString::from(group.id);
-                self.groupDescription = QString::from(group.description.unwrap_or_default());
-                self.groupChanged();
-
-                self.groupMembers = QString::from(
-                    self.group_members
-                        .iter()
-                        .map(|r| r.e164_or_uuid())
-                        .join(","),
-                );
-                self.groupMemberNames =
-                    QString::from(self.group_members.iter().map(|r| r.name()).join(","));
-                self.groupMemberUuids =
-                    QString::from(self.group_members.iter().map(|r| r.uuid()).join(","));
-                self.groupMembersChanged();
-            }
-            orm::SessionType::DirectMessage(recipient) => {
-                self.group = false;
-                self.groupV1 = false;
-                self.groupV2 = false;
-                self.groupId = QString::from("");
-                self.groupDescription = QString::from("");
-                self.groupChanged();
-
-                self.peerTel = QString::from(recipient.e164.as_deref().unwrap_or(""));
-                self.peerUuid = QString::from(recipient.uuid.as_deref().unwrap_or(""));
-                self.peerHasAvatar = recipient.signal_profile_avatar.is_some();
-                self.peerName = QString::from(recipient.name());
-                self.aboutEmoji = QString::from(recipient.about_emoji.as_deref().unwrap_or(""));
-                self.aboutText = QString::from(recipient.about.as_deref().unwrap_or(""));
-                self.peerChanged();
-            }
-        };
-
-        self.fingerprint = fingerprint;
-        self.peerIdentityChanged();
-
-        // TODO: contact identity key
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(actor::FetchAllMessages(sess.id))
-                .map(Result::unwrap),
-        );
-        log::trace!("Dispatched actor::FetchAllMessages({})", sess.id);
-    }
-
-    pub fn handle_fetch_message(&mut self, message: orm::AugmentedMessage) {
-        log::trace!("handle_fetch_message({})", message.id);
-
-        let idx = self.messages.binary_search_by(|am| {
-            am.inner
-                .server_timestamp
-                .cmp(&message.server_timestamp)
-                .reverse()
-        });
-
-        let am = message.into();
-
-        match idx {
-            Ok(idx) => {
-                log::trace!("Fetched message exists at idx = {}; replacing", idx);
-                let model_idx = self.row_index(idx as _);
-
-                self.messages[idx] = am;
-                self.data_changed(model_idx, model_idx);
-            }
-            Err(idx) => {
-                self.begin_insert_rows(idx as _, idx as _);
-                self.messages.insert(idx, am);
-                self.end_insert_rows();
-            }
-        };
-    }
-
-    #[allow(clippy::type_complexity)]
-    pub fn handle_fetch_all_messages(&mut self, messages: Vec<orm::AugmentedMessage>, sid: i32) {
-        log::trace!(
-            "handle_fetch_all_messages({}) count {}",
-            sid,
-            messages.len()
-        );
-
-        if messages.len() == 0 {
-            return;
-        }
-
-        self.begin_insert_rows(0, messages.len() as i32);
-
-        self.messages.extend(messages.into_iter().map(Into::into));
-
-        self.end_insert_rows();
-    }
-
-    pub fn handle_delete_message(&mut self, id: i32, idx: usize, del_rows: usize) {
-        log::trace!(
-            "handle_delete_message({}) deleted {} rows, remove qml idx {}",
-            id,
-            del_rows,
-            idx
-        );
-
-        self.begin_remove_rows(idx as i32, idx as i32);
-
-        self.messages.remove(idx);
-
-        self.end_remove_rows();
     }
 }
 

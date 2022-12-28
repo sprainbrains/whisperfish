@@ -100,7 +100,6 @@ SilicaListView {
     function resendInline(listItem) { // call through messageAction()
         // TODO give some kind of feedback on success
         console.log("Resending message:", listItem.modelData.id)
-        MessageModel.markPending(listItem.modelData.id) // no remorse needed
         MessageModel.sendMessage(listItem.modelData.id)
     }
 
@@ -143,9 +142,9 @@ SilicaListView {
             function() {
                 for (var i in selectedIndices) {
                     console.log("Delete message:", selectedIndices[i])
-                    // TODO MessageModel.remove should take a message ID.
+                    // TODO MessageModel.remove takes a message ID.
                     // Rewrite this function to use IDs when that is fixed.
-                    MessageModel.remove(selectedIndices[i])
+                    // MessageModel.remove(selectedIndices[i])
                 }
             })
     }
