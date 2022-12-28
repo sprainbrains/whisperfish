@@ -7,6 +7,7 @@ import Nemo.Thumbnailer 1.0
 MouseArea {
     id: root
     property var attach: null
+    property var message: null
     property bool highlighted: containsPress
     property bool _hasAttach: attach !== null
     property bool _isAnimated: _hasAttach ? /\.(gif)$/i.test(attach.data) : false
@@ -25,7 +26,7 @@ MouseArea {
             if (_isVideo) _viewPage = '../../pages/ViewVideoPage.qml'
 
             pageStack.push(_viewPage, {
-                               'title': MessageModel.peerName,
+                               'title': message.peerName,
                                // TODO don't show the file path once attachments work reliably (#many)
                                //      and attachments are saved in a WF-controlled directory (#253)
                                'subtitle': attach.data,

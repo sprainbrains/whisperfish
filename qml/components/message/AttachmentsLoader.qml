@@ -84,6 +84,7 @@ Loader {
         AttachmentThumbnail {
             anchors.fill: parent
             attach: JSON.parse(thumbsAttachments.get(0))
+            message: modelData
             onPressAndHold: root.pressAndHold(mouse)
             enabled: !listView.isSelecting
         }
@@ -96,11 +97,13 @@ Loader {
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: JSON.parse(thumbsAttachments.get(0))
+                message: modelData
                 onPressAndHold: root.pressAndHold(mouse)
             }
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: JSON.parse(thumbsAttachments.get(1))
+                message: modelData
                 onPressAndHold: root.pressAndHold(mouse)
             }
         }
@@ -113,6 +116,7 @@ Loader {
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
                 attach: JSON.parse(thumbsAttachments.get(0))
+                message: modelData
                 onPressAndHold: root.pressAndHold(mouse)
             }
 
@@ -121,11 +125,13 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: JSON.parse(thumbsAttachments.get(1))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: JSON.parse(thumbsAttachments.get(2))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -141,11 +147,13 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: JSON.parse(thumbsAttachments.get(0))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: JSON.parse(thumbsAttachments.get(1))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -154,11 +162,13 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: JSON.parse(thumbsAttachments.get(2))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
                     attach: JSON.parse(thumbsAttachments.get(3))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -174,11 +184,13 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
                     attach: JSON.parse(thumbsAttachments.get(0))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
                     attach: JSON.parse(thumbsAttachments.get(1))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
             }
@@ -187,17 +199,20 @@ Loader {
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
                     attach: JSON.parse(thumbsAttachments.get(2))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
                     attach: JSON.parse(thumbsAttachments.get(3))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     id: showMoreThumb
                     width: parent.width/3; height: parent.height
                     attach: JSON.parse(thumbsAttachments.get(4))
+                    message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
 
                     OpacityRampEffect {
