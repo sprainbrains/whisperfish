@@ -7,9 +7,7 @@ ListItem {
     property string date: Format.formatDate(model.timestamp, _dateFormat)
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
-    property bool isRead: model.read // TODO investigate: is this really a bool?
-    property bool isMuted: model.isMuted
-    property bool isUnread: !isRead // TODO investigate: is this really a bool?
+    property bool isUnread: model.message !== undefined && !model.read // TODO investigate: is this really a bool?
     property bool isNoteToSelf: SetupWorker.phoneNumber === model.source
     property bool isPinned: model.isPinned
     property bool isArchived: model.isArchived
@@ -35,7 +33,7 @@ ListItem {
                 //% "Attachment"
                 ? qsTrId("whisperfish-session-has-attachment") : '')
             ) : ''
-        ) + model.message
+        ) + (model.message !== undefined ? model.message : '')
 
     signal relocateItem(int sessionId)
 
