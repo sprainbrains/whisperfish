@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use crate::actor;
+use crate::gui::AppState;
 use crate::model::*;
 use crate::store::orm;
 use actix::prelude::*;
@@ -45,6 +46,17 @@ impl std::ops::Deref for AugmentedSession {
 #[derive(QObject, Default)]
 pub struct Sessions {
     base: qt_base_class!(trait QObject),
+
+    app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
+}
+
+impl Sessions {
+    fn set_app(&mut self, app: std::cell::RefCell<AppState>) {
+        self.app = app;
+        self.reinit();
+    }
+
+    fn reinit(&mut self) {}
 }
 
 impl Drop for Sessions {

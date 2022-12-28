@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use crate::actor;
+use crate::gui::AppState;
 use crate::model::*;
 use crate::store::orm::Receipt;
 use crate::store::orm::Recipient;
@@ -16,6 +17,35 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::process::Command;
 use std::rc::Rc;
+
+/// QML-constructable object that interacts with a single session.
+#[derive(QObject, Default)]
+pub struct Session {
+    base: qt_base_class!(trait QObject),
+
+    app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
+    sessionId: qt_property!(i32; WRITE set_session_id),
+}
+
+impl Session {
+    fn set_app(&mut self, app: std::cell::RefCell<AppState>) {
+        self.app = app;
+        self.reinit();
+    }
+
+    fn set_session_id(&mut self, id: i32) {
+        self.sessionId = id;
+        self.reinit();
+    }
+
+    fn reinit(&mut self) {}
+}
+
+impl Drop for Session {
+    fn drop(&mut self) {
+        // TODO deregister interest in sessions table
+    }
+}
 
 define_model_roles! {
     enum MessageRoles for QtAugmentedMessage {

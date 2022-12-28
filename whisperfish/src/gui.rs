@@ -13,7 +13,7 @@ pub struct StorageReady {
     pub storage: crate::store::Storage,
 }
 
-#[derive(QObject)]
+#[derive(QObject, Default)]
 #[allow(non_snake_case)]
 pub struct AppState {
     base: qt_base_class!(trait QObject),
@@ -177,12 +177,8 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             // Register types
             {
                 let uri = cstr!("be.rubdos.whisperfish");
-                #[derive(QObject, Default)]
-                struct Messages {
-                    base: qt_base_class!(trait QObject),
-                }
                 qml_register_type::<model::Sessions>(uri, 1, 0, cstr!("Sessions"));
-                qml_register_type::<Messages>(uri, 1, 0, cstr!("Messages"));
+                qml_register_type::<model::Session>(uri, 1, 0, cstr!("Session"));
             }
 
             let mut app = QmlApp::application("harbour-whisperfish".into());

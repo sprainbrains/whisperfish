@@ -141,10 +141,6 @@ ApplicationWindow
         }
     }
 
-    function activateSession(sid) {
-        MessageModel.load(sid)
-    }
-
     function closeMessageNotification(sid, mid) {
         if(sid in notificationMap) {
             for(var i in notificationMap[sid]) {
@@ -209,11 +205,10 @@ ApplicationWindow
             m.subText = contactName
         }
         m.clicked.connect(function() {
-            console.log("Activating session: "+sid)
+            console.log("Activating session: " + sid)
             mainWindow.activate()
             showMainPage()
-            mainWindow.activateSession(sid)
-            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { peerName: contactName, profilePicture: avatar }, PageStackAction.Immediate)
+            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { peerName: contactName, profilePicture: avatar, sessionId: sid }, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -239,28 +234,9 @@ ApplicationWindow
 
     Connections {
         target: ClientWorker
-        onMessageReceived: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-                SessionModel.add(sid, true)
-                MessageModel.add(mid)
-            } else {
-                SessionModel.add(sid, false)
-            }
-        }
-        onMessageReactionReceived: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-                MessageModel.reload_message(mid)
-            }
-        }
+        onMessageReceived: { }
+        onMessageReactionReceived: { }
         onMessageReceipt: {
-            if(mid > 0 && sid === MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-                MessageModel.markReceived(mid)
-            }
-
-            if(sid > 0) {
-                SessionModel.markReceived(sid)
-            }
-
             if(sid > 0 && mid > 0) {
                 closeMessageNotification(sid, mid)
             }
@@ -268,23 +244,12 @@ ApplicationWindow
         onNotifyMessage: {
             newMessageNotification(sid, mid, sessionName, senderName, senderIdentifier, senderUuid, message, isGroup)
         }
-        onMessageNotSent: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-                MessageModel.markFailed(mid)
-            }
-        }
+        onMessageNotSent: { }
         onProofRequested: {
             console.log("Proof of type", type, "with token", token, "requested")
             pageStack.push(Qt.resolvedUrl("ProofSubmitPage.qml"), { recaptchaToken: token })
         }
-        onMessageSent: {
-            if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
-                SessionModel.markSent(sid, message)
-                MessageModel.markSent(mid)
-            } else {
-                SessionModel.markSent(sid, message)
-            }
-        }
+        onMessageSent: { }
         onPromptResetPeerIdentity: {
             if (fatalOccurred) return
             pageStack.push(Qt.resolvedUrl("pages/PeerIdentityChanged.qml"), { source: source })

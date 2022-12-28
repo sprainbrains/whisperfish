@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../delegates"
 import "../components"
 
@@ -11,12 +12,18 @@ Page {
     // E.g. when starting a new chat.
     property bool editorFocus: false
 
-    property bool isGroup: MessageModel.group
-    property string conversationName: isGroup ? MessageModel.peerName : getRecipientName(MessageModel.peerTel, MessageModel.peerName, true)
+    property string conversationName: session.isGroup ? session.peerName : getRecipientName(session.peerTel, session.peerName, true)
     property string profilePicture: ""
+    property alias sessionId: session.sessionId
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
+
+    Session {
+        id: session
+        app: AppState
+        // sessionId is set through the property alias above.
+    }
 
     function setTyping(message) {
         pageHeader.isTypingMessage = message;
@@ -24,16 +31,17 @@ Page {
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
-            SessionModel.markRead(MessageModel.sessionId)
-            mainWindow.clearNotifications(MessageModel.sessionId)
+            // XXX this should be a call into the client/application state/...
+            SessionModel.markRead(sessionId)
+            mainWindow.clearNotifications(sessionId)
 
             var nextPage = pageStack.nextPage()
             var nextPageName = nextPage ? nextPage.objectName : ''
 
-            if (root.isGroup && nextPageName !== 'groupProfile') {
+            if (session.isGroup && nextPageName !== 'groupProfile') {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
             }
-            if(!root.isGroup && nextPageName !== 'verifyIdentity'){
+            if(!session.isGroup && nextPageName !== 'verifyIdentity'){
                 pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { peerName: root.conversationName, profilePicture: root.profilePicture })
             }
         }
@@ -43,8 +51,9 @@ Page {
         target: Qt.application
         onStateChanged: {
             if ((Qt.application.state === Qt.ApplicationActive) && (status === PageStatus.Active)) {
-                SessionModel.markRead(MessageModel.sessionId)
-                mainWindow.clearNotifications(MessageModel.sessionId)
+                // XXX this should be a call into the client/application state/...
+                SessionModel.markRead(sessionId)
+                mainWindow.clearNotifications(sessionId)
             }
         }
     }
@@ -52,17 +61,18 @@ Page {
     ConversationPageHeader {
         id: pageHeader
         title: conversationName
-        isGroup: root.isGroup
+        isGroup: session.isGroup
         anchors.top: parent.top
         description: {
-            if (root.isGroup) {
-                var members = MessageModel.groupMembers.split(",")
+            if (session.isGroup) {
+                // var members = MessageModel.groupMembers.split(",")
+                var members = ["foo"];
                 //: The number of members in a group, you included
                 //% "%n member(s)"
                 return qsTrId("whisperfish-group-n-members", members.length)
             }
-            else return (MessageModel.peerName === MessageModel.peerTel ?
-                             "" : MessageModel.peerTel)
+            else return (session.peerName === session.peerTel ?
+                             "" : session.peerTel)
         }
         profilePicture: root.profilePicture
 
@@ -100,7 +110,7 @@ Page {
             left: parent.left;
             right: parent.right
         }
-        model: MessageModel
+        model: session.messages
         clip: true // to prevent the view from flowing through the page header
         headerPositioning: ListView.InlineHeader
         header: Item {
@@ -164,7 +174,7 @@ Page {
             id: textInput
             width: parent.width
             anchors.bottom: parent.bottom
-            enablePersonalizedPlaceholder: messages.count === 0 && !root.isGroup
+            enablePersonalizedPlaceholder: messages.count === 0 && !session.isGroup
             placeholderContactName: conversationName
             editor.focus: root.editorFocus
             showSeparator: !messages.atYEnd || quotedMessageShown
@@ -188,10 +198,10 @@ Page {
                 }
             }
             onSendTypingNotification: {
-                ClientWorker.send_typing_notification(MessageModel.sessionId, true)
+                ClientWorker.send_typing_notification(sessionId, true)
             }
             onSendTypingNotificationEnd: {
-                ClientWorker.send_typing_notification(MessageModel.sessionId, false)
+                ClientWorker.send_typing_notification(sessionId, false)
             }
         }
     }
