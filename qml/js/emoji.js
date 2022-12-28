@@ -25,7 +25,7 @@
 /*! Copyright Twitter Inc. and other contributors. Licensed under MIT *//*
   https://github.com/twitter/twemoji/blob/gh-pages/LICENSE
 
-  Modified and relicensed under AGPL v3+ for use in Whisperfish by Mirian Margiani (2021).
+  Modified and relicensed under AGPL v3+ for use in Whisperfish by Mirian Margiani (2021-2022).
   Based on: https://github.com/twitter/twemoji/blob/64b63c21b8a1524dd4bbfa112e826e76348a7219/v/13.0.1/twemoji.js
 
   How to update:
@@ -43,12 +43,11 @@
 //       in $HOME/.local/share (in-app for open sets, and a guide for proprietary sets).
 // TODO: We need an entry in the settings page to configure the emoji style.
 // TODO: handle missing icons/characters instead of showing an empty space
-// TODO: Is there a way to include official Signal emojis?
 
 // NOTE This version string must be updated with each change to the script.
 // We strictly follow Semantic Versioning 2.0.0, https://semver.org/.
 // While at version < 1.0.0, the public API may change at any time.
-var version = '0.1.0'
+var version = '0.3.0'
 
 // Data directories: emojis are by default located in StandardPaths.data/emojis,
 // which is typically $HOME/.local/share/sailor-emoji. The base directory has to
@@ -58,15 +57,89 @@ var emojiSubDirectory = 'sailor-emoji' // subdirectory below DataBaseDirectory
 
 // Emoji styles: emojis can be in raster or vector format. Raster emojis are
 // required in multiple resolutions.
-// Path: base/subdir/<style>/<version>/[<resolution>/]<codepoint>.<ext>
+// Path: base/subdir/<key>/<version>/[if type==r: <resolution>/]<codepoint>.<ext>
 var Style = { // could be initialized on startup with user-configured values
-    'openmoji': { name: 'OpenMoji', dir: 'openmoji/14.0.0', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
-    'twemoji': { name: 'Twemoji', dir: 'twemoji/14.0.2', ext: 'svg', type: 'v' }, // CC-BY-SA 4.0
-    'google-noto': { name: 'Google Noto Emoji', dir: 'google-noto/android-12l', ext: 'png', type: 'r' }, // OpenFontLicense
-    'whatsapp': { name: 'WhatsApp', dir: 'whatsapp/2.22.8.79', ext: 'png', type: 'r' }, // proprietary
-    'apple': { name: 'Apple', dir: 'apple/15.4', ext: 'png', type: 'r' }, // proprietary
-    'system': { name: 'System', dir: '', ext: '', type: 's' }
+    'openmoji': {
+      name: 'OpenMoji',
+      key: 'openmoji',
+      versions: ['14.0.0', '13.1.0', '13.0.0'],
+      ext: 'svg',
+      type: 'v',
+      url: 'https://github.com/hfg-gmuend/openmoji/releases/',
+      license: 'CC-BY-SA 4.0'
+    },
+    'twemoji': {
+      name: 'Twemoji',
+      key: 'twemoji',
+      versions: ['14.0.2', '13.0.1'],
+      ext: 'svg',
+      type: 'v',
+      url: 'https://github.com/twitter/twemoji/releases',
+      license: 'CC-BY-SA 4.0'
+    },
+    'twitter-emoji-stickers': {
+      name: 'Twitter (glossy)',
+      key: 'twitter-emoji-stickers',
+      versions: ['13.1'],
+      ext: 'png',
+      type: 'r',
+      url: 'https://emojipedia.org/twitter-emoji-stickers',
+      license: 'proprietary'
+    },
+    'google': {
+      name: 'Google Noto',
+      key: 'google',
+      versions: ['15.0', 'android-12l'],
+      ext: 'png',
+      type: 'r',
+      url: 'https://emojipedia.org/google',
+      license: 'OpenFontLicense'
+    },
+    'whatsapp': {
+      name: 'WhatsApp',
+      key: 'whatsapp',
+      versions: ['2.22.8.79', '2.20.206.24'],
+      ext: 'png',
+      type: 'r',
+      url: 'https://emojipedia.org/whatsapp',
+      license: 'proprietary'
+    },
+    'apple': {
+      name: 'Apple',
+      key: 'apple',
+      versions: ['ios-15.4', 'ios-14.2'],
+      ext: 'png',
+      type: 'r',
+      url: 'https://emojipedia.org/apple',
+      license: 'proprietary'
+    },
+    // >>> ADD NEW STYLES HERE <<<
+    'system': {
+      name: 'System',
+      key: '',
+      versions: [],
+      ext: '',
+      type: 's',
+      url: '',
+      license: ''
+    }
 }
+
+// >>> ADD NEW STYLES HERE <<<
+// >>> Use this to generate a list of supported styles for the download script. <<<
+// >>> Comment the ".pragma library" line, uncomment the loop, and run the script. <<<
+//
+// for (var i in Style) {
+//   if (i == 'system') continue
+//
+//   var type = '?'
+//   if (/emojipedia\.org/.test(Style[i].url)) type = 'e'
+//   else if (/github\.com/.test(Style[i].url)) type = 'g'
+//   // >>> ADD NEW STYLES HERE <<<
+//   // >>> if a new type is required, make sure to update the emoji-dl.sh script! <<<
+//
+//   print('supported_sets[' + Style[i].key + ']=' + type + ':' + Style[i].versions.join(':'))
+// }
 
 // Required raster resolutions: Qt cannot scale inline images up, only down.
 // Sizes available from Emojipedia: [160, 144, 120, 72, 60]; maybe [120, 60] is enough?
@@ -79,51 +152,91 @@ var rasterSizesCache = {}
 // i.e. the system font will be used. Emojis are always counted, though.
 var styleStatusCache = {}
 
+// Clear all caches.
+// This is useful after updating a raster emoji set to the latest version.
+// Otherwise, cached paths will still point to the old outdated version.
+function flushCaches() {
+  rasterSizesCache = {}
+  styleStatusCache = {}
+}
+
 // Check if a style is installed.
 // Return:
 // - <0 = not installed
 // -  0 = fully installed
-// - >0 = incomplete, i.e. raster sizes are missing
+// -  1 = incomplete (raster sizes missing)
+// -  2 = outdated
+// -  3 = outdated and incomplete
 function isInstalled(style, noCache) {
     if (style.type === 's') return 0
-    var status = 0, check = {}
-    if (style.type === 'r') {
-        for (var i in rasterSizes) {
-            check = getParseSettings(style, rasterSizes[i], rasterSizes[i], true, noCache)
-            if (check.useSystem === true) status += 1
-        }
-        if (status === rasterSizes.length) {
-            // no sizes found, i.e. not installed
-            status = -1
-        }
-    } else {
-        check = getParseSettings(style, rasterSizes[i], rasterSizes[i], true, noCache)
-        if (check.useSystem === true) status = -1
+
+    var missingCount = 0, outdated = false, checkPath = '', expectedSizes = [null]
+    if (style.type === 'r') expectedSizes = rasterSizes
+
+    for (var i in expectedSizes) {
+      var checkPath = getStylePath(style, expectedSizes[i], noCache)
+      if (!checkPath.found) {
+        missingCount += 1
+      } else if (!checkPath.uptodate) {
+        outdated = true
+      }
     }
-    return status
+
+    if (missingCount === expectedSizes.length) {
+      // no sizes found, i.e. not installed
+      return -1
+    } else if (missingCount > 0) {
+      if (outdated) {
+        return 3
+      } else {
+        return 1
+      }
+    } else if (outdated) {
+      return 2
+    } else {
+      return 0
+    }
 }
 
-function checkStyle(path, style, noCache) {
+function getStylePath(style, rasterSize, noCache) {
   // TODO This is a hack and should be implemented in rust for better checks
   // and better performance. Ideally we should check if a set is complete...
-  if ((!noCache) && styleStatusCache.hasOwnProperty(path)) {
-    return styleStatusCache[path];
-  }
-  if (style.dir === '') { // use system font
-      styleStatusCache[path] = false;
-      return false;
+  var cacheKey = style.key + '-' + rasterSize
+  var notFound = {found: false, path: '', uptodate: true};
+
+  if ((!noCache) && styleStatusCache.hasOwnProperty(cacheKey)) {
+    return styleStatusCache[cacheKey];
   }
 
-  var cleanPath = path;
-  if (/^file:\/\//.test(path)) cleanPath = path.substr(7);
-  var xhr = new XMLHttpRequest, success = false;
-  xhr.open("GET", cleanPath+'/2764.'+style.ext, false); // fetch 'heart' synchronously
-  xhr.send();
+  if (style.type === 's') { // use system font
+      styleStatusCache[path] = notFound;
+      return notFound;
+  }
 
-  if (xhr.status === 200) success = true;
-  if (!success) console.error("failed to load emoji style at", cleanPath+'/2764.'+style.ext);
-  styleStatusCache[path] = success;
-  return success;
+  var basePath = ''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/', style.key)
+  var isRaster = (style.type === 'r' ? true : false)
+
+  for (var i in style.versions) {
+    if (isRaster) {
+      var path = Qt.resolvedUrl(''.concat(basePath, '/', style.versions[i], '/', rasterSize))
+    } else {
+      var path = Qt.resolvedUrl(''.concat(basePath, '/', style.versions[i]))
+    }
+
+    if (/^file:\/\//.test(path)) path = path.substr(7);
+    var xhr = new XMLHttpRequest, success = false;
+    xhr.open("GET", path + '/2764.' + style.ext, false); // fetch 'heart' synchronously
+    xhr.send();
+
+    if (xhr.status === 200) {
+      styleStatusCache[cacheKey] = {found: true, path: path, uptodate: (i == 0)};
+      return styleStatusCache[cacheKey];
+    } else {
+      console.error("failed to load emoji style at", path + '/2764.' + style.ext);
+    }
+  }
+
+  return notFound;
 }
 
 function getParseSettings(style, size, maxRasterSize, noGrow, noCache) {
@@ -143,13 +256,14 @@ function getParseSettings(style, size, maxRasterSize, noGrow, noCache) {
       // Qt only supports downscaling of inline images, so we select the
       // closest resolution above the desired size.
 
-      var cached = (!!noCache) ? undefined : rasterSizesCache[effectiveSize]
+      var cacheKey = style.key + '-' + effectiveSize
+      var cached = (!!noCache) ? undefined : rasterSizesCache[cacheKey]
+
       if (cached !== undefined) {
         sourceSize = cached.source
         stylePath = cached.path
         effectiveSize = cached.effective
       } else {
-        var key = effectiveSize
         // Reset the desired size to the largest available size.
         if (effectiveSize > rasterSizes[0]) effectiveSize = rasterSizes[0]
 
@@ -163,21 +277,18 @@ function getParseSettings(style, size, maxRasterSize, noGrow, noCache) {
         if (sourceSize < 0) sourceSize = rasterSizes[rasterSizes.length-1]
         if (effectiveSize > sourceSize) effectiveSize = sourceSize
 
-        stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
-                                             style.dir, '/', sourceSize))
-
-        // cache the result using the original effectiveSize as key
-        rasterSizesCache[key] = {source: sourceSize, effective: effectiveSize, path: stylePath}
+        // cache the result
+        stylePath = getStylePath(style, sourceSize, noCache).path
+        rasterSizesCache[cacheKey] = {source: sourceSize, effective: effectiveSize, path: stylePath}
       }
     } else if (style.type === 's') {
       useSystem = true
     } else {
-      stylePath = Qt.resolvedUrl(''.concat(dataBaseDirectory, '/', emojiSubDirectory, '/',
-                                           style.dir))
+      stylePath = getStylePath(style, null, noCache).path
     }
 
-    if (!useSystem && !checkStyle(stylePath, style, noCache)) {
-        useSystem = true;
+    if (stylePath === '') {
+      useSystem = true;
     }
 
     return {
