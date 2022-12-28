@@ -4,38 +4,38 @@
 <context>
     <name></name>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="36"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="34"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation>Bilaga</translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="53"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="51"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation>Alla meddelande raderade</translation>
     </message>
     <message id="whisperfish-typing-1">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="102"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="100"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
         <translation>%1 skriver</translation>
     </message>
     <message id="whisperfish-typing-2">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="106"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="104"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
         <translation>%1 och %2 skriver</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="110"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="108"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
         <translation>%1 och %n andra skriver</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="199"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="197"/>
         <location filename="../qml/harbour-whisperfish-main.qml" line="115"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="90"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="89"/>
@@ -44,51 +44,51 @@
         <translation>Anteckning till mig själv</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="218"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="216"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation>Utkast: %1</translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="319"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="317"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
         <translation>Lossa</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="322"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="320"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
         <translation>Fäst på toppen</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="331"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="329"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation>Slå på ljudet för konversationen</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="334"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="332"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation>Stäng av ljudet för konversation</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="342"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="340"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
         <translation>Återställ till inkorgen</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="345"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="343"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
         <translation>Arkivera konversation</translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="352"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="350"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Radera konversation</translation>
