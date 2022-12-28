@@ -25,8 +25,10 @@ mod original_data {
         NewSession {
             source: "+32475".into(),
             message: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -44,8 +46,10 @@ mod original_data {
         NewSession {
             source: "+32474".into(),
             message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 8)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -63,8 +67,10 @@ mod original_data {
         NewSession {
             source: "".into(),
             message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 8)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -82,8 +88,10 @@ mod original_data {
         NewSession {
             source: "".into(),
             message: "Heh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 8)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 8)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -437,8 +445,10 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
             session_id: Some(ids[0]),
             source: "+32475".into(),
             text: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: false,
@@ -452,8 +462,10 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
             session_id: Some(ids[0]),
             source: "+32475".into(),
             text: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -467,8 +479,10 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
             session_id: Some(ids[0]),
             source: "+32475".into(),
             text: "Hoh. Attachment!".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 326)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 326)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -572,8 +586,10 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
             session_id: Some(ids[0]),
             source: "+32475".into(),
             text: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: false,
@@ -587,8 +603,10 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
             session_id: Some(ids[1]),
             source: "+32475".into(),
             text: "Hoh.".into(),
-            timestamp: NaiveDate::from_ymd(2016, 7, 9)
-                .and_hms_milli(9, 10, 11, 325)
+            timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+                .unwrap()
+                .and_hms_milli_opt(9, 10, 11, 325)
+                .unwrap()
                 .timestamp_millis(),
             sent: true,
             received: true,
@@ -642,8 +660,10 @@ fn group_message_without_sender_nor_recipient(original_go_db: SqliteConnection) 
         session_id: Some(ids[0]),
         source: "".into(),
         text: "Hoh.".into(),
-        timestamp: NaiveDate::from_ymd(2016, 7, 9)
-            .and_hms_milli(9, 10, 11, 325)
+        timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+            .unwrap()
+            .and_hms_milli_opt(9, 10, 11, 325)
+            .unwrap()
             .timestamp_millis(),
         sent: false,
         received: true,
@@ -703,8 +723,10 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
         session_id,
         source: "+32475".into(),
         text: "Hoh.".into(),
-        timestamp: NaiveDate::from_ymd(2016, 7, 9)
-            .and_hms_milli(9, 10, 11, 325)
+        timestamp: NaiveDate::from_ymd_opt(2016, 7, 9)
+            .unwrap()
+            .and_hms_milli_opt(9, 10, 11, 325)
+            .unwrap()
             .timestamp_millis(),
         sent: true,
         received: false,
