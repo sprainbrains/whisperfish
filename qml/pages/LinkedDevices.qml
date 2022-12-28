@@ -109,9 +109,9 @@ Page {
                         ls = qsTrId("whisperfish-session-section-yesterday")
                     } else {
                         ls = Format.formatDate(model.lastSeen, Formatter.DurationElapsed)
-                        //: Linked device last active date
-                        //% "Last active: %1"
                     }
+                    //: Linked device last active date
+                    //% "Last active: %1"
                     return qsTrId("whisperfish-device-last-active").arg(ls)
                 }
                 text: lastSeenTime()
