@@ -189,12 +189,12 @@ Page {
                 // TODO This should be handled completely in the backend.
                 // TODO Support multiple attachments in the backend.
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
-                MessageModel.createMessage(MessageModel.sessionId, text, firstAttachedPath, replyTo, true)
+                MessageModel.createMessage(sessionId, text, firstAttachedPath, replyTo, true)
 
                 // send remaining attachments in separate messages because the
                 // backend does not support sending multiple attachments at once
                 for (var i = 1; i < attachments.length; i++) {
-                    MessageModel.createMessage(MessageModel.sessionId, '', attachments[i].data, replyTo, true)
+                    MessageModel.createMessage(sessionId, '', attachments[i].data, replyTo, true)
                 }
             }
             onSendTypingNotification: {
