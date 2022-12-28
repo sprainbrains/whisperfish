@@ -11,7 +11,6 @@ use itertools::Itertools;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 // XXX attachments and receipts could be a compressed form.
 struct AugmentedSession {
@@ -68,31 +67,28 @@ impl Drop for Sessions {
 #[derive(QObject, Default)]
 pub struct SessionModel {
     base: qt_base_class!(trait QAbstractListModel),
-    pub actor: Option<Addr<actor::SessionActor>>,
-
     content: Vec<AugmentedSession>,
 
-    unread: qt_property!(i32; NOTIFY unread_count_changed READ unread),
-
-    unread_count_changed: qt_signal!(),
-
     count: qt_method!(fn(&self) -> usize),
-    remove: qt_method!(fn(&self, idx: usize)),
-    removeById: qt_method!(fn(&self, id: i32)),
-    reload: qt_method!(fn(&self)),
+    unread: qt_method!(fn(&self) -> i32),
+}
 
-    markRead: qt_method!(fn(&mut self, id: usize)),
-    markReceived: qt_method!(fn(&self, id: usize)),
-    markSent: qt_method!(fn(&self, id: usize, message: QString)),
-    markMuted: qt_method!(fn(&self, idx: usize, muted: bool)),
-    markArchived: qt_method!(fn(&self, idx: usize, archived: bool)),
-    markPinned: qt_method!(fn(&self, idx: usize, pinned: bool)),
+#[derive(QObject, Default)]
+pub struct SessionMethods {
+    base: qt_base_class!(trait QObject),
+    pub actor: Option<Addr<actor::SessionActor>>,
+
+    remove: qt_method!(fn(&self, id: i32)),
+
+    markRead: qt_method!(fn(&mut self, id: i32)),
+    markMuted: qt_method!(fn(&self, id: i32, muted: bool)),
+    markArchived: qt_method!(fn(&self, id: i32, archived: bool)),
+    markPinned: qt_method!(fn(&self, id: i32, pinned: bool)),
 
     removeIdentities: qt_method!(fn(&self, session_id: i32)),
 }
 
 impl SessionModel {
-    #[with_executor]
     fn count(&self) -> usize {
         self.content.len()
     }
@@ -103,175 +99,71 @@ impl SessionModel {
             .map(|session| if session.is_read() { 0 } else { 1 })
             .sum()
     }
+}
 
-    /// Removes session at index. This removes the session from the list model and
-    /// deletes it from the database.
+impl SessionMethods {
+    /// Removes session by id from the database.
     #[with_executor]
-    fn remove(&mut self, idx: usize) {
-        if idx > self.content.len() - 1 {
-            log::error!("Invalid index for session model");
-            return;
-        }
-
-        let sid = self.content[idx].id;
-
+    fn remove(&self, id: i32) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::DeleteSession { id: sid, idx })
+                .send(actor::DeleteSession { id })
                 .map(Result::unwrap),
         );
-        log::trace!("Dispatched actor::DeleteSession({})", idx);
-    }
-
-    /// Removes session by id. This removes the session from the list model and
-    /// deletes it from the database.
-    #[with_executor]
-    fn removeById(&self, id: i32) {
-        let idx = self
-            .content
-            .iter()
-            .position(|x| x.id == id)
-            .expect("Session ID not found in session model");
-
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(actor::DeleteSession { id, idx })
-                .map(Result::unwrap),
-        );
-        log::trace!("Dispatched actor::DeleteSession({})", idx);
+        log::trace!("Dispatched actor::DeleteSession({})", id);
     }
 
     #[with_executor]
-    fn reload(&self) {
+    fn markRead(&mut self, id: i32) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::LoadAllSessions)
+                .send(actor::MarkSessionRead { sid: id })
                 .map(Result::unwrap),
         );
     }
 
     #[with_executor]
-    fn markRead(&mut self, id: usize) {
-        if let Some((idx, session)) = self
-            .content
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| s.id == id as i32)
-        {
-            actix::spawn(
-                self.actor
-                    .as_ref()
-                    .unwrap()
-                    .send(actor::MarkSessionRead {
-                        sid: session.id,
-                        already_unread: !session.is_read(),
-                    })
-                    .map(Result::unwrap),
-            );
-
-            if let Some(message) = &mut session.last_message {
-                message.message.is_read = true;
-            }
-            let idx = self.row_index(idx as i32);
-            self.data_changed(idx, idx);
-        }
-
-        self.unread_count_changed();
-
-        // XXX: don't forget sync messages
-    }
-
-    #[with_executor]
-    fn markReceived(&mut self, id: usize) {
-        log::trace!("Mark received called");
-        // XXX: don't forget sync messages
-        if let Some((idx, session)) = self
-            .content
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| s.id == id as i32)
-        {
-            if let Some(message) = &mut session.last_message {
-                message.message.is_read = true;
-            }
-            let idx = self.row_index(idx as i32);
-            self.data_changed(idx, idx);
-        }
-
-        self.unread_count_changed();
-    }
-
-    #[with_executor]
-    fn markSent(&self, _id: usize, _message: QString) {
-        log::trace!("STUB: Mark sent called");
-        // XXX: don't forget sync messages
-    }
-
-    #[with_executor]
-    fn markMuted(&self, idx: usize, muted: bool) {
-        if idx > self.content.len() - 1 {
-            log::error!("Invalid index for session model");
-            return;
-        }
-
-        let sid = self.content[idx].id;
-
+    fn markMuted(&self, id: i32, muted: bool) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::MarkSessionMuted { sid, muted })
+                .send(actor::MarkSessionMuted { sid: id, muted })
                 .map(Result::unwrap),
         );
-        log::trace!("Dispatched actor::MarkSessionMuted({}, {})", idx, muted);
+        log::trace!("Dispatched actor::MarkSessionMuted({}, {})", id, muted);
     }
 
     #[with_executor]
-    fn markArchived(&self, idx: usize, archived: bool) {
-        if idx > self.content.len() - 1 {
-            log::error!("Invalid index for session model");
-            return;
-        }
-
-        let sid = self.content[idx].id;
-
+    fn markArchived(&self, id: i32, archived: bool) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::MarkSessionArchived { sid, archived })
+                .send(actor::MarkSessionArchived { sid: id, archived })
                 .map(Result::unwrap),
         );
         log::trace!(
             "Dispatched actor::MarkSessionArchived({}, {})",
-            idx,
+            id,
             archived
         );
     }
 
     #[with_executor]
-    fn markPinned(&self, idx: usize, pinned: bool) {
-        if idx > self.content.len() - 1 {
-            log::error!("Invalid index for session model");
-            return;
-        }
-
-        let sid = self.content[idx].id;
-
+    fn markPinned(&self, id: i32, pinned: bool) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(actor::MarkSessionPinned { sid, pinned })
+                .send(actor::MarkSessionPinned { sid: id, pinned })
                 .map(Result::unwrap),
         );
-        log::trace!("Dispatched actor::MarkSessionPinned({}, {})", idx, pinned);
+        log::trace!("Dispatched actor::MarkSessionPinned({}, {})", id, pinned);
     }
 
     #[with_executor]
@@ -284,393 +176,6 @@ impl SessionModel {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched SessionActor::RemoveIdentities({})", session_id);
-    }
-
-    // Event handlers below this line
-
-    /// Handle loaded session
-    ///
-    /// The session is accompanied by the last message that was sent on this session.
-    #[allow(clippy::type_complexity)]
-    pub fn handle_sessions_loaded(
-        &mut self,
-        sessions: Vec<(
-            orm::Session,
-            Vec<orm::Recipient>,
-            Option<(
-                orm::Message,
-                Vec<orm::Attachment>,
-                Vec<(orm::Receipt, orm::Recipient)>,
-            )>,
-        )>,
-    ) {
-        // XXX: maybe this should be called before even accessing the db?
-        self.begin_reset_model();
-        self.content = sessions
-            .into_iter()
-            .map(|(session, group_members, last_message)| AugmentedSession {
-                session,
-                group_members,
-                last_message: last_message.map(|(message, attachments, receipts)| LastMessage {
-                    message,
-                    attachments,
-                    receipts,
-                }),
-                // XXX migrate typing notices from previous loaded sessions?
-                typing: Vec::new(),
-            })
-            .collect();
-        // XXX This could be solved through a sub query.
-        self.content
-            .sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
-                (Some(a_last_message), Some(b_last_message)) => b_last_message
-                    .message
-                    .server_timestamp
-                    .cmp(&a_last_message.message.server_timestamp),
-                (None, Some(_)) => std::cmp::Ordering::Greater,
-                (Some(_), None) => std::cmp::Ordering::Greater,
-                // Gotta use something here.
-                (None, None) => a.session.id.cmp(&b.session.id),
-            });
-        // Stable sort, such that this retains the above ordering.
-        self.content.sort_by_key(|k| !k.is_pinned);
-        self.end_reset_model();
-
-        self.unread_count_changed();
-    }
-
-    /// Handle add-or-replace session
-    pub fn handle_fetch_session(
-        &mut self,
-        sess: orm::Session,
-        group_members: Vec<orm::Recipient>,
-        mut last_message: orm::Message,
-        last_message_attachments: Vec<orm::Attachment>,
-        last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
-        mark_read: bool,
-    ) {
-        let sid = sess.id;
-        let mut already_unread = false;
-
-        let found = self
-            .content
-            .iter()
-            .enumerate()
-            .find(|(_i, s)| s.id == sess.id);
-
-        if found.is_some() {
-            already_unread = !last_message.is_read;
-        }
-
-        if !last_message.is_read && mark_read {
-            actix::spawn(
-                self.actor
-                    .as_ref()
-                    .unwrap()
-                    .send(actor::MarkSessionRead {
-                        sid: sess.id,
-                        already_unread,
-                    })
-                    .map(Result::unwrap),
-            );
-            log::trace!(
-                "Dispatched actor::MarkSessionRead({}, {})",
-                sid,
-                already_unread
-            );
-            last_message.is_read = true;
-
-        // unimplemented!();
-        } else if last_message.is_read && !already_unread {
-            // TODO: model.session.go:181
-            // let count = self.unread() + 1;
-
-            // self.set_unread(count);
-            // self.unread_changed(count);
-        }
-
-        let mut newIdx = 0_usize;
-
-        if let Some((mut idx, _session)) = found {
-            let src_idx = self.row_index(idx as i32);
-            let mut dest_idx = self.row_index(idx as i32);
-
-            for (idx, s) in self.content.iter().enumerate() {
-                if s.is_pinned == sess.is_pinned {
-                    newIdx = idx;
-                    dest_idx = self.row_index(newIdx as i32);
-                    break;
-                }
-            }
-
-            // 1: Update the row in-place
-            log::trace!("Updating the session in QML in pos {}", idx);
-
-            let mut s = &mut self.content[idx];
-            s.session = sess;
-            s.group_members = group_members;
-            s.last_message = Some(LastMessage {
-                message: last_message,
-                attachments: last_message_attachments,
-                receipts: last_message_receipts,
-            });
-            s.typing = Vec::new();
-
-            // 2: Move the row (if needed)
-            if newIdx != idx {
-                log::trace!(
-                    "Moving the session in qml from position {:?} to {:?}",
-                    idx,
-                    newIdx
-                );
-                if newIdx < idx {
-                    self.begin_move_rows(
-                        src_idx,
-                        newIdx as i32,
-                        idx as i32,
-                        dest_idx,
-                        newIdx as i32,
-                    );
-
-                    while newIdx < idx {
-                        self.content.swap(idx, idx - 1);
-                        idx -= 1;
-                    }
-                } else {
-                    self.begin_move_rows(
-                        src_idx,
-                        idx as i32,
-                        newIdx as i32,
-                        dest_idx,
-                        newIdx as i32,
-                    );
-
-                    while newIdx > idx {
-                        self.content.swap(idx, idx + 1);
-                        idx += 1;
-                    }
-                }
-                self.end_move_rows();
-            }
-
-            // 3: Signal the changes
-            if src_idx.row() < dest_idx.row() {
-                self.data_changed(src_idx, dest_idx)
-            } else {
-                self.data_changed(dest_idx, src_idx)
-            }
-        } else {
-            for (idx, s) in self.content.iter().enumerate() {
-                if s.is_pinned == sess.is_pinned {
-                    newIdx = idx;
-                    break;
-                }
-            }
-
-            log::trace!("Inserting a new session to qml into position {}", newIdx);
-
-            self.begin_insert_rows(newIdx as i32, newIdx as i32);
-            self.content.insert(
-                newIdx,
-                AugmentedSession {
-                    session: sess,
-                    group_members,
-                    last_message: Some(LastMessage {
-                        message: last_message,
-                        attachments: last_message_attachments,
-                        receipts: last_message_receipts,
-                    }),
-                    typing: Vec::new(),
-                },
-            );
-            self.end_insert_rows();
-        };
-
-        self.unread_count_changed();
-    }
-
-    /// Handle add-or-replace session (without is_read update)
-    pub fn handle_update_session(
-        &mut self,
-        sess: orm::Session,
-        group_members: Vec<orm::Recipient>,
-        last_message: orm::Message,
-        last_message_attachments: Vec<orm::Attachment>,
-        last_message_receipts: Vec<(orm::Receipt, orm::Recipient)>,
-    ) {
-        let found = self
-            .content
-            .iter()
-            .enumerate()
-            .find(|(_i, s)| s.id == sess.id);
-
-        let typing = if let Some((idx, _session)) = found {
-            log::trace!("Removing the session from qml");
-
-            // Remove from this place so it can be added back in later
-            self.begin_remove_rows(idx as i32, idx as i32);
-            let typing = std::mem::take(&mut self.content[idx].typing);
-            self.content.remove(idx);
-            self.end_remove_rows();
-            typing
-        } else {
-            Vec::new()
-        };
-
-        let mut newIdx = 0_usize;
-
-        for (idx, s) in self.content.iter().enumerate() {
-            if s.is_pinned == sess.is_pinned {
-                newIdx = idx;
-                break;
-            }
-        }
-
-        log::trace!("Inserting the session back in qml into position {}", newIdx);
-
-        self.begin_insert_rows(newIdx as i32, newIdx as i32);
-        self.content.insert(
-            newIdx,
-            AugmentedSession {
-                session: sess,
-                group_members,
-                last_message: Some(LastMessage {
-                    message: last_message,
-                    attachments: last_message_attachments,
-                    receipts: last_message_receipts,
-                }),
-                typing,
-            },
-        );
-        self.end_insert_rows();
-
-        self.unread_count_changed();
-    }
-
-    /// The typings should map session id's to recipients.
-    pub fn handle_update_typing(&mut self, mut typings: HashMap<i32, Vec<orm::Recipient>>) {
-        // Cannot iter_mut() over content with .enumerate(), because we need to call data_changed()
-        // too.
-        for i in 0..self.content.len() {
-            let session = &mut self.content[i];
-            let changed = if let Some(typers) = typings.remove(&session.id) {
-                let lhs: HashSet<i32> = session.typing.iter().map(|s| s.id).collect();
-                let rhs: HashSet<i32> = typers.iter().map(|s| s.id).collect();
-
-                session.typing = typers;
-                lhs != rhs
-            } else if !session.typing.is_empty() {
-                log::trace!("Clearing typing for session id {} at row {}", session.id, i);
-                session.typing.clear();
-                true
-            } else {
-                false
-            };
-            if changed {
-                log::trace!("Updating model for changed typings");
-                let idx = self.row_index(i as i32);
-                self.data_changed(idx, idx);
-            }
-        }
-
-        if !typings.is_empty() {
-            log::warn!(
-                "Some session is typing that this model does not now about: {:?}",
-                typings
-            )
-        }
-    }
-
-    /// When a session is marked as read and this handler called, implicitly
-    /// the session will be set at the top of the QML list.
-    pub fn handle_mark_session_read(&mut self, sid: i32, already_unread: bool) {
-        if let Some((i, session)) = self
-            .content
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| s.session.id == sid)
-        {
-            if let Some(m) = &mut session.last_message {
-                m.message.is_read = true;
-            }
-            let idx = self.row_index(i as i32);
-            self.data_changed(idx, idx);
-        } else {
-            log::warn!("Could not call data_changed for non-existing session!");
-        }
-
-        if already_unread {
-            // TODO: model.session.go:173
-            // let count = std::cmp::min(0, self.unread() - 1);
-
-            // self.set_unread(count);
-            // self.unread_changed(count);
-        }
-
-        self.unread_count_changed();
-    }
-
-    pub fn handle_mark_session_muted(&mut self, sid: i32, muted: bool) {
-        if let Some((i, session)) = self
-            .content
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| s.session.id == sid)
-        {
-            session.session.is_muted = muted;
-            let idx = self.row_index(i as i32);
-            self.data_changed(idx, idx);
-        } else {
-            log::warn!("Could not call data_changed for non-existing session!");
-        }
-    }
-
-    pub fn handle_mark_session_archived(&mut self, sid: i32, archived: bool) {
-        if let Some((i, session)) = self
-            .content
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| s.session.id == sid)
-        {
-            session.session.is_archived = archived;
-            let idx = self.row_index(i as i32);
-            self.data_changed(idx, idx);
-        } else {
-            log::warn!("Could not call data_changed for non-existing session!");
-        }
-    }
-
-    pub fn handle_mark_session_pinned(&mut self, sid: i32, pinned: bool) {
-        if let Some((_i, session)) = self
-            .content
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| s.session.id == sid)
-        {
-            session.session.is_pinned = pinned;
-
-            actix::spawn(
-                self.actor
-                    .as_ref()
-                    .unwrap()
-                    .send(actor::UpdateSession {
-                        id: session.session.id,
-                    })
-                    .map(Result::unwrap),
-            );
-            log::trace!("Dispatched actor::UpdateSession({})", session.session.id);
-        } else {
-            log::warn!("Could not call data_changed for non-existing session!");
-        }
-    }
-
-    /// Remove deleted session from QML
-    pub fn handle_delete_session(&mut self, idx: usize) {
-        self.begin_remove_rows(idx as i32, idx as i32);
-        self.content.remove(idx);
-        self.end_remove_rows();
-
-        self.unread_count_changed();
     }
 }
 

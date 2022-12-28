@@ -235,14 +235,14 @@ Page {
                     // TODO Leaving a group should *never* delete its messages.
                     //      Two different destructive actions should require two different
                     //      inputs and two confirmations.
-                    //      Is it enough to remove the 'removeById' line?
+                    //      Is it enough to remove the 'remove' line?
                     //: Leave group remorse message (past tense)
                     //% "Left group and deleted all messages"
                     remorse.execute(qsTrId("whisperfish-group-leave-remorse"),
                                     function() {
                                         console.log("Leaving group")
                                         MessageModel.leaveGroup()
-                                        SessionModel.removeById(session.id)
+                                        SessionModel.remove(session.id)
                                         mainWindow.showMainPage()
                                     })
                 }

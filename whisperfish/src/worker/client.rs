@@ -16,7 +16,7 @@ pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccoun
 pub use libsignal_service::push_service::DeviceInfo;
 
 use super::profile_refresh::OutdatedProfileStream;
-use crate::actor::{LoadAllSessions, SessionActor};
+use crate::actor::SessionActor;
 use crate::gui::StorageReady;
 use crate::millis_to_naive_chrono;
 use crate::model::DeviceModel;
@@ -1239,16 +1239,6 @@ impl Handler<SendMessage> for ClientActor {
                         act.inner.pinned().borrow().messageNotSent(session_id, mid);
                     }
                 };
-                actix::spawn(
-                    act.inner
-                        .pinned()
-                        .borrow()
-                        .session_actor
-                        .clone()
-                        .unwrap()
-                        .send(LoadAllSessions)
-                        .map(Result::unwrap),
-                );
             }),
         )
     }

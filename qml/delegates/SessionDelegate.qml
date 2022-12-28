@@ -50,8 +50,8 @@ ListItem {
         //% "All messages deleted"
         contentItem.remorseAction(qsTrId("whisperfish-session-delete-all"),
             function() {
-                console.log("Deleting all messages for session: "+model.id)
-                SessionModel.remove(model.index)
+                console.log("Deleting all messages for session: " + model.id)
+                SessionModel.remove(model.id)
             })
     }
 
@@ -134,11 +134,11 @@ ListItem {
 
     function toggleArchivedState() {
         relocationActive = true
-        SessionModel.markArchived(model.index, !isArchived)
+        SessionModel.markArchived(model.id, !isArchived)
     }
 
     function toggleMutedState() {
-        SessionModel.markMuted(model.index, !isMuted)
+        SessionModel.markMuted(model.id, !isMuted)
     }
 
     Item {
