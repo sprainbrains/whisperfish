@@ -8,9 +8,14 @@ Page {
 
     property var shareObject
 
+    Sessions {
+        id: sessions
+        app: AppState
+    }
+
     SilicaListView {
         id: sessionList
-        model: SessionModel
+        model: sessions
 
         anchors {
             top: parent.top
@@ -142,12 +147,8 @@ Page {
         onSendMessage: {
             for (var r in sessionList.recipients) {
                 var recp = sessionList.recipients[r]
-
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
-                var sid = 0
-
-                sid = MessageModel.createMessage(recp.id, text, firstAttachedPath, -1, true)
-                if (sid > 0) SessionModel.add(sid, true) // update session model
+                MessageModel.createMessage(recp.id, text, firstAttachedPath, -1, true)
             }
             pageStack.pop()
         }
