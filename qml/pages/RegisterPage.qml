@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import Sailfish.Silica 1.0
+import Nemo.Configuration 1.0
 import Nemo.DBus 2.0
 import "../components"
 import "../js/countries.js" as CallingCodes
@@ -21,6 +22,14 @@ BlockingInfoPageBase {
                               numberField.text.length > 4 &&
                               numberField.text.replace(/[- ]*/, '').trim() !== ''
     property bool captchaReceived: false
+
+    ConfigurationValue {
+        key: "/apps/harbour-whisperfish/captchaType"
+        Component.onCompleted: {
+            value = "registration"
+            sync()
+        }
+    }
 
     signal accept
     onAccept: {
@@ -75,7 +84,7 @@ BlockingInfoPageBase {
 
     Timer {
 		id: captchaTimer
-		interval: 2500
+		interval: 100
 		running: false
 		repeat: false
 		onTriggered: {

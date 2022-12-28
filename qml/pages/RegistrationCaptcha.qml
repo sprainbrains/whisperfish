@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.WebView 1.0
+import Nemo.Configuration 1.0
 import Nemo.DBus 2.0
 
 // Warning: Do not use this page within Whisperfish:
@@ -14,6 +15,7 @@ WebViewPage {
 	backNavigation: false
 	forwardNavigation: false
 	showNavigationIndicator: false
+	property bool captchaCaptured: false
 
     DBusInterface {
         id: whisperfishApp
@@ -21,6 +23,20 @@ WebViewPage {
         path: "/be/rubdos/whisperfish/captcha"
         iface: "be.rubdos.whisperfish.captcha"
     }
+
+	ConfigurationValue {
+		key: "/apps/harbour-whisperfish/captchaType"
+		Component.onCompleted: {
+			if(value === "registration") {
+				webView.url = "https://signalcaptchas.org/registration/generate.html"
+			} else if(value === "challenge") {
+				webView.url = "https://signalcaptchas.org/challenge/generate.html"
+			} else {
+				console.warn("Invalid captcha type - defaulting to challenge")
+				webView.url = "https://signalcaptchas.org/challenge/generate.html"
+			}
+		}
+	}
 
 	Timer {
 		id: closeTimer
@@ -61,7 +77,7 @@ WebViewPage {
 		height: viewportHeight
 
 		active: true
-		url: "https://signalcaptchas.org/registration/generate.html"
+		url: ""
 
 		onViewInitialized: {
 			webView.loadFrameScript(Qt.resolvedUrl("captchaframescript.js"));
@@ -70,8 +86,9 @@ WebViewPage {
 
 		function filterUrl(uri) {
 			var codeMatch = /^signalcaptcha:\/\/(.*)$/.exec(uri);
-			if (codeMatch !== null && codeMatch[1] != '') {
-				console.log("Captcha Code Received", codeMatch[1]);
+			if (!captchaCaptured && codeMatch !== null && codeMatch[1] != '') {
+				captchaCaptured = true
+				console.log("Captcha response parsed:", codeMatch[1]);
 				complete(codeMatch[1]);
 				return true;
 			}
@@ -107,7 +124,7 @@ WebViewPage {
 
 		onRecvAsyncMessage: {
 			if (message == "Whisperfish:CaptchaDone") {
-				console.log("Captcha Code Received:", data.code);
+				console.log("CaptchaDone Received!");
 				complete(data.code);
 			}
 		}

@@ -99,6 +99,8 @@ pub struct ClientWorker {
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
     messageNotSent: qt_signal!(sid: i32, mid: i32),
+    proofRequested: qt_signal!(token: QString, r#type: QString),
+    proofCaptchaResult: qt_signal!(success: bool),
 
     send_typing_notification: qt_method!(fn(&self, id: i32, is_start: bool)),
 
@@ -1002,7 +1004,7 @@ impl Handler<SendMessage> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
     // Equiv of worker/send.go
-    fn handle(&mut self, SendMessage(mid): SendMessage, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, SendMessage(mid): SendMessage, ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
@@ -1021,6 +1023,7 @@ impl Handler<SendMessage> for ClientActor {
 
         let local_addr = self.local_addr.clone().unwrap();
         let storage = storage.clone();
+        let addr = ctx.address();
         Box::pin(
             async move {
                 let group = if let orm::SessionType::GroupV1(group) = &session.r#type {
@@ -1179,6 +1182,18 @@ impl Handler<SendMessage> for ClientActor {
                             .await
                         {
                             storage.fail_message(mid);
+                            if let MessageSenderError::ProofRequired { token, options: _ } = &e {
+                                if token.eq("recaptcha") {
+                                    addr.send(ProofRequired {
+                                        token: token.to_owned(),
+                                        r#type: String::from("recaptcha"),
+                                    })
+                                    .await
+                                    .expect("deliver captcha required");
+                                } else {
+                                    log::warn!("Rate limit proof requested, but type reCaptcha wasn't available!");
+                                }
+                            }
                             anyhow::bail!("Error sending message: {}", e);
                         }
                     }
@@ -1919,6 +1934,23 @@ impl ClientWorker {
     }
 
     #[with_executor]
+    pub fn submit_proof_captcha(&self, token: String, response: String) {
+        let actor = self.actor.clone().unwrap();
+        actix::spawn(async move {
+            if let Err(e) = actor
+                .send(ProofResponse {
+                    _type: "recaptcha".into(),
+                    token,
+                    response,
+                })
+                .await
+            {
+                log::error!("{:?}", e);
+            }
+        });
+    }
+
+    #[with_executor]
     fn send_typing_notification(&self, session_id: i32, is_start: bool) {
         actix::spawn(
             self.actor
@@ -1942,5 +1974,77 @@ impl Handler<CompactDb> for ClientActor {
         let res = store.compress_db();
         log::trace!("  res = {}", res);
         res
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProofRequired {
+    token: String,
+    r#type: String,
+}
+
+impl Handler<ProofRequired> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, proof: ProofRequired, _ctx: &mut Self::Context) -> Self::Result {
+        self.inner
+            .pinned()
+            .borrow()
+            .proofRequested(proof.token.into(), proof.r#type.into());
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProofResponse {
+    _type: String,
+    token: String,
+    response: String,
+}
+
+impl Handler<ProofResponse> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, proof: ProofResponse, ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("handle(ProofResponse)");
+
+        let service = self.authenticated_service();
+        let mut am = AccountManager::new(service, None);
+        let addr = ctx.address();
+
+        let proc = async move {
+            am.submit_recaptcha_challenge(&*proof.token, &*proof.response)
+                .await
+        };
+
+        Box::pin(proc.into_actor(self).map(move |result, _act, _ctx| {
+            actix::spawn(async move {
+                if let Err(e) = result {
+                    log::error!("Proof reCaptcha failed: {}", e);
+                    addr.send(ProofAccepted { result: false }).await
+                } else {
+                    log::trace!("Successfully sent proof reCaptcha");
+                    addr.send(ProofAccepted { result: true }).await
+                }
+            });
+        }))
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ProofAccepted {
+    result: bool,
+}
+
+impl Handler<ProofAccepted> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, accepted: ProofAccepted, _ctx: &mut Self::Context) {
+        self.inner
+            .pinned()
+            .borrow_mut()
+            .proofCaptchaResult(accepted.result);
     }
 }

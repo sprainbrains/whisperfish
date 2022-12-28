@@ -44,7 +44,19 @@ ApplicationWindow
         id: messageNotification
         Notification {
             property int mid
+            appIcon: "harbour-whisperfish"
+            appName: "Whisperfish"
+            category: "harbour-whisperfish-message"
         }
+    }
+
+    Notification {
+        id: genericNotification
+        appIcon: "harbour-whisperfish"
+        appName: "Whisperfish"
+        category: "harbour-whisperfish-message"
+        previewBody: genericNotification.body
+        previewSummary: genericNotification.summary
     }
 
     Notification {
@@ -190,9 +202,6 @@ ApplicationWindow
             m.itemCount = first_message.itemCount + 1
         }
 
-        m.appIcon = "harbour-whisperfish"
-        m.appName = "Whisperfish"
-        m.category = "harbour-whisperfish-message"
         m.previewSummary = name
         m.previewBody = m.body
         m.summary = name
@@ -263,6 +272,10 @@ ApplicationWindow
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
                 MessageModel.markFailed(mid)
             }
+        }
+        onProofRequested: {
+            console.log("Proof of type", type, "with token", token, "requested")
+            pageStack.push(Qt.resolvedUrl("ProofSubmitPage.qml"), { recaptchaToken: token })
         }
         onMessageSent: {
             if(sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
