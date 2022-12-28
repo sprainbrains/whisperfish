@@ -156,6 +156,12 @@ pub struct MessageModel {
     markPending: qt_method!(fn(&self, id: i32)),
 }
 
+impl Drop for MessageModel {
+    fn drop(&mut self) {
+        todo!()
+    }
+}
+
 impl MessageModel {
     #[with_executor]
     fn createMessage(

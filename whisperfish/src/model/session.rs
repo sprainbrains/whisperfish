@@ -37,6 +37,22 @@ impl std::ops::Deref for AugmentedSession {
     }
 }
 
+/// QML-constructable object that interacts with a list of sessions.
+///
+/// Currently, this object will list all sessions unfiltered, ordered by the last message received
+/// timestamp.
+/// In the future, it should be possible to install filters and change the ordering.
+#[derive(QObject, Default)]
+pub struct Sessions {
+    base: qt_base_class!(trait QObject),
+}
+
+impl Drop for Sessions {
+    fn drop(&mut self) {
+        // TODO deregister interest in sessions table
+    }
+}
+
 #[derive(QObject, Default)]
 pub struct SessionModel {
     base: qt_base_class!(trait QAbstractListModel),

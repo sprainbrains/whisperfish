@@ -2,6 +2,8 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
 import QtQml.Models 2.2
+import be.rubdos.whisperfish 1.0
+
 import "../delegates"
 
 Page {
@@ -10,6 +12,10 @@ Page {
 
     readonly property string buildDate: "2022-06-13" // This is a placeholder date, which is updated during build
     property bool updateBannerDisplayed: false
+
+    Sessions {
+        id: sessions
+    }
 
     Notification {
         id: updateNotification

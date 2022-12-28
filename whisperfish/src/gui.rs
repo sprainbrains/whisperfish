@@ -152,11 +152,28 @@ fn long_version() -> String {
     }
 }
 
+macro_rules! cstr {
+    ($s:expr) => {
+        &std::ffi::CString::new($s).unwrap() as &std::ffi::CStr
+    };
+}
+
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     qmeta_async::run(|| {
         let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
             // XXX this arc thing should be removed in the future and refactored
             let config = std::sync::Arc::new(config);
+
+            // Register types
+            {
+                let uri = cstr!("be.rubdos.whisperfish");
+                #[derive(QObject, Default)]
+                struct Messages {
+                    base: qt_base_class!(trait QObject),
+                }
+                qml_register_type::<model::Sessions>(uri, 1, 0, cstr!("Sessions"));
+                qml_register_type::<Messages>(uri, 1, 0, cstr!("Messages"));
+            }
 
             let mut app = QmlApp::application("harbour-whisperfish".into());
             let long_version: QString = long_version().into();
