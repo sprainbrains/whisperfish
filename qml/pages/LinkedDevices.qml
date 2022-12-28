@@ -97,7 +97,19 @@ Page {
             Label {
                 id: lastSeen
                 function lastSeenTime() {
-                    var ls = Format.formatDate(model.lastSeen, Formatter.DurationElapsed)
+                    var diff = (new Date()).valueOf() - model.lastSeen.valueOf()
+                    console.log(model.lastSeen.toString())
+
+                    var ls = ""
+                    if(diff < 86400000) {
+                        // Reused from MainPage.qml
+                        ls = qsTrId("whisperfish-session-section-today")
+                    } else if (diff < 172800000) {
+                        // Reused from MainPage.qml
+                        ls = qsTrId("whisperfish-session-section-yesterday")
+                    } else {
+                        ls = Format.formatDate(model.lastSeen, Formatter.DurationElapsed)
+                    }
                     //: Linked device last active date
                     //% "Last active: %1"
                     return qsTrId("whisperfish-device-last-active").arg(ls)
