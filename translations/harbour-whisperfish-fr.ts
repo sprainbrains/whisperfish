@@ -155,12 +155,14 @@
         <translation>Épinglé</translation>
     </message>
     <message id="whisperfish-session-section-today">
+        <location filename="../qml/pages/LinkedDevices.qml" line="106"/>
         <location filename="../qml/pages/MainPage.qml" line="273"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Aujourd&apos;hui</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
+        <location filename="../qml/pages/LinkedDevices.qml" line="109"/>
         <location filename="../qml/pages/MainPage.qml" line="278"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
@@ -396,13 +398,13 @@
         <translation>Lié le&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
-        <location filename="../qml/pages/LinkedDevices.qml" line="103"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="115"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
         <translation>Dernière activité&#xa0;: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
-        <location filename="../qml/pages/LinkedDevices.qml" line="125"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="137"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
         <translation>Supprimer le lien</translation>
