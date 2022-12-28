@@ -77,7 +77,7 @@ ListItem {
     readonly property bool hasSource: hasData && modelData.source !== ''
     readonly property bool unidentifiedSender: modelData.unidentifiedSender !== undefined ? modelData.unidentifiedSender : true
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
-    readonly property bool isInGroup: MessageModel.group
+    readonly property bool isInGroup: session.group
     readonly property bool isEmpty: !hasText && !hasAttachments
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined

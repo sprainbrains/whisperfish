@@ -12,14 +12,21 @@ Page {
     // a background image. A group admin should be able to change it, too.
     /* property string groupWallpaper: '' */
 
-    property bool groupV2: MessageModel.groupV2 // works until groupV3
-    property string groupId: MessageModel.groupId
-    property string groupName: MessageModel.peerName
-    property string groupDescription: MessageModel.groupDescription
+    Session {
+        id: session
+        app: AppState
+        // sessionId through property alias below
+    }
 
-    readonly property string groupMembers: MessageModel.groupMembers
-    readonly property string groupMemberNames: MessageModel.groupMemberNames
-    readonly property string groupMemberUuids: MessageModel.groupMemberUuids
+    property alias sessionId: session.sessionId
+    property bool groupV2: session.isGroupV2 // works until groupV3
+    property string groupId: session.groupId
+    property string groupName: session.peerName
+    property string groupDescription: session.groupDescription
+
+    readonly property string groupMembers: session.groupMembers
+    readonly property string groupMemberNames: session.groupMemberNames
+    readonly property string groupMemberUuids: session.groupMemberUuids
 
     readonly property string myUuid: SetupWorker.uuid
     readonly property string myPhone: SetupWorker.phoneNumber
@@ -217,7 +224,7 @@ Page {
                 text: qsTrId("whisperfish-group-refresh")
                 onClicked: {
                     console.log("Refreshing group")
-                    ClientWorker.refresh_group_v2(MessageModel.sessionId)
+                    ClientWorker.refresh_group_v2(session.id)
                 }
             }
             MenuItem {
@@ -235,7 +242,7 @@ Page {
                                     function() {
                                         console.log("Leaving group")
                                         MessageModel.leaveGroup()
-                                        SessionModel.removeById(MessageModel.sessionId)
+                                        SessionModel.removeById(session.id)
                                         mainWindow.showMainPage()
                                     })
                 }
@@ -301,13 +308,11 @@ Page {
                         text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
                         visible: !isVerified
                         onClicked: remorse.execute("Directly verifying the safety number is not yet implemented.", function() {})
-                        // TODO We cannot open the verification page because we would have to
-                        //      reload the message model, which currently holds this group's messages.
-                        //      This is blocked by #105 and maybe #183.
+                        // TODO We cannot open the verification page because we require access to the sessionId.
+                        //      This should not be difficult anymore
                         //
                         // Not possible:
-                        //      MessageModel.load(contactId)
-                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), {...})
+                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { sessionId:  })
                     }
                     MenuItem {
                         //: Menu item to remove a member from a group (requires admin privileges)

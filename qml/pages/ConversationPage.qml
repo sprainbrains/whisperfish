@@ -39,10 +39,10 @@ Page {
             var nextPageName = nextPage ? nextPage.objectName : ''
 
             if (session.isGroup && nextPageName !== 'groupProfile') {
-                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
+                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { sessionId: session.id })
             }
             if(!session.isGroup && nextPageName !== 'verifyIdentity'){
-                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { peerName: root.conversationName, profilePicture: root.profilePicture })
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { sessionId: session.id, peerName: root.conversationName, profilePicture: root.profilePicture })
             }
         }
     }
