@@ -167,7 +167,7 @@ ApplicationWindow
 
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage.objectName == mainPageName ||
-           (sid == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName))) {
+           (pageStack.currentPage.objectName == conversationPageName && pageStack.currentPage.sessionId == sid))) {
             if(quietMessageNotification.isSupported) {
                 quietMessageNotification.publish()
             }
