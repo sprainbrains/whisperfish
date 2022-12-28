@@ -29,6 +29,8 @@ pub struct AppState {
     mayExit: qt_method!(fn(&self) -> bool),
 
     isHarbour: qt_method!(fn(&self) -> bool),
+
+    pub storage: RefCell<Option<Storage>>,
 }
 
 impl AppState {
@@ -90,6 +92,8 @@ impl AppState {
             activate: Default::default(),
             setMayExit: Default::default(),
             mayExit: Default::default(),
+
+            storage: RefCell::default(),
         }
     }
 }
@@ -105,13 +109,19 @@ pub struct WhisperfishApp {
     pub setup_worker: QObjectBox<worker::SetupWorker>,
 
     pub settings_bridge: QObjectBox<SettingsBridge>,
-
-    pub storage: RefCell<Option<Storage>>,
 }
 
 impl WhisperfishApp {
     pub async fn storage_ready(&self) {
-        let storage = self.storage.borrow().as_ref().unwrap().clone();
+        let storage = self
+            .app_state
+            .pinned()
+            .borrow()
+            .storage
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .clone();
         let msg = StorageReady { storage };
 
         futures::join! {
@@ -209,8 +219,6 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
                 settings_bridge: QObjectBox::new(SettingsBridge::default()),
-
-                storage: RefCell::new(None),
             });
 
             app.set_property("AppVersion".into(), version.into());

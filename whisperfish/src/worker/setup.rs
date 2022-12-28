@@ -144,7 +144,7 @@ impl SetupWorker {
     ) -> Result<(), anyhow::Error> {
         let storage = SetupWorker::open_storage(app.clone(), config).await?;
 
-        *app.storage.borrow_mut() = Some(storage);
+        *app.app_state.pinned().borrow().storage.borrow_mut() = Some(storage);
 
         Ok(())
     }
@@ -234,7 +234,7 @@ impl SetupWorker {
             );
         }
 
-        *app.storage.borrow_mut() = Some(storage);
+        *app.app_state.pinned().borrow().storage.borrow_mut() = Some(storage);
 
         Ok(())
     }
