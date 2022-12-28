@@ -77,7 +77,6 @@ pub struct SessionModel {
     unread_count_changed: qt_signal!(),
 
     count: qt_method!(fn(&self) -> usize),
-    add: qt_method!(fn(&self, id: i32, mark_read: bool)),
     remove: qt_method!(fn(&self, idx: usize)),
     removeById: qt_method!(fn(&self, id: i32)),
     reload: qt_method!(fn(&self)),
@@ -103,19 +102,6 @@ impl SessionModel {
             .iter()
             .map(|session| if session.is_read() { 0 } else { 1 })
             .sum()
-    }
-
-    /// Add or replace a Session in the model.
-    #[with_executor]
-    fn add(&self, id: i32, mark_read: bool) {
-        actix::spawn(
-            self.actor
-                .as_ref()
-                .unwrap()
-                .send(actor::FetchSession { id, mark_read })
-                .map(Result::unwrap),
-        );
-        log::trace!("Dispatched actor::FetchSession({})", id);
     }
 
     /// Removes session at index. This removes the session from the list model and
