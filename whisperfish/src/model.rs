@@ -48,6 +48,7 @@ macro_rules! define_model_roles {
     };
 }
 
+pub mod attachment;
 pub mod contact;
 pub mod device;
 pub mod message;
