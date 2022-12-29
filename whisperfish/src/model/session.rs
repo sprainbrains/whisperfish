@@ -33,20 +33,16 @@ impl std::ops::Deref for AugmentedSession {
     }
 }
 
-/// QML-constructable model that interacts with a list of sessions.
+/// QML-constructable object that interacts with a list of sessions.
 ///
 /// Currently, this object will list all sessions unfiltered, ordered by the last message received
 /// timestamp.
 /// In the future, it should be possible to install filters and change the ordering.
 #[derive(QObject, Default)]
 pub struct Sessions {
-    base: qt_base_class!(trait QAbstractListModel),
+    base: qt_base_class!(trait QObject),
+
     app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
-
-    content: Vec<AugmentedSession>,
-
-    count: qt_method!(fn(&self) -> usize),
-    unread: qt_method!(fn(&self) -> i32),
 }
 
 impl Sessions {
@@ -56,7 +52,24 @@ impl Sessions {
     }
 
     fn reinit(&mut self) {}
+}
 
+impl Drop for Sessions {
+    fn drop(&mut self) {
+        // TODO deregister interest in sessions table
+    }
+}
+
+#[derive(QObject, Default)]
+pub struct SessionModel {
+    base: qt_base_class!(trait QAbstractListModel),
+    content: Vec<AugmentedSession>,
+
+    count: qt_method!(fn(&self) -> usize),
+    unread: qt_method!(fn(&self) -> i32),
+}
+
+impl SessionModel {
     fn count(&self) -> usize {
         self.content.len()
     }
@@ -66,12 +79,6 @@ impl Sessions {
             .iter()
             .map(|session| if session.is_read() { 0 } else { 1 })
             .sum()
-    }
-}
-
-impl Drop for Sessions {
-    fn drop(&mut self) {
-        // TODO deregister interest in sessions table
     }
 }
 
@@ -335,7 +342,7 @@ define_model_roles! {
     }
 }
 
-impl QAbstractListModel for Sessions {
+impl QAbstractListModel for SessionModel {
     fn row_count(&self) -> i32 {
         self.content.len() as i32
     }

@@ -16,7 +16,7 @@ Page {
 
     SilicaListView {
         id: sessionList
-        model: sessions
+        model: sessions.sessions
 
         anchors {
             top: parent.top

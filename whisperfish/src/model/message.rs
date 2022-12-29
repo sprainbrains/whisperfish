@@ -13,12 +13,10 @@ use std::rc::Rc;
 /// QML-constructable object that interacts with a single session.
 #[derive(QObject, Default)]
 pub struct Session {
-    base: qt_base_class!(trait QAbstractListModel),
+    base: qt_base_class!(trait QObject),
 
     app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
     sessionId: qt_property!(i32; WRITE set_session_id),
-
-    messages: Vec<QtAugmentedMessage>,
 }
 
 impl Session {
@@ -114,7 +112,14 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
     }
 }
 
-impl QAbstractListModel for Session {
+#[derive(QObject, Default)]
+pub struct MessageModel {
+    base: qt_base_class!(trait QAbstractListModel),
+
+    messages: Vec<QtAugmentedMessage>,
+}
+
+impl QAbstractListModel for MessageModel {
     fn row_count(&self) -> i32 {
         self.messages.len() as i32
     }
