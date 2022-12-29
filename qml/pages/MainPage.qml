@@ -206,7 +206,7 @@ Page {
                     includeByDefault: false
                 }
             ]
-            model: sessions.sessions
+            model: sessions
             delegate: SessionDelegate {
                 id: sessionDelegate
                 onClicked: {
