@@ -2,8 +2,10 @@ mod typing_notifications;
 
 pub use self::typing_notifications::*;
 
+mod methods;
+use methods::*;
+
 use crate::gui::StorageReady;
-use crate::model::session::SessionMethods;
 use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
 use actix::prelude::*;

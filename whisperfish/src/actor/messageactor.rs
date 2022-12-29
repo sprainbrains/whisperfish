@@ -1,10 +1,12 @@
 use crate::gui::StorageReady;
-use crate::model::message::MessageMethods;
 use crate::platform::QmlApp;
 use crate::store::Storage;
 use crate::worker::ClientActor;
 use actix::prelude::*;
 use qmetaobject::prelude::*;
+
+mod methods;
+use methods::*;
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
