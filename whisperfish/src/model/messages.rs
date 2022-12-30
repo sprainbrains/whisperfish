@@ -21,7 +21,7 @@ pub struct Session {
     _sessionId: qt_property!(i32; WRITE set_session_id READ get_session_id ALIAS sessionId),
     messages: qt_property!(QVariant; READ messages CONST),
 
-    model: ObservingModel<MessageListModel>,
+    message_list: ObservingModel<MessageListModel>,
 }
 
 impl Session {
@@ -32,28 +32,28 @@ impl Session {
     }
 
     fn get_session_id(&mut self) -> i32 {
-        self.model.pinned().borrow().session_id.unwrap_or(-1)
+        self.message_list.pinned().borrow().session_id.unwrap_or(-1)
     }
 
     #[with_executor]
     fn set_session_id(&mut self, id: i32) {
-        self.model.pinned().borrow_mut().session_id = Some(id);
+        self.message_list.pinned().borrow_mut().session_id = Some(id);
         self.reinit();
     }
 
     fn reinit(&mut self) {
         if let Some(app) = self.app.as_pinned() {
             if let Some(storage) = app.borrow().storage.borrow().clone() {
-                self.model.register(storage.clone());
-                if self.model.pinned().borrow().session_id.is_some() {
-                    self.model.pinned().borrow_mut().load_all(storage);
+                self.message_list.register(storage.clone());
+                if self.message_list.pinned().borrow().session_id.is_some() {
+                    self.message_list.pinned().borrow_mut().load_all(storage);
                 }
             }
         }
     }
 
     fn messages(&mut self) -> QVariant {
-        self.model.pinned().into()
+        self.message_list.pinned().into()
     }
 }
 

@@ -46,7 +46,7 @@ pub struct Sessions {
     app: qt_property!(QPointer<AppState>; WRITE set_app),
     sessions: qt_property!(QVariant; READ sessions CONST),
 
-    model: ObservingModel<SessionListModel>,
+    session_list: ObservingModel<SessionListModel>,
 }
 
 impl Sessions {
@@ -66,15 +66,15 @@ impl Sessions {
             .borrow()
             .clone()
         {
-            self.model.register(storage.clone());
-            self.model.pinned().borrow_mut().load_all(storage);
+            self.session_list.register(storage.clone());
+            self.session_list.pinned().borrow_mut().load_all(storage);
         } else {
             panic!("Set an AppState without storage.");
         }
     }
 
     fn sessions(&mut self) -> QVariant {
-        self.model.pinned().into()
+        self.session_list.pinned().into()
     }
 }
 
