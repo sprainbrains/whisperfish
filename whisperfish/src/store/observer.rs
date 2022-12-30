@@ -3,11 +3,12 @@
 use super::orm;
 use actix::prelude::*;
 
+#[derive(Debug, Clone)]
 pub enum Interest {
     All,
 }
 
-#[derive(Clone, Message)]
+#[derive(Clone, Message, Debug)]
 #[rtype(result = "()")]
 pub enum Event {
     Any,
@@ -77,7 +78,7 @@ impl Observatory {
 }
 
 pub trait EventObserving {
-    fn observe(&mut self, event: Event);
+    fn observe(&mut self, storage: super::Storage, event: Event);
     fn interests() -> Vec<Interest>;
 }
 

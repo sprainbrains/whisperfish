@@ -92,7 +92,7 @@ Page {
             */
             MenuItem {
                 // TODO implement in backend
-                visible: essions !== undefined ? sessions.hasArchived : false
+                visible: sessions !== undefined ? sessions.hasArchived : false
                 text: visualSessionModel.filterOnGroup === "active"
                         //: Menu item for showing archived conversations
                         //% "Show archived conversations"

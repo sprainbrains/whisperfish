@@ -5,6 +5,7 @@ use crate::model::*;
 use crate::store::orm;
 use chrono::prelude::*;
 use itertools::Itertools;
+use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
 
@@ -42,33 +43,38 @@ impl std::ops::Deref for AugmentedSession {
 pub struct Sessions {
     base: qt_base_class!(trait QObject),
 
-    app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
-
-    sessions: qt_method!(fn(&mut self) -> QObjectPinned<'_, SessionModel>),
+    app: qt_property!(QPointer<AppState>; WRITE set_app),
+    sessions: qt_property!(QVariant; READ sessions CONST),
 
     model: ObservingModel<SessionModel>,
 }
 
 impl Sessions {
-    fn set_app(&mut self, app: std::cell::RefCell<AppState>) {
+    #[with_executor]
+    fn set_app(&mut self, app: QPointer<AppState>) {
         self.app = app;
         self.reinit();
     }
 
     fn reinit(&mut self) {
-        if let Some(storage) = self.app.borrow().storage.borrow().clone() {
-            self.model.register(storage);
+        if let Some(storage) = self
+            .app
+            .as_pinned()
+            .expect("valid AppState")
+            .borrow()
+            .storage
+            .borrow()
+            .clone()
+        {
+            self.model.register(storage.clone());
+            self.model.pinned().borrow_mut().load_all(storage);
+        } else {
+            panic!("Set an AppState without storage.");
         }
     }
 
-    fn sessions(&mut self) -> QObjectPinned<'_, SessionModel> {
-        self.model.pinned()
-    }
-}
-
-impl Drop for Sessions {
-    fn drop(&mut self) {
-        // TODO deregister interest in sessions table
+    fn sessions(&mut self) -> QVariant {
+        self.model.pinned().into()
     }
 }
 
@@ -82,8 +88,8 @@ pub struct SessionModel {
 }
 
 impl EventObserving for SessionModel {
-    fn observe(&mut self, event: crate::store::observer::Event) {
-        todo!()
+    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+        self.load_all(storage);
     }
 
     fn interests() -> Vec<crate::store::observer::Interest> {
@@ -92,6 +98,78 @@ impl EventObserving for SessionModel {
 }
 
 impl SessionModel {
+    fn load_all(&mut self, storage: Storage) {
+        let sessions = storage.fetch_sessions().into_iter().map(|session| {
+            let group_members = if session.is_group_v1() {
+                let group = session.unwrap_group_v1();
+                storage
+                    .fetch_group_members_by_group_v1_id(&group.id)
+                    .into_iter()
+                    .map(|(_, r)| r)
+                    .collect()
+            } else if session.is_group_v2() {
+                let group = session.unwrap_group_v2();
+                storage
+                    .fetch_group_members_by_group_v2_id(&group.id)
+                    .into_iter()
+                    .map(|(_, r)| r)
+                    .collect()
+            } else {
+                Vec::new()
+            };
+
+            let last_message =
+                if let Some(last_message) = storage.fetch_last_message_by_session_id(session.id) {
+                    last_message
+                } else {
+                    return (session, group_members, None);
+                };
+            let last_message_receipts = storage.fetch_message_receipts(last_message.id);
+            let last_message_attachments = storage.fetch_attachments_for_message(last_message.id);
+
+            (
+                session,
+                group_members,
+                Some((
+                    last_message,
+                    last_message_attachments,
+                    last_message_receipts,
+                )),
+            )
+        });
+
+        self.begin_reset_model();
+        self.content = sessions
+            .map(|(session, group_members, last_message)| AugmentedSession {
+                session,
+                group_members,
+                last_message: last_message.map(|(message, attachments, receipts)| LastMessage {
+                    message,
+                    attachments,
+                    receipts,
+                }),
+                // XXX migrate typing notices from previous loaded sessions?
+                typing: Vec::new(),
+            })
+            .collect();
+        // XXX This could be solved through a sub query.
+        self.content
+            .sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
+                (Some(a_last_message), Some(b_last_message)) => b_last_message
+                    .message
+                    .server_timestamp
+                    .cmp(&a_last_message.message.server_timestamp),
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (Some(_), None) => std::cmp::Ordering::Greater,
+                // Gotta use something here.
+                (None, None) => a.session.id.cmp(&b.session.id),
+            });
+        // Stable sort, such that this retains the above ordering.
+        self.content.sort_by_key(|k| !k.is_pinned);
+
+        self.end_reset_model();
+    }
+
     fn count(&self) -> usize {
         self.content.len()
     }

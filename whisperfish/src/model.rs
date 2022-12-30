@@ -115,9 +115,10 @@ fn qstring_from_option(opt: Option<impl AsRef<str>>) -> QVariant {
 ///
 /// This struct holds a strong, dynamically checked reference to the model,
 /// and a strong reference to an actor that dispatches events to the model.
+#[derive(Default)]
 pub struct ObservingModel<T: QObject + 'static> {
     inner: Arc<QObjectBox<T>>,
-    actor: Addr<ObservingModelActor<T>>,
+    actor: Option<Addr<ObservingModelActor<T>>>,
 }
 
 /// An actor that accompanies the [ObservingModel], responsible to dispatch events to the contained
@@ -127,21 +128,7 @@ pub struct ObservingModel<T: QObject + 'static> {
 /// scope.
 struct ObservingModelActor<T: QObject> {
     model: Weak<QObjectBox<T>>,
-}
-
-impl<T: QObject + Default> Default for ObservingModel<T> {
-    fn default() -> Self {
-        let model = Arc::<QObjectBox<T>>::default();
-        let actor = ObservingModelActor {
-            model: Arc::downgrade(&model),
-        }
-        .start();
-
-        ObservingModel {
-            inner: model,
-            actor,
-        }
-    }
+    storage: Storage,
 }
 
 impl<T: QObject + 'static> Actor for ObservingModelActor<T> {
@@ -156,7 +143,10 @@ where
 
     fn handle(&mut self, event: Event, ctx: &mut Self::Context) -> Self::Result {
         match self.model.upgrade() {
-            Some(model) => model.pinned().borrow_mut().observe(event),
+            Some(model) => model
+                .pinned()
+                .borrow_mut()
+                .observe(self.storage.clone(), event),
             None => {
                 // In principle, the actor should have gotten stopped when the model got dropped,
                 // because the actor's only strong reference is contained in the ObservingModel.
@@ -173,11 +163,18 @@ impl<T: QObject> ObservingModel<T> {
         self.inner.pinned()
     }
 
-    pub fn register(&self, mut storage: Storage)
+    pub fn register(&mut self, mut storage: Storage)
     where
         T: EventObserving,
     {
-        let subscriber = self.actor.downgrade().recipient();
+        let actor = ObservingModelActor {
+            model: Arc::downgrade(&self.inner),
+            storage: storage.clone(),
+        }
+        .start();
+
+        let subscriber = actor.downgrade().recipient();
+        self.actor = Some(actor);
         storage.register_observer(T::interests(), subscriber);
     }
 }

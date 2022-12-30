@@ -5,6 +5,7 @@ use crate::gui::AppState;
 use crate::model::*;
 use crate::store::observer::EventObserving;
 use crate::store::orm::AugmentedMessage;
+use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use qmetaobject::{QObjectBox, QObjectPinned};
 use std::collections::HashMap;
@@ -16,39 +17,43 @@ use std::rc::Rc;
 pub struct Session {
     base: qt_base_class!(trait QObject),
 
-    app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
-    sessionId: qt_property!(i32; WRITE set_session_id),
-
-    messages: qt_method!(fn(&mut self) -> QObjectPinned<'_, MessageModel>),
+    app: qt_property!(QPointer<AppState>; WRITE set_app),
+    _sessionId: qt_property!(i32; WRITE set_session_id READ get_session_id ALIAS sessionId),
+    messages: qt_property!(QVariant; READ messages CONST),
 
     model: ObservingModel<MessageModel>,
 }
 
 impl Session {
-    fn set_app(&mut self, app: std::cell::RefCell<AppState>) {
+    #[with_executor]
+    fn set_app(&mut self, app: QPointer<AppState>) {
         self.app = app;
         self.reinit();
     }
 
+    fn get_session_id(&mut self) -> i32 {
+        self.model.pinned().borrow().session_id.unwrap_or(-1)
+    }
+
+    #[with_executor]
     fn set_session_id(&mut self, id: i32) {
-        self.sessionId = id;
+        self.model.pinned().borrow_mut().session_id = Some(id);
         self.reinit();
     }
 
     fn reinit(&mut self) {
-        if let Some(storage) = self.app.borrow().storage.borrow().clone() {
-            self.model.register(storage);
+        if let Some(app) = self.app.as_pinned() {
+            if let Some(storage) = app.borrow().storage.borrow().clone() {
+                self.model.register(storage.clone());
+                if self.model.pinned().borrow().session_id.is_some() {
+                    self.model.pinned().borrow_mut().load_all(storage);
+                }
+            }
         }
     }
 
-    fn messages(&mut self) -> QObjectPinned<'_, MessageModel> {
-        self.model.pinned()
-    }
-}
-
-impl Drop for Session {
-    fn drop(&mut self) {
-        // TODO deregister interest in sessions table
+    fn messages(&mut self) -> QVariant {
+        self.model.pinned().into()
     }
 }
 
@@ -123,16 +128,27 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
 pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
 
+    session_id: Option<i32>,
     messages: Vec<QtAugmentedMessage>,
 }
 
 impl EventObserving for MessageModel {
-    fn observe(&mut self, event: crate::store::observer::Event) {
-        todo!()
+    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+        self.load_all(storage);
     }
 
     fn interests() -> Vec<crate::store::observer::Interest> {
         vec![crate::store::observer::Interest::All]
+    }
+}
+
+impl MessageModel {
+    fn load_all(&mut self, storage: Storage) {
+        self.messages = storage
+            .fetch_all_messages_augmented(self.session_id.expect("session_id set when loading"))
+            .into_iter()
+            .map(Into::into)
+            .collect();
     }
 }
 
