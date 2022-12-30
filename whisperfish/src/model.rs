@@ -56,14 +56,23 @@ pub mod session;
 
 pub mod prompt;
 
+use std::sync::Arc;
+use std::sync::Weak;
+
+use crate::store::observer::Event;
+use crate::store::observer::EventObserving;
+use crate::store::Storage;
+
 pub use self::contact::*;
 pub use self::device::*;
 pub use self::message::*;
 pub use self::prompt::*;
 pub use self::session::*;
 
+use actix::prelude::*;
 use chrono::prelude::*;
 use qmetaobject::prelude::*;
+use qmetaobject::QObjectPinned;
 
 fn qdate_from_chrono<T: TimeZone>(dt: DateTime<T>) -> QDate {
     let dt = dt.with_timezone(&Local).naive_local();
@@ -99,5 +108,76 @@ fn qstring_from_option(opt: Option<impl AsRef<str>>) -> QVariant {
     match opt {
         Some(s) => QString::from(s.as_ref()).into(),
         None => QVariant::default(),
+    }
+}
+
+/// A wrapper around a Qt model that implements [EventObserver].
+///
+/// This struct holds a strong, dynamically checked reference to the model,
+/// and a strong reference to an actor that dispatches events to the model.
+pub struct ObservingModel<T: QObject + 'static> {
+    inner: Arc<QObjectBox<T>>,
+    actor: Addr<ObservingModelActor<T>>,
+}
+
+/// An actor that accompanies the [ObservingModel], responsible to dispatch events to the contained
+/// model.
+///
+/// The contained model is a weak pointer, such that the actor will stop when the model goes out of
+/// scope.
+struct ObservingModelActor<T: QObject> {
+    model: Weak<QObjectBox<T>>,
+}
+
+impl<T: QObject + Default> Default for ObservingModel<T> {
+    fn default() -> Self {
+        let model = Arc::<QObjectBox<T>>::default();
+        let actor = ObservingModelActor {
+            model: Arc::downgrade(&model),
+        }
+        .start();
+
+        ObservingModel {
+            inner: model,
+            actor,
+        }
+    }
+}
+
+impl<T: QObject + 'static> Actor for ObservingModelActor<T> {
+    type Context = Context<Self>;
+}
+
+impl<T: QObject + 'static> Handler<Event> for ObservingModelActor<T>
+where
+    T: EventObserving,
+{
+    type Result = ();
+
+    fn handle(&mut self, event: Event, ctx: &mut Self::Context) -> Self::Result {
+        match self.model.upgrade() {
+            Some(model) => model.pinned().borrow_mut().observe(event),
+            None => {
+                // In principle, the actor should have gotten stopped when the model got dropped,
+                // because the actor's only strong reference is contained in the ObservingModel.
+                log::debug!("Model got dropped, stopping actor execution.");
+                // XXX What is the difference between stop and terminate?
+                ctx.stop();
+            }
+        }
+    }
+}
+
+impl<T: QObject> ObservingModel<T> {
+    pub fn pinned(&self) -> QObjectPinned<'_, T> {
+        self.inner.pinned()
+    }
+
+    pub fn register(&self, mut storage: Storage)
+    where
+        T: EventObserving,
+    {
+        let subscriber = self.actor.downgrade().recipient();
+        storage.register_observer(T::interests(), subscriber);
     }
 }

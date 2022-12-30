@@ -1,6 +1,7 @@
 pub mod orm;
 
 mod encryption;
+pub mod observer;
 mod protocol_store;
 mod utils;
 
@@ -218,6 +219,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 #[derive(Clone)]
 pub struct Storage {
     pub db: Arc<AssertUnwindSafe<Mutex<SqliteConnection>>>,
+    observatory: Arc<tokio::sync::RwLock<observer::Observatory>>,
     store_enc: Option<encryption::StorageEncryption>,
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
@@ -370,6 +372,7 @@ impl Storage {
 
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
+            observatory: Default::default(),
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(tokio::sync::RwLock::new(
@@ -406,6 +409,7 @@ impl Storage {
 
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
+            observatory: Default::default(),
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(tokio::sync::RwLock::new(
@@ -552,7 +556,7 @@ impl Storage {
 
     /// Process reaction and store in database.
     pub fn process_reaction(
-        &self,
+        &mut self,
         sender: &orm::Recipient,
         data_message: &DataMessage,
         reaction: &Reaction,
@@ -599,6 +603,12 @@ impl Storage {
                 .execute(&mut *self.db())
                 .expect("insert reaction into database");
         }
+
+        self.distribute_event(observer::Event::new_reaction(
+            &message,
+            sender,
+            reaction.emoji(),
+        ));
 
         Some((message, session))
     }

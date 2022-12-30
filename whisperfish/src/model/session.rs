@@ -43,6 +43,10 @@ pub struct Sessions {
     base: qt_base_class!(trait QObject),
 
     app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
+
+    sessions: qt_method!(fn(&mut self) -> QObjectPinned<'_, SessionModel>),
+
+    model: ObservingModel<SessionModel>,
 }
 
 impl Sessions {
@@ -51,7 +55,15 @@ impl Sessions {
         self.reinit();
     }
 
-    fn reinit(&mut self) {}
+    fn reinit(&mut self) {
+        if let Some(storage) = self.app.borrow().storage.borrow().clone() {
+            self.model.register(storage);
+        }
+    }
+
+    fn sessions(&mut self) -> QObjectPinned<'_, SessionModel> {
+        self.model.pinned()
+    }
 }
 
 impl Drop for Sessions {
@@ -67,6 +79,16 @@ pub struct SessionModel {
 
     count: qt_method!(fn(&self) -> usize),
     unread: qt_method!(fn(&self) -> i32),
+}
+
+impl EventObserving for SessionModel {
+    fn observe(&mut self, event: crate::store::observer::Event) {
+        todo!()
+    }
+
+    fn interests() -> Vec<crate::store::observer::Interest> {
+        vec![crate::store::observer::Interest::All]
+    }
 }
 
 impl SessionModel {

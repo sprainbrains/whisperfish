@@ -3,6 +3,7 @@
 use super::attachment::*;
 use crate::gui::AppState;
 use crate::model::*;
+use crate::store::observer::EventObserving;
 use crate::store::orm::AugmentedMessage;
 use qmetaobject::prelude::*;
 use qmetaobject::{QObjectBox, QObjectPinned};
@@ -17,6 +18,10 @@ pub struct Session {
 
     app: qt_property!(std::cell::RefCell<AppState>; WRITE set_app),
     sessionId: qt_property!(i32; WRITE set_session_id),
+
+    messages: qt_method!(fn(&mut self) -> QObjectPinned<'_, MessageModel>),
+
+    model: ObservingModel<MessageModel>,
 }
 
 impl Session {
@@ -30,7 +35,15 @@ impl Session {
         self.reinit();
     }
 
-    fn reinit(&mut self) {}
+    fn reinit(&mut self) {
+        if let Some(storage) = self.app.borrow().storage.borrow().clone() {
+            self.model.register(storage);
+        }
+    }
+
+    fn messages(&mut self) -> QObjectPinned<'_, MessageModel> {
+        self.model.pinned()
+    }
 }
 
 impl Drop for Session {
@@ -111,6 +124,16 @@ pub struct MessageModel {
     base: qt_base_class!(trait QAbstractListModel),
 
     messages: Vec<QtAugmentedMessage>,
+}
+
+impl EventObserving for MessageModel {
+    fn observe(&mut self, event: crate::store::observer::Event) {
+        todo!()
+    }
+
+    fn interests() -> Vec<crate::store::observer::Interest> {
+        vec![crate::store::observer::Interest::All]
+    }
 }
 
 impl QAbstractListModel for MessageModel {
