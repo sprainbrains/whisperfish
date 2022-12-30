@@ -51,8 +51,8 @@ macro_rules! define_model_roles {
 pub mod attachment;
 pub mod contact;
 pub mod device;
-pub mod message;
-pub mod session;
+pub mod messages;
+pub mod sessions;
 
 pub mod prompt;
 
@@ -65,9 +65,9 @@ use crate::store::Storage;
 
 pub use self::contact::*;
 pub use self::device::*;
-pub use self::message::*;
+pub use self::messages::*;
 pub use self::prompt::*;
-pub use self::session::*;
+pub use self::sessions::*;
 
 use actix::prelude::*;
 use chrono::prelude::*;

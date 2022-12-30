@@ -46,7 +46,7 @@ pub struct Sessions {
     app: qt_property!(QPointer<AppState>; WRITE set_app),
     sessions: qt_property!(QVariant; READ sessions CONST),
 
-    model: ObservingModel<SessionModel>,
+    model: ObservingModel<SessionListModel>,
 }
 
 impl Sessions {
@@ -79,7 +79,7 @@ impl Sessions {
 }
 
 #[derive(QObject, Default)]
-pub struct SessionModel {
+pub struct SessionListModel {
     base: qt_base_class!(trait QAbstractListModel),
     content: Vec<AugmentedSession>,
 
@@ -87,7 +87,7 @@ pub struct SessionModel {
     unread: qt_method!(fn(&self) -> i32),
 }
 
-impl EventObserving for SessionModel {
+impl EventObserving for SessionListModel {
     fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
         self.load_all(storage);
     }
@@ -97,7 +97,7 @@ impl EventObserving for SessionModel {
     }
 }
 
-impl SessionModel {
+impl SessionListModel {
     fn load_all(&mut self, storage: Storage) {
         let sessions = storage.fetch_sessions().into_iter().map(|session| {
             let group_members = if session.is_group_v1() {
@@ -442,7 +442,7 @@ define_model_roles! {
     }
 }
 
-impl QAbstractListModel for SessionModel {
+impl QAbstractListModel for SessionListModel {
     fn row_count(&self) -> i32 {
         self.content.len() as i32
     }

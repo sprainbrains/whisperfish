@@ -21,7 +21,7 @@ pub struct Session {
     _sessionId: qt_property!(i32; WRITE set_session_id READ get_session_id ALIAS sessionId),
     messages: qt_property!(QVariant; READ messages CONST),
 
-    model: ObservingModel<MessageModel>,
+    model: ObservingModel<MessageListModel>,
 }
 
 impl Session {
@@ -125,14 +125,14 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
 }
 
 #[derive(QObject, Default)]
-pub struct MessageModel {
+pub struct MessageListModel {
     base: qt_base_class!(trait QAbstractListModel),
 
     session_id: Option<i32>,
     messages: Vec<QtAugmentedMessage>,
 }
 
-impl EventObserving for MessageModel {
+impl EventObserving for MessageListModel {
     fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
         self.load_all(storage);
     }
@@ -142,7 +142,7 @@ impl EventObserving for MessageModel {
     }
 }
 
-impl MessageModel {
+impl MessageListModel {
     fn load_all(&mut self, storage: Storage) {
         self.messages = storage
             .fetch_all_messages_augmented(self.session_id.expect("session_id set when loading"))
@@ -152,7 +152,7 @@ impl MessageModel {
     }
 }
 
-impl QAbstractListModel for MessageModel {
+impl QAbstractListModel for MessageListModel {
     fn row_count(&self) -> i32 {
         self.messages.len() as i32
     }
