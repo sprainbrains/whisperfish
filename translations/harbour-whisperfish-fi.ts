@@ -754,26 +754,26 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProofSubmitPage.qml" line="13"/>
         <source>reCaptcha requested</source>
         <extracomment>Signal has requested additional captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>reCaptcha pyydetty</translation>
     </message>
     <message id="whisperfish-captcha-requested-message">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="17"/>
         <location filename="../qml/pages/ProofSubmitPage.qml" line="40"/>
         <source>Signal has requested additional capcha from you. Continue the captcha in order to restore ability to send messages.</source>
         <extracomment>Signal has requested additional captcha description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal on pyytänyt sinulta lisää capchaa. Jatka captchaa, jotta voit palauttaa kyvyn lähettää viestejä.</translation>
     </message>
     <message id="whisperfish-captcha-requested-try-again">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="43"/>
         <source>The reCaptcha wasn&apos;t accepted, please try again.</source>
         <extracomment>Rate limit captcha has to be tried again</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ReCaptchaa ei hyväksytty. Yritä uudelleen.</translation>
     </message>
     <message id="whisperfish-done-button-label">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="95"/>
         <source>Done</source>
         <extracomment>Done button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Valmis</translation>
     </message>
     <message id="whisperfish-continue-button-label">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="98"/>
