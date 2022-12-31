@@ -377,7 +377,7 @@ impl SessionModel {
 
         let mut newIdx = 0_usize;
 
-        if let Some((idx, _session)) = found {
+        if let Some((mut idx, _session)) = found {
             let src_idx = self.row_index(idx as i32);
             let mut dest_idx = self.row_index(idx as i32);
 
@@ -389,43 +389,57 @@ impl SessionModel {
                 }
             }
 
-            if src_idx == dest_idx {
-                log::trace!("Updating the session in QML in pos {}", idx);
+            // 1: Update the row in-place
+            log::trace!("Updating the session in QML in pos {}", idx);
 
-                let mut s = &mut self.content[idx];
-                s.session = sess;
-                s.group_members = group_members;
-                s.last_message = Some(LastMessage {
-                    message: last_message,
-                    attachments: last_message_attachments,
-                    receipts: last_message_receipts,
-                });
-                s.typing = Vec::new();
-            } else {
+            let mut s = &mut self.content[idx];
+            s.session = sess;
+            s.group_members = group_members;
+            s.last_message = Some(LastMessage {
+                message: last_message,
+                attachments: last_message_attachments,
+                receipts: last_message_receipts,
+            });
+            s.typing = Vec::new();
+
+            // 2: Move the row (if needed)
+            if newIdx != idx {
                 log::trace!(
                     "Moving the session in qml from position {:?} to {:?}",
                     idx,
                     newIdx
                 );
+                if newIdx < idx {
+                    self.begin_move_rows(
+                        src_idx,
+                        newIdx as i32,
+                        idx as i32,
+                        dest_idx,
+                        newIdx as i32,
+                    );
 
-                self.begin_move_rows(src_idx, idx as i32, idx as i32, dest_idx, newIdx as i32);
-                let mut s = self.content.remove(idx);
-                s.session = sess;
-                s.group_members = group_members;
-                s.last_message = Some(LastMessage {
-                    message: last_message,
-                    attachments: last_message_attachments,
-                    receipts: last_message_receipts,
-                });
-                s.typing = Vec::new();
+                    while newIdx < idx {
+                        self.content.swap(idx, idx - 1);
+                        idx -= 1;
+                    }
+                } else {
+                    self.begin_move_rows(
+                        src_idx,
+                        idx as i32,
+                        newIdx as i32,
+                        dest_idx,
+                        newIdx as i32,
+                    );
 
-                if newIdx > idx {
-                    newIdx -= 1;
+                    while newIdx > idx {
+                        self.content.swap(idx, idx + 1);
+                        idx += 1;
+                    }
                 }
-
-                self.content.insert(newIdx, s);
                 self.end_move_rows();
             }
+
+            // 3: Signal the changes
             if src_idx.row() < dest_idx.row() {
                 self.data_changed(src_idx, dest_idx)
             } else {
