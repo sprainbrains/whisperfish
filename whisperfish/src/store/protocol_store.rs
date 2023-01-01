@@ -65,12 +65,12 @@ impl Storage {
         let prekey_max: Option<i32> = {
             use crate::schema::prekeys::dsl::*;
 
-            prekeys.select(max(id)).first(&*db).expect("db")
+            prekeys.select(max(id)).first(&mut *db).expect("db")
         };
         let signed_prekey_max: Option<i32> = {
             use crate::schema::signed_prekeys::dsl::*;
 
-            signed_prekeys.select(max(id)).first(&*db).expect("db")
+            signed_prekeys.select(max(id)).first(&mut *db).expect("db")
         };
 
         (
@@ -196,7 +196,7 @@ impl protocol::PreKeyStore for Storage {
 
         let prekey_record: Option<crate::store::orm::Prekey> = prekeys
             .filter(id.eq(u32::from(prekey_id) as i32))
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         if let Some(pkr) = prekey_record {
@@ -225,7 +225,7 @@ impl protocol::PreKeyStore for Storage {
                 id: u32::from(prekey_id) as _,
                 record: body.serialize()?,
             })
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
 
         Ok(())
@@ -246,7 +246,7 @@ impl protocol::PreKeyStore for Storage {
 
         diesel::delete(prekeys)
             .filter(id.eq(u32::from(prekey_id) as i32))
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
         Ok(())
     }
@@ -266,7 +266,7 @@ impl Storage {
 
         let prekey_record: Option<crate::store::orm::Prekey> = prekeys
             .filter(id.eq(prekey_id as i32))
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         prekey_record.is_some()
@@ -294,7 +294,7 @@ impl protocol::SessionStore for Storage {
                     .eq(addr.name())
                     .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         if let Some(session_record) = session_record {
@@ -325,7 +325,7 @@ impl protocol::SessionStore for Storage {
                         .and(device_id.eq(u32::from(addr.device_id()) as i32)),
                 )
                 .set(record.eq(session.serialize()?))
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("updated session");
         } else {
             diesel::insert_into(session_records)
@@ -334,7 +334,7 @@ impl protocol::SessionStore for Storage {
                     device_id.eq(u32::from(addr.device_id()) as i32),
                     record.eq(session.serialize()?),
                 ))
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("updated session");
         }
 
@@ -366,7 +366,7 @@ impl Storage {
                     .eq(addr.name())
                     .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
-            .first(&*db)
+            .first(&mut *db)
             .expect("db");
         Ok(count != 0)
     }
@@ -383,7 +383,7 @@ impl Storage {
         let addr = addr.name();
         let found: orm::IdentityRecord = identity_records
             .filter(address.eq(addr))
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db")?;
 
@@ -399,7 +399,7 @@ impl Storage {
         let addr = addr.name();
         let amount = diesel::delete(identity_records)
             .filter(address.eq(addr))
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
 
         amount == 1
@@ -419,12 +419,12 @@ impl Storage {
             diesel::update(identity_records)
                 .filter(address.eq(addr.name()))
                 .set(record.eq(key.serialize().to_vec()))
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("db");
         } else {
             diesel::insert_into(identity_records)
                 .values((address.eq(addr.name()), record.eq(key.serialize().to_vec())))
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("db");
         }
 
@@ -449,7 +449,7 @@ impl protocol::SessionStoreExt for Storage {
                     .eq(addr)
                     .and(device_id.ne(libsignal_service::push_service::DEFAULT_DEVICE_ID as i32)),
             )
-            .load(&*db)
+            .load(&mut *db)
             .expect("db");
         Ok(records.into_iter().map(|x| x as u32).collect())
     }
@@ -465,7 +465,7 @@ impl protocol::SessionStoreExt for Storage {
                     .eq(addr.name())
                     .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
 
         if num != 1 {
@@ -487,7 +487,7 @@ impl protocol::SessionStoreExt for Storage {
 
         let num = diesel::delete(session_records)
             .filter(address.eq(addr))
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
 
         Ok(num)
@@ -511,7 +511,7 @@ impl protocol::SignedPreKeyStore for Storage {
 
         let prekey_record: Option<crate::store::orm::SignedPrekey> = signed_prekeys
             .filter(id.eq(u32::from(signed_prekey_id) as i32))
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         if let Some(pkr) = prekey_record {
@@ -541,7 +541,7 @@ impl protocol::SignedPreKeyStore for Storage {
                 id: u32::from(signed_prekey_id) as _,
                 record: body.serialize()?,
             })
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
 
         Ok(())
@@ -573,7 +573,7 @@ impl SenderKeyStore for Storage {
             use crate::schema::sender_key_records::dsl::*;
             diesel::insert_into(sender_key_records)
                 .values(to_insert)
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("db");
         }
         Ok(())
@@ -597,7 +597,7 @@ impl SenderKeyStore for Storage {
                         .and(device.eq(u32::from(addr.device_id()) as i32))
                         .and(distribution_id.eq(distr_id.to_string())),
                 )
-                .first(&*db)
+                .first(&mut *db)
                 .optional()
                 .expect("db")
         };
@@ -625,7 +625,7 @@ impl Storage {
 
         diesel::delete(signed_prekeys)
             .filter(id.eq(signed_prekey_id as i32))
-            .execute(&*db)
+            .execute(&mut *db)
             .expect("db");
         Ok(())
     }
@@ -643,7 +643,7 @@ impl Storage {
 
         let signed_prekey_record: Option<crate::store::orm::SignedPrekey> = signed_prekeys
             .filter(id.eq(signed_prekey_id as i32))
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         signed_prekey_record.is_some()

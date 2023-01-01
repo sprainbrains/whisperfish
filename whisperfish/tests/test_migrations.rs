@@ -105,7 +105,7 @@ mod original_data {
     }
 }
 
-fn assert_foreign_keys(db: &SqliteConnection) {
+fn assert_foreign_keys(db: &mut SqliteConnection) {
     whisperfish::check_foreign_keys(db).expect("foreign keys intact");
 }
 
@@ -196,8 +196,8 @@ fn initial_dbs(db: SqliteConnection) {}
 
 #[apply(initial_dbs)]
 fn run_plain_migrations(db: SqliteConnection) {
-    embedded_migrations::run(&db).unwrap();
-    assert_foreign_keys(&db);
+    embedded_migrations::run(&mut db).unwrap();
+    assert_foreign_keys(&mut db);
 }
 
 #[apply(initial_dbs)]
@@ -205,10 +205,10 @@ fn one_by_one(db: SqliteConnection, migration_params: MigrationList) {
     for (migration_name, migration) in migration_params {
         dbg!(migration_name);
         diesel_migrations::run_migrations(&db, vec![migration], &mut std::io::stdout()).unwrap();
-        assert_foreign_keys(&db);
+        assert_foreign_keys(&mut db);
     }
 
-    assert!(!diesel_migrations::any_pending_migrations(&db).unwrap());
+    assert!(!diesel_migrations::any_pending_migrations(&mut db).unwrap());
 }
 
 #[allow(clippy::type_complexity)]
@@ -336,7 +336,7 @@ fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
         },
     ];
 
-    let sessions = load_sessions(&db);
+    let sessions = load_sessions(&mut db);
     assert_eq!(sessions.len(), session_tests.len());
     for ((session, members, members_v2), test) in sessions.into_iter().zip(&session_tests) {
         assert!(members_v2.is_none());
@@ -358,13 +358,13 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
     assert_eq!(
         diesel::insert_into(session)
             .values(sessions)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    embedded_migrations::run(&db).unwrap();
-    assert_foreign_keys(&db);
+    embedded_migrations::run(&mut db).unwrap();
+    assert_foreign_keys(&mut db);
     assert_bunch_of_empty_sessions(db);
 }
 
@@ -372,7 +372,7 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
     use orm::current::*;
     use schemas::current::*;
 
-    let sessions = load_sessions(&db);
+    let sessions = load_sessions(&mut db);
     assert_eq!(sessions.len(), 1);
     let (session, _members, _members_v2) = &sessions[0];
     assert!(_members.is_none());
@@ -384,7 +384,7 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
 
         messages
             .filter(session_id.eq(session.id))
-            .load(&db)
+            .load(&mut db)
             .unwrap()
     };
 
@@ -408,7 +408,7 @@ fn assert_direct_session_with_messages(db: SqliteConnection) {
         // Get attachment
         let attachments: Vec<Attachment> = attachments::table
             .filter(attachments::message_id.eq(message.id))
-            .load(&db)
+            .load(&mut db)
             .unwrap();
 
         // These may not be true anymore after the Signal-2020 migration.
@@ -432,12 +432,12 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
     assert_eq!(
         diesel::insert_into(session::table)
             .values(sessions)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    let ids: Vec<i64> = session::table.select(session::id).load(&mut db).unwrap();
     assert_eq!(ids.len(), count);
 
     let messages = vec![
@@ -498,20 +498,20 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
     assert_eq!(
         diesel::insert_into(message::table)
             .values(messages)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    embedded_migrations::run(&db).unwrap();
-    assert_foreign_keys(&db);
+    embedded_migrations::run(&mut db).unwrap();
+    assert_foreign_keys(&mut db);
     assert_direct_session_with_messages(db);
 }
 
 fn assert_group_sessions_with_messages(db: SqliteConnection) {
     use orm::current::*;
 
-    let sessions = load_sessions(&db);
+    let sessions = load_sessions(&mut db);
     assert_eq!(sessions.len(), 2);
     let (session1, _members, _members_v2) = &sessions[0];
     assert!(_members.is_some());
@@ -526,7 +526,7 @@ fn assert_group_sessions_with_messages(db: SqliteConnection) {
 
         messages
             .filter(session_id.eq(session1.id))
-            .load(&db)
+            .load(&mut db)
             .unwrap()
     };
     assert_eq!(messages1.len(), 1);
@@ -536,7 +536,7 @@ fn assert_group_sessions_with_messages(db: SqliteConnection) {
 
         messages
             .filter(session_id.eq(session2.id))
-            .load(&db)
+            .load(&mut db)
             .unwrap()
     };
     assert_eq!(messages2.len(), 1);
@@ -573,12 +573,12 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
     assert_eq!(
         diesel::insert_into(session::table)
             .values(sessions)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    let ids: Vec<i64> = session::table.select(session::id).load(&mut db).unwrap();
     assert_eq!(ids.len(), count);
 
     let messages = vec![
@@ -622,13 +622,13 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
     assert_eq!(
         diesel::insert_into(message::table)
             .values(messages)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    embedded_migrations::run(&db).unwrap();
-    assert_foreign_keys(&db);
+    embedded_migrations::run(&mut db).unwrap();
+    assert_foreign_keys(&mut db);
     assert_group_sessions_with_messages(db);
 }
 
@@ -648,12 +648,12 @@ fn group_message_without_sender_nor_recipient(original_go_db: SqliteConnection) 
     assert_eq!(
         diesel::insert_into(session::table)
             .values(sessions)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    let ids: Vec<i64> = session::table.select(session::id).load(&mut db).unwrap();
     assert_eq!(ids.len(), count);
 
     let messages = vec![NewMessage {
@@ -678,19 +678,19 @@ fn group_message_without_sender_nor_recipient(original_go_db: SqliteConnection) 
     assert_eq!(
         diesel::insert_into(message::table)
             .values(messages)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         count
     );
 
-    embedded_migrations::run(&db).unwrap();
+    embedded_migrations::run(&mut db).unwrap();
 
     let messages: Vec<orm::current::Message> = {
         use schemas::current::messages::dsl::*;
 
         messages
             .filter(session_id.eq(ids[0] as i32))
-            .load(&db)
+            .load(&mut db)
             .unwrap()
     };
     assert_eq!(messages.len(), 1);
@@ -710,12 +710,12 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
     assert_eq!(
         diesel::insert_into(session::table)
             .values(original_data::dm1())
-            .execute(&db)
+            .execute(&mut db)
             .unwrap(),
         1
     );
 
-    let ids: Vec<i64> = session::table.select(session::id).load(&db).unwrap();
+    let ids: Vec<i64> = session::table.select(session::id).load(&mut db).unwrap();
     assert_eq!(ids.len(), 1);
     let session_id = Some(ids[0]);
 
@@ -750,12 +750,12 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
 
         diesel::insert_into(message::table)
             .values(&message)
-            .execute(&db)
+            .execute(&mut db)
             .unwrap();
     }
 
-    embedded_migrations::run(&db).unwrap();
-    assert_foreign_keys(&db);
+    embedded_migrations::run(&mut db).unwrap();
+    assert_foreign_keys(&mut db);
 
     for (i, ts) in timestamps.into_iter().enumerate() {
         use orm::current::*;
@@ -763,7 +763,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
 
         let message: Message = messages::table
             .filter(messages::id.eq((i + 1) as i32))
-            .first(&db)
+            .first(&mut db)
             .unwrap();
         assert_eq!(message.sent_timestamp, Some(ts), "at message {}", i);
     }

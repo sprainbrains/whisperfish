@@ -22,7 +22,7 @@ impl Handler<ParseOldReaction> for ClientActor {
             messages
                 .filter(text.like("R@%:%"))
                 .order_by((text, sender_recipient_id, received_timestamp))
-                .get_results(&*db)
+                .get_results(&mut *db)
                 .expect("fetch reaction messages")
         };
 
@@ -51,7 +51,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                         use schema::messages::dsl::*;
                         diesel::delete(messages)
                             .filter(id.eq(reaction.id))
-                            .execute(&*db).context("deleting R-reaction")?;
+                            .execute(&mut *db).context("deleting R-reaction")?;
                         continue;
                     }
                 }
@@ -78,7 +78,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                         .filter(author.eq(author_id))
                         .filter(message_id.eq(target_message.id))
                         .filter(sent_time.nullable().le(reaction_sent_timestamp))
-                        .execute(&*db)
+                        .execute(&mut *db)
                         .context("deleting R-reaction")?;
                     let res = diesel::insert_into(reactions)
                         .values((
@@ -88,7 +88,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                             sent_time.eq(reaction_sent_timestamp),
                             received_time.eq(reaction.received_timestamp.unwrap_or_else(|| Utc::now().naive_utc()))
                         ))
-                        .execute(&*db);
+                        .execute(&mut *db);
                     match res {
                         Ok(_) => (),
                         Err(e @ diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) => {
@@ -101,7 +101,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                 use schema::messages::dsl::*;
                 diesel::delete(messages)
                     .filter(id.eq(reaction.id))
-                    .execute(&*db).context("deleting R-reaction")?;
+                    .execute(&mut *db).context("deleting R-reaction")?;
             }
             Ok(())
         })

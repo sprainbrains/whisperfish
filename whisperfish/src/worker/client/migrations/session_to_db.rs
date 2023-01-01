@@ -182,7 +182,7 @@ impl SessionStorageMigration {
                 let db = self.0.db.lock();
                 let res = diesel::insert_into(prekeys)
                     .values(prekey_record)
-                    .execute(&*db);
+                    .execute(&mut *db);
 
                 use diesel::result::{DatabaseErrorKind, Error};
                 match res {
@@ -261,7 +261,7 @@ impl SessionStorageMigration {
                 let db = self.0.db.lock();
                 let res = diesel::insert_into(signed_prekeys)
                     .values(signed_prekey_record)
-                    .execute(&*db);
+                    .execute(&mut *db);
 
                 use diesel::result::{DatabaseErrorKind, Error};
                 match res {
@@ -362,7 +362,7 @@ impl SessionStorageMigration {
                 let db = self.0.db.lock();
                 let res = diesel::insert_into(session_records)
                     .values(session_record)
-                    .execute(&*db);
+                    .execute(&mut *db);
 
                 use diesel::result::{DatabaseErrorKind, Error};
                 match res {
@@ -444,7 +444,7 @@ impl SessionStorageMigration {
             let db = self.0.db.lock();
             let res = diesel::insert_into(identity_records)
                 .values((address.eq(addr.name()), record.eq(buf.serialize().to_vec())))
-                .execute(&*db);
+                .execute(&mut *db);
 
             use diesel::result::{DatabaseErrorKind, Error};
             match res {

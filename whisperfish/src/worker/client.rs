@@ -591,7 +591,7 @@ impl ClientActor {
                         use diesel::prelude::*;
                         let db = storage.db
                             .lock();
-                        recipients.load(&*db)?
+                        recipients.load(&mut *db)?
                     };
 
                     let contacts = recipients.into_iter().map(|recipient| {

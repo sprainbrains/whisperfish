@@ -21,7 +21,7 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
                     group_v1s
                         .select(id)
                         .filter(expected_v2_id.is_null())
-                        .load(&*db)
+                        .load(&mut *db)
                         .expect("db")
                 };
                 for pending_v1_id_hex in pending_ids {
@@ -45,7 +45,7 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
                     let affected = diesel::update(group_v1s)
                         .set(expected_v2_id.eq(pending_v2_id))
                         .filter(id.eq(pending_v1_id_hex))
-                        .execute(&*db)
+                        .execute(&mut *db)
                         .expect("db");
                     assert_eq!(affected, 1, "update groupv1 expected upgrade id");
                 }

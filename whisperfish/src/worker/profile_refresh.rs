@@ -59,7 +59,7 @@ impl OutdatedProfileStream {
                 ),
             )
             .order_by(last_profile_fetch.asc())
-            .load(&*db)
+            .load(&mut *db)
             .expect("db");
 
         for recipient in out_of_date_profiles {
@@ -120,7 +120,7 @@ impl OutdatedProfileStream {
                     .and(last_profile_fetch.is_not_null()),
             )
             .order_by(last_profile_fetch.asc())
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         if let Some(recipient) = next_wake {

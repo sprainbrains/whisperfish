@@ -92,7 +92,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                             access_required_for_add_from_invite_link.eq(acl.add_from_invite_link),
                         ))
                         .filter(id.eq(&group_id_hex))
-                        .execute(&*db)
+                        .execute(&mut *db)
                         .expect("update groupv2 name");
                 }
 
@@ -110,7 +110,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                     diesel::update(sessions)
                         .set((expiring_message_timeout.eq(timeout),))
                         .filter(group_v2_id.eq(&group_id_hex))
-                        .execute(&*db)
+                        .execute(&mut *db)
                         .expect("update session disappearing_messages_timer");
                 }
 
@@ -172,7 +172,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                 .ne_all(uuids)
                                 .and(group_v2_members::group_v2_id.eq(&group_id_hex)),
                         )
-                        .load(&*db)?;
+                        .load(&mut *db)?;
                     log::trace!("Have {} stale members", stale_members.len());
                     let dropped = diesel::delete(group_v2_members::table)
                         .filter(
@@ -180,7 +180,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                 .eq(&group_id_hex)
                                 .and(group_v2_members::recipient_id.eq_any(&stale_members)),
                         )
-                        .execute(&*db)?;
+                        .execute(&mut *db)?;
                     assert_eq!(
                         stale_members.len(),
                         dropped,
@@ -203,7 +203,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                     .eq(recipient.id)
                                     .and(group_v2_members::group_v2_id.eq(&group_id_hex)),
                             )
-                            .first(&*db)
+                            .first(&mut *db)
                             .optional()?;
                         if let Some(membership) = membership {
                             log::trace!(
@@ -218,7 +218,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                         .eq(recipient.id)
                                         .and(group_v2_members::group_v2_id.eq(&group_id_hex)),
                                 )
-                                .execute(&*db)?;
+                                .execute(&mut *db)?;
                         } else {
                             log::info!("  Member is new, inserting.");
                             diesel::insert_into(group_v2_members::table)
@@ -229,7 +229,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                         .eq(member.joined_at_revision as i32),
                                     group_v2_members::role.eq(member.role as i32),
                                 ))
-                                .execute(&*db)?;
+                                .execute(&mut *db)?;
                         }
                     }
                     Ok(())

@@ -38,7 +38,7 @@ fn derive_db_key(password: &str, salt_path: &Path) -> Result<[u8; 32], anyhow::E
     Ok(key)
 }
 
-fn print_original_stats(db: &SqliteConnection) -> Result<(), anyhow::Error> {
+fn print_original_stats(db: &mut SqliteConnection) -> Result<(), anyhow::Error> {
     use schemas::original as schema;
 
     {
@@ -132,7 +132,7 @@ fn print_original_stats(db: &SqliteConnection) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn print_current_stats(db: &SqliteConnection) -> Result<(), anyhow::Error> {
+fn print_current_stats(db: &mut SqliteConnection) -> Result<(), anyhow::Error> {
     use schemas::current as schema;
 
     {
@@ -322,7 +322,7 @@ fn main() -> Result<(), anyhow::Error> {
     }
 
     println!("------");
-    if let Err(e) = print_original_stats(&db) {
+    if let Err(e) = print_original_stats(&mut db) {
         println!("Could not print \"original schema\" statistics: {}", e);
     }
 
@@ -332,19 +332,19 @@ fn main() -> Result<(), anyhow::Error> {
 
     println!("------");
     let start = std::time::Instant::now();
-    embedded_migrations::run(&db).unwrap();
+    embedded_migrations::run(&mut db).unwrap();
     let end = std::time::Instant::now();
     println!("Migrations took {:?}", end - start);
     println!("------");
 
-    print_current_stats(&db)?;
+    print_current_stats(&mut db)?;
     println!("------");
     println!("Here above, the dry run should have produced at least two sets of statistics of your data.");
     println!("These should give a decent indication to whether some data has been lost. Please report a bug if so.");
 
     db.execute("PRAGMA foreign_keys = ON;").unwrap();
     let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA main.foreign_key_check;")
-        .load(&db)
+        .load(&mut db)
         .unwrap();
 
     if !violations.is_empty() {
