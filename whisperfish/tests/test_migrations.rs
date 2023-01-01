@@ -6,9 +6,11 @@ extern crate diesel_migrations;
 mod migrations;
 
 use crate::migrations::orm;
+use crate::diesel_migrations::MigrationHarness;
 use chrono::prelude::*;
 use diesel::prelude::*;
 use diesel_migrations::Migration;
+use diesel_migrations::EmbeddedMigrations;
 use rstest::*;
 use rstest_reuse::{self, *};
 use whisperfish::schema::migrations as schemas;
@@ -183,7 +185,7 @@ fn fixed_go_db(
     empty_db
 }
 
-embed_migrations!();
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 #[template]
 #[rstest(
@@ -196,7 +198,7 @@ fn initial_dbs(db: SqliteConnection) {}
 
 #[apply(initial_dbs)]
 fn run_plain_migrations(db: SqliteConnection) {
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
     assert_foreign_keys(&mut db);
 }
 
@@ -363,7 +365,7 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
         count
     );
 
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
     assert_foreign_keys(&mut db);
     assert_bunch_of_empty_sessions(db);
 }
@@ -503,7 +505,7 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
         count
     );
 
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
     assert_foreign_keys(&mut db);
     assert_direct_session_with_messages(db);
 }
@@ -627,7 +629,7 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
         count
     );
 
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
     assert_foreign_keys(&mut db);
     assert_group_sessions_with_messages(db);
 }
@@ -683,7 +685,7 @@ fn group_message_without_sender_nor_recipient(original_go_db: SqliteConnection) 
         count
     );
 
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
 
     let messages: Vec<orm::current::Message> = {
         use schemas::current::messages::dsl::*;
@@ -754,7 +756,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
             .unwrap();
     }
 
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
     assert_foreign_keys(&mut db);
 
     for (i, ts) in timestamps.into_iter().enumerate() {

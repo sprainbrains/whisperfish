@@ -7,10 +7,12 @@ mod utils;
 use self::orm::AugmentedMessage;
 use crate::schema;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
+use crate::diesel_migrations::MigrationHarness;
 use anyhow::Context;
 use chrono::prelude::*;
 use diesel::debug_query;
 use diesel::prelude::*;
+use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
@@ -23,7 +25,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use zkgroup::api::groups::GroupSecretParams;
 
-embed_migrations!();
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 no_arg_sql_function!(
     last_insert_rowid,
@@ -463,7 +465,7 @@ impl Storage {
         // go haywire, albeit a bit later.
         db.execute("PRAGMA foreign_keys = OFF;").unwrap();
         db.transaction(|| -> Result<(), anyhow::Error> {
-            embedded_migrations::run(&mut db)?;
+            db.run_pending_migrations(MIGRATIONS).unwrap();
             crate::check_foreign_keys(&mut db)?;
             Ok(())
         })?;

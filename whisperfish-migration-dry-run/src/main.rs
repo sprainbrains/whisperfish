@@ -2,10 +2,12 @@
 extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
+use crate::diesel_migrations::MigrationHarness;
 
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::sql_types::*;
+use diesel_migrations::EmbeddedMigrations;
 use std::io::Read;
 use std::path::Path;
 use whisperfish::schema::migrations as schemas;
@@ -24,7 +26,7 @@ pub struct ForeignKeyViolation {
     fkid: i32,
 }
 
-embed_migrations!();
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 fn derive_db_key(password: &str, salt_path: &Path) -> Result<[u8; 32], anyhow::Error> {
     let mut salt_file = std::fs::File::open(salt_path)?;
@@ -332,7 +334,7 @@ fn main() -> Result<(), anyhow::Error> {
 
     println!("------");
     let start = std::time::Instant::now();
-    embedded_migrations::run(&mut db).unwrap();
+    db.run_pending_migrations(MIGRATIONS).unwrap();
     let end = std::time::Instant::now();
     println!("Migrations took {:?}", end - start);
     println!("------");
