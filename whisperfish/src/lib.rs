@@ -45,13 +45,13 @@ pub fn check_foreign_keys(db: &mut diesel::SqliteConnection) -> Result<(), anyho
     #[derive(Queryable, QueryableByName, Debug)]
     #[allow(dead_code)]
     pub struct ForeignKeyViolation {
-        #[sql_type = "Text"]
+        #[diesel(sql_type = Text)]
         table: String,
-        #[sql_type = "Integer"]
+        #[diesel(sql_type = Integer)]
         rowid: i32,
-        #[sql_type = "Text"]
+        #[diesel(sql_type = Text)]
         parent: String,
-        #[sql_type = "Integer"]
+        #[diesel(sql_type = Integer)]
         fkid: i32,
     }
 
