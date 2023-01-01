@@ -5,6 +5,7 @@ mod protocol_store;
 mod utils;
 
 use self::orm::AugmentedMessage;
+use crate::diesel::connection::SimpleConnection;
 use crate::schema;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
 use crate::diesel_migrations::MigrationHarness;
@@ -421,12 +422,12 @@ impl Storage {
         if let Some(database_key) = database_key {
             log::info!("Setting DB encryption");
 
-            db.execute("PRAGMA cipher_log = stderr;")
+            db.batch_execute("PRAGMA cipher_log = stderr;")
                 .context("setting sqlcipher log output to stderr")?;
-            db.execute("PRAGMA cipher_log_level = DEBUG;")
+            db.batch_execute("PRAGMA cipher_log_level = DEBUG;")
                 .context("setting sqlcipher log level to debug")?;
 
-            db.execute(&format!(
+            db.batch_execute(&format!(
                 "PRAGMA key = \"x'{}'\";",
                 hex::encode(database_key)
             ))
@@ -435,23 +436,23 @@ impl Storage {
             // while Go-Whisperfish used to use 4096.
             // Therefore,
             // ```
-            // db.execute("PRAGMA cipher_compatibility = 3;")?;
+            // db.batch_execute("PRAGMA cipher_compatibility = 3;")?;
             // ```
             // does not work.  We manually set the parameters of Sqlcipher 3.4 now,
             // and we postpone migration until we see that this sufficiencly works.
-            db.execute("PRAGMA cipher_page_size = 4096;")
+            db.batch_execute("PRAGMA cipher_page_size = 4096;")
                 .context("setting cipher_page_size")?;
-            db.execute("PRAGMA kdf_iter = 64000;")
+            db.batch_execute("PRAGMA kdf_iter = 64000;")
                 .context("setting kdf_iter")?;
-            db.execute("PRAGMA cipher_hmac_algorithm = HMAC_SHA1;")
+            db.batch_execute("PRAGMA cipher_hmac_algorithm = HMAC_SHA1;")
                 .context("setting cipher_hmac_algorithm")?;
-            db.execute("PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1;")
+            db.batch_execute("PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1;")
                 .context("setting cipher_kdf_algorithm")?;
         }
 
         // From the sqlcipher manual:
         // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
-        db.execute("SELECT count(*) FROM sqlite_master;")
+        db.batch_execute("SELECT count(*) FROM sqlite_master;")
             .context("attempting a read; probably wrong password")?;
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
@@ -465,14 +466,14 @@ impl Storage {
         // SQLite.
         // That said, our check_foreign_keys() does output more useful information for when things
         // go haywire, albeit a bit later.
-        db.execute("PRAGMA foreign_keys = OFF;").unwrap();
+        db.batch_execute("PRAGMA foreign_keys = OFF;").unwrap();
         db.transaction::<_, Error, _>(|mut db| {
             db.run_pending_migrations(MIGRATIONS)
                 .or(Err(Error::RollbackTransaction));
             crate::check_foreign_keys(&mut db).or(Err(Error::RollbackTransaction));
             Ok(())
         })?;
-        db.execute("PRAGMA foreign_keys = ON;").unwrap();
+        db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
 
         Ok(db)
     }
@@ -903,7 +904,7 @@ impl Storage {
         db.transaction::<(), Error, _>(|mut db| {
             // Defer constraints, we're moving a lot of data, inside of a transaction,
             // and if we have a bug it definitely needs more research anyway.
-            db.execute("PRAGMA defer_foreign_keys = ON;")?;
+            db.batch_execute("PRAGMA defer_foreign_keys = ON;")?;
             self.merge_recipient_inner(source_id, dest_id)
         })
         .expect("consistent migration");

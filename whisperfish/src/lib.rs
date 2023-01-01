@@ -6,6 +6,7 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
+use crate::diesel::connection::SimpleConnection;
 pub mod actor;
 pub mod config;
 pub mod gui;
@@ -55,7 +56,7 @@ pub fn check_foreign_keys(db: &mut diesel::SqliteConnection) -> Result<(), anyho
         fkid: i32,
     }
 
-    db.execute("PRAGMA foreign_keys = ON;").unwrap();
+    db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
     let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA main.foreign_key_check;")
         .load(db)
         .unwrap();
