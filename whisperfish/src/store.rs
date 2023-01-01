@@ -11,7 +11,9 @@ use crate::diesel_migrations::MigrationHarness;
 use anyhow::Context;
 use chrono::prelude::*;
 use diesel::debug_query;
+use diesel::dsl::sql;
 use diesel::prelude::*;
+use diesel::sql_types::Text;
 use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
@@ -625,7 +627,11 @@ impl Storage {
 
     pub fn compress_db(&self) -> usize {
         let db = self.db.lock();
-        db.execute("VACUUM;").unwrap()
+        sql::<Text>("VACUUM;")
+            .get_result::<String>(&mut *db)
+            .unwrap()
+            .parse::<usize>()
+            .unwrap()
     }
 
     pub fn fetch_recipients(&self) -> Vec<orm::Recipient> {
