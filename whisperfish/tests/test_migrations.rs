@@ -157,9 +157,9 @@ fn original_go_db(empty_db: SqliteConnection) -> SqliteConnection {
          is_group integer default 0, group_members text, group_id text, group_name text,
 		 has_attachment integer default 0)"#;
 
-    diesel::sql_query(message).execute(&empty_db).unwrap();
-    diesel::sql_query(sentq).execute(&empty_db).unwrap();
-    diesel::sql_query(session).execute(&empty_db).unwrap();
+    diesel::sql_query(message).execute(&mut empty_db).unwrap();
+    diesel::sql_query(sentq).execute(&mut empty_db).unwrap();
+    diesel::sql_query(session).execute(&mut empty_db).unwrap();
 
     empty_db
 }
@@ -181,7 +181,7 @@ fn fixed_go_db(
         &mut std::io::stdout(),
     )
     .unwrap();
-    assert_foreign_keys(&empty_db);
+    assert_foreign_keys(&mut empty_db);
     empty_db
 }
 
@@ -215,7 +215,7 @@ fn one_by_one(db: SqliteConnection, migration_params: MigrationList) {
 
 #[allow(clippy::type_complexity)]
 fn load_sessions(
-    db: &SqliteConnection,
+    db: &mut SqliteConnection,
 ) -> Vec<(
     orm::current::Session,
     Option<Vec<(orm::current::GroupV1Member, orm::current::Recipient)>>,
