@@ -29,10 +29,9 @@ use zkgroup::api::groups::GroupSecretParams;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
-no_arg_sql_function!(
-    last_insert_rowid,
-    diesel::sql_types::Integer,
-    "Represents the Sqlite last_insert_rowid() function"
+sql_function!(
+    // Represents the Sqlite last_insert_rowid() function
+    fn last_insert_rowid() -> diesel::sql_types::Integer;
 );
 
 /// How much trust you put into the correctness of the data.
@@ -1280,7 +1279,10 @@ impl Storage {
     fn fetch_latest_recipient(&self) -> Option<orm::Recipient> {
         use schema::recipients::dsl::*;
         let db = self.db.lock();
-        recipients.filter(id.eq(last_insert_rowid)).first(&mut *db).ok()
+        recipients
+            .filter(id.eq(last_insert_rowid()))
+            .first(&mut *db)
+            .ok()
     }
 
     /// Fetches the latest session by last_insert_rowid.
@@ -1288,7 +1290,7 @@ impl Storage {
     /// This only yields correct results when the last insertion was in fact a session.
     fn fetch_latest_session(&self) -> Option<orm::Session> {
         fetch_session!(self.db.lock(), |query| {
-            query.filter(schema::sessions::id.eq(last_insert_rowid))
+            query.filter(schema::sessions::id.eq(last_insert_rowid()))
         })
     }
 
@@ -1811,7 +1813,7 @@ impl Storage {
         let db = self.db.lock();
 
         schema::messages::table
-            .filter(schema::messages::id.eq(last_insert_rowid))
+            .filter(schema::messages::id.eq(last_insert_rowid()))
             .first(&mut *db)
             .ok()
     }
