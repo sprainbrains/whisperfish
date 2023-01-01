@@ -13,6 +13,7 @@ use chrono::prelude::*;
 use diesel::debug_query;
 use diesel::dsl::sql;
 use diesel::prelude::*;
+use diesel::result::*;
 use diesel::sql_types::Text;
 use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
@@ -415,7 +416,7 @@ impl Storage {
         database_key: Option<&[u8]>,
     ) -> anyhow::Result<SqliteConnection, anyhow::Error> {
         log::info!("Opening DB");
-        let db = db_path.open_db()?;
+        let mut db = db_path.open_db()?;
 
         if let Some(database_key) = database_key {
             log::info!("Setting DB encryption");
@@ -465,9 +466,10 @@ impl Storage {
         // That said, our check_foreign_keys() does output more useful information for when things
         // go haywire, albeit a bit later.
         db.execute("PRAGMA foreign_keys = OFF;").unwrap();
-        db.transaction(|| -> Result<(), anyhow::Error> {
-            db.run_pending_migrations(MIGRATIONS).unwrap();
-            crate::check_foreign_keys(&mut db)?;
+        db.transaction::<_, Error, _>(|mut db| {
+            db.run_pending_migrations(MIGRATIONS)
+                .or(Err(Error::RollbackTransaction));
+            crate::check_foreign_keys(&mut db).or(Err(Error::RollbackTransaction));
             Ok(())
         })?;
         db.execute("PRAGMA foreign_keys = ON;").unwrap();
@@ -726,8 +728,8 @@ impl Storage {
         uuid: Option<&str>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
-        let db = self.db.lock();
-        db.transaction(|| -> Result<orm::Recipient, diesel::result::Error> {
+        let mut db = self.db.lock();
+        db.transaction::<orm::Recipient, Error, _>(|mut db| {
             self.merge_and_fetch_recipient_inner(e164, uuid, trust_level)
         })
         .expect("database")
@@ -739,7 +741,7 @@ impl Storage {
         e164: Option<&str>,
         uuid: Option<&str>,
         trust_level: TrustLevel,
-    ) -> Result<orm::Recipient, diesel::result::Error> {
+    ) -> Result<orm::Recipient, Error> {
         if e164.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
@@ -897,8 +899,8 @@ impl Storage {
     ///
     /// Executes `merge_recipient_inner` inside a transaction, and then returns the result.
     fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
-        let db = self.db.lock();
-        db.transaction(|| -> Result<(), diesel::result::Error> {
+        let mut db = self.db.lock();
+        db.transaction::<(), Error, _>(|mut db| {
             // Defer constraints, we're moving a lot of data, inside of a transaction,
             // and if we have a bug it definitely needs more research anyway.
             db.execute("PRAGMA defer_foreign_keys = ON;")?;

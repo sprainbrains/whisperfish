@@ -162,7 +162,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                     member.uuid.to_string()
                 });
                 let db = storage.db.lock();
-                db.transaction(|| -> Result<(), diesel::result::Error> {
+                db.transaction::<(), diesel::result::Error, _>(|mut db| {
                     use crate::schema::{group_v2_members, recipients};
                     let stale_members: Vec<i32> = group_v2_members::table
                         .select(group_v2_members::recipient_id)

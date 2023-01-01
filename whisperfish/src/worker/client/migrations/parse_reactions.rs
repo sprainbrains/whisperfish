@@ -32,7 +32,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                 reaction_messages.len()
             );
         }
-        db.transaction(|| -> anyhow::Result<()> {
+        db.transaction::<(), diesel::result::Error, _>(|mut db| {
             let regex = regex::Regex::new(r"R@(\d+):(.*)").expect("reaction regex");
             let mut reaction_messages = reaction_messages.into_iter().peekable();
             while let Some(reaction) = reaction_messages.next() {
@@ -51,7 +51,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                         use schema::messages::dsl::*;
                         diesel::delete(messages)
                             .filter(id.eq(reaction.id))
-                            .execute(&mut *db).context("deleting R-reaction")?;
+                            .execute(&mut *db).context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction));
                         continue;
                     }
                 }
@@ -79,7 +79,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                         .filter(message_id.eq(target_message.id))
                         .filter(sent_time.nullable().le(reaction_sent_timestamp))
                         .execute(&mut *db)
-                        .context("deleting R-reaction")?;
+                        .context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction));
                     let res = diesel::insert_into(reactions)
                         .values((
                             message_id.eq(target_message.id),
@@ -94,14 +94,14 @@ impl Handler<ParseOldReaction> for ClientActor {
                         Err(e @ diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) => {
                             log::info!("Got an already newer reaction for this message. Dropping. Reason: {:?}", e);
                         }
-                        Err(e) => Err(e).context("inserting R-reaction")?,
+                        Err(e) => Err(e).context("inserting R-reaction").unwrap(),
                     }
                 }
 
                 use schema::messages::dsl::*;
                 diesel::delete(messages)
                     .filter(id.eq(reaction.id))
-                    .execute(&mut *db).context("deleting R-reaction")?;
+                    .execute(&mut *db).context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction));
             }
             Ok(())
         })
