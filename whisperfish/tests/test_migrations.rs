@@ -5,12 +5,12 @@ extern crate diesel_migrations;
 
 mod migrations;
 
-use crate::migrations::orm;
 use crate::diesel_migrations::MigrationHarness;
+use crate::migrations::orm;
 use chrono::prelude::*;
 use diesel::prelude::*;
-use diesel_migrations::Migration;
 use diesel_migrations::EmbeddedMigrations;
+use diesel_migrations::Migration;
 use rstest::*;
 use rstest_reuse::{self, *};
 use whisperfish::schema::migrations as schemas;

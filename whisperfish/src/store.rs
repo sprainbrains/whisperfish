@@ -6,9 +6,9 @@ mod utils;
 
 use self::orm::AugmentedMessage;
 use crate::diesel::connection::SimpleConnection;
+use crate::diesel_migrations::MigrationHarness;
 use crate::schema;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
-use crate::diesel_migrations::MigrationHarness;
 use anyhow::Context;
 use chrono::prelude::*;
 use diesel::debug_query;
@@ -1236,7 +1236,6 @@ impl Storage {
             // .set(delivered.eq(time))
             .execute(&mut *db);
 
-        use diesel::result::DatabaseErrorKind;
         use diesel::result::Error::DatabaseError;
         match insert {
             Ok(1) => {
