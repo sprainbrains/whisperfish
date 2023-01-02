@@ -14,45 +14,48 @@ use std::rc::Rc;
 
 /// QML-constructable object that interacts with a single session.
 #[derive(QObject, Default)]
-pub struct Session {
+pub struct SessionImpl {
     base: qt_base_class!(trait QObject),
-
-    app: qt_property!(QPointer<AppState>; WRITE set_app),
-    _sessionId: qt_property!(i32; WRITE set_session_id READ get_session_id ALIAS sessionId),
-    messages: qt_property!(QVariant; READ messages CONST),
-
-    message_list: ObservingModel<MessageListModel>,
+    message_list: QObjectBox<MessageListModel>,
 }
 
-impl Session {
-    #[with_executor]
-    fn set_app(&mut self, app: QPointer<AppState>) {
-        self.app = app;
-        self.reinit();
+crate::observing_model! {
+    pub struct Session(SessionImpl) {
+        sessionId: i32; READ get_session_id WRITE set_session_id,
+        messages: QVariant; READ messages,
+    }
+}
+
+impl EventObserving for SessionImpl {
+    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+        self.message_list.pinned().borrow_mut().load_all(storage);
     }
 
-    fn get_session_id(&mut self) -> i32 {
+    fn interests() -> Vec<crate::store::observer::Interest> {
+        vec![crate::store::observer::Interest::All]
+    }
+}
+
+impl SessionImpl {
+    fn get_session_id(&self) -> i32 {
         self.message_list.pinned().borrow().session_id.unwrap_or(-1)
     }
 
     #[with_executor]
-    fn set_session_id(&mut self, id: i32) {
+    fn set_session_id(&mut self, storage: Option<Storage>, id: i32) {
         self.message_list.pinned().borrow_mut().session_id = Some(id);
-        self.reinit();
-    }
-
-    fn reinit(&mut self) {
-        if let Some(app) = self.app.as_pinned() {
-            if let Some(storage) = app.borrow().storage.borrow().clone() {
-                self.message_list.register(storage.clone());
-                if self.message_list.pinned().borrow().session_id.is_some() {
-                    self.message_list.pinned().borrow_mut().load_all(storage);
-                }
-            }
+        if let Some(storage) = storage {
+            self.message_list.pinned().borrow_mut().load_all(storage);
         }
     }
 
-    fn messages(&mut self) -> QVariant {
+    fn init(&mut self, storage: Storage) {
+        if self.message_list.pinned().borrow().session_id.is_some() {
+            self.message_list.pinned().borrow_mut().load_all(storage);
+        }
+    }
+
+    fn messages(&self) -> QVariant {
         self.message_list.pinned().into()
     }
 }
@@ -130,16 +133,6 @@ pub struct MessageListModel {
 
     session_id: Option<i32>,
     messages: Vec<QtAugmentedMessage>,
-}
-
-impl EventObserving for MessageListModel {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
-        self.load_all(storage);
-    }
-
-    fn interests() -> Vec<crate::store::observer::Interest> {
-        vec![crate::store::observer::Interest::All]
-    }
 }
 
 impl MessageListModel {

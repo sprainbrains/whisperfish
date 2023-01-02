@@ -40,41 +40,37 @@ impl std::ops::Deref for AugmentedSession {
 /// timestamp.
 /// In the future, it should be possible to install filters and change the ordering.
 #[derive(QObject, Default)]
-pub struct Sessions {
+pub struct SessionsImpl {
     base: qt_base_class!(trait QObject),
 
-    app: qt_property!(QPointer<AppState>; WRITE set_app),
     sessions: qt_property!(QVariant; READ sessions CONST),
 
-    session_list: ObservingModel<SessionListModel>,
+    session_list: QObjectBox<SessionListModel>,
 }
 
-impl Sessions {
-    #[with_executor]
-    fn set_app(&mut self, app: QPointer<AppState>) {
-        self.app = app;
-        self.reinit();
+crate::observing_model! {
+    pub struct Sessions(SessionsImpl) {
+        sessions: QVariant; READ sessions,
+    }
+}
+
+impl SessionsImpl {
+    fn init(&mut self, storage: Storage) {
+        self.session_list.pinned().borrow_mut().load_all(storage);
     }
 
-    fn reinit(&mut self) {
-        if let Some(storage) = self
-            .app
-            .as_pinned()
-            .expect("valid AppState")
-            .borrow()
-            .storage
-            .borrow()
-            .clone()
-        {
-            self.session_list.register(storage.clone());
-            self.session_list.pinned().borrow_mut().load_all(storage);
-        } else {
-            panic!("Set an AppState without storage.");
-        }
-    }
-
-    fn sessions(&mut self) -> QVariant {
+    fn sessions(&self) -> QVariant {
         self.session_list.pinned().into()
+    }
+}
+
+impl EventObserving for SessionsImpl {
+    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+        self.session_list.pinned().borrow_mut().load_all(storage)
+    }
+
+    fn interests() -> Vec<crate::store::observer::Interest> {
+        vec![crate::store::observer::Interest::All]
     }
 }
 
@@ -85,16 +81,6 @@ pub struct SessionListModel {
 
     count: qt_method!(fn(&self) -> usize),
     unread: qt_method!(fn(&self) -> i32),
-}
-
-impl EventObserving for SessionListModel {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
-        self.load_all(storage);
-    }
-
-    fn interests() -> Vec<crate::store::observer::Interest> {
-        vec![crate::store::observer::Interest::All]
-    }
 }
 
 impl SessionListModel {
