@@ -13,10 +13,8 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 /// QML-constructable object that interacts with a single session.
-#[derive(QObject, Default)]
+#[derive(Default)]
 pub struct SessionImpl {
-    base: qt_base_class!(trait QObject),
-
     session_id: Option<i32>,
     message_list: QObjectBox<MessageListModel>,
 }

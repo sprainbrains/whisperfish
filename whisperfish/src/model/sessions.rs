@@ -39,12 +39,8 @@ impl std::ops::Deref for AugmentedSession {
 /// Currently, this object will list all sessions unfiltered, ordered by the last message received
 /// timestamp.
 /// In the future, it should be possible to install filters and change the ordering.
-#[derive(QObject, Default)]
+#[derive(Default)]
 pub struct SessionsImpl {
-    base: qt_base_class!(trait QObject),
-
-    sessions: qt_property!(QVariant; READ sessions CONST),
-
     session_list: QObjectBox<SessionListModel>,
 }
 

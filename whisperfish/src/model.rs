@@ -196,11 +196,11 @@ struct ObservingModelActor<T> {
     storage: Storage,
 }
 
-impl<T: QObject + 'static> Actor for ObservingModelActor<T> {
+impl<T: 'static> Actor for ObservingModelActor<T> {
     type Context = Context<Self>;
 }
 
-impl<T: QObject + 'static> Handler<Event> for ObservingModelActor<T>
+impl<T: 'static> Handler<Event> for ObservingModelActor<T>
 where
     T: EventObserving,
 {
