@@ -1,7 +1,8 @@
 #![allow(non_snake_case)]
 
 use crate::model::*;
-use crate::store::orm;
+use crate::store::observer::EventObserving;
+use crate::store::{orm, Storage};
 use chrono::prelude::*;
 use itertools::Itertools;
 use qmeta_async::with_executor;

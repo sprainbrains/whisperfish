@@ -4,6 +4,7 @@ use super::attachment::*;
 use crate::model::*;
 use crate::store::observer::EventObserving;
 use crate::store::orm::AugmentedMessage;
+use crate::store::Storage;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use qmetaobject::{QObjectBox, QObjectPinned};
