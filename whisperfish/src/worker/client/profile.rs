@@ -217,7 +217,7 @@ impl ClientActor {
     ) -> anyhow::Result<()> {
         log::info!("Fetched profile: {:?}", profile);
         let storage = self.storage.clone().unwrap();
-        let mut db = storage.db.lock();
+        let mut db = storage.db();
 
         use crate::schema::recipients::dsl::*;
         use diesel::prelude::*;

@@ -60,17 +60,19 @@ impl Storage {
         use diesel::prelude::*;
 
         let _lock = self.protocol_store.read().await;
-        let db = self.db.lock();
 
         let prekey_max: Option<i32> = {
             use crate::schema::prekeys::dsl::*;
 
-            prekeys.select(max(id)).first(&mut *db).expect("db")
+            prekeys.select(max(id)).first(&mut *self.db()).expect("db")
         };
         let signed_prekey_max: Option<i32> = {
             use crate::schema::signed_prekeys::dsl::*;
 
-            signed_prekeys.select(max(id)).first(&mut *db).expect("db")
+            signed_prekeys
+                .select(max(id))
+                .first(&mut *self.db())
+                .expect("db")
         };
 
         (
@@ -192,11 +194,9 @@ impl protocol::PreKeyStore for Storage {
         use crate::schema::prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         let prekey_record: Option<crate::store::orm::Prekey> = prekeys
             .filter(id.eq(u32::from(prekey_id) as i32))
-            .first(&mut *db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         if let Some(pkr) = prekey_record {
@@ -218,14 +218,12 @@ impl protocol::PreKeyStore for Storage {
         use crate::schema::prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         diesel::insert_into(prekeys)
             .values(crate::store::orm::Prekey {
                 id: u32::from(prekey_id) as _,
                 record: body.serialize()?,
             })
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
 
         Ok(())
@@ -242,11 +240,9 @@ impl protocol::PreKeyStore for Storage {
         use crate::schema::prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         diesel::delete(prekeys)
             .filter(id.eq(u32::from(prekey_id) as i32))
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
         Ok(())
     }
@@ -262,11 +258,9 @@ impl Storage {
         use crate::schema::prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         let prekey_record: Option<crate::store::orm::Prekey> = prekeys
             .filter(id.eq(prekey_id as i32))
-            .first(&mut *db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         prekey_record.is_some()
@@ -286,15 +280,13 @@ impl protocol::SessionStore for Storage {
         use crate::schema::session_records::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         let session_record: Option<crate::store::orm::SessionRecord> = session_records
             .filter(
                 address
                     .eq(addr.name())
                     .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
-            .first(&mut *db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         if let Some(session_record) = session_record {
@@ -312,7 +304,6 @@ impl protocol::SessionStore for Storage {
     ) -> Result<(), SignalProtocolError> {
         log::trace!("Storing session for {:?}", addr);
         let _lock = self.protocol_store.write().await;
-        let db = self.db.lock();
 
         use crate::schema::session_records::dsl::*;
         use diesel::prelude::*;
@@ -325,7 +316,7 @@ impl protocol::SessionStore for Storage {
                         .and(device_id.eq(u32::from(addr.device_id()) as i32)),
                 )
                 .set(record.eq(session.serialize()?))
-                .execute(&mut *db)
+                .execute(&mut *self.db())
                 .expect("updated session");
         } else {
             diesel::insert_into(session_records)
@@ -334,7 +325,7 @@ impl protocol::SessionStore for Storage {
                     device_id.eq(u32::from(addr.device_id()) as i32),
                     record.eq(session.serialize()?),
                 ))
-                .execute(&mut *db)
+                .execute(&mut *self.db())
                 .expect("updated session");
         }
 
@@ -357,8 +348,6 @@ impl Storage {
         use diesel::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         let count: i64 = session_records
             .select(count_star())
             .filter(
@@ -366,7 +355,7 @@ impl Storage {
                     .eq(addr.name())
                     .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
-            .first(&mut *db)
+            .first(&mut *self.db())
             .expect("db");
         Ok(count != 0)
     }
@@ -378,12 +367,11 @@ impl Storage {
     ///
     /// Does not lock the protocol storage.
     fn fetch_identity_key(&self, addr: &ProtocolAddress) -> Option<IdentityKey> {
-        let db = self.db.lock();
         use crate::schema::identity_records::dsl::*;
         let addr = addr.name();
         let found: orm::IdentityRecord = identity_records
             .filter(address.eq(addr))
-            .first(&mut *db)
+            .first(&mut *self.db())
             .optional()
             .expect("db")?;
 
@@ -394,12 +382,11 @@ impl Storage {
     ///
     /// Does not lock the protocol storage.
     pub fn delete_identity_key(&self, addr: &ProtocolAddress) -> bool {
-        let db = self.db.lock();
         use crate::schema::identity_records::dsl::*;
         let addr = addr.name();
         let amount = diesel::delete(identity_records)
             .filter(address.eq(addr))
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
 
         amount == 1
@@ -409,7 +396,6 @@ impl Storage {
     ///
     /// Returns whether the identity key has been altered.
     fn store_identity_key(&self, addr: &ProtocolAddress, key: &IdentityKey) -> bool {
-        let db = self.db.lock();
         use crate::schema::identity_records::dsl::*;
         let previous = self.fetch_identity_key(addr);
 
@@ -419,12 +405,12 @@ impl Storage {
             diesel::update(identity_records)
                 .filter(address.eq(addr.name()))
                 .set(record.eq(key.serialize().to_vec()))
-                .execute(&mut *db)
+                .execute(&mut *self.db())
                 .expect("db");
         } else {
             diesel::insert_into(identity_records)
                 .values((address.eq(addr.name()), record.eq(key.serialize().to_vec())))
-                .execute(&mut *db)
+                .execute(&mut *self.db())
                 .expect("db");
         }
 
@@ -439,7 +425,6 @@ impl protocol::SessionStoreExt for Storage {
         log::trace!("Looking for sub_device sessions for {}", addr);
         let _lock = self.protocol_store.read().await;
 
-        let db = self.db.lock();
         use crate::schema::session_records::dsl::*;
 
         let records: Vec<i32> = session_records
@@ -449,14 +434,13 @@ impl protocol::SessionStoreExt for Storage {
                     .eq(addr)
                     .and(device_id.ne(libsignal_service::push_service::DEFAULT_DEVICE_ID as i32)),
             )
-            .load(&mut *db)
+            .load(&mut *self.db())
             .expect("db");
         Ok(records.into_iter().map(|x| x as u32).collect())
     }
 
     async fn delete_session(&self, addr: &ProtocolAddress) -> Result<(), SignalProtocolError> {
         let _lock = self.protocol_store.write().await;
-        let db = self.db.lock();
         use crate::schema::session_records::dsl::*;
 
         let num = diesel::delete(session_records)
@@ -465,7 +449,7 @@ impl protocol::SessionStoreExt for Storage {
                     .eq(addr.name())
                     .and(device_id.eq(u32::from(addr.device_id()) as i32)),
             )
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
 
         if num != 1 {
@@ -482,12 +466,11 @@ impl protocol::SessionStoreExt for Storage {
     async fn delete_all_sessions(&self, addr: &str) -> Result<usize, SignalProtocolError> {
         log::warn!("Deleting all sessions for {}", addr);
         let _lock = self.protocol_store.write().await;
-        let db = self.db.lock();
         use crate::schema::session_records::dsl::*;
 
         let num = diesel::delete(session_records)
             .filter(address.eq(addr))
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
 
         Ok(num)
@@ -507,11 +490,9 @@ impl protocol::SignedPreKeyStore for Storage {
         use crate::schema::signed_prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         let prekey_record: Option<crate::store::orm::SignedPrekey> = signed_prekeys
             .filter(id.eq(u32::from(signed_prekey_id) as i32))
-            .first(&mut *db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         if let Some(pkr) = prekey_record {
@@ -533,15 +514,13 @@ impl protocol::SignedPreKeyStore for Storage {
         use crate::schema::signed_prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         // Insert or replace?
         diesel::insert_into(signed_prekeys)
             .values(crate::store::orm::SignedPrekey {
                 id: u32::from(signed_prekey_id) as _,
                 record: body.serialize()?,
             })
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
 
         Ok(())
@@ -559,8 +538,6 @@ impl SenderKeyStore for Storage {
     ) -> Result<(), SignalProtocolError> {
         log::trace!("Storing sender key {} {}", addr, distr_id);
 
-        let db = self.db.lock();
-
         let to_insert = orm::SenderKeyRecord {
             address: addr.name().to_owned(),
             device: u32::from(addr.device_id()) as i32,
@@ -573,7 +550,7 @@ impl SenderKeyStore for Storage {
             use crate::schema::sender_key_records::dsl::*;
             diesel::insert_into(sender_key_records)
                 .values(to_insert)
-                .execute(&mut *db)
+                .execute(&mut *self.db())
                 .expect("db");
         }
         Ok(())
@@ -586,8 +563,6 @@ impl SenderKeyStore for Storage {
     ) -> Result<Option<SenderKeyRecord>, SignalProtocolError> {
         log::trace!("Loading sender key {} {}", addr, distr_id);
 
-        let db = self.db.lock();
-
         let found: Option<orm::SenderKeyRecord> = {
             use crate::schema::sender_key_records::dsl::*;
             sender_key_records
@@ -597,7 +572,7 @@ impl SenderKeyStore for Storage {
                         .and(device.eq(u32::from(addr.device_id()) as i32))
                         .and(distribution_id.eq(distr_id.to_string())),
                 )
-                .first(&mut *db)
+                .first(&mut *self.db())
                 .optional()
                 .expect("db")
         };
@@ -621,11 +596,9 @@ impl Storage {
         use crate::schema::signed_prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         diesel::delete(signed_prekeys)
             .filter(id.eq(signed_prekey_id as i32))
-            .execute(&mut *db)
+            .execute(&mut *self.db())
             .expect("db");
         Ok(())
     }
@@ -639,11 +612,9 @@ impl Storage {
         use crate::schema::signed_prekeys::dsl::*;
         use diesel::prelude::*;
 
-        let db = self.db.lock();
-
         let signed_prekey_record: Option<crate::store::orm::SignedPrekey> = signed_prekeys
             .filter(id.eq(signed_prekey_id as i32))
-            .first(&mut *db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         signed_prekey_record.is_some()

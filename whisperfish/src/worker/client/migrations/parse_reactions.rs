@@ -13,7 +13,7 @@ impl Handler<ParseOldReaction> for ClientActor {
     type Result = ();
     fn handle(&mut self, _: ParseOldReaction, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let db = storage.db.lock();
+        let mut db = storage.db();
         let config = std::sync::Arc::clone(&self.config);
         let myself = storage.fetch_self_recipient(&config).expect("myself in db");
 
@@ -32,7 +32,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                 reaction_messages.len()
             );
         }
-        db.transaction::<(), diesel::result::Error, _>(|mut db| {
+        db.transaction::<(), diesel::result::Error, _>(|db| {
             let regex = regex::Regex::new(r"R@(\d+):(.*)").expect("reaction regex");
             let mut reaction_messages = reaction_messages.into_iter().peekable();
             while let Some(reaction) = reaction_messages.next() {
@@ -51,7 +51,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                         use schema::messages::dsl::*;
                         diesel::delete(messages)
                             .filter(id.eq(reaction.id))
-                            .execute(&mut *db).context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction));
+                            .execute(db).context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction))?;
                         continue;
                     }
                 }
@@ -59,6 +59,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                 let ts = millis_to_naive_chrono(ts);
                 let emoji_text = &m[2];
 
+                // XXX Reentry inside a transaction
                 let target_message = match storage.fetch_message_by_timestamp(ts) {
                     Some(msg) => msg,
                     None=> {
@@ -78,8 +79,8 @@ impl Handler<ParseOldReaction> for ClientActor {
                         .filter(author.eq(author_id))
                         .filter(message_id.eq(target_message.id))
                         .filter(sent_time.nullable().le(reaction_sent_timestamp))
-                        .execute(&mut *db)
-                        .context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction));
+                        .execute(db)
+                        .context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction))?;
                     let res = diesel::insert_into(reactions)
                         .values((
                             message_id.eq(target_message.id),
@@ -88,7 +89,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                             sent_time.eq(reaction_sent_timestamp),
                             received_time.eq(reaction.received_timestamp.unwrap_or_else(|| Utc::now().naive_utc()))
                         ))
-                        .execute(&mut *db);
+                        .execute(db);
                     match res {
                         Ok(_) => (),
                         Err(e @ diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) => {
@@ -101,7 +102,9 @@ impl Handler<ParseOldReaction> for ClientActor {
                 use schema::messages::dsl::*;
                 diesel::delete(messages)
                     .filter(id.eq(reaction.id))
-                    .execute(&mut *db).context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction));
+                    .execute(db)
+                    .context("deleting R-reaction")
+                    .or(Err(diesel::result::Error::RollbackTransaction))?;
             }
             Ok(())
         })
