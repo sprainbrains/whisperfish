@@ -180,6 +180,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 qml_register_type::<model::Sessions>(uri, 1, 0, cstr!("Sessions"));
                 qml_register_type::<model::Session>(uri, 1, 0, cstr!("Session"));
                 qml_register_type::<model::Recipient>(uri, 1, 0, cstr!("Recipient"));
+                qml_register_type::<model::Group>(uri, 1, 0, cstr!("Group"));
             }
 
             let mut app = QmlApp::application("harbour-whisperfish".into());

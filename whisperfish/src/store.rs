@@ -1359,6 +1359,22 @@ impl Storage {
             .expect("db")
     }
 
+    pub fn fetch_group_by_group_v1_id(&self, id: &str) -> Option<orm::GroupV1> {
+        schema::group_v1s::table
+            .filter(schema::group_v1s::id.eq(id))
+            .first(&mut *self.db())
+            .optional()
+            .unwrap()
+    }
+
+    pub fn fetch_group_by_group_v2_id(&self, id: &str) -> Option<orm::GroupV2> {
+        schema::group_v2s::table
+            .filter(schema::group_v2s::id.eq(id))
+            .first(&mut *self.db())
+            .optional()
+            .unwrap()
+    }
+
     pub fn fetch_group_members_by_group_v1_id(
         &self,
         id: &str,

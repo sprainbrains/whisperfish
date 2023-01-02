@@ -1,0 +1,139 @@
+#![allow(non_snake_case)]
+
+use std::collections::HashMap;
+
+use crate::model::*;
+use crate::store::observer::EventObserving;
+use crate::store::orm::{GroupV1Member, GroupV2Member};
+use crate::store::{orm, Storage};
+use qmeta_async::with_executor;
+use qmetaobject::prelude::*;
+
+/// QML-constructable object that interacts with a single recipient.
+#[derive(Default)]
+pub struct GroupImpl {
+    id: Option<String>,
+    group_v1: Option<orm::GroupV1>,
+    group_v2: Option<orm::GroupV2>,
+
+    membership_list: QObjectBox<GroupMembershipListModel>,
+}
+
+crate::observing_model! {
+    pub struct Group(GroupImpl) {
+        groupId: String; READ get_group_id WRITE set_group_id,
+        isGroupV1: bool; READ get_is_group_v1,
+        isGroupV2: bool; READ get_is_group_v2,
+
+        members: QVariant; READ members,
+    }
+}
+
+impl EventObserving for GroupImpl {
+    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+        if self.id.is_some() {
+            self.init(storage);
+        }
+    }
+
+    fn interests() -> Vec<crate::store::observer::Interest> {
+        vec![crate::store::observer::Interest::All]
+    }
+}
+
+impl GroupImpl {
+    fn get_group_id(&self) -> String {
+        self.id.clone().unwrap_or_default()
+    }
+
+    fn get_is_group_v1(&self) -> bool {
+        self.group_v1.is_some()
+    }
+
+    fn get_is_group_v2(&self) -> bool {
+        self.group_v2.is_some()
+    }
+
+    fn members(&self) -> QVariant {
+        self.membership_list.pinned().into()
+    }
+
+    #[with_executor]
+    fn set_group_id(&mut self, storage: Option<Storage>, id: String) {
+        self.id = Some(id);
+        if let Some(storage) = storage {
+            self.init(storage);
+        }
+    }
+
+    fn init(&mut self, storage: Storage) {
+        if let Some(id) = &self.id {
+            self.group_v1 = None;
+            self.group_v2 = None;
+            if id.len() == 32 {
+                self.group_v1 = storage.fetch_group_by_group_v1_id(id);
+            }
+            // Group V2
+            if id.len() == 64 {
+                self.group_v2 = storage.fetch_group_by_group_v2_id(id);
+            }
+        }
+    }
+}
+
+pub enum GroupMembership {
+    V1(GroupV1Member),
+    V2(GroupV2Member),
+}
+
+impl GroupMembership {
+    fn member_since(&self) -> Option<NaiveDateTime> {
+        match self {
+            Self::V1(v1) => v1.member_since,
+            Self::V2(v2) => Some(v2.member_since),
+        }
+    }
+
+    fn role(&self) -> i32 {
+        match self {
+            Self::V1(_v1) => -1,
+            Self::V2(v2) => v2.role,
+        }
+    }
+}
+
+#[derive(QObject, Default)]
+pub struct GroupMembershipListModel {
+    base: qt_base_class!(trait QAbstractListModel),
+    content: Vec<(GroupMembership, orm::Recipient)>,
+}
+
+define_model_roles! {
+    enum GroupMembershipRoles for GroupMembership [with offset 100] {
+        MemberSince(fn member_since(&self) via qdatetime_from_naive_option): "memberSince",
+        Role(fn role(&self)): "role",
+    }
+}
+
+impl QAbstractListModel for GroupMembershipListModel {
+    fn row_count(&self) -> i32 {
+        self.content.len() as _
+    }
+
+    fn data(&self, index: QModelIndex, role: i32) -> QVariant {
+        if role > 100 {
+            let role = GroupMembershipRoles::from(role);
+            role.get(&self.content[index.row() as usize].0)
+        } else {
+            let role = RecipientRoles::from(role);
+            role.get(&self.content[index.row() as usize].1)
+        }
+    }
+
+    fn role_names(&self) -> HashMap<i32, QByteArray> {
+        GroupMembershipRoles::role_names()
+            .into_iter()
+            .chain(RecipientRoles::role_names().into_iter())
+            .collect()
+    }
+}

@@ -61,7 +61,7 @@ pub struct RecipientListModel {
 impl RecipientListModel {}
 
 define_model_roles! {
-    enum RecipientRoles for orm::Recipient {
+    pub(super) enum RecipientRoles for orm::Recipient {
         Id(id): "id",
         Uuid(uuid via qstring_from_option): "uuid",
         // These two are aliases
