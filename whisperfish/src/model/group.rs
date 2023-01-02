@@ -72,10 +72,19 @@ impl GroupImpl {
             self.group_v2 = None;
             if id.len() == 32 {
                 self.group_v1 = storage.fetch_group_by_group_v1_id(id);
-            }
-            // Group V2
-            if id.len() == 64 {
+                self.membership_list
+                    .pinned()
+                    .borrow_mut()
+                    .load_v1(storage, id);
+            } else if id.len() == 64 {
                 self.group_v2 = storage.fetch_group_by_group_v2_id(id);
+                self.membership_list
+                    .pinned()
+                    .borrow_mut()
+                    .load_v2(storage, id);
+            } else {
+                log::debug!("ID set to invalid length.  Leaving model empty.");
+                self.membership_list.pinned().borrow_mut().clear();
             }
         }
     }
@@ -106,6 +115,34 @@ impl GroupMembership {
 pub struct GroupMembershipListModel {
     base: qt_base_class!(trait QAbstractListModel),
     content: Vec<(GroupMembership, orm::Recipient)>,
+}
+
+impl GroupMembershipListModel {
+    fn load_v1(&mut self, storage: Storage, id: &str) {
+        self.begin_reset_model();
+        self.content = storage
+            .fetch_group_members_by_group_v1_id(id)
+            .into_iter()
+            .map(|(membership, member)| (GroupMembership::V1(membership), member))
+            .collect();
+        self.end_reset_model();
+    }
+
+    fn load_v2(&mut self, storage: Storage, id: &str) {
+        self.begin_reset_model();
+        self.content = storage
+            .fetch_group_members_by_group_v2_id(id)
+            .into_iter()
+            .map(|(membership, member)| (GroupMembership::V2(membership), member))
+            .collect();
+        self.end_reset_model();
+    }
+
+    fn clear(&mut self) {
+        self.begin_reset_model();
+        self.content.clear();
+        self.end_reset_model();
+    }
 }
 
 define_model_roles! {
