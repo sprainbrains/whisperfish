@@ -16,6 +16,8 @@ use std::rc::Rc;
 #[derive(QObject, Default)]
 pub struct SessionImpl {
     base: qt_base_class!(trait QObject),
+
+    session_id: Option<i32>,
     message_list: QObjectBox<MessageListModel>,
 }
 
@@ -28,7 +30,12 @@ crate::observing_model! {
 
 impl EventObserving for SessionImpl {
     fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
-        self.message_list.pinned().borrow_mut().load_all(storage);
+        if let Some(id) = self.session_id {
+            self.message_list
+                .pinned()
+                .borrow_mut()
+                .load_all(storage, id);
+        }
     }
 
     fn interests() -> Vec<crate::store::observer::Interest> {
@@ -38,20 +45,26 @@ impl EventObserving for SessionImpl {
 
 impl SessionImpl {
     fn get_session_id(&self) -> i32 {
-        self.message_list.pinned().borrow().session_id.unwrap_or(-1)
+        self.session_id.unwrap_or(-1)
     }
 
     #[with_executor]
     fn set_session_id(&mut self, storage: Option<Storage>, id: i32) {
-        self.message_list.pinned().borrow_mut().session_id = Some(id);
+        self.session_id = Some(id);
         if let Some(storage) = storage {
-            self.message_list.pinned().borrow_mut().load_all(storage);
+            self.message_list
+                .pinned()
+                .borrow_mut()
+                .load_all(storage, id);
         }
     }
 
     fn init(&mut self, storage: Storage) {
-        if self.message_list.pinned().borrow().session_id.is_some() {
-            self.message_list.pinned().borrow_mut().load_all(storage);
+        if let Some(id) = self.session_id {
+            self.message_list
+                .pinned()
+                .borrow_mut()
+                .load_all(storage, id);
         }
     }
 
@@ -130,15 +143,13 @@ impl From<AugmentedMessage> for QtAugmentedMessage {
 #[derive(QObject, Default)]
 pub struct MessageListModel {
     base: qt_base_class!(trait QAbstractListModel),
-
-    session_id: Option<i32>,
     messages: Vec<QtAugmentedMessage>,
 }
 
 impl MessageListModel {
-    fn load_all(&mut self, storage: Storage) {
+    fn load_all(&mut self, storage: Storage, id: i32) {
         self.messages = storage
-            .fetch_all_messages_augmented(self.session_id.expect("session_id set when loading"))
+            .fetch_all_messages_augmented(id)
             .into_iter()
             .map(Into::into)
             .collect();
