@@ -53,6 +53,7 @@ pub mod attachment;
 pub mod contact;
 pub mod device;
 pub mod messages;
+pub mod recipient;
 pub mod sessions;
 
 pub mod prompt;
@@ -62,6 +63,7 @@ pub use self::contact::*;
 pub use self::device::*;
 pub use self::messages::*;
 pub use self::prompt::*;
+pub use self::recipient::*;
 pub use self::sessions::*;
 
 use chrono::prelude::*;
