@@ -19,8 +19,10 @@ macro_rules! observing_model {
 
             $(
                 #[allow(unused)]
-                $field: qt_property!($t; READ $getter $(WRITE $setter)?),
+                $field: qt_property!($t; READ $getter $(WRITE $setter)? NOTIFY something_changed),
             )*
+
+            something_changed: qt_signal!(),
         }
 
         impl Default for $model {
@@ -33,6 +35,7 @@ macro_rules! observing_model {
                     inner,
                     actor: None,
                     $( $field: Default::default(), )*
+                    something_changed: Default::default(),
                 }
             }
         }
@@ -59,6 +62,7 @@ macro_rules! observing_model {
                         storage.register_observer(<$encapsulated>::interests(), subscriber);
 
                         (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().init(storage);
+                        self.something_changed();
                     }
                 }
             }
@@ -73,7 +77,8 @@ macro_rules! observing_model {
                     (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().$setter(
                         self.app.as_pinned().and_then(|app| app.borrow().storage.borrow().clone()),
                         v,
-                    )
+                    );
+                    self.something_changed();
                 }
                 )?
             )*
