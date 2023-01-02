@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 
-use crate::gui::AppState;
 use crate::model::*;
 use crate::store::orm;
 use chrono::prelude::*;

@@ -121,7 +121,7 @@ macro_rules! observing_model {
             inner: Arc<std::cell::RefCell<$encapsulated>>,
             actor: Option<Addr<ObservingModelActor<$encapsulated>>>,
 
-            app: qt_property!(QPointer<AppState>; WRITE set_app),
+            app: qt_property!(QPointer<$crate::gui::AppState>; WRITE set_app),
 
             $(
                 #[allow(unused)]
@@ -145,7 +145,7 @@ macro_rules! observing_model {
 
         impl $model {
             #[with_executor]
-            fn set_app(&mut self, app: QPointer<AppState>) {
+            fn set_app(&mut self, app: QPointer<$crate::gui::AppState>) {
                 self.app = app;
                 self.reinit();
             }

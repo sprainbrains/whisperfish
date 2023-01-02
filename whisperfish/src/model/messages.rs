@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 use super::attachment::*;
-use crate::gui::AppState;
 use crate::model::*;
 use crate::store::observer::EventObserving;
 use crate::store::orm::AugmentedMessage;
