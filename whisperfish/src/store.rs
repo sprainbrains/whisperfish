@@ -1336,6 +1336,35 @@ impl Storage {
         })
     }
 
+    pub fn fetch_session_by_id_augmented(&self, sid: i32) -> Option<orm::AugmentedSession> {
+        let session = self.fetch_session_by_id(sid)?;
+
+        // This could very probably be faster.
+        let group_members = if session.is_group_v1() {
+            let group = session.unwrap_group_v1();
+            self.fetch_group_members_by_group_v1_id(&group.id)
+                .into_iter()
+                .map(|(_, r)| r)
+                .collect()
+        } else if session.is_group_v2() {
+            let group = session.unwrap_group_v2();
+            self.fetch_group_members_by_group_v2_id(&group.id)
+                .into_iter()
+                .map(|(_, r)| r)
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        let last_message = self.fetch_last_message_by_session_id_augmented(session.id, true);
+
+        Some(orm::AugmentedSession {
+            inner: session,
+            group_members,
+            last_message,
+        })
+    }
+
     pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
         log::trace!("Called fetch_session_by_e164({})", e164);
         fetch_session!(self.db(), |query| {
@@ -1348,6 +1377,15 @@ impl Storage {
         fetch_session!(self.db(), |query| {
             query.filter(schema::recipients::id.eq(rid))
         })
+    }
+
+    pub fn fetch_attachment(&self, attachment_id: i32) -> Option<orm::Attachment> {
+        use schema::attachments::dsl::*;
+        attachments
+            .filter(id.eq(attachment_id))
+            .first(&mut *self.db())
+            .optional()
+            .unwrap()
     }
 
     pub fn fetch_attachments_for_message(&self, mid: i32) -> Vec<orm::Attachment> {

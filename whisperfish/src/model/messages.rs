@@ -3,7 +3,6 @@
 use crate::model::*;
 use crate::store::observer::EventObserving;
 use crate::store::orm;
-use crate::store::orm::AugmentedMessage;
 use crate::store::Storage;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -14,12 +13,15 @@ use std::collections::HashMap;
 #[derive(Default)]
 pub struct MessageImpl {
     message_id: Option<i32>,
-    message: Option<AugmentedMessage>,
+    message: Option<orm::AugmentedMessage>,
+
+    attachments: QObjectBox<AttachmentListModel>,
 }
 
 crate::observing_model! {
     pub struct Message(MessageImpl) {
         messageId: i32; READ get_message_id WRITE set_message_id,
+        attachments: QVariant; READ attachments,
     } WITH OPTIONAL PROPERTIES FROM message WITH ROLE MessageRoles {
         sessionId SessionId,
         message Message,
@@ -36,8 +38,6 @@ crate::observing_model! {
         queued Queued,
         failed Failed,
 
-        attachments Attachments,
-
         unidentifiedSender Unidentified,
         quotedMessageId QuotedMessageId,
     }
@@ -46,7 +46,7 @@ crate::observing_model! {
 impl EventObserving for MessageImpl {
     fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
         if let Some(id) = self.message_id {
-            self.message = storage.fetch_augmented_message(id, true)
+            self.fetch(storage, id);
         }
     }
 
@@ -60,17 +60,31 @@ impl MessageImpl {
         self.message_id.unwrap_or(-1)
     }
 
+    fn attachments(&self) -> QVariant {
+        self.attachments.pinned().into()
+    }
+
+    fn fetch(&mut self, storage: Storage, id: i32) {
+        self.message = storage.fetch_augmented_message(id, true);
+        let attachments = if let Some(message) = &self.message {
+            message.attachments.clone()
+        } else {
+            Vec::new()
+        };
+        self.attachments.pinned().borrow_mut().set(attachments);
+    }
+
     #[with_executor]
     fn set_message_id(&mut self, storage: Option<Storage>, id: i32) {
         self.message_id = Some(id);
         if let Some(storage) = storage {
-            self.message = storage.fetch_augmented_message(id, true)
+            self.fetch(storage, id);
         }
     }
 
     fn init(&mut self, storage: Storage) {
         if let Some(id) = self.message_id {
-            self.message = storage.fetch_augmented_message(id, true)
+            self.fetch(storage, id);
         }
     }
 }
@@ -122,10 +136,7 @@ crate::observing_model! {
 impl EventObserving for SessionImpl {
     fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
         if let Some(id) = self.session_id {
-            self.message_list
-                .pinned()
-                .borrow_mut()
-                .load_all(storage, id);
+            self.fetch(storage, id);
         }
     }
 
@@ -139,23 +150,25 @@ impl SessionImpl {
         self.session_id.unwrap_or(-1)
     }
 
+    fn fetch(&mut self, storage: Storage, id: i32) {
+        self.session = storage.fetch_session_by_id_augmented(id);
+        self.message_list
+            .pinned()
+            .borrow_mut()
+            .load_all(storage, id);
+    }
+
     #[with_executor]
     fn set_session_id(&mut self, storage: Option<Storage>, id: i32) {
         self.session_id = Some(id);
         if let Some(storage) = storage {
-            self.message_list
-                .pinned()
-                .borrow_mut()
-                .load_all(storage, id);
+            self.fetch(storage, id);
         }
     }
 
     fn init(&mut self, storage: Storage) {
         if let Some(id) = self.session_id {
-            self.message_list
-                .pinned()
-                .borrow_mut()
-                .load_all(storage, id);
+            self.fetch(storage, id);
         }
     }
 
@@ -165,7 +178,7 @@ impl SessionImpl {
 }
 
 define_model_roles! {
-    enum MessageRoles for AugmentedMessage {
+    enum MessageRoles for orm::AugmentedMessage {
         Id(id):                                               "id",
         SessionId(session_id):                                "sessionId",
         Message(text via qstring_from_option):                "message",
@@ -193,7 +206,7 @@ define_model_roles! {
 #[derive(QObject, Default)]
 pub struct MessageListModel {
     base: qt_base_class!(trait QAbstractListModel),
-    messages: Vec<AugmentedMessage>,
+    messages: Vec<orm::AugmentedMessage>,
 }
 
 impl MessageListModel {
