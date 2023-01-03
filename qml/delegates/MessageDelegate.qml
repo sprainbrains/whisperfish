@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../components"
 import "../components/message"
 
@@ -20,7 +21,6 @@ ListItem {
     //      (we must rely on the message's id instead of its index, as the latter may change)
     // TODO 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
     // required properties: message, source, outgoing, attachments, AND id, index
-    property var quotedMessageData: modelData.quote !== undefined ? JSON.parse(modelData.quote) : null
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
     // Signal signature: \c{replySignal(var index, var modelData)}.
@@ -68,7 +68,7 @@ ListItem {
 
     readonly property bool hasData: modelData !== null && modelData !== undefined
     readonly property bool hasReactions: hasData && modelData.reactions !== undefined
-    readonly property bool hasQuotedMessage: quotedMessageData !== null
+    readonly property bool hasQuotedMessage: modelData.quotedMessageId !== null
     readonly property bool hasAttachments: hasData && (
         (modelData.thumbsAttachments !== undefined ? modelData.thumbsAttachments.count : 0)
         + (modelData.detailAttachments !== undefined ? modelData.detailAttachments.count : 0)
@@ -87,6 +87,11 @@ ListItem {
     function handleExternalPressAndHold(mouse) {
         if (openMenuOnPressAndHold) openMenu()
         else pressAndHold(mouse) // propagate
+    }
+
+    Message {
+        id: quotedMessage
+        messageId: modelData.quotedMessageId
     }
 
     onClicked: {
@@ -197,7 +202,7 @@ ListItem {
             showCloseButton: false
             showBackground: true
             highlighted: down || root.highlighted
-            messageData: quotedMessageData
+            messageData: quotedMessage
             backgroundItem.roundedCorners: backgroundItem.bottomLeft |
                                            backgroundItem.bottomRight |
                                            (isOutbound ? backgroundItem.topRight :

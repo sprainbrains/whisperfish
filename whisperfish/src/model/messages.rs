@@ -11,6 +11,51 @@ use std::collections::HashMap;
 
 /// QML-constructable object that interacts with a single session.
 #[derive(Default)]
+pub struct MessageImpl {
+    message_id: Option<i32>,
+    message: Option<AugmentedMessage>,
+}
+
+crate::observing_model! {
+    pub struct Message(MessageImpl) {
+        messageId: i32; READ get_message_id WRITE set_message_id,
+    }
+}
+
+impl EventObserving for MessageImpl {
+    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+        if let Some(id) = self.message_id {
+            self.message = storage.fetch_augmented_message(id, true)
+        }
+    }
+
+    fn interests() -> Vec<crate::store::observer::Interest> {
+        vec![crate::store::observer::Interest::All]
+    }
+}
+
+impl MessageImpl {
+    fn get_message_id(&self) -> i32 {
+        self.message_id.unwrap_or(-1)
+    }
+
+    #[with_executor]
+    fn set_message_id(&mut self, storage: Option<Storage>, id: i32) {
+        self.message_id = Some(id);
+        if let Some(storage) = storage {
+            self.message = storage.fetch_augmented_message(id, true)
+        }
+    }
+
+    fn init(&mut self, storage: Storage) {
+        if let Some(id) = self.message_id {
+            self.message = storage.fetch_augmented_message(id, true)
+        }
+    }
+}
+
+/// QML-constructable object that interacts with a single session.
+#[derive(Default)]
 pub struct SessionImpl {
     session_id: Option<i32>,
     message_list: QObjectBox<MessageListModel>,
