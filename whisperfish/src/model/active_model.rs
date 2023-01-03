@@ -7,8 +7,12 @@ use crate::store::Storage;
 #[macro_export]
 macro_rules! observing_model {
     ($vis:vis struct $model:ident($encapsulated:ty) {
-        $($field:ident: $t:ty; READ $getter:ident $(WRITE $setter:ident)?),* $(,)?
-    }) => {
+        $($property:ident: $t:ty; READ $getter:ident $(WRITE $setter:ident)?),* $(,)?
+    } $(
+        WITH OPTIONAL PROPERTIES FROM $field:ident WITH ROLE $role:ident {
+            $($opt_property:ident $role_variant:ident),* $(,)?
+        }
+    )?) => {
         #[derive(QObject)]
         $vis struct $model {
             base: qt_base_class!(trait QObject),
@@ -19,8 +23,15 @@ macro_rules! observing_model {
 
             $(
                 #[allow(unused)]
-                $field: qt_property!($t; READ $getter $(WRITE $setter)? NOTIFY something_changed),
+                $property: qt_property!($t; READ $getter $(WRITE $setter)? NOTIFY something_changed),
             )*
+
+            $(
+            $(
+                #[allow(unused)]
+                $opt_property: qt_property!(QVariant; READ $opt_property NOTIFY something_changed),
+            )*
+            )?
 
             something_changed: qt_signal!(),
         }
@@ -34,7 +45,8 @@ macro_rules! observing_model {
                     app: Default::default(),
                     inner,
                     actor: None,
-                    $( $field: Default::default(), )*
+                    $( $property: Default::default(), )*
+                    $($( $opt_property: Default::default(), )*)?
                     something_changed: Default::default(),
                 }
             }
@@ -67,6 +79,18 @@ macro_rules! observing_model {
                 }
             }
 
+            $(
+            $(
+                fn $opt_property(&self) -> qmetaobject::QVariant {
+                    match self.inner.borrow().$field.as_ref() {
+                        Some(x) => {
+                            ($role::$role_variant).get(x)
+                        }
+                        None => qmetaobject::QVariant::default()
+                    }
+                }
+            )*
+            )?
             $(
                 fn $getter(&self) -> $t {
                     self.inner.borrow().$getter()

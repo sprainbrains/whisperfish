@@ -2,6 +2,7 @@
 
 use crate::model::*;
 use crate::store::observer::EventObserving;
+use crate::store::orm;
 use crate::store::orm::AugmentedMessage;
 use crate::store::Storage;
 use qmeta_async::with_executor;
@@ -19,6 +20,26 @@ pub struct MessageImpl {
 crate::observing_model! {
     pub struct Message(MessageImpl) {
         messageId: i32; READ get_message_id WRITE set_message_id,
+    } WITH OPTIONAL PROPERTIES FROM message WITH ROLE MessageRoles {
+        sessionId SessionId,
+        message Message,
+        timestamp Timestamp,
+
+        senderRecipientId SenderRecipientId,
+        delivered Delivered,
+        read Read,
+        viewed Viewed,
+
+        sent Sent,
+        flags Flags,
+        outgoing Outgoing,
+        queued Queued,
+        failed Failed,
+
+        attachments Attachments,
+
+        unidentifiedSender Unidentified,
+        quotedMessageId QuotedMessageId,
     }
 }
 
@@ -58,6 +79,7 @@ impl MessageImpl {
 #[derive(Default)]
 pub struct SessionImpl {
     session_id: Option<i32>,
+    session: Option<orm::AugmentedSession>,
     message_list: QObjectBox<MessageListModel>,
 }
 
@@ -65,6 +87,35 @@ crate::observing_model! {
     pub struct Session(SessionImpl) {
         sessionId: i32; READ get_session_id WRITE set_session_id,
         messages: QVariant; READ messages,
+    } WITH OPTIONAL PROPERTIES FROM session WITH ROLE SessionRoles {
+        source Source,
+
+        recipientName RecipientName,
+        recipientUuid RecipientUuid,
+        recipientEmoji RecipientEmoji,
+
+        isGroup IsGroup,
+        isGroupV2 IsGroupV2,
+
+        groupId GroupId,
+        groupName GroupName,
+        groupDescription GroupDescription,
+        groupMembers GroupMembers,
+        groupMemberNames GroupMemberNames,
+
+        message Message,
+        section Section,
+        timestamp Timestamp,
+        read IsRead,
+        sent Sent,
+        deliveryCount Delivered,
+        readCount Read,
+        isMuted IsMuted,
+        isArchived IsArchived,
+        isPinned IsPinned,
+        viewCount Viewed,
+        hasAttachment HasAttachment,
+        hasAvatar HasAvatar,
     }
 }
 
