@@ -1,12 +1,12 @@
 #![allow(non_snake_case)]
 
 use crate::model::*;
-use crate::store::orm::Attachment;
+use crate::store::orm;
 use std::collections::HashMap;
 use std::process::Command;
 
 define_model_roles! {
-    enum AttachmentRoles for Attachment {
+    enum AttachmentRoles for orm::Attachment {
         // There's a lot more useful stuff to expose.
         MimeType(content_type via QString::from):       "type",
         Data(attachment_path via qstring_from_option):  "data",
@@ -14,9 +14,9 @@ define_model_roles! {
 }
 
 #[derive(QObject, Default)]
-pub struct AttachmentModel {
+pub struct AttachmentListModel {
     base: qt_base_class!(trait QAbstractListModel),
-    attachments: Vec<Attachment>,
+    attachments: Vec<orm::Attachment>,
 
     count: qt_property!(i32; NOTIFY rowCountChanged READ row_count),
 
@@ -28,8 +28,8 @@ pub struct AttachmentModel {
     rowCountChanged: qt_signal!(),
 }
 
-impl AttachmentModel {
-    pub fn new(attachments: Vec<Attachment>) -> Self {
+impl AttachmentListModel {
+    pub fn new(attachments: Vec<orm::Attachment>) -> Self {
         Self {
             attachments,
             ..Default::default()
@@ -78,7 +78,7 @@ impl AttachmentModel {
     }
 }
 
-impl QAbstractListModel for AttachmentModel {
+impl QAbstractListModel for AttachmentListModel {
     fn row_count(&self) -> i32 {
         self.attachments.len() as i32
     }
