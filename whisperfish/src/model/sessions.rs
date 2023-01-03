@@ -3,7 +3,6 @@
 use crate::model::*;
 use crate::store::observer::EventObserving;
 use crate::store::{orm, Storage};
-use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
 

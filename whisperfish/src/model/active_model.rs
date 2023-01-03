@@ -53,7 +53,7 @@ macro_rules! observing_model {
         }
 
         impl $model {
-            #[with_executor]
+            #[qmeta_async::with_executor]
             fn set_app(&mut self, app: QPointer<$crate::gui::AppState>) {
                 self.app = app;
                 self.reinit();
