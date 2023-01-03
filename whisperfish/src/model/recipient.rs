@@ -17,6 +17,26 @@ pub struct RecipientImpl {
 crate::observing_model! {
     pub struct Recipient(RecipientImpl) {
         recipientId: i32; READ get_recipient_id WRITE set_recipient_id,
+    } WITH OPTIONAL PROPERTIES FROM recipient WITH ROLE RecipientRoles {
+        id Id,
+        uuid Uuid,
+        // These two are aliases
+        e164 E164,
+        phoneNumber PhoneNumber,
+        username Username,
+        email Email,
+
+        blocked Blocked,
+
+        name JoinedName,
+        familyName FamilyName,
+        givenName GivenName,
+
+        about About,
+        emoji Emoji,
+
+        unidentifiedAccessMode UnidentifiedAccessModel,
+        profileSharing ProfileSharing,
     }
 }
 
