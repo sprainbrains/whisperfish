@@ -108,3 +108,13 @@ fn qstring_from_option(opt: Option<impl AsRef<str>>) -> QVariant {
         None => QVariant::default(),
     }
 }
+
+fn qvariant_from_option<T>(val: Option<T>) -> QVariant
+where
+    T: Into<QVariant>,
+{
+    match val {
+        Some(s) => s.into(),
+        None => QVariant::default(),
+    }
+}

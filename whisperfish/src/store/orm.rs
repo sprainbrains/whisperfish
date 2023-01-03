@@ -477,14 +477,6 @@ impl std::ops::Deref for AugmentedMessage {
 }
 
 impl AugmentedMessage {
-    pub fn source(&self) -> &str {
-        if let Some(sender) = &self.sender {
-            sender.e164_or_uuid()
-        } else {
-            ""
-        }
-    }
-
     pub fn name(&self) -> &str {
         if let Some(sender) = &self.sender {
             sender.name()
@@ -526,15 +518,6 @@ impl AugmentedMessage {
         self.attachments.len() as _
     }
 
-    #[deprecated]
-    pub fn first_attachment(&self) -> &str {
-        if self.attachments.is_empty() {
-            return "";
-        }
-
-        self.attachments[0].attachment_path.as_deref().unwrap_or("")
-    }
-
     pub fn reactions(&self) -> String {
         use itertools::Itertools;
         self.reactions
@@ -549,13 +532,5 @@ impl AugmentedMessage {
             .iter()
             .map(|(reaction, recipient)| format!("{} - {}", &reaction.emoji, &recipient.name()))
             .join("\n")
-    }
-
-    #[deprecated]
-    pub fn first_attachment_mime_type(&self) -> &str {
-        if self.attachments.is_empty() {
-            return "";
-        }
-        &self.attachments[0].content_type
     }
 }
