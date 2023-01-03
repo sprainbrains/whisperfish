@@ -1152,6 +1152,15 @@ impl Storage {
         }
     }
 
+    pub fn fetch_last_message_by_session_id_augmented(
+        &self,
+        sid: i32,
+        fetch_quote: bool,
+    ) -> Option<orm::AugmentedMessage> {
+        let msg = self.fetch_last_message_by_session_id(sid)?;
+        self.fetch_augmented_message(msg.id, fetch_quote)
+    }
+
     pub fn fetch_last_message_by_session_id(&self, sid: i32) -> Option<orm::Message> {
         use schema::messages::dsl::*;
         messages
@@ -1896,6 +1905,50 @@ impl Storage {
             sender,
             quoted_message: quoted_message.map(Box::new),
         })
+    }
+
+    pub fn fetch_all_sessions_augmented(&self) -> Vec<orm::AugmentedSession> {
+        let mut sessions: Vec<_> = self
+            .fetch_sessions()
+            .into_iter()
+            .map(|session| {
+                let group_members = if session.is_group_v1() {
+                    let group = session.unwrap_group_v1();
+                    self.fetch_group_members_by_group_v1_id(&group.id)
+                        .into_iter()
+                        .map(|(_, r)| r)
+                        .collect()
+                } else if session.is_group_v2() {
+                    let group = session.unwrap_group_v2();
+                    self.fetch_group_members_by_group_v2_id(&group.id)
+                        .into_iter()
+                        .map(|(_, r)| r)
+                        .collect()
+                } else {
+                    Vec::new()
+                };
+
+                let last_message =
+                    self.fetch_last_message_by_session_id_augmented(session.id, true);
+                orm::AugmentedSession {
+                    inner: session,
+                    group_members,
+                    last_message,
+                }
+            })
+            .collect();
+        // XXX This could be solved through a sub query.
+        sessions.sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
+            (Some(a_last_message), Some(b_last_message)) => b_last_message
+                .server_timestamp
+                .cmp(&a_last_message.server_timestamp),
+            (None, Some(_)) => std::cmp::Ordering::Greater,
+            (Some(_), None) => std::cmp::Ordering::Greater,
+            // Gotta use something here.
+            (None, None) => a.id.cmp(&b.id),
+        });
+
+        sessions
     }
 
     /// Returns a vector of tuples of messages with their sender.
