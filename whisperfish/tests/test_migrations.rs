@@ -8,14 +8,16 @@ mod migrations;
 use crate::diesel_migrations::MigrationHarness;
 use crate::migrations::orm;
 use chrono::prelude::*;
+use diesel::connection::SimpleConnection;
+use diesel::migration::{Migration, MigrationSource};
 use diesel::prelude::*;
+use diesel::sqlite::Sqlite;
 use diesel_migrations::EmbeddedMigrations;
-use diesel_migrations::Migration;
 use rstest::*;
 use rstest_reuse::{self, *};
 use whisperfish::schema::migrations as schemas;
 
-type MigrationList = Vec<(String, Box<dyn Migration + 'static>)>;
+type MigrationList = Vec<Box<dyn Migration<Sqlite> + 'static>>;
 
 mod original_data {
     use super::*;
@@ -113,30 +115,22 @@ fn assert_foreign_keys(db: &mut SqliteConnection) {
 
 #[fixture]
 fn empty_db() -> SqliteConnection {
-    let conn = SqliteConnection::establish(":memory:").unwrap();
-    conn.execute("PRAGMA foreign_keys = OFF;").unwrap();
+    let mut conn = SqliteConnection::establish(":memory:").unwrap();
+    conn.batch_execute("PRAGMA foreign_keys = OFF;").unwrap();
 
     conn
 }
 
 #[fixture]
 fn migration_params() -> MigrationList {
-    let mut migrations = Vec::new();
-    for subdir in std::fs::read_dir("../migrations").unwrap() {
-        let subdir = subdir.unwrap().path();
+    let migration_path = std::path::Path::new("../migrations");
+    let mut migrations: MigrationList =
+        diesel_migrations::FileBasedMigrations::from_path(migration_path)
+            .unwrap()
+            .migrations()
+            .unwrap();
 
-        if !subdir.is_dir() {
-            log::warn!("Skipping non-migration {:?}", subdir);
-            continue;
-        }
-
-        migrations.push((
-            subdir.file_name().unwrap().to_str().unwrap().to_string(),
-            diesel_migrations::migration_from(subdir).unwrap(),
-        ));
-    }
-
-    migrations.sort_by_key(|f| f.0.clone());
+    migrations.sort_by_cached_key(|f| f.name().to_string());
 
     assert!(!migrations.is_empty());
 
@@ -144,7 +138,7 @@ fn migration_params() -> MigrationList {
 }
 
 #[fixture]
-fn original_go_db(empty_db: SqliteConnection) -> SqliteConnection {
+fn original_go_db(mut empty_db: SqliteConnection) -> SqliteConnection {
     let message = r#"create table if not exists message
             (id integer primary key, session_id integer, source text, message string, timestamp integer,
     sent integer default 0, received integer default 0, flags integer default 0, attachment text,
@@ -166,21 +160,28 @@ fn original_go_db(empty_db: SqliteConnection) -> SqliteConnection {
 
 #[fixture]
 fn fixed_go_db(
-    empty_db: SqliteConnection,
+    mut empty_db: SqliteConnection,
     mut migration_params: MigrationList,
 ) -> SqliteConnection {
     drop(migration_params.split_off(3));
     assert_eq!(migration_params.len(), 3);
-    assert_eq!(migration_params[0].0, "2020-04-26-145028_0-5-message");
-    assert_eq!(migration_params[1].0, "2020-04-26-145033_0-5-sentq");
-    assert_eq!(migration_params[2].0, "2020-04-26-145036_0-5-session");
+    assert_eq!(
+        migration_params[0].name().to_string(),
+        "2020-04-26-145028_0-5-message"
+    );
+    assert_eq!(
+        migration_params[1].name().to_string(),
+        "2020-04-26-145033_0-5-sentq"
+    );
+    assert_eq!(
+        migration_params[2].name().to_string(),
+        "2020-04-26-145036_0-5-session"
+    );
 
-    diesel_migrations::run_migrations(
-        &empty_db,
-        migration_params.into_iter().map(|m| m.1),
-        &mut std::io::stdout(),
-    )
-    .unwrap();
+    for migration in migration_params {
+        migration.run(&mut empty_db).unwrap();
+    }
+
     assert_foreign_keys(&mut empty_db);
     empty_db
 }
@@ -197,20 +198,18 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 fn initial_dbs(db: SqliteConnection) {}
 
 #[apply(initial_dbs)]
-fn run_plain_migrations(db: SqliteConnection) {
+fn run_plain_migrations(mut db: SqliteConnection) {
     db.run_pending_migrations(MIGRATIONS).unwrap();
     assert_foreign_keys(&mut db);
 }
 
 #[apply(initial_dbs)]
-fn one_by_one(db: SqliteConnection, migration_params: MigrationList) {
-    for (migration_name, migration) in migration_params {
-        dbg!(migration_name);
-        diesel_migrations::run_migrations(&db, vec![migration], &mut std::io::stdout()).unwrap();
+fn one_by_one(mut db: SqliteConnection, migration_params: Vec<Box<dyn Migration<Sqlite>>>) {
+    for migration in migration_params {
+        dbg!(migration.name().to_string());
+        migration.run(&mut db).unwrap();
         assert_foreign_keys(&mut db);
     }
-
-    assert!(!diesel_migrations::any_pending_migrations(&mut db).unwrap());
 }
 
 #[allow(clippy::type_complexity)]
@@ -295,7 +294,7 @@ fn load_sessions(
 // - a bunch of `rstest`s that take different kinds of initial dbs, puts in the data and then calls
 //   the migrations and the assert function.
 
-fn assert_bunch_of_empty_sessions(db: SqliteConnection) {
+fn assert_bunch_of_empty_sessions(mut db: SqliteConnection) {
     use orm::current::*;
 
     let session_tests = [
@@ -352,7 +351,7 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
 
     use original_data::*;
 
-    let db = original_go_db;
+    let mut db = original_go_db;
 
     let sessions = vec![dm1(), group1(), group2(), group3()];
 
@@ -370,7 +369,7 @@ fn bunch_of_empty_sessions(original_go_db: SqliteConnection) {
     assert_bunch_of_empty_sessions(db);
 }
 
-fn assert_direct_session_with_messages(db: SqliteConnection) {
+fn assert_direct_session_with_messages(mut db: SqliteConnection) {
     use orm::current::*;
     use schemas::current::*;
 
@@ -426,7 +425,7 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
     use orm::original::*;
     use schemas::original::*;
 
-    let db = original_go_db;
+    let mut db = original_go_db;
 
     let sessions = vec![original_data::dm1()];
 
@@ -510,7 +509,7 @@ fn direct_session_with_messages(original_go_db: SqliteConnection) {
     assert_direct_session_with_messages(db);
 }
 
-fn assert_group_sessions_with_messages(db: SqliteConnection) {
+fn assert_group_sessions_with_messages(mut db: SqliteConnection) {
     use orm::current::*;
 
     let sessions = load_sessions(&mut db);
@@ -567,7 +566,7 @@ fn group_sessions_with_messages(original_go_db: SqliteConnection) {
 
     use original_data::*;
 
-    let db = original_go_db;
+    let mut db = original_go_db;
 
     let sessions = vec![group1(), group2()];
 
@@ -642,7 +641,7 @@ fn group_message_without_sender_nor_recipient(original_go_db: SqliteConnection) 
 
     use original_data::*;
 
-    let db = original_go_db;
+    let mut db = original_go_db;
 
     let sessions = vec![group1()];
 
@@ -707,7 +706,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
     use rand::Rng;
     use schemas::original::*;
 
-    let db = original_go_db;
+    let mut db = original_go_db;
 
     assert_eq!(
         diesel::insert_into(session::table)

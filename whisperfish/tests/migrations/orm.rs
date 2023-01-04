@@ -27,7 +27,7 @@ pub mod original {
 
     /// ID-free Session model for insertions
     #[derive(Insertable, Debug)]
-    #[table_name = "session"]
+    #[diesel(table_name = session)]
     pub struct NewSession {
         pub source: String,
         pub message: String,
@@ -63,7 +63,7 @@ pub mod original {
 
     /// ID-free Message model for insertions
     #[derive(Insertable)]
-    #[table_name = "message"]
+    #[diesel(table_name = message)]
     pub struct NewMessage {
         pub session_id: Option<i64>,
         pub source: String,
@@ -103,7 +103,7 @@ mod corrected_datatypes {
 
     /// ID-free Session model for insertions
     #[derive(Insertable, Debug)]
-    #[table_name = "session"]
+    #[diesel(table_name = session)]
     pub struct NewSession {
         pub source: String,
         pub message: String,
@@ -139,7 +139,7 @@ mod corrected_datatypes {
 
     /// ID-free Message model for insertions
     #[derive(Insertable)]
-    #[table_name = "message"]
+    #[diesel(table_name = message)]
     pub struct NewMessage {
         pub session_id: Option<i32>,
         pub source: String,

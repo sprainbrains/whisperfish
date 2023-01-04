@@ -4,6 +4,7 @@ extern crate diesel;
 extern crate diesel_migrations;
 use crate::diesel_migrations::MigrationHarness;
 
+use diesel::connection::SimpleConnection;
 use diesel::dsl::*;
 use diesel::prelude::*;
 use diesel::sql_types::*;
@@ -302,10 +303,18 @@ fn main() -> Result<(), anyhow::Error> {
     drop(original_db_location);
     println!("Location of the copied database: {:?}", db_location);
 
-    let db = SqliteConnection::establish(db_location.to_str().unwrap())?;
+    let mut db = SqliteConnection::establish(db_location.to_str().unwrap())?;
     println!("The copy of the database has been opened.");
 
-    if db.execute("SELECT count(*) FROM sqlite_master;").is_err() {
+    // Good: "55"
+    // Bad: "Parse error: file is not a database (26)"
+    let result = sql::<Text>("SELECT count(*) FROM sqlite_master;")
+        .get_result::<String>(&mut db)
+        .unwrap()
+        .parse::<String>()
+        .unwrap();
+
+    if !result.contains("file is not a database") {
         println!("We now ask you your Whisperfish password.");
         let password =
             rpassword::read_password_from_tty(Some("Whisperfish storage password: ")).unwrap();
@@ -314,12 +323,12 @@ fn main() -> Result<(), anyhow::Error> {
         let db_key = derive_db_key(&password, &db_salt_path)?;
         println!("Derived the db key.");
 
-        db.execute("PRAGMA cipher_compatibility = 3;")?;
-        db.execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key)))?;
-        db.execute("PRAGMA cipher_page_size = 4096;")?;
+        db.batch_execute("PRAGMA cipher_compatibility = 3;")?;
+        db.batch_execute(&format!("PRAGMA key = \"x'{}'\";", hex::encode(db_key)))?;
+        db.batch_execute("PRAGMA cipher_page_size = 4096;")?;
 
         // Test again whether the db is readable
-        db.execute("SELECT count(*) FROM sqlite_master;")?;
+        db.batch_execute("SELECT count(*) FROM sqlite_master;")?;
         println!("The copy of the database has been decrypted.");
     }
 
@@ -330,7 +339,7 @@ fn main() -> Result<(), anyhow::Error> {
 
     // We set the foreign key enforcement *off*,
     // such that we can print violations later.
-    db.execute("PRAGMA foreign_keys = OFF;").unwrap();
+    db.batch_execute("PRAGMA foreign_keys = OFF;").unwrap();
 
     println!("------");
     let start = std::time::Instant::now();
@@ -344,7 +353,7 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Here above, the dry run should have produced at least two sets of statistics of your data.");
     println!("These should give a decent indication to whether some data has been lost. Please report a bug if so.");
 
-    db.execute("PRAGMA foreign_keys = ON;").unwrap();
+    db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
     let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA main.foreign_key_check;")
         .load(&mut db)
         .unwrap();
