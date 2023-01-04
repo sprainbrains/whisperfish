@@ -18,11 +18,7 @@ BackgroundItem {
     property alias backgroundItem: bgRect
 
     readonly property bool shown: (quotedMessage.valid && visible)
-    readonly property bool hasAttachments: false
-    // readonly property bool hasAttachments: (
-    //     (quotedMessage.thumbsAttachments !== undefined ? quotedMessage.thumbsAttachments.count : 0)
-    //     + (quotedMessage.detailAttachments !== undefined ? quotedMessage.detailAttachments.count : 0)
-    //     > 0)
+    readonly property bool hasAttachments: quotedMessage.thumbsAttachmentsCount > 0
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
                                              metrics.width), maximumWidth) : 0
@@ -37,6 +33,12 @@ BackgroundItem {
         id: quotedMessage
         app: AppState
         // messageId through alias above
+    }
+
+    Recipient {
+        id: sender
+        app: AppState
+        recipientId: quotedMessage.senderRecipientId ? quotedMessage.senderRecipientId : -1
     }
 
     TextMetrics {
@@ -99,7 +101,14 @@ BackgroundItem {
 
         SenderNameLabel {
             id: senderNameLabel
-            source: quotedMessage !== null ? getRecipientName(quotedMessage.recipientE164, quotedMessage.recipientName, false) : ''
+            source: quotedMessage.outgoing ?
+                // Reused from main.qml; "You"
+                qsTrId("whisperfish-sender-name-label-outgoing") :
+                (sender.valid ?
+                    getRecipientName(sender.e164, sender.name, false) :
+                    //: Text shown on quotes when the sender of a quote is unknown
+                    //% "Unknown sender"
+                    qsTrId("whisperfish-quoted-message-unknown-sender"))
             defaultClickAction: false
             anchors { left: parent.left; right: parent.right }
             maximumWidth: parent.width
@@ -141,11 +150,8 @@ BackgroundItem {
         }
         width: attach === null ? 0 : Theme.itemSizeMedium
         height: width
-        attach: null
-        // XXX: This will work when we expose the quoted message data as QVariantMap instead of a JSON object. Cfr. QtAugmentedMessage::quote(&self).
-        // attach: (quotedMessage !== null && quotedMessage.thumbsAttachments.count > 0) ?
-        //             quotedMessage.thumbsAttachments.get(0) : null
-        enabled: false
+        attach: hasAttachments ? JSON.parse(quotedMessage.thumbsAttachments.get(0)) : null
+        enabled: hasAttachments
         layer.enabled: true
         layer.smooth: true
         layer.effect: RoundedMask {

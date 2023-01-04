@@ -20,8 +20,8 @@ Loader {
 
     property alias thumbsAttachments: message.thumbsAttachments
     property alias detailAttachments: message.detailAttachments
-    property int thumbsAttachmentCount: thumbsAttachments.count
-    property int detailAttachmentCount: detailAttachments.count
+    property int thumbsAttachmentCount: message.thumbsAttachmentsCount
+    property int detailAttachmentCount: message.detailAttachmentsCount
     property real thumbsHeight: thumbsAttachmentCount > 0 ? Math.min(2*Theme.itemSizeExtraLarge, width) : 0
     property real detailItemHeight: Theme.itemSizeMedium
     property real detailHeight: detailAttachmentCount > 0 ? Math.min(maxDetails, detailAttachmentCount)*detailItemHeight : 0

@@ -28,7 +28,7 @@ Page {
     Group {
         id: group
         app: AppState
-        groupId: session.groupId
+        groupId: session.groupId ? session.groupId : -1
     }
 
     function setTyping(message) {
