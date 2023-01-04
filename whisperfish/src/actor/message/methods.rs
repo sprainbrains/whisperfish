@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 
+use crate::worker::QueueMessage;
+
 use super::*;
 use futures::prelude::*;
 use qmeta_async::with_executor;
@@ -11,14 +13,7 @@ pub struct MessageMethods {
     pub client_actor: Option<Addr<ClientActor>>,
 
     createMessage: qt_method!(
-        fn(
-            &self,
-            session_id: i32,
-            message: QString,
-            attachment: QString,
-            quote: i32,
-            add: bool,
-        ) -> i32
+        fn(&self, session_id: i32, message: QString, attachment: QString, quote: i32, add: bool)
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
@@ -41,12 +36,12 @@ impl MessageMethods {
         attachment: QString,
         quote: i32,
         _add: bool,
-    ) -> i32 {
+    ) {
         let message = message.to_string();
         let attachment = attachment.to_string();
 
         actix::spawn(
-            self.actor
+            self.client_actor
                 .as_ref()
                 .unwrap()
                 .send(QueueMessage {
@@ -57,9 +52,6 @@ impl MessageMethods {
                 })
                 .map(Result::unwrap),
         );
-
-        // TODO: QML should *not* synchronously wait for a session ID to be returned.
-        -1
     }
 
     /// Called when a message should be queued to be sent to OWS

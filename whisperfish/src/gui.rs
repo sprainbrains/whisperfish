@@ -200,12 +200,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 std::sync::Arc::clone(&config),
             )?
             .start();
-            let message_actor = actor::MessageActor::new(
-                &mut app,
-                client_actor.clone(),
-                std::sync::Arc::clone(&config),
-            )
-            .start();
+            let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
             let whisperfish = Rc::new(WhisperfishApp {
                 app_state: QObjectBox::new(AppState::new()),
