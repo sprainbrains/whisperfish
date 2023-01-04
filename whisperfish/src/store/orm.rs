@@ -644,6 +644,14 @@ impl AugmentedSession {
         }
     }
 
+    pub fn recipient_e164(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => recipient.e164.as_deref().unwrap_or_default(),
+        }
+    }
+
     pub fn recipient_emoji(&self) -> &str {
         match &self.inner.r#type {
             SessionType::GroupV1(_group) => "",
@@ -651,6 +659,14 @@ impl AugmentedSession {
             SessionType::DirectMessage(recipient) => {
                 recipient.about_emoji.as_deref().unwrap_or_default()
             }
+        }
+    }
+
+    pub fn recipient_about(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => recipient.about.as_deref().unwrap_or_default(),
         }
     }
 

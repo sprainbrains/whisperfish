@@ -17,6 +17,7 @@ pub struct RecipientImpl {
 crate::observing_model! {
     pub struct Recipient(RecipientImpl) {
         recipientId: i32; READ get_recipient_id WRITE set_recipient_id,
+        valid: bool; READ get_valid,
     } WITH OPTIONAL PROPERTIES FROM recipient WITH ROLE RecipientRoles {
         id Id,
         uuid Uuid,
@@ -55,6 +56,10 @@ impl EventObserving for RecipientImpl {
 impl RecipientImpl {
     fn get_recipient_id(&self) -> i32 {
         self.recipient_id.unwrap_or(-1)
+    }
+
+    fn get_valid(&self) -> bool {
+        self.recipient_id.is_some() && self.recipient.is_some()
     }
 
     #[with_executor]

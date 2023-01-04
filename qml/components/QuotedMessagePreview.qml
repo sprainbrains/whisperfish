@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "attachment"
 
 BackgroundItem {
     id: root
     // 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
-    property var messageData: null // required properties: message, source, outgoing, attachments
+    property alias messageId: quotedMessage.messageId
     property bool showCloseButton: true
     property bool showBackground: false
     property real contentPadding: Theme.paddingMedium
@@ -16,11 +17,11 @@ BackgroundItem {
     property alias horizontalAlignment: textLabel.horizontalAlignment
     property alias backgroundItem: bgRect
 
-    readonly property bool shown: (messageData !== null && visible)
+    readonly property bool shown: (quotedMessage.valid && visible)
     readonly property bool hasAttachments: false
     // readonly property bool hasAttachments: (
-    //     (messageData.thumbsAttachments !== undefined ? messageData.thumbsAttachments.count : 0)
-    //     + (messageData.detailAttachments !== undefined ? messageData.detailAttachments.count : 0)
+    //     (quotedMessage.thumbsAttachments !== undefined ? quotedMessage.thumbsAttachments.count : 0)
+    //     + (quotedMessage.detailAttachments !== undefined ? quotedMessage.detailAttachments.count : 0)
     //     > 0)
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
@@ -31,6 +32,12 @@ BackgroundItem {
     _backgroundColor: "transparent"
 
     signal closeClicked(var mouse)
+
+    Message {
+        id: quotedMessage
+        app: AppState
+        // messageId through alias above
+    }
 
     TextMetrics {
         id: metrics
@@ -92,7 +99,7 @@ BackgroundItem {
 
         SenderNameLabel {
             id: senderNameLabel
-            source: messageData !== null ? getRecipientName(messageData.peerTel, messageData.peerName, false) : ''
+            source: quotedMessage !== null ? getRecipientName(quotedMessage.recipientE164, quotedMessage.recipientName, false) : ''
             defaultClickAction: false
             anchors { left: parent.left; right: parent.right }
             maximumWidth: parent.width
@@ -106,9 +113,9 @@ BackgroundItem {
             anchors { left: parent.left; right: parent.right }
             verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignLeft
-            plainText: (messageData !== null && messageData.message.trim() !== '') ?
-                           messageData.message :
-                           ((messageData !== null && messageData.attachments.length > 0) ?
+            plainText: (quotedMessage.valid && quotedMessage.message.trim() !== '') ?
+                           quotedMessage.message :
+                           ((quotedMessage.valid && quotedMessage.attachments.length > 0) ?
                                 //: Placeholder text if quoted message preview contains no text, only attachments
                                 //% "Attachment"
                                 qsTrId("whisperfish-quoted-message-preview-attachment") :
@@ -136,8 +143,8 @@ BackgroundItem {
         height: width
         attach: null
         // XXX: This will work when we expose the quoted message data as QVariantMap instead of a JSON object. Cfr. QtAugmentedMessage::quote(&self).
-        // attach: (messageData !== null && messageData.thumbsAttachments.count > 0) ?
-        //             messageData.thumbsAttachments.get(0) : null
+        // attach: (quotedMessage !== null && quotedMessage.thumbsAttachments.count > 0) ?
+        //             quotedMessage.thumbsAttachments.get(0) : null
         enabled: false
         layer.enabled: true
         layer.smooth: true

@@ -16,12 +16,17 @@ pub struct MessageImpl {
     message: Option<orm::AugmentedMessage>,
 
     attachments: QObjectBox<AttachmentListModel>,
+    visual_attachments: QObjectBox<AttachmentListModel>,
+    detail_attachments: QObjectBox<AttachmentListModel>,
 }
 
 crate::observing_model! {
     pub struct Message(MessageImpl) {
         messageId: i32; READ get_message_id WRITE set_message_id,
+        valid: bool; READ get_valid,
         attachments: QVariant; READ attachments,
+        thumbsAttachments: QVariant; READ visual_attachments,
+        detailAttachments: QVariant; READ detail_attachments,
     } WITH OPTIONAL PROPERTIES FROM message WITH ROLE MessageRoles {
         sessionId SessionId,
         message Message,
@@ -60,8 +65,20 @@ impl MessageImpl {
         self.message_id.unwrap_or(-1)
     }
 
+    fn get_valid(&self) -> bool {
+        self.message_id.is_some() && self.message.is_some()
+    }
+
     fn attachments(&self) -> QVariant {
         self.attachments.pinned().into()
+    }
+
+    fn detail_attachments(&self) -> QVariant {
+        self.detail_attachments.pinned().into()
+    }
+
+    fn visual_attachments(&self) -> QVariant {
+        self.visual_attachments.pinned().into()
     }
 
     fn fetch(&mut self, storage: Storage, id: i32) {
@@ -71,14 +88,30 @@ impl MessageImpl {
         } else {
             Vec::new()
         };
-        self.attachments.pinned().borrow_mut().set(attachments);
+        self.attachments
+            .pinned()
+            .borrow_mut()
+            .set(attachments.clone());
+
+        let (visual, detail) = attachments
+            .into_iter()
+            .partition(|x| x.content_type.contains("image") || x.content_type.contains("video"));
+
+        self.detail_attachments.pinned().borrow_mut().set(detail);
+        self.visual_attachments.pinned().borrow_mut().set(visual);
     }
 
     #[with_executor]
     fn set_message_id(&mut self, storage: Option<Storage>, id: i32) {
-        self.message_id = Some(id);
-        if let Some(storage) = storage {
-            self.fetch(storage, id);
+        if id >= 0 {
+            self.message_id = Some(id);
+            if let Some(storage) = storage {
+                self.fetch(storage, id);
+            }
+        } else {
+            self.message_id = None;
+            self.message = None;
+            self.attachments.pinned().borrow_mut().set(Vec::new());
         }
     }
 
@@ -100,13 +133,16 @@ pub struct SessionImpl {
 crate::observing_model! {
     pub struct Session(SessionImpl) {
         sessionId: i32; READ get_session_id WRITE set_session_id,
+        valid: bool; READ get_valid,
         messages: QVariant; READ messages,
     } WITH OPTIONAL PROPERTIES FROM session WITH ROLE SessionRoles {
         source Source,
 
         recipientName RecipientName,
         recipientUuid RecipientUuid,
+        recipientE164 RecipientE164,
         recipientEmoji RecipientEmoji,
+        recipientAboutText RecipientAbout,
 
         isGroup IsGroup,
         isGroupV2 IsGroupV2,
@@ -148,6 +184,10 @@ impl EventObserving for SessionImpl {
 impl SessionImpl {
     fn get_session_id(&self) -> i32 {
         self.session_id.unwrap_or(-1)
+    }
+
+    fn get_valid(&self) -> bool {
+        self.session_id.is_some() && self.session.is_some()
     }
 
     fn fetch(&mut self, storage: Storage, id: i32) {

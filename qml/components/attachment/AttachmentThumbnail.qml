@@ -26,7 +26,7 @@ MouseArea {
             if (_isVideo) _viewPage = '../../pages/ViewVideoPage.qml'
 
             pageStack.push(_viewPage, {
-                               'title': message.peerName,
+                               'title': message.recipientName,
                                // TODO don't show the file path once attachments work reliably (#many)
                                //      and attachments are saved in a WF-controlled directory (#253)
                                'subtitle': attach.data,

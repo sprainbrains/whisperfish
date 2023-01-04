@@ -40,7 +40,7 @@ ListItem {
     readonly property string _message: fullMessageText !== "" ? fullMessageText : (hasData && modelData.message ? modelData.message.trim() : '')
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
 
-    readonly property string contactName: showSender ? getRecipientName(modelData.source, modelData.peerName, false) : ''
+    readonly property string contactName: showSender ? getRecipientName(modelData.recipientE164, modelData.recipientName, false) : ''
 
     // All children are placed inside a bubble, positioned left or right for
     // incoming/outbound messages. The bubble extends slightly over the contents.
@@ -68,16 +68,13 @@ ListItem {
 
     readonly property bool hasData: modelData !== null && modelData !== undefined
     readonly property bool hasReactions: hasData && modelData.reactions !== undefined
-    readonly property bool hasQuotedMessage: modelData.quotedMessageId !== null
-    readonly property bool hasAttachments: hasData && (
-        (modelData.thumbsAttachments !== undefined ? modelData.thumbsAttachments.count : 0)
-        + (modelData.detailAttachments !== undefined ? modelData.detailAttachments.count : 0)
-        > 0)
+    readonly property bool hasQuotedMessage: !!modelData.quotedMessageId && modelData.quotedMessageId != -1
+    readonly property bool hasAttachments: hasData && modelData.attachments > 0
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && modelData.source !== ''
     readonly property bool unidentifiedSender: modelData.unidentifiedSender !== undefined ? modelData.unidentifiedSender : true
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
-    readonly property bool isInGroup: session.group
+    readonly property bool isInGroup: session.isGroup
     readonly property bool isEmpty: !hasText && !hasAttachments
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
@@ -87,11 +84,6 @@ ListItem {
     function handleExternalPressAndHold(mouse) {
         if (openMenuOnPressAndHold) openMenu()
         else pressAndHold(mouse) // propagate
-    }
-
-    Message {
-        id: quotedMessage
-        messageId: modelData.quotedMessageId
     }
 
     onClicked: {
@@ -202,7 +194,7 @@ ListItem {
             showCloseButton: false
             showBackground: true
             highlighted: down || root.highlighted
-            messageData: quotedMessage
+            messageId: modelData.quotedMessageId ? modelData.quotedMessageId : -1
             backgroundItem.roundedCorners: backgroundItem.bottomLeft |
                                            backgroundItem.bottomRight |
                                            (isOutbound ? backgroundItem.topRight :
@@ -221,6 +213,7 @@ ListItem {
             width: delegateContentWidth
             cornersOutbound: isOutbound
             cornersQuoted: showQuotedMessage
+            messageId: modelData.id
         }
 
         Item { width: 1; height: hasAttachments ? Theme.paddingSmall : 0 }

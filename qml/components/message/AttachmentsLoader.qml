@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../attachment"
 import ".."
 
@@ -10,10 +11,17 @@ Loader {
     id: root
     readonly property var thumbsRe: /^(image|video)\//
 
-    property var thumbsAttachments: modelData.thumbsAttachments
-    property int thumbsAttachmentCount: thumbsAttachments !== undefined ? thumbsAttachments.count : 0
-    property var detailAttachments: modelData.detailAttachments
-    property int detailAttachmentCount: detailAttachments !== undefined ? detailAttachments.count : 0
+    property alias messageId: message.messageId
+
+    Message {
+        id: message
+        app: AppState
+    }
+
+    property alias thumbsAttachments: message.thumbsAttachments
+    property alias detailAttachments: message.detailAttachments
+    property int thumbsAttachmentCount: thumbsAttachments.count
+    property int detailAttachmentCount: detailAttachments.count
     property real thumbsHeight: thumbsAttachmentCount > 0 ? Math.min(2*Theme.itemSizeExtraLarge, width) : 0
     property real detailItemHeight: Theme.itemSizeMedium
     property real detailHeight: detailAttachmentCount > 0 ? Math.min(maxDetails, detailAttachmentCount)*detailItemHeight : 0

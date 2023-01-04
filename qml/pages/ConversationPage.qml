@@ -12,7 +12,7 @@ Page {
     // E.g. when starting a new chat.
     property bool editorFocus: false
 
-    property string conversationName: session.isGroup ? session.peerName : getRecipientName(session.peerTel, session.peerName, true)
+    property string conversationName: session.isGroup ? session.groupName : getRecipientName(session.recipientE164, session.recipientName, true)
     property string profilePicture: ""
     property alias sessionId: session.sessionId
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
@@ -23,6 +23,12 @@ Page {
         id: session
         app: AppState
         // sessionId is set through the property alias above.
+    }
+
+    Group {
+        id: group
+        app: AppState
+        groupId: session.groupId
     }
 
     function setTyping(message) {
@@ -39,10 +45,10 @@ Page {
             var nextPageName = nextPage ? nextPage.objectName : ''
 
             if (session.isGroup && nextPageName !== 'groupProfile') {
-                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { sessionId: session.id })
+                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { sessionId: sessionId })
             }
             if(!session.isGroup && nextPageName !== 'verifyIdentity'){
-                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { sessionId: session.id, peerName: root.conversationName, profilePicture: root.profilePicture })
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { sessionId: sessionId, profilePicture: profilePicture })
             }
         }
     }
@@ -65,14 +71,12 @@ Page {
         anchors.top: parent.top
         description: {
             if (session.isGroup) {
-                // var members = MessageModel.groupMembers.split(",")
-                var members = ["foo"];
                 //: The number of members in a group, you included
                 //% "%n member(s)"
-                return qsTrId("whisperfish-group-n-members", members.length)
+                return qsTrId("whisperfish-group-n-members", group.member_count)
             }
-            else return (session.peerName === session.peerTel ?
-                             "" : session.peerTel)
+            else return (session.recipientName === session.recipientE164 ?
+                             "" : session.recipientE164)
         }
         profilePicture: root.profilePicture
 

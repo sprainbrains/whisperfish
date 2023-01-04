@@ -21,11 +21,14 @@ pub struct GroupImpl {
 
 crate::observing_model! {
     pub struct Group(GroupImpl) {
-        groupId: String; READ get_group_id WRITE set_group_id,
+        groupId: QString; READ get_group_id WRITE set_group_id,
         isGroupV1: bool; READ get_is_group_v1,
         isGroupV2: bool; READ get_is_group_v2,
 
+        valid: bool; READ get_valid,
+
         members: QVariant; READ members,
+        member_count: i32; READ member_count,
     }
 }
 
@@ -42,8 +45,8 @@ impl EventObserving for GroupImpl {
 }
 
 impl GroupImpl {
-    fn get_group_id(&self) -> String {
-        self.id.clone().unwrap_or_default()
+    fn get_group_id(&self) -> QString {
+        self.id.clone().unwrap_or_default().into()
     }
 
     fn get_is_group_v1(&self) -> bool {
@@ -54,13 +57,21 @@ impl GroupImpl {
         self.group_v2.is_some()
     }
 
+    fn member_count(&self) -> i32 {
+        self.membership_list.pinned().borrow_mut().row_count()
+    }
+
+    fn get_valid(&self) -> bool {
+        self.id.is_some() && (self.group_v1.is_some() || self.group_v2.is_some())
+    }
+
     fn members(&self) -> QVariant {
         self.membership_list.pinned().into()
     }
 
     #[with_executor]
-    fn set_group_id(&mut self, storage: Option<Storage>, id: String) {
-        self.id = Some(id);
+    fn set_group_id(&mut self, storage: Option<Storage>, id: QString) {
+        self.id = Some(id.to_string());
         if let Some(storage) = storage {
             self.init(storage);
         }

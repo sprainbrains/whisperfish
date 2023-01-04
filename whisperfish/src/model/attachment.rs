@@ -15,6 +15,7 @@ pub struct AttachmentImpl {
 crate::observing_model! {
     pub struct Attachment(AttachmentImpl) {
         attachmentId: i32; READ get_attachment_id WRITE set_attachment_id,
+        valid: bool; READ get_valid,
     } WITH OPTIONAL PROPERTIES FROM attachment WITH ROLE AttachmentRoles {
         r#type MimeType,
         data Data,
@@ -26,6 +27,10 @@ impl AttachmentImpl {
         if let Some(id) = self.attachment_id {
             self.fetch(storage, id);
         }
+    }
+
+    fn get_valid(&self) -> bool {
+        self.attachment_id.is_some() && self.attachment.is_some()
     }
 
     fn get_attachment_id(&self) -> i32 {

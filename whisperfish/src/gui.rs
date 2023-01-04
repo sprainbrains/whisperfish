@@ -179,6 +179,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 let uri = cstr!("be.rubdos.whisperfish");
                 qml_register_type::<model::Sessions>(uri, 1, 0, cstr!("Sessions"));
                 qml_register_type::<model::Session>(uri, 1, 0, cstr!("Session"));
+                qml_register_type::<model::Message>(uri, 1, 0, cstr!("Message"));
                 qml_register_type::<model::Recipient>(uri, 1, 0, cstr!("Recipient"));
                 qml_register_type::<model::Group>(uri, 1, 0, cstr!("Group"));
                 qml_register_type::<model::Attachment>(uri, 1, 0, cstr!("Attachment"));

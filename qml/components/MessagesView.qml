@@ -232,7 +232,7 @@ SilicaListView {
                 section = sectionHeaderComponent.createObject(wrapper, {
                     'title': ListView.section.substr(0, 10) === '' ?
                                  (newerSection.substr(0, 10) === '' ?
-                                      MessageModel.peerName : newerSection) :
+                                      model.recipientName : newerSection) :
                                  Format.formatDate(ListView.section, Formatter.DateFull)
                 })
             } else {

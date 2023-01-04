@@ -1,6 +1,7 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.TextLinking 1.0
+import be.rubdos.whisperfish 1.0
 import "../components"
 
 Page {
@@ -18,96 +19,27 @@ Page {
         // sessionId through property alias below
     }
 
+    Group {
+        id: group
+        app: AppState
+        groupId: session.groupId
+    }
+
     property alias sessionId: session.sessionId
     property bool groupV2: session.isGroupV2 // works until groupV3
     property string groupId: session.groupId
-    property string groupName: session.peerName
-    property string groupDescription: session.groupDescription
-
-    readonly property string groupMembers: session.groupMembers
-    readonly property string groupMemberNames: session.groupMemberNames
-    readonly property string groupMemberUuids: session.groupMemberUuids
+    property string groupName: session.groupName
+    property string groupDescription: session.groupDescription ? session.groupDescription : ""
 
     readonly property string myUuid: SetupWorker.uuid
     readonly property string myPhone: SetupWorker.phoneNumber
-
-    onGroupMembersChanged: contactListModel.refresh()
-    Component.onCompleted: contactListModel.refresh()
-
-    ListModel {
-        id: contactListModel
-        function refresh() {
-            clear()
-            var members = groupMembers.split(",")
-            var names = groupMemberNames.split(",")
-            var uuids = groupMemberUuids.split(",")
-
-            var useNames = members.length === names.length // sanity check really
-            if(useNames === false) {
-                console.warn("Group uuid/e164 count doesn't match group name count. Does someone have a comma in their name?")
-            }
-
-            var useAvatars = members.length === uuids.length // sanity check really
-            if(useAvatars === false) {
-                console.warn("Group uuid/e164 count doesn't match group uuid count. Does someone not have UUID yet? That's a bug!")
-            }
-
-            // TODO localId is available but not used by the backend, i.e. always empty
-            //      Related to #138. We need a way to check our own id.
-            // Insert self as the first item if all lists are same length
-            if(useNames && useAvatars) {
-                var myIndex = members.indexOf(myUuid)
-                if(myIndex === -1) {
-                    myIndex = members.indexOf(myPhone)
-                }
-                if(myIndex > -1) {
-                    var tmp;
-                    tmp = members.splice(myIndex, 1)
-                    members.unshift(tmp[0])
-                    tmp = names.splice(myIndex, 1)
-                    names.unshift(tmp[0])
-                    tmp = uuids.splice(myIndex, 1)
-                    uuids.unshift(tmp[0])
-                }
-            }
-
-            for (var i = 0; i < members.length; i++) {
-                if (!members[i]) continue // skip empty/invalid values
-
-                var isSelf = (myUuid === uuids[i] || myPhone === members[i])
-
-                var name = useNames ? getRecipientName(members[i], names[i], false) : members[i]
-                var isUnknown = false // checked below
-                var isVerified = false // TODO implement in backend
-
-                if (name === members[i]) {
-                    // TODO Use nickname defined in the profile (#192)
-                    // Unknown contact
-                    //: Unknown contact in group member list
-                    //% "Unknown"
-                    name = qsTrId("whisperfish-unknown-contact")
-                    isUnknown = true
-                }
-                // XXX accessing the hasAvatar property is impossible here, for now
-                var profilePicture = useAvatars ? getRecipientAvatar(members[i], uuids[i]) : ''
-
-                append({"contactId": members[i],
-                           "name": name,
-                           "isUnknown": isUnknown,
-                           "isVerified": isVerified,
-                           "isSelf": isSelf,
-                           "profilePicture": profilePicture
-                       })
-            }
-        }
-    }
 
     RemorsePopup { id: remorse }
 
     SilicaListView {
         id: flick
         anchors.fill: parent
-        model: contactListModel
+        model: group.members
         header: Column {
             width: parent.width
 
@@ -269,17 +201,16 @@ Page {
             enabled: !isSelf
 
             property bool selfIsAdmin: false // TODO implement in backend
-            property bool isUnknownContact: model.isUnknown
-            property bool isVerified: model.isVerified
-            property bool isSelf: model.isSelf
-            property string profilePicture: model.profilePicture
+            property bool isVerified: false // TODO implement in backend;  model.isVerified
+            property bool isSelf: model.uuid === myUuid
+            property string profilePicture: getRecipientAvatar(model.e164, model.uuid)
+            property string name: getRecipientName(model.e164, model.name, false)
+            property bool isUnknownContact: name == model.e164
 
-            // TODO This is an ugly hack that relies on contactId being a phone number.
-            //      - Remove if/when contacts move to UUIDs
-            //      - Implement custom contact page for Whisperfish contacts
+            // TODO Implement custom contact page for Whisperfish contacts
             onClicked:
-                if(contactId.length > 0 && contactId[0] === "+") {
-                    phonenumberLink.linkActivated('tel:'+contactId)
+                if(model.e164 != "") {
+                    phonenumberLink.linkActivated('tel:' + model.e164)
                 }
 
             menu: Component {
@@ -287,10 +218,14 @@ Page {
                     MenuItem {
                         // TODO Implement a way to open a new chat with someone, or open
                         //      an existing chat. This requires better handling of sessions (#105, #183)
-                        //: Menu item to start a private chat with a group member
-                        //% "Message to %1"
-                        text: qsTrId("whisperfish-group-member-menu-direct-message").arg(
-                                  isUnknownContact ? contactId : name)
+                        text: isSelf ?
+                                  //: Menu item to open the conversation with oneself
+                                  //% "Open Note to Self"
+                                  qsTrId("whisperfish-group-member-menu-open-note-to-self") :
+                                  //: Menu item to start a private chat with a group member
+                                  //% "Message to %1"
+                                  qsTrId("whisperfish-group-member-menu-direct-message").arg(
+                                      isUnknownContact ? (model.e164 ? model.e164 : model.uuid) : name)
                         // TODO Remove the conditional once contact ids are no longer phone numbers,
                         //      and once profiles (nicknames) are implemented.
                         onClicked: remorse.execute("Directly opening a chat is not yet implemented.", function() {})
@@ -353,7 +288,11 @@ Page {
                                   //: Title for the user's entry in a list of group members
                                   //% "You"
                                   qsTrId("whisperfish-group-member-name-self") :
-                                  name
+                                  (item.isUnknownContact ?
+                                      //: Unknown contact in group member list
+                                      //% "Unknown"
+                                      qsTrId("whisperfish-unknown-contact") :
+                                      name)
                     }
                     LinkedText {
                         id: phonenumberLink
@@ -361,7 +300,7 @@ Page {
                         color: item.down ? Theme.secondaryHighlightColor :
                                            Theme.secondaryColor
                         font.pixelSize: Theme.fontSizeSmall
-                        plainText: contactId
+                        plainText: model.e164
                     }
                 }
             }

@@ -175,7 +175,7 @@ ListItem {
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"), { sessionId: model.id })
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { sessionId: model.id, peerName: delegate.name, profilePicture: delegate.profilePicture })
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { sessionId: model.id, profilePicture: delegate.profilePicture })
                 }
             }
         }

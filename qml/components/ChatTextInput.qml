@@ -28,20 +28,15 @@ Item {
     property bool dockMoving
     property bool enableTypingIndicators: SettingsBridge.enable_typing_indicators
 
-    readonly property var quotedMessageData: _quotedMessageData // change via setQuote()/resetQuote()
-    readonly property int quotedMessageIndex: _quotedMessageIndex // change via setQuote()/resetQuote()
-    readonly property bool quotedMessageShown: quotedMessageData !== null
+    readonly property bool quotedMessageShown: quoteItem.messageId >= 0
     readonly property bool canSend: enableSending &&
                                     (text.trim().length > 0 ||
                                      attachments.length > 0)
 
-    property alias _quotedMessageData: quoteItem.messageData
-    property int _quotedMessageIndex: -1 // TODO index may change; we should rely on the message id
-
     signal sendMessage(var text, var attachments, var replyTo /* message id */)
     signal sendTypingNotification()
     signal sendTypingNotificationEnd()
-    signal quotedMessageClicked(var index, var quotedData)
+    signal quotedMessageClicked(var messageId)
 
     onDockMovingChanged: {
         if(buttonContainer.enabled) {
@@ -62,20 +57,11 @@ Item {
     }
 
     function setQuote(index, modelData) {
-        _quotedMessageIndex = index
-        _quotedMessageData = {
-            message: modelData.message,
-            source: modelData.source,
-            outgoing: modelData.outgoing,
-            attachments: (modelData.attachment && modelData.mimeType) ?
-                             [{ data: modelData.attachment, type: modelData.mimeType }] : [],
-            id: modelData.id,
-        }
+        quoteItem.messageId = modelData.id
     }
 
     function resetQuote() {
-        _quotedMessageIndex = -1
-        _quotedMessageData = null
+        quoteItem.messageId = -1
     }
 
     function forceEditorFocus(/*bool*/ atEnd) {
@@ -90,8 +76,7 @@ Item {
             text = text.replace(/(\r\n\t|\n|\r\t)/gm, '')
         }
         // TODO implement replies in the model
-        sendMessage(text, attachments, _quotedMessageData === null ?
-                        -1 : _quotedMessageData.id)
+        sendMessage(text, attachments, quoteItem.messageId)
         if (clearAfterSend) reset()
     }
 
@@ -168,10 +153,10 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             showCloseButton: true
             showBackground: false
-            messageData: null // set through setQuote()/resetQuote()
+            messageId: -1 // set through setQuote()/resetQuote()
             clip: true // for slide animation
             Behavior on height { SmoothedAnimation { duration: 120 } }
-            onClicked: quotedMessageClicked(quotedMessageIndex, quotedMessageData)
+            onClicked: quotedMessageClicked(quoteItem.messageId)
             onCloseClicked: resetQuote()
         }
 

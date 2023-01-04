@@ -109,16 +109,16 @@ ApplicationWindow
     // user selected preference. Fallback to e164.
     //
     // e164:           phone number
-    // peerName:       Signal profile username
+    // recipientName:       Signal profile username
     // showNoteToSelf: true:      show "You"
     //                 false:     show "Note to self"
     //                 undefined: show own name instead
-    function getRecipientName(e164, peerName, shownNoteToSelf) {
-        if(!peerName) {
-            peerName = ''
+    function getRecipientName(e164, recipientName, shownNoteToSelf) {
+        if(!recipientName) {
+            recipientName = ''
         }
         if(!e164) {
-            return peerName
+            return recipientName
         }
         if((shownNoteToSelf !== undefined) && (e164 === SetupWorker.phoneNumber)) {
             if(shownNoteToSelf) {
@@ -135,9 +135,9 @@ ApplicationWindow
         // Only try to search for contact name if contact is a phone number
         var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
         if(SettingsBridge.prefer_device_contacts) {
-            return (contact && contact.displayLabel !== '') ? contact.displayLabel : peerName
+            return (contact && contact.displayLabel !== '') ? contact.displayLabel : recipientName
         } else {
-            return (peerName !== '') ? peerName : (contact ? contact.displayLabel : e164)
+            return (recipientName !== '') ? recipientName : (contact ? contact.displayLabel : e164)
         }
     }
 
@@ -208,7 +208,7 @@ ApplicationWindow
             console.log("Activating session: " + sid)
             mainWindow.activate()
             showMainPage()
-            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { peerName: contactName, profilePicture: avatar, sessionId: sid }, PageStackAction.Immediate)
+            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { profilePicture: avatar, sessionId: sid }, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {
