@@ -10,32 +10,6 @@ pub struct MessageMethods {
     pub actor: Option<Addr<MessageActor>>,
     pub client_actor: Option<Addr<ClientActor>>,
 
-    // XXX move into Session
-    fingerprint: Option<String>,
-
-    numericFingerprint: qt_property!(QString; NOTIFY peerIdentityChanged READ fingerprint),
-    peerName: qt_property!(QString; NOTIFY peerChanged),
-    peerTel: qt_property!(QString; NOTIFY peerChanged),
-    peerUuid: qt_property!(QString; NOTIFY peerChanged),
-    peerHasAvatar: qt_property!(bool; NOTIFY peerChanged),
-    aboutEmoji: qt_property!(QString; NOTIFY peerChanged),
-    aboutText: qt_property!(QString; NOTIFY peerChanged),
-
-    groupMembers: qt_property!(QString; NOTIFY groupMembersChanged),
-    groupMemberNames: qt_property!(QString; NOTIFY groupMembersChanged),
-    groupMemberUuids: qt_property!(QString; NOTIFY groupMembersChanged),
-    groupId: qt_property!(QString; NOTIFY groupChanged),
-    group: qt_property!(bool; NOTIFY groupChanged),
-    groupV1: qt_property!(bool; NOTIFY groupChanged),
-    groupV2: qt_property!(bool; NOTIFY groupChanged),
-    groupDescription: qt_property!(QString; NOTIFY peerChanged),
-
-    peerIdentityChanged: qt_signal!(),
-    peerChanged: qt_signal!(),
-    groupMembersChanged: qt_signal!(),
-    sessionIdChanged: qt_signal!(),
-    groupChanged: qt_signal!(),
-
     createMessage: qt_method!(
         fn(
             &self,
@@ -124,13 +98,5 @@ impl MessageMethods {
         );
 
         log::trace!("Dispatched DeleteMessage({})", id);
-    }
-
-    #[with_executor]
-    fn fingerprint(&self) -> QString {
-        self.fingerprint
-            .as_deref()
-            .unwrap_or("no fingerprint")
-            .into()
     }
 }
