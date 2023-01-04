@@ -19,6 +19,9 @@ pub struct SessionsImpl {
 crate::observing_model! {
     pub struct Sessions(SessionsImpl) {
         sessions: QVariant; READ sessions,
+
+        count: i32; READ count,
+        unread: i32; READ unread,
     }
 }
 
@@ -29,6 +32,14 @@ impl SessionsImpl {
 
     fn sessions(&self) -> QVariant {
         self.session_list.pinned().into()
+    }
+
+    fn count(&self) -> i32 {
+        self.session_list.pinned().borrow().count() as _
+    }
+
+    fn unread(&self) -> i32 {
+        self.session_list.pinned().borrow().unread()
     }
 }
 
