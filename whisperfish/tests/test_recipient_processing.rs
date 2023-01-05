@@ -5,8 +5,8 @@ use rstest::{fixture, rstest};
 use std::future::Future;
 
 const E164: &str = "+32474";
-const UUID: &str = "abcd-ef123";
-const UUID2: &str = "abcd-ef1234-56789";
+const UUID: &str = "dc6bf7f6-9946-4e01-89f6-dc3abdb2f71b";
+const UUID2: &str = "c25f3e9a-2cfd-4eb0-8a53-b22eb025667d";
 
 #[fixture]
 fn storage_with_e164_recipient(

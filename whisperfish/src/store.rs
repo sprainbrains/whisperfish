@@ -723,27 +723,42 @@ impl Storage {
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
     pub fn merge_and_fetch_recipient(
         &self,
+        // TODO: make these strong types
         e164: Option<&str>,
         uuid: Option<&str>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
-        let id = self
+        let (id, uuid, e164) = self
             .db()
             .transaction::<_, Error, _>(|db| {
                 Self::merge_and_fetch_recipient_inner(db, e164, uuid, trust_level)
             })
             .expect("database");
-        self.fetch_recipient_by_id(id)
-            .expect("existing updated recipient")
+        match (id, uuid, e164) {
+            (Some(id), _, _) => self
+                .fetch_recipient_by_id(id)
+                .expect("existing updated recipient"),
+            (_, Some(uuid), _) => self
+                .fetch_recipient_by_uuid(Uuid::parse_str(uuid).unwrap())
+                .expect("existing updated recipient"),
+            (_, _, Some(e164)) => self
+                .fetch_recipient_by_e164(e164)
+                .expect("existing updated recipient"),
+            (None, None, None) => {
+                unreachable!("this should get implemented with an Either or custom enum instead")
+            }
+        }
     }
 
     // Inner method because the coverage report is then sensible.
-    fn merge_and_fetch_recipient_inner(
+    #[allow(clippy::type_complexity)]
+    // XXX this should get implemented with an Either or custom enum instead
+    fn merge_and_fetch_recipient_inner<'e, 'u>(
         db: &mut SqliteConnection,
-        e164: Option<&str>,
-        uuid: Option<&str>,
+        e164: Option<&'e str>,
+        uuid: Option<&'u str>,
         trust_level: TrustLevel,
-    ) -> Result<i32, Error> {
+    ) -> Result<(Option<i32>, Option<&'u str>, Option<&'e str>), Error> {
         if e164.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
@@ -771,7 +786,7 @@ impl Storage {
         match (by_e164, by_uuid) {
             (Some(by_e164), Some(by_uuid)) if by_e164.id == by_uuid.id => {
                 // Both are equal, easy.
-                Ok(by_uuid.id)
+                Ok((Some(by_uuid.id), None, None))
             }
             (Some(by_e164), Some(by_uuid)) => {
                 log::warn!(
@@ -793,11 +808,11 @@ impl Storage {
                             .filter(recipients::id.eq(by_uuid.id))
                             .execute(db)?;
                         // Fetch again for the update
-                        Ok(by_uuid.id)
+                        Ok((Some(by_uuid.id), None, None))
                     }
                     (Some(_uuid), TrustLevel::Uncertain) => {
                         log::info!("Differing UUIDs, low trust, likely case of reregistration. Doing absolutely nothing. Sorry.");
-                        Ok(by_uuid.id)
+                        Ok((Some(by_uuid.id), None, None))
                     }
                     (None, TrustLevel::Certain) => {
                         log::info!(
@@ -810,13 +825,13 @@ impl Storage {
                             .filter(recipients::id.eq(merged))
                             .execute(db)?;
 
-                        Ok(merged)
+                        Ok((Some(merged), None, None))
                     }
                     (None, TrustLevel::Uncertain) => {
                         log::info!(
                             "Not merging contacts: one with e164, the other only uuid, low trust."
                         );
-                        Ok(by_uuid.id)
+                        Ok((Some(by_uuid.id), None, None))
                     }
                 }
             }
@@ -833,15 +848,15 @@ impl Storage {
                                 .set(recipients::e164.eq(e164))
                                 .filter(recipients::id.eq(by_uuid.id))
                                 .execute(db)?;
-                            Ok(by_uuid.id)
+                            Ok((Some(by_uuid.id), None, None))
                         }
                         TrustLevel::Uncertain => {
                             log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
-                            Ok(by_uuid.id)
+                            Ok((Some(by_uuid.id), None, None))
                         }
                     }
                 } else {
-                    Ok(by_uuid.id)
+                    Ok((Some(by_uuid.id), None, None))
                 }
             }
             (Some(by_e164), None) => {
@@ -857,7 +872,7 @@ impl Storage {
                                 .set(recipients::uuid.eq(uuid))
                                 .filter(recipients::id.eq(by_e164.id))
                                 .execute(db)?;
-                            Ok(by_e164.id)
+                            Ok((Some(by_e164.id), None, None))
                         }
                         TrustLevel::Uncertain => {
                             log::info!(
@@ -865,37 +880,27 @@ impl Storage {
                                 uuid,
                                 by_e164.e164.unwrap()
                             );
-                            // FIXME code duplication with this:
-                            // Ok(self.fetch_or_insert_recipient_by_uuid(uuid))
 
                             diesel::insert_into(recipients::table)
                                 .values(recipients::uuid.eq(uuid))
                                 .execute(db)
                                 .expect("insert new recipient");
-                            recipients::table
-                                .select(recipients::id)
-                                .filter(recipients::uuid.eq(uuid))
-                                .first(db)
+                            Ok((None, Some(uuid), None))
                         }
                     }
                 } else {
-                    Ok(by_e164.id)
+                    Ok((Some(by_e164.id), None, None))
                 }
             }
             (None, None) => {
                 let insert_e164 = (trust_level == TrustLevel::Certain) || uuid.is_none();
+                let insert_e164 = if insert_e164 { e164 } else { None };
                 diesel::insert_into(recipients::table)
-                    .values((
-                        recipients::e164.eq(if insert_e164 { e164 } else { None }),
-                        recipients::uuid.eq(uuid),
-                    ))
+                    .values((recipients::e164.eq(insert_e164), recipients::uuid.eq(uuid)))
                     .execute(db)
                     .expect("insert new recipient");
 
-                recipients::table
-                    .select(recipients::id)
-                    .filter(recipients::uuid.eq(uuid))
-                    .first(db)
+                Ok((None, uuid, insert_e164))
             }
         }
     }
