@@ -903,6 +903,7 @@ impl Storage {
     /// Merge source_id into dest_id.
     ///
     /// Executes `merge_recipient_inner` inside a transaction, and then returns the result.
+    #[allow(unused)]
     fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
         let mut db = self.db();
         let merged_id = db
@@ -1101,16 +1102,18 @@ impl Storage {
     pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
-        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(&mut *self.db()) {
+        let mut db = self.db();
+        let db = &mut *db;
+        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(db) {
             recipient
         } else {
             diesel::insert_into(recipients)
                 .values(uuid.eq(new_uuid))
-                .execute(&mut *self.db())
+                .execute(db)
                 .expect("insert new recipient");
             recipients
                 .filter(uuid.eq(new_uuid))
-                .first(&mut *self.db())
+                .first(db)
                 .expect("newly inserted recipient")
         }
     }
@@ -1118,16 +1121,18 @@ impl Storage {
     pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
-        if let Ok(recipient) = recipients.filter(e164.eq(new_e164)).first(&mut *self.db()) {
+        let mut db = self.db();
+        let db = &mut *db;
+        if let Ok(recipient) = recipients.filter(e164.eq(new_e164)).first(db) {
             recipient
         } else {
             diesel::insert_into(recipients)
                 .values(e164.eq(new_e164))
-                .execute(&mut *self.db())
+                .execute(db)
                 .expect("insert new recipient");
             recipients
                 .filter(e164.eq(new_e164))
-                .first(&mut *self.db())
+                .first(db)
                 .expect("newly inserted recipient")
         }
     }
@@ -1268,6 +1273,7 @@ impl Storage {
     /// Fetches the latest session by last_insert_rowid.
     ///
     /// This only yields correct results when the last insertion was in fact a session.
+    #[allow(unused)]
     fn fetch_latest_recipient(&self) -> Option<orm::Recipient> {
         use schema::recipients::dsl::*;
         recipients
@@ -1308,16 +1314,16 @@ impl Storage {
 
     pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
         log::trace!("Called fetch_session_by_e164({})", e164);
-        let db = self.db();
-        fetch_session!(db, |query| {
+        fetch_session!(self.db(), |query| {
             query.filter(schema::recipients::e164.eq(e164))
         })
     }
 
     pub fn fetch_session_by_recipient_id(&self, rid: i32) -> Option<orm::Session> {
         log::trace!("Called fetch__session_by_recipient_id({})", rid);
-        let db = self.db();
-        fetch_session!(db, |query| { query.filter(schema::recipients::id.eq(rid)) })
+        fetch_session!(self.db(), |query| {
+            query.filter(schema::recipients::id.eq(rid))
+        })
     }
 
     pub fn fetch_attachments_for_message(&self, mid: i32) -> Vec<orm::Attachment> {
