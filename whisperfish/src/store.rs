@@ -727,22 +727,23 @@ impl Storage {
         uuid: Option<&str>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
-        self.db()
-            .transaction::<orm::Recipient, Error, _>(|db| {
-                self.merge_and_fetch_recipient_inner(db, e164, uuid, trust_level)
+        let id = self
+            .db()
+            .transaction::<_, Error, _>(|db| {
+                Self::merge_and_fetch_recipient_inner(db, e164, uuid, trust_level)
             })
-            .expect("database")
+            .expect("database");
+        self.fetch_recipient_by_id(id)
+            .expect("existing updated recipient")
     }
 
     // Inner method because the coverage report is then sensible.
     fn merge_and_fetch_recipient_inner(
-        &self,
-        // XXX this transaction will deadlock for now
         db: &mut SqliteConnection,
         e164: Option<&str>,
         uuid: Option<&str>,
         trust_level: TrustLevel,
-    ) -> Result<orm::Recipient, Error> {
+    ) -> Result<i32, Error> {
         if e164.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
@@ -770,7 +771,7 @@ impl Storage {
         match (by_e164, by_uuid) {
             (Some(by_e164), Some(by_uuid)) if by_e164.id == by_uuid.id => {
                 // Both are equal, easy.
-                Ok(by_uuid)
+                Ok(by_uuid.id)
             }
             (Some(by_e164), Some(by_uuid)) => {
                 log::warn!(
@@ -792,34 +793,30 @@ impl Storage {
                             .filter(recipients::id.eq(by_uuid.id))
                             .execute(db)?;
                         // Fetch again for the update
-                        Ok(self
-                            .fetch_recipient_by_id(by_uuid.id)
-                            .expect("existing updated recipient"))
+                        Ok(by_uuid.id)
                     }
                     (Some(_uuid), TrustLevel::Uncertain) => {
                         log::info!("Differing UUIDs, low trust, likely case of reregistration. Doing absolutely nothing. Sorry.");
-                        Ok(by_uuid)
+                        Ok(by_uuid.id)
                     }
                     (None, TrustLevel::Certain) => {
                         log::info!(
                             "Merging contacts: one with e164, the other only uuid, high trust."
                         );
-                        let merged = self.merge_recipients(by_e164.id, by_uuid.id);
+                        let merged = Self::merge_recipients_inner(db, by_e164.id, by_uuid.id)?;
                         // XXX probably more recipient identifiers should be moved
                         diesel::update(recipients::table)
                             .set(recipients::e164.eq(e164))
-                            .filter(recipients::id.eq(merged.id))
+                            .filter(recipients::id.eq(merged))
                             .execute(db)?;
 
-                        Ok(self
-                            .fetch_recipient_by_id(merged.id)
-                            .expect("updated recipient"))
+                        Ok(merged)
                     }
                     (None, TrustLevel::Uncertain) => {
                         log::info!(
                             "Not merging contacts: one with e164, the other only uuid, low trust."
                         );
-                        Ok(by_uuid)
+                        Ok(by_uuid.id)
                     }
                 }
             }
@@ -835,18 +832,16 @@ impl Storage {
                             diesel::update(recipients::table)
                                 .set(recipients::e164.eq(e164))
                                 .filter(recipients::id.eq(by_uuid.id))
-                                .execute(&mut *self.db())?;
-                            Ok(self
-                                .fetch_recipient_by_id(by_uuid.id)
-                                .expect("existing updated recipient"))
+                                .execute(db)?;
+                            Ok(by_uuid.id)
                         }
                         TrustLevel::Uncertain => {
                             log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
-                            Ok(by_uuid)
+                            Ok(by_uuid.id)
                         }
                     }
                 } else {
-                    Ok(by_uuid)
+                    Ok(by_uuid.id)
                 }
             }
             (Some(by_e164), None) => {
@@ -861,10 +856,8 @@ impl Storage {
                             diesel::update(recipients::table)
                                 .set(recipients::uuid.eq(uuid))
                                 .filter(recipients::id.eq(by_e164.id))
-                                .execute(&mut *self.db())?;
-                            Ok(self
-                                .fetch_recipient_by_id(by_e164.id)
-                                .expect("existing updated recipient"))
+                                .execute(db)?;
+                            Ok(by_e164.id)
                         }
                         TrustLevel::Uncertain => {
                             log::info!(
@@ -872,11 +865,21 @@ impl Storage {
                                 uuid,
                                 by_e164.e164.unwrap()
                             );
-                            Ok(self.fetch_or_insert_recipient_by_uuid(uuid))
+                            // FIXME code duplication with this:
+                            // Ok(self.fetch_or_insert_recipient_by_uuid(uuid))
+
+                            diesel::insert_into(recipients::table)
+                                .values(recipients::uuid.eq(uuid))
+                                .execute(db)
+                                .expect("insert new recipient");
+                            recipients::table
+                                .select(recipients::id)
+                                .filter(recipients::uuid.eq(uuid))
+                                .first(db)
                         }
                     }
                 } else {
-                    Ok(by_e164)
+                    Ok(by_e164.id)
                 }
             }
             (None, None) => {
@@ -886,10 +889,13 @@ impl Storage {
                         recipients::e164.eq(if insert_e164 { e164 } else { None }),
                         recipients::uuid.eq(uuid),
                     ))
-                    .execute(&mut *self.db())
+                    .execute(db)
                     .expect("insert new recipient");
 
-                Ok(self.fetch_latest_recipient().expect("inserted recipient"))
+                recipients::table
+                    .select(recipients::id)
+                    .filter(recipients::uuid.eq(uuid))
+                    .first(db)
             }
         }
     }
@@ -899,33 +905,32 @@ impl Storage {
     /// Executes `merge_recipient_inner` inside a transaction, and then returns the result.
     fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
         let mut db = self.db();
-        db.transaction::<(), Error, _>(|db| {
-            // Defer constraints, we're moving a lot of data, inside of a transaction,
-            // and if we have a bug it definitely needs more research anyway.
-            db.batch_execute("PRAGMA defer_foreign_keys = ON;")?;
-            self.merge_recipient_inner(db, source_id, dest_id)
-        })
-        .expect("consistent migration");
+        let merged_id = db
+            .transaction::<_, Error, _>(|db| Self::merge_recipients_inner(db, source_id, dest_id))
+            .expect("consistent migration");
 
-        log::trace!("Contact merge comitted.");
+        log::trace!("Contact merge committed.");
 
-        self.fetch_recipient_by_id(dest_id)
+        self.fetch_recipient_by_id(merged_id)
             .expect("existing contact")
     }
 
     // Inner method because the coverage report is then sensible.
-    fn merge_recipient_inner(
-        &self,
+    fn merge_recipients_inner(
         db: &mut SqliteConnection,
         source_id: i32,
         dest_id: i32,
-    ) -> Result<(), diesel::result::Error> {
+    ) -> Result<i32, diesel::result::Error> {
         log::info!(
             "Merge of contacts {} and {}. Will move all into {}",
             source_id,
             dest_id,
             dest_id
         );
+
+        // Defer constraints, we're moving a lot of data, inside of a transaction,
+        // and if we have a bug it definitely needs more research anyway.
+        db.batch_execute("PRAGMA defer_foreign_keys = ON;")?;
 
         use schema::*;
 
@@ -1077,7 +1082,7 @@ impl Storage {
             .execute(db)?;
         log::trace!("Deleted {} recipient", deleted);
         assert_eq!(deleted, 1, "delete only one recipient");
-        Ok(())
+        Ok(dest_id)
     }
 
     pub fn fetch_recipient_by_uuid(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
