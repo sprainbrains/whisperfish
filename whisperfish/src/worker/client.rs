@@ -589,9 +589,8 @@ impl ClientActor {
                     let recipients: Vec<orm::Recipient> = {
                         use crate::schema::recipients::dsl::*;
                         use diesel::prelude::*;
-                        let db = storage.db
-                            .lock();
-                        recipients.load(&*db)?
+                        let mut db = storage.db();
+                        recipients.load(&mut *db)?
                     };
 
                     let contacts = recipients.into_iter().map(|recipient| {

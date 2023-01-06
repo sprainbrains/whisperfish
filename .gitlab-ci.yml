@@ -139,7 +139,7 @@ build:host:stable:
   <<: *rust-stable
   stage: build
   script:
-    - cargo build
+    - cargo build --features bundled-sqlcipher
 
 build:host:nightly:
   <<: *rust-nightly
@@ -186,7 +186,7 @@ test:stable:
   needs:
     - build:host:stable
   script:
-    - cargo test
+    - cargo test --features bundled-sqlcipher
 
 test:stable:diesel-schema:
   <<: *rust-stable
@@ -237,7 +237,7 @@ coverage:stable:
     # Add --all-features and --all-targets some time in the future. Tarpaulin
     # runs only at linux-x86 and would need the whisperfish sdk to build all
     # features.
-    - cargo tarpaulin -v --exclude-files cargo/* --out Xml
+    - cargo tarpaulin --features bundled-sqlcipher -v --exclude-files cargo/* --out Xml
   artifacts:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
     reports:

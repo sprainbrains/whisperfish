@@ -6,6 +6,7 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
+use crate::diesel::connection::SimpleConnection;
 pub mod actor;
 pub mod config;
 pub mod gui;
@@ -38,24 +39,24 @@ pub fn conf_dir() -> std::path::PathBuf {
 }
 
 /// Checks if the db contains foreign key violations.
-pub fn check_foreign_keys(db: &diesel::SqliteConnection) -> Result<(), anyhow::Error> {
+pub fn check_foreign_keys(db: &mut diesel::SqliteConnection) -> Result<(), anyhow::Error> {
     use diesel::prelude::*;
     use diesel::sql_types::*;
 
     #[derive(Queryable, QueryableByName, Debug)]
     #[allow(dead_code)]
     pub struct ForeignKeyViolation {
-        #[sql_type = "Text"]
+        #[diesel(sql_type = Text)]
         table: String,
-        #[sql_type = "Integer"]
+        #[diesel(sql_type = Integer)]
         rowid: i32,
-        #[sql_type = "Text"]
+        #[diesel(sql_type = Text)]
         parent: String,
-        #[sql_type = "Integer"]
+        #[diesel(sql_type = Integer)]
         fkid: i32,
     }
 
-    db.execute("PRAGMA foreign_keys = ON;").unwrap();
+    db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
     let violations: Vec<ForeignKeyViolation> = diesel::sql_query("PRAGMA main.foreign_key_check;")
         .load(db)
         .unwrap();

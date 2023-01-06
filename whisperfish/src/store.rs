@@ -5,30 +5,34 @@ mod protocol_store;
 mod utils;
 
 use self::orm::AugmentedMessage;
+use crate::diesel::connection::SimpleConnection;
+use crate::diesel_migrations::MigrationHarness;
 use crate::schema;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
 use chrono::prelude::*;
 use diesel::debug_query;
+use diesel::dsl::sql;
 use diesel::prelude::*;
+use diesel::result::*;
+use diesel::sql_types::Text;
+use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::{attachment_pointer, data_message::Reaction, DataMessage};
-use parking_lot::ReentrantMutex;
 use protocol_store::ProtocolStore;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, MutexGuard};
 use zkgroup::api::groups::GroupSecretParams;
 
-embed_migrations!();
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
-no_arg_sql_function!(
-    last_insert_rowid,
-    diesel::sql_types::Integer,
-    "Represents the Sqlite last_insert_rowid() function"
+sql_function!(
+    // Represents the Sqlite last_insert_rowid() function
+    fn last_insert_rowid() -> diesel::sql_types::Integer;
 );
 
 /// How much trust you put into the correctness of the data.
@@ -213,7 +217,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 
 #[derive(Clone)]
 pub struct Storage {
-    pub db: Arc<AssertUnwindSafe<ReentrantMutex<SqliteConnection>>>,
+    pub db: Arc<AssertUnwindSafe<Mutex<SqliteConnection>>>,
     store_enc: Option<encryption::StorageEncryption>,
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
@@ -226,7 +230,7 @@ pub struct Storage {
 /// but I'm not in the mood for digging a few hours through Diesel's traits.
 macro_rules! fetch_session {
     ($db:expr, |$fragment:ident| $b:block ) => {{
-        let db = $db;
+        let mut db = $db;
         let query = {
             let $fragment = schema::sessions::table
                 .left_join(schema::recipients::table)
@@ -239,13 +243,13 @@ macro_rules! fetch_session {
             Option<orm::Recipient>,
             Option<orm::GroupV1>,
             Option<orm::GroupV2>,
-        )> = query.first(&*db).ok();
+        )> = query.first(&mut *db).ok();
         triple.map(Into::into)
     }};
 }
 macro_rules! fetch_sessions {
     ($db:expr, |$fragment:ident| $b:block ) => {{
-        let db = $db;
+        let mut db = $db;
         let query = {
             let $fragment = schema::sessions::table
                 .left_join(schema::recipients::table)
@@ -258,7 +262,7 @@ macro_rules! fetch_sessions {
             Option<orm::Recipient>,
             Option<orm::GroupV1>,
             Option<orm::GroupV2>,
-        )> = query.load(&*db).unwrap();
+        )> = query.load(&mut *db).unwrap();
         triples.into_iter().map(orm::Session::from).collect()
     }};
 }
@@ -267,6 +271,10 @@ impl Storage {
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    pub(crate) fn db(&self) -> MutexGuard<'_, SqliteConnection> {
+        self.db.lock().expect("storage is alive")
     }
 
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), anyhow::Error> {
@@ -361,7 +369,7 @@ impl Storage {
         .await?;
 
         Ok(Storage {
-            db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
+            db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(tokio::sync::RwLock::new(
@@ -397,7 +405,7 @@ impl Storage {
         let protocol_store = ProtocolStore::open().await;
 
         Ok(Storage {
-            db: Arc::new(AssertUnwindSafe(ReentrantMutex::new(db))),
+            db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(tokio::sync::RwLock::new(
@@ -412,17 +420,17 @@ impl Storage {
         database_key: Option<&[u8]>,
     ) -> anyhow::Result<SqliteConnection, anyhow::Error> {
         log::info!("Opening DB");
-        let db = db_path.open_db()?;
+        let mut db = db_path.open_db()?;
 
         if let Some(database_key) = database_key {
             log::info!("Setting DB encryption");
 
-            db.execute("PRAGMA cipher_log = stderr;")
+            db.batch_execute("PRAGMA cipher_log = stderr;")
                 .context("setting sqlcipher log output to stderr")?;
-            db.execute("PRAGMA cipher_log_level = DEBUG;")
+            db.batch_execute("PRAGMA cipher_log_level = DEBUG;")
                 .context("setting sqlcipher log level to debug")?;
 
-            db.execute(&format!(
+            db.batch_execute(&format!(
                 "PRAGMA key = \"x'{}'\";",
                 hex::encode(database_key)
             ))
@@ -431,23 +439,23 @@ impl Storage {
             // while Go-Whisperfish used to use 4096.
             // Therefore,
             // ```
-            // db.execute("PRAGMA cipher_compatibility = 3;")?;
+            // db.batch_execute("PRAGMA cipher_compatibility = 3;")?;
             // ```
             // does not work.  We manually set the parameters of Sqlcipher 3.4 now,
             // and we postpone migration until we see that this sufficiencly works.
-            db.execute("PRAGMA cipher_page_size = 4096;")
+            db.batch_execute("PRAGMA cipher_page_size = 4096;")
                 .context("setting cipher_page_size")?;
-            db.execute("PRAGMA kdf_iter = 64000;")
+            db.batch_execute("PRAGMA kdf_iter = 64000;")
                 .context("setting kdf_iter")?;
-            db.execute("PRAGMA cipher_hmac_algorithm = HMAC_SHA1;")
+            db.batch_execute("PRAGMA cipher_hmac_algorithm = HMAC_SHA1;")
                 .context("setting cipher_hmac_algorithm")?;
-            db.execute("PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1;")
+            db.batch_execute("PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA1;")
                 .context("setting cipher_kdf_algorithm")?;
         }
 
         // From the sqlcipher manual:
         // -- if this throws an error, the key was incorrect. If it succeeds and returns a numeric value, the key is correct;
-        db.execute("SELECT count(*) FROM sqlite_master;")
+        db.batch_execute("SELECT count(*) FROM sqlite_master;")
             .context("attempting a read; probably wrong password")?;
         // XXX: Do we have to signal somehow that the password was wrong?
         //      Offer retries?
@@ -461,13 +469,14 @@ impl Storage {
         // SQLite.
         // That said, our check_foreign_keys() does output more useful information for when things
         // go haywire, albeit a bit later.
-        db.execute("PRAGMA foreign_keys = OFF;").unwrap();
-        db.transaction(|| -> Result<(), anyhow::Error> {
-            embedded_migrations::run(&db)?;
-            crate::check_foreign_keys(&db)?;
+        db.batch_execute("PRAGMA foreign_keys = OFF;").unwrap();
+        db.transaction::<_, Error, _>(|db| {
+            db.run_pending_migrations(MIGRATIONS)
+                .or(Err(Error::RollbackTransaction))?;
+            crate::check_foreign_keys(db).or(Err(Error::RollbackTransaction))?;
             Ok(())
         })?;
-        db.execute("PRAGMA foreign_keys = ON;").unwrap();
+        db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
 
         Ok(db)
     }
@@ -571,11 +580,10 @@ impl Storage {
         use crate::schema::reactions::dsl::*;
         use diesel::dsl::*;
 
-        let db = self.db.lock();
         diesel::delete(reactions)
             .filter(message_id.eq(message.id))
             .filter(author.eq(sender.id))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("remove old reaction from database");
         if !reaction.remove() {
             // If this was not a removal action, we have a replacement
@@ -588,7 +596,7 @@ impl Storage {
                     sent_time.eq(message_sent_time),
                     received_time.eq(now),
                 ))
-                .execute(&*db)
+                .execute(&mut *self.db())
                 .expect("insert reaction into database");
         }
 
@@ -616,19 +624,22 @@ impl Storage {
     pub fn fetch_recipient_by_e164(&self, new_e164: &str) -> Option<orm::Recipient> {
         use crate::schema::recipients::dsl::*;
 
-        let db = self.db.lock();
-
-        recipients.filter(e164.eq(new_e164)).first(&*db).ok()
+        recipients
+            .filter(e164.eq(new_e164))
+            .first(&mut *self.db())
+            .ok()
     }
 
     pub fn compress_db(&self) -> usize {
-        let db = self.db.lock();
-        db.execute("VACUUM;").unwrap()
+        sql::<Text>("VACUUM;")
+            .get_result::<String>(&mut *self.db())
+            .unwrap()
+            .parse::<usize>()
+            .unwrap()
     }
 
     pub fn fetch_recipients(&self) -> Vec<orm::Recipient> {
-        let db = self.db.lock();
-        schema::recipients::table.load(&*db).expect("db")
+        schema::recipients::table.load(&mut *self.db()).expect("db")
     }
 
     pub fn fetch_recipient(
@@ -640,13 +651,12 @@ impl Storage {
             panic!("fetch_recipient requires at least one of e164 or uuid");
         }
 
-        let db = self.db.lock();
         use schema::recipients;
         let by_e164: Option<orm::Recipient> = e164
             .map(|e164| {
                 recipients::table
                     .filter(recipients::e164.eq(e164))
-                    .first(&*db)
+                    .first(&mut *self.db())
                     .optional()
             })
             .transpose()
@@ -656,7 +666,7 @@ impl Storage {
             .map(|uuid| {
                 recipients::table
                     .filter(recipients::uuid.eq(uuid))
-                    .first(&*db)
+                    .first(&mut *self.db())
                     .optional()
             })
             .transpose()
@@ -667,11 +677,10 @@ impl Storage {
 
     pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) {
         use crate::schema::recipients::dsl::*;
-        let db = self.db.lock();
         diesel::update(recipients)
             .set(last_profile_fetch.eq(Option::<NaiveDateTime>::None))
             .filter(uuid.eq(recipient_uuid.to_string()))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("existing record updated");
         log::info!("Marked profile for {:?} as outdated.", recipient_uuid);
     }
@@ -696,11 +705,10 @@ impl Storage {
             }
 
             use crate::schema::recipients::dsl::*;
-            let db = self.db.lock();
             diesel::update(recipients)
                 .set(profile_key.eq(new_profile_key))
                 .filter(id.eq(recipient.id))
-                .execute(&*db)
+                .execute(&mut *self.db())
                 .expect("existing record updated");
             log::info!("Updated profile key for {}", recipient.e164_or_uuid());
         }
@@ -715,36 +723,52 @@ impl Storage {
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
     pub fn merge_and_fetch_recipient(
         &self,
+        // TODO: make these strong types
         e164: Option<&str>,
         uuid: Option<&str>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
-        let db = self.db.lock();
-        db.transaction(|| -> Result<orm::Recipient, diesel::result::Error> {
-            self.merge_and_fetch_recipient_inner(e164, uuid, trust_level)
-        })
-        .expect("database")
+        let (id, uuid, e164) = self
+            .db()
+            .transaction::<_, Error, _>(|db| {
+                Self::merge_and_fetch_recipient_inner(db, e164, uuid, trust_level)
+            })
+            .expect("database");
+        match (id, uuid, e164) {
+            (Some(id), _, _) => self
+                .fetch_recipient_by_id(id)
+                .expect("existing updated recipient"),
+            (_, Some(uuid), _) => self
+                .fetch_recipient_by_uuid(Uuid::parse_str(uuid).unwrap())
+                .expect("existing updated recipient"),
+            (_, _, Some(e164)) => self
+                .fetch_recipient_by_e164(e164)
+                .expect("existing updated recipient"),
+            (None, None, None) => {
+                unreachable!("this should get implemented with an Either or custom enum instead")
+            }
+        }
     }
 
     // Inner method because the coverage report is then sensible.
-    fn merge_and_fetch_recipient_inner(
-        &self,
-        e164: Option<&str>,
-        uuid: Option<&str>,
+    #[allow(clippy::type_complexity)]
+    // XXX this should get implemented with an Either or custom enum instead
+    fn merge_and_fetch_recipient_inner<'e, 'u>(
+        db: &mut SqliteConnection,
+        e164: Option<&'e str>,
+        uuid: Option<&'u str>,
         trust_level: TrustLevel,
-    ) -> Result<orm::Recipient, diesel::result::Error> {
+    ) -> Result<(Option<i32>, Option<&'u str>, Option<&'e str>), Error> {
         if e164.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
-
-        let db = self.db.lock();
 
         use schema::recipients;
         let by_e164: Option<orm::Recipient> = e164
             .map(|e164| {
                 recipients::table
                     .filter(recipients::e164.eq(e164))
-                    .first(&*db)
+                    .first(db)
                     .optional()
             })
             .transpose()?
@@ -753,7 +777,7 @@ impl Storage {
             .map(|uuid| {
                 recipients::table
                     .filter(recipients::uuid.eq(uuid))
-                    .first(&*db)
+                    .first(db)
                     .optional()
             })
             .transpose()?
@@ -762,7 +786,7 @@ impl Storage {
         match (by_e164, by_uuid) {
             (Some(by_e164), Some(by_uuid)) if by_e164.id == by_uuid.id => {
                 // Both are equal, easy.
-                Ok(by_uuid)
+                Ok((Some(by_uuid.id), None, None))
             }
             (Some(by_e164), Some(by_uuid)) => {
                 log::warn!(
@@ -777,41 +801,37 @@ impl Storage {
                         diesel::update(recipients::table)
                             .set(recipients::e164.eq::<Option<String>>(None))
                             .filter(recipients::id.eq(by_e164.id))
-                            .execute(&*db)?;
+                            .execute(db)?;
                         // Set the new one
                         diesel::update(recipients::table)
                             .set(recipients::e164.eq(e164))
                             .filter(recipients::id.eq(by_uuid.id))
-                            .execute(&*db)?;
+                            .execute(db)?;
                         // Fetch again for the update
-                        Ok(self
-                            .fetch_recipient_by_id(by_uuid.id)
-                            .expect("existing updated recipient"))
+                        Ok((Some(by_uuid.id), None, None))
                     }
                     (Some(_uuid), TrustLevel::Uncertain) => {
                         log::info!("Differing UUIDs, low trust, likely case of reregistration. Doing absolutely nothing. Sorry.");
-                        Ok(by_uuid)
+                        Ok((Some(by_uuid.id), None, None))
                     }
                     (None, TrustLevel::Certain) => {
                         log::info!(
                             "Merging contacts: one with e164, the other only uuid, high trust."
                         );
-                        let merged = self.merge_recipients(by_e164.id, by_uuid.id);
+                        let merged = Self::merge_recipients_inner(db, by_e164.id, by_uuid.id)?;
                         // XXX probably more recipient identifiers should be moved
                         diesel::update(recipients::table)
                             .set(recipients::e164.eq(e164))
-                            .filter(recipients::id.eq(merged.id))
-                            .execute(&*db)?;
+                            .filter(recipients::id.eq(merged))
+                            .execute(db)?;
 
-                        Ok(self
-                            .fetch_recipient_by_id(merged.id)
-                            .expect("updated recipient"))
+                        Ok((Some(merged), None, None))
                     }
                     (None, TrustLevel::Uncertain) => {
                         log::info!(
                             "Not merging contacts: one with e164, the other only uuid, low trust."
                         );
-                        Ok(by_uuid)
+                        Ok((Some(by_uuid.id), None, None))
                     }
                 }
             }
@@ -827,18 +847,16 @@ impl Storage {
                             diesel::update(recipients::table)
                                 .set(recipients::e164.eq(e164))
                                 .filter(recipients::id.eq(by_uuid.id))
-                                .execute(&*db)?;
-                            Ok(self
-                                .fetch_recipient_by_id(by_uuid.id)
-                                .expect("existing updated recipient"))
+                                .execute(db)?;
+                            Ok((Some(by_uuid.id), None, None))
                         }
                         TrustLevel::Uncertain => {
                             log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
-                            Ok(by_uuid)
+                            Ok((Some(by_uuid.id), None, None))
                         }
                     }
                 } else {
-                    Ok(by_uuid)
+                    Ok((Some(by_uuid.id), None, None))
                 }
             }
             (Some(by_e164), None) => {
@@ -853,10 +871,8 @@ impl Storage {
                             diesel::update(recipients::table)
                                 .set(recipients::uuid.eq(uuid))
                                 .filter(recipients::id.eq(by_e164.id))
-                                .execute(&*db)?;
-                            Ok(self
-                                .fetch_recipient_by_id(by_e164.id)
-                                .expect("existing updated recipient"))
+                                .execute(db)?;
+                            Ok((Some(by_e164.id), None, None))
                         }
                         TrustLevel::Uncertain => {
                             log::info!(
@@ -864,24 +880,27 @@ impl Storage {
                                 uuid,
                                 by_e164.e164.unwrap()
                             );
-                            Ok(self.fetch_or_insert_recipient_by_uuid(uuid))
+
+                            diesel::insert_into(recipients::table)
+                                .values(recipients::uuid.eq(uuid))
+                                .execute(db)
+                                .expect("insert new recipient");
+                            Ok((None, Some(uuid), None))
                         }
                     }
                 } else {
-                    Ok(by_e164)
+                    Ok((Some(by_e164.id), None, None))
                 }
             }
             (None, None) => {
                 let insert_e164 = (trust_level == TrustLevel::Certain) || uuid.is_none();
+                let insert_e164 = if insert_e164 { e164 } else { None };
                 diesel::insert_into(recipients::table)
-                    .values((
-                        recipients::e164.eq(if insert_e164 { e164 } else { None }),
-                        recipients::uuid.eq(uuid),
-                    ))
-                    .execute(&*db)
+                    .values((recipients::e164.eq(insert_e164), recipients::uuid.eq(uuid)))
+                    .execute(db)
                     .expect("insert new recipient");
 
-                Ok(self.fetch_latest_recipient().expect("inserted recipient"))
+                Ok((None, uuid, insert_e164))
             }
         }
     }
@@ -889,28 +908,25 @@ impl Storage {
     /// Merge source_id into dest_id.
     ///
     /// Executes `merge_recipient_inner` inside a transaction, and then returns the result.
+    #[allow(unused)]
     fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
-        let db = self.db.lock();
-        db.transaction(|| -> Result<(), diesel::result::Error> {
-            // Defer constraints, we're moving a lot of data, inside of a transaction,
-            // and if we have a bug it definitely needs more research anyway.
-            db.execute("PRAGMA defer_foreign_keys = ON;")?;
-            self.merge_recipient_inner(source_id, dest_id)
-        })
-        .expect("consistent migration");
+        let mut db = self.db();
+        let merged_id = db
+            .transaction::<_, Error, _>(|db| Self::merge_recipients_inner(db, source_id, dest_id))
+            .expect("consistent migration");
 
-        log::trace!("Contact merge comitted.");
+        log::trace!("Contact merge committed.");
 
-        self.fetch_recipient_by_id(dest_id)
+        self.fetch_recipient_by_id(merged_id)
             .expect("existing contact")
     }
 
     // Inner method because the coverage report is then sensible.
-    fn merge_recipient_inner(
-        &self,
+    fn merge_recipients_inner(
+        db: &mut SqliteConnection,
         source_id: i32,
         dest_id: i32,
-    ) -> Result<(), diesel::result::Error> {
+    ) -> Result<i32, diesel::result::Error> {
         log::info!(
             "Merge of contacts {} and {}. Will move all into {}",
             source_id,
@@ -918,15 +934,17 @@ impl Storage {
             dest_id
         );
 
-        use schema::*;
+        // Defer constraints, we're moving a lot of data, inside of a transaction,
+        // and if we have a bug it definitely needs more research anyway.
+        db.batch_execute("PRAGMA defer_foreign_keys = ON;")?;
 
-        let db = self.db.lock();
+        use schema::*;
 
         // 1. Merge messages senders.
         let message_count = diesel::update(messages::table)
             .filter(messages::sender_recipient_id.eq(source_id))
             .set(messages::sender_recipient_id.eq(dest_id))
-            .execute(&*db)?;
+            .execute(db)?;
         log::trace!("Merging messages: {}", message_count);
 
         // 2. Merge group V1 membership:
@@ -938,19 +956,19 @@ impl Storage {
         let target_memberships_v1: Vec<String> = group_v1_members::table
             .select(group_v1_members::group_v1_id)
             .filter(group_v1_members::recipient_id.eq(dest_id))
-            .load(&*db)?;
+            .load(db)?;
         let deleted_memberships_v1 = diesel::delete(group_v1_members::table)
             .filter(
                 group_v1_members::group_v1_id
                     .eq_any(&target_memberships_v1)
                     .and(group_v1_members::recipient_id.eq(source_id)),
             )
-            .execute(&*db)?;
+            .execute(db)?;
         //    - Update the rest
         let updated_memberships_v1 = diesel::update(group_v1_members::table)
             .filter(group_v1_members::recipient_id.eq(source_id))
             .set(group_v1_members::recipient_id.eq(dest_id))
-            .execute(&*db)?;
+            .execute(db)?;
         log::trace!(
             "Merging Group V1 memberships: deleted duplicate {}/{}, moved {}/{}.",
             deleted_memberships_v1,
@@ -962,11 +980,11 @@ impl Storage {
         // 3. Merge sessions:
         let source_session: Option<orm::DbSession> = sessions::table
             .filter(sessions::direct_message_recipient_id.eq(source_id))
-            .first(&*db)
+            .first(db)
             .optional()?;
         let target_session: Option<orm::DbSession> = sessions::table
             .filter(sessions::direct_message_recipient_id.eq(dest_id))
-            .first(&*db)
+            .first(db)
             .optional()?;
         match (source_session, target_session) {
             (Some(source_session), Some(target_session)) => {
@@ -976,10 +994,10 @@ impl Storage {
                 let updated_message_count = diesel::update(messages::table)
                     .filter(messages::session_id.eq(source_session.id))
                     .set(messages::session_id.eq(target_session.id))
-                    .execute(&*db)?;
+                    .execute(db)?;
                 let dropped_session_count = diesel::delete(sessions::table)
                     .filter(sessions::id.eq(source_session.id))
-                    .execute(&*db)?;
+                    .execute(db)?;
 
                 assert_eq!(dropped_session_count, 1, "Drop the single source session.");
 
@@ -993,7 +1011,7 @@ impl Storage {
                 let updated_session = diesel::update(sessions::table)
                     .filter(sessions::id.eq(source_session.id))
                     .set(sessions::direct_message_recipient_id.eq(dest_id))
-                    .execute(&*db)?;
+                    .execute(db)?;
                 assert_eq!(updated_session, 1, "Update source session");
             }
             (None, Some(_target_session)) => {
@@ -1009,7 +1027,7 @@ impl Storage {
         let target_reactions: Vec<i32> = reactions::table
             .select(reactions::reaction_id)
             .filter(reactions::author.eq(dest_id))
-            .load(&*db)?;
+            .load(db)?;
         // Delete duplicates from source.
         // We're not going to merge based on receive time,
         // although that would be the "right" thing to do.
@@ -1020,7 +1038,7 @@ impl Storage {
                     .eq(source_id)
                     .and(reactions::message_id.eq_any(target_reactions)),
             )
-            .execute(&*db)?;
+            .execute(db)?;
         log::log!(
             if deleted_reactions > 0 {
                 log::Level::Warn
@@ -1033,7 +1051,7 @@ impl Storage {
         let updated_reactions = diesel::update(reactions::table)
             .filter(reactions::author.eq(source_id))
             .set(reactions::author.eq(dest_id))
-            .execute(&*db)?;
+            .execute(db)?;
         log::trace!("Updated {} reactions", updated_reactions);
 
         // 5. Update receipts
@@ -1042,14 +1060,14 @@ impl Storage {
         let target_receipts: Vec<i32> = receipts::table
             .select(receipts::message_id)
             .filter(receipts::recipient_id.eq(dest_id))
-            .load(&*db)?;
+            .load(db)?;
         let deleted_receipts = diesel::delete(receipts::table)
             .filter(
                 receipts::recipient_id
                     .eq(source_id)
                     .and(receipts::message_id.eq_any(target_receipts)),
             )
-            .execute(&*db)?;
+            .execute(db)?;
         log::log!(
             if deleted_receipts > 0 {
                 log::Level::Warn
@@ -1062,24 +1080,23 @@ impl Storage {
         let updated_receipts = diesel::update(receipts::table)
             .filter(receipts::recipient_id.eq(source_id))
             .set(receipts::recipient_id.eq(dest_id))
-            .execute(&*db)?;
+            .execute(db)?;
         log::trace!("Updated {} receipts", updated_receipts);
 
         let deleted = diesel::delete(recipients::table)
             .filter(recipients::id.eq(source_id))
-            .execute(&*db)?;
+            .execute(db)?;
         log::trace!("Deleted {} recipient", deleted);
         assert_eq!(deleted, 1, "delete only one recipient");
-        Ok(())
+        Ok(dest_id)
     }
 
     pub fn fetch_recipient_by_uuid(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
         use crate::schema::recipients::dsl::*;
 
-        let db = self.db.lock();
         if let Ok(recipient) = recipients
             .filter(uuid.eq(&recipient_uuid.to_string()))
-            .first(&*db)
+            .first(&mut *self.db())
         {
             Some(recipient)
         } else {
@@ -1090,18 +1107,18 @@ impl Storage {
     pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
-        let db = self.db.lock();
-
-        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(&*db) {
+        let mut db = self.db();
+        let db = &mut *db;
+        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(db) {
             recipient
         } else {
             diesel::insert_into(recipients)
                 .values(uuid.eq(new_uuid))
-                .execute(&*db)
+                .execute(db)
                 .expect("insert new recipient");
             recipients
                 .filter(uuid.eq(new_uuid))
-                .first(&*db)
+                .first(db)
                 .expect("newly inserted recipient")
         }
     }
@@ -1109,41 +1126,38 @@ impl Storage {
     pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
-        let db = self.db.lock();
-
-        if let Ok(recipient) = recipients.filter(e164.eq(new_e164)).first(&*db) {
+        let mut db = self.db();
+        let db = &mut *db;
+        if let Ok(recipient) = recipients.filter(e164.eq(new_e164)).first(db) {
             recipient
         } else {
             diesel::insert_into(recipients)
                 .values(e164.eq(new_e164))
-                .execute(&*db)
+                .execute(db)
                 .expect("insert new recipient");
             recipients
                 .filter(e164.eq(new_e164))
-                .first(&*db)
+                .first(db)
                 .expect("newly inserted recipient")
         }
     }
 
     pub fn fetch_last_message_by_session_id(&self, sid: i32) -> Option<orm::Message> {
         use schema::messages::dsl::*;
-        let db = self.db.lock();
-
         messages
             .filter(session_id.eq(sid))
             .order_by(server_timestamp.desc())
-            .first(&*db)
+            .first(&mut *self.db())
             .ok()
     }
 
     pub fn fetch_message_receipts(&self, mid: i32) -> Vec<(orm::Receipt, orm::Recipient)> {
         use schema::{receipts, recipients};
-        let db = self.db.lock();
 
         receipts::table
             .inner_join(recipients::table)
             .filter(receipts::message_id.eq(mid))
-            .load(&*db)
+            .load(&mut *self.db())
             .expect("db")
     }
 
@@ -1154,18 +1168,16 @@ impl Storage {
         &self,
         timestamp: NaiveDateTime,
     ) -> Option<(orm::Session, orm::Message)> {
-        let db = self.db.lock();
-
         use schema::messages::dsl::*;
         diesel::update(messages)
             .filter(server_timestamp.eq(timestamp))
             .set(is_read.eq(true))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
 
         let message: Option<orm::Message> = messages
             .filter(server_timestamp.eq(timestamp))
-            .first(&*db)
+            .first(&mut *self.db())
             .ok();
         if let Some(message) = message {
             let session = self
@@ -1192,8 +1204,6 @@ impl Storage {
         timestamp: NaiveDateTime,
         delivered_at: Option<chrono::DateTime<Utc>>,
     ) -> Option<(orm::Session, orm::Message)> {
-        let db = self.db.lock();
-
         // XXX: probably, the trigger for this method call knows a better time stamp.
         let delivered_at = delivered_at.unwrap_or_else(chrono::Utc::now).naive_utc();
 
@@ -1203,7 +1213,7 @@ impl Storage {
         let message_id = schema::messages::table
             .select(schema::messages::id)
             .filter(schema::messages::server_timestamp.eq(timestamp))
-            .first(&*db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         if message_id.is_none() {
@@ -1224,9 +1234,8 @@ impl Storage {
             // .on_conflict((schema::receipts::message_id, schema::receipts::recipient_id))
             // .do_update()
             // .set(delivered.eq(time))
-            .execute(&*db);
+            .execute(&mut *self.db());
 
-        use diesel::result::DatabaseErrorKind;
         use diesel::result::Error::DatabaseError;
         match insert {
             Ok(1) => {
@@ -1255,7 +1264,7 @@ impl Storage {
             .filter(schema::receipts::message_id.eq(message_id))
             .filter(schema::receipts::recipient_id.eq(recipient.id))
             .set((schema::receipts::delivered.eq(delivered_at),))
-            .execute(&*db);
+            .execute(&mut *self.db());
         if let Err(e) = update {
             log::error!("Could not update receipt: {}", e);
         }
@@ -1269,18 +1278,21 @@ impl Storage {
     /// Fetches the latest session by last_insert_rowid.
     ///
     /// This only yields correct results when the last insertion was in fact a session.
+    #[allow(unused)]
     fn fetch_latest_recipient(&self) -> Option<orm::Recipient> {
         use schema::recipients::dsl::*;
-        let db = self.db.lock();
-        recipients.filter(id.eq(last_insert_rowid)).first(&*db).ok()
+        recipients
+            .filter(id.eq(last_insert_rowid()))
+            .first(&mut *self.db())
+            .ok()
     }
 
     /// Fetches the latest session by last_insert_rowid.
     ///
     /// This only yields correct results when the last insertion was in fact a session.
     fn fetch_latest_session(&self) -> Option<orm::Session> {
-        fetch_session!(self.db.lock(), |query| {
-            query.filter(schema::sessions::id.eq(last_insert_rowid))
+        fetch_session!(self.db(), |query| {
+            query.filter(schema::sessions::id.eq(last_insert_rowid()))
         })
     }
 
@@ -1290,53 +1302,50 @@ impl Storage {
     /// but that requires table aliases or complex subqueries,
     /// which are not really a thing in Diesel atm.
     pub fn fetch_sessions(&self) -> Vec<orm::Session> {
-        fetch_sessions!(self.db.lock(), |query| { query })
+        fetch_sessions!(self.db(), |query| { query })
     }
 
     pub fn fetch_group_sessions(&self) -> Vec<orm::Session> {
-        fetch_sessions!(self.db.lock(), |query| {
+        fetch_sessions!(self.db(), |query| {
             query.filter(schema::sessions::group_v1_id.is_not_null())
         })
     }
 
     pub fn fetch_session_by_id(&self, sid: i32) -> Option<orm::Session> {
-        fetch_session!(self.db.lock(), |query| {
+        fetch_session!(self.db(), |query| {
             query.filter(schema::sessions::columns::id.eq(sid))
         })
     }
 
     pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
         log::trace!("Called fetch_session_by_e164({})", e164);
-        let db = self.db.lock();
-        fetch_session!(db, |query| {
+        fetch_session!(self.db(), |query| {
             query.filter(schema::recipients::e164.eq(e164))
         })
     }
 
     pub fn fetch_session_by_recipient_id(&self, rid: i32) -> Option<orm::Session> {
         log::trace!("Called fetch__session_by_recipient_id({})", rid);
-        let db = self.db.lock();
-        fetch_session!(db, |query| { query.filter(schema::recipients::id.eq(rid)) })
+        fetch_session!(self.db(), |query| {
+            query.filter(schema::recipients::id.eq(rid))
+        })
     }
 
     pub fn fetch_attachments_for_message(&self, mid: i32) -> Vec<orm::Attachment> {
         use schema::attachments::dsl::*;
-        let db = self.db.lock();
         attachments
             .filter(message_id.eq(mid))
             .order_by(display_order.asc())
-            .load(&*db)
+            .load(&mut *self.db())
             .unwrap()
     }
 
     pub fn fetch_reactions_for_message(&self, mid: i32) -> Vec<(orm::Reaction, orm::Recipient)> {
         use schema::{reactions, recipients};
-        let db = self.db.lock();
-
         reactions::table
             .inner_join(recipients::table)
             .filter(reactions::message_id.eq(mid))
-            .load(&*db)
+            .load(&mut *self.db())
             .expect("db")
     }
 
@@ -1344,11 +1353,10 @@ impl Storage {
         &self,
         id: &str,
     ) -> Vec<(orm::GroupV1Member, orm::Recipient)> {
-        let db = self.db.lock();
         schema::group_v1_members::table
             .inner_join(schema::recipients::table)
             .filter(schema::group_v1_members::group_v1_id.eq(id))
-            .load(&*db)
+            .load(&mut *self.db())
             .unwrap()
     }
 
@@ -1356,10 +1364,9 @@ impl Storage {
         let group_id = group.secret.get_group_identifier();
         let group_id_hex = hex::encode(group_id);
 
-        let db = self.db.lock();
         let group: Option<orm::GroupV2> = schema::group_v2s::table
             .filter(schema::group_v2s::id.eq(group_id_hex))
-            .first(&*db)
+            .first(&mut *self.db())
             .optional()
             .expect("db");
         group.is_some()
@@ -1369,17 +1376,15 @@ impl Storage {
         &self,
         id: &str,
     ) -> Vec<(orm::GroupV2Member, orm::Recipient)> {
-        let db = self.db.lock();
         schema::group_v2_members::table
             .inner_join(schema::recipients::table)
             .filter(schema::group_v2_members::group_v2_id.eq(id))
-            .load(&*db)
+            .load(&mut *self.db())
             .unwrap()
     }
 
     pub fn fetch_or_insert_session_by_e164(&self, e164: &str) -> orm::Session {
         log::trace!("Called fetch_or_insert_session_by_e164({})", e164);
-        let db = self.db.lock();
         if let Some(session) = self.fetch_session_by_e164(e164) {
             return session;
         }
@@ -1389,7 +1394,7 @@ impl Storage {
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
             .values((direct_message_recipient_id.eq(recipient.id),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
 
         self.fetch_latest_session()
@@ -1399,7 +1404,6 @@ impl Storage {
     /// Fetches recipient's DM session, or creates the session.
     pub fn fetch_or_insert_session_by_recipient_id(&self, rid: i32) -> orm::Session {
         log::trace!("Called fetch_or_insert_session_by_recipient_id({})", rid);
-        let db = self.db.lock();
         if let Some(session) = self.fetch_session_by_recipient_id(rid) {
             return session;
         }
@@ -1407,7 +1411,7 @@ impl Storage {
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
             .values((direct_message_recipient_id.eq(rid),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
 
         self.fetch_latest_session()
@@ -1415,8 +1419,6 @@ impl Storage {
     }
 
     pub fn fetch_or_insert_session_by_group_v1(&self, group: &GroupV1) -> orm::Session {
-        let db = self.db.lock();
-
         let group_id = hex::encode(&group.id);
 
         log::trace!(
@@ -1424,7 +1426,7 @@ impl Storage {
             &group_id[..8]
         );
 
-        if let Some(session) = fetch_session!(self.db.lock(), |query| {
+        if let Some(session) = fetch_session!(self.db(), |query| {
             query.filter(schema::sessions::columns::group_v1_id.eq(&group_id))
         }) {
             return session;
@@ -1439,7 +1441,7 @@ impl Storage {
         // Group does not exist, insert first.
         diesel::insert_into(schema::group_v1s::table)
             .values(&new_group)
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
 
         let now = chrono::Utc::now().naive_utc();
@@ -1453,14 +1455,14 @@ impl Storage {
                     recipient_id.eq(recipient.id),
                     member_since.eq(now),
                 ))
-                .execute(&*db)
+                .execute(&mut *self.db())
                 .unwrap();
         }
 
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
             .values((group_v1_id.eq(group_id),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
 
         self.fetch_latest_session()
@@ -1475,7 +1477,7 @@ impl Storage {
             );
             return None;
         }
-        fetch_session!(self.db.lock(), |query| {
+        fetch_session!(self.db(), |query| {
             query.filter(schema::sessions::columns::group_v1_id.eq(&group_id_hex))
         })
     }
@@ -1488,14 +1490,12 @@ impl Storage {
             );
             return None;
         }
-        fetch_session!(self.db.lock(), |query| {
+        fetch_session!(self.db(), |query| {
             query.filter(schema::sessions::columns::group_v2_id.eq(&group_id_hex))
         })
     }
 
     pub fn fetch_or_insert_session_by_group_v2(&self, group: &GroupV2) -> orm::Session {
-        let db = self.db.lock();
-
         let group_id = group.secret.get_group_identifier();
         let group_id_hex = hex::encode(group_id);
 
@@ -1504,7 +1504,7 @@ impl Storage {
             group_id_hex
         );
 
-        if let Some(session) = fetch_session!(self.db.lock(), |query| {
+        if let Some(session) = fetch_session!(self.db(), |query| {
             query.filter(schema::sessions::columns::group_v2_id.eq(&group_id_hex))
         }) {
             return session;
@@ -1534,7 +1534,7 @@ impl Storage {
         // Group does not exist, insert first.
         diesel::insert_into(schema::group_v2s::table)
             .values(&new_group)
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
 
         // XXX somehow schedule this group for member list/name updating.
@@ -1547,7 +1547,7 @@ impl Storage {
             schema::group_v1s::table
                 .filter(schema::group_v1s::expected_v2_id.eq(&new_group.id))
                 .left_join(schema::sessions::table)
-                .first(&*db)
+                .first(&mut *self.db())
                 .optional()
                 .expect("db");
 
@@ -1564,7 +1564,7 @@ impl Storage {
                         group_v2_id.eq(&new_group.id),
                     ))
                     .filter(id.eq(session.id))
-                    .execute(&*db)
+                    .execute(&mut *self.db())
                     .expect("session updated");
                 // XXX consider removing the group_v1
                 assert_eq!(count, 1, "session should have been updated");
@@ -1578,7 +1578,7 @@ impl Storage {
             None => {
                 diesel::insert_into(sessions)
                     .values((group_v2_id.eq(&new_group.id),))
-                    .execute(&*db)
+                    .execute(&mut *self.db())
                     .unwrap();
 
                 self.fetch_latest_session()
@@ -1588,73 +1588,61 @@ impl Storage {
     }
 
     pub fn delete_session(&self, id: i32) {
-        let db = self.db.lock();
-
         log::trace!("Called delete_session({})", id);
 
         let affected_rows =
             diesel::delete(schema::sessions::table.filter(schema::sessions::id.eq(id)))
-                .execute(&*db)
+                .execute(&mut *self.db())
                 .expect("delete session");
 
         log::trace!("delete_session({}) affected {} rows", id, affected_rows);
     }
 
     pub fn mark_session_read(&self, sid: i32) {
-        let db = self.db.lock();
-
         log::trace!("Called mark_session_read({})", sid);
 
         use schema::messages::dsl::*;
 
         diesel::update(messages.filter(session_id.eq(sid)))
             .set((is_read.eq(true),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("mark session read");
     }
 
     pub fn mark_session_muted(&self, sid: i32, muted: bool) {
-        let db = self.db.lock();
-
         log::trace!("Called mark_session_muted({}, {})", sid, muted);
 
         use schema::sessions::dsl::*;
 
         diesel::update(sessions.filter(id.eq(sid)))
             .set((is_muted.eq(muted),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("mark session (un)muted");
     }
 
     pub fn mark_session_archived(&self, sid: i32, archived: bool) {
-        let db = self.db.lock();
-
         log::trace!("Called mark_session_archived({}, {})", sid, archived);
 
         use schema::sessions::dsl::*;
 
         diesel::update(sessions.filter(id.eq(sid)))
             .set((is_archived.eq(archived),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("mark session (un)archived");
     }
 
     pub fn mark_session_pinned(&self, sid: i32, pinned: bool) {
-        let db = self.db.lock();
-
         log::trace!("Called mark_session_pinned({}, {})", sid, pinned);
 
         use schema::sessions::dsl::*;
 
         diesel::update(sessions.filter(id.eq(sid)))
             .set((is_pinned.eq(pinned),))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("mark session (un)pinned");
     }
 
     pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
-        let db = self.db.lock();
-
         use schema::attachments::dsl::*;
 
         diesel::insert_into(attachments)
@@ -1682,7 +1670,7 @@ impl Storage {
                 width.eq(ptr.width.map(|x| x as i32)),
                 height.eq(ptr.height.map(|x| x as i32)),
             ))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .expect("insert attachment");
     }
 
@@ -1692,8 +1680,6 @@ impl Storage {
     pub fn create_message(&self, new_message: &NewMessage) -> orm::Message {
         // XXX Storing the message with its attachments should happen in a transaction.
         // Meh.
-        let db = self.db.lock();
-
         let session = new_message.session_id.expect("session id");
 
         log::trace!("Called create_message(..) for session {}", session);
@@ -1749,7 +1735,7 @@ impl Storage {
                     flags.eq(new_message.flags),
                     quote_id.eq(quoted_message_id),
                 ))
-                .execute(&*db)
+                .execute(&mut *self.db())
                 .expect("inserting a message")
         };
 
@@ -1783,7 +1769,7 @@ impl Storage {
                         is_borderless.eq(false),
                         is_quote.eq(false),
                     ))
-                    .execute(&*db)
+                    .execute(&mut *self.db())
                     .expect("Insert attachment")
             };
 
@@ -1800,44 +1786,36 @@ impl Storage {
     ///
     /// It needs to be locked from the outside because sqlite sucks.
     fn fetch_latest_message(&self) -> Option<orm::Message> {
-        let db = self.db.lock();
-
         schema::messages::table
-            .filter(schema::messages::id.eq(last_insert_rowid))
-            .first(&*db)
+            .filter(schema::messages::id.eq(last_insert_rowid()))
+            .first(&mut *self.db())
             .ok()
     }
 
     pub fn fetch_message_by_timestamp(&self, ts: NaiveDateTime) -> Option<orm::Message> {
-        let db = self.db.lock();
-
         log::trace!("Called fetch_message_by_timestamp({})", ts);
         let query = schema::messages::table.filter(schema::messages::server_timestamp.eq(ts));
 
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        query.first(&*db).ok()
+        query.first(&mut *self.db()).ok()
     }
 
     pub fn fetch_recipient_by_id(&self, id: i32) -> Option<orm::Recipient> {
-        let db = self.db.lock();
-
         log::trace!("Called fetch_recipient_by_id({})", id);
         schema::recipients::table
             .filter(schema::recipients::id.eq(id))
-            .first(&*db)
+            .first(&mut *self.db())
             .ok()
     }
 
     pub fn fetch_message_by_id(&self, id: i32) -> Option<orm::Message> {
-        let db = self.db.lock();
-
         // Even a single message needs to know if it's queued to satisfy the `Message` trait
         log::trace!("Called fetch_message_by_id({})", id);
         schema::messages::table
             .filter(schema::messages::id.eq(id))
-            .first(&*db)
+            .first(&mut *self.db())
             .ok()
     }
 
@@ -1846,14 +1824,12 @@ impl Storage {
     /// When the sender is None, it is a sent message, not a received message.
     // XXX maybe this should be `Option<Vec<...>>`.
     pub fn fetch_all_messages(&self, sid: i32) -> Vec<(orm::Message, Option<orm::Recipient>)> {
-        let db = self.db.lock();
-
         log::trace!("Called fetch_all_messages({})", sid);
         schema::messages::table
             .filter(schema::messages::session_id.eq(sid))
             .left_join(schema::recipients::table)
             .order_by(schema::messages::columns::server_timestamp.desc())
-            .load(&*db)
+            .load(&mut *self.db())
             .expect("database")
     }
 
@@ -1901,8 +1877,6 @@ impl Storage {
     /// When the sender is None, it is a sent message, not a received message.
     // XXX maybe this should be `Option<Vec<...>>`.
     pub fn fetch_all_messages_augmented(&self, sid: i32) -> Vec<orm::AugmentedMessage> {
-        let db = self.db.lock();
-
         // XXX double/aliased-join would be very useful.
         // Our strategy is to fetch as much as possible, and to augment with as few additional
         // queries as possible. We chose to not join `sender`, and instead use a loop for that
@@ -1920,7 +1894,7 @@ impl Storage {
             .inner_join(schema::messages::table.inner_join(schema::sessions::table))
             .filter(schema::sessions::id.eq(sid))
             .order_by(order)
-            .load(&*db)
+            .load(&mut *self.db())
             .expect("db");
 
         let receipts: Vec<(orm::Receipt, orm::Recipient)> = schema::receipts::table
@@ -1932,7 +1906,7 @@ impl Storage {
             .inner_join(schema::messages::table.inner_join(schema::sessions::table))
             .filter(schema::sessions::id.eq(sid))
             .order_by(order)
-            .load(&*db)
+            .load(&mut *self.db())
             .expect("db");
         let reactions: Vec<(orm::Reaction, orm::Recipient)> = schema::reactions::table
             .inner_join(schema::recipients::table)
@@ -1943,7 +1917,7 @@ impl Storage {
             .inner_join(schema::messages::table.inner_join(schema::sessions::table))
             .filter(schema::sessions::id.eq(sid))
             .order_by(order)
-            .load(&*db)
+            .load(&mut *self.db())
             .expect("db");
 
         let attachments = attachments
@@ -2015,8 +1989,6 @@ impl Storage {
     }
 
     pub fn delete_message(&self, id: i32) -> Option<usize> {
-        let db = self.db.lock();
-
         log::trace!("Called delete_message({})", id);
 
         // XXX: Assume `sentq` has nothing pending, as the Go version does
@@ -2025,13 +1997,11 @@ impl Storage {
         let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
         log::trace!("{}", debug.to_string());
 
-        query.execute(&*db).ok()
+        query.execute(&mut *self.db()).ok()
     }
 
     /// Marks all messages that are outbound and unsent as failed.
     pub fn mark_pending_messages_failed(&self) {
-        let db = self.db.lock();
-
         let count = diesel::update(schema::messages::table)
             .filter(
                 schema::messages::sent_timestamp
@@ -2040,7 +2010,7 @@ impl Storage {
                     .and(schema::messages::sending_has_failed.eq(false)),
             )
             .set(schema::messages::sending_has_failed.eq(true))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
         let level = if count == 0 {
             log::Level::Trace
@@ -2053,25 +2023,21 @@ impl Storage {
     /// Marks a message as failed to send
     pub fn fail_message(&self, mid: i32) {
         log::trace!("Setting message {} to failed", mid);
-        let db = self.db.lock();
-
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
             .set(schema::messages::sending_has_failed.eq(true))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
     }
 
     pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime) {
-        let db = self.db.lock();
-
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
             .set((
                 schema::messages::sent_timestamp.eq(sent_time),
                 schema::messages::sending_has_failed.eq(false),
             ))
-            .execute(&*db)
+            .execute(&mut *self.db())
             .unwrap();
     }
 

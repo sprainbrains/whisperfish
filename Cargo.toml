@@ -16,7 +16,6 @@ zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "w
 
 [patch.crates-io]
 curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = 'lizard2' }
-libsqlite3-sys = { git = "https://github.com/rusqlite/rusqlite", rev = "8770e7d4433de942122d37f073dd80519a8d67c0" }
 
 qmetaobject = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
 qttypes = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }

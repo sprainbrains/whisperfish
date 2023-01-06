@@ -127,7 +127,7 @@ pub struct Recipient {
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
-#[primary_key(address, device_id)]
+#[diesel(primary_key(address, device_id))]
 pub struct SessionRecord {
     pub address: String,
     pub device_id: i32,
@@ -135,7 +135,7 @@ pub struct SessionRecord {
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
-#[primary_key(address)]
+#[diesel(primary_key(address))]
 pub struct IdentityRecord {
     pub address: String,
     pub record: Vec<u8>,
@@ -154,7 +154,7 @@ pub struct Prekey {
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
-#[primary_key(address, device, distribution_id)]
+#[diesel(primary_key(address, device, distribution_id))]
 pub struct SenderKeyRecord {
     pub address: String,
     pub device: i32,

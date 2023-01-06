@@ -48,7 +48,7 @@ impl OutdatedProfileStream {
         let _last_interaction_threshold = Utc::now() - chrono::Duration::days(30);
         let last_fetch_threshold = Utc::now() - chrono::Duration::days(1);
 
-        let db = self.storage.db.lock();
+        let mut db = self.storage.db();
         let out_of_date_profiles: Vec<Recipient> = recipients
             .filter(
                 // Keep this filter in sync with the one below
@@ -59,7 +59,7 @@ impl OutdatedProfileStream {
                 ),
             )
             .order_by(last_profile_fetch.asc())
-            .load(&*db)
+            .load(&mut *db)
             .expect("db");
 
         for recipient in out_of_date_profiles {
@@ -110,7 +110,7 @@ impl OutdatedProfileStream {
         // and schedule a wake.
         use crate::schema::recipients::dsl::*;
 
-        let db = self.storage.db.lock();
+        let mut db = self.storage.db();
         let next_wake: Option<Recipient> = recipients
             .filter(
                 // Keep this filter in sync with the one above
@@ -120,7 +120,7 @@ impl OutdatedProfileStream {
                     .and(last_profile_fetch.is_not_null()),
             )
             .order_by(last_profile_fetch.asc())
-            .first(&*db)
+            .first(&mut *db)
             .optional()
             .expect("db");
         if let Some(recipient) = next_wake {

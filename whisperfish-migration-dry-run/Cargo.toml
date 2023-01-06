@@ -10,8 +10,8 @@ description = "An utility for whisperfish to do database migrations"
 
 [dependencies]
 whisperfish = { path = "../whisperfish" }
-diesel = { version = "1.4", features = ["sqlite", "chrono"] }
-diesel_migrations = "1.4"
+diesel = { version = "2.0", features = ["sqlite", "chrono"] }
+diesel_migrations = "2.0"
 anyhow = "1.0"
 log = "0.4"
 scrypt = { version = "=0.8.1", default-features = false, features=["std"] }

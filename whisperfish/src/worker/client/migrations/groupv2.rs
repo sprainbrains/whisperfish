@@ -17,11 +17,10 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
             async move {
                 use crate::schema::group_v1s::dsl::*;
                 let pending_ids: Vec<String> = {
-                    let db = storage.db.lock();
                     group_v1s
                         .select(id)
                         .filter(expected_v2_id.is_null())
-                        .load(&*db)
+                        .load(&mut *storage.db())
                         .expect("db")
                 };
                 for pending_v1_id_hex in pending_ids {
@@ -41,11 +40,11 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
                     let pending_v2_id = secret.get_group_identifier();
                     let pending_v2_id = hex::encode(pending_v2_id);
 
-                    let db = storage.db.lock();
+                    let mut db = storage.db();
                     let affected = diesel::update(group_v1s)
                         .set(expected_v2_id.eq(pending_v2_id))
                         .filter(id.eq(pending_v1_id_hex))
-                        .execute(&*db)
+                        .execute(&mut *db)
                         .expect("db");
                     assert_eq!(affected, 1, "update groupv1 expected upgrade id");
                 }

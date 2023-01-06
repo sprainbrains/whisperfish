@@ -152,7 +152,7 @@ impl SessionStorageMigration {
             let path = self.prekey_path(prekey);
 
             log::trace!("Loading prekey {} for migration", prekey);
-            let _lock = self.protocol_store.read().await;
+            let _lock = self.protocol_store.write().await;
             let buf = match self.read_file(&path).await {
                 Ok(buf) => buf,
                 Err(e) if !path.exists() => {
@@ -179,10 +179,9 @@ impl SessionStorageMigration {
                     id: u32::from(prekey) as _,
                     record: buf,
                 };
-                let db = self.0.db.lock();
                 let res = diesel::insert_into(prekeys)
                     .values(prekey_record)
-                    .execute(&*db);
+                    .execute(&mut *self.0.db());
 
                 use diesel::result::{DatabaseErrorKind, Error};
                 match res {
@@ -227,7 +226,7 @@ impl SessionStorageMigration {
             let path = self.signed_prekey_path(prekey);
 
             log::trace!("Loading signed prekey {} for migration", prekey);
-            let _lock = self.protocol_store.read().await;
+            let _lock = self.protocol_store.write().await;
             let buf = match self.read_file(&path).await {
                 Ok(buf) => buf,
                 Err(e) if !path.exists() => {
@@ -258,10 +257,9 @@ impl SessionStorageMigration {
                     id: u32::from(prekey) as _,
                     record: buf,
                 };
-                let db = self.0.db.lock();
                 let res = diesel::insert_into(signed_prekeys)
                     .values(signed_prekey_record)
-                    .execute(&*db);
+                    .execute(&mut *self.0.db());
 
                 use diesel::result::{DatabaseErrorKind, Error};
                 match res {
@@ -359,10 +357,9 @@ impl SessionStorageMigration {
                     device_id: u32::from(addr.device_id()) as i32,
                     record: buf,
                 };
-                let db = self.0.db.lock();
                 let res = diesel::insert_into(session_records)
                     .values(session_record)
-                    .execute(&*db);
+                    .execute(&mut *self.0.db());
 
                 use diesel::result::{DatabaseErrorKind, Error};
                 match res {
@@ -441,10 +438,9 @@ impl SessionStorageMigration {
 
             use crate::schema::identity_records::dsl::*;
             use diesel::prelude::*;
-            let db = self.0.db.lock();
             let res = diesel::insert_into(identity_records)
                 .values((address.eq(addr.name()), record.eq(buf.serialize().to_vec())))
-                .execute(&*db);
+                .execute(&mut *self.0.db());
 
             use diesel::result::{DatabaseErrorKind, Error};
             match res {

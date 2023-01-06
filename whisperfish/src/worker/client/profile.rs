@@ -217,7 +217,7 @@ impl ClientActor {
     ) -> anyhow::Result<()> {
         log::info!("Fetched profile: {:?}", profile);
         let storage = self.storage.clone().unwrap();
-        let db = storage.db.lock();
+        let mut db = storage.db();
 
         use crate::schema::recipients::dsl::*;
         use diesel::prelude::*;
@@ -225,7 +225,7 @@ impl ClientActor {
         let key: Option<Vec<u8>> = recipients
             .select(profile_key)
             .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
-            .first(&*db)
+            .first(&mut *db)
             .expect("db");
         if let Some(profile) = profile {
             let cipher = if let Some(key) = key {
@@ -265,13 +265,13 @@ impl ClientActor {
                     last_profile_fetch.eq(Utc::now().naive_utc()),
                 ))
                 .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("db");
         } else {
             diesel::update(recipients)
                 .set((last_profile_fetch.eq(Utc::now().naive_utc()),))
                 .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
-                .execute(&*db)
+                .execute(&mut *db)
                 .expect("db");
         }
         // TODO For completeness, we should tickle the GUI for an update.

@@ -13,7 +13,6 @@ impl Handler<ParseOldReaction> for ClientActor {
     type Result = ();
     fn handle(&mut self, _: ParseOldReaction, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let db = storage.db.lock();
         let config = std::sync::Arc::clone(&self.config);
         let myself = storage.fetch_self_recipient(&config).expect("myself in db");
 
@@ -22,7 +21,7 @@ impl Handler<ParseOldReaction> for ClientActor {
             messages
                 .filter(text.like("R@%:%"))
                 .order_by((text, sender_recipient_id, received_timestamp))
-                .get_results(&*db)
+                .get_results(&mut *storage.db())
                 .expect("fetch reaction messages")
         };
 
@@ -32,7 +31,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                 reaction_messages.len()
             );
         }
-        db.transaction(|| -> anyhow::Result<()> {
+        storage.db().transaction::<(), diesel::result::Error, _>(|db| {
             let regex = regex::Regex::new(r"R@(\d+):(.*)").expect("reaction regex");
             let mut reaction_messages = reaction_messages.into_iter().peekable();
             while let Some(reaction) = reaction_messages.next() {
@@ -51,7 +50,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                         use schema::messages::dsl::*;
                         diesel::delete(messages)
                             .filter(id.eq(reaction.id))
-                            .execute(&*db).context("deleting R-reaction")?;
+                            .execute(db).context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction))?;
                         continue;
                     }
                 }
@@ -59,7 +58,11 @@ impl Handler<ParseOldReaction> for ClientActor {
                 let ts = millis_to_naive_chrono(ts);
                 let emoji_text = &m[2];
 
-                let target_message = match storage.fetch_message_by_timestamp(ts) {
+                let target_message: orm::Message = match schema::messages::table
+                    .filter(schema::messages::server_timestamp.eq(ts))
+                    .first(db)
+                    .optional()
+                    .expect("db") {
                     Some(msg) => msg,
                     None=> {
                         log::warn!("No message found for reaction with ts={}.  In the future, we will drop these.", ts);
@@ -78,8 +81,8 @@ impl Handler<ParseOldReaction> for ClientActor {
                         .filter(author.eq(author_id))
                         .filter(message_id.eq(target_message.id))
                         .filter(sent_time.nullable().le(reaction_sent_timestamp))
-                        .execute(&*db)
-                        .context("deleting R-reaction")?;
+                        .execute(db)
+                        .context("deleting R-reaction").or(Err(diesel::result::Error::RollbackTransaction))?;
                     let res = diesel::insert_into(reactions)
                         .values((
                             message_id.eq(target_message.id),
@@ -88,20 +91,22 @@ impl Handler<ParseOldReaction> for ClientActor {
                             sent_time.eq(reaction_sent_timestamp),
                             received_time.eq(reaction.received_timestamp.unwrap_or_else(|| Utc::now().naive_utc()))
                         ))
-                        .execute(&*db);
+                        .execute(db);
                     match res {
                         Ok(_) => (),
                         Err(e @ diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) => {
                             log::info!("Got an already newer reaction for this message. Dropping. Reason: {:?}", e);
                         }
-                        Err(e) => Err(e).context("inserting R-reaction")?,
+                        Err(e) => Err(e).context("inserting R-reaction").unwrap(),
                     }
                 }
 
                 use schema::messages::dsl::*;
                 diesel::delete(messages)
                     .filter(id.eq(reaction.id))
-                    .execute(&*db).context("deleting R-reaction")?;
+                    .execute(db)
+                    .context("deleting R-reaction")
+                    .or(Err(diesel::result::Error::RollbackTransaction))?;
             }
             Ok(())
         })
