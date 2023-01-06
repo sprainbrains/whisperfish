@@ -56,8 +56,7 @@ impl EventObserving for SessionsImpl {
                     .borrow()
                     .content
                     .iter()
-                    .flat_map(|session| &session.last_message)
-                    .map(|msg| Interest::row(schema::messages::table, msg.id)),
+                    .flat_map(|session| session.interests()),
             )
             .collect()
     }

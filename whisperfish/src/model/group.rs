@@ -40,23 +40,25 @@ impl EventObserving for GroupImpl {
     }
 
     fn interests(&self) -> Vec<Interest> {
-        if self.group_v1.is_some() {
-            self.id
-                .clone()
-                .into_iter()
-                .map(|id| Interest::row(schema::group_v1s::table, id))
-                // XXX add members
-                .collect()
-        } else if self.group_v2.is_some() {
-            self.id
-                .clone()
-                .into_iter()
-                .map(|id| Interest::row(schema::group_v2s::table, id))
-                // XXX add members
-                .collect()
-        } else {
-            Vec::new()
-        }
+        let membership_list = self.membership_list.pinned();
+        // XXX This should be members and new members filtered by id, instead of whole tables.
+        let members = std::iter::once(Interest::whole_table(schema::group_v1_members::table))
+            .chain(std::iter::once(Interest::whole_table(
+                schema::group_v2_members::table,
+            )))
+            .chain(
+                membership_list
+                    .borrow()
+                    .content
+                    .iter()
+                    .flat_map(|(_membership, recipient)| recipient.interests()),
+            );
+        self.group_v1
+            .iter()
+            .flat_map(orm::GroupV1::interests)
+            .chain(self.group_v2.iter().flat_map(orm::GroupV2::interests))
+            .chain(members)
+            .collect()
     }
 }
 

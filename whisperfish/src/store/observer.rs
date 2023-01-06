@@ -2,6 +2,8 @@
 
 use crate::schema;
 
+mod orm_interests;
+
 use actix::prelude::*;
 
 #[derive(Debug, Clone)]

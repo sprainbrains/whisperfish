@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
+use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
-use crate::{model::*, schema};
 use std::collections::HashMap;
 use std::process::Command;
 
@@ -57,9 +57,9 @@ impl EventObserving for AttachmentImpl {
     }
 
     fn interests(&self) -> Vec<Interest> {
-        self.attachment_id
-            .into_iter()
-            .map(|id| Interest::row(schema::attachments::table, id))
+        self.attachment
+            .iter()
+            .flat_map(orm::Attachment::interests)
             .collect()
     }
 }

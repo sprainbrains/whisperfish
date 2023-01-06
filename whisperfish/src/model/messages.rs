@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 use crate::model::*;
-use crate::schema;
 use crate::store::observer::EventObserving;
 use crate::store::observer::Interest;
 use crate::store::orm;
@@ -61,19 +60,9 @@ impl EventObserving for MessageImpl {
     }
 
     fn interests(&self) -> Vec<Interest> {
-        self.message_id
-            .into_iter()
-            .map(|id| Interest::row(schema::messages::table, id))
-            // XXX What about attachments that are *added* to the session? How do we signify interest
-            // to them?
-            .chain(
-                self.attachments
-                    .pinned()
-                    .borrow()
-                    .attachments
-                    .iter()
-                    .map(|attachment| Interest::row(schema::attachments::table, attachment.id)),
-            )
+        self.message
+            .iter()
+            .flat_map(orm::AugmentedMessage::interests)
             .collect()
     }
 }
@@ -203,18 +192,16 @@ impl EventObserving for SessionImpl {
     }
 
     fn interests(&self) -> Vec<Interest> {
-        self.session_id
-            .into_iter()
-            .map(|id| Interest::row(schema::sessions::table, id))
-            // XXX What about messages that are *added* to the session? How do we signify interest
-            // to them?
+        self.session
+            .iter()
+            .flat_map(orm::AugmentedSession::interests)
             .chain(
                 self.message_list
                     .pinned()
                     .borrow()
                     .messages
                     .iter()
-                    .map(|message| Interest::row(schema::messages::table, message.id)),
+                    .flat_map(orm::AugmentedMessage::interests),
             )
             .collect()
     }
