@@ -152,7 +152,7 @@ impl SessionStorageMigration {
             let path = self.prekey_path(prekey);
 
             log::trace!("Loading prekey {} for migration", prekey);
-            let _lock = self.protocol_store.read().await;
+            let _lock = self.protocol_store.write().await;
             let buf = match self.read_file(&path).await {
                 Ok(buf) => buf,
                 Err(e) if !path.exists() => {
@@ -226,7 +226,7 @@ impl SessionStorageMigration {
             let path = self.signed_prekey_path(prekey);
 
             log::trace!("Loading signed prekey {} for migration", prekey);
-            let _lock = self.protocol_store.read().await;
+            let _lock = self.protocol_store.write().await;
             let buf = match self.read_file(&path).await {
                 Ok(buf) => buf,
                 Err(e) if !path.exists() => {
