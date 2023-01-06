@@ -40,7 +40,13 @@ ListItem {
     readonly property string _message: fullMessageText !== "" ? fullMessageText : (hasData && modelData.message ? modelData.message.trim() : '')
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
 
-    readonly property string contactName: showSender ? getRecipientName(modelData.recipientE164, modelData.recipientName, false) : ''
+    Recipient {
+        id: sender
+        app: AppState
+        recipientId: modelData.senderRecipientId
+    }
+
+    readonly property string contactName: showSender ? getRecipientName(sender.e164, sender.name, false) : ''
 
     // All children are placed inside a bubble, positioned left or right for
     // incoming/outbound messages. The bubble extends slightly over the contents.
