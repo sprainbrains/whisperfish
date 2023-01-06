@@ -51,7 +51,6 @@ pub enum Table {
 #[derive(Clone, Message, Debug)]
 #[rtype(result = "Vec<Interest>")]
 pub enum Event {
-    Any,
     Insert { table: Table, key: PrimaryKey },
     Update { table: Table, key: PrimaryKey },
     Delete { table: Table, key: PrimaryKey },
@@ -81,7 +80,7 @@ impl Event {}
 impl Interest {
     pub fn is_interesting(&self, ev: &Event) -> bool {
         match (self, ev) {
-            (_, Event::Any) | (Interest::All, _) => true,
+            (Interest::All, _) => true,
 
             // Interested in a whole table, and an event on the table is triggered
             (Interest::Table { table: ti }, Event::Insert { table: te, key: _ }) => ti == te,
