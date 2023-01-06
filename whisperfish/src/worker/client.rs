@@ -1181,11 +1181,12 @@ impl Handler<SendMessage> for ClientActor {
                             .await
                         {
                             storage.fail_message(mid);
-                            if let MessageSenderError::ProofRequired { token, options: _ } = &e {
-                                if token.eq("recaptcha") {
+                            let recaptcha = String::from("recaptcha");
+                            if let MessageSenderError::ProofRequired { token, options } = &e {
+                                if options.contains(&recaptcha) {
                                     addr.send(ProofRequired {
                                         token: token.to_owned(),
-                                        r#type: String::from("recaptcha"),
+                                        r#type: recaptcha,
                                     })
                                     .await
                                     .expect("deliver captcha required");
