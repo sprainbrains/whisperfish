@@ -429,10 +429,10 @@ impl Storage {
         if let Some(database_key) = database_key {
             log::info!("Setting DB encryption");
 
-            db.batch_execute("PRAGMA cipher_log = stderr;")
-                .context("setting sqlcipher log output to stderr")?;
-            db.batch_execute("PRAGMA cipher_log_level = DEBUG;")
-                .context("setting sqlcipher log level to debug")?;
+            // db.batch_execute("PRAGMA cipher_log = stderr;")
+            //     .context("setting sqlcipher log output to stderr")?;
+            // db.batch_execute("PRAGMA cipher_log_level = DEBUG;")
+            //     .context("setting sqlcipher log level to debug")?;
 
             db.batch_execute(&format!(
                 "PRAGMA key = \"x'{}'\";",
