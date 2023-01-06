@@ -103,7 +103,7 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="300"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Det gick inte att konfigurera Signal-klienten</translation>
+        <translation>Det gick inte att konfigurera Signal -klienten</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="305"/>
@@ -238,7 +238,7 @@
         <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Besök wikin</translation>
+        <translation>Besök Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="149"/>
@@ -448,7 +448,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="53"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Uppdatera Signal -profil</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
         <location filename="../qml/pages/VerifyIdentity.qml" line="62"/>
@@ -754,26 +754,26 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProofSubmitPage.qml" line="13"/>
         <source>reCaptcha requested</source>
         <extracomment>Signal has requested additional captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>reCaptcha begärd</translation>
     </message>
     <message id="whisperfish-captcha-requested-message">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="17"/>
         <location filename="../qml/pages/ProofSubmitPage.qml" line="40"/>
         <source>Signal has requested additional capcha from you. Continue the captcha in order to restore ability to send messages.</source>
         <extracomment>Signal has requested additional captcha description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signal har begärt ytterligare captcha från dig. Fortsätt med captcha för att återställa möjligheten att skicka meddelanden.</translation>
     </message>
     <message id="whisperfish-captcha-requested-try-again">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="43"/>
         <source>The reCaptcha wasn&apos;t accepted, please try again.</source>
         <extracomment>Rate limit captcha has to be tried again</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ReCaptcha accepterades inte, försök igen.</translation>
     </message>
     <message id="whisperfish-done-button-label">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="95"/>
         <source>Done</source>
         <extracomment>Done button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Färdigt</translation>
     </message>
     <message id="whisperfish-continue-button-label">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="98"/>
@@ -983,13 +983,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="260"/>
         <source>Prefer device contacts</source>
         <extracomment>Settings page prefer phone contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Föredra enhetskontakter</translation>
     </message>
     <message id="whisperfish-settings-notifications-prefer-device-contacts-description">
         <location filename="../qml/pages/Settings.qml" line="263"/>
         <source>Prefer Sailfish OS address book contact names and avatars over Signal Profile data.</source>
         <extracomment>Settings page prefer phone contacts description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Föredra kontaktnamn och avatarer i Sailfish OS adressbok framför Signal -profildata.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="311"/>
@@ -1529,9 +1529,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="62"/>
         <source>%n member(s)</source>
         <extracomment>The number of members in a group, you included</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n medlem</numerusform>
+            <numerusform>%n medlemmar</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1642,31 +1642,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="37"/>
         <source>Message Info</source>
         <extracomment>Page title for message info/details page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meddelandeinfo</translation>
     </message>
     <message id="whisperfish-message-info-details">
         <location filename="../qml/pages/MessageInfoPage.qml" line="74"/>
         <source>Details</source>
         <extracomment>Details section header</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Detaljer</translation>
     </message>
     <message id="whisperfish-message-message-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="79"/>
         <source>Message ID</source>
         <extracomment>Label for id of the message (in database)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meddelande ID</translation>
     </message>
     <message id="whisperfish-message-session-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="85"/>
         <source>Session ID</source>
         <extracomment>Label for session id of the message (in database)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sessions-ID</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="98"/>
         <source>Reactions</source>
         <extracomment>Reactions section header</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reaktioner</translation>
     </message>
 </context>
 </TS>
