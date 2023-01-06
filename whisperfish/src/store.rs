@@ -1860,8 +1860,6 @@ impl Storage {
                 .execute(&mut *self.db())
                 .expect("inserting a message")
         };
-        // XXX This will trigger many updates
-        self.observe_insert(schema::messages::table, PrimaryKey::Unknown);
 
         assert_eq!(
             affected_rows, 1,
@@ -1874,6 +1872,8 @@ impl Storage {
             latest_message.session_id, session,
             "message insert sanity test failed"
         );
+        // XXX This will trigger many updates
+        self.observe_insert(schema::messages::table, latest_message.id);
 
         // Mark the session as non-archived
         // TODO: Do this only when necessary
