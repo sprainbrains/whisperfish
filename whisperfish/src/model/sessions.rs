@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
-use crate::model::*;
-use crate::store::observer::EventObserving;
+use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
+use crate::{model::*, schema};
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
 
@@ -48,8 +48,18 @@ impl EventObserving for SessionsImpl {
         self.session_list.pinned().borrow_mut().load_all(storage)
     }
 
-    fn interests() -> Vec<crate::store::observer::Interest> {
-        vec![crate::store::observer::Interest::All]
+    fn interests(&self) -> Vec<crate::store::observer::Interest> {
+        std::iter::once(Interest::whole_table(schema::sessions::table))
+            .chain(
+                self.session_list
+                    .pinned()
+                    .borrow()
+                    .content
+                    .iter()
+                    .flat_map(|session| &session.last_message)
+                    .map(|msg| Interest::row(schema::messages::table, msg.id)),
+            )
+            .collect()
     }
 }
 

@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
-use crate::model::*;
-use crate::store::observer::EventObserving;
+use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
+use crate::{model::*, schema};
 use std::collections::HashMap;
 use std::process::Command;
 
@@ -56,8 +56,11 @@ impl EventObserving for AttachmentImpl {
         }
     }
 
-    fn interests() -> Vec<crate::store::observer::Interest> {
-        vec![crate::store::observer::Interest::All]
+    fn interests(&self) -> Vec<Interest> {
+        self.attachment_id
+            .into_iter()
+            .map(|id| Interest::row(schema::attachments::table, id))
+            .collect()
     }
 }
 
@@ -72,7 +75,7 @@ define_model_roles! {
 #[derive(QObject, Default)]
 pub struct AttachmentListModel {
     base: qt_base_class!(trait QAbstractListModel),
-    attachments: Vec<orm::Attachment>,
+    pub(super) attachments: Vec<orm::Attachment>,
 
     count: qt_property!(i32; NOTIFY rowCountChanged READ row_count),
 

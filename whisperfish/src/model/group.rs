@@ -2,10 +2,10 @@
 
 use std::collections::HashMap;
 
-use crate::model::*;
-use crate::store::observer::EventObserving;
+use crate::store::observer::{EventObserving, Interest};
 use crate::store::orm::{GroupV1Member, GroupV2Member};
 use crate::store::{orm, Storage};
+use crate::{model::*, schema};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
@@ -39,8 +39,24 @@ impl EventObserving for GroupImpl {
         }
     }
 
-    fn interests() -> Vec<crate::store::observer::Interest> {
-        vec![crate::store::observer::Interest::All]
+    fn interests(&self) -> Vec<Interest> {
+        if self.group_v1.is_some() {
+            self.id
+                .clone()
+                .into_iter()
+                .map(|id| Interest::row(schema::group_v1s::table, id))
+                // XXX add members
+                .collect()
+        } else if self.group_v2.is_some() {
+            self.id
+                .clone()
+                .into_iter()
+                .map(|id| Interest::row(schema::group_v2s::table, id))
+                // XXX add members
+                .collect()
+        } else {
+            Vec::new()
+        }
     }
 }
 

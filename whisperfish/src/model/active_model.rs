@@ -2,6 +2,7 @@ use actix::prelude::*;
 
 use crate::store::observer::Event;
 use crate::store::observer::EventObserving;
+use crate::store::observer::Interest;
 use crate::store::Storage;
 
 #[macro_export]
@@ -71,7 +72,7 @@ macro_rules! observing_model {
 
                         let subscriber = actor.downgrade().recipient();
                         self.actor = Some(actor);
-                        storage.register_observer(<$encapsulated>::interests(), subscriber);
+                        storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.borrow()), subscriber);
 
                         (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().init(storage);
                         self.something_changed();
@@ -128,17 +129,22 @@ impl<T: 'static> actix::Handler<Event> for ObservingModelActor<T>
 where
     T: EventObserving,
 {
-    type Result = ();
+    type Result = Vec<Interest>;
 
     fn handle(&mut self, event: Event, ctx: &mut Self::Context) -> Self::Result {
         match self.model.upgrade() {
-            Some(model) => model.borrow_mut().observe(self.storage.clone(), event),
+            Some(model) => {
+                let mut model = model.borrow_mut();
+                model.observe(self.storage.clone(), event);
+                model.interests()
+            }
             None => {
                 // In principle, the actor should have gotten stopped when the model got dropped,
                 // because the actor's only strong reference is contained in the ObservingModel.
                 log::debug!("Model got dropped, stopping actor execution.");
                 // XXX What is the difference between stop and terminate?
                 ctx.stop();
+                Vec::new()
             }
         }
     }

@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
-use crate::model::*;
-use crate::store::observer::EventObserving;
+use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
+use crate::{model::*, schema};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
@@ -48,8 +48,11 @@ impl EventObserving for RecipientImpl {
         }
     }
 
-    fn interests() -> Vec<crate::store::observer::Interest> {
-        vec![crate::store::observer::Interest::All]
+    fn interests(&self) -> Vec<Interest> {
+        self.recipient_id
+            .into_iter()
+            .map(|id| Interest::row(schema::recipients::table, id))
+            .collect()
     }
 }
 
