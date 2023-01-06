@@ -13,7 +13,6 @@ impl Handler<ParseOldReaction> for ClientActor {
     type Result = ();
     fn handle(&mut self, _: ParseOldReaction, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let mut db = storage.db();
         let config = std::sync::Arc::clone(&self.config);
         let myself = storage.fetch_self_recipient(&config).expect("myself in db");
 
@@ -22,7 +21,7 @@ impl Handler<ParseOldReaction> for ClientActor {
             messages
                 .filter(text.like("R@%:%"))
                 .order_by((text, sender_recipient_id, received_timestamp))
-                .get_results(&mut *db)
+                .get_results(&mut *storage.db())
                 .expect("fetch reaction messages")
         };
 
@@ -32,7 +31,7 @@ impl Handler<ParseOldReaction> for ClientActor {
                 reaction_messages.len()
             );
         }
-        db.transaction::<(), diesel::result::Error, _>(|db| {
+        storage.db().transaction::<(), diesel::result::Error, _>(|db| {
             let regex = regex::Regex::new(r"R@(\d+):(.*)").expect("reaction regex");
             let mut reaction_messages = reaction_messages.into_iter().peekable();
             while let Some(reaction) = reaction_messages.next() {
@@ -59,8 +58,11 @@ impl Handler<ParseOldReaction> for ClientActor {
                 let ts = millis_to_naive_chrono(ts);
                 let emoji_text = &m[2];
 
-                // XXX Reentry inside a transaction
-                let target_message = match storage.fetch_message_by_timestamp(ts) {
+                let target_message: orm::Message = match schema::messages::table
+                    .filter(schema::messages::server_timestamp.eq(ts))
+                    .first(db)
+                    .optional()
+                    .expect("db") {
                     Some(msg) => msg,
                     None=> {
                         log::warn!("No message found for reaction with ts={}.  In the future, we will drop these.", ts);
