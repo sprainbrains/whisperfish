@@ -63,6 +63,12 @@ pub enum PrimaryKey {
     StringRowId(String),
 }
 
+impl PrimaryKey {
+    fn implies(&self, rhs: &PrimaryKey) -> bool {
+        *self == PrimaryKey::Unknown || *self == *rhs
+    }
+}
+
 impl From<i32> for PrimaryKey {
     fn from(x: i32) -> Self {
         Self::RowId(x)
@@ -75,7 +81,29 @@ impl From<String> for PrimaryKey {
     }
 }
 
-impl Event {}
+impl Event {
+    pub fn for_table<T: diesel::Table + 'static>(&self, _table: T) -> bool {
+        let table = Table::from_diesel::<T>();
+        match self {
+            Event::Insert { table: tev, .. } => *tev == table,
+            Event::Update { table: tev, .. } => *tev == table,
+            Event::Delete { table: tev, .. } => *tev == table,
+        }
+    }
+
+    pub fn for_row<T: diesel::Table + 'static>(
+        &self,
+        _table: T,
+        key_test: impl Into<PrimaryKey>,
+    ) -> bool {
+        let table = Table::from_diesel::<T>();
+        match self {
+            Event::Insert { table: tev, key } => *tev == table && key.implies(&key_test.into()),
+            Event::Update { table: tev, key } => *tev == table && key.implies(&key_test.into()),
+            Event::Delete { table: tev, key } => *tev == table && key.implies(&key_test.into()),
+        }
+    }
+}
 
 impl Interest {
     pub fn is_interesting(&self, ev: &Event) -> bool {

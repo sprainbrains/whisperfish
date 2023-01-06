@@ -44,7 +44,15 @@ impl SessionsImpl {
 }
 
 impl EventObserving for SessionsImpl {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+    fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
+        if event.for_table(schema::reactions::table) {
+            return;
+        }
+        if event.for_table(schema::messages::table) {
+            // Find the correct session and update the latest message
+            // XXX this required the session id; relations are currently not part of an event
+            // return;
+        }
         self.session_list.pinned().borrow_mut().load_all(storage)
     }
 
