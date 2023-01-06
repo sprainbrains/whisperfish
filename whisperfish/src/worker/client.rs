@@ -49,10 +49,16 @@ use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 use phonenumber::PhoneNumber;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
+use std::collections::HashSet;
 use std::fs::remove_file;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
+
+// Maximum theoretical TypingMessage send rate
+const TM_MAX_RATE: f32 = 24.0; // messages per minute
+const TM_CACHE_CAPACITY: f32 = 2.0; // 2 min
+const TM_CACHE_TRESHOLD: f32 = 1.75; // 1 min 45 sec
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -154,6 +160,8 @@ pub struct ClientActor {
     >,
     config: std::sync::Arc<crate::config::SignalConfig>,
 
+    typing_message_timestamps: HashSet<u64>,
+
     start_time: DateTime<Local>,
 
     outdated_profile_stream_handle: Option<SpawnHandle>,
@@ -186,6 +194,9 @@ impl ClientActor {
         inner.pinned().borrow_mut().session_actor = Some(session_actor);
         inner.pinned().borrow_mut().device_model = Some(device_model);
 
+        let typing_message_timestamps: HashSet<u64> =
+            HashSet::with_capacity((TM_CACHE_CAPACITY * TM_MAX_RATE) as _);
+
         Ok(Self {
             inner,
             migration_state: MigrationCondVar::new(),
@@ -195,6 +206,8 @@ impl ClientActor {
             cipher: None,
             ws: None,
             config,
+
+            typing_message_timestamps,
 
             start_time: Local::now(),
 
@@ -643,24 +656,31 @@ impl ClientActor {
     }
 
     fn process_receipt(&mut self, msg: &Envelope) {
-        log::info!("Received receipt: {}", msg.timestamp());
+        let millis = msg.timestamp();
+
+        // If the receipt timestamp matches a cached TypingMessage timestamp,
+        // stop processing, since there's no such message in database.
+        if self.typing_message_timestamps.contains(&millis) {
+            log::info!("Received TypingMessage receipt: {}", millis);
+            return;
+        }
+
+        log::info!("Received receipt: {}", millis);
 
         let storage = self.storage.as_mut().expect("storage initialized");
-
-        let ts = msg.timestamp();
         let source = msg.source_address();
 
-        let ts = millis_to_naive_chrono(ts);
+        let timestamp = millis_to_naive_chrono(millis);
         log::trace!(
             "Marking message from {} at {} ({}) as received.",
             source,
-            ts,
-            msg.timestamp()
+            timestamp,
+            millis
         );
         if let Some((sess, msg)) = storage.mark_message_received(
             source.e164().as_deref(),
             source.uuid.as_ref().map(uuid::Uuid::to_string).as_deref(),
-            ts,
+            timestamp,
             None,
         ) {
             self.inner
@@ -1253,6 +1273,26 @@ impl Handler<SendTypingNotification> for ClientActor {
 
         log::trace!("Sending typing notification for session: {:?}", session);
 
+        // Since we don't want to stress database needlessly,
+        // cache the sent TypingMessage timestamps and try to
+        // match delivery receipts against it when they arrive.
+
+        if self.typing_message_timestamps.len() > (TM_CACHE_CAPACITY * TM_MAX_RATE) as _ {
+            // slots / slots_per_minute = minutes
+            const DURATION: u64 = (TM_CACHE_TRESHOLD * 60.0 * 1000.0) as _;
+            let limit = (Utc::now().timestamp_millis() as u64) - DURATION;
+
+            let len_before = self.typing_message_timestamps.len();
+            self.typing_message_timestamps.retain(|t| *t > limit);
+            log::trace!(
+                "Removed {} cached TypingMessage timestamps",
+                len_before - self.typing_message_timestamps.len()
+            );
+        }
+
+        let timestamp = Utc::now().timestamp_millis() as u64;
+        self.typing_message_timestamps.insert(timestamp);
+
         let local_addr = self.local_addr.clone().unwrap();
         let storage = storage.clone();
         Box::pin(
@@ -1268,7 +1308,7 @@ impl Handler<SendTypingNotification> for ClientActor {
                 };
 
                 let online = true;
-                let timestamp = Utc::now().timestamp_millis() as u64;
+
                 let content = TypingMessage {
                     timestamp: Some(timestamp),
                     action: Some(if is_start {
