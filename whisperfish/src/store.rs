@@ -592,7 +592,9 @@ impl Storage {
             .expect("remove old reaction from database");
 
         if removed > 0 {
-            self.observe_delete(reactions, PrimaryKey::Unknown);
+            self.observe_delete(reactions, PrimaryKey::Unknown)
+                .with_relation(schema::recipients::table, sender.id)
+                .with_relation(schema::messages::table, message.id);
         }
 
         if !reaction.remove() {
@@ -609,7 +611,9 @@ impl Storage {
                 .execute(&mut *self.db())
                 .expect("insert reaction into database");
 
-            self.observe_insert(reactions, PrimaryKey::Unknown);
+            self.observe_insert(reactions, PrimaryKey::Unknown)
+                .with_relation(schema::recipients::table, sender.id)
+                .with_relation(schema::messages::table, message.id);
         }
 
         Some((message, session))
@@ -687,7 +691,7 @@ impl Storage {
         by_uuid.or(by_e164)
     }
 
-    pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) {
+    pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
         use crate::schema::recipients::dsl::*;
         diesel::update(recipients)
             .set(last_profile_fetch.eq(Option::<NaiveDateTime>::None))
@@ -695,7 +699,11 @@ impl Storage {
             .execute(&mut *self.db())
             .expect("existing record updated");
         log::info!("Marked profile for {:?} as outdated.", recipient_uuid);
-        self.observe_update(recipients, PrimaryKey::Unknown);
+        let recipient = self.fetch_recipient_by_uuid(recipient_uuid);
+        if let Some(recipient) = &recipient {
+            self.observe_update(recipients, recipient.id);
+        }
+        recipient
     }
 
     pub fn update_profile_key(
@@ -1218,7 +1226,8 @@ impl Storage {
             .first(&mut *self.db())
             .ok();
         if let Some(message) = message {
-            self.observe_update(messages, message.id);
+            self.observe_update(messages, message.id)
+                .with_relation(schema::sessions::table, message.session_id);
             let session = self
                 .fetch_session_by_id(message.session_id)
                 .expect("foreignk key");
@@ -1278,8 +1287,9 @@ impl Storage {
         use diesel::result::Error::DatabaseError;
         match insert {
             Ok(1) => {
-                // XXX this will trigger a lot of stuff, we want to limit this.
-                self.observe_insert(schema::receipts::table, PrimaryKey::Unknown);
+                self.observe_insert(schema::receipts::table, PrimaryKey::Unknown)
+                    .with_relation(schema::messages::table, message_id)
+                    .with_relation(schema::recipients::table, recipient.id);
                 let message = self.fetch_message_by_id(message_id)?;
                 let session = self.fetch_session_by_id(message.session_id)?;
                 return Some((session, message));
@@ -1309,8 +1319,9 @@ impl Storage {
         if let Err(e) = update {
             log::error!("Could not update receipt: {}", e);
         }
-        // XXX this will trigger a lot of stuff, we want to limit this.
-        self.observe_update(schema::receipts::table, PrimaryKey::Unknown);
+        self.observe_update(schema::receipts::table, PrimaryKey::Unknown)
+            .with_relation(schema::messages::table, message_id)
+            .with_relation(schema::recipients::table, recipient.id);
 
         let message = self.fetch_message_by_id(message_id)?;
         let session = self.fetch_session_by_id(message.session_id)?;
@@ -1497,7 +1508,8 @@ impl Storage {
         let session = self
             .fetch_latest_session()
             .expect("a session has been inserted");
-        self.observe_insert(sessions, session.id);
+        self.observe_insert(sessions, session.id)
+            .with_relation(schema::recipients::table, recipient.id);
         session
     }
 
@@ -1517,7 +1529,8 @@ impl Storage {
         let session = self
             .fetch_latest_session()
             .expect("a session has been inserted");
-        self.observe_insert(sessions, session.id);
+        self.observe_insert(sessions, session.id)
+            .with_relation(schema::recipients::table, rid);
         session
     }
 
@@ -1561,20 +1574,22 @@ impl Storage {
                 ))
                 .execute(&mut *self.db())
                 .unwrap();
-            // XXX This triggers a lot of updates
-            self.observe_insert(schema::group_v1_members::table, PrimaryKey::Unknown);
+            self.observe_insert(schema::group_v1_members::table, PrimaryKey::Unknown)
+                .with_relation(schema::recipients::table, recipient.id)
+                .with_relation(schema::group_v1s::table, group_id.clone());
         }
 
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
-            .values((group_v1_id.eq(group_id),))
+            .values((group_v1_id.eq(&group_id),))
             .execute(&mut *self.db())
             .unwrap();
 
         let session = self
             .fetch_latest_session()
             .expect("a session has been inserted");
-        self.observe_insert(schema::sessions::table, session.id);
+        self.observe_insert(schema::sessions::table, session.id)
+            .with_relation(schema::group_v1s::table, group_id);
         session
     }
 
@@ -1676,7 +1691,15 @@ impl Storage {
                     .filter(id.eq(session.id))
                     .execute(&mut *self.db())
                     .expect("session updated");
-                self.observe_update(sessions, session.id);
+                self.observe_update(sessions, session.id)
+                    .with_relation(
+                        schema::group_v1s::table,
+                        session
+                            .group_v1_id
+                            .clone()
+                            .expect("group_v1_id from migration"),
+                    )
+                    .with_relation(schema::group_v2s::table, new_group.id);
 
                 // XXX consider removing the group_v1
                 assert_eq!(count, 1, "session should have been updated");
@@ -1696,7 +1719,8 @@ impl Storage {
                 let session = self
                     .fetch_latest_session()
                     .expect("a session has been inserted");
-                self.observe_insert(sessions, session.id);
+                self.observe_insert(sessions, session.id)
+                    .with_relation(schema::group_v2s::table, new_group.id);
                 session
             }
         }
@@ -1723,8 +1747,10 @@ impl Storage {
             .set((is_read.eq(true),))
             .execute(&mut *self.db())
             .expect("mark session read");
-        // XXX This triggers a lot of updates
-        self.observe_update(schema::messages::table, PrimaryKey::Unknown);
+
+        // XXX This still triggers a lot of updates
+        self.observe_update(schema::messages::table, PrimaryKey::Unknown)
+            .with_relation(schema::sessions::table, sid);
     }
 
     pub fn mark_session_muted(&self, sid: i32, muted: bool) {
@@ -1793,7 +1819,9 @@ impl Storage {
             ))
             .execute(&mut *self.db())
             .expect("insert attachment");
-        self.observe_insert(schema::attachments::table, PrimaryKey::Unknown);
+
+        self.observe_insert(schema::attachments::table, PrimaryKey::Unknown)
+            .with_relation(schema::messages::table, mid);
     }
 
     /// Create a new message. This was transparent within SaveMessage in Go.
@@ -1873,7 +1901,8 @@ impl Storage {
             "message insert sanity test failed"
         );
         // XXX This will trigger many updates
-        self.observe_insert(schema::messages::table, latest_message.id);
+        self.observe_insert(schema::messages::table, latest_message.id)
+            .with_relation(schema::sessions::table, session);
 
         // Mark the session as non-archived
         // TODO: Do this only when necessary
@@ -1896,7 +1925,8 @@ impl Storage {
                     .execute(&mut *self.db())
                     .expect("Insert attachment")
             };
-            self.observe_insert(schema::attachments::table, PrimaryKey::Unknown);
+            self.observe_insert(schema::attachments::table, PrimaryKey::Unknown)
+                .with_relation(schema::messages::table, latest_message.id);
 
             assert_eq!(
                 affected_rows, 1,
@@ -2175,18 +2205,32 @@ impl Storage {
 
     /// Marks all messages that are outbound and unsent as failed.
     pub fn mark_pending_messages_failed(&self) {
-        let count = diesel::update(schema::messages::table)
+        use schema::messages::dsl::*;
+        let failed_messages: Vec<orm::Message> = messages
             .filter(
-                schema::messages::sent_timestamp
+                sent_timestamp
                     .is_null()
-                    .and(schema::messages::is_outbound)
-                    .and(schema::messages::sending_has_failed.eq(false)),
+                    .and(is_outbound)
+                    .and(sending_has_failed.eq(false)),
+            )
+            .load(&mut *self.db())
+            .unwrap();
+
+        let count = diesel::update(messages)
+            .filter(
+                sent_timestamp
+                    .is_null()
+                    .and(is_outbound)
+                    .and(sending_has_failed.eq(false)),
             )
             .set(schema::messages::sending_has_failed.eq(true))
             .execute(&mut *self.db())
             .unwrap();
-        // XXX will trigger many updates
-        self.observe_update(schema::messages::table, PrimaryKey::Unknown);
+        assert_eq!(failed_messages.len(), count);
+
+        for message in failed_messages {
+            self.observe_update(schema::messages::table, message.id);
+        }
         let level = if count == 0 {
             log::Level::Trace
         } else {

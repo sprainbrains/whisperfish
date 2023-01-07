@@ -48,12 +48,27 @@ pub enum Table {
     Stickers,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct Relation {
+    table: Table,
+    key: PrimaryKey,
+}
+
 #[derive(Clone, Message, Debug)]
 #[rtype(result = "Vec<Interest>")]
-pub enum Event {
-    Insert { table: Table, key: PrimaryKey },
-    Update { table: Table, key: PrimaryKey },
-    Delete { table: Table, key: PrimaryKey },
+pub struct Event {
+    #[allow(unused)] // Event type should also be exposed to interest
+    r#type: EventType,
+    table: Table,
+    key: PrimaryKey,
+    relations: Vec<Relation>,
+}
+
+#[derive(Clone, Debug)]
+pub enum EventType {
+    Insert,
+    Update,
+    Delete,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -84,11 +99,7 @@ impl From<String> for PrimaryKey {
 impl Event {
     pub fn for_table<T: diesel::Table + 'static>(&self, _table: T) -> bool {
         let table = Table::from_diesel::<T>();
-        match self {
-            Event::Insert { table: tev, .. } => *tev == table,
-            Event::Update { table: tev, .. } => *tev == table,
-            Event::Delete { table: tev, .. } => *tev == table,
-        }
+        self.table == table
     }
 
     pub fn for_row<T: diesel::Table + 'static>(
@@ -97,11 +108,7 @@ impl Event {
         key_test: impl Into<PrimaryKey>,
     ) -> bool {
         let table = Table::from_diesel::<T>();
-        match self {
-            Event::Insert { table: tev, key } => *tev == table && key.implies(&key_test.into()),
-            Event::Update { table: tev, key } => *tev == table && key.implies(&key_test.into()),
-            Event::Delete { table: tev, key } => *tev == table && key.implies(&key_test.into()),
-        }
+        self.table == table && self.key.implies(&key_test.into())
     }
 }
 
@@ -111,43 +118,25 @@ impl Interest {
             (Interest::All, _) => true,
 
             // Interested in a whole table, and an event on the table is triggered
-            (Interest::Table { table: ti }, Event::Insert { table: te, key: _ }) => ti == te,
-            (Interest::Table { table: ti }, Event::Update { table: te, key: _ }) => ti == te,
-            (Interest::Table { table: ti }, Event::Delete { table: te, key: _ }) => ti == te,
+            (Interest::Table { table: ti }, Event { table: te, .. }) => ti == te,
 
             // Interested in a particular row, and an event is triggered on some unknown row
             (
                 Interest::Row { table: ti, key: _ },
-                Event::Insert {
+                Event {
                     table: te,
                     key: PrimaryKey::Unknown,
-                },
-            ) => ti == te,
-            (
-                Interest::Row { table: ti, key: _ },
-                Event::Update {
-                    table: te,
-                    key: PrimaryKey::Unknown,
-                },
-            ) => ti == te,
-            (
-                Interest::Row { table: ti, key: _ },
-                Event::Delete {
-                    table: te,
-                    key: PrimaryKey::Unknown,
+                    ..
                 },
             ) => ti == te,
 
             // Interested in a particular row, and an event is triggered on that specific row
-            (Interest::Row { table: ti, key: ki }, Event::Insert { table: te, key: ke }) => {
-                ti == te && ki == ke
-            }
-            (Interest::Row { table: ti, key: ki }, Event::Update { table: te, key: ke }) => {
-                ti == te && ki == ke
-            }
-            (Interest::Row { table: ti, key: ki }, Event::Delete { table: te, key: ke }) => {
-                ti == te && ki == ke
-            }
+            (
+                Interest::Row { table: ti, key: ki },
+                Event {
+                    table: te, key: ke, ..
+                },
+            ) => ti == te && ki == ke,
             #[allow(unreachable_patterns)] // XXX should one of the enums be non-exhaustive instead?
             _ => {
                 log::debug!(
@@ -249,6 +238,35 @@ pub trait EventObserving {
     fn interests(&self) -> Vec<Interest>;
 }
 
+pub struct ObservationBuilder<'a, T> {
+    storage: &'a super::Storage,
+    event: Event,
+    _table: T,
+}
+
+impl<T> Drop for ObservationBuilder<'_, T> {
+    fn drop(&mut self) {
+        self.storage.distribute_event(self.event.clone());
+    }
+}
+
+impl<'a, T: diesel::Table + 'static> ObservationBuilder<'a, T> {
+    pub fn with_relation<U: diesel::Table + 'static>(
+        mut self,
+        _table: U,
+        relation_key: impl Into<PrimaryKey>,
+    ) -> Self
+    where
+        U: diesel::JoinTo<T>,
+    {
+        self.event.relations.push(Relation {
+            table: Table::from_diesel::<U>(),
+            key: relation_key.into(),
+        });
+        self
+    }
+}
+
 impl super::Storage {
     pub fn register_observer(
         &mut self,
@@ -272,40 +290,58 @@ impl super::Storage {
 
     pub(super) fn observe_insert<T: diesel::Table + 'static>(
         &self,
-        _table: T,
+        diesel_table: T,
         key: impl Into<PrimaryKey>,
-    ) {
+    ) -> ObservationBuilder<'_, T> {
         let table = Table::from_diesel::<T>();
 
-        self.distribute_event(Event::Insert {
-            table,
-            key: key.into(),
-        });
+        ObservationBuilder {
+            storage: self,
+            event: Event {
+                table,
+                key: key.into(),
+                relations: Vec::new(),
+                r#type: EventType::Insert,
+            },
+            _table: diesel_table,
+        }
     }
 
     pub(super) fn observe_update<T: diesel::Table + 'static>(
         &self,
-        _table: T,
+        diesel_table: T,
         key: impl Into<PrimaryKey>,
-    ) {
+    ) -> ObservationBuilder<'_, T> {
         let table = Table::from_diesel::<T>();
 
-        self.distribute_event(Event::Update {
-            table,
-            key: key.into(),
-        });
+        ObservationBuilder {
+            storage: self,
+            event: Event {
+                table,
+                key: key.into(),
+                relations: Vec::new(),
+                r#type: EventType::Update,
+            },
+            _table: diesel_table,
+        }
     }
 
     pub(super) fn observe_delete<T: diesel::Table + 'static>(
         &self,
-        _table: T,
+        diesel_table: T,
         key: impl Into<PrimaryKey>,
-    ) {
+    ) -> ObservationBuilder<'_, T> {
         let table = Table::from_diesel::<T>();
 
-        self.distribute_event(Event::Delete {
-            table,
-            key: key.into(),
-        });
+        ObservationBuilder {
+            storage: self,
+            event: Event {
+                table,
+                key: key.into(),
+                relations: Vec::new(),
+                r#type: EventType::Delete,
+            },
+            _table: diesel_table,
+        }
     }
 }
