@@ -281,11 +281,13 @@ pub struct MessageListModel {
 
 impl MessageListModel {
     fn load_all(&mut self, storage: Storage, id: i32) {
+        self.begin_reset_model();
         self.messages = storage
             .fetch_all_messages_augmented(id)
             .into_iter()
             .map(Into::into)
             .collect();
+        self.end_reset_model();
     }
 }
 
