@@ -222,6 +222,7 @@ table! {
 }
 
 joinable!(attachments -> messages (message_id));
+joinable!(group_v1_members -> group_v1s (group_v1_id));
 joinable!(group_v1_members -> recipients (recipient_id));
 joinable!(group_v2_members -> group_v2s (group_v2_id));
 joinable!(group_v2_members -> recipients (recipient_id));
