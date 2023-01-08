@@ -755,7 +755,7 @@ impl Storage {
         uuid: Option<&str>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
-        let (id, uuid, e164) = self
+        let (id, uuid, e164, changed) = self
             .db()
             .transaction::<_, Error, _>(|db| {
                 Self::merge_and_fetch_recipient_inner(db, e164, uuid, trust_level)
@@ -775,9 +775,9 @@ impl Storage {
                 unreachable!("this should get implemented with an Either or custom enum instead")
             }
         };
-        // XXX Minimizing the number of times we call this, would be beneficial.  Often, the above
-        // method does nothing at all.
-        self.observe_update(crate::schema::recipients::table, recipient.id);
+        if changed {
+            self.observe_update(crate::schema::recipients::table, recipient.id);
+        }
 
         recipient
     }
@@ -790,7 +790,7 @@ impl Storage {
         e164: Option<&'e str>,
         uuid: Option<&'u str>,
         trust_level: TrustLevel,
-    ) -> Result<(Option<i32>, Option<&'u str>, Option<&'e str>), Error> {
+    ) -> Result<(Option<i32>, Option<&'u str>, Option<&'e str>, bool), Error> {
         if e164.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
@@ -818,7 +818,7 @@ impl Storage {
         match (by_e164, by_uuid) {
             (Some(by_e164), Some(by_uuid)) if by_e164.id == by_uuid.id => {
                 // Both are equal, easy.
-                Ok((Some(by_uuid.id), None, None))
+                Ok((Some(by_uuid.id), None, None, false))
             }
             (Some(by_e164), Some(by_uuid)) => {
                 log::warn!(
@@ -840,11 +840,11 @@ impl Storage {
                             .filter(recipients::id.eq(by_uuid.id))
                             .execute(db)?;
                         // Fetch again for the update
-                        Ok((Some(by_uuid.id), None, None))
+                        Ok((Some(by_uuid.id), None, None, true))
                     }
                     (Some(_uuid), TrustLevel::Uncertain) => {
                         log::info!("Differing UUIDs, low trust, likely case of reregistration. Doing absolutely nothing. Sorry.");
-                        Ok((Some(by_uuid.id), None, None))
+                        Ok((Some(by_uuid.id), None, None, false))
                     }
                     (None, TrustLevel::Certain) => {
                         log::info!(
@@ -857,13 +857,13 @@ impl Storage {
                             .filter(recipients::id.eq(merged))
                             .execute(db)?;
 
-                        Ok((Some(merged), None, None))
+                        Ok((Some(merged), None, None, true))
                     }
                     (None, TrustLevel::Uncertain) => {
                         log::info!(
                             "Not merging contacts: one with e164, the other only uuid, low trust."
                         );
-                        Ok((Some(by_uuid.id), None, None))
+                        Ok((Some(by_uuid.id), None, None, false))
                     }
                 }
             }
@@ -880,15 +880,15 @@ impl Storage {
                                 .set(recipients::e164.eq(e164))
                                 .filter(recipients::id.eq(by_uuid.id))
                                 .execute(db)?;
-                            Ok((Some(by_uuid.id), None, None))
+                            Ok((Some(by_uuid.id), None, None, true))
                         }
                         TrustLevel::Uncertain => {
                             log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
-                            Ok((Some(by_uuid.id), None, None))
+                            Ok((Some(by_uuid.id), None, None, false))
                         }
                     }
                 } else {
-                    Ok((Some(by_uuid.id), None, None))
+                    Ok((Some(by_uuid.id), None, None, false))
                 }
             }
             (Some(by_e164), None) => {
@@ -904,7 +904,7 @@ impl Storage {
                                 .set(recipients::uuid.eq(uuid))
                                 .filter(recipients::id.eq(by_e164.id))
                                 .execute(db)?;
-                            Ok((Some(by_e164.id), None, None))
+                            Ok((Some(by_e164.id), None, None, true))
                         }
                         TrustLevel::Uncertain => {
                             log::info!(
@@ -917,11 +917,11 @@ impl Storage {
                                 .values(recipients::uuid.eq(uuid))
                                 .execute(db)
                                 .expect("insert new recipient");
-                            Ok((None, Some(uuid), None))
+                            Ok((None, Some(uuid), None, true))
                         }
                     }
                 } else {
-                    Ok((Some(by_e164.id), None, None))
+                    Ok((Some(by_e164.id), None, None, false))
                 }
             }
             (None, None) => {
@@ -932,7 +932,7 @@ impl Storage {
                     .execute(db)
                     .expect("insert new recipient");
 
-                Ok((None, uuid, insert_e164))
+                Ok((None, uuid, insert_e164, true))
             }
         }
     }
