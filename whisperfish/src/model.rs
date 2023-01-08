@@ -20,8 +20,8 @@ macro_rules! define_model_roles {
         impl $enum_name {
             #[allow(unused_assignments)]
             #[allow(dead_code)]
-            $vis fn role_names() -> HashMap<i32, qmetaobject::QByteArray> {
-                let mut hm = HashMap::new();
+            $vis fn role_names() -> std::collections::HashMap<i32, qmetaobject::QByteArray> {
+                let mut hm = std::collections::HashMap::new();
 
                 let mut i = 0;
                 $(i = $offset;)?
@@ -55,6 +55,7 @@ pub mod contact;
 pub mod device;
 pub mod group;
 pub mod messages;
+pub mod reactions;
 pub mod recipient;
 pub mod sessions;
 
@@ -67,6 +68,7 @@ pub use self::device::*;
 pub use self::group::*;
 pub use self::messages::*;
 pub use self::prompt::*;
+pub use self::reactions::*;
 pub use self::recipient::*;
 pub use self::sessions::*;
 

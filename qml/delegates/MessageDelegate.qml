@@ -73,7 +73,7 @@ ListItem {
     property bool showExpand: !isEmpty && _message.length > shortenThreshold
 
     readonly property bool hasData: modelData !== null && modelData !== undefined
-    readonly property bool hasReactions: hasData && modelData.reactions !== undefined
+    readonly property bool hasReactions: hasData && reactions.count > 0
     readonly property bool hasQuotedMessage: !!modelData.quotedMessageId && modelData.quotedMessageId != -1
     readonly property bool hasAttachments: hasData && modelData.attachments > 0
     readonly property bool hasText: hasData && _message !== ''
@@ -85,7 +85,11 @@ ListItem {
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 
-    property var reactions: hasReactions ? modelData.reactions.split(',') : []
+    Reactions {
+        id: reactions
+        app: AppState
+        messageId: modelData.id
+    }
 
     function handleExternalPressAndHold(mouse) {
         if (openMenuOnPressAndHold) openMenu()
@@ -271,6 +275,7 @@ ListItem {
 
             EmojiItem {
                 id: emojiItem
+                reactions: reactions
                 anchors.top: parent.top
                 anchors.left: isOutbound ? parent.left : undefined
                 anchors.right: isOutbound ? undefined : parent.right
