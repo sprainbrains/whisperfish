@@ -21,8 +21,8 @@ crate::observing_model! {
     pub struct Sessions(SessionsImpl) {
         sessions: QVariant; READ sessions,
 
-        count: i32; READ count,
-        unread: i32; READ unread,
+        count: usize; READ count,
+        unread: usize; READ unread,
     }
 }
 
@@ -35,11 +35,11 @@ impl SessionsImpl {
         self.session_list.pinned().into()
     }
 
-    fn count(&self) -> i32 {
-        self.session_list.pinned().borrow().count() as _
+    fn count(&self) -> usize {
+        self.session_list.pinned().borrow().count()
     }
 
-    fn unread(&self) -> i32 {
+    fn unread(&self) -> usize {
         self.session_list.pinned().borrow().unread()
     }
 }
@@ -87,8 +87,10 @@ pub struct SessionListModel {
     base: qt_base_class!(trait QAbstractListModel),
     content: Vec<orm::AugmentedSession>,
 
-    count: qt_method!(fn(&self) -> usize),
-    unread: qt_method!(fn(&self) -> i32),
+    count: qt_property!(usize; READ count NOTIFY countChanged),
+    unread: qt_property!(usize; READ unread NOTIFY countChanged),
+
+    countChanged: qt_signal!(),
 }
 
 impl SessionListModel {
@@ -99,6 +101,7 @@ impl SessionListModel {
         // Stable sort, such that this retains the above ordering.
         self.content.sort_by_key(|k| !k.is_pinned);
         self.end_reset_model();
+        self.countChanged();
     }
 
     fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
@@ -120,6 +123,7 @@ impl SessionListModel {
                 self.begin_remove_rows(idx as i32, idx as i32);
                 self.content.remove(idx);
                 self.end_remove_rows();
+                self.countChanged();
             }
 
             if let Some(session) = storage.fetch_session_by_id_augmented(session_id) {
@@ -141,6 +145,7 @@ impl SessionListModel {
                 self.begin_insert_rows(idx as i32, idx as i32);
                 self.content.insert(idx, session);
                 self.end_insert_rows();
+                self.countChanged();
             } else {
                 assert!(event.for_table(schema::sessions::table));
                 assert!(event.is_delete());
@@ -181,7 +186,7 @@ impl SessionListModel {
         self.content.len()
     }
 
-    fn unread(&self) -> i32 {
+    fn unread(&self) -> usize {
         self.content
             .iter()
             .map(|session| if session.is_read() { 0 } else { 1 })

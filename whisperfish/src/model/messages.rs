@@ -29,9 +29,6 @@ crate::observing_model! {
         attachments: QVariant; READ attachments,
         thumbsAttachments: QVariant; READ visual_attachments,
         detailAttachments: QVariant; READ detail_attachments,
-
-        thumbsAttachmentsCount: i32; READ visual_attachments_count,
-        detailAttachmentsCount: i32; READ detail_attachments_count,
     } WITH OPTIONAL PROPERTIES FROM message WITH ROLE MessageRoles {
         sessionId SessionId,
         message Message,
@@ -85,16 +82,8 @@ impl MessageImpl {
         self.detail_attachments.pinned().into()
     }
 
-    fn detail_attachments_count(&self) -> i32 {
-        self.detail_attachments.pinned().borrow().row_count()
-    }
-
     fn visual_attachments(&self) -> QVariant {
         self.visual_attachments.pinned().into()
-    }
-
-    fn visual_attachments_count(&self) -> i32 {
-        self.visual_attachments.pinned().borrow().row_count()
     }
 
     fn fetch(&mut self, storage: Storage, id: i32) {
