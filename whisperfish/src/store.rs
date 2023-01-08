@@ -726,14 +726,16 @@ impl Storage {
             }
 
             use crate::schema::recipients::dsl::*;
-            diesel::update(recipients)
+            let affected_rows = diesel::update(recipients)
                 .set(profile_key.eq(new_profile_key))
                 .filter(id.eq(recipient.id))
                 .execute(&mut *self.db())
                 .expect("existing record updated");
             log::info!("Updated profile key for {}", recipient.e164_or_uuid());
 
-            self.observe_update(recipients, recipient.id);
+            if affected_rows > 0 {
+                self.observe_update(recipients, recipient.id);
+            }
         }
         // Re-fetch recipient with updated key
         (
