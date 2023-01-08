@@ -5,6 +5,7 @@ use crate::schema;
 mod orm_interests;
 
 use actix::prelude::*;
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub enum Interest {
@@ -163,14 +164,12 @@ impl Interest {
                         // Some means only interested in one particular relation.
                         // If there's no matching relation specified, we assume a match;
                         // if there's a relation that matches in table, we filter on the specified key.
-                        if let Some(matched_relation) = relations
-                            .iter()
-                            .find(|event_relation| event_relation.table == relation.table)
-                        {
-                            relation.key == matched_relation.key
-                        } else {
-                            true
-                        }
+                        // Assumes that event-mentioned relations are exhaustive.
+                        relations.is_empty()
+                            || relations.iter().any(|event_relation| {
+                                event_relation.table == relation.table
+                                    && event_relation.key == relation.key
+                            })
                     } else {
                         // None means interested in any table update, so we match only the table
                         true
@@ -240,6 +239,7 @@ impl Table {
 }
 
 pub struct Subscription {
+    id: Uuid,
     interests: Vec<Interest>,
     subscriber: actix::WeakRecipient<Event>,
 }
@@ -251,8 +251,14 @@ pub struct Observatory {
 }
 
 impl Observatory {
-    pub fn register(&mut self, interests: Vec<Interest>, subscriber: actix::WeakRecipient<Event>) {
+    pub fn register(
+        &mut self,
+        id: Uuid,
+        interests: Vec<Interest>,
+        subscriber: actix::WeakRecipient<Event>,
+    ) {
         self.subscriptions.push(Subscription {
+            id,
             interests,
             subscriber,
         });
@@ -324,16 +330,38 @@ impl<'a, T: diesel::Table + 'static> ObservationBuilder<'a, T> {
     }
 }
 
+#[derive(Copy, Clone)]
+pub struct ObserverHandle {
+    id: Uuid,
+}
+
 impl super::Storage {
     pub fn register_observer(
         &mut self,
         interests: Vec<Interest>,
         subscriber: actix::WeakRecipient<Event>,
-    ) {
+    ) -> ObserverHandle {
+        let observatory = self.observatory.clone();
+        let id = Uuid::new_v4();
+        actix::spawn(async move {
+            let mut observatory = observatory.write().await;
+            observatory.register(id, interests, subscriber);
+        });
+        ObserverHandle { id }
+    }
+
+    pub fn update_interests(&mut self, handle: ObserverHandle, interests: Vec<Interest>) {
         let observatory = self.observatory.clone();
         actix::spawn(async move {
             let mut observatory = observatory.write().await;
-            observatory.register(interests, subscriber);
+            if let Some(sub) = observatory
+                .subscriptions
+                .iter_mut()
+                .find(|sub| sub.id == handle.id)
+            {
+                log::trace!("Updating interests for {}", handle.id);
+                sub.interests = interests;
+            }
         });
     }
 
@@ -400,5 +428,47 @@ impl super::Storage {
             },
             _table: diesel_table,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn relation_event_generates_interest() {
+        let interest = Interest::whole_table_with_relation(
+            schema::messages::table,
+            schema::sessions::table,
+            1,
+        );
+
+        let event_on_session_0 = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 52.into(),
+            relations: vec![Relation {
+                table: Table::Sessions,
+                key: 0.into(),
+            }],
+        };
+        let event_on_session_1 = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 66.into(),
+            relations: vec![
+                Relation {
+                    table: Table::Recipients,
+                    key: 26.into(),
+                },
+                Relation {
+                    table: Table::Sessions,
+                    key: 1.into(),
+                },
+            ],
+        };
+
+        assert!(!interest.is_interesting(&event_on_session_0));
+        assert!(interest.is_interesting(&event_on_session_1));
     }
 }

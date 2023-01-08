@@ -5,7 +5,6 @@ use crate::store::observer::EventObserving;
 use crate::store::observer::Interest;
 use crate::store::orm;
 use crate::store::Storage;
-use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use qmetaobject::QObjectBox;
 use std::collections::HashMap;
@@ -116,7 +115,6 @@ impl MessageImpl {
         self.visual_attachments.pinned().borrow_mut().set(visual);
     }
 
-    #[with_executor]
     fn set_message_id(&mut self, storage: Option<Storage>, id: i32) {
         if id >= 0 {
             self.message_id = Some(id);
@@ -224,7 +222,6 @@ impl SessionImpl {
             .load_all(storage, id);
     }
 
-    #[with_executor]
     fn set_session_id(&mut self, storage: Option<Storage>, id: i32) {
         self.session_id = Some(id);
         if let Some(storage) = storage {

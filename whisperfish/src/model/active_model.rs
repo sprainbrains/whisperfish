@@ -19,6 +19,7 @@ macro_rules! observing_model {
             base: qt_base_class!(trait QObject),
             inner: std::sync::Arc<std::cell::RefCell<$encapsulated>>,
             actor: Option<actix::Addr<ObservingModelActor<$encapsulated>>>,
+            observer_handle: Option<$crate::store::observer::ObserverHandle>,
 
             app: qt_property!(QPointer<$crate::gui::AppState>; WRITE set_app),
 
@@ -46,6 +47,7 @@ macro_rules! observing_model {
                     app: Default::default(),
                     inner,
                     actor: None,
+                    observer_handle: None,
                     $( $property: Default::default(), )*
                     $($( $opt_property: Default::default(), )*)?
                     something_changed: Default::default(),
@@ -72,7 +74,8 @@ macro_rules! observing_model {
 
                         let subscriber = actor.downgrade().recipient();
                         self.actor = Some(actor);
-                        storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.borrow()), subscriber);
+                        let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.borrow()), subscriber);
+                        self.observer_handle = Some(handle);
 
                         (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().init(storage);
                         self.something_changed();
@@ -98,11 +101,18 @@ macro_rules! observing_model {
                 }
 
                 $(
+                #[qmeta_async::with_executor]
                 fn $setter(&mut self, v: $t) {
+                    let storage = self.app.as_pinned().and_then(|app| app.borrow().storage.borrow().clone());
                     (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().$setter(
-                        self.app.as_pinned().and_then(|app| app.borrow().storage.borrow().clone()),
+                        storage.clone(),
                         v,
                     );
+                    if let (Some(mut storage), Some(handle)) = (storage, self.observer_handle) {
+                        let updated_interests = self.inner.borrow().interests();
+                        log::trace!("Request to update interests.");
+                        storage.update_interests(handle, updated_interests);
+                    }
                     self.something_changed();
                 }
                 )?
