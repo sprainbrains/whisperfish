@@ -74,10 +74,10 @@ macro_rules! observing_model {
 
                         let subscriber = actor.downgrade().recipient();
                         self.actor = Some(actor);
+                        (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().init(storage.clone());
                         let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.borrow()), subscriber);
                         self.observer_handle = Some(handle);
 
-                        (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().init(storage);
                         self.something_changed();
                     }
                 }
