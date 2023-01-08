@@ -21,11 +21,24 @@ impl orm::AugmentedSession {
                     .flat_map(orm::AugmentedMessage::interests),
             )
             .chain(
-                // XXX what about new group members?
                 self.group_members
                     .iter()
                     .flat_map(orm::Recipient::interests),
             )
+            // Watch new group members
+            .chain(match &self.inner.r#type {
+                orm::SessionType::DirectMessage(_) => None,
+                orm::SessionType::GroupV1(g) => Some(Interest::whole_table_with_relation(
+                    schema::group_v1_members::table,
+                    schema::group_v1s::table,
+                    g.id.clone(),
+                )),
+                orm::SessionType::GroupV2(g) => Some(Interest::whole_table_with_relation(
+                    schema::group_v2_members::table,
+                    schema::group_v2s::table,
+                    g.id.clone(),
+                )),
+            })
             .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::messages::table,
                 schema::sessions::table,
