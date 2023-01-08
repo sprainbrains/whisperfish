@@ -76,7 +76,12 @@ impl RecipientImpl {
 
     fn init(&mut self, storage: Storage) {
         if let Some(id) = self.recipient_id {
-            self.recipient = storage.fetch_recipient_by_id(id);
+            if id >= 0 {
+                self.recipient = storage.fetch_recipient_by_id(id);
+            } else {
+                self.recipient = None;
+            }
+            // XXX trigger Qt signal for this?
         }
     }
 }
