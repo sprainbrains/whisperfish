@@ -34,7 +34,10 @@ impl Interest {
         _table: T,
         _related_table: U,
         relation_key: impl Into<PrimaryKey>,
-    ) -> Self {
+    ) -> Self
+    where
+        U: diesel::JoinTo<T>,
+    {
         let table = Table::from_diesel::<T>();
         Interest::Table {
             table,
