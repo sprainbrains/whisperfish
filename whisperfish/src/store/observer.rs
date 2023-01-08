@@ -9,14 +9,40 @@ use actix::prelude::*;
 #[derive(Debug, Clone)]
 pub enum Interest {
     All,
-    Row { table: Table, key: PrimaryKey },
-    Table { table: Table },
+    Row {
+        table: Table,
+        key: PrimaryKey,
+    },
+    Table {
+        table: Table,
+        relation: Option<Relation>,
+    },
 }
 
 impl Interest {
     pub fn whole_table<T: diesel::Table + 'static>(_table: T) -> Self {
         let table = Table::from_diesel::<T>();
-        Interest::Table { table }
+        Interest::Table {
+            table,
+            relation: None,
+        }
+    }
+
+    /// Watches a table T for changes related to a row in table U identified by a key
+    /// `relation_key`.
+    pub fn whole_table_with_relation<T: diesel::Table + 'static, U: diesel::Table + 'static>(
+        _table: T,
+        _related_table: U,
+        relation_key: impl Into<PrimaryKey>,
+    ) -> Self {
+        let table = Table::from_diesel::<T>();
+        Interest::Table {
+            table,
+            relation: Some(Relation {
+                table: Table::from_diesel::<U>(),
+                key: relation_key.into(),
+            }),
+        }
     }
 
     pub fn row<T: diesel::Table + 'static>(_table: T, key: impl Into<PrimaryKey>) -> Self {
@@ -118,7 +144,35 @@ impl Interest {
             (Interest::All, _) => true,
 
             // Interested in a whole table, and an event on the table is triggered
-            (Interest::Table { table: ti }, Event { table: te, .. }) => ti == te,
+            (
+                Interest::Table {
+                    table: ti,
+                    relation,
+                },
+                Event {
+                    table: te,
+                    relations,
+                    ..
+                },
+            ) => {
+                ti == te
+                    && if let Some(relation) = relation {
+                        // Some means only interested in one particular relation.
+                        // If there's no matching relation specified, we assume a match;
+                        // if there's a relation that matches in table, we filter on the specified key.
+                        if let Some(matched_relation) = relations
+                            .iter()
+                            .find(|event_relation| event_relation.table == relation.table)
+                        {
+                            relation.key == matched_relation.key
+                        } else {
+                            true
+                        }
+                    } else {
+                        // None means interested in any table update, so we match only the table
+                        true
+                    }
+            }
 
             // Interested in a particular row, and an event is triggered on some unknown row
             (

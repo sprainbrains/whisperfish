@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 use crate::model::*;
-use crate::schema;
 use crate::store::observer::EventObserving;
 use crate::store::observer::Interest;
 use crate::store::orm;
@@ -204,9 +203,6 @@ impl EventObserving for SessionImpl {
                     .iter()
                     .flat_map(orm::AugmentedMessage::interests),
             )
-            .chain(std::iter::once(Interest::whole_table(
-                schema::messages::table,
-            )))
             .collect()
     }
 }

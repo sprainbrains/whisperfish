@@ -26,9 +26,10 @@ impl orm::AugmentedSession {
                     .iter()
                     .flat_map(orm::Recipient::interests),
             )
-            // XXX this should be only newly inserted messages related to this session, but alas
-            .chain(std::iter::once(Interest::whole_table(
+            .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::messages::table,
+                schema::sessions::table,
+                self.id,
             )))
     }
 }
@@ -45,27 +46,30 @@ impl orm::AugmentedMessage {
             .interests()
             .chain(self.sender.iter().flat_map(orm::Recipient::interests))
             .chain(self.attachments.iter().flat_map(orm::Attachment::interests))
-            // XXX this should be filtered for the current relation
-            .chain(std::iter::once(Interest::whole_table(
+            .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::attachments::table,
+                schema::messages::table,
+                self.id,
             )))
             .chain(
                 self.reactions
                     .iter()
                     .flat_map(|(reaction, sender)| reaction.interests().chain(sender.interests())),
             )
-            // XXX this should be filtered for the current relation
-            .chain(std::iter::once(Interest::whole_table(
+            .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::reactions::table,
+                schema::messages::table,
+                self.id,
             )))
             .chain(
                 self.receipts
                     .iter()
                     .flat_map(|(receipt, sender)| receipt.interests().chain(sender.interests())),
             )
-            // XXX this should be filtered for the current relation
-            .chain(std::iter::once(Interest::whole_table(
+            .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::receipts::table,
+                schema::messages::table,
+                self.id,
             )))
             .chain(
                 // This box is necessary because of the recursion, which otherwise builds an
@@ -92,17 +96,18 @@ impl orm::Attachment {
 
 impl orm::Reaction {
     pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
-        // XXX This is a composite primary key
-        // std::iter::once(Interest::row(schema::reactions::table, self.id))
-        std::iter::once(Interest::whole_table(schema::reactions::table))
+        std::iter::once(Interest::row(schema::reactions::table, self.reaction_id))
     }
 }
 
 impl orm::Receipt {
     pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
-        // XXX This is a composite primary key
-        // std::iter::once(Interest::row(schema::receipts::table, self.id))
-        std::iter::once(Interest::whole_table(schema::receipts::table))
+        // XXX This is a composite primary key, but we're only watching one foreign key
+        std::iter::once(Interest::whole_table_with_relation(
+            schema::receipts::table,
+            schema::messages::table,
+            self.message_id,
+        ))
     }
 }
 
