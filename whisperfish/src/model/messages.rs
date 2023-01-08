@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 use crate::model::*;
+use crate::schema;
 use crate::store::observer::EventObserving;
 use crate::store::observer::Interest;
 use crate::store::orm;
@@ -183,8 +184,30 @@ crate::observing_model! {
 }
 
 impl EventObserving for SessionImpl {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+    fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
         if let Some(id) = self.session_id {
+            let message_id = event
+                .relation_key_for(schema::messages::table)
+                .and_then(|x| x.as_i32());
+
+            if event.for_row(schema::sessions::table, id) {
+                self.session = storage.fetch_session_by_id_augmented(id);
+                // XXX how to trigger a Qt signal now?
+                return;
+            } else if message_id.is_some() {
+                self.session = storage.fetch_session_by_id_augmented(id);
+                self.message_list
+                    .pinned()
+                    .borrow_mut()
+                    .observe(storage, id, event);
+                // XXX how to trigger a Qt signal now?
+                return;
+            }
+
+            log::debug!(
+                "Falling back to reloading the whole Session for event {:?}",
+                event
+            );
             self.fetch(storage, id);
         }
     }
@@ -281,6 +304,59 @@ impl MessageListModel {
             .map(Into::into)
             .collect();
         self.end_reset_model();
+    }
+
+    fn observe(&mut self, storage: Storage, session_id: i32, event: crate::store::observer::Event) {
+        // Waterfall handling of event.  If we cannot find a good specialized way of handling
+        // the event, we'll reload the whole model.
+        let message_id = event
+            .relation_key_for(schema::messages::table)
+            .and_then(|x| x.as_i32())
+            .expect("message-related event observation");
+        if event.is_delete() && event.for_table(schema::messages::table) {
+            if let Some((pos, _msg)) = self
+                .messages
+                .iter()
+                .enumerate()
+                .find(|(_, msg)| msg.id == message_id)
+            {
+                self.begin_remove_rows(pos as i32, pos as i32);
+                self.messages.remove(pos);
+                self.end_remove_rows();
+                return;
+            }
+        } else if event.is_insert() || event.is_update() {
+            let message = storage
+                .fetch_augmented_message(message_id, true)
+                .expect("inserted message");
+            let pos = self.messages.binary_search_by_key(
+                &std::cmp::Reverse((message.server_timestamp, message.id)),
+                |message| std::cmp::Reverse((message.server_timestamp, message.id)),
+            );
+            match pos {
+                Ok(existing_index) => {
+                    log::debug!("Handling update event.");
+                    assert!(event.is_update());
+                    self.messages[existing_index] = message;
+                    let idx = self.row_index(existing_index as i32);
+                    self.data_changed(idx, idx);
+                }
+                Err(insertion_index) => {
+                    log::debug!("Handling insertion event");
+                    assert!(event.is_insert());
+                    self.begin_insert_rows(insertion_index as i32, insertion_index as i32);
+                    self.messages.insert(insertion_index, message);
+                    self.end_insert_rows();
+                }
+            }
+            return;
+        }
+
+        log::debug!(
+            "Falling back to reloading the whole MessageListModel for event {:?}",
+            event
+        );
+        self.load_all(storage, session_id);
     }
 }
 

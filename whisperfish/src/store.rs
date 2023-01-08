@@ -2066,14 +2066,11 @@ impl Storage {
             })
             .collect();
         // XXX This could be solved through a sub query.
-        sessions.sort_unstable_by(|a, b| match (&a.last_message, &b.last_message) {
-            (Some(a_last_message), Some(b_last_message)) => b_last_message
-                .server_timestamp
-                .cmp(&a_last_message.server_timestamp),
-            (None, Some(_)) => std::cmp::Ordering::Greater,
-            (Some(_), None) => std::cmp::Ordering::Greater,
-            // Gotta use something here.
-            (None, None) => a.id.cmp(&b.id),
+        sessions.sort_unstable_by_key(|session| {
+            std::cmp::Reverse((
+                session.last_message.as_ref().map(|m| m.server_timestamp),
+                session.id,
+            ))
         });
 
         sessions

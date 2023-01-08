@@ -45,14 +45,25 @@ impl SessionsImpl {
 
 impl EventObserving for SessionsImpl {
     fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
-        if event.for_table(schema::reactions::table) {
+        // Find the correct session and update the latest message
+        let session_id = event
+            .relation_key_for(schema::sessions::table)
+            .and_then(|x| x.as_i32());
+        let message_id = event
+            .relation_key_for(schema::messages::table)
+            .and_then(|x| x.as_i32());
+        if session_id.is_some() || message_id.is_some() {
+            self.session_list
+                .pinned()
+                .borrow_mut()
+                .observe(storage, event);
             return;
         }
-        if event.for_table(schema::messages::table) {
-            // Find the correct session and update the latest message
-            // XXX this required the session id; relations are currently not part of an event
-            // return;
-        }
+
+        log::trace!(
+            "Falling back to reloading the whole Sessions model for event {:?}",
+            event
+        );
         self.session_list.pinned().borrow_mut().load_all(storage)
     }
 
@@ -87,6 +98,82 @@ impl SessionListModel {
         // Stable sort, such that this retains the above ordering.
         self.content.sort_by_key(|k| !k.is_pinned);
         self.end_reset_model();
+    }
+
+    fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
+        let session_id = event
+            .relation_key_for(schema::sessions::table)
+            .and_then(|x| x.as_i32());
+        let message_id = event
+            .relation_key_for(schema::messages::table)
+            .and_then(|x| x.as_i32());
+
+        if let Some(session_id) = session_id {
+            // Remove session from the model if exists
+            let idx = self
+                .content
+                .iter()
+                .enumerate()
+                .find(|(_, s)| s.id == session_id);
+            if let Some((idx, _session)) = idx {
+                self.begin_remove_rows(idx as i32, idx as i32);
+                self.content.remove(idx);
+                self.end_remove_rows();
+            }
+
+            if let Some(session) = storage.fetch_session_by_id_augmented(session_id) {
+                let idx = self
+                    .content
+                    .binary_search_by_key(
+                        &std::cmp::Reverse((
+                            session.last_message.as_ref().map(|m| &m.server_timestamp),
+                            session.id,
+                        )),
+                        |session| {
+                            std::cmp::Reverse((
+                                session.last_message.as_ref().map(|m| &m.server_timestamp),
+                                session.id,
+                            ))
+                        },
+                    )
+                    .expect_err("removed session");
+                self.begin_insert_rows(idx as i32, idx as i32);
+                self.content.insert(idx, session);
+                self.end_insert_rows();
+            } else {
+                assert!(event.for_table(schema::sessions::table));
+                assert!(event.is_delete());
+            }
+        } else if let Some(message_id) = message_id {
+            // There's no relation to a session, so that means that an augmented message was
+            // updated.
+            let mut range = None;
+            for (idx, session) in self.content.iter_mut().enumerate() {
+                if let Some(message) = &mut session.last_message {
+                    if message.id == message_id {
+                        // XXX This can in principle fetch a message with another timestamp,
+                        // but I think all those cases are handled with a session_id
+                        session.last_message =
+                            storage.fetch_last_message_by_session_id_augmented(session.id, true);
+                        let (low, high) = range.get_or_insert((idx, idx));
+                        if *low > idx {
+                            *low = idx;
+                        }
+                        if *high < idx {
+                            *high = idx;
+                        }
+                    }
+                }
+            }
+
+            if let Some((low, high)) = range {
+                let low = self.row_index(low as i32);
+                let high = self.row_index(high as i32);
+                self.data_changed(low, high);
+            }
+        } else {
+            log::warn!("Unimplemented: Sessions model observe without message_id or session_id");
+        }
     }
 
     fn count(&self) -> usize {
