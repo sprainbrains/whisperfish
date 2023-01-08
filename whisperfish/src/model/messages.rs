@@ -338,14 +338,12 @@ impl MessageListModel {
             match pos {
                 Ok(existing_index) => {
                     log::debug!("Handling update event.");
-                    assert!(event.is_update());
                     self.messages[existing_index] = message;
                     let idx = self.row_index(existing_index as i32);
                     self.data_changed(idx, idx);
                 }
                 Err(insertion_index) => {
                     log::debug!("Handling insertion event");
-                    assert!(event.is_insert());
                     self.begin_insert_rows(insertion_index as i32, insertion_index as i32);
                     self.messages.insert(insertion_index, message);
                     self.end_insert_rows();
