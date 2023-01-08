@@ -111,6 +111,14 @@ impl PrimaryKey {
     fn implies(&self, rhs: &PrimaryKey) -> bool {
         *self == PrimaryKey::Unknown || *self == *rhs
     }
+
+    pub fn as_i32(&self) -> Option<i32> {
+        match self {
+            PrimaryKey::Unknown => None,
+            PrimaryKey::RowId(i) => Some(*i),
+            PrimaryKey::StringRowId(_) => None,
+        }
+    }
 }
 
 impl From<i32> for PrimaryKey {
@@ -150,6 +158,22 @@ impl Event {
 
     pub fn is_delete(&self) -> bool {
         matches!(self.r#type, EventType::Delete)
+    }
+
+    pub fn key(&self) -> &PrimaryKey {
+        &self.key
+    }
+
+    pub fn relation_key_for<T: diesel::Table + 'static>(&self, _table: T) -> Option<&PrimaryKey> {
+        if self.for_table(_table) {
+            Some(&self.key)
+        } else {
+            let table = Table::from_diesel::<T>();
+            self.relations
+                .iter()
+                .find(|relation| relation.table == table)
+                .map(|relation| &relation.key)
+        }
     }
 }
 
