@@ -41,21 +41,21 @@ impl EventObserving for GroupImpl {
 
     fn interests(&self) -> Vec<Interest> {
         let membership_list = self.membership_list.pinned();
-        let new_members = self.id.iter().map(|id| {
+        let new_members = self.id.iter().flat_map(|id| {
             if id.len() == 32 {
-                Interest::whole_table_with_relation(
+                Some(Interest::whole_table_with_relation(
                     schema::group_v1_members::table,
                     schema::group_v1s::table,
                     id.clone(),
-                )
+                ))
             } else if id.len() == 64 {
-                Interest::whole_table_with_relation(
+                Some(Interest::whole_table_with_relation(
                     schema::group_v2_members::table,
                     schema::group_v2s::table,
                     id.clone(),
-                )
+                ))
             } else {
-                todo!()
+                None
             }
         });
         let members = new_members.chain(
@@ -124,7 +124,6 @@ impl GroupImpl {
                     .borrow_mut()
                     .load_v2(storage, id);
             } else {
-                log::debug!("ID set to invalid length.  Leaving model empty.");
                 self.membership_list.pinned().borrow_mut().clear();
             }
         }
