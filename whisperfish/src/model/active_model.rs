@@ -24,6 +24,8 @@ macro_rules! observing_model {
 
             app: qt_property!(QPointer<$crate::gui::AppState>; WRITE set_app),
 
+            reinit: qt_method!(fn(&mut self)),
+
             $(
                 #[allow(unused)]
                 $property: qt_property!($t; READ $getter $(WRITE $setter)? NOTIFY something_changed),
@@ -49,6 +51,7 @@ macro_rules! observing_model {
                     inner,
                     actor: None,
                     observer_handle: None,
+                    reinit: Default::default(),
                     $( $property: Default::default(), )*
                     $($( $opt_property: Default::default(), )*)?
                     something_changed: Default::default(),

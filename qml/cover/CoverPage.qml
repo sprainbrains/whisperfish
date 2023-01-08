@@ -3,6 +3,13 @@ import Sailfish.Silica 1.0
 import be.rubdos.whisperfish 1.0
 
 CoverBackground {
+    Connections {
+        target: SetupWorker
+        onSetupComplete: {
+            sessions.reinit()
+        }
+    }
+
     Sessions {
         id: sessions
         app: AppState
