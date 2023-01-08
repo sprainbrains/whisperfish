@@ -10,8 +10,9 @@ use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
 /// QML-constructable object that interacts with a single recipient.
-#[derive(Default)]
+#[derive(Default, QObject)]
 pub struct GroupImpl {
+    base: qt_base_class!(trait QObject),
     id: Option<String>,
     group_v1: Option<orm::GroupV1>,
     group_v2: Option<orm::GroupV2>,

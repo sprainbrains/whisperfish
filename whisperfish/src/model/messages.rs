@@ -11,8 +11,9 @@ use qmetaobject::QObjectBox;
 use std::collections::HashMap;
 
 /// QML-constructable object that interacts with a single session.
-#[derive(Default)]
+#[derive(Default, QObject)]
 pub struct MessageImpl {
+    base: qt_base_class!(trait QObject),
     message_id: Option<i32>,
     message: Option<orm::AugmentedMessage>,
 
@@ -137,8 +138,9 @@ impl MessageImpl {
 }
 
 /// QML-constructable object that interacts with a single session.
-#[derive(Default)]
+#[derive(Default, QObject)]
 pub struct SessionImpl {
+    base: qt_base_class!(trait QObject),
     session_id: Option<i32>,
     session: Option<orm::AugmentedSession>,
     message_list: QObjectBox<MessageListModel>,

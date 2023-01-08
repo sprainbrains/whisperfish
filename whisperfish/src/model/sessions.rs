@@ -11,8 +11,9 @@ use std::collections::HashMap;
 /// Currently, this object will list all sessions unfiltered, ordered by the last message received
 /// timestamp.
 /// In the future, it should be possible to install filters and change the ordering.
-#[derive(Default)]
+#[derive(Default, QObject)]
 pub struct SessionsImpl {
+    base: qt_base_class!(trait QObject),
     session_list: QObjectBox<SessionListModel>,
 }
 

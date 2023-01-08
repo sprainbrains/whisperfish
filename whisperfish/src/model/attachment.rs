@@ -6,8 +6,9 @@ use crate::store::{orm, Storage};
 use std::collections::HashMap;
 use std::process::Command;
 
-#[derive(Default)]
+#[derive(Default, QObject)]
 pub struct AttachmentImpl {
+    base: qt_base_class!(trait QObject),
     attachment_id: Option<i32>,
     attachment: Option<orm::Attachment>,
 }

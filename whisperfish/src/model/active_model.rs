@@ -1,4 +1,5 @@
 use actix::prelude::*;
+use qmetaobject::{QObject, QObjectBox};
 
 use crate::store::observer::Event;
 use crate::store::observer::EventObserving;
@@ -17,7 +18,7 @@ macro_rules! observing_model {
         #[derive(QObject)]
         $vis struct $model {
             base: qt_base_class!(trait QObject),
-            inner: std::sync::Arc<std::cell::RefCell<$encapsulated>>,
+            inner: std::sync::Arc<qmetaobject::QObjectBox<$encapsulated>>,
             actor: Option<actix::Addr<ObservingModelActor<$encapsulated>>>,
             observer_handle: Option<$crate::store::observer::ObserverHandle>,
 
@@ -40,7 +41,7 @@ macro_rules! observing_model {
 
         impl Default for $model {
             fn default() -> Self {
-                let inner = std::sync::Arc::<std::cell::RefCell::<$encapsulated>>::default();
+                let inner = std::sync::Arc::<qmetaobject::QObjectBox::<$encapsulated>>::default();
 
                 Self {
                     base: Default::default(),
@@ -74,8 +75,8 @@ macro_rules! observing_model {
 
                         let subscriber = actor.downgrade().recipient();
                         self.actor = Some(actor);
-                        (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().init(storage.clone());
-                        let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.borrow()), subscriber);
+                        self.inner.pinned().borrow_mut().init(storage.clone());
+                        let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.pinned().borrow()), subscriber);
                         self.observer_handle = Some(handle);
 
                         self.something_changed();
@@ -86,7 +87,7 @@ macro_rules! observing_model {
             $(
             $(
                 fn $opt_property(&self) -> qmetaobject::QVariant {
-                    match self.inner.borrow().$field.as_ref() {
+                    match self.inner.pinned().borrow().$field.as_ref() {
                         Some(x) => {
                             ($role::$role_variant).get(x)
                         }
@@ -97,19 +98,19 @@ macro_rules! observing_model {
             )?
             $(
                 fn $getter(&self) -> $t {
-                    self.inner.borrow().$getter()
+                    self.inner.pinned().borrow().$getter()
                 }
 
                 $(
                 #[qmeta_async::with_executor]
                 fn $setter(&mut self, v: $t) {
                     let storage = self.app.as_pinned().and_then(|app| app.borrow().storage.borrow().clone());
-                    (&self.inner as &std::cell::RefCell<$encapsulated>).borrow_mut().$setter(
+                    self.inner.pinned().borrow_mut().$setter(
                         storage.clone(),
                         v,
                     );
                     if let (Some(mut storage), Some(handle)) = (storage, self.observer_handle) {
-                        let updated_interests = self.inner.borrow().interests();
+                        let updated_interests = self.inner.pinned().borrow().interests();
                         log::trace!("Request to update interests.");
                         storage.update_interests(handle, updated_interests);
                     }
@@ -126,16 +127,16 @@ macro_rules! observing_model {
 ///
 /// The contained model is a weak pointer, such that the actor will stop when the model goes out of
 /// scope.
-pub struct ObservingModelActor<T> {
-    pub(super) model: std::sync::Weak<std::cell::RefCell<T>>,
+pub struct ObservingModelActor<T: QObject> {
+    pub(super) model: std::sync::Weak<QObjectBox<T>>,
     pub(super) storage: Storage,
 }
 
-impl<T: 'static> actix::Actor for ObservingModelActor<T> {
+impl<T: QObject + 'static> actix::Actor for ObservingModelActor<T> {
     type Context = actix::Context<Self>;
 }
 
-impl<T: 'static> actix::Handler<Event> for ObservingModelActor<T>
+impl<T: QObject + 'static> actix::Handler<Event> for ObservingModelActor<T>
 where
     T: EventObserving,
 {
@@ -144,6 +145,7 @@ where
     fn handle(&mut self, event: Event, ctx: &mut Self::Context) -> Self::Result {
         match self.model.upgrade() {
             Some(model) => {
+                let model = model.pinned();
                 let mut model = model.borrow_mut();
                 model.observe(self.storage.clone(), event);
                 model.interests()

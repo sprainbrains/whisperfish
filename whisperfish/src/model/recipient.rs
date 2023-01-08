@@ -8,8 +8,9 @@ use qmetaobject::prelude::*;
 use std::collections::HashMap;
 
 /// QML-constructable object that interacts with a single recipient.
-#[derive(Default)]
+#[derive(Default, QObject)]
 pub struct RecipientImpl {
+    base: qt_base_class!(trait QObject),
     recipient_id: Option<i32>,
     recipient: Option<orm::Recipient>,
 }
