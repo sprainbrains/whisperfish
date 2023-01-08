@@ -87,7 +87,6 @@ pub struct Relation {
 #[derive(Clone, Message, Debug)]
 #[rtype(result = "Vec<Interest>")]
 pub struct Event {
-    #[allow(unused)] // Event type should also be exposed to interest
     r#type: EventType,
     table: Table,
     key: PrimaryKey,
@@ -139,6 +138,18 @@ impl Event {
     ) -> bool {
         let table = Table::from_diesel::<T>();
         self.table == table && self.key.implies(&key_test.into())
+    }
+
+    pub fn is_insert(&self) -> bool {
+        matches!(self.r#type, EventType::Insert)
+    }
+
+    pub fn is_update(&self) -> bool {
+        matches!(self.r#type, EventType::Update)
+    }
+
+    pub fn is_delete(&self) -> bool {
+        matches!(self.r#type, EventType::Delete)
     }
 }
 
