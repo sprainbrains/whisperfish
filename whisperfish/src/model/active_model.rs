@@ -110,9 +110,7 @@ macro_rules! observing_model {
                         v,
                     );
                     if let (Some(mut storage), Some(handle)) = (storage, self.observer_handle) {
-                        let updated_interests = self.inner.pinned().borrow().interests();
-                        log::trace!("Request to update interests.");
-                        storage.update_interests(handle, updated_interests);
+                        storage.update_interests(handle, self.inner.pinned().borrow().interests());
                     }
                     self.something_changed();
                 }

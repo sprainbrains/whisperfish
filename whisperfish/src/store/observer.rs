@@ -394,7 +394,6 @@ impl super::Storage {
                 .iter_mut()
                 .find(|sub| sub.id == handle.id)
             {
-                log::trace!("Updating interests for {}", handle.id);
                 sub.interests = interests;
             }
         });
