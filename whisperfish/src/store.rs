@@ -1743,14 +1743,15 @@ impl Storage {
 
         use schema::messages::dsl::*;
 
-        diesel::update(messages.filter(session_id.eq(sid)))
+        let affected_rows = diesel::update(messages.filter(session_id.eq(sid)))
             .set((is_read.eq(true),))
             .execute(&mut *self.db())
             .expect("mark session read");
 
-        // XXX This still triggers a lot of updates
-        self.observe_update(schema::messages::table, PrimaryKey::Unknown)
-            .with_relation(schema::sessions::table, sid);
+        if affected_rows > 0 {
+            self.observe_update(schema::messages::table, PrimaryKey::Unknown)
+                .with_relation(schema::sessions::table, sid);
+        }
     }
 
     pub fn mark_session_muted(&self, sid: i32, muted: bool) {
@@ -1758,11 +1759,13 @@ impl Storage {
 
         use schema::sessions::dsl::*;
 
-        diesel::update(sessions.filter(id.eq(sid)))
+        let affected_rows = diesel::update(sessions.filter(id.eq(sid)))
             .set((is_muted.eq(muted),))
             .execute(&mut *self.db())
             .expect("mark session (un)muted");
-        self.observe_update(schema::sessions::table, sid);
+        if affected_rows > 0 {
+            self.observe_update(schema::sessions::table, sid);
+        }
     }
 
     pub fn mark_session_archived(&self, sid: i32, archived: bool) {
@@ -1770,11 +1773,13 @@ impl Storage {
 
         use schema::sessions::dsl::*;
 
-        diesel::update(sessions.filter(id.eq(sid)))
+        let affected_rows = diesel::update(sessions.filter(id.eq(sid)))
             .set((is_archived.eq(archived),))
             .execute(&mut *self.db())
             .expect("mark session (un)archived");
-        self.observe_update(schema::sessions::table, sid);
+        if affected_rows > 0 {
+            self.observe_update(schema::sessions::table, sid);
+        }
     }
 
     pub fn mark_session_pinned(&self, sid: i32, pinned: bool) {
@@ -1782,11 +1787,13 @@ impl Storage {
 
         use schema::sessions::dsl::*;
 
-        diesel::update(sessions.filter(id.eq(sid)))
+        let affected_rows = diesel::update(sessions.filter(id.eq(sid)))
             .set((is_pinned.eq(pinned),))
             .execute(&mut *self.db())
             .expect("mark session (un)pinned");
-        self.observe_update(schema::sessions::table, sid);
+        if affected_rows > 0 {
+            self.observe_update(schema::sessions::table, sid);
+        }
     }
 
     pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
@@ -1900,7 +1907,6 @@ impl Storage {
             latest_message.session_id, session,
             "message insert sanity test failed"
         );
-        // XXX This will trigger many updates
         self.observe_insert(schema::messages::table, latest_message.id)
             .with_relation(schema::sessions::table, session);
 
