@@ -150,7 +150,7 @@ build:host:nightly:
     # in https://gitlab.com/whisperfish/whisperfish/-/merge_requests/202
     - build:host:stable
   script:
-    - cargo build
+    - cargo build --features bundled-sqlcipher
 
 build:host:stable:docs:
   <<: *rust-stable
