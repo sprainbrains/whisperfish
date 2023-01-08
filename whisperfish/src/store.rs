@@ -1745,13 +1745,22 @@ impl Storage {
 
         use schema::messages::dsl::*;
 
-        let affected_rows = diesel::update(messages.filter(session_id.eq(sid)))
-            .set((is_read.eq(true),))
-            .execute(&mut *self.db())
-            .expect("mark session read");
+        let ids: Vec<i32> = messages
+            .select(id)
+            .filter(session_id.eq(sid).and(is_read.eq(false)))
+            .load(&mut *self.db())
+            .expect("fetch unread message IDs");
 
-        if affected_rows > 0 {
-            self.observe_update(schema::messages::table, PrimaryKey::Unknown)
+        let affected_rows =
+            diesel::update(messages.filter(session_id.eq(sid).and(is_read.eq(false))))
+                .set((is_read.eq(true),))
+                .execute(&mut *self.db())
+                .expect("mark session read");
+
+        assert_eq!(affected_rows, ids.len());
+
+        for message_id in ids {
+            self.observe_update(schema::messages::table, message_id)
                 .with_relation(schema::sessions::table, sid);
         }
     }
