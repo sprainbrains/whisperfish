@@ -2004,10 +2004,14 @@ impl Storage {
             .expect("database")
     }
 
-    pub fn fetch_augmented_message(&self, id: i32) -> Option<orm::AugmentedMessage> {
-        let message = self.fetch_message_by_id(id)?;
+    pub fn fetch_augmented_message(&self, message_id: i32) -> Option<orm::AugmentedMessage> {
+        let message = self.fetch_message_by_id(message_id)?;
         let receipts = self.fetch_message_receipts(message.id);
-        let attachments = self.fetch_attachments_for_message(message.id);
+        let attachments: i64 = schema::attachments::table
+            .filter(schema::attachments::message_id.eq(message_id))
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
         let sender = if let Some(id) = message.sender_recipient_id {
             self.fetch_recipient_by_id(id)
         } else {
@@ -2017,7 +2021,7 @@ impl Storage {
         Some(AugmentedMessage {
             inner: message,
             receipts,
-            attachments,
+            attachments: attachments as usize,
             sender,
         })
     }
@@ -2079,10 +2083,15 @@ impl Storage {
             schema::messages::columns::id.desc(),
         );
 
-        let attachments: Vec<orm::Attachment> = schema::attachments::table
-            .select(schema::attachments::all_columns)
-            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
-            .filter(schema::sessions::id.eq(sid))
+        // message_id, attachment count
+        let attachments: Vec<(i32, i64)> = schema::attachments::table
+            .inner_join(schema::messages::table)
+            .group_by(schema::attachments::message_id)
+            .select((
+                schema::attachments::message_id,
+                diesel::dsl::count_distinct(schema::attachments::id),
+            ))
+            .filter(schema::messages::session_id.eq(sid))
             .order_by(order)
             .load(&mut *self.db())
             .expect("db");
@@ -2099,9 +2108,6 @@ impl Storage {
             .load(&mut *self.db())
             .expect("db");
 
-        let attachments = attachments
-            .into_iter()
-            .group_by(|attachment| attachment.message_id);
         let mut attachments = attachments.into_iter().peekable();
         let receipts = receipts
             .into_iter()
@@ -2116,9 +2122,9 @@ impl Storage {
                 .unwrap_or(false)
             {
                 let (_, attachments) = attachments.next().unwrap();
-                attachments.collect_vec()
+                attachments as usize
             } else {
-                vec![]
+                0
             };
             let receipts = if receipts
                 .peek()

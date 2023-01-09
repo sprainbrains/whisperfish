@@ -462,7 +462,7 @@ impl SessionType {
 pub struct AugmentedMessage {
     pub inner: Message,
     pub sender: Option<Recipient>,
-    pub attachments: Vec<Attachment>,
+    pub attachments: usize,
     pub receipts: Vec<(Receipt, Recipient)>,
 }
 
@@ -513,7 +513,7 @@ impl AugmentedMessage {
     }
 
     pub fn attachments(&self) -> u32 {
-        self.attachments.len() as _
+        self.attachments as _
     }
 }
 
@@ -663,7 +663,7 @@ impl AugmentedSession {
 
     pub fn has_attachment(&self) -> bool {
         if let Some(m) = &self.last_message {
-            !m.attachments.is_empty()
+            m.attachments > 0
         } else {
             false
         }

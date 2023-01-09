@@ -61,6 +61,13 @@ impl EventObserving for MessageImpl {
         self.message
             .iter()
             .flat_map(orm::AugmentedMessage::interests)
+            .chain(self.message_id.iter().map(|mid| {
+                Interest::whole_table_with_relation(
+                    schema::attachments::table,
+                    schema::messages::table,
+                    *mid,
+                )
+            }))
             .collect()
     }
 }
@@ -88,11 +95,7 @@ impl MessageImpl {
 
     fn fetch(&mut self, storage: Storage, id: i32) {
         self.message = storage.fetch_augmented_message(id);
-        let attachments = if let Some(message) = &self.message {
-            message.attachments.clone()
-        } else {
-            Vec::new()
-        };
+        let attachments = storage.fetch_attachments_for_message(id);
         self.attachments
             .pinned()
             .borrow_mut()

@@ -1144,7 +1144,7 @@ impl Handler<SendMessage> for ClientActor {
                 let quote = msg.quote_id.and_then(|quote_id| {
                     storage.fetch_augmented_message(quote_id)
                 }).map(|quoted_message| {
-                    if !quoted_message.attachments.is_empty() {
+                    if !quoted_message.attachments > 0 {
                         log::warn!("Quoting attachments is incomplete.  Here be dragons.");
                     }
 
