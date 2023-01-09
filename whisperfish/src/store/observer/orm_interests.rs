@@ -64,11 +64,6 @@ impl orm::AugmentedMessage {
                 schema::messages::table,
                 self.id,
             )))
-            .chain(
-                self.reactions
-                    .iter()
-                    .flat_map(|(reaction, sender)| reaction.interests().chain(sender.interests())),
-            )
             .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::reactions::table,
                 schema::messages::table,

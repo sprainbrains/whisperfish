@@ -2013,7 +2013,6 @@ impl Storage {
         let message = self.fetch_message_by_id(id)?;
         let receipts = self.fetch_message_receipts(message.id);
         let attachments = self.fetch_attachments_for_message(message.id);
-        let reactions = self.fetch_reactions_for_message(message.id);
         let sender = if let Some(id) = message.sender_recipient_id {
             self.fetch_recipient_by_id(id)
         } else {
@@ -2038,7 +2037,6 @@ impl Storage {
             inner: message,
             receipts,
             attachments,
-            reactions,
             sender,
             quoted_message: quoted_message.map(Box::new),
         })
@@ -2121,17 +2119,6 @@ impl Storage {
             .order_by(order)
             .load(&mut *self.db())
             .expect("db");
-        let reactions: Vec<(orm::Reaction, orm::Recipient)> = schema::reactions::table
-            .inner_join(schema::recipients::table)
-            .select((
-                schema::reactions::all_columns,
-                schema::recipients::all_columns,
-            ))
-            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
-            .filter(schema::sessions::id.eq(sid))
-            .order_by(order)
-            .load(&mut *self.db())
-            .expect("db");
 
         let attachments = attachments
             .into_iter()
@@ -2141,11 +2128,6 @@ impl Storage {
             .into_iter()
             .group_by(|(receipt, _recipient)| receipt.message_id);
         let mut receipts = receipts.into_iter().peekable();
-
-        let reactions = reactions
-            .into_iter()
-            .group_by(|(reaction, _recipient)| reaction.message_id);
-        let mut reactions = reactions.into_iter().peekable();
 
         let mut aug_messages = Vec::with_capacity(messages.len());
         for (message, sender) in messages {
@@ -2169,16 +2151,6 @@ impl Storage {
             } else {
                 vec![]
             };
-            let reactions = if reactions
-                .peek()
-                .map(|(id, _)| *id == message.id)
-                .unwrap_or(false)
-            {
-                let (_, reactions) = reactions.next().unwrap();
-                reactions.collect_vec()
-            } else {
-                vec![]
-            };
             let quoted_message = message
                 .quote_id
                 .and_then(|id| self.fetch_augmented_message(id, false));
@@ -2194,7 +2166,6 @@ impl Storage {
                 sender,
                 attachments,
                 receipts,
-                reactions,
                 quoted_message: quoted_message.map(Box::new),
             });
         }

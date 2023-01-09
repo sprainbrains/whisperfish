@@ -463,7 +463,6 @@ pub struct AugmentedMessage {
     pub inner: Message,
     pub sender: Option<Recipient>,
     pub attachments: Vec<Attachment>,
-    pub reactions: Vec<(Reaction, Recipient)>,
     pub receipts: Vec<(Receipt, Recipient)>,
     // Constraint: don't make this nested more than one level deep.
     pub quoted_message: Option<Box<AugmentedMessage>>,
@@ -517,20 +516,6 @@ impl AugmentedMessage {
 
     pub fn attachments(&self) -> u32 {
         self.attachments.len() as _
-    }
-
-    pub fn reactions(&self) -> String {
-        self.reactions
-            .iter()
-            .map(|(reaction, _recipient)| &reaction.emoji)
-            .join(" ")
-    }
-
-    pub fn reactions_full(&self) -> String {
-        self.reactions
-            .iter()
-            .map(|(reaction, recipient)| format!("{} - {}", &reaction.emoji, &recipient.name()))
-            .join("\n")
     }
 }
 
