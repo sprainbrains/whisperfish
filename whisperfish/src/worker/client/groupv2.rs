@@ -1,5 +1,4 @@
 use super::*;
-use crate::actor::FetchSession;
 use crate::store::{GroupV2, TrustLevel};
 use actix::prelude::*;
 use diesel::prelude::*;
@@ -23,17 +22,9 @@ impl ClientWorker {
         log::trace!("Request to refresh group v2 by session id = {}", session_id);
 
         let client = self.actor.clone().unwrap();
-        let session = self.session_actor.clone().unwrap();
         actix::spawn(async move {
             client
                 .send(RequestGroupV2InfoBySessionId(session_id as _))
-                .await
-                .unwrap();
-            session
-                .send(FetchSession {
-                    id: session_id as _,
-                    mark_read: false,
-                })
                 .await
                 .unwrap();
         });
@@ -386,23 +377,12 @@ impl Handler<GroupAvatarFetched> for ClientActor {
                 Ok(())
             }
             .into_actor(self)
-            .map(move |res: anyhow::Result<_>, act, _ctx| {
+            .map(move |res: anyhow::Result<_>, _act, _ctx| {
                 match res {
                     Ok(()) => {
                         // XXX this is basically incomplete.
-                        // SessionActor should probably receive some NotifyRecipientUpdated
-                        let session = act
-                            .inner
-                            .pinned()
-                            .borrow_mut()
-                            .session_actor
-                            .clone()
-                            .unwrap();
-                        actix::spawn(async move {
-                            if let Err(e) = session.send(LoadAllSessions).await {
-                                log::error!("Could not reload sessions {}", e);
-                            }
-                        });
+                        // Storage should send out a recipient updated towards interested
+                        // listeners.
                     }
                     Err(e) => {
                         log::warn!("Error with fetched avatar: {}", e);

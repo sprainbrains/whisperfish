@@ -2,6 +2,8 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
 import QtQml.Models 2.2
+import be.rubdos.whisperfish 1.0
+
 import "../delegates"
 
 Page {
@@ -10,6 +12,11 @@ Page {
 
     readonly property string buildDate: "2022-06-13" // This is a placeholder date, which is updated during build
     property bool updateBannerDisplayed: false
+
+    Sessions {
+        id: sessions
+        app: AppState
+    }
 
     Notification {
         id: updateNotification
@@ -69,7 +76,7 @@ Page {
                 //: Show list of bookmarked messages, menu item
                 //% "Bookmarks"
                 text: qsTrId("whisperfish-bookmarks-menu")
-                visible: SessionModel.hasBookmarks
+                visible: sessions.hasBookmarks
                 onClicked: pageStack.push(Qt.resolvedUrl("BookmarksPage.qml"))
             }
             */
@@ -85,7 +92,7 @@ Page {
             */
             MenuItem {
                 // TODO implement in backend
-                visible: SessionModel !== undefined ? SessionModel.hasArchived : false
+                visible: sessions !== undefined ? sessions.hasArchived : false
                 text: visualSessionModel.filterOnGroup === "active"
                         //: Menu item for showing archived conversations
                         //% "Show archived conversations"
@@ -199,13 +206,12 @@ Page {
                     includeByDefault: false
                 }
             ]
-            model: SessionModel
+            model: sessions.sessions
             delegate: SessionDelegate {
                 id: sessionDelegate
                 onClicked: {
-                    MessageModel.load(model.id)
-                    console.log("Activating session: "+model.id)
-                    pageStack.push(Qt.resolvedUrl("ConversationPage.qml"), { peerName: sessionDelegate.name, profilePicture: sessionDelegate.profilePicture })
+                    console.log("Activating session: " + model.id)
+                    pageStack.push(Qt.resolvedUrl("ConversationPage.qml"), { profilePicture: sessionDelegate.profilePicture, sessionId: model.id })
                 }
 
                 // On certain conditions, the session can request

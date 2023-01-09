@@ -1,14 +1,21 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Sailfish.TextLinking 1.0
+import be.rubdos.whisperfish 1.0
 import "../components"
 
 Page {
     id: verifyIdentity
     objectName: "verifyIdentity"
 
-    property string peerName: ""
     property string profilePicture: ""
+    property alias sessionId: session.sessionId
+
+    Session {
+        id: session
+        app: AppState
+        // sessionId through above property binding
+    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -21,14 +28,14 @@ Page {
                 //: Reset identity key menu item
                 //% "Reset identity key"
                 text: qsTrId("whisperfish-reset-identity-menu")
-                visible: ! MessageModel.group && SettingsBridge.debug_mode
+                visible: !session.isGroup && SettingsBridge.debug_mode
                 onClicked: {
                     //: Reset identity key remorse message (past tense)
                     //% "Identity key reset"
                     remorse.execute(qsTrId("whisperfish-reset-identity-message"),
                         function() {
-                            console.log("Resetting identity key: " + MessageModel.peerTel)
-                            SessionModel.removeIdentities(MessageModel.sessionId)
+                            console.log("Resetting identity key: " + session.recipientE164)
+                            SessionModel.removeIdentities(sessionId)
                         })
                 }
             }
@@ -36,14 +43,14 @@ Page {
                 //: Reset secure session menu item
                 //% "Reset Secure Session"
                 text: qsTrId("whisperfish-reset-session-menu")
-                visible: ! MessageModel.group && SettingsBridge.debug_mode
+                visible: ! session.group && SettingsBridge.debug_mode
                 onClicked: {
                     //: Reset secure session remorse message (past tense)
                     //% "Secure session reset"
                     remorse.execute(qsTrId("whisperfish-reset-session-message"),
                         function() {
-                            console.log("Resetting secure session: "+MessageModel.peerTel)
-                            MessageModel.endSession(MessageModel.peerTel)
+                            console.log("Resetting secure session: " + session.recipientE164)
+                            MessageModel.endSession(session.recipientE164)
                         })
                 }
             }
@@ -51,19 +58,19 @@ Page {
                 //: Refresh contact profile menu item
                 //% "Refresh Signal profile"
                 text: qsTrId("whisperfish-refresh-profile-menu")
-                visible: ! MessageModel.group && SettingsBridge.debug_mode
+                visible: ! session.group && SettingsBridge.debug_mode
                 onClicked: {
-                    ClientWorker.refresh_profile(MessageModel.sessionId)
+                    ClientWorker.refresh_profile(sessionId)
                 }
             }
             MenuItem {
                 //: Show a peer's system contact page (menu item)
                 //% "Show contact"
                 text: qsTrId("whisperfish-show-contact-page-menu")
-                enabled: MessageModel.peerTel.length > 0
+                enabled: session.recipientE164.length > 0
                 visible: enabled
                 // TODO maybe: replace with a custom link handler
-                onClicked: phoneNumberLinker.linkActivated('tel:'+MessageModel.peerTel)
+                onClicked: phoneNumberLinker.linkActivated('tel:' + session.recipientE164)
                 LinkedText { id: phoneNumberLinker; visible: false }
             }
         }
@@ -74,8 +81,8 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: verifyIdentity.peerName
-                description: MessageModel.aboutText
+                title: session.recipientName
+                description: session.recipientAboutText
             }
 
             ProfilePicture {
@@ -88,7 +95,7 @@ Page {
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'
                 infoMarkSize: 0.9*Theme.iconSizeSmallPlus
-                infoMarkEmoji: MessageModel.aboutEmoji
+                infoMarkEmoji: session.recipientEmoji
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: {
                     // TODO Implement a new page derived from ViewImagePage for showing
@@ -116,7 +123,7 @@ Page {
                 readOnly: true
                 width: parent.width
                 font.family: 'monospace'
-                text: MessageModel.numericFingerprint
+                text: session.numericFingerprint
             }
 
             TextArea {
@@ -127,7 +134,7 @@ Page {
                 width: parent.width
                 //: Numeric fingerprint instructions
                 //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
-                text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(MessageModel.peerName)
+                text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(session.recipientName)
             }
         }
     }

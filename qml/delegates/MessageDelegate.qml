@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../components"
 import "../components/message"
 
@@ -20,7 +21,6 @@ ListItem {
     //      (we must rely on the message's id instead of its index, as the latter may change)
     // TODO 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
     // required properties: message, source, outgoing, attachments, AND id, index
-    property var quotedMessageData: modelData.quote !== undefined ? JSON.parse(modelData.quote) : null
     // The parent view can specify a signal to be emitted when
     // the user wants to reply to the delegate's message.
     // Signal signature: \c{replySignal(var index, var modelData)}.
@@ -40,7 +40,13 @@ ListItem {
     readonly property string _message: fullMessageText !== "" ? fullMessageText : (hasData && modelData.message ? modelData.message.trim() : '')
     // TODO implement shared locations (show a map etc.; is probably not an attachment)
 
-    readonly property string contactName: showSender ? getRecipientName(modelData.source, modelData.peerName, false) : ''
+    Recipient {
+        id: sender
+        app: AppState
+        recipientId: modelData.senderRecipientId
+    }
+
+    readonly property string contactName: showSender ? getRecipientName(sender.e164, sender.name, false) : ''
 
     // All children are placed inside a bubble, positioned left or right for
     // incoming/outbound messages. The bubble extends slightly over the contents.
@@ -67,22 +73,23 @@ ListItem {
     property bool showExpand: !isEmpty && _message.length > shortenThreshold
 
     readonly property bool hasData: modelData !== null && modelData !== undefined
-    readonly property bool hasReactions: hasData && modelData.reactions !== undefined
-    readonly property bool hasQuotedMessage: quotedMessageData !== null
-    readonly property bool hasAttachments: hasData && (
-        (modelData.thumbsAttachments !== undefined ? modelData.thumbsAttachments.count : 0)
-        + (modelData.detailAttachments !== undefined ? modelData.detailAttachments.count : 0)
-        > 0)
+    readonly property bool hasReactions: hasData && reactions.count > 0
+    readonly property bool hasQuotedMessage: !!modelData.quotedMessageId && modelData.quotedMessageId != -1
+    readonly property bool hasAttachments: hasData && modelData.attachments > 0
     readonly property bool hasText: hasData && _message !== ''
     readonly property bool hasSource: hasData && modelData.source !== ''
     readonly property bool unidentifiedSender: modelData.unidentifiedSender !== undefined ? modelData.unidentifiedSender : true
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
-    readonly property bool isInGroup: MessageModel.group
+    readonly property bool isInGroup: session.isGroup
     readonly property bool isEmpty: !hasText && !hasAttachments
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 
-    property var reactions: hasReactions ? modelData.reactions.split(',') : []
+    Reactions {
+        id: reactions
+        app: AppState
+        messageId: modelData.id
+    }
 
     function handleExternalPressAndHold(mouse) {
         if (openMenuOnPressAndHold) openMenu()
@@ -197,7 +204,7 @@ ListItem {
             showCloseButton: false
             showBackground: true
             highlighted: down || root.highlighted
-            messageData: quotedMessageData
+            messageId: modelData.quotedMessageId ? modelData.quotedMessageId : -1
             backgroundItem.roundedCorners: backgroundItem.bottomLeft |
                                            backgroundItem.bottomRight |
                                            (isOutbound ? backgroundItem.topRight :
@@ -216,6 +223,7 @@ ListItem {
             width: delegateContentWidth
             cornersOutbound: isOutbound
             cornersQuoted: showQuotedMessage
+            messageId: modelData.id
         }
 
         Item { width: 1; height: hasAttachments ? Theme.paddingSmall : 0 }
@@ -267,6 +275,7 @@ ListItem {
 
             EmojiItem {
                 id: emojiItem
+                reactions: reactions
                 anchors.top: parent.top
                 anchors.left: isOutbound ? parent.left : undefined
                 anchors.right: isOutbound ? undefined : parent.right

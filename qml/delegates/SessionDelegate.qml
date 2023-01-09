@@ -50,8 +50,8 @@ ListItem {
         //% "All messages deleted"
         contentItem.remorseAction(qsTrId("whisperfish-session-delete-all"),
             function() {
-                console.log("Deleting all messages for session: "+model.id)
-                SessionModel.remove(model.index)
+                console.log("Deleting all messages for session: " + model.id)
+                SessionModel.remove(model.id)
             })
     }
 
@@ -71,7 +71,7 @@ ListItem {
     // (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271)
     // the typing variable can be 100% declarative and in the page header.
     function sendTypingToHeader() {
-        if(model.id == MessageModel.sessionId && pageStack.currentPage.objectName == conversationPageName) {
+        if(pageStack.currentPage.sessionId == model.id && pageStack.currentPage.objectName == conversationPageName) {
             var count = model.typing.length
             console.log("onTypingChanged for", model.id, ":", count, "typing");
             var typing;
@@ -134,11 +134,11 @@ ListItem {
 
     function toggleArchivedState() {
         relocationActive = true
-        SessionModel.markArchived(model.index, !isArchived)
+        SessionModel.markArchived(model.id, !isArchived)
     }
 
     function toggleMutedState() {
-        SessionModel.markMuted(model.index, !isMuted)
+        SessionModel.markMuted(model.id, !isMuted)
     }
 
     Item {
@@ -172,11 +172,10 @@ ListItem {
             }
             onPressAndHold: delegate.openMenu()
             onClicked: {
-                MessageModel.load(model.id)
                 if (isGroup) {
-                    pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"))
+                    pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"), { sessionId: model.id })
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { peerName: delegate.name, profilePicture: delegate.profilePicture })
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { sessionId: model.id, profilePicture: delegate.profilePicture })
                 }
             }
         }

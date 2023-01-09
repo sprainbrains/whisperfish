@@ -1,5 +1,6 @@
 use super::schema::*;
 use chrono::prelude::*;
+use itertools::Itertools;
 use std::time::Duration;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -477,14 +478,6 @@ impl std::ops::Deref for AugmentedMessage {
 }
 
 impl AugmentedMessage {
-    pub fn source(&self) -> &str {
-        if let Some(sender) = &self.sender {
-            sender.e164_or_uuid()
-        } else {
-            ""
-        }
-    }
-
     pub fn name(&self) -> &str {
         if let Some(sender) = &self.sender {
             sender.name()
@@ -526,17 +519,7 @@ impl AugmentedMessage {
         self.attachments.len() as _
     }
 
-    #[deprecated]
-    pub fn first_attachment(&self) -> &str {
-        if self.attachments.is_empty() {
-            return "";
-        }
-
-        self.attachments[0].attachment_path.as_deref().unwrap_or("")
-    }
-
     pub fn reactions(&self) -> String {
-        use itertools::Itertools;
         self.reactions
             .iter()
             .map(|(reaction, _recipient)| &reaction.emoji)
@@ -544,18 +527,246 @@ impl AugmentedMessage {
     }
 
     pub fn reactions_full(&self) -> String {
-        use itertools::Itertools;
         self.reactions
             .iter()
             .map(|(reaction, recipient)| format!("{} - {}", &reaction.emoji, &recipient.name()))
             .join("\n")
     }
+}
 
-    #[deprecated]
-    pub fn first_attachment_mime_type(&self) -> &str {
-        if self.attachments.is_empty() {
-            return "";
+// XXX attachments and receipts could be a compressed form.
+pub struct AugmentedSession {
+    pub inner: Session,
+    pub group_members: Vec<Recipient>,
+    pub last_message: Option<AugmentedMessage>,
+}
+
+impl std::ops::Deref for AugmentedSession {
+    type Target = Session;
+
+    fn deref(&self) -> &Session {
+        &self.inner
+    }
+}
+
+impl AugmentedSession {
+    pub fn timestamp(&self) -> Option<NaiveDateTime> {
+        self.last_message.as_ref().map(|m| m.inner.server_timestamp)
+    }
+
+    pub fn group_name(&self) -> Option<&str> {
+        match &self.inner.r#type {
+            SessionType::GroupV1(group) => Some(&group.name),
+            SessionType::GroupV2(group) => Some(&group.name),
+            SessionType::DirectMessage(_) => None,
         }
-        &self.attachments[0].content_type
+    }
+
+    pub fn group_description(&self) -> Option<String> {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_) => None,
+            SessionType::GroupV2(group) => group.description.to_owned(),
+            SessionType::DirectMessage(_) => None,
+        }
+    }
+
+    pub fn group_id(&self) -> Option<&str> {
+        match &self.inner.r#type {
+            SessionType::GroupV1(group) => Some(&group.id),
+            SessionType::GroupV2(group) => Some(&group.id),
+            SessionType::DirectMessage(_) => None,
+        }
+    }
+
+    // FIXME we have them separated now... Get QML to understand it.
+    pub fn group_members(&self) -> Option<String> {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => Some(
+                self.group_members
+                    .iter()
+                    .map(|r| r.e164_or_uuid())
+                    .join(","),
+            ),
+            SessionType::GroupV2(_group) => Some(
+                self.group_members
+                    .iter()
+                    .map(|r| r.e164_or_uuid())
+                    .join(","),
+            ),
+            SessionType::DirectMessage(_) => None,
+        }
+    }
+
+    // FIXME we have them separated now... Get QML to understand it.
+    pub fn group_member_names(&self) -> Option<String> {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => {
+                Some(self.group_members.iter().map(|r| r.name()).join(","))
+            }
+            SessionType::GroupV2(_group) => {
+                Some(self.group_members.iter().map(|r| r.name()).join(","))
+            }
+            SessionType::DirectMessage(_) => None,
+        }
+    }
+
+    pub fn sent(&self) -> bool {
+        if let Some(m) = &self.last_message {
+            m.sent_timestamp.is_some()
+        } else {
+            false
+        }
+    }
+
+    pub fn source(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
+        }
+    }
+
+    pub fn recipient_name(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => {
+                recipient.profile_joined_name.as_deref().unwrap_or_default()
+            }
+        }
+    }
+
+    pub fn recipient_uuid(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => recipient.uuid(),
+        }
+    }
+
+    pub fn recipient_e164(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => recipient.e164.as_deref().unwrap_or_default(),
+        }
+    }
+
+    pub fn recipient_emoji(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => {
+                recipient.about_emoji.as_deref().unwrap_or_default()
+            }
+        }
+    }
+
+    pub fn recipient_about(&self) -> &str {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => "",
+            SessionType::GroupV2(_group) => "",
+            SessionType::DirectMessage(recipient) => recipient.about.as_deref().unwrap_or_default(),
+        }
+    }
+
+    pub fn has_avatar(&self) -> bool {
+        match &self.r#type {
+            SessionType::GroupV1(_) => false,
+            SessionType::GroupV2(group) => group.avatar.is_some(),
+            SessionType::DirectMessage(recipient) => recipient.signal_profile_avatar.is_some(),
+        }
+    }
+
+    pub fn has_attachment(&self) -> bool {
+        if let Some(m) = &self.last_message {
+            !m.attachments.is_empty()
+        } else {
+            false
+        }
+    }
+
+    pub fn text(&self) -> Option<&str> {
+        self.last_message.as_ref().and_then(|m| m.text.as_deref())
+    }
+
+    pub fn section(&self) -> String {
+        if self.is_pinned {
+            return String::from("pinned");
+        }
+
+        // XXX: stub
+        let now = chrono::Utc::now();
+        let today = Utc
+            .with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0)
+            .unwrap()
+            .naive_utc();
+
+        let last_message = if let Some(m) = &self.last_message {
+            &m.inner
+        } else {
+            return String::from("today");
+        };
+        let diff = today.signed_duration_since(last_message.server_timestamp);
+
+        if diff.num_seconds() <= 0 {
+            String::from("today")
+        } else if diff.num_hours() <= 24 {
+            String::from("yesterday")
+        } else if diff.num_hours() <= (7 * 24) {
+            let wd = last_message.server_timestamp.weekday().number_from_monday() % 7;
+            wd.to_string()
+        } else {
+            String::from("older")
+        }
+    }
+
+    pub fn is_read(&self) -> bool {
+        self.last_message
+            .as_ref()
+            .map(|m| m.is_read)
+            .unwrap_or(false)
+    }
+
+    pub fn delivered(&self) -> u32 {
+        if let Some(m) = &self.last_message {
+            m.receipts
+                .iter()
+                .filter(|(r, _)| r.delivered.is_some())
+                .count() as _
+        } else {
+            0
+        }
+    }
+
+    pub fn read(&self) -> u32 {
+        if let Some(m) = &self.last_message {
+            m.receipts.iter().filter(|(r, _)| r.read.is_some()).count() as _
+        } else {
+            0
+        }
+    }
+
+    pub fn is_muted(&self) -> bool {
+        self.is_muted
+    }
+
+    pub fn is_archived(&self) -> bool {
+        self.is_archived
+    }
+
+    pub fn is_pinned(&self) -> bool {
+        self.is_pinned
+    }
+
+    pub fn viewed(&self) -> u32 {
+        if let Some(m) = &self.last_message {
+            m.receipts
+                .iter()
+                .filter(|(r, _)| r.viewed.is_some())
+                .count() as _
+        } else {
+            0
+        }
     }
 }

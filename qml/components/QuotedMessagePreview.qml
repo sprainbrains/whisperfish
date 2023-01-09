@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "attachment"
 
 BackgroundItem {
     id: root
     // 'attachments' is expected as a list of objects: [{data: path, type: mimetype}, ...]
-    property var messageData: null // required properties: message, source, outgoing, attachments
+    property alias messageId: quotedMessage.messageId
     property bool showCloseButton: true
     property bool showBackground: false
     property real contentPadding: Theme.paddingMedium
@@ -16,12 +17,8 @@ BackgroundItem {
     property alias horizontalAlignment: textLabel.horizontalAlignment
     property alias backgroundItem: bgRect
 
-    readonly property bool shown: (messageData !== null && visible)
-    readonly property bool hasAttachments: false
-    // readonly property bool hasAttachments: (
-    //     (messageData.thumbsAttachments !== undefined ? messageData.thumbsAttachments.count : 0)
-    //     + (messageData.detailAttachments !== undefined ? messageData.detailAttachments.count : 0)
-    //     > 0)
+    readonly property bool shown: (quotedMessage.valid && visible)
+    readonly property bool hasAttachments: quotedMessage.thumbsAttachmentsCount > 0
 
     implicitWidth: shown ? Math.min(Math.max(senderNameLabel.implicitWidth+2*contentPadding,
                                              metrics.width), maximumWidth) : 0
@@ -31,6 +28,18 @@ BackgroundItem {
     _backgroundColor: "transparent"
 
     signal closeClicked(var mouse)
+
+    Message {
+        id: quotedMessage
+        app: AppState
+        // messageId through alias above
+    }
+
+    Recipient {
+        id: sender
+        app: AppState
+        recipientId: quotedMessage.senderRecipientId ? quotedMessage.senderRecipientId : -1
+    }
 
     TextMetrics {
         id: metrics
@@ -92,7 +101,14 @@ BackgroundItem {
 
         SenderNameLabel {
             id: senderNameLabel
-            source: messageData !== null ? getRecipientName(messageData.peerTel, messageData.peerName, false) : ''
+            source: quotedMessage.outgoing ?
+                // Reused from main.qml; "You"
+                qsTrId("whisperfish-sender-name-label-outgoing") :
+                (sender.valid ?
+                    getRecipientName(sender.e164, sender.name, false) :
+                    //: Text shown on quotes when the sender of a quote is unknown
+                    //% "Unknown sender"
+                    qsTrId("whisperfish-quoted-message-unknown-sender"))
             defaultClickAction: false
             anchors { left: parent.left; right: parent.right }
             maximumWidth: parent.width
@@ -106,9 +122,9 @@ BackgroundItem {
             anchors { left: parent.left; right: parent.right }
             verticalAlignment: Text.AlignTop
             horizontalAlignment: Text.AlignLeft
-            plainText: (messageData !== null && messageData.message.trim() !== '') ?
-                           messageData.message :
-                           ((messageData !== null && messageData.attachments.length > 0) ?
+            plainText: (quotedMessage.valid && quotedMessage.message.trim() !== '') ?
+                           quotedMessage.message :
+                           ((quotedMessage.valid && quotedMessage.attachments.length > 0) ?
                                 //: Placeholder text if quoted message preview contains no text, only attachments
                                 //% "Attachment"
                                 qsTrId("whisperfish-quoted-message-preview-attachment") :
@@ -134,11 +150,8 @@ BackgroundItem {
         }
         width: attach === null ? 0 : Theme.itemSizeMedium
         height: width
-        attach: null
-        // XXX: This will work when we expose the quoted message data as QVariantMap instead of a JSON object. Cfr. QtAugmentedMessage::quote(&self).
-        // attach: (messageData !== null && messageData.thumbsAttachments.count > 0) ?
-        //             messageData.thumbsAttachments.get(0) : null
-        enabled: false
+        attach: hasAttachments ? JSON.parse(quotedMessage.thumbsAttachments.get(0)) : null
+        enabled: hasAttachments
         layer.enabled: true
         layer.smooth: true
         layer.effect: RoundedMask {

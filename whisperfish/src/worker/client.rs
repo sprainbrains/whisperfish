@@ -16,7 +16,7 @@ pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccoun
 pub use libsignal_service::push_service::DeviceInfo;
 
 use super::profile_refresh::OutdatedProfileStream;
-use crate::actor::{LoadAllSessions, SessionActor};
+use crate::actor::SessionActor;
 use crate::gui::StorageReady;
 use crate::millis_to_naive_chrono;
 use crate::model::DeviceModel;
@@ -59,6 +59,15 @@ use std::time::Duration;
 const TM_MAX_RATE: f32 = 24.0; // messages per minute
 const TM_CACHE_CAPACITY: f32 = 2.0; // 2 min
 const TM_CACHE_TRESHOLD: f32 = 1.75; // 1 min 45 sec
+
+#[derive(actix::Message, Debug)]
+#[rtype(result = "()")]
+pub struct QueueMessage {
+    pub session_id: i32,
+    pub message: String,
+    pub attachment: String,
+    pub quote: i32,
+}
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -1019,6 +1028,69 @@ impl Handler<FetchAttachment> for ClientActor {
     }
 }
 
+impl Handler<QueueMessage> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, msg: QueueMessage, ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("MessageActor::handle({:?})", msg);
+        let storage = self.storage.as_mut().unwrap();
+
+        let has_attachment = !msg.attachment.is_empty();
+        let self_recipient = storage
+            .fetch_self_recipient(&self.config)
+            .expect("self recipient set when sending");
+        let session = storage
+            .fetch_session_by_id(msg.session_id)
+            .expect("existing session when sending");
+
+        let quote = if msg.quote >= 0 {
+            Some(
+                storage
+                    .fetch_message_by_id(msg.quote)
+                    .expect("existing quote id"),
+            )
+        } else {
+            None
+        };
+
+        let (msg, _session) = storage.process_message(
+            crate::store::NewMessage {
+                session_id: Some(msg.session_id),
+                source_e164: self_recipient.e164,
+                source_uuid: self_recipient.uuid,
+                text: msg.message,
+                timestamp: chrono::Utc::now().naive_utc(),
+                has_attachment,
+                mime_type: if has_attachment {
+                    Some(
+                        mime_guess::from_path(&msg.attachment)
+                            .first_or_octet_stream()
+                            .essence_str()
+                            .into(),
+                    )
+                } else {
+                    None
+                },
+                attachment: if has_attachment {
+                    Some(msg.attachment)
+                } else {
+                    None
+                },
+                flags: 0,
+                outgoing: true,
+                received: false,
+                sent: false,
+                is_read: true,
+                is_unidentified: false,
+                quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
+            },
+            Some(session),
+        );
+
+        ctx.notify(SendMessage(msg.id));
+    }
+}
+
 impl Handler<SendMessage> for ClientActor {
     type Result = ResponseActFuture<Self, ()>;
 
@@ -1239,16 +1311,6 @@ impl Handler<SendMessage> for ClientActor {
                         act.inner.pinned().borrow().messageNotSent(session_id, mid);
                     }
                 };
-                actix::spawn(
-                    act.inner
-                        .pinned()
-                        .borrow()
-                        .session_actor
-                        .clone()
-                        .unwrap()
-                        .send(LoadAllSessions)
-                        .map(Result::unwrap),
-                );
             }),
         )
     }

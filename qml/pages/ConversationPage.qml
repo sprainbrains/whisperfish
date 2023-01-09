@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../delegates"
 import "../components"
 
@@ -11,12 +12,24 @@ Page {
     // E.g. when starting a new chat.
     property bool editorFocus: false
 
-    property bool isGroup: MessageModel.group
-    property string conversationName: isGroup ? MessageModel.peerName : getRecipientName(MessageModel.peerTel, MessageModel.peerName, true)
+    property string conversationName: session.isGroup ? session.groupName : getRecipientName(session.recipientE164, session.recipientName, true)
     property string profilePicture: ""
+    property alias sessionId: session.sessionId
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
+
+    Session {
+        id: session
+        app: AppState
+        // sessionId is set through the property alias above.
+    }
+
+    Group {
+        id: group
+        app: AppState
+        groupId: session.groupId ? session.groupId : -1
+    }
 
     function setTyping(message) {
         pageHeader.isTypingMessage = message;
@@ -24,17 +37,18 @@ Page {
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
-            SessionModel.markRead(MessageModel.sessionId)
-            mainWindow.clearNotifications(MessageModel.sessionId)
+            // XXX this should be a call into the client/application state/...
+            SessionModel.markRead(sessionId)
+            mainWindow.clearNotifications(sessionId)
 
             var nextPage = pageStack.nextPage()
             var nextPageName = nextPage ? nextPage.objectName : ''
 
-            if (root.isGroup && nextPageName !== 'groupProfile') {
-                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"))
+            if (session.isGroup && nextPageName !== 'groupProfile') {
+                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { sessionId: sessionId })
             }
-            if(!root.isGroup && nextPageName !== 'verifyIdentity'){
-                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { peerName: root.conversationName, profilePicture: root.profilePicture })
+            if(!session.isGroup && nextPageName !== 'verifyIdentity'){
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { sessionId: sessionId, profilePicture: profilePicture })
             }
         }
     }
@@ -43,8 +57,9 @@ Page {
         target: Qt.application
         onStateChanged: {
             if ((Qt.application.state === Qt.ApplicationActive) && (status === PageStatus.Active)) {
-                SessionModel.markRead(MessageModel.sessionId)
-                mainWindow.clearNotifications(MessageModel.sessionId)
+                // XXX this should be a call into the client/application state/...
+                SessionModel.markRead(sessionId)
+                mainWindow.clearNotifications(sessionId)
             }
         }
     }
@@ -52,17 +67,16 @@ Page {
     ConversationPageHeader {
         id: pageHeader
         title: conversationName
-        isGroup: root.isGroup
+        isGroup: session.isGroup
         anchors.top: parent.top
         description: {
-            if (root.isGroup) {
-                var members = MessageModel.groupMembers.split(",")
+            if (session.isGroup) {
                 //: The number of members in a group, you included
                 //% "%n member(s)"
-                return qsTrId("whisperfish-group-n-members", members.length)
+                return qsTrId("whisperfish-group-n-members", group.member_count)
             }
-            else return (MessageModel.peerName === MessageModel.peerTel ?
-                             "" : MessageModel.peerTel)
+            else return (session.recipientName === session.recipientE164 ?
+                             "" : session.recipientE164)
         }
         profilePicture: root.profilePicture
 
@@ -100,7 +114,7 @@ Page {
             left: parent.left;
             right: parent.right
         }
-        model: MessageModel
+        model: session.messages
         clip: true // to prevent the view from flowing through the page header
         headerPositioning: ListView.InlineHeader
         header: Item {
@@ -164,7 +178,7 @@ Page {
             id: textInput
             width: parent.width
             anchors.bottom: parent.bottom
-            enablePersonalizedPlaceholder: messages.count === 0 && !root.isGroup
+            enablePersonalizedPlaceholder: messages.count === 0 && !session.isGroup
             placeholderContactName: conversationName
             editor.focus: root.editorFocus
             showSeparator: !messages.atYEnd || quotedMessageShown
@@ -179,19 +193,19 @@ Page {
                 // TODO This should be handled completely in the backend.
                 // TODO Support multiple attachments in the backend.
                 var firstAttachedPath = (attachments.length > 0 ? attachments[0].data : '')
-                MessageModel.createMessage(MessageModel.sessionId, text, firstAttachedPath, replyTo, true)
+                MessageModel.createMessage(sessionId, text, firstAttachedPath, replyTo, true)
 
                 // send remaining attachments in separate messages because the
                 // backend does not support sending multiple attachments at once
                 for (var i = 1; i < attachments.length; i++) {
-                    MessageModel.createMessage(MessageModel.sessionId, '', attachments[i].data, replyTo, true)
+                    MessageModel.createMessage(sessionId, '', attachments[i].data, replyTo, true)
                 }
             }
             onSendTypingNotification: {
-                ClientWorker.send_typing_notification(MessageModel.sessionId, true)
+                ClientWorker.send_typing_notification(sessionId, true)
             }
             onSendTypingNotificationEnd: {
-                ClientWorker.send_typing_notification(MessageModel.sessionId, false)
+                ClientWorker.send_typing_notification(sessionId, false)
             }
         }
     }

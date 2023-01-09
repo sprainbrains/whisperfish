@@ -9,21 +9,22 @@ macro_rules! define_model_roles {
         $(let field = $via_fn(field);)*
         field.into()
     }};
-    (enum $enum_name:ident for $diesel_model:ty {
+    ($vis:vis enum $enum_name:ident for $diesel_model:ty $([with offset $offset:literal])? {
      $($role:ident($($retrieval:tt)*): $name:expr),* $(,)?
     }) => {
         #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-        enum $enum_name {
+        $vis enum $enum_name {
             $($role),*
         }
 
         impl $enum_name {
             #[allow(unused_assignments)]
             #[allow(dead_code)]
-            fn role_names() -> HashMap<i32, qmetaobject::QByteArray> {
-                let mut hm = HashMap::new();
+            $vis fn role_names() -> std::collections::HashMap<i32, qmetaobject::QByteArray> {
+                let mut hm = std::collections::HashMap::new();
 
                 let mut i = 0;
+                $(i = $offset;)?
                 $(
                     hm.insert(i, $name.into());
                     i += 1;
@@ -32,7 +33,7 @@ macro_rules! define_model_roles {
                 hm
             }
 
-            fn get(&self, obj: &$diesel_model) -> qmetaobject::QVariant {
+            $vis fn get(&self, obj: &$diesel_model) -> qmetaobject::QVariant {
                 match self {
                     $(
                         Self::$role => define_model_roles!(RETRIEVE obj $($retrieval)*),
@@ -40,7 +41,7 @@ macro_rules! define_model_roles {
                 }
             }
 
-            fn from(i: i32) -> Self {
+            $vis fn from(i: i32) -> Self {
                 let rm = [$(Self::$role, )*];
                 rm[i as usize]
             }
@@ -48,18 +49,28 @@ macro_rules! define_model_roles {
     };
 }
 
+mod active_model;
+pub mod attachment;
 pub mod contact;
 pub mod device;
-pub mod message;
-pub mod session;
+pub mod group;
+pub mod messages;
+pub mod reactions;
+pub mod recipient;
+pub mod sessions;
 
 pub mod prompt;
 
+pub use self::active_model::*;
+pub use self::attachment::*;
 pub use self::contact::*;
 pub use self::device::*;
-pub use self::message::*;
+pub use self::group::*;
+pub use self::messages::*;
 pub use self::prompt::*;
-pub use self::session::*;
+pub use self::reactions::*;
+pub use self::recipient::*;
+pub use self::sessions::*;
 
 use chrono::prelude::*;
 use qmetaobject::prelude::*;
@@ -97,6 +108,16 @@ fn qdatetime_from_naive(timestamp: NaiveDateTime) -> QDateTime {
 fn qstring_from_option(opt: Option<impl AsRef<str>>) -> QVariant {
     match opt {
         Some(s) => QString::from(s.as_ref()).into(),
+        None => QVariant::default(),
+    }
+}
+
+fn qvariant_from_option<T>(val: Option<T>) -> QVariant
+where
+    T: Into<QVariant>,
+{
+    match val {
+        Some(s) => s.into(),
         None => QVariant::default(),
     }
 }

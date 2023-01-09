@@ -13,7 +13,7 @@ pub struct StorageReady {
     pub storage: crate::store::Storage,
 }
 
-#[derive(QObject)]
+#[derive(QObject, Default)]
 #[allow(non_snake_case)]
 pub struct AppState {
     base: qt_base_class!(trait QObject),
@@ -29,6 +29,8 @@ pub struct AppState {
     mayExit: qt_method!(fn(&self) -> bool),
 
     isHarbour: qt_method!(fn(&self) -> bool),
+
+    pub storage: RefCell<Option<Storage>>,
 }
 
 impl AppState {
@@ -90,6 +92,8 @@ impl AppState {
             activate: Default::default(),
             setMayExit: Default::default(),
             mayExit: Default::default(),
+
+            storage: RefCell::default(),
         }
     }
 }
@@ -105,13 +109,19 @@ pub struct WhisperfishApp {
     pub setup_worker: QObjectBox<worker::SetupWorker>,
 
     pub settings_bridge: QObjectBox<SettingsBridge>,
-
-    pub storage: RefCell<Option<Storage>>,
 }
 
 impl WhisperfishApp {
     pub async fn storage_ready(&self) {
-        let storage = self.storage.borrow().as_ref().unwrap().clone();
+        let storage = self
+            .app_state
+            .pinned()
+            .borrow()
+            .storage
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .clone();
         let msg = StorageReady { storage };
 
         futures::join! {
@@ -152,11 +162,29 @@ fn long_version() -> String {
     }
 }
 
+macro_rules! cstr {
+    ($s:expr) => {
+        &std::ffi::CString::new($s).unwrap() as &std::ffi::CStr
+    };
+}
+
 pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     qmeta_async::run(|| {
         let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
             // XXX this arc thing should be removed in the future and refactored
             let config = std::sync::Arc::new(config);
+
+            // Register types
+            {
+                let uri = cstr!("be.rubdos.whisperfish");
+                qml_register_type::<model::Sessions>(uri, 1, 0, cstr!("Sessions"));
+                qml_register_type::<model::Session>(uri, 1, 0, cstr!("Session"));
+                qml_register_type::<model::Message>(uri, 1, 0, cstr!("Message"));
+                qml_register_type::<model::Recipient>(uri, 1, 0, cstr!("Recipient"));
+                qml_register_type::<model::Group>(uri, 1, 0, cstr!("Group"));
+                qml_register_type::<model::Attachment>(uri, 1, 0, cstr!("Attachment"));
+                qml_register_type::<model::Reactions>(uri, 1, 0, cstr!("Reactions"));
+            }
 
             let mut app = QmlApp::application("harbour-whisperfish".into());
             let long_version: QString = long_version().into();
@@ -174,12 +202,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 std::sync::Arc::clone(&config),
             )?
             .start();
-            let message_actor = actor::MessageActor::new(
-                &mut app,
-                client_actor.clone(),
-                std::sync::Arc::clone(&config),
-            )
-            .start();
+            let message_actor = actor::MessageActor::new(&mut app, client_actor.clone()).start();
 
             let whisperfish = Rc::new(WhisperfishApp {
                 app_state: QObjectBox::new(AppState::new()),
@@ -192,8 +215,6 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
                 setup_worker: QObjectBox::new(worker::SetupWorker::default()),
 
                 settings_bridge: QObjectBox::new(SettingsBridge::default()),
-
-                storage: RefCell::new(None),
             });
 
             app.set_property("AppVersion".into(), version.into());

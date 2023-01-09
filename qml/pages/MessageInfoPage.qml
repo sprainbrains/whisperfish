@@ -83,7 +83,7 @@ Page {
                 //: Label for session id of the message (in database)
                 //% "Session ID"
                 label: qsTrId("whisperfish-message-session-id")
-                value: message.sid
+                value: message.sessionId
             }
             DetailItem {
                 //: Label for timestamp of the message

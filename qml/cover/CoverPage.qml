@@ -1,7 +1,19 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 
 CoverBackground {
+    Connections {
+        target: SetupWorker
+        onSetupComplete: {
+            sessions.reinit()
+        }
+    }
+
+    Sessions {
+        id: sessions
+        app: AppState
+    }
 
     Label {
         id: placeholderLabel
@@ -19,7 +31,7 @@ CoverBackground {
 
     Label {
         id: unreadCount
-        text: SessionModel.unread
+        text: sessions.unread
         anchors {
             top: parent.top
             left: parent.left
@@ -29,7 +41,7 @@ CoverBackground {
         font.pixelSize: Theme.fontSizeHuge
 
         visible: opacity > 0.0
-        opacity: SessionModel.unread > 0 ? 1.0 : 0.0
+        opacity: sessions.unread > 0 ? 1.0 : 0.0
         Behavior on opacity { NumberAnimation {} }
     }
 
@@ -38,7 +50,7 @@ CoverBackground {
 
         //: Unread messages count cover label. Code requires exact line break tag "<br/>".
         //% "Unread<br/>message(s)"
-        text: qsTrId("whisperfish-cover-unread-label", SessionModel.unread).replace("<br/>", "\n")
+        text: qsTrId("whisperfish-cover-unread-label", sessions.unread).replace("<br/>", "\n")
         font.pixelSize: Theme.fontSizeExtraSmall
         maximumLineCount: 2
         wrapMode: Text.Wrap
@@ -48,7 +60,7 @@ CoverBackground {
         verticalAlignment: Text.AlignVCenter
 
         visible: opacity > 0.0
-        opacity: SessionModel.unread > 0 ? 1.0 : 0.0
+        opacity: sessions.unread > 0 ? 1.0 : 0.0
         Behavior on opacity { NumberAnimation {} }
 
         anchors {
@@ -74,7 +86,7 @@ CoverBackground {
             top: parent.top
             left: parent.left
             right: parent.right
-            topMargin: Theme.paddingMedium + (SessionModel.unread > 0 ? unreadCount.height : Theme.paddingMedium)
+            topMargin: Theme.paddingMedium + (sessions.unread > 0 ? unreadCount.height : Theme.paddingMedium)
             leftMargin: Theme.paddingLarge
             bottom: coverActionArea.top
             Behavior on topMargin { NumberAnimation {} }
@@ -82,7 +94,7 @@ CoverBackground {
 
         // XXX Maybe we can use a delegate model to resort without pinning.
         //     Pins don't make a lot of sense in this context
-        model: SessionModel
+        model: sessions.sessions
         spacing: Theme.paddingSmall
 
         delegate: Item {

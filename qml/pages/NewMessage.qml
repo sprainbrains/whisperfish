@@ -166,7 +166,6 @@ Page {
                             MessageModel.createMessage(recipientNumber, '', '', attachments[i].data, true)
                         }
 
-                        SessionModel.reload()
                         pageStack.pop() // TODO open the new chat instead of returning to the main page
                     } else {
                         //: Invalid recipient error

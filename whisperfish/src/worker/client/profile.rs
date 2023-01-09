@@ -145,23 +145,11 @@ impl Handler<ProfileAvatarFetched> for ClientActor {
                 Ok(())
             }
             .into_actor(self)
-            .map(move |res: anyhow::Result<_>, act, _ctx| {
+            .map(move |res: anyhow::Result<_>, _act, _ctx| {
                 match res {
                     Ok(()) => {
                         // XXX this is basically incomplete.
-                        // SessionActor should probably receive some NotifyRecipientUpdated
-                        let session = act
-                            .inner
-                            .pinned()
-                            .borrow_mut()
-                            .session_actor
-                            .clone()
-                            .unwrap();
-                        actix::spawn(async move {
-                            if let Err(e) = session.send(LoadAllSessions).await {
-                                log::error!("Could not reload sessions {}", e);
-                            }
-                        });
+                        // Storage should send out some NotifyRecipientUpdated
                     }
                     Err(e) => {
                         log::warn!("Error with fetched avatar: {}", e);
@@ -185,22 +173,7 @@ impl Handler<ProfileFetched> for ClientActor {
         ctx: &mut Self::Context,
     ) -> Self::Result {
         match self.handle_profile_fetched(ctx, uuid, profile) {
-            Ok(()) => {
-                // XXX this is basically incomplete.
-                // SessionActor should probably receive some NotifyRecipientUpdated
-                let session = self
-                    .inner
-                    .pinned()
-                    .borrow_mut()
-                    .session_actor
-                    .clone()
-                    .unwrap();
-                actix::spawn(async move {
-                    if let Err(e) = session.send(LoadAllSessions).await {
-                        log::error!("Could not reload sessions {}", e);
-                    }
-                });
-            }
+            Ok(()) => {}
             Err(e) => {
                 log::warn!("Error with fetched profile: {}", e);
             }
