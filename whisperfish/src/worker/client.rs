@@ -465,7 +465,7 @@ impl ClientActor {
                 timestamp
             } else {
                 msg.timestamp()
-            } as u64),
+            }),
             has_attachment: !msg.attachments.is_empty(),
             mime_type: None,  // Attachments are further handled asynchronously
             received: false,  // This is set true by a receipt handler
@@ -1182,7 +1182,7 @@ impl Handler<SendMessage> for ClientActor {
                         .clone() // Clone for the spawn_blocking below
                         .expect("attachment path when uploading");
                     let contents =
-                        tokio::task::spawn_blocking(move || std::fs::read(&attachment_path))
+                        tokio::task::spawn_blocking(move || std::fs::read(attachment_path))
                             .await
                             .context("threadpool")?
                             .context("reading attachment")?;
@@ -2114,7 +2114,7 @@ impl Handler<ProofResponse> for ClientActor {
         let addr = ctx.address();
 
         let proc = async move {
-            am.submit_recaptcha_challenge(&*proof.token, &*proof.response)
+            am.submit_recaptcha_challenge(&proof.token, &proof.response)
                 .await
         };
 
