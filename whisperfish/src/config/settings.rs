@@ -461,7 +461,7 @@ mod tests {
             drop(file);
 
             let mut settings = SettingsBridge::default();
-            assert_eq!(settings.get_bool("test_bool"), true);
+            assert!(settings.get_bool("test_bool"));
             assert_eq!(
                 settings.get_string("test_string"),
                 "Hello world".to_string()
