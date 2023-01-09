@@ -203,7 +203,7 @@
         <location filename="../qml/pages/About.qml" line="62"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation>Whisperfish är en inofficiell, men avancerad Signal-klient för Sailfish OS. Whisperfish är mycket användbar, men anses fortfarande vara programvara av betakvalitet. Se till att uppdatera regelbundet! Kolla också vår wiki och bidra gärna till den! Kontakta aldrig Signal-utvecklarna om ett problem med Whisperfish, kontakta oss istället!.</translation>
+        <translation>Whisperfish är en inofficiell, men avancerad Signal-klient för Sailfish OS. Whisperfish är mycket användbar, men anses fortfarande vara programvara av betakvalitet. Se till att uppdatera regelbundet! Kolla också vår Wiki och bidra gärna till den! Kontakta aldrig Signal-utvecklarna om ett problem med Whisperfish, kontakta oss istället!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="76"/>
@@ -239,7 +239,7 @@
         <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Besök Wiki</translation>
+        <translation>Besök Wikin</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="149"/>
@@ -461,7 +461,7 @@
         <location filename="../qml/pages/VerifyIdentity.qml" line="131"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
-        <translation>Om du vill kontrollera säkerheten för din end-to-end-kryptering med %1 jämför du siffrorna ovan med siffrorna på deras enhet.</translation>
+        <translation>Om du vill kontrollera säkerheten för totalsträckskryptering med %1 jämför du siffrorna ovan med siffrorna på deras enhet.</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="59"/>
@@ -527,7 +527,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/NewGroup.qml" line="110"/>
         <source>Please name the group</source>
         <extracomment>Invalid group name error</extracomment>
-        <translation>Var god att namnge denna grupp</translation>
+        <translation>Namnge denna grupp</translation>
     </message>
     <message id="whisperfish-error-invalid-group-members">
         <location filename="../qml/pages/NewGroup.qml" line="106"/>
@@ -640,7 +640,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/UnlockPage.qml" line="52"/>
         <source>Please try again</source>
         <extracomment>input field placeholder after failed attempt to unlock (keep it short)</extracomment>
-        <translation>Var god att försök igen</translation>
+        <translation>Var god och försök igen</translation>
     </message>
     <message id="whisperfish-password-placeholder">
         <location filename="../qml/pages/UnlockPage.qml" line="76"/>
@@ -1208,7 +1208,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="214"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Öppna en egen anteckning</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
@@ -1388,7 +1388,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="111"/>
         <source>Unknown sender</source>
         <extracomment>Text shown on quotes when the sender of a quote is unknown</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Okänd avsändare</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="130"/>
