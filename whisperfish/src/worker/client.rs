@@ -130,7 +130,7 @@ pub struct ClientWorker {
     link_device: qt_method!(fn(&self, tsurl: String)),
     unlink_device: qt_method!(fn(&self, id: i64)),
     reload_linked_devices: qt_method!(fn(&self)),
-    compress_db: qt_method!(fn(&self)),
+    compact_db: qt_method!(fn(&self)),
 
     refresh_group_v2: qt_method!(fn(&self, session_id: usize)),
 
@@ -2003,11 +2003,11 @@ impl Handler<RefreshPreKeys> for ClientActor {
 // methods called from Qt
 impl ClientWorker {
     #[with_executor]
-    pub fn compress_db(&self) {
+    pub fn compact_db(&self) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
             if let Err(e) = actor.send(CompactDb(0)).await {
-                log::error!("{:?} in compress_db()", e);
+                log::error!("{:?} in compact_db()", e);
             }
         });
     }
@@ -2073,9 +2073,7 @@ impl Handler<CompactDb> for ClientActor {
     fn handle(&mut self, _: CompactDb, _ctx: &mut Self::Context) -> Self::Result {
         log::trace!("handle(CompactDb)");
         let store = self.storage.clone().unwrap();
-        let res = store.compress_db();
-        log::trace!("  res = {}", res);
-        res
+        store.compact_db()
     }
 }
 

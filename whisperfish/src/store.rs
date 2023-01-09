@@ -14,10 +14,8 @@ use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
 use chrono::prelude::*;
 use diesel::debug_query;
-use diesel::dsl::sql;
 use diesel::prelude::*;
 use diesel::result::*;
-use diesel::sql_types::Text;
 use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
@@ -646,12 +644,19 @@ impl Storage {
             .ok()
     }
 
-    pub fn compress_db(&self) -> usize {
-        sql::<Text>("VACUUM;")
-            .get_result::<String>(&mut *self.db())
-            .unwrap()
-            .parse::<usize>()
-            .unwrap()
+    pub fn compact_db(&self) -> usize {
+        let mut db = self.db();
+        match db.batch_execute("VACUUM;") {
+            Ok(()) => {
+                log::trace!("Database compacted");
+                0
+            }
+            Err(e) => {
+                log::error!("Compacting database failed");
+                log::error!("VACUUM => {}", e);
+                1
+            }
+        }
     }
 
     pub fn fetch_recipients(&self) -> Vec<orm::Recipient> {
