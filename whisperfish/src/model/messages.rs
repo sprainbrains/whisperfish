@@ -87,7 +87,7 @@ impl MessageImpl {
     }
 
     fn fetch(&mut self, storage: Storage, id: i32) {
-        self.message = storage.fetch_augmented_message(id, true);
+        self.message = storage.fetch_augmented_message(id);
         let attachments = if let Some(message) = &self.message {
             message.attachments.clone()
         } else {
@@ -318,7 +318,7 @@ impl MessageListModel {
             }
         } else if event.is_insert() || event.is_update() {
             let message = storage
-                .fetch_augmented_message(message_id, true)
+                .fetch_augmented_message(message_id)
                 .expect("inserted message");
             let pos = self.messages.binary_search_by_key(
                 &std::cmp::Reverse((message.server_timestamp, message.id)),

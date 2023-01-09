@@ -1184,10 +1184,9 @@ impl Storage {
     pub fn fetch_last_message_by_session_id_augmented(
         &self,
         sid: i32,
-        fetch_quote: bool,
     ) -> Option<orm::AugmentedMessage> {
         let msg = self.fetch_last_message_by_session_id(sid)?;
-        self.fetch_augmented_message(msg.id, fetch_quote)
+        self.fetch_augmented_message(msg.id)
     }
 
     pub fn fetch_last_message_by_session_id(&self, sid: i32) -> Option<orm::Message> {
@@ -1393,7 +1392,7 @@ impl Storage {
             Vec::new()
         };
 
-        let last_message = self.fetch_last_message_by_session_id_augmented(session.id, true);
+        let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
 
         Some(orm::AugmentedSession {
             inner: session,
@@ -2005,11 +2004,7 @@ impl Storage {
             .expect("database")
     }
 
-    pub fn fetch_augmented_message(
-        &self,
-        id: i32,
-        fetch_quote: bool,
-    ) -> Option<orm::AugmentedMessage> {
+    pub fn fetch_augmented_message(&self, id: i32) -> Option<orm::AugmentedMessage> {
         let message = self.fetch_message_by_id(id)?;
         let receipts = self.fetch_message_receipts(message.id);
         let attachments = self.fetch_attachments_for_message(message.id);
@@ -2018,27 +2013,12 @@ impl Storage {
         } else {
             None
         };
-        let quoted_message = if fetch_quote {
-            message
-                .quote_id
-                .and_then(|id| self.fetch_augmented_message(id, false))
-        } else {
-            None
-        };
-
-        if fetch_quote && (quoted_message.is_none() != message.quote_id.is_none()) {
-            log::debug!(
-                "Quoted message ts={} does not exist",
-                message.quote_id.unwrap()
-            );
-        }
 
         Some(AugmentedMessage {
             inner: message,
             receipts,
             attachments,
             sender,
-            quoted_message: quoted_message.map(Box::new),
         })
     }
 
@@ -2063,8 +2043,7 @@ impl Storage {
                     Vec::new()
                 };
 
-                let last_message =
-                    self.fetch_last_message_by_session_id_augmented(session.id, true);
+                let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
                 orm::AugmentedSession {
                     inner: session,
                     group_members,
@@ -2151,22 +2130,12 @@ impl Storage {
             } else {
                 vec![]
             };
-            let quoted_message = message
-                .quote_id
-                .and_then(|id| self.fetch_augmented_message(id, false));
-            if quoted_message.is_none() != message.quote_id.is_none() {
-                // XXX the UI should show a "quote does not exist" message for this.
-                log::debug!(
-                    "Quoted message ts={} does not exist",
-                    message.quote_id.unwrap()
-                );
-            }
+
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
                 sender,
                 attachments,
                 receipts,
-                quoted_message: quoted_message.map(Box::new),
             });
         }
         aug_messages

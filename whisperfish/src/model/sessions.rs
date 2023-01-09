@@ -160,7 +160,7 @@ impl SessionListModel {
                         // XXX This can in principle fetch a message with another timestamp,
                         // but I think all those cases are handled with a session_id
                         session.last_message =
-                            storage.fetch_last_message_by_session_id_augmented(session.id, true);
+                            storage.fetch_last_message_by_session_id_augmented(session.id);
                         let (low, high) = range.get_or_insert((idx, idx));
                         if *low > idx {
                             *low = idx;

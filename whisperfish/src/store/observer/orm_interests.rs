@@ -79,14 +79,6 @@ impl orm::AugmentedMessage {
                 schema::messages::table,
                 self.id,
             )))
-            .chain(
-                // This box is necessary because of the recursion, which otherwise builds an
-                // infinitely big type or a non-fixed type, and then Rust throws a very ugly
-                // diagnostic to your head.
-                // https://github.com/rust-lang/rust/issues/97686
-                Box::new(self.quoted_message.iter().flat_map(|m| m.interests()))
-                    as Box<dyn Iterator<Item = Interest>>,
-            )
     }
 }
 

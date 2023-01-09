@@ -1099,7 +1099,7 @@ impl Handler<SendMessage> for ClientActor {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
-        let msg = storage.fetch_augmented_message(mid, true).unwrap();
+        let msg = storage.fetch_augmented_message(mid).unwrap();
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
         let session_id = session.id;
 
@@ -1141,7 +1141,9 @@ impl Handler<SendMessage> for ClientActor {
                 let online = false;
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
 
-                let quote = msg.quoted_message.as_ref().map(|quoted_message| {
+                let quote = msg.quote_id.and_then(|quote_id| {
+                    storage.fetch_augmented_message(quote_id)
+                }).map(|quoted_message| {
                     if !quoted_message.attachments.is_empty() {
                         log::warn!("Quoting attachments is incomplete.  Here be dragons.");
                     }
