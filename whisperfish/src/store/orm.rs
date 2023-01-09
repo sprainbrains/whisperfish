@@ -510,7 +510,6 @@ impl AugmentedMessage {
 // XXX attachments and receipts could be a compressed form.
 pub struct AugmentedSession {
     pub inner: Session,
-    pub group_members: Vec<Recipient>,
     pub last_message: Option<AugmentedMessage>,
 }
 

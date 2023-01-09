@@ -20,11 +20,6 @@ impl orm::AugmentedSession {
                     .iter()
                     .flat_map(orm::AugmentedMessage::interests),
             )
-            .chain(
-                self.group_members
-                    .iter()
-                    .flat_map(orm::Recipient::interests),
-            )
             // Watch new group members
             .chain(match &self.inner.r#type {
                 orm::SessionType::DirectMessage(_) => None,
