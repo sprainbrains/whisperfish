@@ -1990,15 +1990,11 @@ impl Storage {
             .ok()
     }
 
-    /// Returns a vector of tuples of messages with their sender.
-    ///
-    /// When the sender is None, it is a sent message, not a received message.
-    // XXX maybe this should be `Option<Vec<...>>`.
-    pub fn fetch_all_messages(&self, sid: i32) -> Vec<(orm::Message, Option<orm::Recipient>)> {
-        log::trace!("Called fetch_all_messages({})", sid);
+    /// Returns a vector of messages for a specific session, ordered by server timestamp.
+    pub fn fetch_all_messages(&self, session_id: i32) -> Vec<orm::Message> {
+        log::trace!("Called fetch_all_messages({})", session_id);
         schema::messages::table
-            .filter(schema::messages::session_id.eq(sid))
-            .left_join(schema::recipients::table)
+            .filter(schema::messages::session_id.eq(session_id))
             .order_by(schema::messages::columns::server_timestamp.desc())
             .load(&mut *self.db())
             .expect("database")
@@ -2012,17 +2008,11 @@ impl Storage {
             .count()
             .get_result(&mut *self.db())
             .expect("db");
-        let sender = if let Some(id) = message.sender_recipient_id {
-            self.fetch_recipient_by_id(id)
-        } else {
-            None
-        };
 
         Some(AugmentedMessage {
             inner: message,
             receipts,
             attachments: attachments as usize,
-            sender,
         })
     }
 
@@ -2115,7 +2105,7 @@ impl Storage {
         let mut receipts = receipts.into_iter().peekable();
 
         let mut aug_messages = Vec::with_capacity(messages.len());
-        for (message, sender) in messages {
+        for message in messages {
             let attachments = if attachments
                 .peek()
                 .map(|(id, _)| *id == message.id)
@@ -2139,7 +2129,6 @@ impl Storage {
 
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
-                sender,
                 attachments,
                 receipts,
             });

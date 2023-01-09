@@ -172,7 +172,7 @@ async fn process_message_unresolved_session_source_resolved(
 
     let messages = storage.fetch_all_messages(session.id);
     assert_eq!(messages.len(), 1);
-    assert_eq!(messages[0].0.session_id, session.id);
+    assert_eq!(messages[0].session_id, session.id);
 }
 
 #[rstest]

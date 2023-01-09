@@ -57,7 +57,6 @@ impl orm::AugmentedMessage {
     pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
         self.inner
             .interests()
-            .chain(self.sender.iter().flat_map(orm::Recipient::interests))
             .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::attachments::table,
                 schema::messages::table,

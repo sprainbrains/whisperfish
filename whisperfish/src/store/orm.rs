@@ -456,11 +456,10 @@ impl SessionType {
 
 // Some extras
 
-/// [`Message`] augmented with its sender, attachments, reactions and receipts.
+/// [`Message`] augmented with its sender, attachment count and receipts.
 #[derive(Clone, Default)]
 pub struct AugmentedMessage {
     pub inner: Message,
-    pub sender: Option<Recipient>,
     pub attachments: usize,
     pub receipts: Vec<(Receipt, Recipient)>,
 }
@@ -474,14 +473,6 @@ impl std::ops::Deref for AugmentedMessage {
 }
 
 impl AugmentedMessage {
-    pub fn name(&self) -> &str {
-        if let Some(sender) = &self.sender {
-            sender.name()
-        } else {
-            ""
-        }
-    }
-
     pub fn sent(&self) -> bool {
         self.inner.sent_timestamp.is_some()
     }

@@ -1147,11 +1147,12 @@ impl Handler<SendMessage> for ClientActor {
                     if !quoted_message.attachments > 0 {
                         log::warn!("Quoting attachments is incomplete.  Here be dragons.");
                     }
+                    let quote_sender = quoted_message.sender_recipient_id.and_then(|x| storage.fetch_recipient_by_id(x));
 
                     Quote {
                         id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
-                        author_e164: quoted_message.sender.as_ref().and_then(|r| r.e164.clone()),
-                        author_uuid: quoted_message.sender.as_ref().and_then(|r| r.uuid.clone()),
+                        author_e164: quote_sender.as_ref().and_then(|r| r.e164.clone()),
+                        author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.clone()),
                         text: quoted_message.text.clone(),
 
                         ..Default::default()
