@@ -158,8 +158,6 @@ crate::observing_model! {
         groupId GroupId,
         groupName GroupName,
         groupDescription GroupDescription,
-        groupMembers GroupMembers,
-        groupMemberNames GroupMemberNames,
 
         message Message,
         section Section,

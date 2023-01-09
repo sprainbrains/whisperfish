@@ -1,6 +1,5 @@
 use super::schema::*;
 use chrono::prelude::*;
-use itertools::Itertools;
 use std::time::Duration;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -557,38 +556,6 @@ impl AugmentedSession {
         match &self.inner.r#type {
             SessionType::GroupV1(group) => Some(&group.id),
             SessionType::GroupV2(group) => Some(&group.id),
-            SessionType::DirectMessage(_) => None,
-        }
-    }
-
-    // FIXME we have them separated now... Get QML to understand it.
-    pub fn group_members(&self) -> Option<String> {
-        match &self.inner.r#type {
-            SessionType::GroupV1(_group) => Some(
-                self.group_members
-                    .iter()
-                    .map(|r| r.e164_or_uuid())
-                    .join(","),
-            ),
-            SessionType::GroupV2(_group) => Some(
-                self.group_members
-                    .iter()
-                    .map(|r| r.e164_or_uuid())
-                    .join(","),
-            ),
-            SessionType::DirectMessage(_) => None,
-        }
-    }
-
-    // FIXME we have them separated now... Get QML to understand it.
-    pub fn group_member_names(&self) -> Option<String> {
-        match &self.inner.r#type {
-            SessionType::GroupV1(_group) => {
-                Some(self.group_members.iter().map(|r| r.name()).join(","))
-            }
-            SessionType::GroupV2(_group) => {
-                Some(self.group_members.iter().map(|r| r.name()).join(","))
-            }
             SessionType::DirectMessage(_) => None,
         }
     }
