@@ -112,7 +112,12 @@ CoverBackground {
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.primaryColor
                 truncationMode: TruncationMode.Fade
-                text: model.message
+                text: (model.hasAttachment
+                    ? ("📎 " + (model.message === ''
+                        // SessionDelegate defines this
+                        ? qsTrId("whisperfish-session-has-attachment") : '')
+                    ) : ''
+                ) + (model.message !== undefined ? model.message : '')
             }
 
             Label {
