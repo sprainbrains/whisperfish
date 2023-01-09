@@ -9,13 +9,7 @@ Page {
     objectName: "verifyIdentity"
 
     property string profilePicture: ""
-    property alias sessionId: session.sessionId
-
-    Session {
-        id: session
-        app: AppState
-        // sessionId through above property binding
-    }
+    property var session: null
 
     SilicaFlickable {
         anchors.fill: parent

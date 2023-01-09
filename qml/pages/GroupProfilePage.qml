@@ -13,19 +13,9 @@ Page {
     // a background image. A group admin should be able to change it, too.
     /* property string groupWallpaper: '' */
 
-    Session {
-        id: session
-        app: AppState
-        // sessionId through property alias below
-    }
+    property var session: null;
+    property var group: null;
 
-    Group {
-        id: group
-        app: AppState
-        groupId: session.groupId
-    }
-
-    property alias sessionId: session.sessionId
     property bool groupV2: session.isGroupV2 // works until groupV3
     property string groupId: session.groupId
     property string groupName: session.groupName
