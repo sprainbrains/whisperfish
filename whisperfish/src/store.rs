@@ -644,14 +644,14 @@ impl Storage {
             .ok()
     }
 
-    pub fn compress_db(&self) -> usize {
+    pub fn compact_db(&self) -> usize {
         let mut db = self.db();
         match db.batch_execute("VACUUM;") {
             Ok(()) => {
                 log::trace!("Database compacted");
                 0
-            },
-                Err(e) => {
+            }
+            Err(e) => {
                 log::error!("Compacting database failed");
                 log::error!("VACUUM => {}", e);
                 1

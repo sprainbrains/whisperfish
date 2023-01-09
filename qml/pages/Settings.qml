@@ -439,7 +439,7 @@ Page {
                 //% "Compact database"
                 text: qsTrId("whisperfish-settings-compress-db")
                 onClicked: {
-                    ClientWorker.compress_db();
+                    ClientWorker.compact_db();
                 }
             }
             // ------ END ADVANCED SETTINGS ------
