@@ -45,10 +45,10 @@ Page {
             var nextPageName = nextPage ? nextPage.objectName : ''
 
             if (session.isGroup && nextPageName !== 'groupProfile') {
-                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { sessionId: sessionId })
+                pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { session: session, group: group })
             }
             if(!session.isGroup && nextPageName !== 'verifyIdentity'){
-                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { sessionId: sessionId, profilePicture: profilePicture })
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { session: session, profilePicture: profilePicture })
             }
         }
     }

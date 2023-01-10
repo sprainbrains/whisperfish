@@ -1099,7 +1099,7 @@ impl Handler<SendMessage> for ClientActor {
         log::info!("ClientActor::SendMessage({:?})", mid);
         let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
-        let msg = storage.fetch_augmented_message(mid, true).unwrap();
+        let msg = storage.fetch_augmented_message(mid).unwrap();
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
         let session_id = session.id;
 
@@ -1141,15 +1141,18 @@ impl Handler<SendMessage> for ClientActor {
                 let online = false;
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
 
-                let quote = msg.quoted_message.as_ref().map(|quoted_message| {
-                    if !quoted_message.attachments.is_empty() {
+                let quote = msg.quote_id.and_then(|quote_id| {
+                    storage.fetch_augmented_message(quote_id)
+                }).map(|quoted_message| {
+                    if !quoted_message.attachments > 0 {
                         log::warn!("Quoting attachments is incomplete.  Here be dragons.");
                     }
+                    let quote_sender = quoted_message.sender_recipient_id.and_then(|x| storage.fetch_recipient_by_id(x));
 
                     Quote {
                         id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
-                        author_e164: quoted_message.sender.as_ref().and_then(|r| r.e164.clone()),
-                        author_uuid: quoted_message.sender.as_ref().and_then(|r| r.uuid.clone()),
+                        author_e164: quote_sender.as_ref().and_then(|r| r.e164.clone()),
+                        author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.clone()),
                         text: quoted_message.text.clone(),
 
                         ..Default::default()

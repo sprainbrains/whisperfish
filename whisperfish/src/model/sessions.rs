@@ -160,7 +160,7 @@ impl SessionListModel {
                         // XXX This can in principle fetch a message with another timestamp,
                         // but I think all those cases are handled with a session_id
                         session.last_message =
-                            storage.fetch_last_message_by_session_id_augmented(session.id, true);
+                            storage.fetch_last_message_by_session_id_augmented(session.id);
                         let (low, high) = range.get_or_insert((idx, idx));
                         if *low > idx {
                             *low = idx;
@@ -195,11 +195,8 @@ impl SessionListModel {
 }
 
 define_model_roles! {
-    // FIXME: many of these are now functions because of backwards compatibility.
-    //        swap them around for real fields, and fixup QML instead.
     pub(super) enum SessionRoles for orm::AugmentedSession {
         Id(id):                                                            "id",
-        Source(fn source(&self) via QString::from):                        "source",
         RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
         RecipientUuid(fn recipient_uuid(&self) via QString::from):         "recipientUuid",
         RecipientE164(fn recipient_e164(&self) via QString::from):         "recipientE164",
@@ -211,10 +208,7 @@ define_model_roles! {
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupDescription(fn group_description(&self) via qstring_from_option):
                                                                            "groupDescription",
-        GroupMembers(fn group_members(&self) via qstring_from_option):     "groupMembers",
-        GroupMemberNames(fn group_member_names(&self) via qstring_from_option):
-                                                                           "groupMemberNames",
-        Message(fn text(&self) via qstring_from_option):                   "message",
+        Message(fn last_message_text(&self) via qstring_from_option): "message",
         Section(fn section(&self) via QString::from):                      "section",
         Timestamp(fn timestamp(&self) via qdatetime_from_naive_option):    "timestamp",
         IsRead(fn is_read(&self)):                                         "read",

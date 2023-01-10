@@ -1189,10 +1189,9 @@ impl Storage {
     pub fn fetch_last_message_by_session_id_augmented(
         &self,
         sid: i32,
-        fetch_quote: bool,
     ) -> Option<orm::AugmentedMessage> {
         let msg = self.fetch_last_message_by_session_id(sid)?;
-        self.fetch_augmented_message(msg.id, fetch_quote)
+        self.fetch_augmented_message(msg.id)
     }
 
     pub fn fetch_last_message_by_session_id(&self, sid: i32) -> Option<orm::Message> {
@@ -1380,29 +1379,10 @@ impl Storage {
 
     pub fn fetch_session_by_id_augmented(&self, sid: i32) -> Option<orm::AugmentedSession> {
         let session = self.fetch_session_by_id(sid)?;
-
-        // This could very probably be faster.
-        let group_members = if session.is_group_v1() {
-            let group = session.unwrap_group_v1();
-            self.fetch_group_members_by_group_v1_id(&group.id)
-                .into_iter()
-                .map(|(_, r)| r)
-                .collect()
-        } else if session.is_group_v2() {
-            let group = session.unwrap_group_v2();
-            self.fetch_group_members_by_group_v2_id(&group.id)
-                .into_iter()
-                .map(|(_, r)| r)
-                .collect()
-        } else {
-            Vec::new()
-        };
-
-        let last_message = self.fetch_last_message_by_session_id_augmented(session.id, true);
+        let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
 
         Some(orm::AugmentedSession {
             inner: session,
-            group_members,
             last_message,
         })
     }
@@ -1415,7 +1395,7 @@ impl Storage {
     }
 
     pub fn fetch_session_by_recipient_id(&self, rid: i32) -> Option<orm::Session> {
-        log::trace!("Called fetch__session_by_recipient_id({})", rid);
+        log::trace!("Called fetch_session_by_recipient_id({})", rid);
         fetch_session!(self.db(), |query| {
             query.filter(schema::recipients::id.eq(rid))
         })
@@ -1996,56 +1976,29 @@ impl Storage {
             .ok()
     }
 
-    /// Returns a vector of tuples of messages with their sender.
-    ///
-    /// When the sender is None, it is a sent message, not a received message.
-    // XXX maybe this should be `Option<Vec<...>>`.
-    pub fn fetch_all_messages(&self, sid: i32) -> Vec<(orm::Message, Option<orm::Recipient>)> {
-        log::trace!("Called fetch_all_messages({})", sid);
+    /// Returns a vector of messages for a specific session, ordered by server timestamp.
+    pub fn fetch_all_messages(&self, session_id: i32) -> Vec<orm::Message> {
+        log::trace!("Called fetch_all_messages({})", session_id);
         schema::messages::table
-            .filter(schema::messages::session_id.eq(sid))
-            .left_join(schema::recipients::table)
+            .filter(schema::messages::session_id.eq(session_id))
             .order_by(schema::messages::columns::server_timestamp.desc())
             .load(&mut *self.db())
             .expect("database")
     }
 
-    pub fn fetch_augmented_message(
-        &self,
-        id: i32,
-        fetch_quote: bool,
-    ) -> Option<orm::AugmentedMessage> {
-        let message = self.fetch_message_by_id(id)?;
+    pub fn fetch_augmented_message(&self, message_id: i32) -> Option<orm::AugmentedMessage> {
+        let message = self.fetch_message_by_id(message_id)?;
         let receipts = self.fetch_message_receipts(message.id);
-        let attachments = self.fetch_attachments_for_message(message.id);
-        let reactions = self.fetch_reactions_for_message(message.id);
-        let sender = if let Some(id) = message.sender_recipient_id {
-            self.fetch_recipient_by_id(id)
-        } else {
-            None
-        };
-        let quoted_message = if fetch_quote {
-            message
-                .quote_id
-                .and_then(|id| self.fetch_augmented_message(id, false))
-        } else {
-            None
-        };
-
-        if fetch_quote && (quoted_message.is_none() != message.quote_id.is_none()) {
-            log::debug!(
-                "Quoted message ts={} does not exist",
-                message.quote_id.unwrap()
-            );
-        }
+        let attachments: i64 = schema::attachments::table
+            .filter(schema::attachments::message_id.eq(message_id))
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
 
         Some(AugmentedMessage {
             inner: message,
             receipts,
-            attachments,
-            reactions,
-            sender,
-            quoted_message: quoted_message.map(Box::new),
+            attachments: attachments as usize,
         })
     }
 
@@ -2054,27 +2007,9 @@ impl Storage {
             .fetch_sessions()
             .into_iter()
             .map(|session| {
-                let group_members = if session.is_group_v1() {
-                    let group = session.unwrap_group_v1();
-                    self.fetch_group_members_by_group_v1_id(&group.id)
-                        .into_iter()
-                        .map(|(_, r)| r)
-                        .collect()
-                } else if session.is_group_v2() {
-                    let group = session.unwrap_group_v2();
-                    self.fetch_group_members_by_group_v2_id(&group.id)
-                        .into_iter()
-                        .map(|(_, r)| r)
-                        .collect()
-                } else {
-                    Vec::new()
-                };
-
-                let last_message =
-                    self.fetch_last_message_by_session_id_augmented(session.id, true);
+                let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
                 orm::AugmentedSession {
                     inner: session,
-                    group_members,
                     last_message,
                 }
             })
@@ -2107,10 +2042,15 @@ impl Storage {
             schema::messages::columns::id.desc(),
         );
 
-        let attachments: Vec<orm::Attachment> = schema::attachments::table
-            .select(schema::attachments::all_columns)
-            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
-            .filter(schema::sessions::id.eq(sid))
+        // message_id, attachment count
+        let attachments: Vec<(i32, i64)> = schema::attachments::table
+            .inner_join(schema::messages::table)
+            .group_by(schema::attachments::message_id)
+            .select((
+                schema::attachments::message_id,
+                diesel::dsl::count_distinct(schema::attachments::id),
+            ))
+            .filter(schema::messages::session_id.eq(sid))
             .order_by(order)
             .load(&mut *self.db())
             .expect("db");
@@ -2126,43 +2066,24 @@ impl Storage {
             .order_by(order)
             .load(&mut *self.db())
             .expect("db");
-        let reactions: Vec<(orm::Reaction, orm::Recipient)> = schema::reactions::table
-            .inner_join(schema::recipients::table)
-            .select((
-                schema::reactions::all_columns,
-                schema::recipients::all_columns,
-            ))
-            .inner_join(schema::messages::table.inner_join(schema::sessions::table))
-            .filter(schema::sessions::id.eq(sid))
-            .order_by(order)
-            .load(&mut *self.db())
-            .expect("db");
 
-        let attachments = attachments
-            .into_iter()
-            .group_by(|attachment| attachment.message_id);
         let mut attachments = attachments.into_iter().peekable();
         let receipts = receipts
             .into_iter()
             .group_by(|(receipt, _recipient)| receipt.message_id);
         let mut receipts = receipts.into_iter().peekable();
 
-        let reactions = reactions
-            .into_iter()
-            .group_by(|(reaction, _recipient)| reaction.message_id);
-        let mut reactions = reactions.into_iter().peekable();
-
         let mut aug_messages = Vec::with_capacity(messages.len());
-        for (message, sender) in messages {
+        for message in messages {
             let attachments = if attachments
                 .peek()
                 .map(|(id, _)| *id == message.id)
                 .unwrap_or(false)
             {
                 let (_, attachments) = attachments.next().unwrap();
-                attachments.collect_vec()
+                attachments as usize
             } else {
-                vec![]
+                0
             };
             let receipts = if receipts
                 .peek()
@@ -2174,33 +2095,11 @@ impl Storage {
             } else {
                 vec![]
             };
-            let reactions = if reactions
-                .peek()
-                .map(|(id, _)| *id == message.id)
-                .unwrap_or(false)
-            {
-                let (_, reactions) = reactions.next().unwrap();
-                reactions.collect_vec()
-            } else {
-                vec![]
-            };
-            let quoted_message = message
-                .quote_id
-                .and_then(|id| self.fetch_augmented_message(id, false));
-            if quoted_message.is_none() != message.quote_id.is_none() {
-                // XXX the UI should show a "quote does not exist" message for this.
-                log::debug!(
-                    "Quoted message ts={} does not exist",
-                    message.quote_id.unwrap()
-                );
-            }
+
             aug_messages.push(orm::AugmentedMessage {
                 inner: message,
-                sender,
                 attachments,
                 receipts,
-                reactions,
-                quoted_message: quoted_message.map(Box::new),
             });
         }
         aug_messages

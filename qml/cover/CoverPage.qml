@@ -112,7 +112,12 @@ CoverBackground {
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.primaryColor
                 truncationMode: TruncationMode.Fade
-                text: model.message
+                text: (model.hasAttachment
+                    ? ("📎 " + (model.message === ''
+                        // SessionDelegate defines this
+                        ? qsTrId("whisperfish-session-has-attachment") : '')
+                    ) : ''
+                ) + (model.message !== undefined ? model.message : '')
             }
 
             Label {
@@ -125,7 +130,7 @@ CoverBackground {
                 font.pixelSize: Theme.fontSizeTiny
                 color: Theme.highlightColor
                 truncationMode: TruncationMode.Fade
-                text: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, false)
+                text: model.isGroup ? model.groupName : getRecipientName(model.recipientE164, model.recipientName, false)
             }
         }
     }

@@ -1,6 +1,5 @@
 use super::schema::*;
 use chrono::prelude::*;
-use itertools::Itertools;
 use std::time::Duration;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -457,16 +456,12 @@ impl SessionType {
 
 // Some extras
 
-/// [`Message`] augmented with its sender, attachments, reactions and receipts.
+/// [`Message`] augmented with its sender, attachment count and receipts.
 #[derive(Clone, Default)]
 pub struct AugmentedMessage {
     pub inner: Message,
-    pub sender: Option<Recipient>,
-    pub attachments: Vec<Attachment>,
-    pub reactions: Vec<(Reaction, Recipient)>,
+    pub attachments: usize,
     pub receipts: Vec<(Receipt, Recipient)>,
-    // Constraint: don't make this nested more than one level deep.
-    pub quoted_message: Option<Box<AugmentedMessage>>,
 }
 
 impl std::ops::Deref for AugmentedMessage {
@@ -478,14 +473,6 @@ impl std::ops::Deref for AugmentedMessage {
 }
 
 impl AugmentedMessage {
-    pub fn name(&self) -> &str {
-        if let Some(sender) = &self.sender {
-            sender.name()
-        } else {
-            ""
-        }
-    }
-
     pub fn sent(&self) -> bool {
         self.inner.sent_timestamp.is_some()
     }
@@ -516,28 +503,13 @@ impl AugmentedMessage {
     }
 
     pub fn attachments(&self) -> u32 {
-        self.attachments.len() as _
-    }
-
-    pub fn reactions(&self) -> String {
-        self.reactions
-            .iter()
-            .map(|(reaction, _recipient)| &reaction.emoji)
-            .join(" ")
-    }
-
-    pub fn reactions_full(&self) -> String {
-        self.reactions
-            .iter()
-            .map(|(reaction, recipient)| format!("{} - {}", &reaction.emoji, &recipient.name()))
-            .join("\n")
+        self.attachments as _
     }
 }
 
 // XXX attachments and receipts could be a compressed form.
 pub struct AugmentedSession {
     pub inner: Session,
-    pub group_members: Vec<Recipient>,
     pub last_message: Option<AugmentedMessage>,
 }
 
@@ -578,51 +550,11 @@ impl AugmentedSession {
         }
     }
 
-    // FIXME we have them separated now... Get QML to understand it.
-    pub fn group_members(&self) -> Option<String> {
-        match &self.inner.r#type {
-            SessionType::GroupV1(_group) => Some(
-                self.group_members
-                    .iter()
-                    .map(|r| r.e164_or_uuid())
-                    .join(","),
-            ),
-            SessionType::GroupV2(_group) => Some(
-                self.group_members
-                    .iter()
-                    .map(|r| r.e164_or_uuid())
-                    .join(","),
-            ),
-            SessionType::DirectMessage(_) => None,
-        }
-    }
-
-    // FIXME we have them separated now... Get QML to understand it.
-    pub fn group_member_names(&self) -> Option<String> {
-        match &self.inner.r#type {
-            SessionType::GroupV1(_group) => {
-                Some(self.group_members.iter().map(|r| r.name()).join(","))
-            }
-            SessionType::GroupV2(_group) => {
-                Some(self.group_members.iter().map(|r| r.name()).join(","))
-            }
-            SessionType::DirectMessage(_) => None,
-        }
-    }
-
     pub fn sent(&self) -> bool {
         if let Some(m) = &self.last_message {
             m.sent_timestamp.is_some()
         } else {
             false
-        }
-    }
-
-    pub fn source(&self) -> &str {
-        match &self.inner.r#type {
-            SessionType::GroupV1(_group) => "",
-            SessionType::GroupV2(_group) => "",
-            SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
         }
     }
 
@@ -680,13 +612,13 @@ impl AugmentedSession {
 
     pub fn has_attachment(&self) -> bool {
         if let Some(m) = &self.last_message {
-            !m.attachments.is_empty()
+            m.attachments > 0
         } else {
             false
         }
     }
 
-    pub fn text(&self) -> Option<&str> {
+    pub fn last_message_text(&self) -> Option<&str> {
         self.last_message.as_ref().and_then(|m| m.text.as_deref())
     }
 

@@ -20,11 +20,6 @@ impl orm::AugmentedSession {
                     .iter()
                     .flat_map(orm::AugmentedMessage::interests),
             )
-            .chain(
-                self.group_members
-                    .iter()
-                    .flat_map(orm::Recipient::interests),
-            )
             // Watch new group members
             .chain(match &self.inner.r#type {
                 orm::SessionType::DirectMessage(_) => None,
@@ -57,18 +52,11 @@ impl orm::AugmentedMessage {
     pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
         self.inner
             .interests()
-            .chain(self.sender.iter().flat_map(orm::Recipient::interests))
-            .chain(self.attachments.iter().flat_map(orm::Attachment::interests))
             .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::attachments::table,
                 schema::messages::table,
                 self.id,
             )))
-            .chain(
-                self.reactions
-                    .iter()
-                    .flat_map(|(reaction, sender)| reaction.interests().chain(sender.interests())),
-            )
             .chain(std::iter::once(Interest::whole_table_with_relation(
                 schema::reactions::table,
                 schema::messages::table,
@@ -84,14 +72,6 @@ impl orm::AugmentedMessage {
                 schema::messages::table,
                 self.id,
             )))
-            .chain(
-                // This box is necessary because of the recursion, which otherwise builds an
-                // infinitely big type or a non-fixed type, and then Rust throws a very ugly
-                // diagnostic to your head.
-                // https://github.com/rust-lang/rust/issues/97686
-                Box::new(self.quoted_message.iter().flat_map(|m| m.interests()))
-                    as Box<dyn Iterator<Item = Interest>>,
-            )
     }
 }
 

@@ -61,6 +61,13 @@ impl EventObserving for MessageImpl {
         self.message
             .iter()
             .flat_map(orm::AugmentedMessage::interests)
+            .chain(self.message_id.iter().map(|mid| {
+                Interest::whole_table_with_relation(
+                    schema::attachments::table,
+                    schema::messages::table,
+                    *mid,
+                )
+            }))
             .collect()
     }
 }
@@ -87,12 +94,8 @@ impl MessageImpl {
     }
 
     fn fetch(&mut self, storage: Storage, id: i32) {
-        self.message = storage.fetch_augmented_message(id, true);
-        let attachments = if let Some(message) = &self.message {
-            message.attachments.clone()
-        } else {
-            Vec::new()
-        };
+        self.message = storage.fetch_augmented_message(id);
+        let attachments = storage.fetch_attachments_for_message(id);
         self.attachments
             .pinned()
             .borrow_mut()
@@ -141,8 +144,6 @@ crate::observing_model! {
         valid: bool; READ get_valid,
         messages: QVariant; READ messages,
     } WITH OPTIONAL PROPERTIES FROM session WITH ROLE SessionRoles {
-        source Source,
-
         recipientName RecipientName,
         recipientUuid RecipientUuid,
         recipientE164 RecipientE164,
@@ -155,8 +156,6 @@ crate::observing_model! {
         groupId GroupId,
         groupName GroupName,
         groupDescription GroupDescription,
-        groupMembers GroupMembers,
-        groupMemberNames GroupMemberNames,
 
         message Message,
         section Section,
@@ -318,7 +317,7 @@ impl MessageListModel {
             }
         } else if event.is_insert() || event.is_update() {
             let message = storage
-                .fetch_augmented_message(message_id, true)
+                .fetch_augmented_message(message_id)
                 .expect("inserted message");
             let pos = self.messages.binary_search_by_key(
                 &std::cmp::Reverse((message.server_timestamp, message.id)),

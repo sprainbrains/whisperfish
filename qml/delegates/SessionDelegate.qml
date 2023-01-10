@@ -8,21 +8,21 @@ ListItem {
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: model.message !== undefined && !model.read // TODO investigate: is this really a bool?
-    property bool isNoteToSelf: SetupWorker.phoneNumber === model.source
+    property bool isNoteToSelf: SetupWorker.phoneNumber === model.recipientE164
     property bool isPinned: model.isPinned
     property bool isArchived: model.isArchived
     property bool hasDraft: false // TODO implement in model (#178)
     property string draft: '' // TODO implement in model (#178)
     property string profilePicture: model !== undefined ? (isGroup
         ? getGroupAvatar(model.groupId)
-        : getRecipientAvatar(model.source, model.recipientUuid)
+        : getRecipientAvatar(model.recipientE164, model.recipientUuid)
     ) : ''
     property bool isPreviewDelivered: model.deliveryCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewRead: model.readCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewViewed: model.viewCount > 0 // TODO investigate: not updated for new message (#151, #55?)
     property bool isPreviewSent: model.sent // TODO cf. isPreviewReceived (#151)
     property bool hasAttachment: model.hasAttachment
-    property string name: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, true)
+    property string name: model.isGroup ? model.groupName : getRecipientName(model.recipientE164, model.recipientName, true)
     property string emoji: model.recipientEmoji
     property string message:
         (_debugMode ? "[" + model.id + "] " : "") +
