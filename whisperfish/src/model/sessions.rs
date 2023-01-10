@@ -208,7 +208,7 @@ define_model_roles! {
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupDescription(fn group_description(&self) via qstring_from_option):
                                                                            "groupDescription",
-        Message(fn text(&self) via qstring_from_option):                   "message",
+        Message(fn last_message_text(&self) via qstring_from_option): "message",
         Section(fn section(&self) via QString::from):                      "section",
         Timestamp(fn timestamp(&self) via qdatetime_from_naive_option):    "timestamp",
         IsRead(fn is_read(&self)):                                         "read",

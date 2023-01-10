@@ -618,7 +618,7 @@ impl AugmentedSession {
         }
     }
 
-    pub fn text(&self) -> Option<&str> {
+    pub fn last_message_text(&self) -> Option<&str> {
         self.last_message.as_ref().and_then(|m| m.text.as_deref())
     }
 
