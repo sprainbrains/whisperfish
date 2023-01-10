@@ -1390,7 +1390,7 @@ impl Storage {
     }
 
     pub fn fetch_session_by_recipient_id(&self, rid: i32) -> Option<orm::Session> {
-        log::trace!("Called fetch__session_by_recipient_id({})", rid);
+        log::trace!("Called fetch_session_by_recipient_id({})", rid);
         fetch_session!(self.db(), |query| {
             query.filter(schema::recipients::id.eq(rid))
         })
