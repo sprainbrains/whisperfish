@@ -4,6 +4,7 @@
 <context>
     <name></name>
     <message id="whisperfish-session-has-attachment">
+        <location filename="../qml/cover/CoverPage.qml" line="118"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="34"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
@@ -421,44 +422,44 @@
         <translation>Wyślij ponownie</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="30"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="24"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation>Resetuj klucz tożsamości</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="35"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="29"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation>Zresetowano klucz tożsamości</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="45"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="39"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Resetuj bezpieczną sesję</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="50"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="44"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>Resetowanie bezpiecznej sesji</translation>
     </message>
     <message id="whisperfish-refresh-profile-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="60"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="54"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
         <translation>Odśwież profil Signal</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="69"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="63"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Pokaż kontakt</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="137"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="131"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Celem weryfikacji bezpieczeństwa szyfrowania końcowego z %1, porównaj numery powyżej z numerami na urządzeniu odbiorcy.</translation>
@@ -1149,20 +1150,20 @@ Settings page share contacts</extracomment>
         <translation>Wyłączone</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="117"/>
+        <location filename="../qml/pages/VerifyIdentity.qml" line="111"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Weryfikuj numery bezpieczeństwa</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="183"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Dodaj Członka</translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="294"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="284"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>Nieznany</translation>
@@ -1173,69 +1174,69 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Zaktualizowano do nowego formatu grupy</translation>
     </message>
     <message id="whisperfish-group-not-updated-to-groupv2">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="51"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="41"/>
         <source>Not updated to the new group format</source>
         <extracomment>Indicator for not yet updated groups</extracomment>
         <translation>Nie zaktualizowano do nowego formatu grupy</translation>
     </message>
     <message id="whisperfish-group-refresh">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="156"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="146"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
         <translation>Odśwież grupę</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="165"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="155"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Opuść tą grupę</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="173"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="163"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>Opuścił grupę i wszystkie wiadomości zostały usunięte</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="186"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="176"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Utwórz link z zaproszeniem</translation>
     </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="214"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="227"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Wiadomość do %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="236"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="226"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Dodaj do kontaktów</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="243"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="233"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Zweryfikuj numer bezpieczeństwa</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="255"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="245"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Usuń z tej grupy</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="290"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="280"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Ty</translation>
@@ -1400,13 +1401,13 @@ Settings page share contacts</extracomment>
         <translation>Załącznik</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="187"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="193"/>
         <source>no sender</source>
         <extracomment>Label shown if a message doesn&apos;t have a sender.</extracomment>
         <translation>brak nadawcy</translation>
     </message>
     <message id="whisperfish-message-empty-note">
-        <location filename="../qml/delegates/MessageDelegate.qml" line="242"/>
+        <location filename="../qml/delegates/MessageDelegate.qml" line="248"/>
         <source>this message is empty</source>
         <extracomment>Placeholder note if an empty message is encountered.</extracomment>
         <translation>ta wiadomość jest pusta</translation>
