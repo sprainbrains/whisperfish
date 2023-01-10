@@ -144,8 +144,6 @@ crate::observing_model! {
         valid: bool; READ get_valid,
         messages: QVariant; READ messages,
     } WITH OPTIONAL PROPERTIES FROM session WITH ROLE SessionRoles {
-        source Source,
-
         recipientName RecipientName,
         recipientUuid RecipientUuid,
         recipientE164 RecipientE164,

@@ -558,14 +558,6 @@ impl AugmentedSession {
         }
     }
 
-    pub fn source(&self) -> &str {
-        match &self.inner.r#type {
-            SessionType::GroupV1(_group) => "",
-            SessionType::GroupV2(_group) => "",
-            SessionType::DirectMessage(recipient) => recipient.e164_or_uuid(),
-        }
-    }
-
     pub fn recipient_name(&self) -> &str {
         match &self.inner.r#type {
             SessionType::GroupV1(_group) => "",

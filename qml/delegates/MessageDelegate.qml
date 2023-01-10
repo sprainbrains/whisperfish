@@ -52,6 +52,8 @@ ListItem {
     }
 
     readonly property string contactName: (showSender && sender.loaded) ? getRecipientName(sender.item.e164, sender.item.name, false) : "..."
+    // sender.loaded && sender.item.valid has a problem when sender is not yet loaded.
+    readonly property string contactNameValid: !showSender || (sender.loaded ? sender.item.valid : false)
 
     // All children are placed inside a bubble, positioned left or right for
     // incoming/outbound messages. The bubble extends slightly over the contents.
@@ -73,7 +75,7 @@ ListItem {
     property bool expandExtraPage: showExpand && (_message.length > extraPageTreshold)
     property real backgroundCornerRadius: Theme.paddingLarge
 
-    property bool showSender: (isInGroup && !isOutbound) || !hasSource
+    property bool showSender: isInGroup && !isOutbound
     property bool showQuotedMessage: hasQuotedMessage
     property bool showExpand: !isEmpty && _message.length > shortenThreshold
 
@@ -82,7 +84,6 @@ ListItem {
     readonly property bool hasQuotedMessage: !!modelData.quotedMessageId && modelData.quotedMessageId != -1
     readonly property bool hasAttachments: hasData && modelData.attachments > 0
     readonly property bool hasText: hasData && _message !== ''
-    readonly property bool hasSource: hasData && modelData.source !== ''
     readonly property bool unidentifiedSender: modelData.unidentifiedSender !== undefined ? modelData.unidentifiedSender : true
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: session.isGroup
@@ -185,7 +186,7 @@ ListItem {
         SenderNameLabel {
             id: senderNameLabel
             visible: showSender
-            source: hasSource ?
+            source: contactNameValid ?
                       contactName :
                       //: Label shown if a message doesn't have a sender.
                       //% "no sender"

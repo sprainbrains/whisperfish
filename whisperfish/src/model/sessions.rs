@@ -195,11 +195,8 @@ impl SessionListModel {
 }
 
 define_model_roles! {
-    // FIXME: many of these are now functions because of backwards compatibility.
-    //        swap them around for real fields, and fixup QML instead.
     pub(super) enum SessionRoles for orm::AugmentedSession {
         Id(id):                                                            "id",
-        Source(fn source(&self) via QString::from):                        "source",
         RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
         RecipientUuid(fn recipient_uuid(&self) via QString::from):         "recipientUuid",
         RecipientE164(fn recipient_e164(&self) via QString::from):         "recipientE164",

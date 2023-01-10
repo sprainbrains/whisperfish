@@ -40,7 +40,7 @@ Page {
             id: conversation
             property bool isGroup: model.isGroup
             property string profilePicture: ''
-            property string name: model.isGroup ? model.groupName : getRecipientName(model.source, model.recipientName, false)
+            property string name: model.isGroup ? model.groupName : getRecipientName(model.recipientE164, model.recipientName, false)
             property bool isNoteToSelf: false
             property bool selected: sessionList.recipients.hasOwnProperty("indexOf") ? (sessionList.recipients.indexOf(model.id) > -1) : false
 
