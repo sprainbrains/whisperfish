@@ -158,7 +158,9 @@ fn long_version() -> String {
         format!("v{}", pkg)
     } else {
         let git_version = option_env!("GIT_VERSION");
-        format!("v{}", git_version.unwrap_or("dev"))
+        git_version
+            .map(String::from)
+            .unwrap_or(format!("v{}", env!("CARGO_PKG_VERSION")))
     }
 }
 
