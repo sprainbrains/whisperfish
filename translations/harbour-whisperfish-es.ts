@@ -104,7 +104,7 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="265"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Error al configurar el cliente Signal</translation>
+        <translation>Error al configurar la aplicación Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="270"/>
@@ -239,7 +239,7 @@
         <location filename="../qml/pages/About.qml" line="140"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Visita la Wiki</translation>
+        <translation>Visita la wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="149"/>
@@ -1208,7 +1208,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="214"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Abrir una nota privada</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
