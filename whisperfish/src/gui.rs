@@ -150,17 +150,24 @@ impl WhisperfishApp {
 fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
 
-    // if not CI, append [commit]-dirty
-    // CI changes the version name, because of RPM, so we can just use that.
-    if let (Some(_ref_name), Some(_job_id)) =
+    // If it's tagged, use the tag as-is
+    // If it's in CI, use the cargo version with the ref-name and job id appended
+    // else, we use whatever git thinks is the version,
+    // finally, we fall back on Cargo's version as-is
+    if let Some(tag) = option_env!("CI_COMMIT_TAG") {
+        // Tags are mainly used for specific versions
+        tag.into()
+    } else if let (Some(ref_name), Some(job_id)) =
         (option_env!("CI_COMMIT_REF_NAME"), option_env!("CI_JOB_ID"))
     {
-        format!("v{}", pkg)
+        // This is always the fall-back in CI
+        format!("v{}-{}-{}", pkg, ref_name, job_id)
+    } else if let Some(git_version) = option_env!("GIT_VERSION") {
+        // This is normally possible with any build
+        git_version.into()
     } else {
-        let git_version = option_env!("GIT_VERSION");
-        git_version
-            .map(String::from)
-            .unwrap_or(format!("v{}", env!("CARGO_PKG_VERSION")))
+        // But if git is not available, we fall back on cargo
+        format!("v{}", env!("CARGO_PKG_VERSION"))
     }
 }
 
