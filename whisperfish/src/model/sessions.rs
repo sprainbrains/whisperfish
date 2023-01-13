@@ -150,18 +150,21 @@ impl SessionListModel {
                     (Err(mut idx), Some((original_idx, _))) => {
                         // If the session exists, but not at that index, we need to move the
                         // session.
-                        //
-                        // move_rows seems to behave weirdly, so I use remove-insert now.
-                        self.begin_remove_rows(original_idx as i32, original_idx as i32);
+                        let zero = QModelIndex::default();
+                        self.begin_move_rows(
+                            zero,
+                            original_idx as i32,
+                            original_idx as i32,
+                            zero,
+                            idx as i32,
+                        );
                         self.content.remove(original_idx);
-                        self.end_remove_rows();
                         if idx > original_idx {
                             idx -= 1
                         }
 
-                        self.begin_insert_rows(idx as i32, idx as i32);
                         self.content.insert(idx, session);
-                        self.end_insert_rows();
+                        self.end_move_rows();
                     }
                     (Err(idx), None) => {
                         // Insert session at idx
