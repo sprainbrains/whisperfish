@@ -319,6 +319,10 @@ impl MessageListModel {
             let message = storage
                 .fetch_augmented_message(message_id)
                 .expect("inserted message");
+            if message.session_id != session_id {
+                log::trace!("Ignoring message insert/update for different session.");
+                return;
+            }
             let pos = self.messages.binary_search_by_key(
                 &std::cmp::Reverse((message.server_timestamp, message.id)),
                 |message| std::cmp::Reverse((message.server_timestamp, message.id)),
