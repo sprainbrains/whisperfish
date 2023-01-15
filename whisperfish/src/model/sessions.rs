@@ -113,38 +113,67 @@ impl SessionListModel {
             .and_then(|x| x.as_i32());
 
         if let Some(session_id) = session_id {
-            // Remove session from the model if exists
-            let idx = self
-                .content
-                .iter()
-                .enumerate()
-                .find(|(_, s)| s.id == session_id);
-            if let Some((idx, _session)) = idx {
-                self.begin_remove_rows(idx as i32, idx as i32);
-                self.content.remove(idx);
-                self.end_remove_rows();
-                self.countChanged();
-            }
-
             if let Some(session) = storage.fetch_session_by_id_augmented(session_id) {
-                let idx = self
-                    .content
-                    .binary_search_by_key(
-                        &std::cmp::Reverse((
+                let new_idx = self.content.binary_search_by_key(
+                    &std::cmp::Reverse((
+                        session.last_message.as_ref().map(|m| &m.server_timestamp),
+                        session.id,
+                    )),
+                    |session| {
+                        std::cmp::Reverse((
                             session.last_message.as_ref().map(|m| &m.server_timestamp),
                             session.id,
-                        )),
-                        |session| {
-                            std::cmp::Reverse((
-                                session.last_message.as_ref().map(|m| &m.server_timestamp),
-                                session.id,
-                            ))
-                        },
-                    )
-                    .expect_err("removed session");
-                self.begin_insert_rows(idx as i32, idx as i32);
-                self.content.insert(idx, session);
-                self.end_insert_rows();
+                        ))
+                    },
+                );
+                let found = self
+                    .content
+                    .iter()
+                    .enumerate()
+                    .find(|(_, s)| s.id == session_id);
+
+                match (new_idx, found) {
+                    // Session time/id matches exactly, replace
+                    (Ok(idx), _) => {
+                        // Replace session
+                        self.content[idx] = session;
+                        let idx = self.row_index(idx as i32);
+                        self.data_changed(idx, idx);
+                    }
+                    // Session matches by position, replace
+                    (Err(idx), Some((original_idx, _))) if idx == original_idx => {
+                        // Replace session
+                        self.content[idx] = session;
+                        let idx = self.row_index(idx as i32);
+                        self.data_changed(idx, idx);
+                    }
+                    (Err(mut idx), Some((original_idx, _))) => {
+                        // If the session exists, but not at that index, we need to move the
+                        // session.
+                        let zero = QModelIndex::default();
+                        self.begin_move_rows(
+                            zero,
+                            original_idx as i32,
+                            original_idx as i32,
+                            zero,
+                            idx as i32,
+                        );
+                        self.content.remove(original_idx);
+                        if idx > original_idx {
+                            idx -= 1
+                        }
+
+                        self.content.insert(idx, session);
+                        self.end_move_rows();
+                    }
+                    (Err(idx), None) => {
+                        // Insert session at idx
+                        self.begin_insert_rows(idx as i32, idx as i32);
+                        self.content.insert(idx, session);
+                        self.end_insert_rows();
+                    }
+                }
+                // countChanged is also for unread count, so just fire it every time. It's cheap.
                 self.countChanged();
             } else {
                 assert!(event.for_table(schema::sessions::table));
