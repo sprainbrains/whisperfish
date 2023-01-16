@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../components"
 
 ListItem {
@@ -44,6 +45,12 @@ ListItem {
     contentHeight: 3*Theme.fontSizeMedium+2*Theme.paddingMedium+2*Theme.paddingSmall
     menu: contextMenuComponent
     ListView.onRemove: animateRemoval(delegate)
+
+    Group {
+        id: group
+        app: AppState
+        groupId: model.groupId ? model.groupId : -1
+    }
 
     function remove(contentItem) {
         //: Delete all messages from session (past tense)
@@ -173,9 +180,9 @@ ListItem {
             onPressAndHold: delegate.openMenu()
             onClicked: {
                 if (isGroup) {
-                    pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"), { sessionId: model.id })
+                    pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"), { session: model, group: group })
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { sessionId: model.id, profilePicture: delegate.profilePicture })
+                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { session: model, profilePicture: delegate.profilePicture })
                 }
             }
         }
