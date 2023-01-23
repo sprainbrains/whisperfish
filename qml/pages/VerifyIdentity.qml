@@ -29,7 +29,7 @@ Page {
                     remorse.execute(qsTrId("whisperfish-reset-identity-message"),
                         function() {
                             console.log("Resetting identity key: " + session.recipientE164)
-                            SessionModel.removeIdentities(sessionId)
+                            SessionModel.removeIdentities(session.id)
                         })
                 }
             }
@@ -54,7 +54,7 @@ Page {
                 text: qsTrId("whisperfish-refresh-profile-menu")
                 visible: ! session.group && SettingsBridge.debug_mode
                 onClicked: {
-                    ClientWorker.refresh_profile(sessionId)
+                    ClientWorker.refresh_profile(session.id)
                 }
             }
             MenuItem {
