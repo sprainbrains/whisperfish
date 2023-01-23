@@ -64,7 +64,6 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                     .expect("access control present in DecryptedGroup");
                 {
                     // XXX if the group does not exist, consider inserting here.
-                    let mut db = storage.db();
                     use crate::schema::group_v2s::dsl::*;
                     diesel::update(group_v2s)
                         .set((
@@ -83,7 +82,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                             access_required_for_add_from_invite_link.eq(acl.add_from_invite_link),
                         ))
                         .filter(id.eq(&group_id_hex))
-                        .execute(&mut *db)
+                        .execute(&mut *storage.db())
                         .expect("update groupv2 name");
                 }
 
@@ -96,12 +95,11 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                         .disappearing_messages_timer
                         .as_ref()
                         .map(|d| d.duration as i32);
-                    let mut db = storage.db();
                     use crate::schema::sessions::dsl::*;
                     diesel::update(sessions)
                         .set((expiring_message_timeout.eq(timeout),))
                         .filter(group_v2_id.eq(&group_id_hex))
-                        .execute(&mut *db)
+                        .execute(&mut *storage.db())
                         .expect("update session disappearing_messages_timer");
                 }
 
@@ -152,8 +150,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                 let uuids = group.members.iter().map(|member| {
                     member.uuid.to_string()
                 });
-                let mut db = storage.db();
-                db.transaction::<(), diesel::result::Error, _>(|db| {
+                storage.db().transaction::<(), diesel::result::Error, _>(|db| {
                     use crate::schema::{group_v2_members, recipients};
                     let stale_members: Vec<i32> = group_v2_members::table
                         .select(group_v2_members::recipient_id)
@@ -177,10 +174,13 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                         dropped,
                         "didn't drop all stale members"
                     );
+                    Ok(())
+                }).expect("dropping stale members");
 
+                {
+                    use crate::schema::group_v2_members;
                     for member in &group.members {
                         // XXX there's a bit of duplicate work going on here.
-                        // XXX Reentry
                         let recipient =
                             storage.fetch_or_insert_recipient_by_uuid(&member.uuid.to_string());
                         log::trace!(
@@ -195,7 +195,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                     .eq(recipient.id)
                                     .and(group_v2_members::group_v2_id.eq(&group_id_hex)),
                             )
-                            .first(db)
+                            .first(&mut *storage.db())
                             .optional()?;
                         if let Some(membership) = membership {
                             log::trace!(
@@ -210,7 +210,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                         .eq(recipient.id)
                                         .and(group_v2_members::group_v2_id.eq(&group_id_hex)),
                                 )
-                                .execute(db)?;
+                                .execute(&mut *storage.db())?;
                         } else {
                             log::info!("  Member is new, inserting.");
                             diesel::insert_into(group_v2_members::table)
@@ -221,12 +221,10 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                         .eq(member.joined_at_revision as i32),
                                     group_v2_members::role.eq(member.role as i32),
                                 ))
-                                .execute(db)?;
+                                .execute(&mut *storage.db())?;
                         }
                     }
-                    Ok(())
-                })
-                .expect("updated members");
+                }
 
                 // XXX there's more stuff to store from the DecryptedGroup.
 
