@@ -1,5 +1,5 @@
 use super::*;
-use crate::store::{GroupV2, TrustLevel};
+use crate::store::{observer::PrimaryKey, GroupV2, TrustLevel};
 use actix::prelude::*;
 use diesel::prelude::*;
 use libsignal_service::groups_v2::*;
@@ -102,6 +102,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                         .execute(&mut *storage.db())
                         .expect("update session disappearing_messages_timer");
                 }
+                storage.observe_update(crate::schema::group_v2s::table, group_id_hex.clone());
 
                 // We know the group's members.
                 // First assert their existence in the database.
@@ -151,7 +152,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                     member.uuid.to_string()
                 });
                 storage.db().transaction::<(), diesel::result::Error, _>(|db| {
-                    use crate::schema::{group_v2_members, recipients};
+                    use crate::schema::{group_v2_members, recipients, group_v2s};
                     let stale_members: Vec<i32> = group_v2_members::table
                         .select(group_v2_members::recipient_id)
                         .inner_join(recipients::table)
@@ -174,11 +175,15 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                         dropped,
                         "didn't drop all stale members"
                     );
+                    if dropped > 0 {
+                        storage.observe_delete(group_v2_members::table, PrimaryKey::Unknown)
+                            .with_relation(group_v2s::table, group_id_hex.clone());
+                    }
                     Ok(())
                 }).expect("dropping stale members");
 
                 {
-                    use crate::schema::group_v2_members;
+                    use crate::schema::{group_v2_members, recipients, group_v2s};
                     for member in &group.members {
                         // XXX there's a bit of duplicate work going on here.
                         let recipient =
@@ -211,6 +216,9 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                         .and(group_v2_members::group_v2_id.eq(&group_id_hex)),
                                 )
                                 .execute(&mut *storage.db())?;
+                            storage.observe_update(group_v2_members::table, PrimaryKey::Unknown)
+                                .with_relation(group_v2s::table, group_id_hex.clone())
+                                .with_relation(recipients::table, recipient.id);
                         } else {
                             log::info!("  Member is new, inserting.");
                             diesel::insert_into(group_v2_members::table)
@@ -222,6 +230,9 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                     group_v2_members::role.eq(member.role as i32),
                                 ))
                                 .execute(&mut *storage.db())?;
+                            storage.observe_insert(group_v2_members::table, PrimaryKey::Unknown)
+                                .with_relation(group_v2s::table, group_id_hex.clone())
+                                .with_relation(recipients::table, recipient.id);
                         }
                     }
                 }
@@ -357,6 +368,7 @@ impl Handler<GroupAvatarFetched> for ClientActor {
         GroupAvatarFetched(group_id, bytes): GroupAvatarFetched,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
+        let storage = self.storage.clone().unwrap();
         Box::pin(
             async move {
                 let settings = crate::config::SettingsBridge::default();
@@ -367,10 +379,12 @@ impl Handler<GroupAvatarFetched> for ClientActor {
                     std::fs::create_dir(avatar_dir)?;
                 }
 
-                let out_path = avatar_dir.join(group_id);
+                let out_path = avatar_dir.join(&group_id);
 
                 let mut f = tokio::fs::File::create(out_path).await?;
                 f.write_all(&bytes).await?;
+
+                storage.observe_update(crate::schema::group_v2s::table, group_id);
 
                 Ok(())
             }
