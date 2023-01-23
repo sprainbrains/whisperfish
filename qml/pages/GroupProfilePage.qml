@@ -145,8 +145,8 @@ Page {
                 //% "Refresh group"
                 text: qsTrId("whisperfish-group-refresh")
                 onClicked: {
-                    console.log("Refreshing group")
-                    ClientWorker.refresh_group_v2(session.id)
+                    console.log("Refreshing group for session", session)
+                    ClientWorker.refresh_group_v2(session.sessionId)
                 }
             }
             MenuItem {
@@ -164,7 +164,7 @@ Page {
                                     function() {
                                         console.log("Leaving group")
                                         MessageModel.leaveGroup()
-                                        SessionModel.remove(session.id)
+                                        SessionModel.remove(session.sessionId)
                                         mainWindow.showMainPage()
                                     })
                 }

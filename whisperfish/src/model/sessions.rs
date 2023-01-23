@@ -226,6 +226,7 @@ impl SessionListModel {
 define_model_roles! {
     pub(super) enum SessionRoles for orm::AugmentedSession {
         Id(id):                                                            "id",
+        SessionId(id):                                                     "sessionId",
         RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
         RecipientUuid(fn recipient_uuid(&self) via QString::from):         "recipientUuid",
         RecipientE164(fn recipient_e164(&self) via QString::from):         "recipientE164",
