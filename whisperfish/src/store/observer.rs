@@ -407,7 +407,7 @@ impl super::Storage {
         });
     }
 
-    pub(super) fn observe_insert<T: diesel::Table + 'static>(
+    pub fn observe_insert<T: diesel::Table + 'static>(
         &self,
         diesel_table: T,
         key: impl Into<PrimaryKey>,
@@ -426,7 +426,7 @@ impl super::Storage {
         }
     }
 
-    pub(super) fn observe_update<T: diesel::Table + 'static>(
+    pub fn observe_update<T: diesel::Table + 'static>(
         &self,
         diesel_table: T,
         key: impl Into<PrimaryKey>,
@@ -445,7 +445,7 @@ impl super::Storage {
         }
     }
 
-    pub(super) fn observe_delete<T: diesel::Table + 'static>(
+    pub fn observe_delete<T: diesel::Table + 'static>(
         &self,
         diesel_table: T,
         key: impl Into<PrimaryKey>,
