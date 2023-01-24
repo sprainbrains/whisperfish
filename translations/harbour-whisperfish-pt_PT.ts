@@ -89,7 +89,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="356"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="358"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation>Apagar conversa</translation>
