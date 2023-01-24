@@ -351,6 +351,8 @@ ListItem {
             }
 
             MenuItem {
+                visible: !isGroup
+                enabled: !isGroup
                 //: Delete all messages from session menu
                 //% "Delete conversation"
                 text: qsTrId("whisperfish-session-delete")
