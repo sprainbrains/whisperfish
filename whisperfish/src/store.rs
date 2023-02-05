@@ -150,7 +150,7 @@ impl std::fmt::Debug for GroupV2 {
 /// Location of the storage.
 ///
 /// Path is for persistent storage.
-/// Memory is for running tests or 'incognito' mode.
+/// Memory is for running tests.
 #[cfg_attr(not(test), allow(unused))]
 pub enum StorageLocation<P> {
     Path(P),

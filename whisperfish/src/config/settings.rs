@@ -24,7 +24,6 @@ pub struct SettingsBridge {
 
     inner: *mut QSettings,
 
-    incognito: qt_property!(bool; READ get_incognito WRITE set_incognito NOTIFY incognito_changed),
     enable_notify: qt_property!(bool; READ get_enable_notify WRITE set_enable_notify NOTIFY enable_notify_changed),
     debug_mode: qt_property!(bool; READ get_debug_mode WRITE set_debug_mode NOTIFY debug_mode_changed),
     enable_typing_indicators: qt_property!(bool; READ get_enable_typing_indicators WRITE set_enable_typing_indicators NOTIFY enable_typing_indicators_changed),
@@ -42,7 +41,6 @@ pub struct SettingsBridge {
     attachment_dir: qt_property!(String; READ get_attachment_dir WRITE set_attachment_dir NOTIFY attachment_dir_changed),
     camera_dir: qt_property!(String; READ get_camera_dir WRITE set_camera_dir NOTIFY camera_dir_changed),
 
-    incognito_changed: qt_signal!(value: bool),
     enable_notify_changed: qt_signal!(value: bool),
     debug_mode_changed: qt_signal!(value: bool),
     enable_typing_indicators_changed: qt_signal!(value: bool),
@@ -90,7 +88,6 @@ impl Default for SettingsBridge {
                 })
             },
 
-            incognito: false,
             enable_notify: true,
             debug_mode: false,
             enable_typing_indicators: false,
@@ -108,7 +105,6 @@ impl Default for SettingsBridge {
             attachment_dir: Default::default(),
             camera_dir: Default::default(),
 
-            incognito_changed: Default::default(),
             enable_notify_changed: Default::default(),
             debug_mode_changed: Default::default(),
             enable_typing_indicators_changed: Default::default(),
@@ -205,10 +201,6 @@ impl SettingsBridge {
         }
     }
 
-    pub fn get_incognito(&mut self) -> bool {
-        self.get_bool("incognito")
-    }
-
     pub fn get_enable_notify(&self) -> bool {
         self.get_bool("enable_notify")
     }
@@ -271,11 +263,6 @@ impl SettingsBridge {
 
     pub fn get_camera_dir(&self) -> String {
         self.get_string("camera_dir")
-    }
-
-    pub fn set_incognito(&mut self, value: bool) {
-        self.set_bool("incognito", value);
-        self.incognito_changed(value);
     }
 
     pub fn set_enable_notify(&mut self, value: bool) {
@@ -367,7 +354,6 @@ impl SettingsBridge {
     pub fn defaults(&mut self) {
         log::info!("Setting default settings.");
 
-        self.set_bool_if_unset("incognito", false);
         self.set_bool_if_unset("debug_mode", false);
         self.set_bool_if_unset("enable_notify", true);
         self.set_bool_if_unset("enable_typing_indicators", false);

@@ -537,7 +537,7 @@ impl ClientActor {
             .expect("write to the attachment log");
         }
 
-        if settings.get_bool("save_attachments") && !settings.get_bool("incognito") {
+        if settings.get_bool("save_attachments") {
             for attachment in &msg.attachments {
                 // Go used to always set has_attachment and mime_type, but also
                 // in this method, as well as the generated path.
