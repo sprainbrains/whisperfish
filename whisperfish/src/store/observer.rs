@@ -96,6 +96,7 @@ pub struct Event {
 #[derive(Clone, Debug)]
 pub enum EventType {
     Insert,
+    Upsert,
     Update,
     Delete,
 }
@@ -150,6 +151,13 @@ impl Event {
 
     pub fn is_insert(&self) -> bool {
         matches!(self.r#type, EventType::Insert)
+    }
+
+    pub fn is_update_or_insert(&self) -> bool {
+        matches!(
+            self.r#type,
+            EventType::Upsert | EventType::Insert | EventType::Update
+        )
     }
 
     pub fn is_update(&self) -> bool {
@@ -421,6 +429,25 @@ impl super::Storage {
                 key: key.into(),
                 relations: Vec::new(),
                 r#type: EventType::Insert,
+            },
+            _table: diesel_table,
+        }
+    }
+
+    pub fn observe_upsert<T: diesel::Table + 'static>(
+        &self,
+        diesel_table: T,
+        key: impl Into<PrimaryKey>,
+    ) -> ObservationBuilder<'_, T> {
+        let table = Table::from_diesel::<T>();
+
+        ObservationBuilder {
+            storage: self,
+            event: Event {
+                table,
+                key: key.into(),
+                relations: Vec::new(),
+                r#type: EventType::Upsert,
             },
             _table: diesel_table,
         }

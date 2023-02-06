@@ -315,7 +315,7 @@ impl MessageListModel {
                 self.end_remove_rows();
                 return;
             }
-        } else if event.is_insert() || event.is_update() {
+        } else if event.is_update_or_insert() {
             let message = storage
                 .fetch_augmented_message(message_id)
                 .expect("inserted message");
