@@ -6,13 +6,6 @@ import "../components"
 Page {
     id: settingsPage
 
-    RemorsePopup {
-        id: remorse
-        onCanceled: {
-            incognitoModeSwitch.checked = !incognitoModeSwitch.checked
-        }
-    }
-
     SystemdUserService {
         id: autostartService
         serviceName: 'harbour-whisperfish.service'
@@ -372,30 +365,6 @@ Page {
                 //: Settings page advanced section
                 //% "Advanced"
                 text: qsTrId("whisperfish-settings-advanced-section")
-            }
-            IconTextSwitch {
-                id: incognitoModeSwitch
-                anchors.horizontalCenter: parent.horizontalCenter
-                //: Settings page incognito mode
-                //% "Incognito Mode"
-                text: qsTrId("whisperfish-settings-incognito-mode")
-                //: Settings page incognito mode description
-                //% "Incognito Mode disables storage entirely. No attachments nor messages are saved, messages are visible until restart."
-                description: qsTrId("whisperfish-settings-incognito-mode-description") + " UNIMPLEMENTED"
-                checked: SettingsBridge.incognito
-                icon.source: "image://theme/icon-m-vpn"
-                onCheckedChanged: {
-                    if(checked != SettingsBridge.incognito) {
-                        remorse.execute(
-                            //: Restart whisperfish remorse timer message (past tense)
-                            //% "Restarting Whisperfish"
-                            qsTrId("whisperfish-settings-restarting-message"),
-                            function() {
-                                SettingsBridge.incognito = checked
-                                SetupWorker.restart()
-                        })
-                    }
-                }
             }
             IconTextSwitch {
                 id: scaleImageAttachments
