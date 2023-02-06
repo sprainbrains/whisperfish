@@ -583,19 +583,19 @@ impl Storage {
         use crate::schema::reactions::dsl::*;
         use diesel::dsl::*;
 
-        let removed = diesel::delete(reactions)
-            .filter(message_id.eq(message.id))
-            .filter(author.eq(sender.id))
-            .execute(&mut *self.db())
-            .expect("remove old reaction from database");
+        if reaction.remove() {
+            let removed = diesel::delete(reactions)
+                .filter(message_id.eq(message.id))
+                .filter(author.eq(sender.id))
+                .execute(&mut *self.db())
+                .expect("remove old reaction from database");
 
-        if removed > 0 {
-            self.observe_delete(reactions, PrimaryKey::Unknown)
-                .with_relation(schema::recipients::table, sender.id)
-                .with_relation(schema::messages::table, message.id);
-        }
-
-        if !reaction.remove() {
+            if removed > 0 {
+                self.observe_delete(reactions, PrimaryKey::Unknown)
+                    .with_relation(schema::recipients::table, sender.id)
+                    .with_relation(schema::messages::table, message.id);
+            }
+        } else {
             // If this was not a removal action, we have a replacement
             let message_sent_time = millis_to_naive_chrono(data_message.timestamp());
             diesel::insert_into(reactions)
@@ -606,10 +606,17 @@ impl Storage {
                     sent_time.eq(message_sent_time),
                     received_time.eq(now),
                 ))
+                .on_conflict((message_id, author))
+                .do_update()
+                .set((
+                    emoji.eq(reaction.emoji()),
+                    sent_time.eq(message_sent_time),
+                    received_time.eq(now),
+                ))
                 .execute(&mut *self.db())
                 .expect("insert reaction into database");
 
-            self.observe_insert(reactions, PrimaryKey::Unknown)
+            self.observe_upsert(reactions, PrimaryKey::Unknown)
                 .with_relation(schema::recipients::table, sender.id)
                 .with_relation(schema::messages::table, message.id);
         }
