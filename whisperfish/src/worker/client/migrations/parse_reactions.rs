@@ -13,8 +13,7 @@ impl Handler<ParseOldReaction> for ClientActor {
     type Result = ();
     fn handle(&mut self, _: ParseOldReaction, _ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let config = std::sync::Arc::clone(&self.config);
-        let myself = storage.fetch_self_recipient(&config).expect("myself in db");
+        let myself = storage.fetch_self_recipient().expect("myself in db");
 
         let reaction_messages: Vec<orm::Message> = {
             use schema::messages::dsl::*;

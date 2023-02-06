@@ -9,8 +9,8 @@
 
 use libsignal_service::prelude::protocol::{DeviceId, IdentityKeyStore, SessionStore};
 use rstest::rstest;
-use std::ops::Deref;
-use whisperfish::store as current_storage;
+use std::{ops::Deref, sync::Arc};
+use whisperfish::{config::SignalConfig, store as current_storage};
 
 async fn create_old_storage(
     storage_password: Option<&str>,
@@ -35,6 +35,7 @@ async fn create_old_storage(
     let regid: u32 = 12345;
 
     current_storage::Storage::new(
+        Arc::new(SignalConfig::default()),
         path,
         storage_password,
         regid,
@@ -50,7 +51,7 @@ async fn open_storage(
     storage_password: Option<String>,
     path: &whisperfish::store::StorageLocation<std::path::PathBuf>,
 ) -> whisperfish::store::Storage {
-    whisperfish::store::Storage::open(path, storage_password)
+    whisperfish::store::Storage::open(Arc::new(SignalConfig::default()), path, storage_password)
         .await
         .unwrap()
 }
@@ -270,9 +271,13 @@ async fn test_2022_06_migration(
     env_logger::try_init().ok();
 
     let path = current_storage::StorageLocation::Path(copy_to_temp(path).await);
-    let storage = whisperfish::store::Storage::open(&path, storage_password)
-        .await
-        .expect("open older storage");
+    let storage = whisperfish::store::Storage::open(
+        Arc::new(SignalConfig::default()),
+        &path,
+        storage_password,
+    )
+    .await
+    .expect("open older storage");
     let migration = SessionStorageMigration(storage);
     println!("Start migration");
     migration.execute().await;

@@ -1,5 +1,7 @@
 use rstest::fixture;
 use std::future::Future;
+use std::sync::Arc;
+use whisperfish::config::SignalConfig;
 use whisperfish::store::temp;
 use whisperfish::store::{Storage, StorageLocation};
 
@@ -12,9 +14,18 @@ pub fn storage() -> impl Future<Output = InMemoryDb> {
     async {
         let temp = temp();
         (
-            Storage::new(&temp, None, 12345, "Some Password", [0; 52], None)
-                .await
-                .expect("Failed to initalize storage"),
+            Storage::new(
+                // XXX add tempdir to this cfg
+                Arc::new(SignalConfig::default()),
+                &temp,
+                None,
+                12345,
+                "Some Password",
+                [0; 52],
+                None,
+            )
+            .await
+            .expect("Failed to initalize storage"),
             temp,
         )
     }

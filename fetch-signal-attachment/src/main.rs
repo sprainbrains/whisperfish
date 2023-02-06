@@ -3,7 +3,7 @@ use libsignal_service::configuration::SignalServers;
 use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 use structopt::StructOpt;
 use whisperfish::store::{self, Storage};
 
@@ -49,11 +49,13 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut opt = Opt::from_args();
 
     let config = whisperfish::config::SignalConfig::read_from_file()?;
+    let config = Arc::new(config);
     let settings = whisperfish::config::SettingsBridge::default();
     let dir = settings.get_string("attachment_dir");
     let dest = Path::new(&dir);
 
-    let mut storage = Storage::open(&store::default_location()?, opt.password).await?;
+    let mut storage =
+        Storage::open(config.clone(), &store::default_location()?, opt.password).await?;
 
     let key_material = hex::decode(opt.key)?;
     anyhow::ensure!(

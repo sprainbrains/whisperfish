@@ -590,8 +590,12 @@ impl Storage {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use libsignal_service::prelude::protocol::*;
     use rstest::rstest;
+
+    use crate::config::SignalConfig;
 
     async fn create_example_storage(
         storage_password: Option<&str>,
@@ -617,6 +621,7 @@ mod tests {
         let regid = 12345;
 
         let storage = super::Storage::new(
+            Arc::new(SignalConfig::default()),
             &location,
             storage_password,
             regid,
