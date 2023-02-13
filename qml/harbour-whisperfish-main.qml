@@ -164,9 +164,9 @@ ApplicationWindow
 
         var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
 
+        // Only ConversationPage.qml has `sessionId` property.
         if(Qt.application.state == Qt.ApplicationActive &&
-           (pageStack.currentPage.objectName == "mainPage" ||
-           (pageStack.currentPage.objectName == "conversationPage" && pageStack.currentPage.sessionId == sid))) {
+           (pageStack.currentPage == _mainPage || pageStack.currentPage.sessionId == sid)) {
             if(quietMessageNotification.isSupported) {
                 quietMessageNotification.publish()
             }
