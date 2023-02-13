@@ -2,30 +2,30 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 
 Page {
-	id: aboutpage
+    id: aboutpage
     objectName: "aboutPage"
 
-	SilicaFlickable {
-		anchors.fill: parent
-		contentWidth: parent.width
-		contentHeight: col.height + Theme.paddingLarge
+    SilicaFlickable {
+        anchors.fill: parent
+        contentWidth: parent.width
+        contentHeight: col.height + Theme.paddingLarge
 
-		VerticalScrollDecorator {}
+        VerticalScrollDecorator {}
 
-		Column {
-			id: col
-			spacing: Theme.paddingLarge
-			width: parent.width
-			PageHeader {
+        Column {
+            id: col
+            spacing: Theme.paddingLarge
+            width: parent.width
+            PageHeader {
                 //: Title for about page
                 //% "About Whisperfish"
-				title: qsTrId("whisperfish-about")
-			}
+                title: qsTrId("whisperfish-about")
+            }
 
-			Image {
-				anchors.horizontalCenter: parent.horizontalCenter
-				source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
-			}
+            Image {
+                anchors.horizontalCenter: parent.horizontalCenter
+                source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+            }
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -170,6 +170,6 @@ Page {
                 horizontalAlignment: Text.AlignLeft
                 x: Theme.paddingLarge
             }
-		}
-	}
+        }
+    }
 }

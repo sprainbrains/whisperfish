@@ -85,15 +85,15 @@ BlockingInfoPageBase {
     }
 
     Timer {
-		id: captchaTimer
-		interval: 100
-		running: false
-		repeat: false
-		onTriggered: {
+        id: captchaTimer
+        interval: 100
+        running: false
+        repeat: false
+        onTriggered: {
             captchaReceived = false
             Prompt.startCaptcha()
         }
-	}
+    }
 
     Column {
         width: parent.width
