@@ -18,6 +18,7 @@ ApplicationWindow
     _defaultLabelFormat: Text.PlainText
 
     property var notificationMap: ({})
+    property var _mainPage: null
 
     // setting this to "true" will block global navigation
     // methods (showMainPage() etc.)
@@ -369,9 +370,17 @@ ApplicationWindow
 
     function showMainPage(operationType) {
         if (fatalOccurred) return
-        pageStack.replaceAbove(null, Qt.resolvedUrl("pages/MainPage.qml"), {},
-                               operationType !== undefined ? operationType :
-                                                             PageStackAction.Immediate)
+
+        if(operationType === undefined) {
+            operationType = PageStackAction.Immediate
+        }
+
+        if (_mainPage) {
+            pageStack.pop(_mainPage, operationType)
+        } else {
+            pageStack.replaceAbove(null, Qt.resolvedUrl("pages/MainPage.qml"), {}, operationType)
+            _mainPage = pageStack.currentPage
+        }
     }
 
     function newMessage(operationType) {
