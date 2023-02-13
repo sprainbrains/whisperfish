@@ -17,8 +17,6 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
-    readonly property string mainPageName: "mainPage"
-    readonly property string conversationPageName: "conversationPage"
     property var notificationMap: ({})
 
     // setting this to "true" will block global navigation
@@ -166,8 +164,8 @@ ApplicationWindow
         var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
 
         if(Qt.application.state == Qt.ApplicationActive &&
-           (pageStack.currentPage.objectName == mainPageName ||
-           (pageStack.currentPage.objectName == conversationPageName && pageStack.currentPage.sessionId == sid))) {
+           (pageStack.currentPage.objectName == "mainPage" ||
+           (pageStack.currentPage.objectName == "conversationPage" && pageStack.currentPage.sessionId == sid))) {
             if(quietMessageNotification.isSupported) {
                 quietMessageNotification.publish()
             }

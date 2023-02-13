@@ -6,6 +6,8 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
+    objectName: "proofSubmitName"
+
     pageTitle: "" // xx("Step 2")
 
     //: Signal has requested additional captcha page title

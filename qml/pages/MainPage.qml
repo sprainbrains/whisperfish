@@ -8,7 +8,7 @@ import "../delegates"
 
 Page {
     id: main
-    objectName: mainPageName
+    objectName: "mainPage"
 
     readonly property string buildDate: "2022-06-13" // This is a placeholder date, which is updated during build
     property bool updateBannerDisplayed: false

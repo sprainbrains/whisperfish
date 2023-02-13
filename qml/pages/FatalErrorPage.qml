@@ -4,6 +4,8 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
+    objectName: "fatalErrorPage"
+
     property string errorMessage
 
     //: fatal error page title

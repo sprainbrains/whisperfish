@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 
 Page {
     id: linkedDevices
+    objectName: "linkedDevicesPage"
 
     SilicaListView {
         id: listView

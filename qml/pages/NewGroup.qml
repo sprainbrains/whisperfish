@@ -9,6 +9,8 @@ import "../components"
 
 Page {
     id: newGroupPage
+    objectName: "newGroupPage"
+
     property Label errorLabel
 
     property var selectedContacts: recipientField.selectedContacts

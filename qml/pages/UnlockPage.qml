@@ -4,6 +4,8 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
+    objectName: "unlockPage"
+
     //: unlock page title
     //% "Unlock"
     pageTitle: qsTrId("whisperfish-unlock-page-title")

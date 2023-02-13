@@ -6,6 +6,7 @@ import "../components"
 
 Page {
     id: root
+    objectName: "shareDestionationV1Page"
 
     property string source: ''
     property var content: ({})

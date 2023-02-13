@@ -6,6 +6,8 @@ import "../js/countries.js" as CallingCodes
 
 BlockingInfoPageBase {
     id: root
+    objectName: "setupRegistrationTypePage"
+
     pageTitle: "" // xx("Step 1.1")
 
     //: registration page title

@@ -5,6 +5,8 @@ import "../delegates"
 
 Page {
     id: root
+    objectName: "expandedMessagePage"
+
     property QtObject modelData
     property string messageText: ""
     property string contactName: ""

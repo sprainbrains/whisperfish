@@ -5,6 +5,8 @@ import "../delegates"
 
 Page {
     id: root
+    objectName: "messageInfoPage"
+
     property var message
 
     // Proxy some more used properties

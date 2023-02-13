@@ -9,6 +9,7 @@ import Nemo.DBus 2.0
 
 WebViewPage {
 	id: page
+	objectName: "registrationCaptchaPage"
 
 	allowedOrientations: Orientation.PortraitMask
 

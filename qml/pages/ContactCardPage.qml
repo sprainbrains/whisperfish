@@ -7,6 +7,8 @@ import Sailfish.Contacts 1.0 as SailfishContacts
 
 Page {
     id: root
+    objectName: "contactCardPage"
+
     allowedOrientations: Orientation.All
     property alias vcfUrl: vcfModel.source
     property alias _contact: contactCard.contact

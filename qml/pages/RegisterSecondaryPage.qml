@@ -6,6 +6,8 @@ import "../js/countries.js" as CallingCodes
 
 BlockingInfoPageBase {
     id: root
+    objectName: "registerSecondaryPage"
+
     pageTitle: "" // xx("Step 2.1")
 
     //: register as secondary device qr page title

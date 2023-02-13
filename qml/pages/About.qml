@@ -3,6 +3,8 @@ import Sailfish.Silica 1.0
 
 Page {
 	id: aboutpage
+    objectName: "aboutPage"
+
 	SilicaFlickable {
 		anchors.fill: parent
 		contentWidth: parent.width

@@ -4,6 +4,7 @@ import Sailfish.Silica 1.0
 Dialog {
     id: resetPeerDialog
     objectName: "resetPeerDialog"
+
     property var source
 
     onDone: {
