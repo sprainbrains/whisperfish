@@ -434,7 +434,7 @@ impl ClientActor {
             Some("".into())
         } else if msg.sticker.is_some() {
             log::warn!("Received a sticker, but inserting empty message.");
-            Some("".into())
+            Some("This is a sticker, but stickers are currently unsupported.".into())
         } else if msg.payment.is_some()
             || msg.delete.is_some()
             || msg.group_call_update.is_some()
