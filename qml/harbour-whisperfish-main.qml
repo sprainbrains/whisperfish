@@ -17,9 +17,8 @@ ApplicationWindow
     _defaultPageOrientations: Orientation.All
     _defaultLabelFormat: Text.PlainText
 
-    readonly property string mainPageName: "mainPage"
-    readonly property string conversationPageName: "conversationPage"
     property var notificationMap: ({})
+    property var _mainPage: null
 
     // setting this to "true" will block global navigation
     // methods (showMainPage() etc.)
@@ -165,9 +164,9 @@ ApplicationWindow
 
         var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
 
+        // Only ConversationPage.qml has `sessionId` property.
         if(Qt.application.state == Qt.ApplicationActive &&
-           (pageStack.currentPage.objectName == mainPageName ||
-           (pageStack.currentPage.objectName == conversationPageName && pageStack.currentPage.sessionId == sid))) {
+           (pageStack.currentPage == _mainPage || pageStack.currentPage.sessionId == sid)) {
             if(quietMessageNotification.isSupported) {
                 quietMessageNotification.publish()
             }
@@ -371,9 +370,17 @@ ApplicationWindow
 
     function showMainPage(operationType) {
         if (fatalOccurred) return
-        pageStack.replaceAbove(null, Qt.resolvedUrl("pages/MainPage.qml"), {},
-                               operationType !== undefined ? operationType :
-                                                             PageStackAction.Immediate)
+
+        if(operationType === undefined) {
+            operationType = PageStackAction.Immediate
+        }
+
+        if (_mainPage) {
+            pageStack.pop(_mainPage, operationType)
+        } else {
+            pageStack.replaceAbove(null, Qt.resolvedUrl("pages/MainPage.qml"), {}, operationType)
+            _mainPage = pageStack.currentPage
+        }
     }
 
     function newMessage(operationType) {

@@ -15,6 +15,8 @@ import "../components"
 
 Page {
     id: page
+    objectName: "viewVideoPage"
+
     allowedOrientations: Orientation.All
     property alias title: _titleOverlayItem.title
     property alias subtitle: _titleOverlayItem.subtitle

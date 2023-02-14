@@ -78,7 +78,8 @@ ListItem {
     // (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271)
     // the typing variable can be 100% declarative and in the page header.
     function sendTypingToHeader() {
-        if(pageStack.currentPage.sessionId == model.id && pageStack.currentPage.objectName == conversationPageName) {
+        // Only ConversationPage.qml has `sessionId` property.
+        if(pageStack.currentPage.sessionId == model.id) {
             var count = model.typing.length
             console.log("onTypingChanged for", model.id, ":", count, "typing");
             var typing;

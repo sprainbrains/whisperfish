@@ -7,6 +7,8 @@ import "../js/countries.js" as CallingCodes
 
 BlockingInfoPageBase {
     id: root
+    objectName: "registerPage"
+
     pageTitle: "" // xx("Step 2")
 
     //: registration page title
@@ -83,15 +85,15 @@ BlockingInfoPageBase {
     }
 
     Timer {
-		id: captchaTimer
-		interval: 100
-		running: false
-		repeat: false
-		onTriggered: {
+        id: captchaTimer
+        interval: 100
+        running: false
+        repeat: false
+        onTriggered: {
             captchaReceived = false
             Prompt.startCaptcha()
         }
-	}
+    }
 
     Column {
         width: parent.width

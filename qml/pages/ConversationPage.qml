@@ -6,7 +6,7 @@ import "../components"
 
 Page {
     id: root
-    objectName: conversationPageName
+    objectName: "conversationPage"
 
     // Enable to focus the editor when the page is opened.
     // E.g. when starting a new chat.
@@ -44,10 +44,10 @@ Page {
             var nextPage = pageStack.nextPage()
             var nextPageName = nextPage ? nextPage.objectName : ''
 
-            if (session.isGroup && nextPageName !== 'groupProfile') {
+            if (session.isGroup && nextPageName !== 'groupProfilePage') {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { session: session, group: group })
             }
-            if(!session.isGroup && nextPageName !== 'verifyIdentity'){
+            if(!session.isGroup && nextPageName !== 'verifyIdentityPage'){
                 pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { session: session, profilePicture: profilePicture })
             }
         }

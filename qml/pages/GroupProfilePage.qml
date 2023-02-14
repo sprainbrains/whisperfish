@@ -6,7 +6,7 @@ import "../components"
 
 Page {
     id: groupProfile
-    objectName: "groupProfile"
+    objectName: "groupProfilePage"
 
     // Group wallpapers/background are inherently un-sailfishy. We
     // should show them somewhere, somehow nonetheless - just not as

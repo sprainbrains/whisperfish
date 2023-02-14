@@ -6,6 +6,7 @@ import "../components"
 
 Page {
     id: root
+    objectName: "shareDestionationV2Page"
 
     property var shareObject
 

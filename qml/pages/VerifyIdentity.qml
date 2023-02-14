@@ -6,7 +6,7 @@ import "../components"
 
 Page {
     id: verifyIdentity
-    objectName: "verifyIdentity"
+    objectName: "verifyIdentityPage"
 
     property string profilePicture: ""
     property var session: null

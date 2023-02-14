@@ -29,6 +29,8 @@ import "../components"
 
 Page {
     id: newMessagePage
+    objectName: "newMessagePage"
+
     property bool recipientSelected: recipientField.selectedContacts.count == 1
     property QtObject selectedContact: recipientSelected ? recipientField.selectedContacts.get(0) : null
     property bool isValid: recipientSelected && recipientNumber != ""

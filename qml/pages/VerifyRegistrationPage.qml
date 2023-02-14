@@ -4,6 +4,8 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
+    objectName: "verifyRegistrationPage"
+
     pageTitle: "" // xx("Step 3")
     //: verify registration page title
     //% "Verify"

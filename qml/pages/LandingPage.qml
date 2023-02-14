@@ -3,6 +3,8 @@ import Sailfish.Silica 1.0
 
 Page {
     id: root
+    objectName: "landingPage"
+
     property bool readyToGo: false
     property string nextAction: "none"
 

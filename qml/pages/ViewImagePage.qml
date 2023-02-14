@@ -13,6 +13,8 @@ import "../components"
 
 Page {
     id: page
+    objectName: "viewImagePage"
+
     allowedOrientations: Orientation.All
     property alias title: _titleOverlayItem.title
     property alias subtitle: _titleOverlayItem.subtitle

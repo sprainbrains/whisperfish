@@ -5,6 +5,8 @@ import QtSensors 5.0
 
 Dialog {
     id: dialog
+    objectName: "cameraDialog"
+
     allowedOrientations: Orientation.All
     property string fileName: ""
     property string fileType: ""

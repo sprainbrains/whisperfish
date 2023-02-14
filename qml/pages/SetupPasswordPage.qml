@@ -9,6 +9,8 @@ import "../components"
 
 BlockingInfoPageBase {
     id: root
+    objectName: "setupPasswordPage"
+
     pageTitle: "" // xx("Step 1")
 
     //: welcome screen title when creating a new database

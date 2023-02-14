@@ -5,6 +5,7 @@ import "../components"
 
 Page {
     id: settingsPage
+    objectName: "settingsPage"
 
     SystemdUserService {
         id: autostartService
