@@ -385,8 +385,9 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
-            <numerusform>%n mensaje eliminado localmente</numerusform>
-            <numerusform>%n mensajes eliminados localmente</numerusform>
+            <numerusform>Mensaje %n borrado localmente</numerusform>
+            <numerusform>Mensajes %n borrados localmente</numerusform>
+            <numerusform>Mensajes %n borrados localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -1314,8 +1315,9 @@ Settings page share contacts</extracomment>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
-            <numerusform>archivo adjunto %n</numerusform>
-            <numerusform>%n archivos adjuntos</numerusform>
+            <numerusform>%n adjunto</numerusform>
+            <numerusform>%n adjuntos</numerusform>
+            <numerusform>%n adjuntos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1341,8 +1343,9 @@ Settings page share contacts</extracomment>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
-            <numerusform>y %n archivo adjunto</numerusform>
-            <numerusform>y más de %n archivos adjuntos</numerusform>
+            <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1351,8 +1354,9 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>y %n archivo adjunto oculto</numerusform>
-            <numerusform>y %n archivos adjuntos ocultos</numerusform>
+            <numerusform>y %n más</numerusform>
+            <numerusform>y %n más</numerusform>
+            <numerusform>y %n más</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
