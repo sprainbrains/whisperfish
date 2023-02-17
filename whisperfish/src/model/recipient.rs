@@ -4,6 +4,7 @@ use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use actix::{ActorContext, Addr, Handler};
+use futures::TryFutureExt;
 use libsignal_service::prelude::protocol::SessionStoreExt;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -132,15 +133,39 @@ impl RecipientImpl {
         }
     }
 
-    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
+    fn init(&mut self, storage: Storage, addr: Addr<<Self as EventObserving>::ModelActor>) {
         if let Some(id) = self.recipient_id {
             let recipient = if id >= 0 {
-                storage
-                    .fetch_recipient_by_id(id)
-                    .map(|inner| RecipientWithFingerprint {
-                        inner,
-                        fingerprint: None,
-                    })
+                let recipient =
+                    storage
+                        .fetch_recipient_by_id(id)
+                        .map(|inner| RecipientWithFingerprint {
+                            inner,
+                            fingerprint: None,
+                        });
+                // If a recipient was found, attempt to compute the fingeprint
+                if let Some(r) = &recipient {
+                    let recipient_svc = r.to_service_address();
+                    let compute_fingerprint = async move {
+                        let local = storage
+                            .fetch_self_recipient()
+                            .expect("self recipient present in db");
+                        let local_svc = local.to_service_address();
+                        let fingerprint = storage
+                            .compute_safety_number(&local_svc, &recipient_svc, None)
+                            .await?;
+                        addr.send(FingerprintComputed {
+                            recipient_id: id,
+                            fingerprint,
+                        })
+                        .await?;
+
+                        Result::<_, anyhow::Error>::Ok(())
+                    }
+                    .map_ok_or_else(|e| log::error!("Computing fingeprint: {}", e), |_| ());
+                    actix::spawn(compute_fingerprint);
+                }
+                recipient
             } else {
                 None
             };
