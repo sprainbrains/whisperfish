@@ -3,6 +3,7 @@
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
+use actix::Addr;
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
 
@@ -27,7 +28,7 @@ crate::observing_model! {
 }
 
 impl SessionsImpl {
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
         self.session_list.pinned().borrow_mut().load_all(storage);
     }
 
@@ -45,7 +46,14 @@ impl SessionsImpl {
 }
 
 impl EventObserving for SessionsImpl {
-    fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
+    type ModelActor = ObservingModelActor<Self>;
+
+    fn observe(
+        &mut self,
+        storage: Storage,
+        _ctx: Addr<Self::ModelActor>,
+        event: crate::store::observer::Event,
+    ) {
         // Find the correct session and update the latest message
         let session_id = event
             .relation_key_for(schema::sessions::table)

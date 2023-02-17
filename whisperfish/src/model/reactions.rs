@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
+use actix::Addr;
 use qmetaobject::{prelude::*, QJsonObject};
 
 /// QML-constructable object that interacts with a single session.
@@ -27,7 +28,14 @@ crate::observing_model! {
 }
 
 impl EventObserving for ReactionsImpl {
-    fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
+    type ModelActor = ObservingModelActor<Self>;
+
+    fn observe(
+        &mut self,
+        storage: Storage,
+        _ctx: Addr<Self::ModelActor>,
+        event: crate::store::observer::Event,
+    ) {
         if let Some(message_id) = self.message_id {
             self.reaction_list
                 .pinned()
@@ -91,14 +99,19 @@ impl ReactionsImpl {
             .load_all(storage, id);
     }
 
-    fn set_message_id(&mut self, storage: Option<Storage>, id: i32) {
+    fn set_message_id(
+        &mut self,
+        storage: Option<Storage>,
+        id: i32,
+        _ctx: Addr<<Self as EventObserving>::ModelActor>,
+    ) {
         self.message_id = Some(id);
         if let Some(storage) = storage {
             self.fetch(storage, id);
         }
     }
 
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
         if let Some(id) = self.message_id {
             self.fetch(storage, id);
         }

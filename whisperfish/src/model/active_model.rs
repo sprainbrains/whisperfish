@@ -77,8 +77,8 @@ macro_rules! observing_model {
                         .start();
 
                         let subscriber = actor.downgrade().recipient();
-                        self.actor = Some(actor);
-                        self.inner.pinned().borrow_mut().init(storage.clone());
+                        self.actor = Some(actor.clone());
+                        self.inner.pinned().borrow_mut().init(storage.clone(), actor);
                         let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.pinned().borrow()), subscriber);
                         self.observer_handle = Some(handle);
 
@@ -111,6 +111,7 @@ macro_rules! observing_model {
                     self.inner.pinned().borrow_mut().$setter(
                         storage.clone(),
                         v,
+                        self.actor.clone().expect("XXX put actor and storage together in a context object"),
                     );
                     if let (Some(mut storage), Some(handle)) = (storage, self.observer_handle) {
                         storage.update_interests(handle, self.inner.pinned().borrow().interests());
@@ -139,7 +140,7 @@ impl<T: QObject + 'static> actix::Actor for ObservingModelActor<T> {
 
 impl<T: QObject + 'static> actix::Handler<Event> for ObservingModelActor<T>
 where
-    T: EventObserving,
+    T: EventObserving<ModelActor = Self>,
 {
     type Result = Vec<Interest>;
 
@@ -148,7 +149,7 @@ where
             Some(model) => {
                 let model = model.pinned();
                 let mut model = model.borrow_mut();
-                model.observe(self.storage.clone(), event);
+                model.observe(self.storage.clone(), ctx.address(), event);
                 model.interests()
             }
             None => {

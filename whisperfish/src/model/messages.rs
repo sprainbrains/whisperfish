@@ -6,6 +6,7 @@ use crate::store::observer::EventObserving;
 use crate::store::observer::Interest;
 use crate::store::orm;
 use crate::store::Storage;
+use actix::Addr;
 use qmetaobject::prelude::*;
 use qmetaobject::QObjectBox;
 use std::collections::HashMap;
@@ -51,7 +52,14 @@ crate::observing_model! {
 }
 
 impl EventObserving for MessageImpl {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+    type ModelActor = ObservingModelActor<Self>;
+
+    fn observe(
+        &mut self,
+        storage: Storage,
+        _ctx: Addr<Self::ModelActor>,
+        _event: crate::store::observer::Event,
+    ) {
         if let Some(id) = self.message_id {
             self.fetch(storage, id);
         }
@@ -109,7 +117,12 @@ impl MessageImpl {
         self.visual_attachments.pinned().borrow_mut().set(visual);
     }
 
-    fn set_message_id(&mut self, storage: Option<Storage>, id: i32) {
+    fn set_message_id(
+        &mut self,
+        storage: Option<Storage>,
+        id: i32,
+        _ctx: Addr<<Self as EventObserving>::ModelActor>,
+    ) {
         if id >= 0 {
             self.message_id = Some(id);
             if let Some(storage) = storage {
@@ -122,7 +135,7 @@ impl MessageImpl {
         }
     }
 
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
         if let Some(id) = self.message_id {
             self.fetch(storage, id);
         }
@@ -174,7 +187,14 @@ crate::observing_model! {
 }
 
 impl EventObserving for SessionImpl {
-    fn observe(&mut self, storage: Storage, event: crate::store::observer::Event) {
+    type ModelActor = ObservingModelActor<Self>;
+
+    fn observe(
+        &mut self,
+        storage: Storage,
+        _ctx: Addr<Self::ModelActor>,
+        event: crate::store::observer::Event,
+    ) {
         if let Some(id) = self.session_id {
             let message_id = event
                 .relation_key_for(schema::messages::table)
@@ -235,14 +255,19 @@ impl SessionImpl {
             .load_all(storage, id);
     }
 
-    fn set_session_id(&mut self, storage: Option<Storage>, id: i32) {
+    fn set_session_id(
+        &mut self,
+        storage: Option<Storage>,
+        id: i32,
+        _ctx: Addr<<Self as EventObserving>::ModelActor>,
+    ) {
         self.session_id = Some(id);
         if let Some(storage) = storage {
             self.fetch(storage, id);
         }
     }
 
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
         if let Some(id) = self.session_id {
             self.fetch(storage, id);
         }

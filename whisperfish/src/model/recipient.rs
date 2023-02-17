@@ -3,6 +3,7 @@
 use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
+use actix::{ActorContext, Addr, Handler};
 use libsignal_service::prelude::protocol::SessionStoreExt;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -46,9 +47,16 @@ crate::observing_model! {
 }
 
 impl EventObserving for RecipientImpl {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+    type ModelActor = ObservingModelActor<RecipientImpl>;
+
+    fn observe(
+        &mut self,
+        storage: Storage,
+        ctx: Addr<Self::ModelActor>,
+        _event: crate::store::observer::Event,
+    ) {
         if self.recipient_id.is_some() {
-            self.init(storage);
+            self.init(storage, ctx);
         }
     }
 
@@ -57,6 +65,48 @@ impl EventObserving for RecipientImpl {
             .iter()
             .flat_map(|r| r.inner.interests())
             .collect()
+    }
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+struct FingerprintComputed {
+    recipient_id: i32,
+    fingerprint: String,
+}
+
+impl Handler<FingerprintComputed> for ObservingModelActor<RecipientImpl> {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        FingerprintComputed {
+            recipient_id,
+            fingerprint,
+        }: FingerprintComputed,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        match self.model.upgrade() {
+            Some(model) => {
+                let model = model.pinned();
+                let mut model = model.borrow_mut();
+                if let Some(recipient) = &mut model.recipient {
+                    if recipient.id != recipient_id {
+                        log::trace!("Different recipient_id requested, dropping fingerprint");
+                    } else {
+                        recipient.fingerprint = Some(fingerprint);
+                        // TODO: trigger something changed
+                    }
+                }
+            }
+            None => {
+                // In principle, the actor should have gotten stopped when the model got dropped,
+                // because the actor's only strong reference is contained in the ObservingModel.
+                log::debug!("Model got dropped, stopping actor execution.");
+                // XXX What is the difference between stop and terminate?
+                ctx.stop();
+            }
+        }
     }
 }
 
@@ -70,14 +120,19 @@ impl RecipientImpl {
     }
 
     #[with_executor]
-    fn set_recipient_id(&mut self, storage: Option<Storage>, id: i32) {
+    fn set_recipient_id(
+        &mut self,
+        storage: Option<Storage>,
+        id: i32,
+        ctx: Addr<<Self as EventObserving>::ModelActor>,
+    ) {
         self.recipient_id = Some(id);
         if let Some(storage) = storage {
-            self.init(storage);
+            self.init(storage, ctx);
         }
     }
 
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
         if let Some(id) = self.recipient_id {
             let recipient = if id >= 0 {
                 storage

@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 
+use actix::Addr;
+
 use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
@@ -24,7 +26,7 @@ crate::observing_model! {
 }
 
 impl AttachmentImpl {
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
         if let Some(id) = self.attachment_id {
             self.fetch(storage, id);
         }
@@ -38,7 +40,12 @@ impl AttachmentImpl {
         self.attachment_id.unwrap_or(-1)
     }
 
-    fn set_attachment_id(&mut self, storage: Option<Storage>, id: i32) {
+    fn set_attachment_id(
+        &mut self,
+        storage: Option<Storage>,
+        id: i32,
+        _ctx: Addr<<Self as EventObserving>::ModelActor>,
+    ) {
         self.attachment_id = Some(id);
         if let Some(storage) = storage {
             self.fetch(storage, id);
@@ -51,7 +58,14 @@ impl AttachmentImpl {
 }
 
 impl EventObserving for AttachmentImpl {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+    type ModelActor = ObservingModelActor<AttachmentImpl>;
+
+    fn observe(
+        &mut self,
+        storage: Storage,
+        _ctx: Addr<Self::ModelActor>,
+        _event: crate::store::observer::Event,
+    ) {
         if let Some(id) = self.attachment_id {
             self.fetch(storage, id);
         }
