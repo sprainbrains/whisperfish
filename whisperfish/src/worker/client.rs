@@ -136,7 +136,7 @@ pub struct ClientWorker {
 
     delete_file: qt_method!(fn(&self, file_name: String)),
 
-    refresh_profile: qt_method!(fn(&self, session_id: i32)),
+    refresh_profile: qt_method!(fn(&self, recipient_id: i32)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -2030,10 +2030,13 @@ impl ClientWorker {
     }
 
     #[with_executor]
-    pub fn refresh_profile(&self, session_id: i32) {
+    pub fn refresh_profile(&self, recipient_id: i32) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
-            if let Err(e) = actor.send(RefreshProfile::BySession(session_id)).await {
+            if let Err(e) = actor
+                .send(RefreshProfile::ByRecipientId(recipient_id))
+                .await
+            {
                 log::error!("{:?}", e);
             }
         });

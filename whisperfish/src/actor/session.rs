@@ -70,7 +70,7 @@ pub struct LoadAllSessions;
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 pub struct RemoveIdentities {
-    pub session_id: i32,
+    pub recipient_id: i32,
 }
 
 pub struct SessionActor {
@@ -184,29 +184,18 @@ impl Handler<RemoveIdentities> for SessionActor {
 
     fn handle(
         &mut self,
-        RemoveIdentities { session_id }: RemoveIdentities,
+        RemoveIdentities { recipient_id }: RemoveIdentities,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.as_ref().unwrap();
-        let session = if let Some(s) = storage.fetch_session_by_id(session_id) {
-            s
+        let recipient = if let Some(r) = storage.fetch_recipient_by_id(recipient_id) {
+            r
         } else {
             log::warn!(
-                "Requested removal of identities for session {}, but session not found.",
-                session_id
+                "Requested removal of identities for recipient {}, but recipient not found.",
+                recipient_id
             );
             return;
-        };
-        let recipient = match session.r#type {
-            orm::SessionType::DirectMessage(r) => r,
-            orm::SessionType::GroupV1(_) => {
-                log::warn!("Cannot remove identities for a group v1");
-                return;
-            }
-            orm::SessionType::GroupV2(_) => {
-                log::warn!("Cannot remove identities for a group v1");
-                return;
-            }
         };
 
         let identities = match (recipient.e164, recipient.uuid) {

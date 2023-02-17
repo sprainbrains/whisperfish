@@ -17,7 +17,7 @@ pub struct MessageMethods {
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
-    endSession: qt_method!(fn(&self, e164: QString)),
+    endSession: qt_method!(fn(&self, recipient_id: i32)),
 
     remove: qt_method!(
         fn(
@@ -66,14 +66,13 @@ impl MessageMethods {
         );
     }
 
-    /// Called when a message should be queued to be sent to OWS
     #[with_executor]
-    fn endSession(&mut self, e164: QString) {
+    fn endSession(&mut self, id: i32) {
         actix::spawn(
             self.actor
                 .as_mut()
                 .unwrap()
-                .send(EndSession(e164.into()))
+                .send(EndSession(id))
                 .map(Result::unwrap),
         );
     }

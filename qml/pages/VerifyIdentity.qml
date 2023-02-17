@@ -9,12 +9,12 @@ Page {
     objectName: "verifyIdentityPage"
 
     property string profilePicture: ""
-    property var session: null
+    property int recipientId: -1
 
     Recipient {
         id: recipient
         app: AppState
-        recipientId: session.recipientId ? session.recipientId : -1
+        recipientId: verifyIdentity.recipientId
     }
 
     SilicaFlickable {
@@ -28,14 +28,14 @@ Page {
                 //: Reset identity key menu item
                 //% "Reset identity key"
                 text: qsTrId("whisperfish-reset-identity-menu")
-                visible: !session.isGroup && SettingsBridge.debug_mode
+                visible: SettingsBridge.debug_mode
                 onClicked: {
                     //: Reset identity key remorse message (past tense)
                     //% "Identity key reset"
                     remorse.execute(qsTrId("whisperfish-reset-identity-message"),
                         function() {
-                            console.log("Resetting identity key: " + session.recipientE164)
-                            SessionModel.removeIdentities(session.id)
+                            console.log("Resetting identity key: " + recipient.e164)
+                            SessionModel.removeIdentities(recipientId)
                         })
                 }
             }
@@ -43,14 +43,14 @@ Page {
                 //: Reset secure session menu item
                 //% "Reset Secure Session"
                 text: qsTrId("whisperfish-reset-session-menu")
-                visible: ! session.group && SettingsBridge.debug_mode
+                visible: SettingsBridge.debug_mode
                 onClicked: {
                     //: Reset secure session remorse message (past tense)
                     //% "Secure session reset"
                     remorse.execute(qsTrId("whisperfish-reset-session-message"),
                         function() {
-                            console.log("Resetting secure session: " + session.recipientE164)
-                            MessageModel.endSession(session.recipientE164)
+                            console.log("Resetting secure session with " + recipient.e164)
+                            MessageModel.endSession(recipientId)
                         })
                 }
             }
@@ -58,19 +58,19 @@ Page {
                 //: Refresh contact profile menu item
                 //% "Refresh Signal profile"
                 text: qsTrId("whisperfish-refresh-profile-menu")
-                visible: ! session.group && SettingsBridge.debug_mode
+                visible: SettingsBridge.debug_mode
                 onClicked: {
-                    ClientWorker.refresh_profile(session.id)
+                    ClientWorker.refresh_profile(recipientId)
                 }
             }
             MenuItem {
                 //: Show a peer's system contact page (menu item)
                 //% "Show contact"
                 text: qsTrId("whisperfish-show-contact-page-menu")
-                enabled: session.recipientE164.length > 0
+                enabled: recipient.e164.length > 0
                 visible: enabled
                 // TODO maybe: replace with a custom link handler
-                onClicked: phoneNumberLinker.linkActivated('tel:' + session.recipientE164)
+                onClicked: phoneNumberLinker.linkActivated('tel:' + recipient.e164)
                 LinkedText { id: phoneNumberLinker; visible: false }
             }
         }
@@ -81,8 +81,8 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: session.recipientName
-                description: session.recipientAboutText
+                title: recipient.name
+                description: recipient.about
             }
 
             ProfilePicture {
@@ -95,7 +95,7 @@ Page {
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'
                 infoMarkSize: 0.9*Theme.iconSizeSmallPlus
-                infoMarkEmoji: session.recipientEmoji
+                infoMarkEmoji: recipient.emoji
                 anchors.horizontalCenter: parent.horizontalCenter
                 onClicked: {
                     // TODO Implement a new page derived from ViewImagePage for showing
@@ -134,7 +134,7 @@ Page {
                 width: parent.width
                 //: Numeric fingerprint instructions
                 //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
-                text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(session.recipientName)
+                text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
             }
         }
     }

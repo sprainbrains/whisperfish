@@ -35,8 +35,8 @@ pub struct DeleteMessage(pub i32);
 
 #[derive(Message)]
 #[rtype(result = "()")]
-/// Send a ne
-pub struct EndSession(pub String);
+/// Reset a session with a certain recipient
+pub struct EndSession(pub i32);
 
 pub struct MessageActor {
     inner: QObjectBox<MessageMethods>,
@@ -98,17 +98,20 @@ impl Handler<DeleteMessage> for MessageActor {
 impl Handler<EndSession> for MessageActor {
     type Result = ();
 
-    fn handle(&mut self, EndSession(e164): EndSession, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, EndSession(id): EndSession, _ctx: &mut Self::Context) -> Self::Result {
         use libsignal_service::content::DataMessageFlags;
-        log::trace!("MessageActor::EndSession({})", e164);
+        log::trace!("MessageActor::EndSession(recipient_id = {})", id);
 
         let storage = self.storage.as_mut().unwrap();
+        let recipient = storage
+            .fetch_recipient_by_id(id)
+            .expect("existing recipient id");
 
         let (_msg, _session) = storage.process_message(
             crate::store::NewMessage {
                 session_id: None,
-                source_e164: Some(e164),
-                source_uuid: None,
+                source_e164: recipient.e164,
+                source_uuid: recipient.uuid,
                 text: "[Whisperfish] Reset secure session".into(),
                 timestamp: chrono::Utc::now().naive_utc(),
                 has_attachment: false,

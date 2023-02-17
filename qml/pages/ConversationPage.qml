@@ -48,7 +48,7 @@ Page {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { session: session, group: group })
             }
             if(!session.isGroup && nextPageName !== 'verifyIdentityPage'){
-                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { session: session, profilePicture: profilePicture })
+                pageStack.pushAttached(Qt.resolvedUrl("VerifyIdentity.qml"), { recipientId: session.recipientId, profilePicture: profilePicture })
             }
         }
     }

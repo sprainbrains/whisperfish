@@ -18,7 +18,7 @@ pub struct SessionMethods {
     markArchived: qt_method!(fn(&self, id: i32, archived: bool)),
     markPinned: qt_method!(fn(&self, id: i32, pinned: bool)),
 
-    removeIdentities: qt_method!(fn(&self, session_id: i32)),
+    removeIdentities: qt_method!(fn(&self, recipients_id: i32)),
 }
 
 impl SessionMethods {
@@ -83,14 +83,14 @@ impl SessionMethods {
     }
 
     #[with_executor]
-    fn removeIdentities(&self, session_id: i32) {
+    fn removeIdentities(&self, recipient_id: i32) {
         actix::spawn(
             self.actor
                 .as_ref()
                 .unwrap()
-                .send(RemoveIdentities { session_id })
+                .send(RemoveIdentities { recipient_id })
                 .map(Result::unwrap),
         );
-        log::trace!("Dispatched SessionRemoveIdentities({})", session_id);
+        log::trace!("Dispatched RemoveIdentities({})", recipient_id);
     }
 }
