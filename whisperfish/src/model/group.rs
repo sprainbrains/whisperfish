@@ -6,7 +6,6 @@ use crate::store::observer::{EventObserving, Interest};
 use crate::store::orm::{GroupV1Member, GroupV2Member};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
-use actix::Addr;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 
@@ -35,16 +34,11 @@ crate::observing_model! {
 }
 
 impl EventObserving for GroupImpl {
-    type ModelActor = ObservingModelActor<Self>;
+    type Context = ModelContext<Self>;
 
-    fn observe(
-        &mut self,
-        storage: Storage,
-        ctx: Addr<Self::ModelActor>,
-        _event: crate::store::observer::Event,
-    ) {
+    fn observe(&mut self, ctx: Self::Context, _event: crate::store::observer::Event) {
         if self.id.is_some() {
-            self.init(storage, ctx);
+            self.init(ctx);
         }
     }
 
@@ -109,19 +103,15 @@ impl GroupImpl {
     }
 
     #[with_executor]
-    fn set_group_id(
-        &mut self,
-        storage: Option<Storage>,
-        id: QString,
-        ctx: Addr<<Self as EventObserving>::ModelActor>,
-    ) {
+    fn set_group_id(&mut self, ctx: Option<ModelContext<GroupImpl>>, id: QString) {
         self.id = Some(id.to_string());
-        if let Some(storage) = storage {
-            self.init(storage, ctx);
+        if let Some(ctx) = ctx {
+            self.init(ctx);
         }
     }
 
-    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
+    fn init(&mut self, ctx: ModelContext<GroupImpl>) {
+        let storage = ctx.storage();
         if let Some(id) = &self.id {
             self.group_v1 = None;
             self.group_v2 = None;

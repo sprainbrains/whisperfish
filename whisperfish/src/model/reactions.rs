@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
-use actix::Addr;
 use qmetaobject::{prelude::*, QJsonObject};
 
 /// QML-constructable object that interacts with a single session.
@@ -28,19 +27,14 @@ crate::observing_model! {
 }
 
 impl EventObserving for ReactionsImpl {
-    type ModelActor = ObservingModelActor<Self>;
+    type Context = ModelContext<Self>;
 
-    fn observe(
-        &mut self,
-        storage: Storage,
-        _ctx: Addr<Self::ModelActor>,
-        event: crate::store::observer::Event,
-    ) {
+    fn observe(&mut self, ctx: Self::Context, event: crate::store::observer::Event) {
         if let Some(message_id) = self.message_id {
             self.reaction_list
                 .pinned()
                 .borrow_mut()
-                .observe(storage, message_id, event);
+                .observe(ctx, message_id, event);
         }
     }
 
@@ -99,21 +93,16 @@ impl ReactionsImpl {
             .load_all(storage, id);
     }
 
-    fn set_message_id(
-        &mut self,
-        storage: Option<Storage>,
-        id: i32,
-        _ctx: Addr<<Self as EventObserving>::ModelActor>,
-    ) {
+    fn set_message_id(&mut self, ctx: Option<ModelContext<Self>>, id: i32) {
         self.message_id = Some(id);
-        if let Some(storage) = storage {
-            self.fetch(storage, id);
+        if let Some(ctx) = ctx {
+            self.fetch(ctx.storage(), id);
         }
     }
 
-    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
+    fn init(&mut self, ctx: ModelContext<Self>) {
         if let Some(id) = self.message_id {
-            self.fetch(storage, id);
+            self.fetch(ctx.storage(), id);
         }
     }
 
@@ -150,11 +139,11 @@ impl ReactionListModel {
 
     fn observe(
         &mut self,
-        storage: Storage,
+        ctx: ModelContext<ReactionsImpl>,
         message_id: i32,
         _event: crate::store::observer::Event,
     ) {
-        self.load_all(storage, message_id);
+        self.load_all(ctx.storage(), message_id);
     }
 }
 

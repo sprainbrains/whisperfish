@@ -557,6 +557,14 @@ impl AugmentedSession {
         }
     }
 
+    pub fn recipient_id(&self) -> i32 {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => -1,
+            SessionType::GroupV2(_group) => -1,
+            SessionType::DirectMessage(recipient) => recipient.id,
+        }
+    }
+
     pub fn recipient_name(&self) -> &str {
         match &self.inner.r#type {
             SessionType::GroupV1(_group) => "",

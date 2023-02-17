@@ -3,7 +3,6 @@
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
-use actix::Addr;
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
 
@@ -28,8 +27,11 @@ crate::observing_model! {
 }
 
 impl SessionsImpl {
-    fn init(&mut self, storage: Storage, _ctx: Addr<<Self as EventObserving>::ModelActor>) {
-        self.session_list.pinned().borrow_mut().load_all(storage);
+    fn init(&mut self, ctx: ModelContext<Self>) {
+        self.session_list
+            .pinned()
+            .borrow_mut()
+            .load_all(ctx.storage());
     }
 
     fn sessions(&self) -> QVariant {
@@ -46,14 +48,10 @@ impl SessionsImpl {
 }
 
 impl EventObserving for SessionsImpl {
-    type ModelActor = ObservingModelActor<Self>;
+    type Context = ModelContext<Self>;
 
-    fn observe(
-        &mut self,
-        storage: Storage,
-        _ctx: Addr<Self::ModelActor>,
-        event: crate::store::observer::Event,
-    ) {
+    fn observe(&mut self, ctx: Self::Context, event: crate::store::observer::Event) {
+        let storage = ctx.storage();
         // Find the correct session and update the latest message
         let session_id = event
             .relation_key_for(schema::sessions::table)
@@ -251,6 +249,7 @@ define_model_roles! {
     pub(super) enum SessionRoles for orm::AugmentedSession {
         Id(id):                                                            "id",
         SessionId(id):                                                     "sessionId",
+        RecipientId(fn recipient_id(&self)):                               "recipientId",
         RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
         RecipientUuid(fn recipient_uuid(&self) via QString::from):         "recipientUuid",
         RecipientE164(fn recipient_e164(&self) via QString::from):         "recipientE164",

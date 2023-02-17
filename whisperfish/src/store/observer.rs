@@ -340,9 +340,9 @@ impl Observatory {
 }
 
 pub trait EventObserving {
-    type ModelActor: actix::Actor;
+    type Context;
 
-    fn observe(&mut self, storage: super::Storage, ctx: Addr<Self::ModelActor>, event: Event)
+    fn observe(&mut self, ctx: Self::Context, event: Event)
     where
         Self: Sized;
     fn interests(&self) -> Vec<Interest>;

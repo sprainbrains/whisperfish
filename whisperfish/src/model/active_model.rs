@@ -77,8 +77,12 @@ macro_rules! observing_model {
                         .start();
 
                         let subscriber = actor.downgrade().recipient();
-                        self.actor = Some(actor.clone());
-                        self.inner.pinned().borrow_mut().init(storage.clone(), actor);
+                        let ctx = $crate::model::active_model::ModelContext {
+                            storage: storage.clone(),
+                            addr: actor.clone(),
+                        };
+                        self.actor = Some(actor);
+                        self.inner.pinned().borrow_mut().init(ctx);
                         let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.pinned().borrow()), subscriber);
                         self.observer_handle = Some(handle);
 
@@ -108,10 +112,16 @@ macro_rules! observing_model {
                 #[qmeta_async::with_executor]
                 fn $setter(&mut self, v: $t) {
                     let storage = self.app.as_pinned().and_then(|app| app.borrow().storage.borrow().clone());
+                    let addr = self.actor.clone();
+                    let ctx = storage.clone().zip(addr).map(|(storage, addr)| {
+                        $crate::model::active_model::ModelContext {
+                            storage,
+                            addr,
+                        }
+                    });
                     self.inner.pinned().borrow_mut().$setter(
-                        storage.clone(),
+                        ctx,
                         v,
-                        self.actor.clone().expect("XXX put actor and storage together in a context object"),
                     );
                     if let (Some(mut storage), Some(handle)) = (storage, self.observer_handle) {
                         storage.update_interests(handle, self.inner.pinned().borrow().interests());
@@ -122,6 +132,20 @@ macro_rules! observing_model {
             )*
         }
     };
+}
+
+pub struct ModelContext<T: QObject + 'static> {
+    pub(crate) storage: Storage,
+    pub(crate) addr: Addr<ObservingModelActor<T>>,
+}
+
+impl<T: QObject + 'static> ModelContext<T> {
+    pub fn storage(&self) -> Storage {
+        self.storage.clone()
+    }
+    pub fn addr(&self) -> Addr<ObservingModelActor<T>> {
+        self.addr.clone()
+    }
 }
 
 /// An actor that accompanies the [ObservingModel], responsible to dispatch events to the contained
@@ -140,7 +164,7 @@ impl<T: QObject + 'static> actix::Actor for ObservingModelActor<T> {
 
 impl<T: QObject + 'static> actix::Handler<Event> for ObservingModelActor<T>
 where
-    T: EventObserving<ModelActor = Self>,
+    T: EventObserving<Context = ModelContext<T>>,
 {
     type Result = Vec<Interest>;
 
@@ -149,7 +173,11 @@ where
             Some(model) => {
                 let model = model.pinned();
                 let mut model = model.borrow_mut();
-                model.observe(self.storage.clone(), ctx.address(), event);
+                let ctx = ModelContext {
+                    storage: self.storage.clone(),
+                    addr: ctx.address(),
+                };
+                model.observe(ctx, event);
                 model.interests()
             }
             None => {

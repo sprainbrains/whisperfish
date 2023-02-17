@@ -2,8 +2,8 @@
 
 use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
-use crate::store::{orm, Storage};
-use actix::{ActorContext, Addr, Handler};
+use crate::store::orm;
+use actix::{ActorContext, Handler};
 use futures::TryFutureExt;
 use libsignal_service::prelude::protocol::SessionStoreExt;
 use qmeta_async::with_executor;
@@ -48,16 +48,11 @@ crate::observing_model! {
 }
 
 impl EventObserving for RecipientImpl {
-    type ModelActor = ObservingModelActor<RecipientImpl>;
+    type Context = ModelContext<Self>;
 
-    fn observe(
-        &mut self,
-        storage: Storage,
-        ctx: Addr<Self::ModelActor>,
-        _event: crate::store::observer::Event,
-    ) {
+    fn observe(&mut self, ctx: Self::Context, _event: crate::store::observer::Event) {
         if self.recipient_id.is_some() {
-            self.init(storage, ctx);
+            self.init(ctx);
         }
     }
 
@@ -121,19 +116,15 @@ impl RecipientImpl {
     }
 
     #[with_executor]
-    fn set_recipient_id(
-        &mut self,
-        storage: Option<Storage>,
-        id: i32,
-        ctx: Addr<<Self as EventObserving>::ModelActor>,
-    ) {
+    fn set_recipient_id(&mut self, ctx: Option<ModelContext<Self>>, id: i32) {
         self.recipient_id = Some(id);
-        if let Some(storage) = storage {
-            self.init(storage, ctx);
+        if let Some(ctx) = ctx {
+            self.init(ctx);
         }
     }
 
-    fn init(&mut self, storage: Storage, addr: Addr<<Self as EventObserving>::ModelActor>) {
+    fn init(&mut self, ctx: ModelContext<Self>) {
+        let storage = ctx.storage();
         if let Some(id) = self.recipient_id {
             let recipient = if id >= 0 {
                 let recipient =
@@ -154,11 +145,12 @@ impl RecipientImpl {
                         let fingerprint = storage
                             .compute_safety_number(&local_svc, &recipient_svc, None)
                             .await?;
-                        addr.send(FingerprintComputed {
-                            recipient_id: id,
-                            fingerprint,
-                        })
-                        .await?;
+                        ctx.addr()
+                            .send(FingerprintComputed {
+                                recipient_id: id,
+                                fingerprint,
+                            })
+                            .await?;
 
                         Result::<_, anyhow::Error>::Ok(())
                     }
