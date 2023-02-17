@@ -11,6 +11,12 @@ Page {
     property string profilePicture: ""
     property var session: null
 
+    Recipient {
+        id: recipient
+        app: AppState
+        recipientId: session.recipientId ? session.recipientId : -1
+    }
+
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: column.height
@@ -117,7 +123,7 @@ Page {
                 readOnly: true
                 width: parent.width
                 font.family: 'monospace'
-                text: session.numericFingerprint
+                text: recipient.sessionFingerprint ? recipient.sessionFingerprint : "..."
             }
 
             TextArea {
