@@ -24,6 +24,7 @@ crate::observing_model! {
         valid: bool; READ get_valid,
     } WITH OPTIONAL PROPERTIES FROM recipient WITH ROLE RecipientWithFingerprintRoles {
         id Id,
+        directMessageSessionId DirectMessageSessionId,
         uuid Uuid,
         // These two are aliases
         e164 E164,
@@ -127,13 +128,17 @@ impl RecipientImpl {
         let storage = ctx.storage();
         if let Some(id) = self.recipient_id {
             let recipient = if id >= 0 {
-                let recipient =
-                    storage
-                        .fetch_recipient_by_id(id)
-                        .map(|inner| RecipientWithFingerprint {
-                            inner,
-                            fingerprint: None,
-                        });
+                let recipient = storage.fetch_recipient_by_id(id).map(|inner| {
+                    let direct_message_recipient_id = storage
+                        .fetch_session_by_recipient_id(inner.id)
+                        .map(|session| session.id)
+                        .unwrap_or(-1);
+                    RecipientWithFingerprint {
+                        inner,
+                        direct_message_recipient_id,
+                        fingerprint: None,
+                    }
+                });
                 // If a recipient was found, attempt to compute the fingeprint
                 if let Some(r) = &recipient {
                     let recipient_svc = r.to_service_address();
@@ -175,6 +180,7 @@ pub struct RecipientListModel {
 
 pub struct RecipientWithFingerprint {
     inner: orm::Recipient,
+    direct_message_recipient_id: i32,
     fingerprint: Option<String>,
 }
 
@@ -191,6 +197,7 @@ impl RecipientListModel {}
 define_model_roles! {
     pub(super) enum RecipientWithFingerprintRoles for RecipientWithFingerprint {
         Id(id): "id",
+        DirectMessageSessionId(direct_message_recipient_id): "directMessageSessionId",
         Uuid(uuid via qstring_from_option): "uuid",
         // These two are aliases
         E164(e164 via qstring_from_option): "e164",

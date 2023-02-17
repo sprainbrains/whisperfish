@@ -203,6 +203,13 @@ Page {
                     phonenumberLink.linkActivated('tel:' + model.e164)
                 }
 
+            // For when we need the augmented fields
+            Recipient {
+                id: recipient
+                recipientId: model.id
+                app: AppState
+            }
+
             menu: Component {
                 ContextMenu {
                     MenuItem {
@@ -216,9 +223,10 @@ Page {
                                   //% "Message to %1"
                                   qsTrId("whisperfish-group-member-menu-direct-message").arg(
                                       isUnknownContact ? (model.e164 ? model.e164 : model.uuid) : name)
-                        // TODO Remove the conditional once contact ids are no longer phone numbers,
-                        //      and once profiles (nicknames) are implemented.
-                        onClicked: remorse.execute("Directly opening a chat is not yet implemented.", function() {})
+                        onClicked: {
+                            var main = pageStack.find(function(page) { return page.objectName == "mainPage"; });
+                            pageStack.replaceAbove(main, Qt.resolvedUrl("../pages/ConversationPage.qml"), { sessionId: recipient.directMessageSessionId, profilePicture: profilePicture });
+                        }
                     }
                     MenuItem {
                         //: Menu item to save a group member to the local address book
@@ -242,6 +250,38 @@ Page {
                         text: qsTrId("whisperfish-group-member-menu-remove-from-group")
                         visible: selfIsAdmin
                         onClicked: remorse.execute("Changing group members is not yet implemented.", function() {})
+                    }
+                    MenuItem {
+                        // Reused from VerifyIdentity.qml
+                        text: qsTrId("whisperfish-reset-identity-menu")
+                        visible: SettingsBridge.debug_mode
+                        onClicked: {
+                            var recipient = model;
+                            var sessionMethods = SessionModel;
+                            //: Reset identity key remorse message (past tense)
+                            //% "Identity key reset"
+                            remorse.execute(qsTrId("whisperfish-reset-identity-message"),
+                                function() {
+                                    console.log("Resetting identity key for " + recipient.e164);
+                                    sessionMethods.removeIdentities(recipient.id);
+                                });
+                        }
+                    }
+                    MenuItem {
+                        // Reused from VerifyIdentity.qml
+                        text: qsTrId("whisperfish-reset-session-menu")
+                        visible: SettingsBridge.debug_mode
+                        onClicked: {
+                            var recipient = model;
+                            var messageMethods = MessageModel;
+                            //: Reset secure session remorse message (past tense)
+                            //% "Secure session reset"
+                            remorse.execute(qsTrId("whisperfish-reset-session-message"),
+                                function() {
+                                    console.log("Resetting secure session with " + recipient.e164);
+                                    messageMethods.endSession(recipient.id);
+                                });
+                        }
                     }
                 }
             }
