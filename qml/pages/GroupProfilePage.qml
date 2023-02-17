@@ -232,12 +232,9 @@ Page {
                         //% "Verify safety number"
                         text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
                         visible: !isVerified
-                        onClicked: remorse.execute("Directly verifying the safety number is not yet implemented.", function() {})
-                        // TODO We cannot open the verification page because we require access to the sessionId.
-                        //      This should not be difficult anymore
-                        //
-                        // Not possible:
-                        //      pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { sessionId:  })
+                        onClicked: {
+                            pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { recipientId: model.id, profilePicture: profilePicture })
+                        }
                     }
                     MenuItem {
                         //: Menu item to remove a member from a group (requires admin privileges)
