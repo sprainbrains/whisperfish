@@ -387,7 +387,6 @@
         <translation>
             <numerusform>Mensaje %n borrado localmente</numerusform>
             <numerusform>Mensajes %n borrados localmente</numerusform>
-            <numerusform>Mensajes %n borrados localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -1317,7 +1316,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n adjunto</numerusform>
             <numerusform>%n adjuntos</numerusform>
-            <numerusform>%n adjuntos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1345,7 +1343,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
-            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1354,7 +1351,6 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>y %n más</numerusform>
             <numerusform>y %n más</numerusform>
             <numerusform>y %n más</numerusform>
         </translation>
