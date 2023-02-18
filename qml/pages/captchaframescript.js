@@ -10,7 +10,7 @@ addEventListener("DOMContentLoaded", function () {
         sendAsyncMessage("Whisperfish:CaptchaDone", { "code": content.document.body.dataset.wfResult });
     });
 
-    // Extract recaptcha result
+    // Extract signalcaptcha result
     var sc = content.document.createElement("script");
     sc.textContent = "var wf_cp_done = false;\n" +
     "function wf_cp_handler(c) {\n" +

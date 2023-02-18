@@ -11,7 +11,7 @@ BlockingInfoPageBase {
     pageTitle: "" // xx("Step 2")
 
     //: Signal has requested additional captcha page title
-    //% "reCaptcha requested"
+    //% "Captcha requested"
     mainTitle: qsTrId("whisperfish-captcha-requested-title")
 
     //: Signal has requested additional captcha description
@@ -41,7 +41,7 @@ BlockingInfoPageBase {
                 captchaReceived = false
                 mainDescription = (qsTrId("whisperfish-captcha-requested-message") +
                     //: Rate limit captcha has to be tried again
-                    //% "The reCaptcha wasn't accepted, please try again."
+                    //% "The captcha response wasn't accepted, please try again."
                     "\n\n" + qsTrId("whisperfish-captcha-requested-try-again"))
             }
         }

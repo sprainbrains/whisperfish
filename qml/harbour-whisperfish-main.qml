@@ -6,7 +6,7 @@ import org.nemomobile.contacts 1.0
 import "pages"
 
 // Note: This is the main QML file for Whisperfish.
-// The reCaptcha helper uses harbour-whisperfish.qml by design.
+// The signalcaptcha helper uses harbour-whisperfish.qml by design.
 
 ApplicationWindow
 {

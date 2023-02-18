@@ -1276,6 +1276,8 @@ impl Handler<SendMessage> for ClientActor {
                             .await
                         {
                             storage.fail_message(mid);
+
+                            // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
                             let recaptcha = String::from("recaptcha");
                             if let MessageSenderError::ProofRequired { token, options } = &e {
                                 if options.contains(&recaptcha) {
@@ -1286,7 +1288,7 @@ impl Handler<SendMessage> for ClientActor {
                                     .await
                                     .expect("deliver captcha required");
                                 } else {
-                                    log::warn!("Rate limit proof requested, but type reCaptcha wasn't available!");
+                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
                                 }
                             }
                             anyhow::bail!("Error sending message: {}", e);
@@ -2124,10 +2126,10 @@ impl Handler<ProofResponse> for ClientActor {
         Box::pin(proc.into_actor(self).map(move |result, _act, _ctx| {
             actix::spawn(async move {
                 if let Err(e) = result {
-                    log::error!("Proof reCaptcha failed: {}", e);
+                    log::error!("Error sending signalcaptcha proof: {}", e);
                     addr.send(ProofAccepted { result: false }).await
                 } else {
-                    log::trace!("Successfully sent proof reCaptcha");
+                    log::trace!("Successfully sent signalcaptcha proof");
                     addr.send(ProofAccepted { result: true }).await
                 }
             });

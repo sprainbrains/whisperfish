@@ -13,7 +13,7 @@ CoverBackground {
         }
         horizontalAlignment: Text.AlignHCenter
         // Not seen normally, can be left untranslated
-        text: "Whisperfish\nreCAPTCHA"
+        text: "Whisperfish\captcha"
     }
 
     Image {
