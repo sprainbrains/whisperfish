@@ -23,7 +23,7 @@ pub struct OutdatedProfileStream {
     next_wake: Option<Pin<Box<tokio::time::Sleep>>>,
 }
 
-pub struct OutdatedProfile(pub Uuid, pub ProfileKey);
+pub struct OutdatedProfile(pub Uuid, pub Option<ProfileKey>);
 
 impl OutdatedProfileStream {
     pub fn new(storage: Storage) -> Self {
@@ -64,32 +64,25 @@ impl OutdatedProfileStream {
 
         for recipient in out_of_date_profiles {
             let recipient_uuid = recipient.uuid.as_ref().expect("database precondition");
-            let recipient_uuid = Uuid::parse_str(recipient_uuid).expect("valid uuid in db");
-            let profile_key_bytes = if let Some(key) = &recipient.profile_key {
-                key as &[u8]
-            } else {
-                // TODO: actually fetch this too and make the key optional.
-                // The fetching logic supports it, although it will return less information.
-                log::trace!("Ignoring out-of-date profile without profile key.");
-                continue;
-            };
-            if profile_key_bytes.len() != 32 {
-                log::warn!("Invalid profile key in db. Skipping.");
-                continue;
-            }
-            match self.ignore_map.get(&recipient_uuid) {
-                Some(_present) => continue,
-                None => {
-                    self.ignore_map
-                        .insert(recipient_uuid, Instant::now() + REYIELD_DELAY);
-                    let mut profile_key_arr = [0u8; 32];
-                    profile_key_arr.copy_from_slice(profile_key_bytes);
-                    return Some(OutdatedProfile(
-                        recipient_uuid,
-                        ProfileKey::create(profile_key_arr),
-                    ));
+            let recipient_uuid = match Uuid::parse_str(recipient_uuid) {
+                Ok(u) => u,
+                e => {
+                    log::warn!("{:?}", e);
+                    continue;
                 }
-            }
+            };
+            let recipient_key = if let Some(key) = recipient.profile_key {
+                if key.len() != 32 {
+                    log::warn!("Invalid profile key in db. Skipping.");
+                    continue;
+                }
+                let mut key_bytes = [0u8; 32];
+                key_bytes.copy_from_slice(&key);
+                Some(ProfileKey::create(key_bytes))
+            } else {
+                None
+            };
+            return Some(OutdatedProfile(recipient_uuid, recipient_key));
         }
 
         None
