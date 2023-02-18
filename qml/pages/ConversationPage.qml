@@ -278,10 +278,9 @@ Page {
             //   Entries may be hidden if they are at the sides and are seldomly used.
             //   Nothing should take the place of a hidden entry but there must not be any gaps.
             //   Entries that are conditionally unavailable should be deactivated, not hidden.
-            //
-            // TODO it may make sense to combine both rows into one in horizontal mode
 
             Row {
+                id: firstRow
                 spacing: Theme.paddingLarge
                 anchors.horizontalCenter: parent.horizontalCenter
                 IconButton {
@@ -311,8 +310,37 @@ Page {
                     enabled: _selectedCount === 1
                     onClicked: messages.messageAction(messages.showMessageInfo)
                 }
+
+                // Show the buttons of the second row in the first row only in landscape mode.
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "image://theme/icon-m-delete"
+                    //: Message action description
+                    //% "Locally delete %n message(s)"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-delete-for-self", _selectedCount))
+                    onClicked: messages.messageAction(messages.deleteSelectedForSelf)
+                    enabled: root.isLandscape
+                    visible: root.isLandscape
+                }
+                IconButton {
+                    width: Theme.itemSizeSmall; height: width
+                    icon.source: "../../icons/icon-m-delete-all.png"
+                    //: Message action description
+                    //% "Delete %n message(s) for all"
+                    onPressedChanged: infoLabel.toggleHint(
+                                          qsTrId("whisperfish-message-action-delete-for-all", _selectedCount))
+                    onClicked: messages.messageAction(messages.deleteSelectedForAll)
+                    enabled: false // TODO enable once implemented
+                    visible: root.isLandscape
+                }
             }
             Row {
+                // Show the second row of buttons only in portrait mode.
+                enabled: root.isPortrait
+                visible: root.isPortrait
+                height: root.isPortrait ? firstRow.height : 0
+
                 spacing: Theme.paddingLarge
                 anchors.horizontalCenter: parent.horizontalCenter
                 IconButton {
