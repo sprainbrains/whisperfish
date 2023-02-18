@@ -803,9 +803,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-captcha-requested-title">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="15"/>
-        <source>reCaptcha requested</source>
+        <source>Captcha requested</source>
+        <oldsource>reCaptcha requested</oldsource>
         <extracomment>Signal has requested additional captcha page title</extracomment>
-        <translation>reCaptcha demandé</translation>
+        <translation type="unfinished">reCaptcha demandé</translation>
     </message>
     <message id="whisperfish-captcha-requested-message">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="19"/>
@@ -816,9 +817,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-captcha-requested-try-again">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="45"/>
-        <source>The reCaptcha wasn&apos;t accepted, please try again.</source>
+        <source>The captcha response wasn&apos;t accepted, please try again.</source>
+        <oldsource>The reCaptcha wasn&apos;t accepted, please try again.</oldsource>
         <extracomment>Rate limit captcha has to be tried again</extracomment>
-        <translation>Le reCaptcha n&apos;a pas été accepté, veuillez réessayer.</translation>
+        <translation type="unfinished">Le reCaptcha n&apos;a pas été accepté, veuillez réessayer.</translation>
     </message>
     <message id="whisperfish-done-button-label">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="97"/>
