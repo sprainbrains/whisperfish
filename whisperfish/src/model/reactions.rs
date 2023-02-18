@@ -112,8 +112,7 @@ impl ReactionsImpl {
         for (reaction, _) in &self.reaction_list.pinned().borrow().reactions {
             *map.entry(reaction.emoji.clone()).or_insert(0) += 1;
         }
-
-        let mut qmap = qmetaobject::QJsonObject::default();
+        let mut qmap: qmetaobject::QJsonObject = qmetaobject::QJsonObject::default();
         for (emoji, count) in map {
             qmap.insert(&emoji, QVariant::from(count).into());
         }
