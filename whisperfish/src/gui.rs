@@ -250,7 +250,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             app.set_quit_on_last_window_closed(false);
             app.promote_gui_app_to_qml_context("RootApp".into());
 
-            // We need harbour-whisperfish.qml for the QML-only reCaptcha application
+            // We need harbour-whisperfish.qml for the QML-only signalcaptcha application
             // so we have to use another filename for the main QML file for Whisperfish.
             app.set_source(QmlApp::path_to("qml/harbour-whisperfish-main.qml".into()));
 

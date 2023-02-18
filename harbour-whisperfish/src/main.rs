@@ -12,7 +12,8 @@ struct Opts {
     /// Captcha override
     ///
     /// By opening https://signalcaptchas.org/registration/generate.html in a browser,
-    /// and intercepting the redirect (by using the console), it is possible to inject a reCAPTCHA.
+    /// and intercepting the redirect (by using the console),
+    /// it is possible to inject a signalcaptcha URL.
     ///
     /// This is as a work around for https://gitlab.com/whisperfish/whisperfish/-/issues/378
     #[structopt(short, long)]
