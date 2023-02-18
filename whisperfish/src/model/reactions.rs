@@ -3,7 +3,7 @@
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
-use qmetaobject::prelude::*;
+use qmetaobject::{prelude::*, QJsonObject};
 
 /// QML-constructable object that interacts with a single session.
 #[derive(Default, QObject)]
@@ -19,7 +19,7 @@ crate::observing_model! {
         messageId: i32; READ get_message_id WRITE set_message_id,
         valid: bool; READ get_valid,
         reactions: QVariant; READ reactions,
-        groupedReactions: QByteArray; READ grouped_reactions,
+        groupedReactions: QJsonObject; READ grouped_reactions,
         count: i32; READ reaction_count,
     }
 }
@@ -106,17 +106,17 @@ impl ReactionsImpl {
         self.reaction_list.pinned().into()
     }
 
-    fn grouped_reactions(&self) -> QByteArray {
+    fn grouped_reactions(&self) -> QJsonObject {
         let mut map = std::collections::HashMap::new();
 
         for (reaction, _) in &self.reaction_list.pinned().borrow().reactions {
             *map.entry(reaction.emoji.clone()).or_insert(0) += 1;
         }
-        let mut qmap: qmetaobject::QJsonObject = qmetaobject::QJsonObject::default();
+        let mut qmap: QJsonObject = QJsonObject::default();
         for (emoji, count) in map {
             qmap.insert(&emoji, QVariant::from(count).into());
         }
-        qmap.to_json()
+        qmap
     }
 }
 

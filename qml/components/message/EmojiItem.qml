@@ -9,17 +9,19 @@ LinkedEmojiLabel {
     property var reactions: null
 
     Component.onCompleted: {
+        if(reactions.count == 0)
+            return;
+        var emojis = reactions.groupedReactions
         var text = ''
-        if (reactions && reactions.count) {
-            var json = JSON.parse(reactions.groupedReactions)
-            for (var key in json) {
-                text = text + key + " " + (json[key] > 1 ? (json[key] + " ") : '')
+        if (emojis) {
+            for (var key in emojis) {
+                text = text + key + " " + (emojis[key] > 1 ? (emojis[key] + " ") : '')
             }
         }
         emojiLabel.plainText = text
     }
 
-    plainText: reactions.count + " reactions"
+    plainText: ''
     id: emojiLabel
     anchors.margins: Theme.paddingMedium
     visible: plainText.length > 0
