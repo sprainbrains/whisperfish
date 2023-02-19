@@ -28,6 +28,8 @@ pub struct SignalConfig {
     share_dir: std::path::PathBuf,
     /// Verbosity of the logging messages
     pub verbose: bool,
+    /// Enable writing to log file
+    pub logfile: bool,
     /// Whether whisperfish was automatically started (probably systemd) or by the user. We do not
     /// want to serialize this field to the config file. This config is only set by command line
     /// arguments.
@@ -48,6 +50,7 @@ impl Default for SignalConfig {
             device_id: std::sync::Mutex::new(libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
             verbose: false,
+            logfile: false,
             autostart: false,
             override_captcha: None,
         }

@@ -5,6 +5,8 @@ use std::time::Duration;
 use structopt::StructOpt;
 use whisperfish::*;
 
+use simplelog::*;
+
 /// Signal attachment downloader for Whisperfish
 #[derive(StructOpt, Debug)]
 #[structopt(name = "harbour-whisperfish")]
@@ -104,20 +106,55 @@ fn main() {
     }
     config.override_captcha = opt.captcha;
 
-    // Initiate logger facility
+    // Build simplelog configuration
+    let shared_dir = config.get_share_dir().join("harbour-whisperfish.log");
+    let log_file = shared_dir.to_str().expect("log file path");
+    let mut log_level = LevelFilter::Warn;
+    let mut config_builder = ConfigBuilder::new();
+
+    config_builder
+        .set_time_format_str("%Y-%m-%d %H:%M:%S%.3f")
+        .add_filter_allow_str("whisperfish")
+        .add_filter_allow_str("libsignal_service")
+        .add_filter_allow_str("libsignal_service_actix")
+        .set_max_level(LevelFilter::Error) // Always show e.g. [INFO]
+        .set_thread_level(LevelFilter::Off) // Hide thread info
+        .set_location_level(LevelFilter::Off) // Hide filename, row and column
+        .set_level_color(Level::Trace, Some(Color::Magenta))
+        .set_level_color(Level::Debug, Some(Color::Blue))
+        .set_level_color(Level::Info, Some(Color::Green))
+        .set_level_color(Level::Warn, Some(Color::Yellow))
+        .set_level_color(Level::Error, Some(Color::Red));
+
     if config.verbose {
         // Enable QML debug output and full backtrace (for Sailjail).
         std::env::set_var("QT_LOGGING_TO_CONSOLE", "1");
         std::env::set_var("RUST_BACKTRACE", "full");
-
-        env_logger::Builder::from_default_env()
-            .filter_module("libsignal_service_actix", log::LevelFilter::Trace)
-            .filter_module("libsignal_service", log::LevelFilter::Trace)
-            .filter_module("whisperfish", log::LevelFilter::Trace)
-            .init()
-    } else {
-        env_logger::init()
+        log_level = LevelFilter::Trace;
     }
+
+    CombinedLogger::init(match config.logfile {
+        true => vec![
+            TermLogger::new(
+                log_level,
+                config_builder.build(),
+                TerminalMode::Stderr,
+                ColorChoice::Auto,
+            ),
+            WriteLogger::new(
+                log_level,
+                config_builder.build(),
+                std::fs::File::create(log_file).unwrap(),
+            ),
+        ],
+        false => vec![TermLogger::new(
+            log_level,
+            config_builder.build(),
+            TerminalMode::Stderr,
+            ColorChoice::Auto,
+        )],
+    })
+    .unwrap();
 
     let instance_lock = SingleInstance::new("whisperfish").unwrap();
     if !instance_lock.is_single() {
