@@ -199,8 +199,9 @@ impl QAbstractListModel for GroupMembershipListModel {
     }
 
     fn data(&self, index: QModelIndex, role: i32) -> QVariant {
-        if role > 100 {
-            let role = GroupMembershipRoles::from(role);
+        let offset = 100;
+        if role > offset {
+            let role = GroupMembershipRoles::from(role - offset);
             role.get(&self.content[index.row() as usize].0)
         } else {
             let role = RecipientRoles::from(role);

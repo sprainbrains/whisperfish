@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 
+use std::collections::HashMap;
+
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::{orm, Storage};
 use crate::{model::*, schema};
@@ -63,7 +65,7 @@ define_model_roles! {
         Id(reaction_id): "id",
         MessageId(message_id): "messageId",
         Author(author): "authorRecipientId",
-        Emoji(emoji via QString::from): "emoji",
+        Reaction(emoji via QString::from): "reaction",
         SentTime(sent_time via qdatetime_from_naive): "sentTime",
         ReceivedTime(received_time via qdatetime_from_naive): "receivedTime",
     }
@@ -149,8 +151,9 @@ impl QAbstractListModel for ReactionListModel {
     }
 
     fn data(&self, index: QModelIndex, role: i32) -> QVariant {
-        if role > 100 {
-            let role = ReactionRoles::from(role);
+        let offset = 100;
+        if role > offset {
+            let role = ReactionRoles::from(role - offset);
             role.get(&self.reactions[index.row() as usize].0)
         } else {
             let role = RecipientRoles::from(role);
@@ -158,7 +161,7 @@ impl QAbstractListModel for ReactionListModel {
         }
     }
 
-    fn role_names(&self) -> std::collections::HashMap<i32, QByteArray> {
+    fn role_names(&self) -> HashMap<i32, QByteArray> {
         ReactionRoles::role_names()
             .into_iter()
             .chain(RecipientRoles::role_names().into_iter())
