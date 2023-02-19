@@ -151,9 +151,9 @@ impl QAbstractListModel for ReactionListModel {
     }
 
     fn data(&self, index: QModelIndex, role: i32) -> QVariant {
-        let offset = 100;
-        if role > offset {
-            let role = ReactionRoles::from(role - offset);
+        const OFFSET: i32 = 100;
+        if role > OFFSET {
+            let role = ReactionRoles::from(role - OFFSET);
             role.get(&self.reactions[index.row() as usize].0)
         } else {
             let role = RecipientRoles::from(role);
