@@ -29,7 +29,6 @@ ListItem {
         (_debugMode ? "[" + model.id + "] " : "") +
         (hasAttachment
             ? ("📎 " + (model.message === ''
-                // TODO we could show an icon in front
                 //: Session contains an attachment label
                 //% "Attachment"
                 ? qsTrId("whisperfish-session-has-attachment") : '')

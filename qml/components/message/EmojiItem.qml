@@ -8,7 +8,20 @@ import ".."
 LinkedEmojiLabel {
     property var reactions: null
 
-    plainText: reactions.count + " reactions"
+    Component.onCompleted: {
+        if(reactions.count == 0)
+            return;
+        var emojis = reactions.groupedReactions
+        var text = ''
+        if (emojis) {
+            for (var key in emojis) {
+                text = text + key + " " + (emojis[key] > 1 ? (emojis[key] + " ") : '')
+            }
+        }
+        emojiLabel.plainText = text
+    }
+
+    plainText: ''
     id: emojiLabel
     anchors.margins: Theme.paddingMedium
     visible: plainText.length > 0

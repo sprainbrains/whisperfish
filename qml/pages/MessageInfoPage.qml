@@ -1,5 +1,6 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../components"
 import "../delegates"
 
@@ -11,6 +12,12 @@ Page {
 
     // Proxy some more used properties
     readonly property bool outgoing: message.outgoing
+
+    Reactions {
+        id: reactions
+        app: AppState
+        messageId: message.id
+    }
 
     SilicaFlickable {
         id: silicaFlickable
@@ -51,7 +58,6 @@ Page {
 
                 Loader {
                     id: loader
-                    y: section ? section.y + section.height : 0
                     width: parent.width
                     sourceComponent: defaultMessageDelegate
                 }
@@ -59,6 +65,7 @@ Page {
                 Component {
                     id: defaultMessageDelegate
                     MessageDelegate {
+                        id: messageDelegate
                         modelData: message
                         //menu: messageContextMenu
                         // set explicitly because attached properties are not available
@@ -94,20 +101,24 @@ Page {
                 value: message.timestamp
             }
             SectionHeader {
-                visible: emojiLabel.visible
+                visible: reactions.count
                 //: Reactions section header
                 //% "Reactions"
                 text: qsTrId("whisperfish-message-info-reactions")
             }
-            LinkedEmojiLabel {
-                id: emojiLabel
-                visible: plainText.length > 0
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    leftMargin: Theme.paddingLarge * 2
+            ListView {
+                id: emojiView
+                width: parent.width
+                height: childrenRect.height
+                model: reactions.reactions
+                delegate: ListItem {
+                    width: parent.width
+                    height: childrenRect.height
+                    DetailItem {
+                        label: model.name
+                        value: model.reaction
+                    }
                 }
-                plainText: message.reactionsNamed
             }
         }
     }
