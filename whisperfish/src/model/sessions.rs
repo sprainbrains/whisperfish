@@ -178,6 +178,22 @@ impl SessionListModel {
             } else {
                 assert!(event.for_table(schema::sessions::table));
                 assert!(event.is_delete());
+
+                let found = self
+                    .content
+                    .iter()
+                    .enumerate()
+                    .find(|(_, s)| s.id == session_id);
+
+                if let Some((idx, _)) = found {
+                    self.begin_remove_rows(idx as i32, idx as i32);
+                    self.content.remove(idx);
+                    self.end_remove_rows();
+
+                    self.countChanged();
+                } else {
+                    log::warn!("Could not find session in model for deletion event");
+                }
             }
         } else if let Some(message_id) = message_id {
             // There's no relation to a session, so that means that an augmented message was
