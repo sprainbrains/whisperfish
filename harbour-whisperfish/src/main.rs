@@ -133,8 +133,8 @@ fn main() {
         log_level = LevelFilter::Trace;
     }
 
-    CombinedLogger::init(match config.logfile {
-        true => vec![
+    CombinedLogger::init(if config.logfile {
+        vec![
             TermLogger::new(
                 log_level,
                 config_builder.build(),
@@ -146,13 +146,14 @@ fn main() {
                 config_builder.build(),
                 std::fs::File::create(log_file).unwrap(),
             ),
-        ],
-        false => vec![TermLogger::new(
+        ]
+    } else {
+        vec![TermLogger::new(
             log_level,
             config_builder.build(),
             TerminalMode::Stderr,
             ColorChoice::Auto,
-        )],
+        )]
     })
     .unwrap();
 
