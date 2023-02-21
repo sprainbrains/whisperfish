@@ -2345,7 +2345,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject"
 version = "0.2.5"
-source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#8cc8e50a90d9ccec4535c0a59645e42df795e553"
+source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#09d07228a2328354ae7df5a6d006ffccb68bcf03"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -2359,7 +2359,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject_impl"
 version = "0.2.5"
-source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#8cc8e50a90d9ccec4535c0a59645e42df795e553"
+source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#09d07228a2328354ae7df5a6d006ffccb68bcf03"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2379,7 +2379,7 @@ dependencies = [
 [[package]]
 name = "qttypes"
 version = "0.2.6"
-source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#8cc8e50a90d9ccec4535c0a59645e42df795e553"
+source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#09d07228a2328354ae7df5a6d006ffccb68bcf03"
 dependencies = [
  "cpp",
  "cpp_build",
