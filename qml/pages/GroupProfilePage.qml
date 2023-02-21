@@ -227,6 +227,7 @@ Page {
                             var main = pageStack.find(function(page) { return page.objectName == "mainPage"; });
                             pageStack.replaceAbove(main, Qt.resolvedUrl("../pages/ConversationPage.qml"), { sessionId: recipient.directMessageSessionId, profilePicture: profilePicture });
                         }
+                        enabled: recipient.directMessageSessionId != -1
                     }
                     MenuItem {
                         //: Menu item to save a group member to the local address book
