@@ -28,7 +28,7 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
                 (
                     uuid,
                     service
-                        .retrieve_profile_by_id(ServiceAddress::from(uuid), Some(key))
+                        .retrieve_profile_by_id(ServiceAddress::from(uuid), key)
                         .await,
                 )
             }
