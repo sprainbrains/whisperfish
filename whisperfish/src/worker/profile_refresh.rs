@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use diesel::prelude::*;
 use futures::Stream;
 use std::{
-    collections::HashMap,
+    collections::{hash_map, HashMap},
     pin::Pin,
     task::{Context, Poll},
     time::{Duration, Instant},
@@ -74,6 +74,11 @@ impl OutdatedProfileStream {
             let recipient_key = if let Some(key) = recipient.profile_key {
                 if key.len() != 32 {
                     log::warn!("Invalid profile key in db. Skipping.");
+                    continue;
+                }
+                if let hash_map::Entry::Vacant(e) = self.ignore_map.entry(recipient_uuid) {
+                    e.insert(Instant::now() + REYIELD_DELAY);
+                } else {
                     continue;
                 }
                 let mut key_bytes = [0u8; 32];
