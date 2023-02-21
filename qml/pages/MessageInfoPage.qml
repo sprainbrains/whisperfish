@@ -97,7 +97,7 @@ Page {
             DetailItem {
                 //: Label for timestamp of the message
                 //% "Timestamp"
-                label: qsTrId("whisperfish-message-session-id")
+                label: qsTrId("whisperfish-message-timestamp")
                 value: message.timestamp
             }
             SectionHeader {
