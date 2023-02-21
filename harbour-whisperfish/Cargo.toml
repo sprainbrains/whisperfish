@@ -13,9 +13,9 @@ whisperfish = { path = "../whisperfish" }
 dbus = "0.9"
 single-instance = "0.3.3"
 log = "0.4"
+simplelog = "0.11.2"
 anyhow = "1.0"
 structopt = "0.3"
-env_logger = "0.9"
 
 [features]
 bundled-sqlcipher = ["whisperfish/bundled-sqlcipher"]
