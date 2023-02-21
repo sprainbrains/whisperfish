@@ -1669,7 +1669,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="100"/>
         <source>Timestamp</source>
         <extracomment>Label for timestamp of the message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zaman damgası</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="107"/>
