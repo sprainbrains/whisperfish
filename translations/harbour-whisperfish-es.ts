@@ -104,7 +104,7 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="264"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>Error al configurar la aplicación Signal</translation>
+        <translation>Error al configurar el cliente Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="269"/>
@@ -239,7 +239,7 @@
         <location filename="../qml/pages/About.qml" line="142"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Visita la wiki</translation>
+        <translation>Visita la Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="151"/>
@@ -386,6 +386,7 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>Mensaje %n borrado localmente</numerusform>
+            <numerusform>Mensajes %n borrados localmente</numerusform>
             <numerusform>Mensajes %n borrados localmente</numerusform>
         </translation>
     </message>
@@ -1318,6 +1319,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n adjunto</numerusform>
             <numerusform>%n adjuntos</numerusform>
+            <numerusform>%n adjuntos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1345,6 +1347,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1354,6 +1357,7 @@ Settings page share contacts</extracomment>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
             <numerusform>y %n más</numerusform>
+            <numerusform>y muchos %n más</numerusform>
             <numerusform>y muchos %n más</numerusform>
         </translation>
     </message>
@@ -1545,6 +1549,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n miembro</numerusform>
             <numerusform>%n miembros</numerusform>
+            <numerusform>%n miembros</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1555,6 +1560,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensaje seleccionado</numerusform>
             <numerusform>%n mensajes seleccionados</numerusform>
+            <numerusform>%n mensajes seleccionados</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1563,6 +1569,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
             <numerusform>Borrar la selección</numerusform>
+            <numerusform>Borrar las selecciones</numerusform>
             <numerusform>Borrar las selecciones</numerusform>
         </translation>
     </message>
@@ -1573,6 +1580,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copiar el %n mensaje</numerusform>
+            <numerusform>Copiar los %n mensajes</numerusform>
             <numerusform>Copiar los %n mensajes</numerusform>
         </translation>
     </message>
@@ -1591,6 +1599,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Borrar localmente %n mensaje</numerusform>
             <numerusform>Borrar localmente %n mensajes</numerusform>
+            <numerusform>Borrar localmente %n mensajes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1602,6 +1611,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Borrar el %n mensaje para todos</numerusform>
             <numerusform>Borrar los %n mensajes para todos</numerusform>
+            <numerusform>Borrar los %n mensajes para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1610,6 +1620,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Volver a intentar enviar (el) mensaje fallido</numerusform>
+            <numerusform>Volver a intentar enviar (los) mensajes fallidos</numerusform>
             <numerusform>Volver a intentar enviar (los) mensajes fallidos</numerusform>
         </translation>
     </message>
@@ -1632,6 +1643,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Mensaje&lt;br/&gt;no leído</numerusform>
+            <numerusform>Mensajes&lt;br/&gt;no leídos</numerusform>
             <numerusform>Mensajes&lt;br/&gt;no leídos</numerusform>
         </translation>
     </message>
@@ -1681,7 +1693,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="100"/>
         <source>Timestamp</source>
         <extracomment>Label for timestamp of the message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Marca de tiempo</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="107"/>
