@@ -67,14 +67,14 @@
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished">Als nicht stummgeschaltet markieren</translation>
+        <translation>Stummschaltung aufheben</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="338"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished">Als stummgeschaltet markieren</translation>
+        <translation>Stummschalten</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="346"/>
