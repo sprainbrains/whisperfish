@@ -755,7 +755,7 @@ Settings page share contacts</extracomment>
         <source>Captcha requested</source>
         <oldsource>reCaptcha requested</oldsource>
         <extracomment>Signal has requested additional captcha page title</extracomment>
-        <translation type="unfinished">reCaptcha angefordert</translation>
+        <translation>Captcha angefordert</translation>
     </message>
     <message id="whisperfish-captcha-requested-message">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="19"/>
@@ -769,7 +769,7 @@ Settings page share contacts</extracomment>
         <source>The captcha response wasn&apos;t accepted, please try again.</source>
         <oldsource>The reCaptcha wasn&apos;t accepted, please try again.</oldsource>
         <extracomment>Rate limit captcha has to be tried again</extracomment>
-        <translation type="unfinished">Das reCaptcha wurde nicht akzeptiert, bitte versuchen Sie es erneut.</translation>
+        <translation>Die Captcha-Antwort wurde nicht akzeptiert, bitte versuchen Sie es erneut.</translation>
     </message>
     <message id="whisperfish-done-button-label">
         <location filename="../qml/pages/ProofSubmitPage.qml" line="97"/>
@@ -1668,19 +1668,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="88"/>
         <source>Message ID</source>
         <extracomment>Label for id of the message (in database)</extracomment>
-        <translation type="unfinished">Nachrichten-ID</translation>
+        <translation>Nachrichten-ID</translation>
     </message>
     <message id="whisperfish-message-session-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="94"/>
         <source>Session ID</source>
         <extracomment>Label for session id of the message (in database)</extracomment>
-        <translation type="unfinished">Sitzungs-ID</translation>
+        <translation>Sitzungs-ID</translation>
     </message>
     <message id="whisperfish-message-timestamp">
         <location filename="../qml/pages/MessageInfoPage.qml" line="100"/>
         <source>Timestamp</source>
         <extracomment>Label for timestamp of the message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zeitstempel</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="107"/>
