@@ -387,7 +387,6 @@
         <translation>
             <numerusform>%1 messaggio eliminato localmente</numerusform>
             <numerusform>%1 messaggi eliminati localmente</numerusform>
-            <numerusform>%1 messaggi eliminati localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -1319,7 +1318,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n allegato</numerusform>
             <numerusform>%n allegati</numerusform>
-            <numerusform>%n allegati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1347,7 +1345,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
-            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1356,7 +1353,6 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
-            <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
         </translation>
@@ -1549,7 +1545,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membro</numerusform>
             <numerusform>%n membri</numerusform>
-            <numerusform>%n membri</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1560,7 +1555,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%1 messaggio selezionato</numerusform>
             <numerusform>%1 messaggi selezionati</numerusform>
-            <numerusform>%1 messaggi selezionati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1568,7 +1562,6 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
-            <numerusform>Cancella la selezione</numerusform>
             <numerusform>Cancella la selezione</numerusform>
             <numerusform>Cancella la selezione</numerusform>
         </translation>
@@ -1580,7 +1573,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copia %1 messaggio</numerusform>
-            <numerusform>Copia %1 messaggi</numerusform>
             <numerusform>Copia %1 messaggi</numerusform>
         </translation>
     </message>
@@ -1599,7 +1591,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Elimina %1 messaggio per me</numerusform>
             <numerusform>Elimina %1 messaggi per me</numerusform>
-            <numerusform>Elimina %1 messaggi per me</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1611,7 +1602,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Elimina %1 messaggio per tutti</numerusform>
             <numerusform>Elimina %1 messaggi per tutti</numerusform>
-            <numerusform>Elimina %1 messaggi per tutti</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1620,7 +1610,6 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Riprova a inviare il messaggio non inviato</numerusform>
-            <numerusform>Riprova a inviare i messaggi non inviati</numerusform>
             <numerusform>Riprova a inviare i messaggi non inviati</numerusform>
         </translation>
     </message>
@@ -1643,7 +1632,6 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Messaggio&lt;br/&gt;non letto</numerusform>
-            <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
             <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
         </translation>
     </message>
