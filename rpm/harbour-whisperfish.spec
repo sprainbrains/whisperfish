@@ -242,6 +242,8 @@ fi
 cargo build -j 1 \
           -vv \
           --release \
+          -p itertools:0.9.0 \
+          -p itertools:0.10.5 \
           -p proc-macro2
 %endif
 export RUSTC_WRAPPER=sccache
