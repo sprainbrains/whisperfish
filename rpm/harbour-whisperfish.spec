@@ -118,14 +118,6 @@ Group: Qt/Qt
 rustc --version
 cargo --version
 
-%if %{with sccache}
-%ifnarch %ix86
-export RUSTC_WRAPPER=sccache
-sccache --start-server
-sccache -s
-%endif
-%endif
-
 # https://git.sailfishos.org/mer-core/gecko-dev/blob/master/rpm/xulrunner-qt5.spec#L224
 # When cross-compiling under SB2 rust needs to know what arch to emit
 # when nothing is specified on the command line. That usually defaults
@@ -245,8 +237,23 @@ fi
 %define sharingsubdir .
 %endif
 
-cargo build \
-          -j 1 \
+%if %{with sccache}
+%ifarch %ix86
+cargo build -j 1 \
+          -vv \
+          --release \
+          --no-default-features \
+          $BINS \
+          --features $FEATURES \
+          --manifest-path %{_sourcedir}/../Cargo.toml \
+          -p proc-macro2
+%endif
+export RUSTC_WRAPPER=sccache
+sccache --start-server
+sccache -s
+%endif
+
+cargo build -j 1 \
           -vv \
           --release \
           --no-default-features \
