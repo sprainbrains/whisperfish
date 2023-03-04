@@ -1,23 +1,58 @@
 use libsignal_protocol::DeviceId;
 use std::path::PathBuf;
-use structopt::StructOpt;
 use whisperfish::store;
 
-/// Initializes a storage, meant for creating storage migration tests.
-#[derive(StructOpt, Debug)]
-#[structopt(name = "create-store")]
-struct Opt {
-    /// Whisperfish storage password
-    #[structopt(short, long)]
+const HELP: &str = "Initializes a storage, meant for creating storage migration tests.
+
+USAGE:
+  create-store [OPTIONS] [--password <password>] --path <path> [--fill-dummy]
+
+FLAGS:
+  -h, --help
+        Prints help information
+
+OPTIONS:
+  --password <password>
+        Whisperfish storage password
+
+  --path <path>
+        Path where the storage will be created
+
+  --fill-dummy
+        Whether to fill the storage with dummy data
+";
+#[derive(Debug)]
+struct Opts {
     password: Option<String>,
-
-    /// Path where the storage will be created
-    #[structopt(parse(from_os_str))]
     path: PathBuf,
-
-    /// Whether to fill the storage with dummy data
-    #[structopt(short, long)]
     fill_dummy: bool,
+}
+
+fn parse_args() -> Result<Opts, pico_args::Error> {
+    let mut pargs = pico_args::Arguments::from_env();
+
+    // Help has a higher priority and should be handled separately.
+    if pargs.contains(["-h", "--help"]) {
+        println!("{}", HELP);
+        std::process::exit(0);
+    }
+
+    let args = Opts {
+        password: pargs.opt_value_from_str("--password")?,
+        path: {
+            let path_arg: String = pargs.value_from_str("--path")?;
+            PathBuf::from(path_arg)
+        },
+        fill_dummy: pargs.contains("--fill-dummy"),
+    };
+
+    let remaining = pargs.finish();
+    if !remaining.is_empty() {
+        eprintln!("Error: unused arguments: {:?}.", remaining);
+        std::process::exit(1);
+    }
+
+    Ok(args)
 }
 
 async fn create_storage(
@@ -119,7 +154,13 @@ async fn add_dummy_data(storage: &mut store::Storage) {
 async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
-    let opt = Opt::from_args();
+    let opt = match parse_args() {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Error: {}.", e);
+            std::process::exit(1);
+        }
+    };
 
     let path = opt.path;
     let mut store = create_storage(opt.password.as_deref(), path.into()).await;

@@ -147,37 +147,13 @@ impl WhisperfishApp {
     }
 }
 
-fn long_version() -> String {
-    let pkg = env!("CARGO_PKG_VERSION");
-
-    // If it's tagged, use the tag as-is
-    // If it's in CI, use the cargo version with the ref-name and job id appended
-    // else, we use whatever git thinks is the version,
-    // finally, we fall back on Cargo's version as-is
-    if let Some(tag) = option_env!("CI_COMMIT_TAG") {
-        // Tags are mainly used for specific versions
-        tag.into()
-    } else if let (Some(ref_name), Some(job_id)) =
-        (option_env!("CI_COMMIT_REF_NAME"), option_env!("CI_JOB_ID"))
-    {
-        // This is always the fall-back in CI
-        format!("v{}-{}-{}", pkg, ref_name, job_id)
-    } else if let Some(git_version) = option_env!("GIT_VERSION") {
-        // This is normally possible with any build
-        git_version.into()
-    } else {
-        // But if git is not available, we fall back on cargo
-        format!("v{}", env!("CARGO_PKG_VERSION"))
-    }
-}
-
 macro_rules! cstr {
     ($s:expr) => {
         &std::ffi::CString::new($s).unwrap() as &std::ffi::CStr
     };
 }
 
-pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
+pub fn run(config: crate::config::SignalConfig, long_version: String) -> Result<(), anyhow::Error> {
     qmeta_async::run(|| {
         let (app, _whisperfish) = with_executor(|| -> anyhow::Result<_> {
             // XXX this arc thing should be removed in the future and refactored
@@ -196,7 +172,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             }
 
             let mut app = QmlApp::application("harbour-whisperfish".into());
-            let long_version: QString = long_version().into();
+            let long_version: QString = QString::from(long_version);
             log::info!("QmlApp::application loaded - version {}", long_version);
             let version: QString = env!("CARGO_PKG_VERSION").into();
             app.set_title("Whisperfish".into());

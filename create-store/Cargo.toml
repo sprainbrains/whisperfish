@@ -12,7 +12,7 @@ description = "An utility for whisperfish, mainly used to test storage"
 whisperfish = { path = "../whisperfish" }
 libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.20.0" }
 rand = "0.7"
-structopt = "0.3"
+pico-args = "0.5.0"
 libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
 actix-rt = "2.7.0"
 env_logger = "0.9"

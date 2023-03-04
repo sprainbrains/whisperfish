@@ -1,52 +1,95 @@
 use anyhow::Context;
 use dbus::blocking::Connection;
+use simplelog::*;
 use single_instance::SingleInstance;
 use std::time::Duration;
-use structopt::StructOpt;
 use whisperfish::*;
 
-use simplelog::*;
+const HELP: &str = "USAGE:
+  harbour-whisperfish [FLAGS] [OPTIONS]
 
-/// Signal attachment downloader for Whisperfish
-#[derive(StructOpt, Debug)]
-#[structopt(name = "harbour-whisperfish")]
+FLAGS:
+  -h, --help
+        Prints help information
+
+  -p, --prestart
+        Whether whisperfish was launched from autostart
+
+  -V, --version
+        Prints version information
+
+  -v, --verbose
+        Verbosity.
+
+        Equivalent with setting `QT_LOGGING_TO_CONSOLE=1
+        RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,whisperfish=trace`.
+
+OPTIONS:
+  -c, --captcha <captcha>
+        Captcha override
+
+        By opening https://signalcaptchas.org/registration/generate.html in a browser, and intercepting the redirect
+        (by using the console), it is possible to inject a signalcaptcha URL.
+
+        This is as a work around for https://gitlab.com/whisperfish/whisperfish/-/issues/378";
+
+#[derive(Debug)]
 struct Opts {
-    /// Captcha override
-    ///
-    /// By opening https://signalcaptchas.org/registration/generate.html in a browser,
-    /// and intercepting the redirect (by using the console),
-    /// it is possible to inject a signalcaptcha URL.
-    ///
-    /// This is as a work around for https://gitlab.com/whisperfish/whisperfish/-/issues/378
-    #[structopt(short, long)]
     captcha: Option<String>,
-
-    /// Verbosity.
-    ///
-    /// Equivalent with setting
-    /// `QT_LOGGING_TO_CONSOLE=1 RUST_LOG=libsignal_service=trace,libsignal_service_actix=trace,whisperfish=trace`.
-    #[structopt(short, long)]
     verbose: bool,
-
-    /// Whether whisperfish was launched from autostart
-    #[structopt(short, long)]
     prestart: bool,
+}
 
-    // sailjail only accepts -prestart on the command line as optional argument, structopt however
-    // only supports --prestart.
-    // See: https://github.com/clap-rs/clap/issues/1210
-    // and https://github.com/sailfishos/sailjail/commit/8a239de9451685a82a2ee17fef0c1d33a089c28c
-    // XXX: Get rid of this when the situation changes
-    #[structopt(short = "r", hidden = true, parse(from_occurrences))]
-    _r: u32,
-    #[structopt(short = "e", hidden = true)]
-    _e: bool,
-    #[structopt(short = "s", hidden = true)]
-    _s: bool,
-    #[structopt(short = "a", hidden = true)]
-    _a: bool,
-    #[structopt(short = "t", hidden = true, parse(from_occurrences))]
-    _t: u32,
+fn parse_args() -> Result<Opts, pico_args::Error> {
+    let mut pargs = pico_args::Arguments::from_env();
+
+    // Help has a higher priority and should be handled separately.
+    if pargs.contains(["-h", "--help"]) {
+        println!("{}", long_version());
+        println!("{}", HELP);
+        std::process::exit(0);
+    } else if pargs.contains(["-V", "--version"]) {
+        println!("{}", long_version());
+        std::process::exit(0);
+    }
+
+    let args = Opts {
+        captcha: pargs.opt_value_from_str(["-c", "--captcha"])?,
+        verbose: pargs.contains(["-v", "--verbose"]),
+        prestart: pargs.contains(["-prestart", "--prestart"]),
+    };
+
+    let remaining = pargs.finish();
+    if !remaining.is_empty() {
+        eprintln!("Error: unused arguments: {:?}.", remaining);
+        std::process::exit(1);
+    }
+
+    Ok(args)
+}
+
+fn long_version() -> String {
+    let pkg = env!("CARGO_PKG_VERSION");
+
+    // If it's tagged, use the tag as-is
+    // If it's in CI, use the cargo version with the ref-name and job id appended
+    // else, we use whatever git thinks is the version,
+    // finally, we fall back on Cargo's version as-is
+    if let Some(tag) = option_env!("CI_COMMIT_TAG") {
+        // Tags are mainly used for specific versions
+        tag.into()
+    } else if let (Some(ref_name), Some(job_id)) =
+        (option_env!("CI_COMMIT_REF_NAME"), option_env!("CI_JOB_ID"))
+    {
+        // This is always the fall-back in CI
+        format!("v{}-{}-{}", pkg, ref_name, job_id)
+    } else if let Some(git_version) = option_env!("GIT_VERSION") {
+        // This is normally possible with any build
+        git_version.into()
+    } else {
+        // But if git is not available, we fall back on cargo
+        format!("v{}", env!("CARGO_PKG_VERSION"))
+    }
 }
 
 fn main() {
@@ -97,7 +140,13 @@ fn main() {
     }
 
     // Then, handle command line arguments and overwrite settings from config file if necessary
-    let opt = Opts::from_args();
+    let opt = match parse_args() {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Error: {}.", e);
+            std::process::exit(1);
+        }
+    };
     if opt.verbose {
         config.verbose = true;
     }
@@ -206,7 +255,7 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     }
 
     // This will panic here if feature `sailfish` is not enabled
-    gui::run(config).unwrap();
+    gui::run(config, long_version()).unwrap();
 
     log::info!("Shut down.");
 

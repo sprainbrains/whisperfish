@@ -4,49 +4,104 @@ use libsignal_service::prelude::*;
 use libsignal_service_actix::prelude::*;
 use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 use std::path::Path;
-use structopt::StructOpt;
 use whisperfish::store::{self, Storage};
 
+const HELP: &str = "Signal attachment downloader for Whisperfish
+
+USAGE:
+  fetch-signal-attachment [OPTIONS] --cdn-key <cdn-key> --cdn-number <cdn-number> --ext <ext> --key <key> --message-id <message-id> --mime-type <mime-type>
+
+FLAGS:
+  -h, --help
+        Prints help information
+
+  -V, --version
+        Prints version information
+
+
+OPTIONS:
+  --cdn-key <cdn-key>
+        AttachmentPointer CdnKey or CdnId
+
+  --cdn-number <cdn-number>
+        CDN number (normally either 0 or 2)
+
+  --ext <ext>
+        Extension for file
+
+  --key <key>
+        Key of AttachmentPointer
+
+  --message-id <message-id>
+        Message will be found by ID.
+
+        Specify either this or `timestamp`
+
+  --mime-type <mime-type>
+        Mime-type for file
+
+  --password <password>
+        Whisperfish storage password";
+
 /// Signal attachment downloader for Whisperfish
-#[derive(StructOpt, Debug)]
-#[structopt(name = "fetch-signal-attachment")]
-struct Opt {
-    /// Whisperfish storage password
-    #[structopt(short, long)]
+#[derive(Debug)]
+struct Opts {
     password: Option<String>,
-
-    /// CDN number (normally either 0 or 2)
-    #[structopt(short, long)]
     cdn_number: u32,
-
-    /// AttachmentPointer CdnKey or CdnId
-    #[structopt(short, long, allow_hyphen_values(true))]
     cdn_key: String,
-
-    /// Key of AttachmentPointer
-    #[structopt(short, long)]
     key: String,
-
-    /// Message will be found by ID.
-    ///
-    /// Specify either this or `timestamp`
-    #[structopt(short, long)]
     message_id: i32,
-
-    /// Extension for file
-    #[structopt(short, long)]
     ext: String,
-
-    /// Mime-type for file
-    #[structopt(short, long)]
     mime_type: String,
+}
+
+fn parse_args() -> Result<Opts, pico_args::Error> {
+    let mut pargs = pico_args::Arguments::from_env();
+
+    // Help has a higher priority and should be handled separately.
+    if pargs.contains(["-h", "--help"]) {
+        println!("{}", HELP);
+        std::process::exit(0);
+    }
+
+    let args = Opts {
+        password: pargs.opt_value_from_str("--password")?,
+        cdn_number: pargs.value_from_fn("--cdn-number", to_u32)?,
+        cdn_key: pargs.value_from_str("--cdn-key")?,
+        key: pargs.value_from_str("--key")?,
+        message_id: pargs.value_from_fn("--message-id", to_i32)?,
+        ext: pargs.value_from_str("--ext")?,
+        mime_type: pargs.value_from_str("--mime-type")?,
+    };
+
+    let remaining = pargs.finish();
+    if !remaining.is_empty() {
+        eprintln!("Error: unused arguments: {:?}.", remaining);
+        std::process::exit(1);
+    }
+
+    Ok(args)
+}
+
+fn to_u32(s: &str) -> Result<u32, &'static str> {
+    s.parse().map_err(|_| "not a number")
+}
+
+fn to_i32(s: &str) -> Result<i32, &'static str> {
+    s.parse().map_err(|_| "not a number")
 }
 
 #[actix_rt::main]
 async fn main() -> Result<(), anyhow::Error> {
     env_logger::init();
 
-    let mut opt = Opt::from_args();
+    let mut opt = match parse_args() {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Error: {}.", e);
+            std::process::exit(1);
+        }
+    };
 
     let config = whisperfish::config::SignalConfig::read_from_file()?;
     let settings = whisperfish::config::SettingsBridge::default();
