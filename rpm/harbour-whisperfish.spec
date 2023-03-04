@@ -242,10 +242,6 @@ fi
 cargo build -j 1 \
           -vv \
           --release \
-          --no-default-features \
-          $BINS \
-          --features $FEATURES \
-          --manifest-path %{_sourcedir}/../Cargo.toml \
           -p proc-macro2
 %endif
 export RUSTC_WRAPPER=sccache
