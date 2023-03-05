@@ -20,6 +20,9 @@ curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', bran
 qmetaobject = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
 qttypes = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
 
+atty = { git = "https://github.com/hermitcore/atty", branch = "hermit" }
+num_cpus = { git = "https://github.com/seanmonstar/num_cpus", branch = "master"}
+
 # [patch."https://github.com/whisperfish/libsignal-service-rs"]
 # libsignal-service = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service" }
 # libsignal-service-actix = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service-actix/" }
