@@ -3,7 +3,7 @@ use std::future::Future;
 use whisperfish::store::temp;
 use whisperfish::store::{Storage, StorageLocation};
 
-pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
+pub type InMemoryDb = (Storage, StorageLocation<tempfile::TempDir>);
 
 /// We do not want to test on a live db, use temporary dir
 #[fixture]

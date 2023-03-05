@@ -88,7 +88,8 @@ base64 = "0.13"
 
 prost = "0.10"
 
-tempdir = "0.3"
+# tempfile 3.4.0 brings in quite a lot of dependencies
+tempfile = "=3.3.0"
 
 rpassword = "5.0"
 secrecy = "0.7"

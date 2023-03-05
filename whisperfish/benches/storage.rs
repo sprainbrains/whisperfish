@@ -3,7 +3,7 @@ use libsignal_service::proto::AttachmentPointer;
 use whisperfish::store::{temp, NewMessage};
 use whisperfish::store::{Storage, StorageLocation};
 
-pub type InMemoryDb = (Storage, StorageLocation<tempdir::TempDir>);
+pub type InMemoryDb = (Storage, StorageLocation<tempfile::TempDir>);
 
 pub fn storage() -> InMemoryDb {
     let rt = tokio::runtime::Builder::new_current_thread()
