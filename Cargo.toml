@@ -20,6 +20,7 @@ curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', bran
 qmetaobject = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
 qttypes = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
 
+phonenumber = { git = "https://github.com/direc85/rust-phonenumber", branch = "update-packages"}
 atty = { git = "https://github.com/hermitcore/atty", branch = "hermit" }
 num_cpus = { git = "https://github.com/seanmonstar/num_cpus", branch = "master"}
 
