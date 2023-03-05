@@ -224,7 +224,7 @@ async fn read_other_identity_key(storage_password: Option<String>) {
 }
 
 async fn copy_to_temp(root: std::path::PathBuf) -> tempfile::TempDir {
-    let new_root = tempfile::TempDir::new_in("whisperfish-storage-migration-test").unwrap();
+    let new_root = tempfile::TempDir::new().unwrap();
 
     let mut queue = std::collections::VecDeque::new();
     queue.push_back((root, new_root.path().to_owned()));

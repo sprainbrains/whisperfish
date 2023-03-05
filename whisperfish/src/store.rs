@@ -177,7 +177,7 @@ pub fn memory() -> StorageLocation<PathBuf> {
 #[cfg_attr(not(test), allow(unused))]
 #[cfg(unix)]
 pub fn temp() -> StorageLocation<tempfile::TempDir> {
-    StorageLocation::Path(tempfile::TempDir::new_in("harbour-whisperfish-temp").unwrap())
+    StorageLocation::Path(tempfile::TempDir::new().unwrap())
 }
 
 pub fn default_location() -> Result<StorageLocation<PathBuf>, anyhow::Error> {
