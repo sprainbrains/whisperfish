@@ -11,8 +11,8 @@ description = "An utility for whisperfish to fetch Signal attachments"
 [dependencies]
 whisperfish = { path = "../whisperfish" }
 futures = "0.3"
-libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
-libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
+libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", rev = "ddccf7431d7fe848ef8fbed487fc0d33fe385b23" }
+libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", rev = "ddccf7431d7fe848ef8fbed487fc0d33fe385b23" }
 pico-args = "0.5.0"
 mime_classifier = "0.0.1"
 log = "0.4"

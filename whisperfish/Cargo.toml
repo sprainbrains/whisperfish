@@ -34,8 +34,8 @@ indexmap = "=1.8.1"
 # 3.0.0-rc.1 requires Rist 1.54
 actix-http = "=3.0.0-beta.19"
 
-libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
-libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
+libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", rev = "ddccf7431d7fe848ef8fbed487fc0d33fe385b23" }
+libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", rev = "ddccf7431d7fe848ef8fbed487fc0d33fe385b23" }
 
 libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.21.1" }
 zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.21.1" }

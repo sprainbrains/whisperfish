@@ -13,7 +13,7 @@ whisperfish = { path = "../whisperfish" }
 libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.20.0" }
 rand = "0.7"
 pico-args = "0.5.0"
-libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
+libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", rev = "ddccf7431d7fe848ef8fbed487fc0d33fe385b23" }
 actix-rt = "2.7.0"
 env_logger = "0.9"
 anyhow = "1.0"
