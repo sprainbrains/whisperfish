@@ -207,12 +207,20 @@ impl Handler<RemoveIdentities> for SessionActor {
             (Some(e164), None) => vec![e164],
             (Some(e164), Some(uuid)) => vec![e164, uuid],
         };
+
+        let mut successes = 0;
         for identity in identities {
             log::debug!("Removing identity {}", identity);
-            let addr = ProtocolAddress::new(identity, DeviceId::from(1));
+            let addr = ProtocolAddress::new(identity.clone(), DeviceId::from(1));
             if !storage.delete_identity_key(&addr) {
-                log::warn!("Removing identity key failed somehow.  Please file a bug.");
+                log::trace!("Could not remove identity {}.", identity);
+            } else {
+                successes += 1;
             }
+        }
+
+        if successes == 0 {
+            log::warn!("Could not successfully remove any identity keys.  Please file a bug.");
         }
     }
 }
