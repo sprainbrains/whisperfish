@@ -1,5 +1,8 @@
+use std::sync::Arc;
+
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use libsignal_service::proto::AttachmentPointer;
+use whisperfish::config::SignalConfig;
 use whisperfish::store::{temp, NewMessage};
 use whisperfish::store::{Storage, StorageLocation};
 
@@ -10,9 +13,11 @@ pub fn storage() -> InMemoryDb {
         .build()
         .unwrap();
     rt.block_on(async {
+        let cfg = SignalConfig::default();
+        let cfg = Arc::new(cfg);
         let temp = temp();
         (
-            Storage::new(&temp, None, 12345, "Some Password", [0; 52], None)
+            Storage::new(cfg, &temp, None, 12345, "Some Password", [0; 52], None)
                 .await
                 .expect("Failed to initalize storage"),
             temp,

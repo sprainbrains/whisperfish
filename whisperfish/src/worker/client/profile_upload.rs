@@ -32,7 +32,6 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
     fn handle(&mut self, _: MultideviceSyncProfile, ctx: &mut Self::Context) -> Self::Result {
         let storage = self.storage.clone().unwrap();
         let local_addr = self.local_addr.clone().unwrap();
-        let config = self.config.clone();
 
         // If not yet connected, retry in 60 seconds
         if self.ws.is_none() {
@@ -44,7 +43,7 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
 
         Box::pin(async move {
             let self_recipient = storage
-                .fetch_self_recipient(&config)
+                .fetch_self_recipient()
                 .expect("self recipient should be set by now");
 
             use libsignal_service::sender::ContactDetails;
@@ -86,7 +85,7 @@ impl Handler<RefreshOwnProfile> for ClientActor {
         Box::pin(
             async move {
                 let self_recipient = storage
-                    .fetch_self_recipient(&config)
+                    .fetch_self_recipient()
                     .expect("self recipient should be set by now");
                 let profile_key = self_recipient.profile_key.map(|bytes| {
                     let mut key = [0u8; 32];
@@ -161,7 +160,7 @@ impl Handler<UploadProfile> for ClientActor {
 
         Box::pin(async move {
             let self_recipient = storage
-                .fetch_self_recipient(&config)
+                .fetch_self_recipient()
                 .expect("self recipient should be set by now");
             let profile_key = self_recipient
                 .profile_key
@@ -223,14 +222,11 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
 
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
-        let config = self.config.clone();
         let address = ctx.address();
 
         Box::pin(async move {
             let registration_id = storage.get_local_registration_id(None).await.unwrap();
-            let self_recipient = storage
-                .fetch_self_recipient(&config)
-                .expect("self set by now");
+            let self_recipient = storage.fetch_self_recipient().expect("self set by now");
 
             let profile_key = self_recipient.profile_key();
             let mut am = AccountManager::new(service, profile_key);

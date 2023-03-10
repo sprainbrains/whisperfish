@@ -1,7 +1,7 @@
 use libsignal_protocol::DeviceId;
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 use structopt::StructOpt;
-use whisperfish::store;
+use whisperfish::{config::SignalConfig, store};
 
 /// Initializes a storage, meant for creating storage migration tests.
 #[derive(StructOpt, Debug)]
@@ -21,6 +21,7 @@ struct Opt {
 }
 
 async fn create_storage(
+    config: Arc<SignalConfig>,
     storage_password: Option<&str>,
     path: store::StorageLocation<PathBuf>,
 ) -> store::Storage {
@@ -43,6 +44,7 @@ async fn create_storage(
     let regid: u32 = 12345;
 
     store::Storage::new(
+        config,
         &path,
         storage_password,
         regid,
@@ -121,8 +123,18 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let opt = Opt::from_args();
 
+    // TODO: probably source more config flags, see harbour-whisperfish main.rs
+    let config = match whisperfish::config::SignalConfig::read_from_file() {
+        Ok(x) => x,
+        Err(e) => {
+            eprintln!("Config file not found: {}", e);
+            whisperfish::config::SignalConfig::default()
+        }
+    };
+    let config = Arc::new(config);
+
     let path = opt.path;
-    let mut store = create_storage(opt.password.as_deref(), path.into()).await;
+    let mut store = create_storage(config, opt.password.as_deref(), path.into()).await;
 
     if opt.fill_dummy {
         add_dummy_data(&mut store).await;

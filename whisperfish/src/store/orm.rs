@@ -507,7 +507,6 @@ impl AugmentedMessage {
     }
 }
 
-// XXX attachments and receipts could be a compressed form.
 pub struct AugmentedSession {
     pub inner: Session,
     pub last_message: Option<AugmentedMessage>,
@@ -555,6 +554,14 @@ impl AugmentedSession {
             m.sent_timestamp.is_some()
         } else {
             false
+        }
+    }
+
+    pub fn recipient_id(&self) -> i32 {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => -1,
+            SessionType::GroupV2(_group) => -1,
+            SessionType::DirectMessage(recipient) => recipient.id,
         }
     }
 

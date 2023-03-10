@@ -219,6 +219,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 pub struct Storage {
     pub db: Arc<AssertUnwindSafe<Mutex<SqliteConnection>>>,
     observatory: Arc<tokio::sync::RwLock<observer::Observatory>>,
+    config: Arc<SignalConfig>,
     store_enc: Option<encryption::StorageEncryption>,
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
@@ -308,6 +309,7 @@ impl Storage {
 
     /// Writes (*overwrites*) a new Storage object to the provided path.
     pub async fn new<T: AsRef<Path>>(
+        config: Arc<SignalConfig>,
         db_path: &StorageLocation<T>,
         password: Option<&str>,
         regid: u32,
@@ -372,6 +374,7 @@ impl Storage {
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
             observatory: Default::default(),
+            config,
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(tokio::sync::RwLock::new(
@@ -382,6 +385,7 @@ impl Storage {
     }
 
     pub async fn open<T: AsRef<Path>>(
+        config: Arc<SignalConfig>,
         db_path: &StorageLocation<T>,
         password: Option<String>,
     ) -> Result<Storage, anyhow::Error> {
@@ -409,6 +413,7 @@ impl Storage {
         Ok(Storage {
             db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
             observatory: Default::default(),
+            config,
             store_enc,
             protocol_store: Arc::new(tokio::sync::RwLock::new(protocol_store)),
             credential_cache: Arc::new(tokio::sync::RwLock::new(
@@ -624,9 +629,9 @@ impl Storage {
         Some((message, session))
     }
 
-    pub fn fetch_self_recipient(&self, cfg: &SignalConfig) -> Option<orm::Recipient> {
-        let e164 = cfg.get_tel_clone();
-        let uuid = cfg.get_uuid_clone();
+    pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
+        let e164 = self.config.get_tel_clone();
+        let uuid = self.config.get_uuid_clone();
         let e164 = if e164.is_empty() {
             log::warn!("No e164 set, cannot fetch self.");
             return None;
@@ -2247,9 +2252,17 @@ mod tests {
         // Registration ID
         let regid = 12345;
 
-        let storage = Storage::new(&location, None, regid, &password, signaling_key, None)
-            .await
-            .unwrap();
+        let storage = Storage::new(
+            Arc::new(SignalConfig::default()),
+            &location,
+            None,
+            regid,
+            &password,
+            signaling_key,
+            None,
+        )
+        .await
+        .unwrap();
 
         // Create content for attachment and write to file
         let content = [1u8; 10];
@@ -2307,6 +2320,7 @@ mod tests {
         let regid = 12345;
 
         let storage = Storage::new(
+            Arc::new(SignalConfig::default()),
             &location,
             storage_password.as_deref(),
             regid,
@@ -2338,12 +2352,19 @@ mod tests {
 
         if storage_password.is_some() {
             assert!(
-                Storage::open(&location, None).await.is_err(),
+                Storage::open(Arc::new(SignalConfig::default()), &location, None)
+                    .await
+                    .is_err(),
                 "Storage was not encrypted"
             );
         }
 
-        let storage = Storage::open(&location, storage_password).await?;
+        let storage = Storage::open(
+            Arc::new(SignalConfig::default()),
+            &location,
+            storage_password,
+        )
+        .await?;
 
         tests!(storage)?;
 

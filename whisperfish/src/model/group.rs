@@ -34,9 +34,11 @@ crate::observing_model! {
 }
 
 impl EventObserving for GroupImpl {
-    fn observe(&mut self, storage: Storage, _event: crate::store::observer::Event) {
+    type Context = ModelContext<Self>;
+
+    fn observe(&mut self, ctx: Self::Context, _event: crate::store::observer::Event) {
         if self.id.is_some() {
-            self.init(storage);
+            self.init(ctx);
         }
     }
 
@@ -101,14 +103,15 @@ impl GroupImpl {
     }
 
     #[with_executor]
-    fn set_group_id(&mut self, storage: Option<Storage>, id: QString) {
+    fn set_group_id(&mut self, ctx: Option<ModelContext<GroupImpl>>, id: QString) {
         self.id = Some(id.to_string());
-        if let Some(storage) = storage {
-            self.init(storage);
+        if let Some(ctx) = ctx {
+            self.init(ctx);
         }
     }
 
-    fn init(&mut self, storage: Storage) {
+    fn init(&mut self, ctx: ModelContext<GroupImpl>) {
+        let storage = ctx.storage();
         if let Some(id) = &self.id {
             self.group_v1 = None;
             self.group_v2 = None;

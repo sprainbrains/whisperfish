@@ -5,6 +5,7 @@ use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
 use phonenumber::PhoneNumber;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct RegistrationResult {
     regid: u32,
@@ -68,21 +69,22 @@ impl SetupWorker {
         this.borrow_mut().deviceId = config.get_device_id().into();
 
         if !this.borrow().registered {
-            if let Err(e) = SetupWorker::register(app.clone(), &config).await {
+            // change fields in config struct
+            config.set_tel(this.borrow().phoneNumber.to_string());
+            config.set_uuid(this.borrow().uuid.to_string());
+            config.set_device_id(this.borrow().deviceId);
+
+            if let Err(e) = SetupWorker::register(app.clone(), config.clone()).await {
                 log::error!("Error in registration: {}", e);
                 this.borrow().clientFailed();
                 return;
             }
             this.borrow_mut().registered = true;
             this.borrow().setupChanged();
-            // change fields in config struct
-            config.set_tel(this.borrow().phoneNumber.to_string());
-            config.set_uuid(this.borrow().uuid.to_string());
-            config.set_device_id(this.borrow().deviceId);
             // write changed config to file here
             // XXX handle return value here appropriately !!!
             config.write_to_file().expect("cannot write to config file");
-        } else if let Err(e) = SetupWorker::setup_storage(app.clone(), &config).await {
+        } else if let Err(e) = SetupWorker::setup_storage(app.clone(), config).await {
             log::error!("Error setting up storage: {}", e);
             this.borrow().clientFailed();
             return;
@@ -102,9 +104,14 @@ impl SetupWorker {
 
     async fn open_storage(
         app: Rc<WhisperfishApp>,
-        config: &crate::config::SignalConfig,
+        config: Arc<crate::config::SignalConfig>,
     ) -> Result<Storage, anyhow::Error> {
-        let res = Storage::open(&config.get_share_dir().to_owned().into(), None).await;
+        let res = Storage::open(
+            config.clone(),
+            &config.get_share_dir().to_owned().into(),
+            None,
+        )
+        .await;
         if res.is_ok() {
             return res;
         }
@@ -124,7 +131,13 @@ impl SetupWorker {
                 .context("No password provided")?
                 .into();
 
-            match Storage::open(&config.get_share_dir().to_owned().into(), Some(password)).await {
+            match Storage::open(
+                config.clone(),
+                &config.get_share_dir().to_owned().into(),
+                Some(password),
+            )
+            .await
+            {
                 Ok(storage) => return Ok(storage),
                 Err(error) => log::error!(
                     "Attempt {} of opening encrypted storage failed: {:?}",
@@ -140,7 +153,7 @@ impl SetupWorker {
 
     async fn setup_storage(
         app: Rc<WhisperfishApp>,
-        config: &crate::config::SignalConfig,
+        config: Arc<crate::config::SignalConfig>,
     ) -> Result<(), anyhow::Error> {
         let storage = SetupWorker::open_storage(app.clone(), config).await?;
 
@@ -151,7 +164,7 @@ impl SetupWorker {
 
     async fn register(
         app: Rc<WhisperfishApp>,
-        config: &crate::config::SignalConfig,
+        config: Arc<crate::config::SignalConfig>,
     ) -> Result<(), anyhow::Error> {
         let this = app.setup_worker.pinned();
 
@@ -192,7 +205,8 @@ impl SetupWorker {
         let signaling_key = signaling_key;
 
         let reg = if is_primary {
-            SetupWorker::register_as_primary(app.clone(), config, &password, &signaling_key).await?
+            SetupWorker::register_as_primary(app.clone(), &config, &password, &signaling_key)
+                .await?
         } else {
             SetupWorker::register_as_secondary(app.clone(), &password, &signaling_key).await?
         };
@@ -216,6 +230,7 @@ impl SetupWorker {
 
         // Install storage
         let storage = Storage::new(
+            config.clone(),
             &config.get_share_dir().to_owned().into(),
             storage_password.as_deref(),
             reg.regid,

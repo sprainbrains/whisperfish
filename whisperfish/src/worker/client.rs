@@ -136,7 +136,7 @@ pub struct ClientWorker {
 
     delete_file: qt_method!(fn(&self, file_name: String)),
 
-    refresh_profile: qt_method!(fn(&self, session_id: i32)),
+    refresh_profile: qt_method!(fn(&self, recipient_id: i32)),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -394,11 +394,10 @@ impl ClientActor {
         }
 
         let alt_body = if let Some(reaction) = &msg.reaction {
-            let config = self.config.clone();
             if let Some((message, session)) = storage.process_reaction(
                 &sender_recipient
                     .clone()
-                    .or_else(|| storage.fetch_self_recipient(&config))
+                    .or_else(|| storage.fetch_self_recipient())
                     .expect("sender or self-sent"),
                 msg,
                 reaction,
@@ -1037,7 +1036,7 @@ impl Handler<QueueMessage> for ClientActor {
 
         let has_attachment = !msg.attachment.is_empty();
         let self_recipient = storage
-            .fetch_self_recipient(&self.config)
+            .fetch_self_recipient()
             .expect("self recipient set when sending");
         let session = storage
             .fetch_session_by_id(msg.session_id)
@@ -1108,7 +1107,7 @@ impl Handler<SendMessage> for ClientActor {
             return Box::pin(async {}.into_actor(self).map(|_, _, _| ()));
         }
 
-        let self_recipient = storage.fetch_self_recipient(&self.config);
+        let self_recipient = storage.fetch_self_recipient();
         log::trace!("Sending for session: {:?}", session);
         log::trace!("Sending message: {:?}", msg.inner);
 
@@ -2031,10 +2030,13 @@ impl ClientWorker {
     }
 
     #[with_executor]
-    pub fn refresh_profile(&self, session_id: i32) {
+    pub fn refresh_profile(&self, recipient_id: i32) {
         let actor = self.actor.clone().unwrap();
         actix::spawn(async move {
-            if let Err(e) = actor.send(RefreshProfile::BySession(session_id)).await {
+            if let Err(e) = actor
+                .send(RefreshProfile::ByRecipientId(recipient_id))
+                .await
+            {
                 log::error!("{:?}", e);
             }
         });

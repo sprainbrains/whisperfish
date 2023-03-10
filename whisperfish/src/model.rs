@@ -41,6 +41,7 @@ macro_rules! define_model_roles {
                 }
             }
 
+            #[allow(unused)]
             $vis fn from(i: i32) -> Self {
                 let rm = [$(Self::$role, )*];
                 rm[i as usize]
