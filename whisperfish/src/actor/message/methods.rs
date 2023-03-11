@@ -69,10 +69,10 @@ impl MessageMethods {
     #[with_executor]
     fn endSession(&mut self, id: i32) {
         actix::spawn(
-            self.actor
+            self.client_actor
                 .as_mut()
                 .unwrap()
-                .send(EndSession(id))
+                .send(crate::worker::EndSession(id))
                 .map(Result::unwrap),
         );
     }

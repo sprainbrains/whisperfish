@@ -93,6 +93,11 @@ struct AttachmentDownloaded {
 #[rtype(result = "usize")]
 pub struct CompactDb(usize);
 
+#[derive(Message)]
+#[rtype(result = "()")]
+/// Reset a session with a certain recipient
+pub struct EndSession(pub i32);
+
 #[derive(QObject, Default)]
 #[allow(non_snake_case)]
 pub struct ClientWorker {
@@ -1317,6 +1322,41 @@ impl Handler<SendMessage> for ClientActor {
                 };
             }),
         )
+    }
+}
+
+impl Handler<EndSession> for ClientActor {
+    type Result = ();
+
+    fn handle(&mut self, EndSession(id): EndSession, ctx: &mut Self::Context) -> Self::Result {
+        log::trace!("ClientActor::EndSession(recipient_id = {})", id);
+
+        let storage = self.storage.as_mut().unwrap();
+        let recipient = storage
+            .fetch_recipient_by_id(id)
+            .expect("existing recipient id");
+
+        let (msg, _session) = storage.process_message(
+            crate::store::NewMessage {
+                session_id: None,
+                source_e164: recipient.e164,
+                source_uuid: recipient.uuid,
+                text: "[Whisperfish] Reset secure session".into(),
+                timestamp: chrono::Utc::now().naive_utc(),
+                has_attachment: false,
+                mime_type: None,
+                attachment: None,
+                flags: DataMessageFlags::EndSession.into(),
+                outgoing: true,
+                received: false,
+                sent: false,
+                is_read: true,
+                is_unidentified: false,
+                quote_timestamp: None,
+            },
+            None,
+        );
+        ctx.notify(SendMessage(msg.id));
     }
 }
 
