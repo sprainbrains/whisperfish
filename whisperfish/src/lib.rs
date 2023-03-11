@@ -12,6 +12,7 @@ pub mod config;
 pub mod gui;
 pub mod model;
 pub mod platform;
+pub mod qtlog;
 pub mod schema;
 pub mod store;
 pub mod worker;
