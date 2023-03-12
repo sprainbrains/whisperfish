@@ -156,6 +156,8 @@ fn main() {
 
     qtlog::install_message_handler();
 
+    log_panics::init();
+
     let instance_lock = SingleInstance::new("whisperfish").unwrap();
     if !instance_lock.is_single() {
         if let Err(e) = dbus_show_app() {
