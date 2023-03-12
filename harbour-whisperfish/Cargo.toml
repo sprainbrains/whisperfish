@@ -14,6 +14,7 @@ dbus = "0.9"
 single-instance = "0.3.3"
 log = "0.4"
 simplelog = "0.11.2"
+log-panics = { version = "2", features = ["with-backtrace"]}
 anyhow = "1.0"
 structopt = "0.3"
 
