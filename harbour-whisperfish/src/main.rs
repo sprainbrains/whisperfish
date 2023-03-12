@@ -1,7 +1,7 @@
 use anyhow::Context;
 use dbus::blocking::Connection;
 use single_instance::SingleInstance;
-use std::time::Duration;
+use std::{os::unix::prelude::OsStrExt, time::Duration};
 use structopt::StructOpt;
 use whisperfish::*;
 
@@ -31,22 +31,6 @@ struct Opts {
     /// Whether whisperfish was launched from autostart
     #[structopt(short, long)]
     prestart: bool,
-
-    // sailjail only accepts -prestart on the command line as optional argument, structopt however
-    // only supports --prestart.
-    // See: https://github.com/clap-rs/clap/issues/1210
-    // and https://github.com/sailfishos/sailjail/commit/8a239de9451685a82a2ee17fef0c1d33a089c28c
-    // XXX: Get rid of this when the situation changes
-    #[structopt(short = "r", hidden = true, parse(from_occurrences))]
-    _r: u32,
-    #[structopt(short = "e", hidden = true)]
-    _e: bool,
-    #[structopt(short = "s", hidden = true)]
-    _s: bool,
-    #[structopt(short = "a", hidden = true)]
-    _a: bool,
-    #[structopt(short = "t", hidden = true, parse(from_occurrences))]
-    _t: u32,
 }
 
 fn main() {
@@ -96,8 +80,21 @@ fn main() {
         std::process::exit(1);
     }
 
+    // Sailjail only accepts -prestart on the command line as optional argument,
+    // structopt however only supports --prestart.
+    // See: https://github.com/clap-rs/clap/issues/1210
+    // and https://github.com/sailfishos/sailjail/commit/8a239de9451685a82a2ee17fef0c1d33a089c28c
+    // XXX: Get rid of this when the situation changes
+    let args = std::env::args_os().map(|arg| {
+        if arg == std::ffi::OsStr::from_bytes(b"-prestart") {
+            "--prestart".into()
+        } else {
+            arg
+        }
+    });
+
     // Then, handle command line arguments and overwrite settings from config file if necessary
-    let opt = Opts::from_args();
+    let opt = Opts::from_iter(args);
     if opt.verbose {
         config.verbose = true;
     }
