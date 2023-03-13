@@ -203,7 +203,7 @@
         <location filename="../qml/pages/About.qml" line="64"/>
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation>Whisperfish è un client Signal non ufficiale ma avanzato per Sailfish OS. Whisperfish è altamente utilizzabile, ma è ancora considerato un software di qualità beta. Assicuratevi di aggiornarlo regolarmente! Inoltre, controllate il nostro Wiki e sentitevi liberi di contribuire! Non contattare mai gli sviluppatori di Signal per un problema relativo a Whisperfish, ma contattaci!</translation>
+        <translation>Whisperfish è un client Signal non ufficiale ma avanzato per Sailfish OS. Whisperfish è altamente utilizzabile, ma è ancora considerato un software di qualità beta. Assicurati di aggiornarlo regolarmente! Inoltre, controlla il nostro wiki e sentiti libero/a di contribuire! Non contattare mai gli sviluppatori di Signal per un problema relativo a Whisperfish, ma contattaci!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="78"/>
@@ -386,6 +386,7 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>%1 messaggio eliminato localmente</numerusform>
+            <numerusform>%1 messaggi eliminati localmente</numerusform>
             <numerusform>%1 messaggi eliminati localmente</numerusform>
         </translation>
     </message>
@@ -1322,6 +1323,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n allegato</numerusform>
             <numerusform>%n allegati</numerusform>
+            <numerusform>%n allegati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1349,6 +1351,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1357,6 +1360,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
         </translation>
@@ -1549,6 +1553,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membro</numerusform>
             <numerusform>%n membri</numerusform>
+            <numerusform>%n membri</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1559,6 +1564,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%1 messaggio selezionato</numerusform>
             <numerusform>%1 messaggi selezionati</numerusform>
+            <numerusform>%1 messaggi selezionati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1566,6 +1572,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Cancella la selezione</numerusform>
             <numerusform>Cancella la selezione</numerusform>
             <numerusform>Cancella la selezione</numerusform>
         </translation>
@@ -1577,6 +1584,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copia %1 messaggio</numerusform>
+            <numerusform>Copia %1 messaggi</numerusform>
             <numerusform>Copia %1 messaggi</numerusform>
         </translation>
     </message>
@@ -1595,6 +1603,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Elimina %1 messaggio per me</numerusform>
             <numerusform>Elimina %1 messaggi per me</numerusform>
+            <numerusform>Elimina %1 messaggi per me</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1606,6 +1615,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Elimina %1 messaggio per tutti</numerusform>
             <numerusform>Elimina %1 messaggi per tutti</numerusform>
+            <numerusform>Elimina %1 messaggi per tutti</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1614,6 +1624,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Riprova a inviare il messaggio non inviato</numerusform>
+            <numerusform>Riprova a inviare i messaggi non inviati</numerusform>
             <numerusform>Riprova a inviare i messaggi non inviati</numerusform>
         </translation>
     </message>
@@ -1636,6 +1647,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Messaggio&lt;br/&gt;non letto</numerusform>
+            <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
             <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
         </translation>
     </message>
