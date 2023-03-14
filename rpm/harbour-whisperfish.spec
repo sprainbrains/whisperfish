@@ -348,6 +348,7 @@ rm -rf %{buildroot}
 %if %{without harbour}
 %post
 systemctl-user daemon-reload
+if pidof harbour-whisperfish >/dev/null; then harbour-whisperfish --quit 2>/dev/null || true; fi
 %endif
 
 %if %{without harbour}

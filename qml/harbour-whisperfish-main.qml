@@ -50,15 +50,6 @@ ApplicationWindow
     }
 
     Notification {
-        id: genericNotification
-        appIcon: "harbour-whisperfish"
-        appName: "Whisperfish"
-        category: "harbour-whisperfish-message"
-        previewBody: genericNotification.body
-        previewSummary: genericNotification.summary
-    }
-
-    Notification {
         id: quietMessageNotification
         property bool isSupported: false
 
@@ -309,6 +300,11 @@ ApplicationWindow
             if (AppState.isClosed()) {
                 showMainPage()
             }
+        }
+
+        function quit() {
+            console.log("DBus app.quit() call received")
+            Qt.quit()
         }
 
         function handleShareV1(clientId, source, content) {

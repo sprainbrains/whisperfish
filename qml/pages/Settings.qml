@@ -351,6 +351,7 @@ Page {
                     id: quitAppButton
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - 2*Theme.horizontalPageMargin
+                    enabled: enableQuitOnUiClose.checked
                     //: Settings page quit app button
                     //% "Quit Whisperfish"
                     text: qsTrId("whisperfish-settings-quit-button")
