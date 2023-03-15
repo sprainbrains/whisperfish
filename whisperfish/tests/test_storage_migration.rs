@@ -14,7 +14,7 @@ use whisperfish::{config::SignalConfig, store as current_storage};
 
 async fn create_old_storage(
     storage_password: Option<&str>,
-    path: &current_storage::StorageLocation<tempdir::TempDir>,
+    path: &current_storage::StorageLocation<tempfile::TempDir>,
 ) -> current_storage::Storage {
     use rand::{Rng, RngCore};
     let rng = rand::thread_rng();
@@ -224,8 +224,8 @@ async fn read_other_identity_key(storage_password: Option<String>) {
     assert_eq!(key, key_2);
 }
 
-async fn copy_to_temp(root: std::path::PathBuf) -> tempdir::TempDir {
-    let new_root = tempdir::TempDir::new("whisperfish-storage-migration-test").unwrap();
+async fn copy_to_temp(root: std::path::PathBuf) -> tempfile::TempDir {
+    let new_root = tempfile::tempdir().unwrap();
 
     let mut queue = std::collections::VecDeque::new();
     queue.push_back((root, new_root.path().to_owned()));

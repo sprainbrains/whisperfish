@@ -599,7 +599,7 @@ mod tests {
 
     async fn create_example_storage(
         storage_password: Option<&str>,
-    ) -> Result<(super::Storage, super::StorageLocation<tempdir::TempDir>), anyhow::Error> {
+    ) -> Result<(super::Storage, super::StorageLocation<tempfile::TempDir>), anyhow::Error> {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
 
