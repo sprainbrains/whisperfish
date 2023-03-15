@@ -37,7 +37,7 @@
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="203"/>
-        <location filename="../qml/harbour-whisperfish-main.qml" line="126"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="117"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="97"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="96"/>
         <source>Note to self</source>
@@ -95,32 +95,32 @@
         <translation>Konuşmayı sil</translation>
     </message>
     <message id="whisperfish-notification-default-message">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="191"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="182"/>
         <source>New Message</source>
         <extracomment>Default label for new message notification</extracomment>
         <translation>Yeni Mesaj</translation>
     </message>
     <message id="whisperfish-fatal-error-setup-client">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="264"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="255"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
         <translation>Signal istemcisi kurulamadı</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="269"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="260"/>
         <source>Failed to setup data storage</source>
         <oldsource>Failed to setup datastore</oldsource>
         <extracomment>Failed to setup datastore error message</extracomment>
         <translation>Veri depolama kurulumu başarısız oldu</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="397"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="393"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Whisperfish veri depolaması</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="401"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="397"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Yapılandırma ve mesajları depolamak için</translation>
@@ -1010,13 +1010,13 @@ Settings page share contacts</extracomment>
         <translation>Whisperfish otomatik başlatma ayarlarını değiştirme iznine sahip değil. Komut satırından &apos;systemctl --user enable harbour-whisperfish.service&apos; veya &apos;systemctl --user disable harbour-whisperfish.service&apos; komutlarını çalıştırarak otomatik başlatmayı elle etkinleştirebilir veya devre dışı bırakabilirsiniz</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
-        <location filename="../qml/pages/Settings.qml" line="356"/>
+        <location filename="../qml/pages/Settings.qml" line="357"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
         <translation>Whisperfish&apos;ten Çık</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
-        <location filename="../qml/pages/Settings.qml" line="368"/>
+        <location filename="../qml/pages/Settings.qml" line="369"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
         <translation>Gelişmiş</translation>
@@ -1038,81 +1038,81 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Whisperfish yeniden başlatılıyor</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
-        <location filename="../qml/pages/Settings.qml" line="375"/>
+        <location filename="../qml/pages/Settings.qml" line="376"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
         <translation>JPEG Eklerini Ölçekle</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments-description">
-        <location filename="../qml/pages/Settings.qml" line="378"/>
+        <location filename="../qml/pages/Settings.qml" line="379"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
         <translation>Bant genişliğinden tasarruf etmek için JPEG eklerini küçültün.</translation>
     </message>
     <message id="whisperfish-settings-debug-mode">
-        <location filename="../qml/pages/Settings.qml" line="392"/>
+        <location filename="../qml/pages/Settings.qml" line="393"/>
         <source>Debug mode</source>
         <extracomment>Settings page: debug info toggle</extracomment>
         <translation>Hata ayıklama modu</translation>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
-        <location filename="../qml/pages/Settings.qml" line="395"/>
+        <location filename="../qml/pages/Settings.qml" line="396"/>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
         <translation>Kullanıcı arayüzünde hata ayıklama bilgilerini ve denetimleri göster.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
-        <location filename="../qml/pages/Settings.qml" line="410"/>
+        <location filename="../qml/pages/Settings.qml" line="411"/>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
         <translation>Veri tabanını sıkıştır</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="421"/>
+        <location filename="../qml/pages/Settings.qml" line="422"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>İstatistikler</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="426"/>
+        <location filename="../qml/pages/Settings.qml" line="427"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Websocket Durumu</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="430"/>
+        <location filename="../qml/pages/Settings.qml" line="431"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Bağlandı</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="433"/>
+        <location filename="../qml/pages/Settings.qml" line="434"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Bağlantı Kesildi</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="438"/>
+        <location filename="../qml/pages/Settings.qml" line="439"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Gönderilmeyen Mesajlar</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="444"/>
+        <location filename="../qml/pages/Settings.qml" line="445"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Toplam Oturumlar</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="450"/>
+        <location filename="../qml/pages/Settings.qml" line="451"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Toplam Mesajlar</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="456"/>
+        <location filename="../qml/pages/Settings.qml" line="457"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Signal Kişileri</translation>
@@ -1133,19 +1133,19 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Devre Dışı</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="462"/>
+        <location filename="../qml/pages/Settings.qml" line="463"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Şifreli Veri Tabanı</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="466"/>
+        <location filename="../qml/pages/Settings.qml" line="467"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Etkin</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="469"/>
+        <location filename="../qml/pages/Settings.qml" line="470"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Devre Dışı</translation>
@@ -1378,7 +1378,7 @@ Settings page share contacts</extracomment>
     <message id="whisperfish-sender-name-label-outgoing">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="106"/>
         <location filename="../qml/components/SenderNameLabel.qml" line="75"/>
-        <location filename="../qml/harbour-whisperfish-main.qml" line="130"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="121"/>
         <source>You</source>
         <extracomment>Name shown when replying to own messages</extracomment>
         <translation>Sen</translation>
