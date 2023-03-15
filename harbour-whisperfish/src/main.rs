@@ -31,9 +31,36 @@ struct Opts {
     /// Whether whisperfish was launched from autostart
     #[structopt(short, long)]
     prestart: bool,
+
+    /// Send a signal to shutdown Whisperfish
+    #[structopt(long)]
+    quit: bool,
 }
 
 fn main() {
+    // Sailjail only accepts -prestart on the command line as optional argument,
+    // structopt however only supports --prestart.
+    // See: https://github.com/clap-rs/clap/issues/1210
+    // and https://github.com/sailfishos/sailjail/commit/8a239de9451685a82a2ee17fef0c1d33a089c28c
+    // XXX: Get rid of this when the situation changes
+    let args = std::env::args_os().map(|arg| {
+        if arg == std::ffi::OsStr::from_bytes(b"-prestart") {
+            "--prestart".into()
+        } else {
+            arg
+        }
+    });
+
+    // Then, handle command line arguments and overwrite settings from config file if necessary
+    let opt = Opts::from_iter(args);
+
+    if opt.quit {
+        if let Err(e) = dbus_quit_app() {
+            eprintln!("{}", e);
+        }
+        return;
+    }
+
     // Migrate the config file from
     // ~/.config/harbour-whisperfish/config.yml to
     // ~/.config/be.rubdos/harbour-whisperfish/config.yml
@@ -80,21 +107,6 @@ fn main() {
         std::process::exit(1);
     }
 
-    // Sailjail only accepts -prestart on the command line as optional argument,
-    // structopt however only supports --prestart.
-    // See: https://github.com/clap-rs/clap/issues/1210
-    // and https://github.com/sailfishos/sailjail/commit/8a239de9451685a82a2ee17fef0c1d33a089c28c
-    // XXX: Get rid of this when the situation changes
-    let args = std::env::args_os().map(|arg| {
-        if arg == std::ffi::OsStr::from_bytes(b"-prestart") {
-            "--prestart".into()
-        } else {
-            arg
-        }
-    });
-
-    // Then, handle command line arguments and overwrite settings from config file if necessary
-    let opt = Opts::from_iter(args);
     if opt.verbose {
         config.verbose = true;
     }
@@ -183,6 +195,19 @@ fn dbus_show_app() -> Result<(), dbus::Error> {
     );
 
     proxy.method_call("be.rubdos.whisperfish.app", "show", ())
+}
+
+fn dbus_quit_app() -> Result<(), dbus::Error> {
+    log::info!("Calling app.quit() on DBus.");
+
+    let c = Connection::new_session()?;
+    let proxy = c.with_proxy(
+        "be.rubdos.whisperfish",
+        "/be/rubdos/whisperfish/app",
+        Duration::from_millis(1000),
+    );
+
+    proxy.method_call("be.rubdos.whisperfish.app", "quit", ())
 }
 
 fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
