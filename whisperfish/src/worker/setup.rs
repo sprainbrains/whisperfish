@@ -228,6 +228,10 @@ impl SetupWorker {
         this.uuid = reg.uuid.clone().into();
         this.deviceId = reg.device_id.device_id;
 
+        config.set_tel(e164.clone());
+        config.set_uuid(reg.uuid.clone());
+        config.set_device_id(reg.device_id.device_id);
+
         // Install storage
         let storage = Storage::new(
             config.clone(),
