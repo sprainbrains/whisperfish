@@ -12,6 +12,7 @@ Page {
     property int recipientId: -1
 
     property bool isOwnProfile: SetupWorker.uuid === recipient.uuid
+    property bool editingProfile: false
 
     Recipient {
         id: recipient
@@ -75,6 +76,41 @@ Page {
                 onClicked: phoneNumberLinker.linkActivated('tel:' + recipient.e164)
                 LinkedText { id: phoneNumberLinker; visible: false }
             }
+            MenuItem {
+                text: editingProfile
+                //: Save changes to your profile menu item
+                //% "Save changes"
+                ? qsTrId("whisperfish-save-profile-menu")
+                //: Edit your own profile menu item
+                //% "Edit profile"
+                : qsTrId("whisperfish-edit-profile-menu")
+                enabled: isOwnProfile
+                visible: enabled
+                onClicked: {
+                    if (editingProfile) {
+                        profileGivenNameEdit.focus = false
+                        profileFamilyNameEdit.focus = false
+                        profileAboutEdit.focus = false
+                        profileEmojiEdit.focus = false
+                        if(
+                            profileFamilyNameEdit.text !== recipient.familyName ||
+                            profileGivenNameEdit.text !== recipient.givenName ||
+                            profileAboutEdit.text !== recipient.about ||
+                            profileEmojiEdit.text !== recipient.emoji
+                        ) {
+                            ClientWorker.upload_profile(
+                                profileGivenNameEdit.text,
+                                profileFamilyNameEdit.text,
+                                profileAboutEdit.text,
+                                profileEmojiEdit.text
+                            )
+                        } else {
+                            console.log("No changes made.")
+                        }
+                    }
+                    editingProfile = !editingProfile
+                }
+            }
         }
 
         Column {
@@ -106,6 +142,41 @@ Page {
                 //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
                 //      but PullDownMenu requires a SilicaFlickable as parent.
                 onClicked: pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { title: recipient.name, path: imageSource })
+            }
+
+            TextField {
+                id: profileGivenNameEdit
+                readOnly: !(isOwnProfile && editingProfile)
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pixelSize: Theme.fontSizeLarge
+                label: "First Name"
+                text: recipient.givenName
+            }
+
+            TextField {
+                id: profileFamilyNameEdit
+                readOnly: !(isOwnProfile && editingProfile)
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pixelSize: Theme.fontSizeLarge
+                label: "Last Name"
+                text: recipient.familyName
+            }
+
+            TextField {
+                id: profileAboutEdit
+                readOnly: !(isOwnProfile && editingProfile)
+                font.pixelSize: Theme.fontSizeMedium
+                label: "About"
+                text: recipient.about
+            }
+
+            TextField {
+                id: profileEmojiEdit
+                readOnly: !(isOwnProfile && editingProfile)
+                font.pixelSize: Theme.fontSizeMedium
+                label: "About Emoji"
+                // XXX: Validate emoji character somehow
+                text: recipient.emoji
             }
 
             SectionHeader {

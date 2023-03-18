@@ -723,6 +723,40 @@ impl Storage {
         recipient
     }
 
+    pub fn update_profile_details(
+        &self,
+        profile_uuid: &uuid::Uuid,
+        new_given_name: &Option<String>,
+        new_family_name: &Option<String>,
+        new_about: &Option<String>,
+        new_emoji: &Option<String>,
+    ) {
+        let new_joined_name = match (new_given_name.clone(), new_family_name.clone()) {
+            (Some(g), Some(f)) => Some(format!("{} {}", g, f)),
+            (Some(g), None) => Some(g),
+            (None, Some(f)) => Some(f),
+            _ => None,
+        };
+
+        let recipient = self.fetch_recipient_by_uuid(*profile_uuid).unwrap();
+        use crate::schema::recipients::dsl::*;
+        let affected_rows = diesel::update(recipients)
+            .set((
+                profile_family_name.eq(new_family_name),
+                profile_given_name.eq(new_given_name),
+                profile_joined_name.eq(new_joined_name),
+                about.eq(new_about),
+                about_emoji.eq(new_emoji),
+            ))
+            .filter(id.eq(recipient.id))
+            .execute(&mut *self.db())
+            .expect("existing record updated");
+
+        if affected_rows > 0 {
+            self.observe_update(recipients, recipient.id);
+        }
+    }
+
     pub fn update_profile_key(
         &self,
         e164: Option<&str>,
