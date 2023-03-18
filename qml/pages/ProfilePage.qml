@@ -93,24 +93,19 @@ Page {
                 highlighted: false
                 labelsHighlighted: false
                 imageSource: profilePage.profilePicture
-                isGroup: true
+                isGroup: false
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'
                 infoMarkSize: 0.9*Theme.iconSizeSmallPlus
                 infoMarkEmoji: recipient.emoji
                 anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: {
-                    // TODO Implement a new page derived from ViewImagePage for showing
-                    //      profile pictures. A new action overlay at the bottom can provide
-                    //      options to change or delete the profile picture.
-                    //      Note: adding a PullDownMenu would be best but is not possible.
-                    //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
-                    //      but PullDownMenu requires a SilicaFlickable as parent.
-
-                    //pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { 'title': groupName, 'source': imageSource })
-
-                    remorse.execute("Changing the avatar is not yet implemented.", function() {})
-                }
+                // TODO Implement a new page derived from ViewImagePage for showing
+                //      profile pictures. A new action overlay at the bottom can provide
+                //      options to change or delete the profile picture.
+                //      Note: adding a PullDownMenu would be best but is not possible.
+                //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
+                //      but PullDownMenu requires a SilicaFlickable as parent.
+                onClicked: pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { title: recipient.name, path: imageSource })
             }
 
             SectionHeader {
