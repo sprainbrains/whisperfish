@@ -119,13 +119,42 @@ Page {
                 text: qsTrId("whisperfish-verify-contact-identity-title")
             }
 
-            TextArea {
-                id: numericFingerprint
-                horizontalAlignment: TextEdit.Center
-                readOnly: true
-                width: parent.width
-                font.family: 'monospace'
-                text: recipient.sessionFingerprint ? recipient.sessionFingerprint : "..."
+            Button {
+                //: Show fingerprint button
+                //% "Show fingerprint"
+                text: qsTrId("whisperfish-show-fingerprint")
+                enabled: numericFingerprint.text.length === 0
+                visible: enabled
+                onClicked: {
+                    if(recipient.sessionFingerprint) {
+                        var pretty_fp = ""
+                        for(var i = 1; i <= 12; ++i) {
+                            pretty_fp += recipient.sessionFingerprint.slice(5*(i-1), (5*i))
+                            if(i === 4 || i === 8) {
+                                pretty_fp += "\n"
+                            } else if(i < 12) {
+                                pretty_fp += " "
+                            }
+                        }
+                        numericFingerprint.text = pretty_fp
+                    }
+                }
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Rectangle {
+                id: fingerprintBox
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: numericFingerprint.width + 2*Theme.paddingLarge
+                height: numericFingerprint.height + 2*Theme.paddingLarge
+                radius: Theme.paddingLarge
+                color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
+                visible: numericFingerprint.text.length > 0
+                Label {
+                    id: numericFingerprint
+                    anchors.centerIn: parent
+                    font.family: 'monospace'
+                }
             }
 
             TextArea {
@@ -134,9 +163,13 @@ Page {
                 readOnly: true
                 font.pixelSize: Theme.fontSizeSmall
                 width: parent.width
-                //: Numeric fingerprint instructions
-                //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
-                text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
+                text: isOwnProfile
+                    //: Numeric fingerprint instructions for own profile
+                    //% "If you wish to verify the security of your end-to-end encryption with someone else, compare the numbers above with the numbers on their device."
+                    ? qsTrId("whisperfish-numeric-fingerprint-directions-for-own-profile")
+                    //: Numeric fingerprint instructions
+                    //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
+                    : qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
             }
         }
     }
