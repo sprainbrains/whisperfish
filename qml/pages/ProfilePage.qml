@@ -5,8 +5,8 @@ import be.rubdos.whisperfish 1.0
 import "../components"
 
 Page {
-    id: verifyIdentity
-    objectName: "verifyIdentityPage"
+    id: profilePage
+    objectName: "profilePage"
 
     property string profilePicture: ""
     property int recipientId: -1
@@ -14,7 +14,7 @@ Page {
     Recipient {
         id: recipient
         app: AppState
-        recipientId: verifyIdentity.recipientId
+        recipientId: profilePage.recipientId
     }
 
     SilicaFlickable {
@@ -90,7 +90,7 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                imageSource: verifyIdentity.profilePicture
+                imageSource: profilePage.profilePicture
                 isGroup: true
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'
