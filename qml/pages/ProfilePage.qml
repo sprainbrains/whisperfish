@@ -11,6 +11,8 @@ Page {
     property string profilePicture: ""
     property int recipientId: -1
 
+    property bool isOwnProfile: SetupWorker.uuid === recipient.uuid
+
     Recipient {
         id: recipient
         app: AppState
@@ -67,7 +69,7 @@ Page {
                 //: Show a peer's system contact page (menu item)
                 //% "Show contact"
                 text: qsTrId("whisperfish-show-contact-page-menu")
-                enabled: recipient.e164.length > 0
+                enabled: !isOwnProfile && recipient.e164.length > 0
                 visible: enabled
                 // TODO maybe: replace with a custom link handler
                 onClicked: phoneNumberLinker.linkActivated('tel:' + recipient.e164)
