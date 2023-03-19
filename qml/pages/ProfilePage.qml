@@ -144,17 +144,34 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { title: recipient.name, path: imageSource })
             }
 
+            // When not editing, display full/joined name
+            TextField {
+                id: profileFullName
+                readOnly: true
+                visible: !editingProfile && text.length > 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pixelSize: Theme.fontSizeLarge
+                label: "Name"
+                text: recipient.name
+            }
+
+            // When editing, display first name field
             TextField {
                 id: profileGivenNameEdit
+                visible: editingProfile
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
-                label: "First Name"
+                label: "First Name (required)"
                 text: recipient.givenName
+                acceptableInput: text.length > 0
+
             }
 
+            // When editing, display last name field
             TextField {
                 id: profileFamilyNameEdit
+                visible: editingProfile
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
@@ -164,6 +181,7 @@ Page {
 
             TextField {
                 id: profileAboutEdit
+                visible: editingProfile || text.length > 0
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 label: "About"
@@ -172,6 +190,7 @@ Page {
 
             TextField {
                 id: profileEmojiEdit
+                visible: editingProfile || text.length > 0
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 label: "About Emoji"
