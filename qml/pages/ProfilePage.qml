@@ -14,10 +14,32 @@ Page {
     property bool isOwnProfile: SetupWorker.uuid === recipient.uuid
     property bool editingProfile: false
 
+    onStatusChanged: {
+        if (editingProfile && status === PageStatus.Inactive) {
+            cancelEditing()
+        }
+    }
+
     Recipient {
         id: recipient
         app: AppState
         recipientId: profilePage.recipientId
+    }
+
+    // Revert changes and exit editing mode
+    function cancelEditing() {
+        profileFullName.text = recipient.name
+        profileFamilyNameEdit.text = recipient.familyName
+        profileGivenNameEdit.text = recipient.givenName
+        profileAboutEdit.text = recipient.about
+        profileEmojiEdit.text = recipient.emoji
+
+        profileGivenNameEdit.focus = false
+        profileFamilyNameEdit.focus = false
+        profileAboutEdit.focus = false
+        profileEmojiEdit.focus = false
+
+        editingProfile = false
     }
 
     SilicaFlickable {
@@ -75,6 +97,14 @@ Page {
                 // TODO maybe: replace with a custom link handler
                 onClicked: phoneNumberLinker.linkActivated('tel:' + recipient.e164)
                 LinkedText { id: phoneNumberLinker; visible: false }
+            }
+            MenuItem {
+                //: Undo changes and exit editing you profile details menu item
+                //% "Discard changes"
+                text: qsTrId("whisperfish-revert-profile-changes-menu")
+                enabled: editingProfile
+                visible: enabled
+                onClicked: cancelEditing()
             }
             MenuItem {
                 text: editingProfile
