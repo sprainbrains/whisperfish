@@ -26,6 +26,31 @@ Page {
         recipientId: profilePage.recipientId
     }
 
+    // Enter edit mode, or save changes
+    function toggleEditing() {
+        if (editingProfile) {
+            profileGivenNameEdit.focus = false
+            profileFamilyNameEdit.focus = false
+            profileAboutEdit.focus = false
+            profileEmojiEdit.focus = false
+            if(
+                profileFamilyNameEdit.text !== recipient.familyName ||
+                profileGivenNameEdit.text !== recipient.givenName ||
+                profileAboutEdit.text !== recipient.about ||
+                profileEmojiEdit.text !== recipient.emoji
+            ) {
+                profileFullName.text = profileGivenNameEdit.text + " " + profileFamilyNameEdit.text
+                ClientWorker.upload_profile(
+                    profileGivenNameEdit.text,
+                    profileFamilyNameEdit.text,
+                    profileAboutEdit.text,
+                    profileEmojiEdit.text
+                )
+            }
+        }
+        editingProfile = !editingProfile
+    }
+
     // Revert changes and exit editing mode
     function cancelEditing() {
         profileFullName.text = recipient.name
@@ -114,32 +139,9 @@ Page {
                 //: Edit your own profile menu item
                 //% "Edit profile"
                 : qsTrId("whisperfish-edit-profile-menu")
-                enabled: isOwnProfile
-                visible: enabled
-                onClicked: {
-                    if (editingProfile) {
-                        profileGivenNameEdit.focus = false
-                        profileFamilyNameEdit.focus = false
-                        profileAboutEdit.focus = false
-                        profileEmojiEdit.focus = false
-                        if(
-                            profileFamilyNameEdit.text !== recipient.familyName ||
-                            profileGivenNameEdit.text !== recipient.givenName ||
-                            profileAboutEdit.text !== recipient.about ||
-                            profileEmojiEdit.text !== recipient.emoji
-                        ) {
-                            ClientWorker.upload_profile(
-                                profileGivenNameEdit.text,
-                                profileFamilyNameEdit.text,
-                                profileAboutEdit.text,
-                                profileEmojiEdit.text
-                            )
-                        } else {
-                            console.log("No changes made.")
-                        }
-                    }
-                    editingProfile = !editingProfile
-                }
+                enabled: isOwnProfile && (!editingProfile || profileGivenNameEdit.acceptableInput && profileEmojiEdit.acceptableInput)
+                visible: isOwnProfile
+                onClicked: toggleEditing()
             }
         }
 
