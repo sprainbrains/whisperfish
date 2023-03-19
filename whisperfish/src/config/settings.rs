@@ -40,6 +40,7 @@ pub struct SettingsBridge {
     avatar_dir: qt_property!(String; READ get_avatar_dir WRITE set_avatar_dir NOTIFY avatar_dir_changed),
     attachment_dir: qt_property!(String; READ get_attachment_dir WRITE set_attachment_dir NOTIFY attachment_dir_changed),
     camera_dir: qt_property!(String; READ get_camera_dir WRITE set_camera_dir NOTIFY camera_dir_changed),
+    plaintext_password: qt_property!(String; READ get_plaintext_password WRITE set_plaintext_password NOTIFY plaintext_password_changed),
 
     enable_notify_changed: qt_signal!(value: bool),
     debug_mode_changed: qt_signal!(value: bool),
@@ -57,6 +58,7 @@ pub struct SettingsBridge {
     avatar_dir_changed: qt_signal!(value: String),
     attachment_dir_changed: qt_signal!(value: String),
     camera_dir_changed: qt_signal!(value: String),
+    plaintext_password_changed: qt_signal!(value: String),
 }
 
 impl Default for SettingsBridge {
@@ -104,6 +106,7 @@ impl Default for SettingsBridge {
             avatar_dir: Default::default(),
             attachment_dir: Default::default(),
             camera_dir: Default::default(),
+            plaintext_password: Default::default(),
 
             enable_notify_changed: Default::default(),
             debug_mode_changed: Default::default(),
@@ -121,6 +124,7 @@ impl Default for SettingsBridge {
             avatar_dir_changed: Default::default(),
             attachment_dir_changed: Default::default(),
             camera_dir_changed: Default::default(),
+            plaintext_password_changed: Default::default(),
         }
     }
 }
@@ -265,6 +269,10 @@ impl SettingsBridge {
         self.get_string("camera_dir")
     }
 
+    pub fn get_plaintext_password(&self) -> String {
+        self.get_string("plaintext_password")
+    }
+
     pub fn set_enable_notify(&mut self, value: bool) {
         self.set_bool("enable_notify", value);
         self.enable_notify_changed(value);
@@ -343,6 +351,11 @@ impl SettingsBridge {
     pub fn set_camera_dir(&mut self, value: String) {
         self.set_string("camera_dir", &value);
         self.camera_dir_changed(value);
+    }
+
+    pub fn set_plaintext_password(&mut self, value: String) {
+        self.set_string("plaintext_password", &value);
+        self.plaintext_password_changed(value);
     }
 
     #[allow(non_snake_case)]

@@ -6,6 +6,18 @@ BlockingInfoPageBase {
     id: root
     objectName: "unlockPage"
 
+    property bool autologinDone: false
+
+    onStatusChanged: {
+        if(status === PageStatus.Active) {
+            if(!autologinDone && SettingsBridge.plaintext_password) {
+                autologinDone = true
+                passwordField.text = SettingsBridge.plaintext_password
+                accept()
+            }
+        }
+    }
+
     //: unlock page title
     //% "Unlock"
     pageTitle: qsTrId("whisperfish-unlock-page-title")
