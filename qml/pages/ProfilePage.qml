@@ -222,7 +222,9 @@ Page {
 
             TextField {
                 id: profileEmojiEdit
-                visible: editingProfile || text.length > 0
+                // XXX: Validate emoji character somehow
+                // visible: editingProfile || text.length > 0
+                visible: false
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 label: "About Emoji"
