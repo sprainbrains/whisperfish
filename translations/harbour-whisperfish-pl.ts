@@ -567,7 +567,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-password-label">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="76"/>
-        <location filename="../qml/pages/UnlockPage.qml" line="75"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="87"/>
         <source>Password</source>
         <extracomment>Password label</extracomment>
         <translation>Hasło</translation>
@@ -604,19 +604,19 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <translation>Pomiń</translation>
     </message>
     <message id="whisperfish-unlock-page-title">
-        <location filename="../qml/pages/UnlockPage.qml" line="11"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="23"/>
         <source>Unlock</source>
         <extracomment>unlock page title</extracomment>
         <translation>Odblokuj</translation>
     </message>
     <message id="whisperfish-unlock-welcome-title">
-        <location filename="../qml/pages/UnlockPage.qml" line="14"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="26"/>
         <source>Whisperfish</source>
         <extracomment>unlock page welcome title, centered on screen</extracomment>
         <translation>Whisperfish</translation>
     </message>
     <message id="whisperfish-unlock-password-prompt">
-        <location filename="../qml/pages/UnlockPage.qml" line="17"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="29"/>
         <source>Please enter your password to unlock your conversations.</source>
         <extracomment>unlock page password prompt</extracomment>
         <translation>Wprowadź hasło, aby odblokować rozmowy.</translation>
@@ -635,27 +635,27 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
     </message>
     <message id="whisperfish-fatal-error-msg-not-registered">
         <location filename="../qml/pages/RegisterSecondaryPage.qml" line="35"/>
-        <location filename="../qml/pages/UnlockPage.qml" line="29"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="41"/>
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="69"/>
         <source>You are not registered.</source>
         <extracomment>fatal error when trying to unlock the db when not registered</extracomment>
         <translation>Nie jesteś zarejestrowany.</translation>
     </message>
     <message id="whisperfish-unlock-try-again">
-        <location filename="../qml/pages/UnlockPage.qml" line="54"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="66"/>
         <source>Please try again</source>
         <extracomment>input field placeholder after failed attempt to unlock (keep it short)</extracomment>
         <translation>Proszę spróbuj ponownie</translation>
     </message>
     <message id="whisperfish-password-placeholder">
-        <location filename="../qml/pages/UnlockPage.qml" line="78"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="90"/>
         <source>Your password</source>
         <oldsource>Password</oldsource>
         <extracomment>password placeholder</extracomment>
         <translation>Hasło</translation>
     </message>
     <message id="whisperfish-unlock-button-label">
-        <location filename="../qml/pages/UnlockPage.qml" line="87"/>
+        <location filename="../qml/pages/UnlockPage.qml" line="99"/>
         <source>Unlock</source>
         <extracomment>unlock button label</extracomment>
         <translation>Odblokuj</translation>
@@ -950,15 +950,39 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page enable autostart</extracomment>
         <translation>Autostart po starcie systemu</translation>
     </message>
+    <message id="whisperfish-settings-auto-unlock-password-field">
+        <location filename="../qml/pages/Settings.qml" line="327"/>
+        <source>Unlock Password</source>
+        <extracomment>Settings page autostart password field</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-save-password-button">
+        <location filename="../qml/pages/Settings.qml" line="338"/>
+        <source>Save password</source>
+        <extracomment>Settings page save autologin password button</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-clear-password-button">
+        <location filename="../qml/pages/Settings.qml" line="341"/>
+        <source>clear password</source>
+        <extracomment>Settings page clear autologin password button</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-auto-unlock-password-info">
+        <location filename="../qml/pages/Settings.qml" line="353"/>
+        <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</source>
+        <extracomment>Settings page info about setting auto unlock password</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-enable-background-mode-description">
-        <location filename="../qml/pages/Settings.qml" line="339"/>
+        <location filename="../qml/pages/Settings.qml" line="375"/>
         <source>When enabled, Whisperfish keeps running in the background and can send notifications after the app window has been closed.</source>
         <oldsource>When enabled, Whisperfish starts automatically after each boot. If storage encryption is enabled or background-mode is off, the UI will be shown, otherwise the app starts in the background.</oldsource>
         <extracomment>Settings page enable background mode description</extracomment>
         <translation>Po włączeniu Whisperfish działa w tle i może wysyłać powiadomienia po zamknięciu okna aplikacji.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode">
-        <location filename="../qml/pages/Settings.qml" line="336"/>
+        <location filename="../qml/pages/Settings.qml" line="372"/>
         <source>Background mode</source>
         <extracomment>Settings page enable background mode</extracomment>
         <translation>Tryb pracy w tle</translation>
@@ -1006,19 +1030,19 @@ Settings page share contacts</extracomment>
         <translation>Po włączeniu Whisperfish uruchamia się automatycznie po każdym uruchomieniu. Jeśli szyfrowanie pamięci jest włączone lub tryb tła jest wyłączony, zostanie wyświetlony interfejs użytkownika, w przeciwnym razie aplikacja zostanie uruchomiona w tle.</translation>
     </message>
     <message id="whisperfish-settings-autostart-manual-info">
-        <location filename="../qml/pages/Settings.qml" line="329"/>
+        <location filename="../qml/pages/Settings.qml" line="365"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
         <translation>Whisperfish nie ma uprawnień do zmiany ustawień automatycznego uruchamiania. Można wyłączyć lub włączyć automatyczne uruchamianie ręcznie z poziomu linii poleceń poleceniami &apos;systemctl --user enable harbour-whisperfish.service&apos; lub &apos;systemctl --user disable harbour-whisperfish.service&apos;</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
-        <location filename="../qml/pages/Settings.qml" line="357"/>
+        <location filename="../qml/pages/Settings.qml" line="393"/>
         <source>Quit Whisperfish</source>
         <extracomment>Settings page quit app button</extracomment>
         <translation>Opuść Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-advanced-section">
-        <location filename="../qml/pages/Settings.qml" line="369"/>
+        <location filename="../qml/pages/Settings.qml" line="405"/>
         <source>Advanced</source>
         <extracomment>Settings page advanced section</extracomment>
         <translation>Zaawansowane</translation>
@@ -1040,81 +1064,81 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Resetowanie Whisperfish</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments">
-        <location filename="../qml/pages/Settings.qml" line="376"/>
+        <location filename="../qml/pages/Settings.qml" line="412"/>
         <source>Scale JPEG Attachments</source>
         <extracomment>Settings page scale image attachments</extracomment>
         <translation>Skaluj załączniki JPEG</translation>
     </message>
     <message id="whisperfish-settings-scale-image-attachments-description">
-        <location filename="../qml/pages/Settings.qml" line="379"/>
+        <location filename="../qml/pages/Settings.qml" line="415"/>
         <source>Scale down JPEG attachments to save on bandwidth.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
         <translation>Zmniejsz rozmiar załączników JPEG, aby zaoszczędzić na transferze danych.</translation>
     </message>
     <message id="whisperfish-settings-debug-mode">
-        <location filename="../qml/pages/Settings.qml" line="393"/>
+        <location filename="../qml/pages/Settings.qml" line="429"/>
         <source>Debug mode</source>
         <extracomment>Settings page: debug info toggle</extracomment>
         <translation>Tryb debuggowania</translation>
     </message>
     <message id="whisperfish-settings-debug-mode-description">
-        <location filename="../qml/pages/Settings.qml" line="396"/>
+        <location filename="../qml/pages/Settings.qml" line="432"/>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
         <translation>Pokaż informacje i sterowanie debugowaniem w interfejsie użytkownika.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
-        <location filename="../qml/pages/Settings.qml" line="411"/>
+        <location filename="../qml/pages/Settings.qml" line="447"/>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
         <translation>Kompaktowa baza danych</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="422"/>
+        <location filename="../qml/pages/Settings.qml" line="458"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Statystyki</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="427"/>
+        <location filename="../qml/pages/Settings.qml" line="463"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Status Websocket</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="431"/>
+        <location filename="../qml/pages/Settings.qml" line="467"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Połączone</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="434"/>
+        <location filename="../qml/pages/Settings.qml" line="470"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Rozłączone</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="439"/>
+        <location filename="../qml/pages/Settings.qml" line="475"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Cofnij Wysłanie Wiadomości</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="445"/>
+        <location filename="../qml/pages/Settings.qml" line="481"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Całkowita Ilość Sesji</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="451"/>
+        <location filename="../qml/pages/Settings.qml" line="487"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Całkowita Ilość Wiadomości</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="457"/>
+        <location filename="../qml/pages/Settings.qml" line="493"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Kontakty Signal</translation>
@@ -1135,19 +1159,19 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Wyłączone</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="463"/>
+        <location filename="../qml/pages/Settings.qml" line="499"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Zaszyfrowana Baza Danych</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="467"/>
+        <location filename="../qml/pages/Settings.qml" line="503"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Włączone</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="470"/>
+        <location filename="../qml/pages/Settings.qml" line="506"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Wyłączone</translation>
