@@ -183,7 +183,9 @@ Page {
                 visible: !editingProfile && text.length > 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
-                label: "Name"
+                //: Profile, name field (first name + last name)
+                //% "Name"
+                label: qsTrId("whisperfish-profile-joined-name")
                 text: recipient.name
             }
 
@@ -194,7 +196,9 @@ Page {
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
-                label: "First Name (required)"
+                //: Profile, first (given) name field, required
+                //% "First name (required)"
+                label: qsTrId("whisperfish-profile-given-name")
                 text: recipient.givenName
                 acceptableInput: text.length > 0
 
@@ -207,7 +211,9 @@ Page {
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
-                label: "Last Name"
+                //: Profile, last (family) name field, optional
+                //% "Last name (optional)"
+                label: qsTrId("whisperfish-profile-family-name")
                 text: recipient.familyName
             }
 
@@ -216,7 +222,9 @@ Page {
                 visible: editingProfile || text.length > 0
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
-                label: "About"
+                //: Profile, about you (greeting/status) field
+                //% "Write something about yourself"
+                label: qsTrId("whisperfish-profile-about")
                 text: recipient.about
             }
 
@@ -227,8 +235,9 @@ Page {
                 visible: false
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
-                label: "About Emoji"
-                // XXX: Validate emoji character somehow
+                //: Profile, emoji symbol field
+                //% "A few words about yourself"
+                label: qsTrId("whisperfish-profile-emoji")
                 text: recipient.emoji
             }
 
