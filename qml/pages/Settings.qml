@@ -316,6 +316,42 @@ Page {
                         }
                     }
                 }
+                TextField {
+                    id: passwordField
+                    width: parent.width - 2*Theme.horizontalPageMargin
+                    inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
+                    validator: RegExpValidator{ regExp: /|.{6,}/ }
+                    echoMode: TextInput.Password
+                    //: Settings page autostart password field
+                    //% "Unlock Password"
+                    label: qsTrId("whisperfish-settings-auto-unlock-password-field")
+                    text: SettingsBridge.plaintext_password
+                }
+                Button {
+                    id: savePasswordButton
+                    enabled: passwordField.acceptableInput
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width - 2*Theme.horizontalPageMargin
+                    text: passwordField.text.length > 0
+                    //: Settings page save autologin password button
+                    //% "Save password"
+                    ? qsTrId("whisperfish-settings-save-password-button")
+                    //: Settings page clear autologin password button
+                    //% "clear password"
+                    : qsTrId("whisperfish-settings-clear-password-button")
+                    onClicked: SettingsBridge.plaintext_password = passwordField.text
+                }
+                TextArea {
+                    id: passwordFieldInfo
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    readOnly: true
+                    width: parent.width
+                    font.pixelSize: Theme.fontSizeSmall
+                    labelVisible: false
+                    //: Settings page info about setting auto unlock password
+                    //% "You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened."
+                    text: qsTrId("whisperfish-settings-auto-unlock-password-info")
+                }
                 TextArea {
                     id: autostartInfo
                     visible: !autostartService.serviceExists
