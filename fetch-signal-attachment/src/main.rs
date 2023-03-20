@@ -16,11 +16,11 @@ struct Opt {
     password: Option<String>,
 
     /// CDN number (normally either 0 or 2)
-    #[structopt(short, long)]
+    #[structopt(short = "c", long)]
     cdn_number: u32,
 
     /// AttachmentPointer CdnKey or CdnId
-    #[structopt(short, long, allow_hyphen_values(true))]
+    #[structopt(short = "C", long, allow_hyphen_values(true))]
     cdn_key: String,
 
     /// Key of AttachmentPointer
@@ -30,7 +30,7 @@ struct Opt {
     /// Message will be found by ID.
     ///
     /// Specify either this or `timestamp`
-    #[structopt(short, long)]
+    #[structopt(short = "M", long)]
     message_id: i32,
 
     /// Extension for file
@@ -38,7 +38,7 @@ struct Opt {
     ext: String,
 
     /// Mime-type for file
-    #[structopt(short, long)]
+    #[structopt(short = "m", long)]
     mime_type: String,
 }
 

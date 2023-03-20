@@ -7,7 +7,7 @@ use whisperfish::*;
 
 use simplelog::*;
 
-/// Signal attachment downloader for Whisperfish
+/// Unofficial but advanced Signal client for Sailfish OS
 #[derive(StructOpt, Debug)]
 #[structopt(name = "harbour-whisperfish")]
 struct Opts {
@@ -28,7 +28,7 @@ struct Opts {
     #[structopt(short, long)]
     verbose: bool,
 
-    /// Whether whisperfish was launched from autostart
+    /// Whether whisperfish was launched from autostart. Also accepts '-prestart'
     #[structopt(short, long)]
     prestart: bool,
 
