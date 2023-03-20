@@ -254,7 +254,7 @@ Page {
                 enabled: numericFingerprint.text.length === 0
                 visible: enabled
                 onClicked: {
-                    if(recipient.sessionFingerprint) {
+                    if(recipient.sessionFingerprint && recipient.sessionFingerprint.length === 60) {
                         var pretty_fp = ""
                         for(var i = 1; i <= 12; ++i) {
                             pretty_fp += recipient.sessionFingerprint.slice(5*(i-1), (5*i))
