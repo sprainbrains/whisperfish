@@ -134,7 +134,7 @@ Page {
             MenuItem {
                 text: editingProfile
                 //: Save changes to your profile menu item
-                //% "Save changes"
+                //% "Save profile changes"
                 ? qsTrId("whisperfish-save-profile-menu")
                 //: Edit your own profile menu item
                 //% "Edit profile"
@@ -242,6 +242,7 @@ Page {
             }
 
             SectionHeader {
+                visible: !isOwnProfile
                 //: Verify safety numbers
                 //% "Verify safety numbers"
                 text: qsTrId("whisperfish-verify-contact-identity-title")
@@ -252,7 +253,7 @@ Page {
                 //% "Show fingerprint"
                 text: qsTrId("whisperfish-show-fingerprint")
                 enabled: numericFingerprint.text.length === 0
-                visible: enabled
+                visible: !isOwnProfile
                 onClicked: {
                     if(recipient.sessionFingerprint && recipient.sessionFingerprint.length === 60) {
                         var pretty_fp = ""
@@ -271,10 +272,10 @@ Page {
             }
 
             Rectangle {
-                id: fingerprintBox
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: numericFingerprint.width + 2*Theme.paddingLarge
                 height: numericFingerprint.height + 2*Theme.paddingLarge
+                visible: !isOwnProfile
                 radius: Theme.paddingLarge
                 color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
                 visible: numericFingerprint.text.length > 0
@@ -288,16 +289,13 @@ Page {
             TextArea {
                 id: fingerprintDirections
                 anchors.horizontalCenter: parent.horizontalCenter
+                visible: !isOwnProfile
                 readOnly: true
                 font.pixelSize: Theme.fontSizeSmall
                 width: parent.width
-                text: isOwnProfile
-                    //: Numeric fingerprint instructions for own profile
-                    //% "If you wish to verify the security of your end-to-end encryption with someone else, compare the numbers above with the numbers on their device."
-                    ? qsTrId("whisperfish-numeric-fingerprint-directions-for-own-profile")
-                    //: Numeric fingerprint instructions
-                    //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
-                    : qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
+                //: Numeric fingerprint instructions
+                //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
+                text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
             }
         }
     }
