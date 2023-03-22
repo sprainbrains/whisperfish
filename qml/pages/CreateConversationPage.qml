@@ -12,15 +12,30 @@ Page {
     property alias e164: createConversation.e164
     property alias uuid: createConversation.uuid
 
+    function attemptTransition() {
+        if (sessionId != -1) {
+            if (pageStack.busy) {
+                pageStack.completeAnimation();
+            } else {
+                pageStack.replace(Qt.resolvedUrl("ConversationPage.qml"), { sessionId: sessionId });
+            }
+        }
+    }
+
     CreateConversation {
         id: createConversation
         app: AppState
         // properties set through aliases
 
         onSessionIdChanged: {
-            if (sessionId != -1) {
-                pageStack.replace(Qt.resolvedUrl("ConversationPage.qml"), { sessionId: sessionId });
-            }
+            attemptTransition();
+        }
+    }
+
+    Connections {
+        target: pageStack
+        onBusyChanged: {
+            attemptTransition();
         }
     }
 
