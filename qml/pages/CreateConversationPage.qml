@@ -16,7 +16,14 @@ Page {
         id: createConversation
         app: AppState
         // properties set through aliases
+
+        onSessionIdChanged: {
+            if (sessionId != -1) {
+                pageStack.replace(Qt.resolvedUrl("ConversationPage.qml"), { sessionId: sessionId });
+            }
+        }
     }
+
 
     PageHeader {
         //: Page header title when a new conversation is being created
