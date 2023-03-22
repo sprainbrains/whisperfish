@@ -278,7 +278,7 @@
         <translation>Ajouter un membre</translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="317"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="327"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>Inconnu</translation>
@@ -321,37 +321,43 @@
         <translation>Créer un lien d’invitation</translation>
     </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="216"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="214"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
         <translation>Ouvrir Note à moi-même</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="219"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="217"/>
         <source>Message to %1</source>
-        <extracomment>Menu item to start a private chat with a group member</extracomment>
+        <extracomment>Menu item to open the private chat with a group member</extracomment>
         <translation>Message pour %1</translation>
     </message>
+    <message id="whisperfish-group-member-menu-new-direct-message">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="228"/>
+        <source>Start conversation with %1</source>
+        <extracomment>Menu item to start a new private chat with a group member</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="230"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="240"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Ajouter aux contacts</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="237"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="247"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Vérifier le numéro de sécurité</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="246"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="256"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Retirer de ce groupe</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="313"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="323"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Vous</translation>
@@ -1213,28 +1219,28 @@ Settings page share contacts</extracomment>
         <translation>Désactivé</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="252"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="262"/>
         <location filename="../qml/pages/ProfilePage.qml" line="80"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation>Réinitialissr la clé d&apos;identité</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="259"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="269"/>
         <location filename="../qml/pages/ProfilePage.qml" line="85"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation>Clé d&apos;identité réinitialisée</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="268"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="278"/>
         <location filename="../qml/pages/ProfilePage.qml" line="95"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Réinitialiser la session sécurisée</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="275"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="285"/>
         <location filename="../qml/pages/ProfilePage.qml" line="100"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
@@ -1768,6 +1774,13 @@ Settings page share contacts</extracomment>
         <source>Reactions</source>
         <extracomment>Reactions section header</extracomment>
         <translation>Réactions</translation>
+    </message>
+    <message id="whisperfish-creating-conversation-title">
+        <location filename="../qml/pages/CreateConversationPage.qml" line="46"/>
+        <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
+        <source>Creating conversation</source>
+        <extracomment>Page header title when a new conversation is being created</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
