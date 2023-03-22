@@ -1214,53 +1214,53 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-reset-identity-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
-        <location filename="../qml/pages/VerifyIdentity.qml" line="30"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="30"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation>Réinitialissr la clé d&apos;identité</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="264"/>
-        <location filename="../qml/pages/VerifyIdentity.qml" line="35"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="35"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation>Clé d&apos;identité réinitialisée</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="273"/>
-        <location filename="../qml/pages/VerifyIdentity.qml" line="45"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="45"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Réinitialiser la session sécurisée</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="280"/>
-        <location filename="../qml/pages/VerifyIdentity.qml" line="50"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="50"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>Session sécurisée réinitialisée</translation>
     </message>
     <message id="whisperfish-refresh-profile-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="60"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="60"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
         <translation>Actualiser le profil Signal</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="69"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="69"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Afficher le contact</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="117"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="117"/>
         <source>Verify safety numbers</source>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Vérifier les numéros de sécurité</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/VerifyIdentity.qml" line="137"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="137"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Si vous souhaitez vérifier la fiabilité de votre chiffrement de bout en bout avec %1, comparez les chiffres ci-dessus avec les chiffres sur votre appareil.</translation>

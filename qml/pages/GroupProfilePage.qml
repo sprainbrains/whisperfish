@@ -56,18 +56,13 @@ Page {
                 infoMarkSource: groupV2 ? '' : 'image://theme/icon-s-filled-warning'
                 infoMarkSize: 0.9*Theme.iconSizeSmallPlus
                 anchors.horizontalCenter: parent.horizontalCenter
-                onClicked: {
-                    // TODO Implement a new page derived from ViewImagePage for showing
-                    //      profile pictures. A new action overlay at the bottom can provide
-                    //      options to change or delete the profile picture.
-                    //      Note: adding a PullDownMenu would be best but is not possible.
-                    //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
-                    //      but PullDownMenu requires a SilicaFlickable as parent.
-
-                    //pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { 'title': groupName, 'source': imageSource })
-
-                    remorse.execute("Changing the avatar is not yet implemented.", function() {})
-                }
+                // TODO Implement a new page derived from ViewImagePage for showing
+                //      profile pictures. A new action overlay at the bottom can provide
+                //      options to change or delete the profile picture.
+                //      Note: adding a PullDownMenu would be best but is not possible.
+                //      ViewImagePage relies on Flickable and breaks if used with SilicaFlickable,
+                //      but PullDownMenu requires a SilicaFlickable as parent.
+                onClicked: pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { title: groupName, path: imageSource })
             }
 
             Item {
@@ -242,7 +237,7 @@ Page {
                         text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
                         visible: !isVerified
                         onClicked: {
-                            pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { recipientId: model.id, profilePicture: profilePicture })
+                            pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientId: model.id, profilePicture: profilePicture })
                         }
                     }
                     MenuItem {
@@ -253,7 +248,7 @@ Page {
                         onClicked: remorse.execute("Changing group members is not yet implemented.", function() {})
                     }
                     MenuItem {
-                        // Reused from VerifyIdentity.qml
+                        // Reused from ProfilePage.qml
                         text: qsTrId("whisperfish-reset-identity-menu")
                         visible: SettingsBridge.debug_mode
                         onClicked: {
@@ -269,7 +264,7 @@ Page {
                         }
                     }
                     MenuItem {
-                        // Reused from VerifyIdentity.qml
+                        // Reused from ProfilePage.qml
                         text: qsTrId("whisperfish-reset-session-menu")
                         visible: SettingsBridge.debug_mode
                         onClicked: {

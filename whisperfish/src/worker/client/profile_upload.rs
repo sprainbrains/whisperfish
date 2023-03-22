@@ -17,6 +17,16 @@ pub struct RefreshOwnProfile {
 #[rtype(result = "()")]
 pub struct UploadProfile;
 
+/// Provide new profile details and upload the profile for the self recipient.
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct UpdateProfile {
+    pub given_name: String,
+    pub family_name: String,
+    pub about: String,
+    pub emoji: String,
+}
+
 /// Synchronize multi-device profile information.
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -144,6 +154,34 @@ impl Handler<RefreshOwnProfile> for ClientActor {
             .into_actor(self)
             .map(|_, act, _| act.migration_state.notify_self_profile_ready()),
         )
+    }
+}
+
+impl Handler<UpdateProfile> for ClientActor {
+    type Result = ResponseFuture<()>;
+
+    fn handle(&mut self, new_profile: UpdateProfile, ctx: &mut Self::Context) -> Self::Result {
+        let storage = self.storage.clone().unwrap();
+        let client = ctx.address();
+        let config = self.config.clone();
+        let uuid_str = config.get_uuid_clone();
+        let uuid = Uuid::parse_str(&uuid_str).unwrap();
+
+        // XXX: Validate emoji character somehow
+        Box::pin(async move {
+            storage.update_profile_details(
+                &uuid,
+                &Some(new_profile.given_name),
+                &Some(new_profile.family_name),
+                &Some(new_profile.about),
+                &Some(new_profile.emoji),
+            );
+
+            client.send(UploadProfile).await.unwrap();
+            client.send(RefreshProfileAttributes).await.unwrap();
+            client.send(MultideviceSyncProfile).await.unwrap();
+            // XXX: Send a profile re-download message to contacts
+        })
     }
 }
 

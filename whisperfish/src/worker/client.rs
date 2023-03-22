@@ -142,6 +142,9 @@ pub struct ClientWorker {
     delete_file: qt_method!(fn(&self, file_name: String)),
 
     refresh_profile: qt_method!(fn(&self, recipient_id: i32)),
+    upload_profile: qt_method!(
+        fn(&self, given_name: String, family_name: String, about: String, emoji: String)
+    ),
 }
 
 /// ClientActor keeps track of the connection state.
@@ -2075,6 +2078,30 @@ impl ClientWorker {
         actix::spawn(async move {
             if let Err(e) = actor
                 .send(RefreshProfile::ByRecipientId(recipient_id))
+                .await
+            {
+                log::error!("{:?}", e);
+            }
+        });
+    }
+
+    #[with_executor]
+    pub fn upload_profile(
+        &self,
+        given_name: String,
+        family_name: String,
+        about: String,
+        emoji: String,
+    ) {
+        let actor = self.actor.clone().unwrap();
+        actix::spawn(async move {
+            if let Err(e) = actor
+                .send(UpdateProfile {
+                    given_name,
+                    family_name,
+                    about,
+                    emoji,
+                })
                 .await
             {
                 log::error!("{:?}", e);

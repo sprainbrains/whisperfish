@@ -182,7 +182,7 @@ ListItem {
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"), { session: model, group: group })
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/VerifyIdentity.qml"), { recipientId: model.recipientId, profilePicture: delegate.profilePicture })
+                    pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientId: model.recipientId, profilePicture: delegate.profilePicture })
                 }
             }
         }
