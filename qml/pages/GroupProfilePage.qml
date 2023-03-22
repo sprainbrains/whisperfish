@@ -213,13 +213,11 @@ Page {
             menu: Component {
                 ContextMenu {
                     MenuItem {
-                        // TODO Implement a way to open a new chat with someone, or open
-                        //      an existing chat. This requires better handling of sessions (#105, #183)
                         text: isSelf ?
                                   //: Menu item to open the conversation with oneself
                                   //% "Open Note to Self"
                                   qsTrId("whisperfish-group-member-menu-open-note-to-self") :
-                                  //: Menu item to start a private chat with a group member
+                                  //: Menu item to open the private chat with a group member
                                   //% "Message to %1"
                                   qsTrId("whisperfish-group-member-menu-direct-message").arg(
                                       isUnknownContact ? (model.e164 ? model.e164 : model.uuid) : name)
@@ -227,7 +225,19 @@ Page {
                             var main = pageStack.find(function(page) { return page.objectName == "mainPage"; });
                             pageStack.replaceAbove(main, Qt.resolvedUrl("../pages/ConversationPage.qml"), { sessionId: recipient.directMessageSessionId, profilePicture: profilePicture });
                         }
-                        enabled: recipient.directMessageSessionId != -1
+                        visible: recipient.directMessageSessionId != -1
+                    }
+                    MenuItem {
+                        text: //: Menu item to start a new private chat with a group member
+                              //% "Start conversation with %1"
+                              qsTrId("whisperfish-group-member-menu-new-direct-message").arg(
+                                      isUnknownContact ? (model.e164 ? model.e164 : model.uuid) : name)
+                        onClicked: {
+                            var main = pageStack.find(function(page) { return page.objectName == "mainPage"; });
+                            pageStack.replaceAbove(main, Qt.resolvedUrl("../pages/CreateConversationPage.qml"), { uuid: recipient.uuid });
+                        }
+                        visible: recipient.directMessageSessionId == -1 && !isSelf
+                        enabled: recipient.uuid != ""
                     }
                     MenuItem {
                         //: Menu item to save a group member to the local address book
