@@ -60,7 +60,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="326"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation>Oben anheften</translation>
+        <translation>Unterhaltung anheften</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="335"/>
@@ -464,55 +464,55 @@
         <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen verwerfen</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="138"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Profil speichern</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="141"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Profil bearbeiten</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="188"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Name</translation>
     </message>
     <message id="whisperfish-profile-given-name">
         <location filename="../qml/pages/ProfilePage.qml" line="201"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vorname (erforderlich)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
         <location filename="../qml/pages/ProfilePage.qml" line="216"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nachname (optional)</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="227"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Schreibe etwas über dich</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="240"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ein paar Worte zu deiner Person</translation>
     </message>
     <message id="whisperfish-show-fingerprint">
         <location filename="../qml/pages/ProfilePage.qml" line="254"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Fingerabdruck anzeigen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="298"/>
@@ -1006,25 +1006,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="327"/>
         <source>Unlock Password</source>
         <extracomment>Settings page autostart password field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Passwort</translation>
     </message>
     <message id="whisperfish-settings-save-password-button">
         <location filename="../qml/pages/Settings.qml" line="338"/>
         <source>Save password</source>
         <extracomment>Settings page save autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Passwort speichern</translation>
     </message>
     <message id="whisperfish-settings-clear-password-button">
         <location filename="../qml/pages/Settings.qml" line="341"/>
         <source>clear password</source>
         <extracomment>Settings page clear autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Passwort löschen</translation>
     </message>
     <message id="whisperfish-settings-auto-unlock-password-info">
         <location filename="../qml/pages/Settings.qml" line="353"/>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</source>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Du kannst dein Passwort hinterlegen, damit Whisperfish die Datenbank beim Start automatisch entsperrt. Bitte beachte, dass das Passwort im Klartext gespeichert wird, weshalb diese Funktion nicht empfohlen wird.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="375"/>
