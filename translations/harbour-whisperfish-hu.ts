@@ -420,48 +420,102 @@
         <translation>Újraküldés</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="30"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="252"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="80"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation type="unfinished">Azonosító kulcs visszaállítása</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="264"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="35"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="259"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="85"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation type="unfinished">Azonosító kulcs visszaállítva</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="273"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="45"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="268"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="95"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Biztonságos munkamenet visszaállítása</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="280"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="50"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="275"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="100"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>Biztonságos munkamenet visszaállítva</translation>
     </message>
     <message id="whisperfish-refresh-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="60"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="110"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="69"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="119"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Névjegy megjelenítése</translation>
     </message>
+    <message id="whisperfish-revert-profile-changes-menu">
+        <location filename="../qml/pages/ProfilePage.qml" line="129"/>
+        <source>Discard changes</source>
+        <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-save-profile-menu">
+        <location filename="../qml/pages/ProfilePage.qml" line="138"/>
+        <source>Save profile changes</source>
+        <extracomment>Save changes to your profile menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-edit-profile-menu">
+        <location filename="../qml/pages/ProfilePage.qml" line="141"/>
+        <source>Edit profile</source>
+        <extracomment>Edit your own profile menu item</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-profile-joined-name">
+        <location filename="../qml/pages/ProfilePage.qml" line="188"/>
+        <source>Name</source>
+        <extracomment>Profile, name field (first name + last name)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-profile-given-name">
+        <location filename="../qml/pages/ProfilePage.qml" line="201"/>
+        <source>First name (required)</source>
+        <extracomment>Profile, first (given) name field, required</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-profile-family-name">
+        <location filename="../qml/pages/ProfilePage.qml" line="216"/>
+        <source>Last name (optional)</source>
+        <extracomment>Profile, last (family) name field, optional</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-profile-about">
+        <location filename="../qml/pages/ProfilePage.qml" line="227"/>
+        <source>Write something about yourself</source>
+        <extracomment>Profile, about you (greeting/status) field</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-profile-emoji">
+        <location filename="../qml/pages/ProfilePage.qml" line="240"/>
+        <source>A few words about yourself</source>
+        <extracomment>Profile, emoji symbol field</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-show-fingerprint">
+        <location filename="../qml/pages/ProfilePage.qml" line="254"/>
+        <source>Show fingerprint</source>
+        <extracomment>Show fingerprint button</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="137"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="298"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Ha szeretnéd ellenőrizni a végponttól végpontig titkosítás biztonságát ezzel: %1, hasonlítsd össze az alábbi számokat az ő készülékükön lévő számokkal.</translation>
@@ -1175,20 +1229,20 @@ Settings page share contacts</extracomment>
         <translation>Letiltva</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/ProfilePage.qml" line="117"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="248"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
         <translation>Biztonsági számok ellenőrzése</translation>
     </message>
     <message id="whisperfish-group-add-member-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="183"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="178"/>
         <source>Add Member</source>
         <extracomment>Add group member menu item</extracomment>
         <translation>Tag hozzáadása</translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="322"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="317"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>Ismeretlen</translation>
@@ -1205,63 +1259,63 @@ Settings page share contacts</extracomment>
         <translation>Nincs frissítve az új csoport-formátumra</translation>
     </message>
     <message id="whisperfish-group-refresh">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="146"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="141"/>
         <source>Refresh group</source>
         <extracomment>Refresh group menu item</extracomment>
         <translation>Csoport frissítése</translation>
     </message>
     <message id="whisperfish-group-leave-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="155"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="150"/>
         <source>Leave this group</source>
         <oldsource>Leave</oldsource>
         <extracomment>Leave group menu item</extracomment>
         <translation>Kilépés a csoportból</translation>
     </message>
     <message id="whisperfish-group-leave-remorse">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="163"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="158"/>
         <source>Left group and deleted all messages</source>
         <oldsource>Leaving group and removing ALL messages!</oldsource>
         <extracomment>Leave group remorse message (past tense)</extracomment>
         <translation>Kilépve a csoportból, és az összes üzenet törölve</translation>
     </message>
     <message id="whisperfish-group-invite-link-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="176"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="171"/>
         <source>Create invitation link</source>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Meghívó-link létrehozása</translation>
     </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="221"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="216"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="224"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="219"/>
         <source>Message to %1</source>
         <extracomment>Menu item to start a private chat with a group member</extracomment>
         <translation>Üzenet %1 számára</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="235"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="230"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Hozzáadás a névjegyekhez</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="242"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="237"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Biztonsági szám ellenőrzése</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="251"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="246"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Eltávolítás ebből a csoportból</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="318"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="313"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Te</translation>
