@@ -53,6 +53,7 @@ macro_rules! define_model_roles {
 mod active_model;
 pub mod attachment;
 pub mod contact;
+pub mod create_conversation;
 pub mod device;
 pub mod group;
 pub mod messages;
