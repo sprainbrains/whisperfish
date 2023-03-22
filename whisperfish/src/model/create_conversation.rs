@@ -16,6 +16,7 @@ pub struct CreateConversationImpl {
     session_id: Option<i32>,
     uuid: Option<uuid::Uuid>,
     e164: Option<phonenumber::PhoneNumber>,
+    name: Option<String>,
 }
 
 crate::observing_model! {
@@ -25,6 +26,8 @@ crate::observing_model! {
         e164: QString; READ get_e164 WRITE set_e164,
         ready: bool; READ get_ready,
         invalid: bool; READ get_invalid,
+        hasName: bool; READ has_name,
+        name: QString; READ get_name,
     }
 }
 
@@ -48,6 +51,10 @@ impl CreateConversationImpl {
         self.session_id.unwrap_or(-1)
     }
 
+    fn has_name(&self) -> bool {
+        self.name.is_some()
+    }
+
     fn get_ready(&self) -> bool {
         self.session_id.is_some()
     }
@@ -68,6 +75,12 @@ impl CreateConversationImpl {
         };
 
         let session = if let Some(recipient) = recipient {
+            if let Some(name) = &recipient.profile_joined_name {
+                self.name = Some(name.clone());
+            } else if let Some(e164) = &recipient.e164 {
+                self.name = Some(e164.clone());
+            }
+
             storage.fetch_or_insert_session_by_recipient_id(recipient.id)
         } else {
             // XXX This most probably requires interaction.
@@ -119,6 +132,10 @@ impl CreateConversationImpl {
             .map(PhoneNumber::to_string)
             .unwrap_or_default()
             .into()
+    }
+
+    fn get_name(&self) -> QString {
+        self.name.as_deref().unwrap_or_default().into()
     }
 
     fn init(&mut self, ctx: ModelContext<Self>) {
