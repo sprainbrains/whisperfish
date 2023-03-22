@@ -11,7 +11,7 @@ use qmetaobject::prelude::*;
 /// QML-constructable object that queries a session based on e164 or uuid, and creates it if
 /// necessary.
 #[derive(Default, QObject)]
-pub struct SessionImpl {
+pub struct CreateConversationImpl {
     base: qt_base_class!(trait QObject),
     session_id: Option<i32>,
     uuid: Option<uuid::Uuid>,
@@ -19,7 +19,7 @@ pub struct SessionImpl {
 }
 
 crate::observing_model! {
-    pub struct Session(SessionImpl) {
+    pub struct CreateConversation(CreateConversationImpl) {
         sessionId: i32; READ get_session_id,
         uuid: QString; READ get_uuid WRITE set_uuid,
         e164: QString; READ get_e164 WRITE set_e164,
@@ -28,10 +28,10 @@ crate::observing_model! {
     }
 }
 
-impl EventObserving for SessionImpl {
+impl EventObserving for CreateConversationImpl {
     type Context = ModelContext<Self>;
 
-    fn observe(&mut self, ctx: Self::Context, event: crate::store::observer::Event) {
+    fn observe(&mut self, ctx: Self::Context, _event: crate::store::observer::Event) {
         let storage = ctx.storage();
 
         // If something changed
@@ -43,7 +43,7 @@ impl EventObserving for SessionImpl {
     }
 }
 
-impl SessionImpl {
+impl CreateConversationImpl {
     fn get_session_id(&self) -> i32 {
         self.session_id.unwrap_or(-1)
     }
@@ -53,10 +53,29 @@ impl SessionImpl {
     }
 
     fn get_invalid(&self) -> bool {
+        // XXX Also invalid when lookup failed
         self.e164.is_none() && self.uuid.is_none()
     }
 
-    fn fetch(&mut self, storage: Storage) {}
+    fn fetch(&mut self, storage: Storage) {
+        let recipient = if let Some(uuid) = self.uuid {
+            storage.fetch_recipient_by_uuid(uuid)
+        } else if let Some(e164) = &self.e164 {
+            storage.fetch_recipient_by_e164(&e164.to_string())
+        } else {
+            log::trace!("Neither e164 nor uuid set; not fetching.");
+            return;
+        };
+
+        let session = if let Some(recipient) = recipient {
+            storage.fetch_or_insert_session_by_recipient_id(recipient.id)
+        } else {
+            // XXX This most probably requires interaction.
+            log::warn!("Not creating new recipients through this method.");
+            return;
+        };
+        self.session_id = Some(session.id);
+    }
 
     fn get_uuid(&self) -> QString {
         self.uuid
@@ -103,7 +122,7 @@ impl SessionImpl {
     }
 
     fn init(&mut self, ctx: ModelContext<Self>) {
-        if let Some(id) = self.session_id {
+        if self.e164.is_some() || self.uuid.is_some() {
             self.fetch(ctx.storage());
         }
     }

@@ -66,6 +66,7 @@ pub mod prompt;
 pub use self::active_model::*;
 pub use self::attachment::*;
 pub use self::contact::*;
+pub use self::create_conversation::*;
 pub use self::device::*;
 pub use self::group::*;
 pub use self::messages::*;
