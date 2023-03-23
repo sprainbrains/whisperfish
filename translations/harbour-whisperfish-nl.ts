@@ -465,55 +465,55 @@
         <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wijzigingen verwerpen</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="138"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Profielwijzigingen opslaan</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="141"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Profiel bewerken</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="188"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Naam</translation>
     </message>
     <message id="whisperfish-profile-given-name">
         <location filename="../qml/pages/ProfilePage.qml" line="201"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Voornaam (verplicht)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
         <location filename="../qml/pages/ProfilePage.qml" line="216"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Achternaam (optioneel)</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="227"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertel iets over jezelf</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="240"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Een paar woorden over jezelf</translation>
     </message>
     <message id="whisperfish-show-fingerprint">
         <location filename="../qml/pages/ProfilePage.qml" line="254"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vingerafdruk tonen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="298"/>
@@ -1298,7 +1298,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="228"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Begin een gesprek met %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="240"/>
@@ -1779,7 +1779,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gesprek wordt aangemaakt</translation>
     </message>
 </context>
 </TS>
