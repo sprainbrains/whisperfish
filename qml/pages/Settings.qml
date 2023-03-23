@@ -349,7 +349,7 @@ Page {
                     font.pixelSize: Theme.fontSizeSmall
                     labelVisible: false
                     //: Settings page info about setting auto unlock password
-                    //% "You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened."
+                    //% "You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended."
                     text: qsTrId("whisperfish-settings-auto-unlock-password-info")
                 }
                 TextArea {
