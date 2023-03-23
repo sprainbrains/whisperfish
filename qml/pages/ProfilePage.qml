@@ -275,10 +275,9 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: numericFingerprint.width + 2*Theme.paddingLarge
                 height: numericFingerprint.height + 2*Theme.paddingLarge
-                visible: !isOwnProfile
                 radius: Theme.paddingLarge
                 color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
-                visible: numericFingerprint.text.length > 0
+                visible: !isOwnProfile && numericFingerprint.text.length > 0
                 Label {
                     id: numericFingerprint
                     anchors.centerIn: parent
