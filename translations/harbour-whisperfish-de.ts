@@ -1321,7 +1321,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="228"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Unterhaltung mit %1 beginnen</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="240"/>
@@ -1802,7 +1802,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Unterhaltung wird erstellt</translation>
     </message>
 </context>
 </TS>
