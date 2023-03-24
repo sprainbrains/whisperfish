@@ -342,7 +342,7 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="228"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Commencer une conversation avec %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="240"/>
@@ -483,6 +483,7 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>%n message supprimé localement</numerusform>
+            <numerusform>%n messages supprimés localement</numerusform>
             <numerusform>%n messages supprimés localement</numerusform>
         </translation>
     </message>
@@ -998,26 +999,26 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="301"/>
         <source>Unlock Password</source>
         <extracomment>Settings page autostart password field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mot de passe de déverrouillage</translation>
     </message>
     <message id="whisperfish-settings-save-password-button">
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Save password</source>
         <extracomment>Settings page save autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Enregistrer le mot de passe</translation>
     </message>
     <message id="whisperfish-settings-clear-password-button">
         <location filename="../qml/pages/Settings.qml" line="316"/>
         <source>clear password</source>
         <extracomment>Settings page clear autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>effacer le mot de passe</translation>
     </message>
     <message id="whisperfish-settings-auto-unlock-password-info">
         <location filename="../qml/pages/Settings.qml" line="329"/>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
         <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vous pouvez saisir votre mot de passe pour que Whisperfish déverrouille automatiquement la base de données au démarrage. Veuillez noter que le mot de passe est stocké en texte clair, et que l&apos;utilisation de cette fonctionnalité n&apos;est donc pas recommandée.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="351"/>
@@ -1272,37 +1273,37 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Annuler les modifications</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="138"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Enregistrer les modifications du profil</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="141"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modifier le profil</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="188"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message id="whisperfish-profile-given-name">
         <location filename="../qml/pages/ProfilePage.qml" line="201"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Prénom (obligatoire)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
         <location filename="../qml/pages/ProfilePage.qml" line="216"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nom de famille (optionnel)</translation>
     </message>
     <message id="whisperfish-profile-uuid">
         <location filename="../qml/pages/ProfilePage.qml" line="227"/>
@@ -1320,13 +1321,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="249"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Écrivez quelque chose sur vous</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="262"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Quelques mots sur vous-même</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/ProfilePage.qml" line="270"/>
@@ -1338,7 +1339,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="276"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afficher l&apos;empreinte digitale</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="319"/>
@@ -1425,6 +1426,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n pièce jointe</numerusform>
             <numerusform>%n pièces jointes</numerusform>
+            <numerusform>%n pièces jointes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1452,6 +1454,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1460,6 +1463,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
         </translation>
@@ -1652,6 +1656,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membre</numerusform>
             <numerusform>%n membres</numerusform>
+            <numerusform>%n membres</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1662,6 +1667,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n message sélectionné</numerusform>
             <numerusform>%n messages sélectionnés</numerusform>
+            <numerusform>%n messages sélectionnés</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1669,6 +1675,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Effacer la sélection</numerusform>
             <numerusform>Effacer la sélection</numerusform>
             <numerusform>Effacer la sélection</numerusform>
         </translation>
@@ -1680,6 +1687,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copier %n message</numerusform>
+            <numerusform>Copier %n messages</numerusform>
             <numerusform>Copier %n messages</numerusform>
         </translation>
     </message>
@@ -1698,6 +1706,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Supprimer %n message pour moi</numerusform>
             <numerusform>Supprimer %n messages pour moi</numerusform>
+            <numerusform>Supprimer %n messages pour moi</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1709,6 +1718,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Supprimer %n message pour tous</numerusform>
             <numerusform>Supprimer %n messages pour tous</numerusform>
+            <numerusform>Supprimer %n messages pour tous</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1717,6 +1727,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Réessayer d’envoyer le message non envoyé</numerusform>
+            <numerusform>Réessayer d’envoyer les messages non envoyés</numerusform>
             <numerusform>Réessayer d’envoyer les messages non envoyés</numerusform>
         </translation>
     </message>
@@ -1739,6 +1750,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Message&lt;br/&gt;non lu</numerusform>
+            <numerusform>Messages&lt;br/&gt;non lus</numerusform>
             <numerusform>Messages&lt;br/&gt;non lus</numerusform>
         </translation>
     </message>
@@ -1801,7 +1813,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Création de la conversation</translation>
     </message>
 </context>
 </TS>
