@@ -1039,7 +1039,7 @@ Settings page share contacts</extracomment>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
         <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation type="unfinished">Whisperfish&apos;in başlangıçta veri tabanının kilidini otomatik olarak açmasını sağlamak için parolanızı girebilirsiniz. Lütfen parolanın düz metin olarak saklandığını ve bu nedenle bu özelliğin kullanılmasının tavsiye edilmediğini unutmayın.</translation>
+        <translation>Whisperfish&apos;in başlangıçta veri tabanının kilidini otomatik olarak açmasını sağlamak için parolanızı girebilirsiniz. Lütfen parolanın düz metin olarak saklandığını ve bu nedenle bu özelliğin kullanılmasının tavsiye edilmediğini unutmayın.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="351"/>
