@@ -515,7 +515,7 @@
         <translation>Fingerabdruck anzeigen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="298"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="297"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
@@ -1022,9 +1022,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-auto-unlock-password-info">
         <location filename="../qml/pages/Settings.qml" line="353"/>
-        <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</source>
+        <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
+        <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation>Du kannst dein Passwort hinterlegen, damit Whisperfish die Datenbank beim Start automatisch entsperrt. Bitte beachte, dass das Passwort im Klartext gespeichert wird, weshalb diese Funktion nicht empfohlen wird.</translation>
+        <translation type="unfinished">Du kannst dein Passwort hinterlegen, damit Whisperfish die Datenbank beim Start automatisch entsperrt. Bitte beachte, dass das Passwort im Klartext gespeichert wird, weshalb diese Funktion nicht empfohlen wird.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="375"/>
