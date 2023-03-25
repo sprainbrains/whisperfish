@@ -498,7 +498,7 @@ Page {
                 //: Settings page total signal contacts
                 //% "Signal Contacts"
                 label: qsTrId("whisperfish-settings-total-contacts")
-                value: ContactModel.total
+                value: AppState.recipientCount()
             }
             DetailItem {
                 //: Settings page encrypted database
