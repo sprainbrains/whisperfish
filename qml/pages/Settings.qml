@@ -486,7 +486,7 @@ Page {
                 //: Settings page total sessions
                 //% "Total Sessions"
                 label: qsTrId("whisperfish-settings-total-sessions")
-                value: SessionModel.count
+                value: AppState.sessionCount()
             }
             DetailItem {
                 //: Settings page total messages
