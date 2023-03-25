@@ -218,6 +218,28 @@ Page {
             }
 
             TextField {
+                readOnly: true
+                visible: SettingsBridge.debug_mode && !editingProfile && text.length > 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pixelSize: Theme.fontSizeMedium
+                //: Profile UUID field
+                //% "UUID"
+                label: qsTrId("whisperfish-profile-uuid")
+                text: recipient.uuid
+            }
+
+            TextField {
+                readOnly: true
+                visible: !editingProfile && text.length > 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pixelSize: Theme.fontSizeMedium
+                //: Profile phone number field
+                //% "Phone number"
+                label: qsTrId("whisperfish-profile-phone-number")
+                text: recipient.e164
+            }
+
+            TextField {
                 id: profileAboutEdit
                 visible: editingProfile || text.length > 0
                 readOnly: !(isOwnProfile && editingProfile)
