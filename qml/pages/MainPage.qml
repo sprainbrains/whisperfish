@@ -92,7 +92,7 @@ Page {
             */
             MenuItem {
                 // TODO implement in backend
-                visible: sessions !== undefined ? sessions.hasArchived : false
+                visible: visualSessionModel.hasArchived || visualSessionModel.filterOnGroup === "archived"
                 text: visualSessionModel.filterOnGroup === "active"
                         //: Menu item for showing archived conversations
                         //% "Show archived conversations"
@@ -134,20 +134,24 @@ Page {
          */
         DelegateModel {
             id: visualSessionModel
+            property bool hasArchived: false
 
             // Take the messages from "unsorted" group, and
             // push them either into "archived" or "artive"
             function sortToGroups() {
                 var item
+                var atLeastOneArchived = false
                 while (unsortedItems.count > 0) {
                     item = unsortedItems.get(0)
 
                     if(item.model.isArchived) {
                         item.groups = "archived"
+                        atLeastOneArchived = true
                     } else {
                         item.groups = "active"
                     }
                 }
+                visualSessionModel.hasArchived = atLeastOneArchived
             }
 
             // "Update was requested."
@@ -236,6 +240,7 @@ Page {
                                //: Whisperfish subtitle for archived conversations
                                //% "Archived conversations"
                              : qsTrId("whisperfish-subtitle-archived-conversations")
+                visible: sessionView.count > 0
             }
 
             ViewPlaceholder {
@@ -252,10 +257,16 @@ Page {
                         //: Whisperfish locked message
                         //% "Locked"
                         qsTrId("whisperfish-locked-message")
-                    } else {
+                    } else if(visualSessionModel.filterOnGroup === "active") {
                         //: No messages found, hint on what to do
                         //% "Pull down to start a new conversation."
                         qsTrId("whisperfish-no-messages-hint-text")
+                    } else if(visualSessionModel.filterOnGroup === "archived") {
+                        //: Showing archived conversations, but the list is empty
+                        //% "No archived conversations"
+                        qsTrId("whisperfish-no-archived-messages-hint-text")
+                    } else {
+                        ""
                     }
                 }
             }
