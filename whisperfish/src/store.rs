@@ -279,6 +279,10 @@ impl Storage {
         self.db.lock().expect("storage is alive")
     }
 
+    pub fn is_encrypted(&self) -> bool {
+        self.store_enc.is_some()
+    }
+
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), anyhow::Error> {
         let root = root.as_ref();
 
@@ -2013,6 +2017,49 @@ impl Storage {
             .order_by(schema::messages::columns::server_timestamp.desc())
             .load(&mut *self.db())
             .expect("database")
+    }
+
+    /// Return the amount of messages in the database
+    pub fn message_count(&self) -> i32 {
+        log::trace!("Called message_count()");
+        let count: i64 = schema::messages::table
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
+        count as _
+    }
+
+    /// Return the amount of sessions in the database
+    pub fn session_count(&self) -> i32 {
+        log::trace!("Called session_count()");
+        let count: i64 = schema::sessions::table
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
+        count as _
+    }
+
+    /// Return the amount of recipients in the database
+    pub fn recipient_count(&self) -> i32 {
+        log::trace!("Called recipient_count()");
+        let count: i64 = schema::recipients::table
+            .filter(schema::recipients::uuid.is_not_null())
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
+        count as _
+    }
+
+    /// Return the amount of unsent messages in the database
+    pub fn unsent_count(&self) -> i32 {
+        log::trace!("Called unsent_count()");
+        let count: i64 = schema::messages::table
+            .filter(schema::messages::is_outbound.is(true))
+            .filter(schema::messages::sending_has_failed.is(true))
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
+        count as _
     }
 
     pub fn fetch_augmented_message(&self, message_id: i32) -> Option<orm::AugmentedMessage> {

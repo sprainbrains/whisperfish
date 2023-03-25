@@ -29,6 +29,12 @@ pub struct AppState {
     mayExit: qt_method!(fn(&self) -> bool),
 
     isHarbour: qt_method!(fn(&self) -> bool),
+    isEncrypted: qt_method!(fn(&self) -> bool),
+
+    messageCount: qt_method!(fn(&self) -> i32),
+    sessionCount: qt_method!(fn(&self) -> i32),
+    recipientCount: qt_method!(fn(&self) -> i32),
+    unsentCount: qt_method!(fn(&self) -> i32),
 
     pub storage: RefCell<Option<Storage>>,
 }
@@ -79,6 +85,36 @@ impl AppState {
         is_harbour()
     }
 
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn isEncrypted(&mut self) -> bool {
+        self.storage.borrow().as_ref().unwrap().is_encrypted()
+    }
+
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn messageCount(&mut self) -> i32 {
+        self.storage.borrow().as_ref().unwrap().message_count()
+    }
+
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn sessionCount(&mut self) -> i32 {
+        self.storage.borrow().as_ref().unwrap().session_count()
+    }
+
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn recipientCount(&mut self) -> i32 {
+        self.storage.borrow().as_ref().unwrap().recipient_count()
+    }
+
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn unsentCount(&mut self) -> i32 {
+        self.storage.borrow().as_ref().unwrap().unsent_count()
+    }
+
     #[with_executor]
     fn new() -> Self {
         Self {
@@ -94,6 +130,12 @@ impl AppState {
             mayExit: Default::default(),
 
             storage: RefCell::default(),
+            isEncrypted: Default::default(),
+
+            messageCount: Default::default(),
+            sessionCount: Default::default(),
+            recipientCount: Default::default(),
+            unsentCount: Default::default(),
         }
     }
 }

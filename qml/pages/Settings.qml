@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../js/countries_iso_only.js" as Countries
 import "../components"
 
@@ -11,6 +12,9 @@ Page {
         id: autostartService
         serviceName: 'harbour-whisperfish.service'
     }
+
+    // Cache encryption state so it's only queried once from storage
+    property bool encryptedDatabase: AppState.isEncrypted()
 
     SilicaFlickable {
         anchors.fill: parent
@@ -28,12 +32,19 @@ Page {
                 }
             }
             MenuItem {
+                visible: false // XXX: Unimplemented
                 //: Reconnect menu
                 //% "Reconnect"
                 text: qsTrId("whisperfish-settings-reconnect-menu")
                 onClicked: {
                     ClientWorker.reconnect()
                 }
+            }
+            MenuItem {
+                //: Show own profile menu
+                //% "Show my profile"
+                text: qsTrId("whisperfish-settings-show-own-profile-menu")
+                onClicked: pageStack.push(Qt.resolvedUrl("ProfilePage.qml"), { recipientId: 1, profilePicture: getRecipientAvatar(SetupWorker.phoneNumber, SetupWorker.uuid) })
             }
         }
 
@@ -48,45 +59,6 @@ Page {
                 //% "Settings"
                 title: qsTrId("whisperfish-settings-title")
             }
-
-            // ------ BEGIN IDENTITY ------
-            SectionHeader {
-                //: Settings page My identity section label
-                //% "My Identity"
-                text: qsTrId("whisperfish-settings-identity-section-label")
-            }
-            TextField {
-                id: phone
-                anchors.horizontalCenter: parent.horizontalCenter
-                readOnly: true
-                width: parent.width
-                //: Settings page My phone number
-                //% "My Phone"
-                label: qsTrId("whisperfish-settings-my-phone-number")
-                text: SetupWorker.phoneNumber
-            }
-            TextField {
-                id: uuid
-                anchors.horizontalCenter: parent.horizontalCenter
-                readOnly: true
-                width: parent.width
-                //: Settings page My UUID
-                //% "My UUID registration number"
-                label: qsTrId("whisperfish-settings-my-uuid")
-                text: SetupWorker.uuid
-            }
-            TextArea {
-                id: identity
-                anchors.horizontalCenter: parent.horizontalCenter
-                readOnly: true
-                font.pixelSize: Theme.fontSizeSmall
-                width: parent.width
-                //: Settings page Identity label
-                //% "Identity"
-                label: qsTrId("whisperfish-settings-identity-label")
-                text: SetupWorker.identity
-            }
-            // ------ END IDENTITY ------
 
             // ------ BEGIN NOTIFICATION SETTINGS ------
             SectionHeader {
@@ -232,6 +204,7 @@ Page {
             }
             IconTextSwitch {
                 id: shareContacts
+                visible: false // XXX: Unimplemented
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page share contacts
                 //% "Share Contacts"
@@ -318,6 +291,7 @@ Page {
                 }
                 TextField {
                     id: passwordField
+                    visible: encryptedDatabase
                     width: parent.width - 2*Theme.horizontalPageMargin
                     inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
                     validator: RegExpValidator{ regExp: /|.{6,}/ }
@@ -329,6 +303,7 @@ Page {
                 }
                 Button {
                     id: savePasswordButton
+                    visible: encryptedDatabase
                     enabled: passwordField.acceptableInput
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - 2*Theme.horizontalPageMargin
@@ -343,6 +318,7 @@ Page {
                 }
                 TextArea {
                     id: passwordFieldInfo
+                    visible: encryptedDatabase
                     anchors.horizontalCenter: parent.horizontalCenter
                     readOnly: true
                     width: parent.width
@@ -406,13 +382,14 @@ Page {
             }
             IconTextSwitch {
                 id: scaleImageAttachments
+                visible: false // XXX: Unimplemented
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page scale image attachments
                 //% "Scale JPEG Attachments"
                 text: qsTrId("whisperfish-settings-scale-image-attachments")
                 //: Settings page scale image attachments description
                 //% "Scale down JPEG attachments to save on bandwidth."
-                description: qsTrId("whisperfish-settings-scale-image-attachments-description") + " UNIMPLEMENTED"
+                description: qsTrId("whisperfish-settings-scale-image-attachments-description")
                 checked: SettingsBridge.scale_image_attachments
                 icon.source: "image://theme/icon-m-data-upload"
                 onCheckedChanged: {
@@ -473,31 +450,31 @@ Page {
                 //: Settings page unsent messages
                 //% "Unsent Messages"
                 label: qsTrId("whisperfish-settings-unsent-messages")
-                value: MessageModel.unsentCount
+                value: AppState.unsentCount()
             }
             DetailItem {
                 //: Settings page total sessions
                 //% "Total Sessions"
                 label: qsTrId("whisperfish-settings-total-sessions")
-                value: SessionModel.count
+                value: AppState.sessionCount()
             }
             DetailItem {
                 //: Settings page total messages
                 //% "Total Messages"
                 label: qsTrId("whisperfish-settings-total-messages")
-                value: MessageModel.total
+                value: AppState.messageCount()
             }
             DetailItem {
                 //: Settings page total signal contacts
                 //% "Signal Contacts"
                 label: qsTrId("whisperfish-settings-total-contacts")
-                value: ContactModel.total
+                value: AppState.recipientCount()
             }
             DetailItem {
                 //: Settings page encrypted database
                 //% "Encrypted Database"
                 label: qsTrId("whisperfish-settings-encrypted-db")
-                value: SettingsBridge.encryptedDatabase ?
+                value: encryptedDatabase ?
                     //: Settings page encrypted db enabled
                     //% "Enabled"
                     qsTrId("whisperfish-settings-encrypted-db-enabled") :

@@ -33,9 +33,7 @@ pub struct SetupWorker {
 
     registered: qt_property!(bool; NOTIFY setupChanged),
     locked: qt_property!(bool; NOTIFY setupChanged),
-    encryptedKeystore: qt_property!(bool; NOTIFY setupChanged),
     localId: qt_property!(QString; NOTIFY setupChanged),
-    identity: qt_property!(QString; NOTIFY setupChanged),
 
     useVoice: qt_property!(bool; NOTIFY setupChanged),
 
