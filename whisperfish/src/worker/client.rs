@@ -1741,17 +1741,51 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
             log::warn!("Unknown envelope type {:?}", msg.r#type());
         }
 
+        let storage = self.storage.clone().expect("initialized storage");
+
         ctx.spawn(
             async move {
-                let content = match cipher.open_envelope(msg).await {
-                    Ok(Some(content)) => content,
-                    Ok(None) => {
-                        log::warn!("Empty envelope");
-                        return None;
-                    }
-                    Err(e) => {
-                        log::error!("Error opening envelope: {:?}", e);
-                        return None;
+                let content = loop {
+                    match cipher.open_envelope(msg.clone()).await {
+                        Ok(Some(content)) => break content,
+                        Ok(None) => {
+                            log::warn!("Empty envelope");
+                            return None;
+                        }
+                        Err(ServiceError::SignalProtocolError(
+                            SignalProtocolError::UntrustedIdentity(addr),
+                        )) => {
+                            // This branch is the only one that loops, and it *should not* loop
+                            // more than once.
+                            log::warn!("Untrusted identity for {}; replacing identity and inserting a warning.", addr);
+                            let msg = crate::store::NewMessage {
+                                session_id: None,
+                                source_e164: None,
+                                source_uuid: Some(addr.name().into()),
+                                text: "[Whisperfish] The identity key for this contact has changed.  Please verify your safety number.".into(),
+                                timestamp: chrono::Utc::now().naive_utc(),
+                                sent: false,
+                                received: true,
+                                is_read: false,
+                                flags: 0,
+                                attachment: None,
+                                mime_type: None,
+                                has_attachment: false,
+                                outgoing: false,
+                                is_unidentified: false,
+                                quote_timestamp: None,
+                            };
+                            storage.process_message(msg, None);
+                            let removed = storage.delete_identity_key(&addr);
+                            if ! removed {
+                                log::error!("Could not remove identity key for {}.  Please file a bug.", addr);
+                                return None;
+                            }
+                        }
+                        Err(e) => {
+                            log::error!("Error opening envelope: {:?}", e);
+                            return None;
+                        }
                     }
                 };
 
