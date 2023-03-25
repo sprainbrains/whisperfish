@@ -39,6 +39,12 @@ Page {
                     ClientWorker.reconnect()
                 }
             }
+            MenuItem {
+                //: Show own profile menu
+                //% "Show my profile"
+                text: qsTrId("whisperfish-settings-show-own-profile-menu")
+                onClicked: pageStack.push(Qt.resolvedUrl("ProfilePage.qml"), { recipientId: 1, profilePicture: getRecipientAvatar(SetupWorker.phoneNumber, SetupWorker.uuid) })
+            }
         }
 
         VerticalScrollDecorator {}
@@ -52,45 +58,6 @@ Page {
                 //% "Settings"
                 title: qsTrId("whisperfish-settings-title")
             }
-
-            // ------ BEGIN IDENTITY ------
-            SectionHeader {
-                //: Settings page My identity section label
-                //% "My Identity"
-                text: qsTrId("whisperfish-settings-identity-section-label")
-            }
-            TextField {
-                id: phone
-                anchors.horizontalCenter: parent.horizontalCenter
-                readOnly: true
-                width: parent.width
-                //: Settings page My phone number
-                //% "My Phone"
-                label: qsTrId("whisperfish-settings-my-phone-number")
-                text: SetupWorker.phoneNumber
-            }
-            TextField {
-                id: uuid
-                anchors.horizontalCenter: parent.horizontalCenter
-                readOnly: true
-                width: parent.width
-                //: Settings page My UUID
-                //% "My UUID registration number"
-                label: qsTrId("whisperfish-settings-my-uuid")
-                text: SetupWorker.uuid
-            }
-            TextArea {
-                id: identity
-                anchors.horizontalCenter: parent.horizontalCenter
-                readOnly: true
-                font.pixelSize: Theme.fontSizeSmall
-                width: parent.width
-                //: Settings page Identity label
-                //% "Identity"
-                label: qsTrId("whisperfish-settings-identity-label")
-                text: SetupWorker.identity
-            }
-            // ------ END IDENTITY ------
 
             // ------ BEGIN NOTIFICATION SETTINGS ------
             SectionHeader {
