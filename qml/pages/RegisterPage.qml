@@ -236,6 +236,7 @@ BlockingInfoPageBase {
         IconTextSwitch {
             id: shareContacts
             enabled: !root.busy
+            visible: false // XXX: Unimplemented
             //: Share contacts label
             //% "Share Contacts"
             text: qsTrId("whisperfish-share-contacts-label")

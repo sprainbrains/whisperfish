@@ -248,11 +248,6 @@ impl SignalConfig {
         self.share_dir.to_owned()
     }
 
-    // XXX should be deprecated / removed
-    pub fn get_storage_dir(&self) -> std::path::PathBuf {
-        self.share_dir.join("storage")
-    }
-
     pub fn get_avatar_dir(&self) -> std::path::PathBuf {
         self.share_dir.join("storage").join("avatars")
     }

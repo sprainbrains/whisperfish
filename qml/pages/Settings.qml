@@ -32,6 +32,7 @@ Page {
                 }
             }
             MenuItem {
+                visible: false // XXX: Unimplemented
                 //: Reconnect menu
                 //% "Reconnect"
                 text: qsTrId("whisperfish-settings-reconnect-menu")
@@ -203,6 +204,7 @@ Page {
             }
             IconTextSwitch {
                 id: shareContacts
+                visible: false // XXX: Unimplemented
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page share contacts
                 //% "Share Contacts"
@@ -380,13 +382,14 @@ Page {
             }
             IconTextSwitch {
                 id: scaleImageAttachments
+                visible: false // XXX: Unimplemented
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page scale image attachments
                 //% "Scale JPEG Attachments"
                 text: qsTrId("whisperfish-settings-scale-image-attachments")
                 //: Settings page scale image attachments description
                 //% "Scale down JPEG attachments to save on bandwidth."
-                description: qsTrId("whisperfish-settings-scale-image-attachments-description") + " UNIMPLEMENTED"
+                description: qsTrId("whisperfish-settings-scale-image-attachments-description")
                 checked: SettingsBridge.scale_image_attachments
                 icon.source: "image://theme/icon-m-data-upload"
                 onCheckedChanged: {
