@@ -538,6 +538,18 @@
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>如果你希望使用 %1 验证你的端对端加密，请比较上方数字及对方设备上的数字。</translation>
     </message>
+    <message id="whisperfish-own-profile-help-text">
+        <location filename="../qml/pages/ProfilePage.qml" line="336"/>
+        <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
+        <extracomment>Signal Profile description / help text</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-own-profile-learn-more-button">
+        <location filename="../qml/pages/ProfilePage.qml" line="344"/>
+        <source>Learn more</source>
+        <extracomment>Button to open link to Signal help page about profiles</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="61"/>
         <source>This phone number contains invalid characters.</source>

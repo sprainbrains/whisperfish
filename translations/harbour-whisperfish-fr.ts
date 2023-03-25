@@ -1346,6 +1346,18 @@ Settings page share contacts</extracomment>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Si vous souhaitez vérifier la fiabilité de votre chiffrement de bout en bout avec %1, comparez les chiffres ci-dessus avec les chiffres sur votre appareil.</translation>
     </message>
+    <message id="whisperfish-own-profile-help-text">
+        <location filename="../qml/pages/ProfilePage.qml" line="336"/>
+        <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
+        <extracomment>Signal Profile description / help text</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-own-profile-learn-more-button">
+        <location filename="../qml/pages/ProfilePage.qml" line="344"/>
+        <source>Learn more</source>
+        <extracomment>Button to open link to Signal help page about profiles</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
         <source>Whisperfish</source>

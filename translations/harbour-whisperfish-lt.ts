@@ -540,6 +540,18 @@
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Jei norite patikrinti savo šifravimo saugumą su %1, palyginkite pirmiau nurodytus skaičius su jų įrenginyje esančiais skaičiais.</translation>
     </message>
+    <message id="whisperfish-own-profile-help-text">
+        <location filename="../qml/pages/ProfilePage.qml" line="336"/>
+        <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
+        <extracomment>Signal Profile description / help text</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-own-profile-learn-more-button">
+        <location filename="../qml/pages/ProfilePage.qml" line="344"/>
+        <source>Learn more</source>
+        <extracomment>Button to open link to Signal help page about profiles</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="61"/>
         <source>This phone number contains invalid characters.</source>
