@@ -492,7 +492,7 @@ Page {
                 //: Settings page total messages
                 //% "Total Messages"
                 label: qsTrId("whisperfish-settings-total-messages")
-                value: MessageModel.total
+                value: AppState.messageCount()
             }
             DetailItem {
                 //: Settings page total signal contacts

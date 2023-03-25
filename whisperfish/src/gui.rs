@@ -31,6 +31,8 @@ pub struct AppState {
     isHarbour: qt_method!(fn(&self) -> bool),
     isEncrypted: qt_method!(fn(&self) -> bool),
 
+    messageCount: qt_method!(fn(&self) -> i32),
+
     pub storage: RefCell<Option<Storage>>,
 }
 
@@ -86,6 +88,12 @@ impl AppState {
         self.storage.borrow().as_ref().unwrap().is_encrypted()
     }
 
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn messageCount(&mut self) -> i32 {
+        self.storage.borrow().as_ref().unwrap().message_count()
+    }
+
     #[with_executor]
     fn new() -> Self {
         Self {
@@ -102,6 +110,8 @@ impl AppState {
 
             storage: RefCell::default(),
             isEncrypted: Default::default(),
+
+            messageCount: Default::default(),
         }
     }
 }
