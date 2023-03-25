@@ -318,6 +318,32 @@ Page {
                 //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
                 text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
             }
+
+            Separator {
+                visible: isOwnProfile
+                horizontalAlignment: Qt.AlignHCenter
+                color: Theme.highlightBackgroundColor
+                width: parent.width
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: isOwnProfile
+                readOnly: true
+                width: parent.width
+                //: Signal Profile description / help text
+                //% "Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats."
+                text: qsTrId("whisperfish-own-profile-help-text")
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: isOwnProfile
+                //: Button to open link to Signal help page about profiles
+                //% "Learn more"
+                text: qsTrId("whisperfish-own-profile-learn-more-button")
+                onClicked: Qt.openUrlExternally("https://support.signal.org/hc/articles/360007459591")
+            }
         }
     }
 }
