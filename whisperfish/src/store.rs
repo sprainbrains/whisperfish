@@ -279,6 +279,10 @@ impl Storage {
         self.db.lock().expect("storage is alive")
     }
 
+    pub fn is_encrypted(&self) -> bool {
+        self.store_enc.is_some()
+    }
+
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), anyhow::Error> {
         let root = root.as_ref();
 

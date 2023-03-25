@@ -29,6 +29,7 @@ pub struct AppState {
     mayExit: qt_method!(fn(&self) -> bool),
 
     isHarbour: qt_method!(fn(&self) -> bool),
+    isEncrypted: qt_method!(fn(&self) -> bool),
 
     pub storage: RefCell<Option<Storage>>,
 }
@@ -79,6 +80,12 @@ impl AppState {
         is_harbour()
     }
 
+    #[allow(non_snake_case)]
+    #[with_executor]
+    fn isEncrypted(&mut self) -> bool {
+        self.storage.borrow().as_ref().unwrap().is_encrypted()
+    }
+
     #[with_executor]
     fn new() -> Self {
         Self {
@@ -94,6 +101,7 @@ impl AppState {
             mayExit: Default::default(),
 
             storage: RefCell::default(),
+            isEncrypted: Default::default(),
         }
     }
 }

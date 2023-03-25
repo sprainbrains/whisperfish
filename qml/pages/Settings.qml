@@ -1,5 +1,6 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
+import be.rubdos.whisperfish 1.0
 import "../js/countries_iso_only.js" as Countries
 import "../components"
 
@@ -11,6 +12,9 @@ Page {
         id: autostartService
         serviceName: 'harbour-whisperfish.service'
     }
+
+    // Cache encryption state so it's only queried once from storage
+    property bool encryptedDatabase: AppState.isEncrypted()
 
     SilicaFlickable {
         anchors.fill: parent
@@ -318,6 +322,7 @@ Page {
                 }
                 TextField {
                     id: passwordField
+                    visible: encryptedDatabase
                     width: parent.width - 2*Theme.horizontalPageMargin
                     inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
                     validator: RegExpValidator{ regExp: /|.{6,}/ }
@@ -329,6 +334,7 @@ Page {
                 }
                 Button {
                     id: savePasswordButton
+                    visible: encryptedDatabase
                     enabled: passwordField.acceptableInput
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - 2*Theme.horizontalPageMargin
@@ -343,6 +349,7 @@ Page {
                 }
                 TextArea {
                     id: passwordFieldInfo
+                    visible: encryptedDatabase
                     anchors.horizontalCenter: parent.horizontalCenter
                     readOnly: true
                     width: parent.width
@@ -497,7 +504,7 @@ Page {
                 //: Settings page encrypted database
                 //% "Encrypted Database"
                 label: qsTrId("whisperfish-settings-encrypted-db")
-                value: SettingsBridge.encryptedDatabase ?
+                value: encryptedDatabase ?
                     //: Settings page encrypted db enabled
                     //% "Enabled"
                     qsTrId("whisperfish-settings-encrypted-db-enabled") :
