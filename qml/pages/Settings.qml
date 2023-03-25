@@ -480,7 +480,7 @@ Page {
                 //: Settings page unsent messages
                 //% "Unsent Messages"
                 label: qsTrId("whisperfish-settings-unsent-messages")
-                value: MessageModel.unsentCount
+                value: AppState.unsentCount()
             }
             DetailItem {
                 //: Settings page total sessions

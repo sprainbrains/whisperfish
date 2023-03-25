@@ -2050,6 +2050,18 @@ impl Storage {
         count as _
     }
 
+    /// Return the amount of unsent messages in the database
+    pub fn unsent_count(&self) -> i32 {
+        log::trace!("Called unsent_count()");
+        let count: i64 = schema::messages::table
+            .filter(schema::messages::is_outbound.is(true))
+            .filter(schema::messages::sending_has_failed.is(true))
+            .count()
+            .get_result(&mut *self.db())
+            .expect("db");
+        count as _
+    }
+
     pub fn fetch_augmented_message(&self, message_id: i32) -> Option<orm::AugmentedMessage> {
         let message = self.fetch_message_by_id(message_id)?;
         let receipts = self.fetch_message_receipts(message.id);
