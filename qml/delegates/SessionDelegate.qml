@@ -136,7 +136,7 @@ ListItem {
     }
 
     function togglePinState() {
-        SessionModel.markPinned(model.index, !isPinned)
+        SessionModel.markPinned(model.id, !isPinned)
     }
 
     function toggleArchivedState() {
