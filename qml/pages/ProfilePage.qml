@@ -203,7 +203,10 @@ Page {
                 //% "First name (required)"
                 label: qsTrId("whisperfish-profile-given-name")
                 text: recipient.givenName
-                validator: RegExpValidator{ regExp: /.{1,}/ }
+                // Predictive text messes up regex as-you-type,
+                // so don't use it for firstname.
+                validator: RegExpValidator{ regExp: /.+/ }
+                inputMethodHints: Qt.ImhNoPredictiveText
             }
 
             // When editing, display last name field
@@ -218,6 +221,8 @@ Page {
                 //% "Last name (optional)"
                 label: qsTrId("whisperfish-profile-family-name")
                 text: recipient.familyName
+                // Disable prediction on lastname too for consistency.
+                inputMethodHints: Qt.ImhNoPredictiveText
             }
 
             TextField {
