@@ -200,8 +200,7 @@ Page {
                 //% "First name (required)"
                 label: qsTrId("whisperfish-profile-given-name")
                 text: recipient.givenName
-                acceptableInput: text.length > 0
-
+                validator: RegExpValidator{ regExp: /.{1,}/ }
             }
 
             // When editing, display last name field
