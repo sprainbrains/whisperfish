@@ -543,13 +543,13 @@
         <location filename="../qml/pages/ProfilePage.qml" line="336"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Profiilisi on salattu. Profiilisi ja sen muutokset näkyvät kontakteillesi ja kun aloitat tai hyväksyt uusia keskusteluja.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="344"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lue lisää</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="61"/>
