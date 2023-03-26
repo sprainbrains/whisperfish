@@ -181,6 +181,7 @@ Page {
                 id: profileFullName
                 readOnly: true
                 visible: !editingProfile && text.length > 0
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
                 //: Profile, name field (first name + last name)
@@ -193,6 +194,7 @@ Page {
             TextField {
                 id: profileGivenNameEdit
                 visible: editingProfile
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
@@ -207,6 +209,7 @@ Page {
             TextField {
                 id: profileFamilyNameEdit
                 visible: editingProfile
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
@@ -219,6 +222,7 @@ Page {
             TextField {
                 readOnly: true
                 visible: SettingsBridge.debug_mode && !editingProfile && text.length > 0
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile UUID field
@@ -230,6 +234,7 @@ Page {
             TextField {
                 readOnly: true
                 visible: !editingProfile && text.length > 0
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile phone number field
@@ -241,6 +246,7 @@ Page {
             TextField {
                 id: profileAboutEdit
                 visible: editingProfile || text.length > 0
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile, about you (greeting/status) field
@@ -254,6 +260,7 @@ Page {
                 // XXX: Validate emoji character somehow
                 // visible: editingProfile || text.length > 0
                 visible: false
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile, emoji symbol field
