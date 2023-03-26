@@ -10,6 +10,7 @@ MouseArea {
     property bool labelsHighlighted: highlighted // if only the labels are highlighted
 
     property alias imageSource: image.source
+    property alias imageStatus: image.status
     property bool isGroup
     property bool isNoteToSelf
     property bool showInfoMark

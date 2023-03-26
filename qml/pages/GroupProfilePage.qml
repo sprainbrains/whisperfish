@@ -44,6 +44,7 @@ Page {
 
             ProfilePicture {
                 id: groupAvatarItem
+                enabled: imageStatus === Image.Ready
                 height: 2*Theme.itemSizeLarge
                 width: height
                 highlighted: false
