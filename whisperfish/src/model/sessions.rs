@@ -274,6 +274,7 @@ define_model_roles! {
         Viewed(fn viewed(&self)):                                          "viewCount",
         HasAttachment(fn has_attachment(&self)):                           "hasAttachment",
         HasAvatar(fn has_avatar(&self)):                                   "hasAvatar",
+        Draft(fn draft(&self) via QString::from):                          "draft",
     }
 }
 

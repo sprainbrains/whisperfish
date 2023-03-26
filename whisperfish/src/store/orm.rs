@@ -625,6 +625,10 @@ impl AugmentedSession {
         }
     }
 
+    pub fn draft(&self) -> String {
+        self.draft.clone().unwrap_or_default()
+    }
+
     pub fn last_message_text(&self) -> Option<&str> {
         self.last_message.as_ref().and_then(|m| m.text.as_deref())
     }

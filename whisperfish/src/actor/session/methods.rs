@@ -19,6 +19,8 @@ pub struct SessionMethods {
     markPinned: qt_method!(fn(&self, id: i32, pinned: bool)),
 
     removeIdentities: qt_method!(fn(&self, recipients_id: i32)),
+
+    saveDraft: qt_method!(fn(&self, sid: i32, draft: String)),
 }
 
 impl SessionMethods {
@@ -92,5 +94,17 @@ impl SessionMethods {
                 .map(Result::unwrap),
         );
         log::trace!("Dispatched RemoveIdentities({})", recipient_id);
+    }
+
+    #[with_executor]
+    fn saveDraft(&self, sid: i32, draft: String) {
+        actix::spawn(
+            self.actor
+                .as_ref()
+                .unwrap()
+                .send(SaveDraft { sid, draft })
+                .map(Result::unwrap),
+        );
+        log::trace!("Dispatched SafeDraft for {}", sid);
     }
 }

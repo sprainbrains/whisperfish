@@ -185,6 +185,14 @@ Page {
             editor.onFocusChanged: if (editor.focus) panel.show()
             dockMoving: panel.moving
 
+            Component.onCompleted: text = session.draft
+
+            Component.onDestruction: {
+                if(session.draft !== text) {
+                    SessionModel.saveDraft(sessionId, text)
+                }
+            }
+
             onQuotedMessageClicked: {
                 // TODO use message id instead of index
                 messages.jumpToMessage(index)

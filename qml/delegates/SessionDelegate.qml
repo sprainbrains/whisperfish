@@ -8,12 +8,12 @@ ListItem {
     property string date: Format.formatDate(model.timestamp, _dateFormat)
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
-    property bool isUnread: model.message !== undefined && !model.read // TODO investigate: is this really a bool?
+    property bool isUnread: hasDraft || model.message !== undefined && !model.read // TODO investigate: is this really a bool?
     property bool isNoteToSelf: SetupWorker.phoneNumber === model.recipientE164
     property bool isPinned: model.isPinned
     property bool isArchived: model.isArchived
-    property bool hasDraft: false // TODO implement in model (#178)
-    property string draft: '' // TODO implement in model (#178)
+    property bool hasDraft: model.draft.length > 0
+    property string draft: model.draft
     property string profilePicture: model !== undefined ? (isGroup
         ? getGroupAvatar(model.groupId)
         : getRecipientAvatar(model.recipientE164, model.recipientUuid)
@@ -136,7 +136,7 @@ ListItem {
     }
 
     function togglePinState() {
-        SessionModel.markPinned(model.index, !isPinned)
+        SessionModel.markPinned(model.id, !isPinned)
     }
 
     function toggleArchivedState() {
