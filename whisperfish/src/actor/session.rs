@@ -73,6 +73,13 @@ pub struct RemoveIdentities {
     pub recipient_id: i32,
 }
 
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct SaveDraft {
+    pub sid: i32,
+    pub draft: String,
+}
+
 pub struct SessionActor {
     inner: QObjectBox<SessionMethods>,
     storage: Option<Storage>,
@@ -176,6 +183,18 @@ impl Handler<DeleteSession> for SessionActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         self.storage.as_ref().unwrap().delete_session(id);
+    }
+}
+
+impl Handler<SaveDraft> for SessionActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        SaveDraft { sid, draft }: SaveDraft,
+        _ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.storage.as_ref().unwrap().save_draft(sid, draft);
     }
 }
 

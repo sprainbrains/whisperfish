@@ -173,6 +173,7 @@ crate::observing_model! {
         viewCount Viewed,
         hasAttachment HasAttachment,
         hasAvatar HasAvatar,
+        draft Draft,
     }
 }
 

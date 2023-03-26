@@ -63,6 +63,7 @@ pub struct Session {
     pub group_id: Option<String>,
     pub group_name: Option<String>,
     pub has_attachment: bool,
+    pub draft: Option<String>,
 }
 
 /// Message as it relates to the schema
@@ -1756,6 +1757,24 @@ impl Storage {
         self.observe_delete(schema::sessions::table, id);
 
         log::trace!("delete_session({}) affected {} rows", id, affected_rows);
+    }
+
+    pub fn save_draft(&self, sid: i32, draft: String) {
+        log::trace!("Called save_draft({}, \"{}\")", sid, draft);
+
+        let draft = if draft.is_empty() { None } else { Some(draft) };
+
+        let affected_rows =
+            diesel::update(schema::sessions::table.filter(schema::sessions::id.eq(sid)))
+                .set(schema::sessions::draft.eq(draft))
+                .execute(&mut *self.db())
+                .expect("save draft");
+
+        log::trace!("save_draft() affected {} rows", affected_rows);
+
+        if affected_rows > 0 {
+            self.observe_update(schema::sessions::table, sid);
+        }
     }
 
     pub fn mark_session_read(&self, sid: i32) {
