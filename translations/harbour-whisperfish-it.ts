@@ -153,7 +153,7 @@
         <location filename="../qml/pages/MainPage.qml" line="267"/>
         <source>No archived conversations</source>
         <extracomment>Showing archived conversations, but the list is empty</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna conversazione archiviata</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="285"/>
@@ -393,6 +393,7 @@
         <translation>
             <numerusform>%1 messaggio eliminato localmente</numerusform>
             <numerusform>%1 messaggi eliminati localmente</numerusform>
+            <numerusform>%1 messaggi eliminati localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -471,67 +472,67 @@
         <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Scarta le modifiche</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="138"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Salva le modifiche al profilo</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="141"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modifica il profilo</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="188"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message id="whisperfish-profile-given-name">
         <location filename="../qml/pages/ProfilePage.qml" line="201"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nome (obbligatorio)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
         <location filename="../qml/pages/ProfilePage.qml" line="216"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Cognome (facoltativo)</translation>
     </message>
     <message id="whisperfish-profile-uuid">
         <location filename="../qml/pages/ProfilePage.qml" line="227"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>UUID</translation>
     </message>
     <message id="whisperfish-profile-phone-number">
         <location filename="../qml/pages/ProfilePage.qml" line="238"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
-        <translation type="unfinished">Numero di telefono</translation>
+        <translation>Numero di telefono</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="249"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Scrivi qualcosa su di te</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="262"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Qualche parola su di te</translation>
     </message>
     <message id="whisperfish-show-fingerprint">
         <location filename="../qml/pages/ProfilePage.qml" line="276"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra l&apos;impronta digitale</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="319"/>
@@ -543,13 +544,13 @@
         <location filename="../qml/pages/ProfilePage.qml" line="336"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Il tuo profilo è cifrato. Il tuo profilo e le modifiche apportate saranno visibili ai tuoi contatti e quando inizi o accetti nuove discussioni.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="344"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Scopri di più</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="61"/>
@@ -1033,26 +1034,26 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="301"/>
         <source>Unlock Password</source>
         <extracomment>Settings page autostart password field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Password di sblocco</translation>
     </message>
     <message id="whisperfish-settings-save-password-button">
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Save password</source>
         <extracomment>Settings page save autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Salva la password</translation>
     </message>
     <message id="whisperfish-settings-clear-password-button">
         <location filename="../qml/pages/Settings.qml" line="316"/>
         <source>clear password</source>
         <extracomment>Settings page clear autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>cancella la password</translation>
     </message>
     <message id="whisperfish-settings-auto-unlock-password-info">
         <location filename="../qml/pages/Settings.qml" line="329"/>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
         <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>È possibile inserire la password per far sì che Whisperfish sblocchi automaticamente la base di dati all&apos;avvio. Si noti che la password è memorizzata in testo normale e quindi l&apos;uso di questa funzione non è raccomandato.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="351"/>
@@ -1071,7 +1072,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="46"/>
         <source>Show my profile</source>
         <extracomment>Show own profile menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra il mio profilo</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators">
         <location filename="../qml/pages/Settings.qml" line="74"/>
@@ -1334,7 +1335,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="228"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inizia la conversazione con %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="240"/>
@@ -1439,6 +1440,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n allegato</numerusform>
             <numerusform>%n allegati</numerusform>
+            <numerusform>%n allegati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1466,6 +1468,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1474,6 +1477,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
             <numerusform>e %1 in più</numerusform>
         </translation>
@@ -1666,6 +1670,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membro</numerusform>
             <numerusform>%n membri</numerusform>
+            <numerusform>%n membri</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1676,6 +1681,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%1 messaggio selezionato</numerusform>
             <numerusform>%1 messaggi selezionati</numerusform>
+            <numerusform>%1 messaggi selezionati</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1683,6 +1689,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Cancella la selezione</numerusform>
             <numerusform>Cancella la selezione</numerusform>
             <numerusform>Cancella la selezione</numerusform>
         </translation>
@@ -1694,6 +1701,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copia %1 messaggio</numerusform>
+            <numerusform>Copia %1 messaggi</numerusform>
             <numerusform>Copia %1 messaggi</numerusform>
         </translation>
     </message>
@@ -1712,6 +1720,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Elimina %1 messaggio per me</numerusform>
             <numerusform>Elimina %1 messaggi per me</numerusform>
+            <numerusform>Elimina %1 messaggi per me</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1723,6 +1732,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Elimina %1 messaggio per tutti</numerusform>
             <numerusform>Elimina %1 messaggi per tutti</numerusform>
+            <numerusform>Elimina %1 messaggi per tutti</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1731,6 +1741,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Riprova a inviare il messaggio non inviato</numerusform>
+            <numerusform>Riprova a inviare i messaggi non inviati</numerusform>
             <numerusform>Riprova a inviare i messaggi non inviati</numerusform>
         </translation>
     </message>
@@ -1753,6 +1764,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Messaggio&lt;br/&gt;non letto</numerusform>
+            <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
             <numerusform>Messaggi&lt;br/&gt;non letti</numerusform>
         </translation>
     </message>
@@ -1815,7 +1827,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Creazione della conversazione</translation>
     </message>
 </context>
 </TS>
