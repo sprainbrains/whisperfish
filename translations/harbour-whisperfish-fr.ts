@@ -153,7 +153,7 @@
         <location filename="../qml/pages/MainPage.qml" line="267"/>
         <source>No archived conversations</source>
         <extracomment>Showing archived conversations, but the list is empty</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aucune conversation archivée</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="285"/>
@@ -483,6 +483,7 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>%n message supprimé localement</numerusform>
+            <numerusform>%n messages supprimés localement</numerusform>
             <numerusform>%n messages supprimés localement</numerusform>
         </translation>
     </message>
@@ -1036,7 +1037,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="46"/>
         <source>Show my profile</source>
         <extracomment>Show own profile menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afficher mon profil</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators">
         <location filename="../qml/pages/Settings.qml" line="74"/>
@@ -1308,13 +1309,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="227"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>UUID</translation>
     </message>
     <message id="whisperfish-profile-phone-number">
         <location filename="../qml/pages/ProfilePage.qml" line="238"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
-        <translation type="unfinished">Numéro de téléphone</translation>
+        <translation>Numéro de téléphone</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="249"/>
@@ -1350,13 +1351,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="336"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Votre profil est chiffré. Votre profil et les modifications qui y sont apportées sont visibles par vos contacts et lorsque vous commencez ou acceptez de nouvelles discussions.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="344"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>En savoir plus</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
@@ -1437,6 +1438,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n pièce jointe</numerusform>
             <numerusform>%n pièces jointes</numerusform>
+            <numerusform>%n pièces jointes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
@@ -1464,6 +1466,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1472,6 +1475,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
         </translation>
@@ -1664,6 +1668,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membre</numerusform>
             <numerusform>%n membres</numerusform>
+            <numerusform>%n membres</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1674,6 +1679,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n message sélectionné</numerusform>
             <numerusform>%n messages sélectionnés</numerusform>
+            <numerusform>%n messages sélectionnés</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1681,6 +1687,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Effacer la sélection</numerusform>
             <numerusform>Effacer la sélection</numerusform>
             <numerusform>Effacer la sélection</numerusform>
         </translation>
@@ -1692,6 +1699,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copier %n message</numerusform>
+            <numerusform>Copier %n messages</numerusform>
             <numerusform>Copier %n messages</numerusform>
         </translation>
     </message>
@@ -1710,6 +1718,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Supprimer %n message pour moi</numerusform>
             <numerusform>Supprimer %n messages pour moi</numerusform>
+            <numerusform>Supprimer %n messages pour moi</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1721,6 +1730,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Supprimer %n message pour tous</numerusform>
             <numerusform>Supprimer %n messages pour tous</numerusform>
+            <numerusform>Supprimer %n messages pour tous</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1729,6 +1739,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Réessayer d’envoyer le message non envoyé</numerusform>
+            <numerusform>Réessayer d’envoyer les messages non envoyés</numerusform>
             <numerusform>Réessayer d’envoyer les messages non envoyés</numerusform>
         </translation>
     </message>
@@ -1751,6 +1762,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Message&lt;br/&gt;non lu</numerusform>
+            <numerusform>Messages&lt;br/&gt;non lus</numerusform>
             <numerusform>Messages&lt;br/&gt;non lus</numerusform>
         </translation>
     </message>
