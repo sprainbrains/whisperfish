@@ -153,7 +153,7 @@
         <location filename="../qml/pages/MainPage.qml" line="267"/>
         <source>No archived conversations</source>
         <extracomment>Showing archived conversations, but the list is empty</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>No hay conversaciones archivadas</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="285"/>
@@ -471,13 +471,13 @@
         <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Descartar los cambios</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="138"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Guardar los cambios del perfil</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="141"/>
@@ -513,7 +513,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="238"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
-        <translation type="unfinished">Número de teléfono</translation>
+        <translation>Número de teléfono</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="249"/>
@@ -531,7 +531,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="276"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar la huella digital</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="319"/>
@@ -543,7 +543,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="336"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tú perfil está encriptado. Tú perfil y los cambios en él serán visibles para tus contactos y cuando inicies o aceptes nuevos chats.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="344"/>
@@ -1052,7 +1052,7 @@ Settings page share contacts</extracomment>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
         <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation type="unfinished">Puedes ingresar tú contraseña para que Whisperfish desbloquee la base de datos automáticamente al inicio. Ten en cuenta que la contraseña se almacena en texto sin formato y, como tal, por lo que no se recomienda utilizar esta función.</translation>
+        <translation>Puedes introducir tú contraseña para que Whisperfish desbloquee automáticamente la base de datos al iniciarse. Ten en cuenta que la contraseña se almacena en texto sin formato, por lo que no se recomienda utilizar esta función.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="351"/>
