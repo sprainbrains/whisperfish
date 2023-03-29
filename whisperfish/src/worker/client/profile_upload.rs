@@ -216,7 +216,7 @@ impl Handler<UploadProfile> for ClientActor {
                 family_name: self_recipient.profile_family_name.as_deref(),
             };
 
-            let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
+            let mut am = AccountManager::new(service, Some(profile_key));
             if let Err(e) = am
                 .upload_versioned_profile_without_avatar(
                     uuid,
@@ -267,11 +267,11 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
             let self_recipient = storage.fetch_self_recipient().expect("self set by now");
 
             let profile_key = self_recipient.profile_key();
-            let mut am = AccountManager::new(service, profile_key);
+            let mut am = AccountManager::new(service, profile_key.map(ProfileKey::create));
             let unidentified_access_key = profile_key
-                .map(push_service::ProfileKey)
+                .map(ProfileKey::create)
                 .as_ref()
-                .map(push_service::ProfileKey::derive_access_key);
+                .map(push_service::ProfileKeyExt::derive_access_key);
 
             let account_attributes = AccountAttributes {
                 signaling_key: None,

@@ -101,7 +101,7 @@ impl Handler<LinkDevice> for ClientActor {
             .fetch_self_recipient()
             .and_then(|r| r.profile_key)
             .and_then(|r| r.try_into().ok());
-        let mut account_manager = AccountManager::new(service, profile_key);
+        let mut account_manager = AccountManager::new(service, profile_key.map(ProfileKey::create));
 
         Box::pin(
             // Without `async move`, service would be borrowed instead of encapsulated in a Future.

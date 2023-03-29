@@ -400,15 +400,18 @@ impl Storage {
 
 #[async_trait::async_trait(?Send)]
 impl protocol::SessionStoreExt for Storage {
-    async fn get_sub_device_sessions(&self, addr: &str) -> Result<Vec<u32>, SignalProtocolError> {
-        log::trace!("Looking for sub_device sessions for {}", addr);
+    async fn get_sub_device_sessions(
+        &self,
+        addr: &ServiceAddress,
+    ) -> Result<Vec<u32>, SignalProtocolError> {
+        log::trace!("Looking for sub_device sessions for {:?}", addr);
         use crate::schema::session_records::dsl::*;
 
         let records: Vec<i32> = session_records
             .select(device_id)
             .filter(
                 address
-                    .eq(addr)
+                    .eq(addr.uuid.to_string())
                     .and(device_id.ne(libsignal_service::push_service::DEFAULT_DEVICE_ID as i32)),
             )
             .load(&mut *self.db())
@@ -439,12 +442,15 @@ impl protocol::SessionStoreExt for Storage {
         }
     }
 
-    async fn delete_all_sessions(&self, addr: &str) -> Result<usize, SignalProtocolError> {
-        log::warn!("Deleting all sessions for {}", addr);
+    async fn delete_all_sessions(
+        &self,
+        addr: &ServiceAddress,
+    ) -> Result<usize, SignalProtocolError> {
+        log::warn!("Deleting all sessions for {:?}", addr);
         use crate::schema::session_records::dsl::*;
 
         let num = diesel::delete(session_records)
-            .filter(address.eq(addr))
+            .filter(address.eq(addr.uuid.to_string()))
             .execute(&mut *self.db())
             .expect("db");
 

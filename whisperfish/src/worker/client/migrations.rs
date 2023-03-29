@@ -72,6 +72,7 @@ impl MigrationState {
 
 macro_rules! method_for_condition {
     ($method:ident : $state:ident -> $cond:expr) => {
+        #[allow(dead_code)]
         pub fn $method(&self) -> impl Future<Output = ()> + 'static {
             let notify = self.notify.clone();
             let state = self.state.clone();

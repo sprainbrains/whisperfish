@@ -141,26 +141,28 @@ impl RecipientImpl {
                 });
                 // If a recipient was found, attempt to compute the fingeprint
                 if let Some(r) = &recipient {
-                    let recipient_svc = r.to_service_address();
-                    let compute_fingerprint = async move {
-                        let local = storage
-                            .fetch_self_recipient()
-                            .expect("self recipient present in db");
-                        let local_svc = local.to_service_address();
-                        let fingerprint = storage
-                            .compute_safety_number(&local_svc, &recipient_svc, None)
-                            .await?;
-                        ctx.addr()
-                            .send(FingerprintComputed {
-                                recipient_id: id,
-                                fingerprint,
-                            })
-                            .await?;
+                    if let Some(recipient_svc) = r.to_service_address() {
+                        let compute_fingerprint = async move {
+                            let local = storage
+                                .fetch_self_recipient()
+                                .expect("self recipient present in db");
+                            let local_svc =
+                                local.to_service_address().expect("self-recipient has UUID");
+                            let fingerprint = storage
+                                .compute_safety_number(&local_svc, &recipient_svc, None)
+                                .await?;
+                            ctx.addr()
+                                .send(FingerprintComputed {
+                                    recipient_id: id,
+                                    fingerprint,
+                                })
+                                .await?;
 
-                        Result::<_, anyhow::Error>::Ok(())
+                            Result::<_, anyhow::Error>::Ok(())
+                        }
+                        .map_ok_or_else(|e| log::error!("Computing fingeprint: {}", e), |_| ());
+                        actix::spawn(compute_fingerprint);
                     }
-                    .map_ok_or_else(|e| log::error!("Computing fingeprint: {}", e), |_| ());
-                    actix::spawn(compute_fingerprint);
                 }
                 recipient
             } else {

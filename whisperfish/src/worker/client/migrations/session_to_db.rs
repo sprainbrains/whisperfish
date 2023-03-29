@@ -6,6 +6,7 @@ use actix::prelude::*;
 use libsignal_service::prelude::protocol;
 use libsignal_service::prelude::protocol::ProtocolAddress;
 use protocol::SignalProtocolError;
+use std::convert::TryFrom;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -53,19 +54,6 @@ fn option_warn<T>(o: Option<T>, s: &'static str) -> Option<T> {
         log::warn!("{}", s)
     }
     o
-}
-
-fn name_to_service_addr(name: &str) -> Option<ServiceAddress> {
-    if let Ok(addr) = ServiceAddress::parse(None, Some(name)) {
-        return Some(addr);
-    }
-    if let Ok(addr) = ServiceAddress::parse(Some(&format!("+{}", name)), None) {
-        return Some(addr);
-    }
-    if let Ok(addr) = ServiceAddress::parse(Some(name), None) {
-        return Some(addr);
-    }
-    None
 }
 
 impl SessionStorageMigration {
@@ -309,13 +297,8 @@ impl SessionStorageMigration {
                 let id = option_warn(split.next(), "no session id; skipping")?;
                 let id: u32 = option_warn(id.parse().ok(), "unparseable session id")?;
 
-                let name =
-                    option_warn(name_to_service_addr(name), "unparsable file name")?.identifier();
-
-                Some(ProtocolAddress::new(
-                    name,
-                    libsignal_protocol::DeviceId::from(id),
-                ))
+                let svc = option_warn(ServiceAddress::try_from(name).ok(), "unparsable file name")?;
+                Some(svc.to_protocol_address(id))
             });
 
         // Now read the files, put them in the database, and remove the file
@@ -410,13 +393,9 @@ impl SessionStorageMigration {
                 }
 
                 let addr = &name["remote_".len()..];
-                let addr =
-                    option_warn(name_to_service_addr(addr), "unparsable file name")?.identifier();
+                let svc = option_warn(ServiceAddress::try_from(addr).ok(), "unparsable file name")?;
 
-                Some(ProtocolAddress::new(
-                    addr,
-                    libsignal_protocol::DeviceId::from(DEFAULT_DEVICE_ID),
-                ))
+                Some(svc.to_protocol_address(DEFAULT_DEVICE_ID))
             });
 
         for addr in identities {
