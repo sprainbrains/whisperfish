@@ -14,6 +14,7 @@ pub use self::profile::*;
 pub use self::profile_upload::*;
 use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::Quote;
+use libsignal_service::proto::sync_message::Sent;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
 use zkgroup::profiles::ProfileKey;
@@ -381,11 +382,12 @@ impl ClientActor {
         source_e164: Option<String>,
         source_uuid: Option<String>,
         msg: &DataMessage,
-        is_sync_sent: bool,
+        sync_sent: Option<Sent>,
         metadata: &Metadata,
     ) -> Option<i32> {
         let timestamp = metadata.timestamp;
         let settings = crate::config::SettingsBridge::default();
+        let is_sync_sent = sync_sent.is_some();
 
         let storage = self.storage.as_mut().expect("storage");
         let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {
@@ -499,13 +501,21 @@ impl ClientActor {
             return None;
         };
 
+        let is_unidentified = if let Some(sent) = &sync_sent {
+            sent.unidentified_status
+                .iter()
+                .any(|x| Some(x.destination_uuid()) == source_uuid.as_deref() && x.unidentified())
+        } else {
+            metadata.unidentified_sender
+        };
+
         let new_message = crate::store::NewMessage {
             source_e164,
             source_uuid,
             text,
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
-            is_unidentified: metadata.unidentified_sender,
+            is_unidentified,
             sent: is_sync_sent,
             timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
                 timestamp
@@ -744,7 +754,7 @@ impl ClientActor {
                     None,
                     Some(uuid.to_string()),
                     &message,
-                    false,
+                    None,
                     &metadata,
                 );
                 if metadata.needs_receipt {
@@ -767,15 +777,15 @@ impl ClientActor {
                     log::trace!("Sync sent message");
                     // These are messages sent through a paired device.
 
-                    if let Some(message) = sent.message {
+                    if let Some(message) = &sent.message {
                         self.handle_message(
                             ctx,
                             // Empty string mainly when groups,
                             // but maybe needs a check. TODO
-                            sent.destination_e164,
-                            sent.destination_uuid,
+                            sent.destination_e164.clone(),
+                            sent.destination_uuid.clone(),
                             &message,
-                            true,
+                            Some(sent.clone()),
                             &metadata,
                         );
                     } else {
