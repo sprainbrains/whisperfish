@@ -2150,6 +2150,12 @@ impl ClientWorker {
     #[with_executor]
     pub fn submit_proof_captcha(&self, token: String, response: String) {
         let actor = self.actor.clone().unwrap();
+        let schema = "signalcaptcha://";
+        let response = if response.starts_with(schema) {
+            response.strip_prefix("signalcaptcha://").unwrap().into()
+        } else {
+            response
+        };
         actix::spawn(async move {
             if let Err(e) = actor
                 .send(ProofResponse {
