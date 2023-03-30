@@ -124,6 +124,7 @@ pub struct ClientWorker {
     proofCaptchaResult: qt_signal!(success: bool),
 
     send_typing_notification: qt_method!(fn(&self, id: i32, is_start: bool)),
+    submit_proof_captcha: qt_method!(fn(&self, token: String, response: String)),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
