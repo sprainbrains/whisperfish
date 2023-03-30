@@ -58,26 +58,38 @@ impl Handler<RotateUnidentifiedCertificates> for ClientActor {
         _ctx: &mut Self::Context,
     ) -> Self::Result {
         let mut service = self.authenticated_service();
+        // Short cut
+        let all_certs_available =
+            CertType::all().all(|t| self.unidentified_certificates.certs.contains_key(&t));
         Box::pin(
             async move {
                 let mut certs = HashMap::<_, protocol::SenderCertificate>::default();
-                for cert_type in CertType::all() {
-                    let cert = match cert_type {
-                        CertType::Complete => service.get_sender_certificate().await?,
-                        CertType::UuidOnly => service.get_uuid_only_sender_certificate().await?,
-                    };
-                    certs.insert(cert_type, cert);
+                if !all_certs_available {
+                    for cert_type in CertType::all() {
+                        let cert = match cert_type {
+                            CertType::Complete => service.get_sender_certificate().await?,
+                            CertType::UuidOnly => {
+                                service.get_uuid_only_sender_certificate().await?
+                            }
+                        };
+                        certs.insert(cert_type, cert);
+                    }
                 }
                 Result::<_, ServiceError>::Ok(certs)
             }
             .into_actor(self)
-            .map(|certs, act, _ctx| match certs {
-                Ok(certs) => {
-                    log::debug!("Fetched {} sender certificates", certs.len());
-                    act.unidentified_certificates.certs = certs;
+            .map(move |certs, act, _ctx| {
+                if all_certs_available {
+                    return;
                 }
-                Err(e) => {
-                    log::error!("Error fetching sender certificates: {}", e);
+                match certs {
+                    Ok(certs) => {
+                        log::debug!("Fetched {} sender certificates", certs.len());
+                        act.unidentified_certificates.certs = certs;
+                    }
+                    Err(e) => {
+                        log::error!("Error fetching sender certificates: {}", e);
+                    }
                 }
             }),
         )
