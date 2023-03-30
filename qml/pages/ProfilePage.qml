@@ -156,6 +156,7 @@ Page {
             }
 
             ProfilePicture {
+                enabled: imageStatus === Image.Ready
                 height: 2*Theme.itemSizeLarge
                 width: height
                 highlighted: false
@@ -181,6 +182,7 @@ Page {
                 id: profileFullName
                 readOnly: true
                 visible: !editingProfile && text.length > 0
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
                 //: Profile, name field (first name + last name)
@@ -193,6 +195,7 @@ Page {
             TextField {
                 id: profileGivenNameEdit
                 visible: editingProfile
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
@@ -200,14 +203,17 @@ Page {
                 //% "First name (required)"
                 label: qsTrId("whisperfish-profile-given-name")
                 text: recipient.givenName
-                acceptableInput: text.length > 0
-
+                // Predictive text messes up regex as-you-type,
+                // so don't use it for firstname.
+                validator: RegExpValidator{ regExp: /.+/ }
+                inputMethodHints: Qt.ImhNoPredictiveText
             }
 
             // When editing, display last name field
             TextField {
                 id: profileFamilyNameEdit
                 visible: editingProfile
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
@@ -215,11 +221,14 @@ Page {
                 //% "Last name (optional)"
                 label: qsTrId("whisperfish-profile-family-name")
                 text: recipient.familyName
+                // Disable prediction on lastname too for consistency.
+                inputMethodHints: Qt.ImhNoPredictiveText
             }
 
             TextField {
                 readOnly: true
                 visible: SettingsBridge.debug_mode && !editingProfile && text.length > 0
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile UUID field
@@ -231,6 +240,7 @@ Page {
             TextField {
                 readOnly: true
                 visible: !editingProfile && text.length > 0
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile phone number field
@@ -242,6 +252,7 @@ Page {
             TextField {
                 id: profileAboutEdit
                 visible: editingProfile || text.length > 0
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile, about you (greeting/status) field
@@ -255,6 +266,7 @@ Page {
                 // XXX: Validate emoji character somehow
                 // visible: editingProfile || text.length > 0
                 visible: false
+                width: parent.width
                 readOnly: !(isOwnProfile && editingProfile)
                 font.pixelSize: Theme.fontSizeMedium
                 //: Profile, emoji symbol field
