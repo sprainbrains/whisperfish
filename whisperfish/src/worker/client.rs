@@ -282,7 +282,7 @@ impl ClientActor {
             rand::thread_rng(),
             storage.clone(),
             storage,
-            self.local_addr.clone().unwrap(),
+            self.local_addr.unwrap(),
             self.config.get_device_id(),
         )
     }
