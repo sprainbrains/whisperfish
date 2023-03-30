@@ -15,7 +15,7 @@ pub use self::profile_upload::*;
 use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::Quote;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
-pub use libsignal_service::push_service::DeviceInfo;
+pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
 use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
@@ -26,6 +26,7 @@ use crate::model::DeviceModel;
 use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
 use crate::worker::client::orm::shorten;
+use crate::worker::client::unidentified::CertType;
 use actix::prelude::*;
 use anyhow::Context;
 use chrono::prelude::*;
@@ -95,8 +96,11 @@ impl Display for QueueMessage {
 pub struct SendMessage(pub i32);
 
 /// Delivers a constructed T: Into<ContentBody> to a session.
+///
+/// Returns true when delivered via unidentified sending.
+// XXX This warrants its own DeliveryResult type
 #[derive(Message)]
-#[rtype(result = "Result<(), anyhow::Error>")]
+#[rtype(result = "Result<bool, anyhow::Error>")]
 struct DeliverMessage<T> {
     content: T,
     timestamp: u64,
@@ -1230,8 +1234,8 @@ impl Handler<SendMessage> for ClientActor {
                     .await?;
 
                 match res {
-                    Ok(()) => {
-                        storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
+                    Ok(unident) => {
+                        storage.dequeue_message(mid, chrono::Utc::now().naive_utc(), unident);
                         Ok((session.id, mid, msg.inner.text))
                     }
                     Err(e) => {
@@ -1404,7 +1408,7 @@ impl Handler<SendTypingNotification> for ClientActor {
                     session_id,
                 })
                 .await?
-                .map(|()| session.id)
+                .map(|_unidentified| session.id)
             }
             .into_actor(self)
             .map(move |res, _act, _ctx| {
@@ -1422,7 +1426,7 @@ impl Handler<SendTypingNotification> for ClientActor {
 }
 
 impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
-    type Result = ResponseFuture<Result<(), anyhow::Error>>;
+    type Result = ResponseFuture<Result<bool, anyhow::Error>>;
 
     fn handle(&mut self, msg: DeliverMessage<T>, _ctx: &mut Self::Context) -> Self::Result {
         let DeliverMessage {
@@ -1440,13 +1444,17 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
         let mut sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
 
+        let certs = self.unidentified_certificates.clone();
+
         Box::pin(async move {
-            match &session.r#type {
+            let unidentified = match &session.r#type {
                 orm::SessionType::GroupV1(_group) => {
                     // FIXME
                     log::error!("Cannot send to Group V1 anymore.");
+                    false
                 }
                 orm::SessionType::GroupV2(group) => {
+                    let mut all_unidentified = true;
                     let members = storage.fetch_group_members_by_group_v2_id(&group.id);
                     let members = members
                         .iter()
@@ -1456,8 +1464,10 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                             if !recipient.is_registered || Some(local_addr) == member {
                                 None
                             } else if let Some(member) = member {
-                                // XXX request sealed sending key
-                                Some((member, None))
+                                // XXX change the cert type when we want to introduce E164 privacy.
+                                let access = certs.access_for(CertType::Complete, recipient);
+                                all_unidentified &= access.is_some();
+                                Some((member, access))
                             } else {
                                 log::warn!(
                                     "No known UUID for {}; will not deliver this message.",
@@ -1472,31 +1482,31 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                         .send_message_to_group(&members, content, timestamp, online)
                         .await;
                     for result in results {
-                        if let Err(e) = result {
-                            anyhow::bail!(e)
-                        }
+                        result?;
                     }
+                    all_unidentified
                 }
                 orm::SessionType::DirectMessage(recipient) => {
                     let svc = recipient.to_service_address();
+
+                    let access = certs.access_for(CertType::Complete, recipient);
+                    let unidentified = access.is_some();
 
                     if let Some(svc) = svc {
                         if !recipient.is_registered {
                             anyhow::bail!("Unregistered recipient {}", svc.uuid.to_string());
                         }
 
-                        if let Err(e) = sender
-                            .send_message(&svc, None, content.clone(), timestamp, online)
-                            .await
-                        {
-                            anyhow::bail!(e);
-                        }
+                        sender
+                            .send_message(&svc, access, content.clone(), timestamp, online)
+                            .await?;
+                        unidentified
                     } else {
                         anyhow::bail!("Recipient id {} has no UUID", recipient.id);
                     }
                 }
-            }
-            Ok(())
+            };
+            Ok(unidentified)
         })
     }
 }

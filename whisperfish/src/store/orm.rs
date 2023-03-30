@@ -1,5 +1,7 @@
 use super::schema::*;
 use chrono::prelude::*;
+use libsignal_service::prelude::*;
+use libsignal_service::push_service::ProfileKeyExt;
 use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
 
@@ -322,6 +324,14 @@ impl Display for SenderKeyRecord {
 }
 
 impl Recipient {
+    pub fn unidentified_access_key(&self) -> Option<Vec<u8>> {
+        self.profile_key()
+            .map(ProfileKey::create)
+            .as_ref()
+            .map(ProfileKey::derive_access_key)
+    }
+
+    // XXX should become ProfileKey
     pub fn profile_key(&self) -> Option<[u8; 32]> {
         if let Some(pk) = self.profile_key.as_ref() {
             if pk.len() != 32 {

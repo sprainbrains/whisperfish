@@ -2303,12 +2303,13 @@ impl Storage {
         self.observe_update(schema::messages::table, mid);
     }
 
-    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime) {
+    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime, unidentified: bool) {
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
             .set((
                 schema::messages::sent_timestamp.eq(sent_time),
                 schema::messages::sending_has_failed.eq(false),
+                schema::messages::use_unidentified.eq(unidentified),
             ))
             .execute(&mut *self.db())
             .unwrap();
