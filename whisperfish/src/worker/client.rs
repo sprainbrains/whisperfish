@@ -14,6 +14,8 @@ pub use self::profile_upload::*;
 use libsignal_service::proto::data_message::Quote;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
+use rand::Rng;
+use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
 use crate::actor::SessionActor;
@@ -2219,8 +2221,24 @@ impl Handler<ProofResponse> for ClientActor {
     fn handle(&mut self, proof: ProofResponse, ctx: &mut Self::Context) -> Self::Result {
         log::trace!("handle(ProofResponse)");
 
+        let storage = self.storage.clone().unwrap();
+        let self_recipient = storage
+            .fetch_self_recipient()
+            .expect("self recipient in handle(ProofResponse)");
+        let profile_key = self_recipient
+            .profile_key
+            .map(|bytes| {
+                let mut key = [0u8; 32];
+                key.copy_from_slice(&bytes);
+                ProfileKey::create(key)
+            })
+            .unwrap_or_else(|| {
+                log::info!("Generating profile key in handle(ProofResponse)");
+                ProfileKey::generate(rand::thread_rng().gen())
+            });
+
         let service = self.authenticated_service();
-        let mut am = AccountManager::new(service, None);
+        let mut am = AccountManager::new(service, Some(profile_key.get_bytes()));
         let addr = ctx.address();
 
         let proc = async move {
