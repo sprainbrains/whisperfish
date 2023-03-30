@@ -27,6 +27,7 @@ ApplicationWindow
     property alias contactsReady: resolvePeopleModel.populated
 
     property string shareClientId: ""
+    property string proofCaptchaToken: ''
 
     PeopleModel {
         id: resolvePeopleModel
@@ -236,8 +237,13 @@ ApplicationWindow
         }
         onMessageNotSent: { }
         onProofRequested: {
-            console.log("Proof of type", type, "with token", token, "requested")
-            pageStack.push(Qt.resolvedUrl("ProofSubmitPage.qml"), { recaptchaToken: token })
+            if(proofCaptchaToken === '') {
+                proofCaptchaToken = token
+                console.log("Captcha requested with token length", token.length)
+                pageStack.push(Qt.resolvedUrl("pages/ProofSubmitPage.qml"), { captchaToken: token })
+            } else {
+                console.log("Ignoring repeated captcha requests")
+            }
         }
         onMessageSent: { }
         onPromptResetPeerIdentity: {

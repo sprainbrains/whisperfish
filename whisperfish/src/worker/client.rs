@@ -14,6 +14,7 @@ pub use self::profile_upload::*;
 use libsignal_service::proto::data_message::Quote;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
+use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
 use crate::actor::SessionActor;
@@ -119,10 +120,12 @@ pub struct ClientWorker {
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
     messageNotSent: qt_signal!(sid: i32, mid: i32),
+    // FIXME: Rust "r#type" to Qt "type" doesn't work
     proofRequested: qt_signal!(token: QString, r#type: QString),
     proofCaptchaResult: qt_signal!(success: bool),
 
     send_typing_notification: qt_method!(fn(&self, id: i32, is_start: bool)),
+    submit_proof_captcha: qt_method!(fn(&self, token: String, response: String)),
 
     connected: qt_property!(bool; NOTIFY connectedChanged),
     connectedChanged: qt_signal!(),
@@ -2146,6 +2149,12 @@ impl ClientWorker {
     #[with_executor]
     pub fn submit_proof_captcha(&self, token: String, response: String) {
         let actor = self.actor.clone().unwrap();
+        let schema = "signalcaptcha://";
+        let response = if response.starts_with(schema) {
+            response.strip_prefix("signalcaptcha://").unwrap().into()
+        } else {
+            response
+        };
         actix::spawn(async move {
             if let Err(e) = actor
                 .send(ProofResponse {
@@ -2217,8 +2226,19 @@ impl Handler<ProofResponse> for ClientActor {
     fn handle(&mut self, proof: ProofResponse, ctx: &mut Self::Context) -> Self::Result {
         log::trace!("handle(ProofResponse)");
 
+        let storage = self.storage.clone().unwrap();
+        let self_recipient = storage
+            .fetch_self_recipient()
+            .expect("self recipient in handle(ProofResponse)");
+        let profile_key = self_recipient.profile_key.map(|bytes| {
+            let mut key = [0u8; 32];
+            key.copy_from_slice(&bytes);
+            ProfileKey::create(key)
+        });
+
         let service = self.authenticated_service();
-        let mut am = AccountManager::new(service, None);
+        let mut am = AccountManager::new(service, profile_key.map(|key| key.get_bytes()));
+
         let addr = ctx.address();
 
         let proc = async move {
