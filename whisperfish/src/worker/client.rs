@@ -194,7 +194,6 @@ pub struct ClientActor {
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
     ws: Option<SignalWebSocket>,
-    unidentified_ws: Option<SignalWebSocket>,
     // XXX The cipher should be behind a Mutex.
     // By considering the session that needs to be accessed,
     // we could lock only a single session to enforce serialized access.
@@ -261,7 +260,6 @@ impl ClientActor {
             storage: None,
             cipher: None,
             ws: None,
-            unidentified_ws: None,
             config,
 
             typing_message_timestamps,
@@ -301,28 +299,42 @@ impl ClientActor {
 
     fn message_sender(
         &self,
-    ) -> MessageSender<
-        AwcPushService,
-        crate::store::Storage,
-        crate::store::Storage,
-        crate::store::Storage,
-        crate::store::Storage,
-        crate::store::Storage,
-        rand::rngs::ThreadRng,
+    ) -> impl Future<
+        Output = Result<
+            MessageSender<
+                AwcPushService,
+                crate::store::Storage,
+                crate::store::Storage,
+                crate::store::Storage,
+                crate::store::Storage,
+                crate::store::Storage,
+                rand::rngs::ThreadRng,
+            >,
+            ServiceError,
+        >,
     > {
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
-        MessageSender::new(
-            self.ws.clone().unwrap(),
-            self.unidentified_ws.clone().unwrap(),
-            service,
-            self.cipher.clone().unwrap(),
-            rand::thread_rng(),
-            storage.clone(),
-            storage,
-            self.local_addr.unwrap(),
-            self.config.get_device_id(),
-        )
+        let mut u_service = self.unauthenticated_service();
+
+        let ws = self.ws.clone().unwrap();
+        let cipher = self.cipher.clone().unwrap();
+        let local_addr = self.local_addr.unwrap();
+        let device_id = self.config.get_device_id();
+        async move {
+            let u_ws = u_service.ws("/v1/websocket/", None, false).await?;
+            Ok(MessageSender::new(
+                ws,
+                u_ws,
+                service,
+                cipher,
+                rand::thread_rng(),
+                storage.clone(),
+                storage,
+                local_addr,
+                device_id,
+            ))
+        }
     }
 
     fn service_cfg(&self) -> ServiceConfiguration {
@@ -612,9 +624,10 @@ impl ClientActor {
 
         let local_addr = self.local_addr.unwrap();
         let storage = self.storage.clone().unwrap();
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
 
         actix::spawn(async move {
+            let mut sender = sender.await?;
             match req.r#type() {
                 Type::Unknown => {
                     log::warn!("Unknown sync request from {:?}:{}. Please upgrade Whisperfish or file an issue.", meta.sender, meta.sender_device);
@@ -1112,7 +1125,7 @@ impl Handler<SendMessage> for ClientActor {
     // Equiv of worker/send.go
     fn handle(&mut self, SendMessage(mid): SendMessage, ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
         let msg = storage.fetch_augmented_message(mid).unwrap();
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
@@ -1131,6 +1144,7 @@ impl Handler<SendMessage> for ClientActor {
         let addr = ctx.address();
         Box::pin(
             async move {
+                let mut sender = sender.await?;
                 if let orm::SessionType::GroupV1(_group) = &session.r#type {
                     // FIXME
                     log::error!("Cannot send to Group V1 anymore.");
@@ -1441,12 +1455,13 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
 
         let storage = self.storage.clone().unwrap();
         let session = storage.fetch_session_by_id(session_id).unwrap();
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
 
         let certs = self.unidentified_certificates.clone();
 
         Box::pin(async move {
+            let mut sender = sender.await?;
             let unidentified = match &session.r#type {
                 orm::SessionType::GroupV1(_group) => {
                     // FIXME
@@ -1616,7 +1631,6 @@ impl Handler<Restart> for ClientActor {
 
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
         let service = self.authenticated_service();
-        let mut u_service = self.unauthenticated_service();
         let credentials = self.credentials.clone().unwrap();
         let migrations_ready = self.migration_state.ready();
 
@@ -1626,22 +1640,20 @@ impl Handler<Restart> for ClientActor {
             async move {
                 migrations_ready.await;
                 let mut receiver = MessageReceiver::new(service.clone());
-                let u_ws = u_service.ws("/v1/websocket/", None, true).await?;
 
                 let pipe = receiver.create_message_pipe(credentials).await?;
                 let ws = pipe.ws();
-                Result::<_, ServiceError>::Ok((pipe, ws, u_ws))
+                Result::<_, ServiceError>::Ok((pipe, ws))
             }
             .into_actor(self)
             .map(move |pipe, act, ctx| match pipe {
-                Ok((pipe, ws, unidentified_ws)) => {
+                Ok((pipe, ws)) => {
                     ctx.notify(unidentified::RotateUnidentifiedCertificates);
                     ctx.add_stream(pipe.stream());
 
                     ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
                     act.ws = Some(ws);
-                    act.unidentified_ws = Some(unidentified_ws);
                     act.inner.pinned().borrow().connectedChanged();
 
                     // If profile stream was running, restart.

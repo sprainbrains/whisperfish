@@ -49,9 +49,20 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
             return Box::pin(async move {});
         }
 
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
+        let addr = ctx.address();
 
         Box::pin(async move {
+            let mut sender = match sender.await {
+                Ok(s) => s,
+                Err(_e) => {
+                    actix::clock::sleep(Duration::from_secs(60)).await;
+                    addr.send(MultideviceSyncProfile)
+                        .await
+                        .expect("actor alive");
+                    return;
+                }
+            };
             let self_recipient = storage
                 .fetch_self_recipient()
                 .expect("self recipient should be set by now");
