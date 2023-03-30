@@ -5,12 +5,14 @@ mod groupv2;
 mod linked_devices;
 mod profile;
 mod profile_upload;
+mod unidentified;
 
 pub use self::groupv2::*;
 pub use self::linked_devices::*;
 use self::migrations::MigrationCondVar;
 pub use self::profile::*;
 pub use self::profile_upload::*;
+use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::Quote;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
@@ -183,10 +185,12 @@ pub struct ClientActor {
 
     migration_state: MigrationCondVar,
 
+    unidentified_certificates: unidentified::UnidentifiedCertificates,
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
     ws: Option<SignalWebSocket>,
+    unidentified_ws: Option<SignalWebSocket>,
     // XXX The cipher should be behind a Mutex.
     // By considering the session that needs to be accessed,
     // we could lock only a single session to enforce serialized access.
@@ -247,11 +251,13 @@ impl ClientActor {
         Ok(Self {
             inner,
             migration_state: MigrationCondVar::new(),
+            unidentified_certificates: UnidentifiedCertificates::default(),
             credentials: None,
             local_addr: None,
             storage: None,
             cipher: None,
             ws: None,
+            unidentified_ws: None,
             config,
 
             typing_message_timestamps,
@@ -304,6 +310,7 @@ impl ClientActor {
         let service = self.authenticated_service();
         MessageSender::new(
             self.ws.clone().unwrap(),
+            self.unidentified_ws.clone().unwrap(),
             service,
             self.cipher.clone().unwrap(),
             rand::thread_rng(),
@@ -1448,20 +1455,21 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
 
                             if !recipient.is_registered || Some(local_addr) == member {
                                 None
+                            } else if let Some(member) = member {
+                                // XXX request sealed sending key
+                                Some((member, None))
                             } else {
-                                if member.is_none() {
-                                    log::warn!(
-                                        "No known UUID for {}; will not deliver this message.",
-                                        recipient.e164_or_uuid()
-                                    );
-                                }
-                                member
+                                log::warn!(
+                                    "No known UUID for {}; will not deliver this message.",
+                                    recipient.e164_or_uuid()
+                                );
+                                None
                             }
                         })
                         .collect::<Vec<_>>();
                     // Clone + async closure means we can use an immutable borrow.
                     let results = sender
-                        .send_message_to_group(&members, None, content, timestamp, online)
+                        .send_message_to_group(&members, content, timestamp, online)
                         .await;
                     for result in results {
                         if let Err(e) = result {
@@ -1598,6 +1606,7 @@ impl Handler<Restart> for ClientActor {
 
     fn handle(&mut self, _: Restart, _ctx: &mut Self::Context) -> Self::Result {
         let service = self.authenticated_service();
+        let mut u_service = self.unauthenticated_service();
         let credentials = self.credentials.clone().unwrap();
         let migrations_ready = self.migration_state.ready();
 
@@ -1607,20 +1616,22 @@ impl Handler<Restart> for ClientActor {
             async move {
                 migrations_ready.await;
                 let mut receiver = MessageReceiver::new(service.clone());
+                let u_ws = u_service.ws("/v1/websocket/", None, true).await?;
 
-                receiver
-                    .create_message_pipe(credentials)
-                    .await
-                    .map(|pipe| (pipe.ws(), pipe))
+                let pipe = receiver.create_message_pipe(credentials).await?;
+                let ws = pipe.ws();
+                Result::<_, ServiceError>::Ok((pipe, ws, u_ws))
             }
             .into_actor(self)
             .map(move |pipe, act, ctx| match pipe {
-                Ok((ws, pipe)) => {
+                Ok((pipe, ws, unidentified_ws)) => {
+                    ctx.notify(unidentified::RotateUnidentifiedCertificates);
                     ctx.add_stream(pipe.stream());
 
                     ctx.set_mailbox_capacity(1);
                     act.inner.pinned().borrow_mut().connected = true;
                     act.ws = Some(ws);
+                    act.unidentified_ws = Some(unidentified_ws);
                     act.inner.pinned().borrow().connectedChanged();
 
                     // If profile stream was running, restart.
