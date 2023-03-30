@@ -119,6 +119,7 @@ pub struct ClientWorker {
     promptResetPeerIdentity: qt_signal!(),
     messageSent: qt_signal!(sid: i32, mid: i32, message: QString),
     messageNotSent: qt_signal!(sid: i32, mid: i32),
+    // FIXME: Rust "r#type" to Qt "type" doesn't work
     proofRequested: qt_signal!(token: QString, r#type: QString),
     proofCaptchaResult: qt_signal!(success: bool),
 
