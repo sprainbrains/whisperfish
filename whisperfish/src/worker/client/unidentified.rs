@@ -24,35 +24,48 @@ pub struct UnidentifiedCertificates {
     certs: HashMap<CertType, protocol::SenderCertificate>,
 }
 
+const UNRESTRICTED_ACCESS_KEY: [u8; 16] = [0u8; 16];
+
 impl UnidentifiedCertificates {
     pub fn get(&self, cert: CertType) -> Option<&protocol::SenderCertificate> {
         self.certs.get(&cert)
+    }
+
+    /// Look up the correct access key for a certain recipient.
+    ///
+    /// Java equivalent: UnidentifiedAccessUtil::getTargetUnidentifiedAccessKey
+    pub fn access_key_for(&self, recipient: &orm::Recipient, for_story: bool) -> Option<Vec<u8>> {
+        match recipient.unidentified_access_mode {
+            UnidentifiedAccessMode::Unknown => Some(
+                recipient
+                    .unidentified_access_key()
+                    .unwrap_or(UNRESTRICTED_ACCESS_KEY.to_vec()),
+            ),
+            UnidentifiedAccessMode::Disabled => None,
+            UnidentifiedAccessMode::Enabled => recipient.unidentified_access_key(),
+            UnidentifiedAccessMode::Unrestricted => Some(UNRESTRICTED_ACCESS_KEY.to_vec()),
+        }
+        .or_else(|| {
+            if for_story {
+                Some(UNRESTRICTED_ACCESS_KEY.to_vec())
+            } else {
+                None
+            }
+        })
     }
 
     pub fn access_for(
         &self,
         cert: CertType,
         recipient: &orm::Recipient,
-        #[allow(unused)] for_story: bool,
+        for_story: bool,
     ) -> Option<UnidentifiedAccess> {
         self.get(cert).and_then(|cert| {
-            let key = match recipient.unidentified_access_mode {
-                UnidentifiedAccessMode::Unknown => {
-                    // XXX the logic in Android is way more complex:
-                    // 1. If we don't have the profile key, try unrestricted.
-                    // 2. If we do have the profile key, try with an access key
-                    // If the above fails, we shuold fall back to Disabled, and store that in the db.
-                    // Fall back is currently unimplemented.
-                    Some(recipient.unidentified_access_key().unwrap_or(vec![0u8; 16]))
-                }
-                UnidentifiedAccessMode::Disabled => None,
-                UnidentifiedAccessMode::Enabled => recipient.unidentified_access_key(),
-                UnidentifiedAccessMode::Unrestricted => Some(vec![0u8; 16]),
-            };
-            key.map(|key| UnidentifiedAccess {
-                certificate: cert.clone(),
-                key,
-            })
+            self.access_key_for(recipient, for_story)
+                .map(|key| UnidentifiedAccess {
+                    certificate: cert.clone(),
+                    key,
+                })
         })
     }
 }
