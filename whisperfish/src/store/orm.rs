@@ -1,5 +1,8 @@
 use super::schema::*;
 use chrono::prelude::*;
+use diesel::backend;
+use diesel::deserialize;
+use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::ProfileKeyExt;
 use std::fmt::{Display, Error, Formatter};
@@ -172,6 +175,37 @@ impl Default for Message {
     }
 }
 
+#[derive(Clone, Copy, Debug, FromSqlRow)]
+#[repr(i32)]
+pub enum UnidentifiedAccessMode {
+    Unknown = 0,
+    Disabled = 1,
+    Enabled = 2,
+    Unrestricted = 3,
+}
+
+impl From<UnidentifiedAccessMode> for i32 {
+    fn from(value: UnidentifiedAccessMode) -> Self {
+        value as i32
+    }
+}
+
+impl<DB> deserialize::FromSql<Integer, DB> for UnidentifiedAccessMode
+where
+    DB: backend::Backend,
+    i32: deserialize::FromSql<Integer, DB>,
+{
+    fn from_sql(bytes: backend::RawValue<DB>) -> deserialize::Result<Self> {
+        match i32::from_sql(bytes)? {
+            0 => Ok(UnidentifiedAccessMode::Unknown),
+            1 => Ok(UnidentifiedAccessMode::Disabled),
+            2 => Ok(UnidentifiedAccessMode::Enabled),
+            3 => Ok(UnidentifiedAccessMode::Unrestricted),
+            x => Err(format!("Unrecognized variant {}", x).into()),
+        }
+    }
+}
+
 #[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct Recipient {
     pub id: i32,
@@ -191,7 +225,6 @@ pub struct Recipient {
     pub profile_sharing: bool,
 
     pub last_profile_fetch: Option<NaiveDateTime>,
-    pub unidentified_access_mode: bool,
 
     pub storage_service_id: Option<Vec<u8>>,
     pub storage_proto: Option<Vec<u8>>,
@@ -204,6 +237,7 @@ pub struct Recipient {
     pub about_emoji: Option<String>,
 
     pub is_registered: bool,
+    pub unidentified_access_mode: UnidentifiedAccessMode,
 }
 
 impl Display for Recipient {
@@ -1068,7 +1102,7 @@ mod tests {
             signal_profile_avatar: None,
             profile_sharing: true,
             last_profile_fetch: None,
-            unidentified_access_mode: true,
+            unidentified_access_mode: UnidentifiedAccessMode::Enabled,
             storage_service_id: None,
             storage_proto: None,
             capabilities: 0,

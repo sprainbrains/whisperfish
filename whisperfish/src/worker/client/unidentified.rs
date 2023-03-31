@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::store::orm;
+use crate::store::orm::{self, UnidentifiedAccessMode};
 
 use super::ClientActor;
 use actix::prelude::*;
@@ -33,14 +33,26 @@ impl UnidentifiedCertificates {
         &self,
         cert: CertType,
         recipient: &orm::Recipient,
+        #[allow(unused)] for_story: bool,
     ) -> Option<UnidentifiedAccess> {
         self.get(cert).and_then(|cert| {
-            recipient
-                .unidentified_access_key()
-                .map(|key| UnidentifiedAccess {
-                    certificate: cert.clone(),
-                    key,
-                })
+            let key = match recipient.unidentified_access_mode {
+                UnidentifiedAccessMode::Unknown => {
+                    // XXX the logic in Android is way more complex:
+                    // 1. If we don't have the profile key, try unrestricted.
+                    // 2. If we do have the profile key, try with an access key
+                    // If the above fails, we shuold fall back to Disabled, and store that in the db.
+                    // Fall back is currently unimplemented.
+                    Some(recipient.unidentified_access_key().unwrap_or(vec![0u8; 16]))
+                }
+                UnidentifiedAccessMode::Disabled => None,
+                UnidentifiedAccessMode::Enabled => recipient.unidentified_access_key(),
+                UnidentifiedAccessMode::Unrestricted => Some(vec![0u8; 16]),
+            };
+            key.map(|key| UnidentifiedAccess {
+                certificate: cert.clone(),
+                key,
+            })
         })
     }
 }

@@ -1490,7 +1490,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                                 None
                             } else if let Some(member) = member {
                                 // XXX change the cert type when we want to introduce E164 privacy.
-                                let access = certs.access_for(CertType::Complete, recipient);
+                                let access = certs.access_for(CertType::Complete, recipient, false);
                                 all_unidentified &= access.is_some();
                                 Some((member, access))
                             } else {
@@ -1514,7 +1514,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                 orm::SessionType::DirectMessage(recipient) => {
                     let svc = recipient.to_service_address();
 
-                    let access = certs.access_for(CertType::Complete, recipient);
+                    let access = certs.access_for(CertType::Complete, recipient, false);
                     let unidentified = access.is_some();
 
                     if let Some(svc) = svc {
