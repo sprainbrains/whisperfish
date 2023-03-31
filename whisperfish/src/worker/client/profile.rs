@@ -190,20 +190,22 @@ impl ClientActor {
     ) -> anyhow::Result<()> {
         log::info!("Fetched profile: {:?}", profile);
         let storage = self.storage.clone().unwrap();
+        let recipient = storage
+            .fetch_recipient_by_uuid(recipient_uuid)
+            .ok_or_else(|| {
+                anyhow::anyhow!("could not find recipient for which we fetched a profile")
+            })?;
+        let key = &recipient.profile_key;
+
         let mut db = storage.db();
 
         use crate::schema::recipients::dsl::*;
         use diesel::prelude::*;
 
-        let key: Option<Vec<u8>> = recipients
-            .select(profile_key)
-            .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
-            .first(&mut *db)
-            .expect("db");
         if let Some(profile) = profile {
             let cipher = if let Some(key) = key {
                 let mut bytes = [0u8; 32];
-                bytes.copy_from_slice(&key);
+                bytes.copy_from_slice(key);
                 ProfileCipher::from(zkgroup::profiles::ProfileKey::create(bytes))
             } else {
                 anyhow::bail!(
@@ -224,6 +226,12 @@ impl ClientActor {
                 }
             }
 
+            let new_unidentified_identified_mode = if profile.unrestricted_unidentified_access {
+                UnidentifiedAccessMode::Unrestricted
+            } else {
+                recipient.unidentified_access_mode
+            };
+
             diesel::update(recipients)
                 .set((
                     profile_given_name.eq(profile_decrypted.name.as_ref().map(|x| &x.given_name)),
@@ -234,6 +242,7 @@ impl ClientActor {
                     profile_joined_name.eq(profile_decrypted.name.as_ref().map(|x| x.to_string())),
                     about.eq(profile_decrypted.about),
                     about_emoji.eq(profile_decrypted.about_emoji),
+                    unidentified_access_mode.eq(new_unidentified_identified_mode as i32),
                     signal_profile_avatar.eq(profile.avatar),
                     last_profile_fetch.eq(Utc::now().naive_utc()),
                 ))
