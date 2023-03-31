@@ -175,7 +175,7 @@ impl Default for Message {
     }
 }
 
-#[derive(Clone, Copy, Debug, FromSqlRow)]
+#[derive(Clone, Copy, Debug, FromSqlRow, PartialEq, Eq)]
 #[repr(i32)]
 pub enum UnidentifiedAccessMode {
     Unknown = 0,

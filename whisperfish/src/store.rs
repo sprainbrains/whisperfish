@@ -5,7 +5,7 @@ pub mod observer;
 mod protocol_store;
 mod utils;
 
-use self::orm::AugmentedMessage;
+use self::orm::{AugmentedMessage, UnidentifiedAccessMode};
 use crate::diesel::connection::SimpleConnection;
 use crate::diesel_migrations::MigrationHarness;
 use crate::schema;
@@ -717,6 +717,23 @@ impl Storage {
             .expect("db")
             .flatten();
         by_uuid.or(by_e164)
+    }
+
+    pub fn set_recipient_unidentified(
+        &self,
+        recipient_id: i32,
+        mode: UnidentifiedAccessMode,
+    ) -> bool {
+        use crate::schema::recipients::dsl::*;
+        let affected = diesel::update(recipients)
+            .set(unidentified_access_mode.eq(mode as i32))
+            .filter(id.eq(recipient_id))
+            .execute(&mut *self.db())
+            .expect("existing record updated");
+        if affected > 0 {
+            self.observe_update(recipients, recipient_id);
+        }
+        affected > 0
     }
 
     pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
