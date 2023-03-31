@@ -242,7 +242,7 @@ impl ClientActor {
                     profile_joined_name.eq(profile_decrypted.name.as_ref().map(|x| x.to_string())),
                     about.eq(profile_decrypted.about),
                     about_emoji.eq(profile_decrypted.about_emoji),
-                    unidentified_access_mode.eq(new_unidentified_identified_mode as i32),
+                    unidentified_access_mode.eq(new_unidentified_identified_mode),
                     signal_profile_avatar.eq(profile.avatar),
                     last_profile_fetch.eq(Utc::now().naive_utc()),
                 ))

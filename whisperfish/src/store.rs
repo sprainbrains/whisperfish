@@ -726,7 +726,7 @@ impl Storage {
     ) -> bool {
         use crate::schema::recipients::dsl::*;
         let affected = diesel::update(recipients)
-            .set(unidentified_access_mode.eq(mode as i32))
+            .set(unidentified_access_mode.eq(mode))
             .filter(id.eq(recipient_id))
             .execute(&mut *self.db())
             .expect("existing record updated");
@@ -811,7 +811,7 @@ impl Storage {
             let affected_rows = diesel::update(recipients)
                 .set((
                     profile_key.eq(new_profile_key),
-                    unidentified_access_mode.eq(UnidentifiedAccessMode::Unknown as i32),
+                    unidentified_access_mode.eq(UnidentifiedAccessMode::Unknown),
                 ))
                 .filter(id.eq(recipient.id))
                 .execute(&mut *self.db())

@@ -2,6 +2,7 @@ use super::schema::*;
 use chrono::prelude::*;
 use diesel::backend;
 use diesel::deserialize;
+use diesel::serialize;
 use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::ProfileKeyExt;
@@ -175,7 +176,8 @@ impl Default for Message {
     }
 }
 
-#[derive(Clone, Copy, Debug, FromSqlRow, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, FromSqlRow, PartialEq, Eq, AsExpression)]
+#[diesel(sql_type = Integer)]
 #[repr(i32)]
 pub enum UnidentifiedAccessMode {
     Unknown = 0,
@@ -203,6 +205,19 @@ where
             3 => Ok(UnidentifiedAccessMode::Unrestricted),
             x => Err(format!("Unrecognized variant {}", x).into()),
         }
+    }
+}
+
+impl serialize::ToSql<Integer, diesel::sqlite::Sqlite> for UnidentifiedAccessMode
+where
+    i32: serialize::ToSql<Integer, diesel::sqlite::Sqlite>,
+{
+    fn to_sql<'b>(
+        &'b self,
+        out: &mut serialize::Output<'b, '_, diesel::sqlite::Sqlite>,
+    ) -> serialize::Result {
+        out.set_value(*self as i32);
+        Ok(serialize::IsNull::No)
     }
 }
 
