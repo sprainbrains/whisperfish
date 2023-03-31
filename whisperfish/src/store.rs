@@ -809,7 +809,10 @@ impl Storage {
 
             use crate::schema::recipients::dsl::*;
             let affected_rows = diesel::update(recipients)
-                .set(profile_key.eq(new_profile_key))
+                .set((
+                    profile_key.eq(new_profile_key),
+                    unidentified_access_mode.eq(UnidentifiedAccessMode::Unknown as i32),
+                ))
                 .filter(id.eq(recipient.id))
                 .execute(&mut *self.db())
                 .expect("existing record updated");
