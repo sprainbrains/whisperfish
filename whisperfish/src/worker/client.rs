@@ -106,6 +106,7 @@ struct DeliverMessage<T> {
     content: T,
     timestamp: u64,
     online: bool,
+    for_story: bool,
     session_id: i32,
 }
 
@@ -365,6 +366,7 @@ impl ClientActor {
             // XXX Session ID is artificial here.
             session_id: session.id,
             online: false,
+            for_story: false,
         });
 
         Some(())
@@ -1254,6 +1256,7 @@ impl Handler<SendMessage> for ClientActor {
                         online: false,
                         timestamp,
                         session_id,
+                        for_story: false,
                     })
                     .await?;
 
@@ -1430,6 +1433,7 @@ impl Handler<SendTypingNotification> for ClientActor {
                     online: true,
                     timestamp,
                     session_id,
+                    for_story: false,
                 })
                 .await?
                 .map(|_unidentified| session.id)
@@ -1458,6 +1462,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
             timestamp,
             online,
             session_id,
+            for_story,
         } = msg;
         let content = content.into();
 
@@ -1490,7 +1495,8 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                                 None
                             } else if let Some(member) = member {
                                 // XXX change the cert type when we want to introduce E164 privacy.
-                                let access = certs.access_for(CertType::Complete, recipient, false);
+                                let access =
+                                    certs.access_for(CertType::Complete, recipient, for_story);
                                 all_unidentified &= access.is_some();
                                 Some((member, access))
                             } else {
@@ -1514,7 +1520,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                 orm::SessionType::DirectMessage(recipient) => {
                     let svc = recipient.to_service_address();
 
-                    let access = certs.access_for(CertType::Complete, recipient, false);
+                    let access = certs.access_for(CertType::Complete, recipient, for_story);
                     let unidentified = access.is_some();
 
                     if let Some(svc) = svc {
