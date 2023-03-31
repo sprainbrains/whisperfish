@@ -1271,26 +1271,35 @@ impl Handler<SendMessage> for ClientActor {
 
                         // Look for Ok recipients that couldn't deliver on unidentified.
                         for result in results.iter().filter_map(|res| res.as_ref().ok()) {
-                            if !result.unidentified {
-                                // Look up whether we know this should be the case
-                                let recipient = storage
-                                    .fetch_recipient_by_uuid(result.recipient.uuid)
-                                    .expect("sent recipient in db");
-                                if recipient.profile_key().is_some()
-                                    && recipient.unidentified_access_mode
-                                        != UnidentifiedAccessMode::Disabled
+                            // Look up recipient to check the current state
+                            let recipient = storage
+                                .fetch_recipient_by_uuid(result.recipient.uuid)
+                                .expect("sent recipient in db");
+                            let target_state = if result.unidentified {
+                                // Unrestricted and success; keep unrestricted
+                                if recipient.unidentified_access_mode
+                                    == UnidentifiedAccessMode::Unrestricted
                                 {
-                                    // Recipient with profile key, but could not send unidentified.
-                                    // Mark as disabled.
-                                    log::info!(
-                                        "Setting unidentified access mode for {:?} as disabled",
-                                        recipient
-                                    );
-                                    storage.set_recipient_unidentified(
-                                        recipient.id,
-                                        UnidentifiedAccessMode::Disabled,
-                                    );
+                                    UnidentifiedAccessMode::Unrestricted
+                                } else {
+                                    // Success; set Enabled
+                                    UnidentifiedAccessMode::Enabled
                                 }
+                            } else {
+                                // Failure; set Disabled
+                                UnidentifiedAccessMode::Disabled
+                            };
+                            if recipient.profile_key().is_some()
+                                && recipient.unidentified_access_mode != target_state
+                            {
+                                // Recipient with profile key, but could not send unidentified.
+                                // Mark as disabled.
+                                log::info!(
+                                    "Setting unidentified access mode for {:?} as {:?}",
+                                    recipient,
+                                    target_state
+                                );
+                                storage.set_recipient_unidentified(recipient.id, target_state);
                             }
                         }
 
