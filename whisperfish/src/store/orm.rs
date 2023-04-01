@@ -256,6 +256,12 @@ pub struct SignedPrekey {
     pub record: Vec<u8>,
 }
 
+impl Display for SignedPrekey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "SignedPrekey {{ id: {} }}", &self.id)
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 pub struct Prekey {
     pub id: i32,
@@ -1066,5 +1072,14 @@ mod tests {
             format!("{}", s),
             "IdentityRecord { address: \"something\" }"
         )
+    }
+
+    #[test]
+    fn display_signed_prekey() {
+        let s = SignedPrekey {
+            id: 2,
+            record: vec![65],
+        };
+        assert_eq!(format!("{}", s), "SignedPrekey { id: 2 }")
     }
 }
