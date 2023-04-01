@@ -227,6 +227,16 @@ pub struct SessionRecord {
     pub record: Vec<u8>,
 }
 
+impl Display for SessionRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "SessionRecord {{ address: \"{}\", device_id: {} }}",
+            &self.address, &self.device_id
+        )
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 #[diesel(primary_key(address))]
 pub struct IdentityRecord {
@@ -1025,5 +1035,18 @@ mod tests {
             format!("{}", r),
             "Recipient { id: 981, name: \"\", e164: \"+358401010102\", INVALID }"
         );
+    }
+
+    #[test]
+    fn display_session_record() {
+        let s = SessionRecord {
+            address: "something".into(),
+            device_id: 2,
+            record: vec![65],
+        };
+        assert_eq!(
+            format!("{}", s),
+            "SessionRecord { address: \"something\", device_id: 2 }"
+        )
     }
 }
