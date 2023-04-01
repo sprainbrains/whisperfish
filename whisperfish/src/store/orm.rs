@@ -414,6 +414,33 @@ pub struct Attachment {
     pub caption: Option<String>,
 }
 
+impl Display for Attachment {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match (&self.size, &self.file_name) {
+            (Some(size), Some(file_name)) => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", size: {}, file_name: \"{}\", is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, size, file_name, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+            (Some(size), _) => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", size: {}, is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, size, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+            (_, Some(file_name)) => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", file_name: \"{}\", is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, file_name, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+            _ => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Session {
     pub id: i32,
@@ -1175,5 +1202,17 @@ mod tests {
             format!("{}", s),
             "DbSession { id: 55, direct_message_recipient_id: 777 }"
         );
+    }
+
+    #[test]
+    fn display_attachment() {
+        let mut a = get_attachment();
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", size: 963012, file_name: \"cat.jpg\", is_voice_note: false, _is_sticker_pack: false }");
+        a.size = None;
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", file_name: \"cat.jpg\", is_voice_note: false, _is_sticker_pack: false }");
+        a.file_name = None;
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", is_voice_note: false, _is_sticker_pack: false }");
+        a.size = Some(0);
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", size: 0, is_voice_note: false, _is_sticker_pack: false }");
     }
 }
