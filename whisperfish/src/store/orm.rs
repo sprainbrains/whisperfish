@@ -457,6 +457,18 @@ pub struct Session {
     pub r#type: SessionType,
 }
 
+impl Display for Session {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "Session {{ id: {}, _has_draft: {}, type: {} }}",
+            &self.id,
+            &self.draft.is_some(),
+            &self.r#type,
+        )
+    }
+}
+
 #[derive(Queryable, Debug, Clone)]
 pub struct Reaction {
     pub reaction_id: i32,
@@ -1214,5 +1226,15 @@ mod tests {
         assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", is_voice_note: false, _is_sticker_pack: false }");
         a.size = Some(0);
         assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", size: 0, is_voice_note: false, _is_sticker_pack: false }");
+    }
+
+    #[test]
+    fn display_session() {
+        let mut s = get_session();
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Gordon Freeman\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }");
+        s.r#type = SessionType::GroupV1(get_group_v1());
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
+        s.r#type = SessionType::GroupV2(get_group_v2());
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV2 { group: GroupV2 { id: \"abc\", name: \"G2\", description: \"desc\" } } }");
     }
 }
