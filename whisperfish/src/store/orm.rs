@@ -45,6 +45,23 @@ pub struct GroupV2 {
     pub description: Option<String>,
 }
 
+impl Display for GroupV2 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match &self.description {
+            Some(desc) => write!(
+                f,
+                "GroupV2 {{ id: \"{}\", name: \"{}\", description: \"{}\" }}",
+                &self.id, &self.name, desc
+            ),
+            None => write!(
+                f,
+                "GroupV2 {{ id: \"{}\", name: \"{}\" }}",
+                &self.id, &self.name
+            ),
+        }
+    }
+}
+
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV2Member {
     pub group_v2_id: String,
@@ -878,5 +895,16 @@ mod tests {
     fn display_groupv1() {
         let g1 = get_group_v1();
         assert_eq!(format!("{}", g1), "GroupV1 { id: \"cba\", name: \"G1\" }");
+    }
+
+    #[test]
+    fn display_groupv2() {
+        let mut g2 = get_group_v2();
+        assert_eq!(
+            format!("{}", g2),
+            "GroupV2 { id: \"abc\", name: \"G2\", description: \"desc\" }"
+        );
+        g2.description = None;
+        assert_eq!(format!("{}", g2), "GroupV2 { id: \"abc\", name: \"G2\" }");
     }
 }
