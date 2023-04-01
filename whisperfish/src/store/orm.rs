@@ -191,6 +191,34 @@ pub struct Recipient {
     pub about_emoji: Option<String>,
 }
 
+impl Display for Recipient {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        let profile_joined_name = self.profile_joined_name.as_deref().unwrap_or_default();
+        match (&self.e164, &self.uuid) {
+            (Some(e164), Some(r_uuid)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\" }}",
+                &self.id, profile_joined_name, e164, r_uuid
+            ),
+            (None, Some(r_uuid)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\" }}",
+                &self.id, profile_joined_name, r_uuid
+            ),
+            (Some(e164), None) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", INVALID }}",
+                &self.id, profile_joined_name, e164
+            ),
+            (None, None) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", INVALID }}",
+                &self.id, profile_joined_name
+            ),
+        }
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 #[diesel(primary_key(address, device_id))]
 pub struct SessionRecord {
@@ -977,6 +1005,25 @@ mod tests {
         assert_eq!(
             format!("{}", m),
             "Message { id: 71, session_id: 66, quote_id: 87 }"
+        );
+    }
+
+    #[test]
+    fn display_recipient() {
+        let mut r = get_recipient();
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Gordon Freeman\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
+        r.e164 = None;
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Gordon Freeman\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
+        r.uuid = None;
+        r.profile_joined_name = None;
+        assert_eq!(
+            format!("{}", r),
+            "Recipient { id: 981, name: \"\", INVALID }"
+        );
+        r.e164 = Some("+358401010102".to_string());
+        assert_eq!(
+            format!("{}", r),
+            "Recipient { id: 981, name: \"\", e164: \"+358401010102\", INVALID }"
         );
     }
 }
