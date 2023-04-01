@@ -737,6 +737,23 @@ pub struct AugmentedSession {
     pub last_message: Option<AugmentedMessage>,
 }
 
+impl Display for AugmentedSession {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match &self.last_message {
+            Some(message) => write!(
+                f,
+                "AugmentedSession {{ inner: {}, last_message: {} }}",
+                &self.inner, message
+            ),
+            None => write!(
+                f,
+                "AugmentedSession {{ inner: {}, last_message: None }}",
+                &self.inner
+            ),
+        }
+    }
+}
+
 impl std::ops::Deref for AugmentedSession {
     type Target = Session;
 
@@ -1301,5 +1318,14 @@ mod tests {
     fn display_augmented_message() {
         let m = get_augmented_message();
         assert_eq!(format!("{}", m), "AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66 } }")
+    }
+
+    #[test]
+    fn display_augmented_session() {
+        let s = AugmentedSession {
+            inner: get_session(),
+            last_message: Some(get_augmented_message()),
+        };
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Gordon Freeman\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66 } } }")
     }
 }
