@@ -71,6 +71,16 @@ pub struct GroupV2Member {
     pub role: i32,
 }
 
+impl Display for GroupV2Member {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "GroupV2Member {{ group_v2_id: \"{}\", recipient_id: {}, member_since: \"{}\" }}",
+            &self.group_v2_id, &self.recipient_id, &self.member_since
+        )
+    }
+}
+
 #[derive(Queryable, Debug, Clone, PartialEq, Eq)]
 pub struct Message {
     pub id: i32,
@@ -906,5 +916,19 @@ mod tests {
         );
         g2.description = None;
         assert_eq!(format!("{}", g2), "GroupV2 { id: \"abc\", name: \"G2\" }");
+    }
+
+    #[test]
+    fn display_groupv2_member() {
+        let datetime =
+            NaiveDateTime::parse_from_str("2023-03-31 14:51:25", "%Y-%m-%d %H:%M:%S").unwrap();
+        let g2m = GroupV2Member {
+            group_v2_id: "id".into(),
+            recipient_id: 22,
+            member_since: datetime,
+            joined_at_revision: 999,
+            role: 2,
+        };
+        assert_eq!(format!("{}",g2m), "GroupV2Member { group_v2_id: \"id\", recipient_id: 22, member_since: \"2023-03-31 14:51:25\" }");
     }
 }
