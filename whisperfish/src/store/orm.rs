@@ -268,6 +268,12 @@ pub struct Prekey {
     pub record: Vec<u8>,
 }
 
+impl Display for Prekey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "Prekey {{ id: {} }}", &self.id)
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 #[diesel(primary_key(address, device, distribution_id))]
 pub struct SenderKeyRecord {
@@ -1081,5 +1087,14 @@ mod tests {
             record: vec![65],
         };
         assert_eq!(format!("{}", s), "SignedPrekey { id: 2 }")
+    }
+
+    #[test]
+    fn display_prekey() {
+        let s = Prekey {
+            id: 2,
+            record: vec![65],
+        };
+        assert_eq!(format!("{}", s), "Prekey { id: 2 }")
     }
 }
