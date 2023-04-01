@@ -988,27 +988,14 @@ mod tests {
     fn get_message() -> Message {
         Message {
             id: 71,
+            text: Some("msg text".into()),
             session_id: 66,
-            text: None,
-            sender_recipient_id: None,
-            received_timestamp: None,
-            sent_timestamp: None,
             server_timestamp: NaiveDateTime::parse_from_str(
                 "2023-03-31 14:51:25",
                 "%Y-%m-%d %H:%M:%S",
             )
             .unwrap(),
-            is_read: true,
-            is_outbound: true,
-            flags: 0,
-            expires_in: None,
-            expiry_started: None,
-            schedule_send_time: None,
-            is_bookmarked: false,
-            use_unidentified: false,
-            is_remote_deleted: false,
-            sending_has_failed: false,
-            quote_id: None,
+            ..Default::default()
         }
     }
 
@@ -1017,14 +1004,14 @@ mod tests {
             id: 981,
             e164: Some("+358401010101".into()),
             uuid: Some("bff93979-a0fa-41f5-8ccf-e319135384d8".into()),
-            username: Some("gThreepwood".into()),
+            username: Some("nick".into()),
             email: None,
             blocked: false,
             profile_key: None,
             profile_key_credential: None,
             profile_given_name: None,
             profile_family_name: None,
-            profile_joined_name: Some("Gordon Freeman".into()),
+            profile_joined_name: Some("Nick Name".into()),
             signal_profile_avatar: None,
             profile_sharing: true,
             last_profile_fetch: None,
@@ -1034,8 +1021,8 @@ mod tests {
             capabilities: 0,
             last_gv1_migrate_reminder: None,
             last_session_reset: None,
-            about: None,
-            about_emoji: None,
+            about: Some("About me!".into()),
+            about_emoji: Some("🦊".into()),
         }
     }
 
@@ -1079,7 +1066,7 @@ mod tests {
         }
     }
 
-    fn get_session() -> Session {
+    fn get_dm_session() -> Session {
         Session {
             id: 2,
             is_archived: false,
@@ -1092,7 +1079,22 @@ mod tests {
         }
     }
 
+    fn get_gv2_session() -> Session {
+        Session {
+            id: 2,
+            is_archived: false,
+            is_pinned: false,
+            is_silent: false,
+            is_muted: false,
+            expiring_message_timeout: None,
+            draft: None,
+            r#type: SessionType::GroupV2(get_group_v2()),
+        }
+    }
+
     fn get_augmented_message() -> AugmentedMessage {
+        let timestamp =
+            NaiveDateTime::parse_from_str("2023-04-01 07:01:32", "%Y-%m-%d %H:%M:%S").unwrap();
         AugmentedMessage {
             attachments: 2,
             inner: get_message(),
@@ -1100,9 +1102,9 @@ mod tests {
                 Receipt {
                     message_id: 1,
                     recipient_id: 2,
-                    delivered: None,
-                    read: None,
-                    viewed: None,
+                    delivered: Some(timestamp),
+                    read: Some(timestamp),
+                    viewed: Some(timestamp),
                 },
                 get_recipient(),
             )],
@@ -1145,30 +1147,30 @@ mod tests {
     #[test]
     fn display_message() {
         let mut m = get_message();
-        assert_eq!(format!("{}", m), "Message { id: 71, session_id: 66 }");
-        m.text = Some("wohoo".into());
         assert_eq!(
             format!("{}", m),
-            "Message { id: 71, session_id: 66, text: \"wohoo\" }"
+            "Message { id: 71, session_id: 66, text: \"msg text\" }"
         );
+        m.text = None;
+        assert_eq!(format!("{}", m), "Message { id: 71, session_id: 66 }");
         m.quote_id = Some(87);
         assert_eq!(
             format!("{}", m),
-            "Message { id: 71, session_id: 66, text: \"wohoo\", quote_id: 87 }"
+            "Message { id: 71, session_id: 66, quote_id: 87 }"
         );
-        m.text = None;
+        m.text = Some("wohoo".into());
         assert_eq!(
             format!("{}", m),
-            "Message { id: 71, session_id: 66, quote_id: 87 }"
+            "Message { id: 71, session_id: 66, text: \"wohoo\", quote_id: 87 }"
         );
     }
 
     #[test]
     fn display_recipient() {
         let mut r = get_recipient();
-        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Gordon Freeman\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
         r.e164 = None;
-        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Gordon Freeman\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
         r.uuid = None;
         r.profile_joined_name = None;
         assert_eq!(
@@ -1285,8 +1287,8 @@ mod tests {
 
     #[test]
     fn display_session() {
-        let mut s = get_session();
-        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Gordon Freeman\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }");
+        let mut s = get_dm_session();
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }");
         s.r#type = SessionType::GroupV1(get_group_v1());
         assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
         s.r#type = SessionType::GroupV2(get_group_v2());
@@ -1317,15 +1319,123 @@ mod tests {
     #[test]
     fn display_augmented_message() {
         let m = get_augmented_message();
-        assert_eq!(format!("{}", m), "AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66 } }")
+        assert_eq!(format!("{}", m), "AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } }")
     }
 
     #[test]
     fn display_augmented_session() {
-        let s = AugmentedSession {
-            inner: get_session(),
+        let mut s = AugmentedSession {
+            inner: get_dm_session(),
             last_message: Some(get_augmented_message()),
         };
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Gordon Freeman\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66 } } }")
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
+        s.last_message = None;
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }, last_message: None }");
+    }
+
+    #[test]
+    fn recipient() {
+        let mut r = get_recipient();
+        let key_ok: [u8; 32] = [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27, 28, 29, 30, 31, 32,
+        ];
+        let key_inv: [u8; 3] = [1, 2, 3];
+        assert!(r.profile_key().is_none());
+        r.profile_key = Some(key_inv.to_vec());
+        assert!(r.profile_key().is_none());
+        r.profile_key = Some(key_ok.to_vec());
+        assert_eq!(r.profile_key(), Some(key_ok));
+        assert_eq!(
+            r.to_service_address(),
+            Some(libsignal_service::ServiceAddress {
+                uuid: uuid::Uuid::parse_str("bff93979-a0fa-41f5-8ccf-e319135384d8").unwrap(),
+            })
+        );
+        assert_eq!(r.uuid(), "bff93979-a0fa-41f5-8ccf-e319135384d8");
+        assert_eq!(r.e164_or_uuid(), "+358401010101");
+        assert_eq!(r.name(), "Nick Name");
+    }
+
+    #[test]
+    fn session() {
+        let s = get_gv2_session();
+        assert!(s.is_group());
+        assert!(s.is_group_v2());
+        assert!(s.unwrap_group_v2().id.eq("abc"));
+    }
+
+    #[test]
+    fn session_type() {
+        let mut s = SessionType::DirectMessage(get_recipient());
+        assert!(!s.is_group_v2());
+        s = SessionType::GroupV2(get_group_v2());
+        assert!(s.unwrap_group_v2().id.eq("abc"));
+    }
+
+    #[test]
+    fn augmented_message() {
+        let a = get_augmented_message();
+        assert!(!a.sent());
+        assert!(!a.queued());
+        assert_eq!(a.delivered(), 1);
+        assert_eq!(a.read(), 1);
+        assert_eq!(a.viewed(), 1);
+        assert_eq!(a.attachments(), 2);
+    }
+
+    #[test]
+    fn augmented_session() {
+        let mut a = AugmentedSession {
+            inner: get_gv2_session(),
+            last_message: Some(get_augmented_message()),
+        };
+        a.inner.is_pinned = true;
+
+        assert_eq!(a.id, get_gv2_session().id);
+        assert_eq!(
+            a.timestamp(),
+            Some(
+                NaiveDateTime::parse_from_str("2023-03-31 14:51:25", "%Y-%m-%d %H:%M:%S").unwrap()
+            )
+        );
+        assert_eq!(a.recipient_name(), "");
+        assert_eq!(a.recipient_uuid(), "");
+        assert_eq!(a.recipient_e164(), "");
+        assert_eq!(a.recipient_emoji(), "");
+        assert_eq!(a.recipient_about(), "");
+        assert_eq!(a.group_name(), Some("G2"));
+        assert_eq!(a.group_description(), Some("desc".into()));
+        assert_eq!(a.group_id(), Some("abc"));
+        assert!(!a.sent());
+        assert!(!a.has_avatar());
+        assert!(a.has_attachment());
+        assert_eq!(a.draft(), "".to_string());
+        assert_eq!(a.last_message_text(), Some("msg text"));
+        assert!(a.is_pinned());
+        assert_eq!(a.section(), "pinned");
+        assert!(!a.is_read());
+        assert_eq!(a.read(), 1);
+        assert_eq!(a.delivered(), 1);
+        assert!(!a.is_muted());
+        assert!(!a.is_archived());
+        assert_eq!(a.viewed(), 1);
+
+        a = AugmentedSession {
+            inner: get_dm_session(),
+            last_message: Some(get_augmented_message()),
+        };
+        a.inner.is_pinned = true;
+
+        assert_eq!(a.group_name(), None);
+        assert_eq!(a.group_description(), None);
+        assert_eq!(a.group_id(), None);
+        assert_eq!(a.recipient_id(), 981);
+        assert_eq!(a.recipient_name(), "Nick Name");
+        assert_eq!(a.recipient_uuid(), "bff93979-a0fa-41f5-8ccf-e319135384d8");
+        assert_eq!(a.recipient_e164(), "+358401010101");
+        assert_eq!(a.recipient_emoji(), "🦊");
+        assert_eq!(a.recipient_about(), "About me!");
+        assert!(!a.has_avatar());
     }
 }
