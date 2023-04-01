@@ -1,5 +1,6 @@
 use super::schema::*;
 use chrono::prelude::*;
+use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -7,6 +8,16 @@ pub struct GroupV1 {
     pub id: String,
     pub name: String,
     pub expected_v2_id: Option<String>,
+}
+
+impl Display for GroupV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "GroupV1 {{ id: \"{}\", name: \"{}\" }}",
+            &self.id, &self.name
+        )
+    }
 }
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -859,5 +870,13 @@ mod tests {
                 get_recipient(),
             )],
         }
+    }
+
+    // Tests //
+
+    #[test]
+    fn display_groupv1() {
+        let g1 = get_group_v1();
+        assert_eq!(format!("{}", g1), "GroupV1 { id: \"cba\", name: \"G1\" }");
     }
 }
