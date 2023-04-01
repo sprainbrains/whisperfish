@@ -479,6 +479,16 @@ pub struct Reaction {
     pub received_time: NaiveDateTime,
 }
 
+impl Display for Reaction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "Reaction {{ reaction_id: {}, message_id: {}, author: {}, emoji: \"{}\" }}",
+            &self.reaction_id, &self.message_id, &self.author, &self.emoji,
+        )
+    }
+}
+
 #[derive(Queryable, Debug, Clone)]
 pub struct Receipt {
     pub message_id: i32,
@@ -1236,5 +1246,26 @@ mod tests {
         assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
         s.r#type = SessionType::GroupV2(get_group_v2());
         assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV2 { group: GroupV2 { id: \"abc\", name: \"G2\", description: \"desc\" } } }");
+    }
+
+    #[test]
+    fn display_reaction() {
+        let r = Reaction {
+            reaction_id: 1,
+            message_id: 86,
+            author: 5,
+            emoji: "🦊".into(),
+            sent_time: NaiveDateTime::parse_from_str("2023-04-01 09:03:18", "%Y-%m-%d %H:%M:%S")
+                .unwrap(),
+            received_time: NaiveDateTime::parse_from_str(
+                "2023-04-01 09:03:21",
+                "%Y-%m-%d %H:%M:%S",
+            )
+            .unwrap(),
+        };
+        assert_eq!(
+            format!("{}", r),
+            "Reaction { reaction_id: 1, message_id: 86, author: 5, emoji: \"🦊\" }"
+        );
     }
 }
