@@ -186,6 +186,20 @@ pub enum UnidentifiedAccessMode {
     Unrestricted = 3,
 }
 
+impl std::convert::TryFrom<i32> for UnidentifiedAccessMode {
+    type Error = ();
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Unknown),
+            1 => Ok(Self::Disabled),
+            2 => Ok(Self::Enabled),
+            3 => Ok(Self::Unrestricted),
+            _ => Err(()),
+        }
+    }
+}
+
 impl From<UnidentifiedAccessMode> for i32 {
     fn from(value: UnidentifiedAccessMode) -> Self {
         value as i32
