@@ -244,6 +244,12 @@ pub struct IdentityRecord {
     pub record: Vec<u8>,
 }
 
+impl Display for IdentityRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "IdentityRecord {{ address: \"{}\" }}", &self.address)
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 pub struct SignedPrekey {
     pub id: i32,
@@ -1047,6 +1053,18 @@ mod tests {
         assert_eq!(
             format!("{}", s),
             "SessionRecord { address: \"something\", device_id: 2 }"
+        )
+    }
+
+    #[test]
+    fn display_identity_record() {
+        let s = IdentityRecord {
+            address: "something".into(),
+            record: vec![65],
+        };
+        assert_eq!(
+            format!("{}", s),
+            "IdentityRecord { address: \"something\" }"
         )
     }
 }
