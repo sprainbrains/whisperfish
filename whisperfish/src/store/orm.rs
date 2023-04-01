@@ -707,3 +707,157 @@ impl AugmentedSession {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Helpers //
+
+    fn get_group_v1() -> GroupV1 {
+        GroupV1 {
+            id: "cba".into(),
+            name: "G1".into(),
+            expected_v2_id: None,
+        }
+    }
+
+    fn get_group_v2() -> GroupV2 {
+        GroupV2 {
+            id: "abc".into(),
+            name: "G2".into(),
+            master_key: "123".into(),
+            revision: 42,
+            invite_link_password: None,
+            access_required_for_add_from_invite_link: 0,
+            access_required_for_attributes: 0,
+            access_required_for_members: 0,
+            avatar: None,
+            description: Some("desc".into()),
+        }
+    }
+
+    fn get_message() -> Message {
+        Message {
+            id: 71,
+            session_id: 66,
+            text: None,
+            sender_recipient_id: None,
+            received_timestamp: None,
+            sent_timestamp: None,
+            server_timestamp: NaiveDateTime::parse_from_str(
+                "2023-03-31 14:51:25",
+                "%Y-%m-%d %H:%M:%S",
+            )
+            .unwrap(),
+            is_read: true,
+            is_outbound: true,
+            flags: 0,
+            expires_in: None,
+            expiry_started: None,
+            schedule_send_time: None,
+            is_bookmarked: false,
+            use_unidentified: false,
+            is_remote_deleted: false,
+            sending_has_failed: false,
+            quote_id: None,
+        }
+    }
+
+    fn get_recipient() -> Recipient {
+        Recipient {
+            id: 981,
+            e164: Some("+358401010101".into()),
+            uuid: Some("bff93979-a0fa-41f5-8ccf-e319135384d8".into()),
+            username: Some("gThreepwood".into()),
+            email: None,
+            blocked: false,
+            profile_key: None,
+            profile_key_credential: None,
+            profile_given_name: None,
+            profile_family_name: None,
+            profile_joined_name: Some("Gordon Freeman".into()),
+            signal_profile_avatar: None,
+            profile_sharing: true,
+            last_profile_fetch: None,
+            unidentified_access_mode: true,
+            storage_service_id: None,
+            storage_proto: None,
+            capabilities: 0,
+            last_gv1_migrate_reminder: None,
+            last_session_reset: None,
+            about: None,
+            about_emoji: None,
+        }
+    }
+
+    fn get_attachment() -> Attachment {
+        Attachment {
+            id: 24,
+            json: None,
+            message_id: 313,
+            content_type: "image/jpeg".into(),
+            name: Some("Cat!".into()),
+            content_disposition: None,
+            content_location: None,
+            attachment_path: None,
+            is_pending_upload: false,
+            transfer_file_path: None,
+            size: Some(963012),
+            file_name: Some("cat.jpg".into()),
+            unique_id: None,
+            digest: None,
+            is_voice_note: false,
+            is_borderless: false,
+            is_quote: false,
+            width: Some(1024),
+            height: Some(768),
+            sticker_pack_id: None,
+            sticker_pack_key: None,
+            sticker_id: None,
+            sticker_emoji: None,
+            data_hash: None,
+            visual_hash: None,
+            transform_properties: None,
+            transfer_file: None,
+            display_order: 1,
+            upload_timestamp: NaiveDateTime::parse_from_str(
+                "2023-04-01 07:01:32",
+                "%Y-%m-%d %H:%M:%S",
+            )
+            .unwrap(),
+            cdn_number: None,
+            caption: Some("Funny cat!".into()),
+        }
+    }
+
+    fn get_session() -> Session {
+        Session {
+            id: 2,
+            is_archived: false,
+            is_pinned: false,
+            is_silent: false,
+            is_muted: false,
+            expiring_message_timeout: None,
+            draft: None,
+            r#type: SessionType::DirectMessage(get_recipient()),
+        }
+    }
+
+    fn get_augmented_message() -> AugmentedMessage {
+        AugmentedMessage {
+            attachments: 2,
+            inner: get_message(),
+            receipts: vec![(
+                Receipt {
+                    message_id: 1,
+                    recipient_id: 2,
+                    delivered: None,
+                    read: None,
+                    viewed: None,
+                },
+                get_recipient(),
+            )],
+        }
+    }
+}
