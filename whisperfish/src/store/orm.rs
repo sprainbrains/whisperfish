@@ -284,6 +284,16 @@ pub struct SenderKeyRecord {
     pub created_at: NaiveDateTime,
 }
 
+impl Display for SenderKeyRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "SenderKeyRecord {{ address: \"{}\", device: {}, created_at: \"{}\" }}",
+            &self.address, &self.device, &self.created_at
+        )
+    }
+}
+
 impl Recipient {
     pub fn profile_key(&self) -> Option<[u8; 32]> {
         if let Some(pk) = self.profile_key.as_ref() {
@@ -1096,5 +1106,19 @@ mod tests {
             record: vec![65],
         };
         assert_eq!(format!("{}", s), "Prekey { id: 2 }")
+    }
+
+    #[test]
+    fn display_sender_key_record() {
+        let datetime =
+            NaiveDateTime::parse_from_str("2023-04-01 07:01:32", "%Y-%m-%d %H:%M:%S").unwrap();
+        let s = SenderKeyRecord {
+            address: "whateva".into(),
+            record: vec![65],
+            device: 13,
+            distribution_id: "huh".into(),
+            created_at: datetime,
+        };
+        assert_eq!(format!("{}", s), "SenderKeyRecord { address: \"whateva\", device: 13, created_at: \"2023-04-01 07:01:32\" }")
     }
 }
