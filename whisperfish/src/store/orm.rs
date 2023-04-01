@@ -107,6 +107,33 @@ pub struct Message {
     pub quote_id: Option<i32>,
 }
 
+impl Display for Message {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match (&self.text, &self.quote_id) {
+            (Some(text), Some(quote_id)) => write!(
+                f,
+                "Message {{ id: {}, session_id: {}, text: \"{}\", quote_id: {} }}",
+                &self.id, &self.session_id, text, quote_id
+            ),
+            (None, Some(quote_id)) => write!(
+                f,
+                "Message {{ id: {}, session_id: {}, quote_id: {} }}",
+                &self.id, &self.session_id, quote_id
+            ),
+            (Some(text), None) => write!(
+                f,
+                "Message {{ id: {}, session_id: {}, text: \"{}\" }}",
+                &self.id, &self.session_id, text
+            ),
+            (None, None) => write!(
+                f,
+                "Message {{ id: {}, session_id: {} }}",
+                &self.id, &self.session_id
+            ),
+        }
+    }
+}
+
 impl Default for Message {
     fn default() -> Self {
         Self {
@@ -930,5 +957,26 @@ mod tests {
             role: 2,
         };
         assert_eq!(format!("{}",g2m), "GroupV2Member { group_v2_id: \"id\", recipient_id: 22, member_since: \"2023-03-31 14:51:25\" }");
+    }
+
+    #[test]
+    fn display_message() {
+        let mut m = get_message();
+        assert_eq!(format!("{}", m), "Message { id: 71, session_id: 66 }");
+        m.text = Some("wohoo".into());
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, text: \"wohoo\" }"
+        );
+        m.quote_id = Some(87);
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, text: \"wohoo\", quote_id: 87 }"
+        );
+        m.text = None;
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, quote_id: 87 }"
+        );
     }
 }
