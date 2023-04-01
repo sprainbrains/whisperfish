@@ -356,6 +356,29 @@ pub struct DbSession {
     pub expiring_message_timeout: Option<i32>,
 }
 
+impl Display for DbSession {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match (&self.direct_message_recipient_id, &self.group_v2_id) {
+            (Some(r_id), Some(g_id)) => write!(
+                f,
+                "DbSession {{ id: {}, direct_message_recipient_id: {}, group_v2_id: \"{}\" }}",
+                &self.id, r_id, g_id
+            ),
+            (Some(r_id), None) => write!(
+                f,
+                "DbSession {{ id: {}, direct_message_recipient_id: {} }}",
+                &self.id, r_id
+            ),
+            (_, Some(g_id)) => write!(
+                f,
+                "DbSession {{ id: {}, group_v2_id: \"{}\" }}",
+                &self.id, g_id
+            ),
+            _ => write!(f, "DbSession {{ id: {}, INVALID }}", &self.id),
+        }
+    }
+}
+
 #[derive(Queryable, Debug, Clone)]
 pub struct Attachment {
     pub id: i32,
@@ -1120,5 +1143,37 @@ mod tests {
             created_at: datetime,
         };
         assert_eq!(format!("{}", s), "SenderKeyRecord { address: \"whateva\", device: 13, created_at: \"2023-04-01 07:01:32\" }")
+    }
+
+    #[test]
+    pub fn display_db_session() {
+        let mut s = DbSession {
+            id: 55,
+            direct_message_recipient_id: Some(413),
+            group_v1_id: None,
+            group_v2_id: Some("gv2_id".into()),
+            is_archived: false,
+            is_pinned: false,
+            is_silent: false,
+            is_muted: false,
+            draft: None,
+            expiring_message_timeout: None,
+        };
+        assert_eq!(
+            format!("{}", s),
+            "DbSession { id: 55, direct_message_recipient_id: 413, group_v2_id: \"gv2_id\" }"
+        );
+        s.direct_message_recipient_id = None;
+        assert_eq!(
+            format!("{}", s),
+            "DbSession { id: 55, group_v2_id: \"gv2_id\" }"
+        );
+        s.group_v2_id = None;
+        assert_eq!(format!("{}", s), "DbSession { id: 55, INVALID }");
+        s.direct_message_recipient_id = Some(777);
+        assert_eq!(
+            format!("{}", s),
+            "DbSession { id: 55, direct_message_recipient_id: 777 }"
+        );
     }
 }
