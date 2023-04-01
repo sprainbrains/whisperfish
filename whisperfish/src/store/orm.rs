@@ -677,6 +677,18 @@ pub struct AugmentedMessage {
     pub receipts: Vec<(Receipt, Recipient)>,
 }
 
+impl Display for AugmentedMessage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "AugmentedMessage {{ attachments: {}, _receipts: {}, inner: {} }}",
+            &self.attachments,
+            &self.receipts.len(),
+            &self.inner
+        )
+    }
+}
+
 impl std::ops::Deref for AugmentedMessage {
     type Target = Message;
 
@@ -1283,5 +1295,11 @@ mod tests {
             format!("{}", r),
             "Reaction { reaction_id: 1, message_id: 86, author: 5, emoji: \"🦊\" }"
         );
+    }
+
+    #[test]
+    fn display_augmented_message() {
+        let m = get_augmented_message();
+        assert_eq!(format!("{}", m), "AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66 } }")
     }
 }
