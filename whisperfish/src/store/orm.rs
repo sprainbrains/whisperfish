@@ -613,6 +613,22 @@ pub enum SessionType {
     GroupV2(GroupV2),
 }
 
+impl Display for SessionType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match self {
+            SessionType::DirectMessage(recipient) => {
+                write!(f, "DirectMessage {{ recipient: {} }}", recipient)
+            }
+            SessionType::GroupV1(group) => {
+                write!(f, "GroupV1 {{ group: {} }}", group)
+            }
+            SessionType::GroupV2(group) => {
+                write!(f, "GroupV2 {{ group: {} }}", group)
+            }
+        }
+    }
+}
+
 impl SessionType {
     pub fn is_dm(&self) -> bool {
         matches!(self, Self::DirectMessage(_))
