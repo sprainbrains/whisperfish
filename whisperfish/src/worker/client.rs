@@ -72,8 +72,20 @@ pub struct QueueMessage {
 
 #[derive(Message)]
 #[rtype(result = "()")]
-/// Enqueue a message on socket by MID
+/// Enqueue a message on socket by message id.
+///
+/// This will construct a DataMessage, and pass it to a DeliverMessage
 pub struct SendMessage(pub i32);
+
+/// Delivers a constructed T: Into<ContentBody> to a session.
+#[derive(Message)]
+#[rtype(result = "Result<(), anyhow::Error>")]
+struct DeliverMessage<T> {
+    content: T,
+    timestamp: u64,
+    online: bool,
+    session_id: i32,
+}
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
@@ -282,7 +294,7 @@ impl ClientActor {
             rand::thread_rng(),
             storage.clone(),
             storage,
-            self.local_addr.clone().unwrap(),
+            self.local_addr.unwrap(),
             self.config.get_device_id(),
         )
     }
@@ -294,32 +306,26 @@ impl ClientActor {
 
     pub fn handle_needs_delivery_receipt(
         &mut self,
+        ctx: &mut <Self as Actor>::Context,
         message: &DataMessage,
         metadata: &Metadata,
     ) -> Option<()> {
         let uuid = metadata.sender.uuid.to_string();
         let storage = self.storage.as_mut().expect("storage");
         let recipient = storage.fetch_recipient(None, Some(&uuid))?;
+        let session = storage.fetch_or_insert_session_by_recipient_id(recipient.id);
 
-        let receipt = ReceiptMessage {
+        let content = ReceiptMessage {
             r#type: Some(receipt_message::Type::Delivery as _),
             timestamp: vec![message.timestamp?],
         };
 
-        let mut svc = self.message_sender();
-        actix::spawn(async move {
-            if let Err(e) = svc
-                .send_message(
-                    &recipient.to_service_address().expect("recipient with uuid"),
-                    None,
-                    receipt,
-                    Utc::now().timestamp_millis() as u64,
-                    false,
-                )
-                .await
-            {
-                log::error!("Could not deliver delivery receipt: {}", e);
-            }
+        ctx.notify(DeliverMessage {
+            content,
+            timestamp: Utc::now().timestamp_millis() as u64,
+            // XXX Session ID is artificial here.
+            session_id: session.id,
+            online: false,
         });
 
         Some(())
@@ -704,7 +710,7 @@ impl ClientActor {
                 );
                 if metadata.needs_receipt {
                     if let Some(_message_id) = message_id {
-                        self.handle_needs_delivery_receipt(&message, &metadata);
+                        self.handle_needs_delivery_receipt(ctx, &message, &metadata);
                     }
                 }
                 if !metadata.unidentified_sender && message_id.is_some() {
@@ -1095,7 +1101,6 @@ impl Handler<SendMessage> for ClientActor {
         log::trace!("Sending for session: {:?}", session);
         log::trace!("Sending message: {:?}", msg.inner);
 
-        let local_addr = self.local_addr.clone().unwrap();
         let storage = storage.clone();
         let addr = ctx.address();
         Box::pin(
@@ -1115,26 +1120,27 @@ impl Handler<SendMessage> for ClientActor {
                     None
                 };
 
-                // XXX online status goes in that bool
-                let online = false;
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
 
-                let quote = msg.quote_id.and_then(|quote_id| {
-                    storage.fetch_augmented_message(quote_id)
-                }).map(|quoted_message| {
-                    if !quoted_message.attachments > 0 {
-                        log::warn!("Quoting attachments is incomplete.  Here be dragons.");
-                    }
-                    let quote_sender = quoted_message.sender_recipient_id.and_then(|x| storage.fetch_recipient_by_id(x));
+                let quote = msg
+                    .quote_id
+                    .and_then(|quote_id| storage.fetch_augmented_message(quote_id))
+                    .map(|quoted_message| {
+                        if !quoted_message.attachments > 0 {
+                            log::warn!("Quoting attachments is incomplete.  Here be dragons.");
+                        }
+                        let quote_sender = quoted_message
+                            .sender_recipient_id
+                            .and_then(|x| storage.fetch_recipient_by_id(x));
 
-                    Quote {
-                        id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
-                        author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.clone()),
-                        text: quoted_message.text.clone(),
+                        Quote {
+                            id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
+                            author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.clone()),
+                            text: quoted_message.text.clone(),
 
-                        ..Default::default()
-                    }
-                });
+                            ..Default::default()
+                        }
+                    });
 
                 let mut content = DataMessage {
                     body: msg.text.clone(),
@@ -1192,77 +1198,25 @@ impl Handler<SendMessage> for ClientActor {
                     content.attachments.push(ptr);
                 }
 
-                log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
+                let res = addr
+                    .send(DeliverMessage {
+                        content,
+                        online: false,
+                        timestamp,
+                        session_id,
+                    })
+                    .await?;
 
-                match &session.r#type {
-                    orm::SessionType::GroupV1(_group) => {
-                        // FIXME
-                        log::error!("Cannot send to Group V1 anymore.");
+                match res {
+                    Ok(()) => {
+                        storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
+                        Ok((session.id, mid, msg.inner.text))
                     }
-                    orm::SessionType::GroupV2(group) => {
-                        let members = storage.fetch_group_members_by_group_v2_id(&group.id);
-                        let members = members
-                            .iter()
-                            .filter_map(|(_member, recipient)| {
-                                let member = recipient.to_service_address();
-
-                                if Some(local_addr) == member {
-                                    None
-                                } else {
-                                    if member.is_none() {
-                                        log::warn!("No known UUID for {}; will not send this message.", recipient.e164_or_uuid());
-                                    }
-                                    member
-                                }
-                            })
-                            .collect::<Vec<_>>();
-                        // Clone + async closure means we can use an immutable borrow.
-                        let results = sender
-                            .send_message_to_group(&members, None, content, timestamp, online)
-                            .await;
-                        for result in results {
-                            if let Err(e) = result {
-                                storage.fail_message(mid);
-                                anyhow::bail!("Error sending message: {}", e);
-                            }
-                        }
-                    }
-                    orm::SessionType::DirectMessage(recipient) => {
-                        let svc = recipient.to_service_address();
-
-                        if let Some(svc) = svc {
-                            if let Err(e) = sender
-                                .send_message(&svc, None, content.clone(), timestamp, online)
-                                .await
-                            {
-                                storage.fail_message(mid);
-
-                                // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
-                                let recaptcha = String::from("recaptcha");
-                                if let MessageSenderError::ProofRequired { token, options } = &e {
-                                    if options.contains(&recaptcha) {
-                                        addr.send(ProofRequired {
-                                            token: token.to_owned(),
-                                            r#type: recaptcha,
-                                        })
-                                        .await
-                                        .expect("deliver captcha required");
-                                    } else {
-                                        log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
-                                    }
-                                }
-                                anyhow::bail!("Error sending message: {}", e);
-                            }
-                        } else {
-                            anyhow::bail!("No UUID for {}; will not send message", recipient.e164_or_uuid());
-                        }
+                    Err(e) => {
+                        storage.fail_message(mid);
+                        anyhow::bail!("Could not deliver message: {}", e)
                     }
                 }
-
-                // Mark as sent
-                storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
-
-                Ok((session.id, mid, msg.inner.text))
             }
             .into_actor(self)
             .map(move |res, act, _ctx| {
@@ -1328,11 +1282,11 @@ impl Handler<SendTypingNotification> for ClientActor {
             session_id,
             is_start,
         }: SendTypingNotification,
-        _ctx: &mut Self::Context,
+        ctx: &mut Self::Context,
     ) -> Self::Result {
         log::info!("ClientActor::SendTypingNotification({:?})", session_id);
-        let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
+        let addr = ctx.address();
 
         let session = storage.fetch_session_by_id(session_id).unwrap();
         assert_eq!(session_id, session.id);
@@ -1359,8 +1313,6 @@ impl Handler<SendTypingNotification> for ClientActor {
         let timestamp = Utc::now().timestamp_millis() as u64;
         self.typing_message_timestamps.insert(timestamp);
 
-        let local_addr = self.local_addr.clone().unwrap();
-        let storage = storage.clone();
         Box::pin(
             async move {
                 let group_id = match &session.r#type {
@@ -1373,8 +1325,6 @@ impl Handler<SendTypingNotification> for ClientActor {
                     }
                 };
 
-                let online = true;
-
                 let content = TypingMessage {
                     timestamp: Some(timestamp),
                     action: Some(if is_start {
@@ -1385,58 +1335,14 @@ impl Handler<SendTypingNotification> for ClientActor {
                     group_id,
                 };
 
-                log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
-
-                match &session.r#type {
-                    orm::SessionType::GroupV1(_group) => {
-                        // FIXME
-                        log::error!("Cannot send to Group V1 anymore.");
-                    }
-                    orm::SessionType::GroupV2(group) => {
-                        let members = storage.fetch_group_members_by_group_v2_id(&group.id);
-                        let members = members
-                            .iter()
-                            .filter_map(|(_member, recipient)| {
-                                let member = recipient.to_service_address();
-
-                                if Some(local_addr) == member {
-                                    None
-                                } else {
-                                    if member.is_none() {
-                                        log::warn!(
-                                            "No known UUID for {}; will not send this message.",
-                                            recipient.e164_or_uuid()
-                                        );
-                                    }
-                                    member
-                                }
-                            })
-                            .collect::<Vec<_>>();
-                        // Clone + async closure means we can use an immutable borrow.
-                        let results = sender
-                            .send_message_to_group(&members, None, content, timestamp, online)
-                            .await;
-                        for result in results {
-                            if let Err(e) = result {
-                                anyhow::bail!("Error sending message: {}", e);
-                            }
-                        }
-                    }
-                    orm::SessionType::DirectMessage(recipient) => {
-                        let svc = recipient.to_service_address();
-
-                        if let Some(svc) = svc {
-                            if let Err(e) = sender
-                                .send_message(&svc, None, content.clone(), timestamp, online)
-                                .await
-                            {
-                                anyhow::bail!("Error sending message: {}", e);
-                            }
-                        }
-                    }
-                }
-
-                Ok(session.id)
+                addr.send(DeliverMessage {
+                    content,
+                    online: true,
+                    timestamp,
+                    session_id,
+                })
+                .await?
+                .map(|()| session.id)
             }
             .into_actor(self)
             .map(move |res, _act, _ctx| {
@@ -1445,11 +1351,104 @@ impl Handler<SendTypingNotification> for ClientActor {
                         log::trace!("Successfully sent typing notification for session {}", sid);
                     }
                     Err(e) => {
-                        log::error!("Sending typing notification: {}", e);
+                        log::error!("Delivering typing notification: {}", e);
                     }
                 };
             }),
         )
+    }
+}
+
+impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
+    type Result = ResponseFuture<Result<(), anyhow::Error>>;
+
+    fn handle(&mut self, msg: DeliverMessage<T>, ctx: &mut Self::Context) -> Self::Result {
+        let DeliverMessage {
+            content,
+            timestamp,
+            online,
+            session_id,
+        } = msg;
+        let content = content.into();
+
+        log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
+
+        let storage = self.storage.clone().unwrap();
+        let session = storage.fetch_session_by_id(session_id).unwrap();
+        let mut sender = self.message_sender();
+        let local_addr = self.local_addr.unwrap();
+        let addr = ctx.address();
+
+        Box::pin(async move {
+            match &session.r#type {
+                orm::SessionType::GroupV1(_group) => {
+                    // FIXME
+                    log::error!("Cannot send to Group V1 anymore.");
+                }
+                orm::SessionType::GroupV2(group) => {
+                    let members = storage.fetch_group_members_by_group_v2_id(&group.id);
+                    let members = members
+                        .iter()
+                        .filter_map(|(_member, recipient)| {
+                            let member = recipient.to_service_address();
+
+                            if Some(local_addr) == member {
+                                None
+                            } else {
+                                if member.is_none() {
+                                    log::warn!(
+                                        "No known UUID for {}; will not deliver this message.",
+                                        recipient.e164_or_uuid()
+                                    );
+                                }
+                                member
+                            }
+                        })
+                        .collect::<Vec<_>>();
+                    // Clone + async closure means we can use an immutable borrow.
+                    let results = sender
+                        .send_message_to_group(&members, None, content, timestamp, online)
+                        .await;
+                    for result in results {
+                        if let Err(e) = result {
+                            anyhow::bail!("Error delivering message: {}", e);
+                        }
+                    }
+                }
+                orm::SessionType::DirectMessage(recipient) => {
+                    let svc = recipient.to_service_address();
+
+                    if let Some(svc) = svc {
+                        if let Err(e) = sender
+                            .send_message(&svc, None, content.clone(), timestamp, online)
+                            .await
+                        {
+                            // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
+                            let recaptcha = String::from("recaptcha");
+                            if let MessageSenderError::ProofRequired { token, options } = &e {
+                                if options.contains(&recaptcha) {
+                                    addr.send(ProofRequired {
+                                        token: token.to_owned(),
+                                        r#type: recaptcha,
+                                    })
+                                    .await
+                                    .expect("deliver captcha required");
+                                } else {
+                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
+                                }
+                            }
+                            anyhow::bail!("Error sending message: {}", e);
+                        }
+                    } else {
+                        anyhow::bail!(
+                            "No UUID for {}; will not send message",
+                            recipient.e164_or_uuid()
+                        );
+                    }
+                }
+            }
+            Ok(())
+        })
     }
 }
 
