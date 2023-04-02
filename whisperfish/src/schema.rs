@@ -160,6 +160,7 @@ diesel::table! {
         last_session_reset -> Nullable<Timestamp>,
         about -> Nullable<Text>,
         about_emoji -> Nullable<Text>,
+        is_registered -> Bool,
     }
 }
 

@@ -124,6 +124,8 @@ pub struct Recipient {
 
     pub about: Option<String>,
     pub about_emoji: Option<String>,
+
+    pub is_registered: bool,
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
@@ -608,6 +610,14 @@ impl AugmentedSession {
             SessionType::GroupV1(_) => false,
             SessionType::GroupV2(group) => group.avatar.is_some(),
             SessionType::DirectMessage(recipient) => recipient.signal_profile_avatar.is_some(),
+        }
+    }
+
+    pub fn is_registered(&self) -> bool {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => true,
+            SessionType::GroupV2(_group) => true,
+            SessionType::DirectMessage(recipient) => recipient.is_registered,
         }
     }
 

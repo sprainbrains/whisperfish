@@ -45,6 +45,8 @@ crate::observing_model! {
 
         unidentifiedAccessMode UnidentifiedAccessMode,
         profileSharing ProfileSharing,
+
+        isRegistered IsRegistered,
     }
 }
 
@@ -206,6 +208,7 @@ define_model_roles! {
         PhoneNumber(e164 via qstring_from_option): "phoneNumber",
         Username(username via qstring_from_option): "username",
         Email(email via qstring_from_option): "email",
+        IsRegistered(is_registered): "isRegistered",
 
         Blocked(blocked): "blocked",
 
@@ -244,6 +247,8 @@ define_model_roles! {
 
         UnidentifiedAccessMode(unidentified_access_mode): "unidentifiedAccessMode",
         ProfileSharing(profile_sharing): "profileSharing",
+
+        IsRegistered(is_registered): "isRegistered",
     }
 }
 
