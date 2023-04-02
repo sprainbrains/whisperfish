@@ -10,6 +10,7 @@ members = [
 [patch."https://github.com/signalapp/libsignal"]
 libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
+poksho = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 
 # [patch.crates-io]
 # qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
