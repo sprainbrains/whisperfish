@@ -1299,13 +1299,9 @@ impl Storage {
     }
 
     /// Marks the message with a certain timestamp as received by a certain person.
-    ///
-    /// Should only be called if the relation between the e164 and uuid is certain.
-    // TODO: Maybe this should take a ServiceAddress instead.
     pub fn mark_message_received(
         &self,
-        receiver_e164: Option<&str>,
-        receiver_uuid: Option<&str>,
+        receiver_uuid: uuid::Uuid,
         timestamp: NaiveDateTime,
         delivered_at: Option<chrono::DateTime<Utc>>,
     ) -> Option<(orm::Session, orm::Message)> {
@@ -1313,8 +1309,11 @@ impl Storage {
         let delivered_at = delivered_at.unwrap_or_else(chrono::Utc::now).naive_utc();
 
         // Find the recipient
-        let recipient =
-            self.merge_and_fetch_recipient(receiver_e164, receiver_uuid, TrustLevel::Certain);
+        let recipient = self.merge_and_fetch_recipient(
+            None,
+            Some(&receiver_uuid.to_string()),
+            TrustLevel::Certain,
+        );
         let message_id = schema::messages::table
             .select(schema::messages::id)
             .filter(schema::messages::server_timestamp.eq(timestamp))

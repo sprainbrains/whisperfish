@@ -55,15 +55,19 @@ fn option_warn<T>(o: Option<T>, s: &'static str) -> Option<T> {
     o
 }
 
-fn name_to_service_addr(name: &str) -> Option<ServiceAddress> {
-    if let Ok(addr) = ServiceAddress::parse(None, Some(name)) {
-        return Some(addr);
+fn name_to_protocol_addr(name: &str, id: u32) -> Option<ProtocolAddress> {
+    if let Ok(uuid) = uuid::Uuid::parse_str(name) {
+        return Some(ProtocolAddress::new(uuid.to_string(), id.into()));
     }
-    if let Ok(addr) = ServiceAddress::parse(Some(&format!("+{}", name)), None) {
-        return Some(addr);
-    }
-    if let Ok(addr) = ServiceAddress::parse(Some(name), None) {
-        return Some(addr);
+
+    let phonenumbers = [name, &format!("+{}", name)];
+    for pn in &phonenumbers {
+        if let Ok(addr) = phonenumber::parse(None, pn) {
+            return Some(ProtocolAddress::new(
+                addr.format().mode(phonenumber::Mode::E164).to_string(),
+                id.into(),
+            ));
+        }
     }
     None
 }
@@ -309,13 +313,8 @@ impl SessionStorageMigration {
                 let id = option_warn(split.next(), "no session id; skipping")?;
                 let id: u32 = option_warn(id.parse().ok(), "unparseable session id")?;
 
-                let name =
-                    option_warn(name_to_service_addr(name), "unparsable file name")?.identifier();
-
-                Some(ProtocolAddress::new(
-                    name,
-                    libsignal_protocol::DeviceId::from(id),
-                ))
+                let addr = option_warn(name_to_protocol_addr(name, id), "unparsable file name")?;
+                Some(addr)
             });
 
         // Now read the files, put them in the database, and remove the file
@@ -410,13 +409,12 @@ impl SessionStorageMigration {
                 }
 
                 let addr = &name["remote_".len()..];
-                let addr =
-                    option_warn(name_to_service_addr(addr), "unparsable file name")?.identifier();
+                let addr = option_warn(
+                    name_to_protocol_addr(addr, DEFAULT_DEVICE_ID),
+                    "unparsable file name",
+                )?;
 
-                Some(ProtocolAddress::new(
-                    addr,
-                    libsignal_protocol::DeviceId::from(DEFAULT_DEVICE_ID),
-                ))
+                Some(addr)
             });
 
         for addr in identities {
@@ -524,24 +522,5 @@ impl SessionStorageMigration {
         } else {
             Ok(None)
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[actix_rt::test]
-    async fn name_parsing() {
-        assert_eq!(
-            name_to_service_addr("32474123456").unwrap().identifier(),
-            "+32474123456"
-        );
-        assert_eq!(
-            name_to_service_addr("64d41108-1d4b-4b71-91b8-4e0fb7cad444")
-                .unwrap()
-                .identifier(),
-            "64d41108-1d4b-4b71-91b8-4e0fb7cad444"
-        );
     }
 }

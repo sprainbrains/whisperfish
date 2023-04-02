@@ -179,18 +179,12 @@ impl Recipient {
         }
     }
 
-    pub fn to_service_address(&self) -> libsignal_service::ServiceAddress {
-        libsignal_service::ServiceAddress {
-            phonenumber: self
-                .e164
-                .as_ref()
-                .map(|e164| phonenumber::parse(None, e164).expect("only valid phone number in db")),
-            relay: None,
-            uuid: self
-                .uuid
-                .as_ref()
-                .map(|uuid| uuid::Uuid::parse_str(uuid).expect("only valid UUIDs in db")),
-        }
+    pub fn to_service_address(&self) -> Option<libsignal_service::ServiceAddress> {
+        self.uuid
+            .as_ref()
+            .map(|uuid| libsignal_service::ServiceAddress {
+                uuid: uuid::Uuid::parse_str(uuid).expect("only valid UUIDs in db"),
+            })
     }
 
     pub fn uuid(&self) -> &str {

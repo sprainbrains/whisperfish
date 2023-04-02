@@ -31,8 +31,8 @@ use libsignal_service::configuration::SignalServers;
 use libsignal_service::content::sync_message::Request as SyncRequest;
 use libsignal_service::content::DataMessageFlags;
 use libsignal_service::content::{
-    sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContext, GroupContextV2,
-    GroupType, Metadata, TypingMessage,
+    sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContextV2, Metadata,
+    TypingMessage,
 };
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
@@ -297,10 +297,9 @@ impl ClientActor {
         message: &DataMessage,
         metadata: &Metadata,
     ) -> Option<()> {
-        let e164 = metadata.sender.e164();
-        let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
+        let uuid = metadata.sender.uuid.to_string();
         let storage = self.storage.as_mut().expect("storage");
-        let recipient = storage.fetch_recipient(e164.as_deref(), uuid.as_deref())?;
+        let recipient = storage.fetch_recipient(None, Some(&uuid))?;
 
         let receipt = ReceiptMessage {
             r#type: Some(receipt_message::Type::Delivery as _),
@@ -311,7 +310,7 @@ impl ClientActor {
         actix::spawn(async move {
             if let Err(e) = svc
                 .send_message(
-                    &recipient.to_service_address(),
+                    &recipient.to_service_address().expect("recipient with uuid"),
                     None,
                     receipt,
                     Utc::now().timestamp_millis() as u64,
@@ -334,6 +333,7 @@ impl ClientActor {
     pub fn handle_message(
         &mut self,
         ctx: &mut <Self as Actor>::Context,
+        // XXX: remove this argument
         source_e164: Option<String>,
         source_uuid: Option<String>,
         msg: &DataMessage,
@@ -356,26 +356,18 @@ impl ClientActor {
 
         if msg.flags() & DataMessageFlags::EndSession as u32 != 0 {
             let storage = storage.clone();
-            let source_e164 = source_e164.clone();
-            let source_uuid = source_uuid.clone();
-            actix::spawn(async move {
-                if let Some(e164) = source_e164.as_ref() {
-                    if let Err(e) = storage.delete_all_sessions(e164).await {
-                        log::error!(
-                            "End session (e164) requested, but could not end session: {:?}",
-                            e
-                        );
+            if let Some(svc) = sender_recipient
+                .as_ref()
+                .and_then(|r| r.to_service_address())
+            {
+                actix::spawn(async move {
+                    if let Err(e) = storage.delete_all_sessions(&svc).await {
+                        log::error!("End session requested, but could not end session: {:?}", e);
                     }
-                }
-                if let Some(uuid) = source_uuid.as_ref() {
-                    if let Err(e) = storage.delete_all_sessions(uuid).await {
-                        log::error!(
-                            "End session (uuid) requested, but could not end session: {:?}",
-                            e
-                        );
-                    }
-                }
-            });
+                });
+            } else {
+                log::error!("Requested session reset but no service address associated");
+            }
         }
 
         if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
@@ -463,7 +455,7 @@ impl ClientActor {
             return None;
         };
 
-        let mut new_message = crate::store::NewMessage {
+        let new_message = crate::store::NewMessage {
             source_e164,
             source_uuid,
             text,
@@ -485,25 +477,7 @@ impl ClientActor {
             quote_timestamp: msg.quote.as_ref().and_then(|x| x.id),
         };
 
-        let group = if let Some(group) = msg.group.as_ref() {
-            match group.r#type() {
-                GroupType::Update => {
-                    new_message.text = String::from("Group was updated");
-                }
-                GroupType::Quit => {
-                    new_message.text = String::from("Member left group");
-                }
-                t => log::warn!("Unhandled group type {:?}", t),
-            }
-
-            Some(
-                storage.fetch_or_insert_session_by_group_v1(&crate::store::GroupV1 {
-                    id: group.id().to_vec(),
-                    name: group.name().to_string(),
-                    members: group.members_e164.clone(),
-                }),
-            )
-        } else if let Some(group) = msg.group_v2.as_ref() {
+        let group = if let Some(group) = msg.group_v2.as_ref() {
             let mut key_stack = [0u8; zkgroup::GROUP_MASTER_KEY_LEN];
             key_stack.clone_from_slice(group.master_key.as_ref().expect("group message with key"));
             let key = GroupMasterKey::new(key_stack);
@@ -517,12 +491,12 @@ impl ClientActor {
             // XXX handle group.group_change like a real client
             if let Some(_change) = group.group_change.as_ref() {
                 log::warn!("We're not handling raw group changes yet. Let's trigger a group refresh for now.");
-                ctx.notify(RequestGroupV2Info(store_v2.clone()));
+                ctx.notify(RequestGroupV2Info(store_v2.clone(), key_stack));
             } else if !storage.group_v2_exists(&store_v2) {
                 log::info!(
                     "We don't know this group. We'll request it's structure from the server."
                 );
-                ctx.notify(RequestGroupV2Info(store_v2.clone()));
+                ctx.notify(RequestGroupV2Info(store_v2.clone(), key_stack));
             }
 
             Some(storage.fetch_or_insert_session_by_group_v2(&store_v2))
@@ -668,6 +642,9 @@ impl ClientActor {
                 Type::Keys => {
                     anyhow::bail!("Unimplemented {:?}", req.r#type());
                 }
+                Type::PniIdentity => {
+                    anyhow::bail!("Unimplemented {:?}", req.r#type());
+                },
             };
 
             Ok::<_, anyhow::Error>(())
@@ -691,17 +668,12 @@ impl ClientActor {
 
         let timestamp = millis_to_naive_chrono(millis);
         log::trace!(
-            "Marking message from {} at {} ({}) as received.",
+            "Marking message from {:?} at {} ({}) as received.",
             source,
             timestamp,
             millis
         );
-        if let Some((sess, msg)) = storage.mark_message_received(
-            source.e164().as_deref(),
-            source.uuid.as_ref().map(uuid::Uuid::to_string).as_deref(),
-            timestamp,
-            None,
-        ) {
+        if let Some((sess, msg)) = storage.mark_message_received(source.uuid, timestamp, None) {
             self.inner
                 .pinned()
                 .borrow_mut()
@@ -717,13 +689,15 @@ impl ClientActor {
         let storage = self.storage.clone().expect("storage initialized");
 
         match body {
+            ContentBody::NullMessage(_message) => {
+                log::trace!("Ignoring NullMessage");
+            }
             ContentBody::DataMessage(message) => {
-                let e164 = metadata.sender.e164();
-                let uuid = metadata.sender.uuid.map(|uuid| uuid.to_string());
+                let uuid = metadata.sender.uuid;
                 let message_id = self.handle_message(
                     ctx,
-                    e164.clone(),
-                    uuid.clone(),
+                    None,
+                    Some(uuid.to_string()),
                     &message,
                     false,
                     &metadata,
@@ -738,7 +712,7 @@ impl ClientActor {
                     //       if the contact should not yet have our profile key, this is ok, and we
                     //       should offer the user a message request.
                     //       Cfr. MessageContentProcessor, grep for handleNeedsDeliveryReceipt.
-                    log::warn!("Received an unsealed message from {:?}/{:?}. Assert that they have our profile key.", uuid, e164);
+                    log::warn!("Received an unsealed message from {:?}. Assert that they have our profile key.", metadata.sender);
                 }
             }
             ContentBody::SynchronizeMessage(message) => {
@@ -777,7 +751,7 @@ impl ClientActor {
                     for read in &message.read {
                         // XXX: this should probably not be based on ts alone.
                         let ts = read.timestamp();
-                        let source = read.sender_e164();
+                        let source = read.sender_uuid();
                         // Signal uses timestamps in milliseconds, chrono has nanoseconds
                         let ts = millis_to_naive_chrono(ts);
                         log::trace!(
@@ -810,6 +784,11 @@ impl ClientActor {
                             // XXX
                             log::warn!("Unimplemented: synchronize fetch request StorageManifest")
                         }
+                        sync_message::fetch_latest::Type::SubscriptionStatus => {
+                            log::warn!(
+                                "Unimplemented: synchronize fetch request SubscriptionStatus"
+                            )
+                        }
                     }
                 }
                 if !handled {
@@ -817,7 +796,7 @@ impl ClientActor {
                 }
             }
             ContentBody::TypingMessage(typing) => {
-                log::info!("{} is typing.", metadata.sender);
+                log::info!("{:?} is typing.", metadata.sender);
                 let res = self
                     .inner
                     .pinned()
@@ -834,18 +813,12 @@ impl ClientActor {
                 }
             }
             ContentBody::ReceiptMessage(receipt) => {
-                log::info!("{} received a message.", metadata.sender);
+                log::info!("{:?} received a message.", metadata.sender);
                 // XXX dispatch on receipt.type
                 for &ts in &receipt.timestamp {
                     // Signal uses timestamps in milliseconds, chrono has nanoseconds
                     if let Some((sess, msg)) = storage.mark_message_received(
-                        metadata.sender.e164().as_deref(),
-                        metadata
-                            .sender
-                            .uuid
-                            .as_ref()
-                            .map(uuid::Uuid::to_string)
-                            .as_deref(),
+                        metadata.sender.uuid,
                         millis_to_naive_chrono(ts),
                         None,
                     ) {
@@ -859,7 +832,7 @@ impl ClientActor {
                 }
             }
             ContentBody::CallMessage(_call) => {
-                log::info!("{} is calling.", metadata.sender);
+                log::info!("{:?} is calling.", metadata.sender);
             }
         }
     }
@@ -1127,15 +1100,10 @@ impl Handler<SendMessage> for ClientActor {
         let addr = ctx.address();
         Box::pin(
             async move {
-                let group = if let orm::SessionType::GroupV1(group) = &session.r#type {
-                    Some(GroupContext {
-                        id: Some(hex::decode(&group.id).expect("hex encoded group id")),
-                        r#type: Some(GroupType::Deliver.into()),
-                        ..Default::default()
-                    })
-                } else {
-                    None
-                };
+                if let orm::SessionType::GroupV1(_group) = &session.r#type {
+                    // FIXME
+                    log::error!("Cannot send to Group V1 anymore.");
+                }
                 let group_v2 = if let orm::SessionType::GroupV2(group) = &session.r#type {
                     let master_key = hex::decode(&group.master_key).expect("hex group id in db");
                     Some(GroupContextV2 {
@@ -1161,7 +1129,6 @@ impl Handler<SendMessage> for ClientActor {
 
                     Quote {
                         id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
-                        author_e164: quote_sender.as_ref().and_then(|r| r.e164.clone()),
                         author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.clone()),
                         text: quoted_message.text.clone(),
 
@@ -1179,7 +1146,6 @@ impl Handler<SendMessage> for ClientActor {
                     timestamp: Some(timestamp),
                     // XXX: depends on the features in the message!
                     required_protocol_version: Some(0),
-                    group,
                     group_v2,
 
                     profile_key: self_recipient.and_then(|r| r.profile_key),
@@ -1229,29 +1195,9 @@ impl Handler<SendMessage> for ClientActor {
                 log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
 
                 match &session.r#type {
-                    orm::SessionType::GroupV1(group) => {
-                        let members = storage.fetch_group_members_by_group_v1_id(&group.id);
-                        let members = members
-                            .iter()
-                            .filter_map(|(_member, recipient)| {
-                                let member = recipient.to_service_address();
-
-                                if local_addr.matches(&member) {
-                                    None
-                                } else {
-                                    Some(member)
-                                }
-                            })
-                            .collect::<Vec<_>>();
-                        // Clone + async closure means we can use an immutable borrow.
-                        let results = sender
-                            .send_message_to_group(&members, None, content, timestamp, online)
-                            .await;
-                        for result in results {
-                            if let Err(e) = result {
-                                anyhow::bail!("Error sending message: {}", e);
-                            }
-                        }
+                    orm::SessionType::GroupV1(_group) => {
+                        // FIXME
+                        log::error!("Cannot send to Group V1 anymore.");
                     }
                     orm::SessionType::GroupV2(group) => {
                         let members = storage.fetch_group_members_by_group_v2_id(&group.id);
@@ -1260,10 +1206,13 @@ impl Handler<SendMessage> for ClientActor {
                             .filter_map(|(_member, recipient)| {
                                 let member = recipient.to_service_address();
 
-                                if local_addr.matches(&member) {
+                                if Some(local_addr) == member {
                                     None
                                 } else {
-                                    Some(member)
+                                    if member.is_none() {
+                                        log::warn!("No known UUID for {}; will not send this message.", recipient.e164_or_uuid());
+                                    }
+                                    member
                                 }
                             })
                             .collect::<Vec<_>>();
@@ -1279,29 +1228,33 @@ impl Handler<SendMessage> for ClientActor {
                         }
                     }
                     orm::SessionType::DirectMessage(recipient) => {
-                        let recipient = recipient.to_service_address();
+                        let svc = recipient.to_service_address();
 
-                        if let Err(e) = sender
-                            .send_message(&recipient, None, content.clone(), timestamp, online)
-                            .await
-                        {
-                            storage.fail_message(mid);
+                        if let Some(svc) = svc {
+                            if let Err(e) = sender
+                                .send_message(&svc, None, content.clone(), timestamp, online)
+                                .await
+                            {
+                                storage.fail_message(mid);
 
-                            // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
-                            let recaptcha = String::from("recaptcha");
-                            if let MessageSenderError::ProofRequired { token, options } = &e {
-                                if options.contains(&recaptcha) {
-                                    addr.send(ProofRequired {
-                                        token: token.to_owned(),
-                                        r#type: recaptcha,
-                                    })
-                                    .await
-                                    .expect("deliver captcha required");
-                                } else {
-                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
+                                // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
+                                let recaptcha = String::from("recaptcha");
+                                if let MessageSenderError::ProofRequired { token, options } = &e {
+                                    if options.contains(&recaptcha) {
+                                        addr.send(ProofRequired {
+                                            token: token.to_owned(),
+                                            r#type: recaptcha,
+                                        })
+                                        .await
+                                        .expect("deliver captcha required");
+                                    } else {
+                                        log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
+                                    }
                                 }
+                                anyhow::bail!("Error sending message: {}", e);
                             }
-                            anyhow::bail!("Error sending message: {}", e);
+                        } else {
+                            anyhow::bail!("No UUID for {}; will not send message", recipient.e164_or_uuid());
                         }
                     }
                 }
@@ -1435,29 +1388,9 @@ impl Handler<SendTypingNotification> for ClientActor {
                 log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
 
                 match &session.r#type {
-                    orm::SessionType::GroupV1(group) => {
-                        let members = storage.fetch_group_members_by_group_v1_id(&group.id);
-                        let members = members
-                            .iter()
-                            .filter_map(|(_member, recipient)| {
-                                let member = recipient.to_service_address();
-
-                                if local_addr.matches(&member) {
-                                    None
-                                } else {
-                                    Some(member)
-                                }
-                            })
-                            .collect::<Vec<_>>();
-                        // Clone + async closure means we can use an immutable borrow.
-                        let results = sender
-                            .send_message_to_group(&members, None, content, timestamp, online)
-                            .await;
-                        for result in results {
-                            if let Err(e) = result {
-                                anyhow::bail!("Error sending message: {}", e);
-                            }
-                        }
+                    orm::SessionType::GroupV1(_group) => {
+                        // FIXME
+                        log::error!("Cannot send to Group V1 anymore.");
                     }
                     orm::SessionType::GroupV2(group) => {
                         let members = storage.fetch_group_members_by_group_v2_id(&group.id);
@@ -1466,10 +1399,16 @@ impl Handler<SendTypingNotification> for ClientActor {
                             .filter_map(|(_member, recipient)| {
                                 let member = recipient.to_service_address();
 
-                                if local_addr.matches(&member) {
+                                if Some(local_addr) == member {
                                     None
                                 } else {
-                                    Some(member)
+                                    if member.is_none() {
+                                        log::warn!(
+                                            "No known UUID for {}; will not send this message.",
+                                            recipient.e164_or_uuid()
+                                        );
+                                    }
+                                    member
                                 }
                             })
                             .collect::<Vec<_>>();
@@ -1484,13 +1423,15 @@ impl Handler<SendTypingNotification> for ClientActor {
                         }
                     }
                     orm::SessionType::DirectMessage(recipient) => {
-                        let recipient = recipient.to_service_address();
+                        let svc = recipient.to_service_address();
 
-                        if let Err(e) = sender
-                            .send_message(&recipient, None, content.clone(), timestamp, online)
-                            .await
-                        {
-                            anyhow::bail!("Error sending message: {}", e);
+                        if let Some(svc) = svc {
+                            if let Err(e) = sender
+                                .send_message(&svc, None, content.clone(), timestamp, online)
+                                .await
+                            {
+                                anyhow::bail!("Error sending message: {}", e);
+                            }
                         }
                     }
                 }
@@ -1580,12 +1521,9 @@ impl Handler<StorageReady> for ClientActor {
                 // end store credentials
 
                 // Signal service context
-                let local_addr = ServiceAddress {
-                    uuid,
-                    phonenumber: Some(phonenumber),
-                    relay: None,
-                };
                 let storage = act.storage.clone().unwrap();
+                // XXX What about the whoami migration?
+                let uuid = uuid.expect("local uuid to initialize service cipher");
                 let cipher = ServiceCipher::new(
                     storage.clone(),
                     storage.clone(),
@@ -1594,12 +1532,12 @@ impl Handler<StorageReady> for ClientActor {
                     storage,
                     rand::thread_rng(),
                     service_cfg.unidentified_sender_trust_root,
-                    uuid.expect("local uuid to initialize service cipher"),
+                    uuid,
                     device_id.into(),
                 );
                 // end signal service context
                 act.cipher = Some(cipher);
-                act.local_addr = Some(local_addr);
+                act.local_addr = Some(ServiceAddress { uuid });
 
                 Self::queue_migrations(ctx);
 
@@ -1881,7 +1819,7 @@ impl Handler<Register> for ClientActor {
 pub struct ConfirmRegistration {
     pub phonenumber: PhoneNumber,
     pub password: String,
-    pub confirm_code: u32,
+    pub confirm_code: String,
     pub signaling_key: [u8; 52],
 }
 
@@ -2237,7 +2175,7 @@ impl Handler<ProofResponse> for ClientActor {
         });
 
         let service = self.authenticated_service();
-        let mut am = AccountManager::new(service, profile_key.map(|key| key.get_bytes()));
+        let mut am = AccountManager::new(service, profile_key);
 
         let addr = ctx.address();
 

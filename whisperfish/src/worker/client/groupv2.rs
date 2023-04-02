@@ -2,7 +2,7 @@ use super::*;
 use crate::store::{observer::PrimaryKey, GroupV2, TrustLevel};
 use actix::prelude::*;
 use diesel::prelude::*;
-use libsignal_service::groups_v2::*;
+use libsignal_service::groups_v2::{self, *};
 use qmeta_async::with_executor;
 use tokio::io::AsyncWriteExt;
 
@@ -14,7 +14,7 @@ pub struct RequestGroupV2InfoBySessionId(pub i32);
 #[derive(Message)]
 #[rtype(result = "()")]
 /// Request group v2 metadata from server
-pub struct RequestGroupV2Info(pub GroupV2);
+pub struct RequestGroupV2Info(pub GroupV2, pub [u8; zkgroup::GROUP_MASTER_KEY_LEN]);
 
 impl ClientWorker {
     #[with_executor]
@@ -36,7 +36,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
 
     fn handle(
         &mut self,
-        RequestGroupV2Info(request): RequestGroupV2Info,
+        RequestGroupV2Info(request, master_key): RequestGroupV2Info,
         ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.clone().unwrap();
@@ -53,9 +53,10 @@ impl Handler<RequestGroupV2Info> for ClientActor {
             async move {
                 let mut credential_cache = storage.credential_cache_mut().await;
                 let mut gm =
-                    GroupsManager::new(authenticated_service, &mut *credential_cache, zk_params);
-                let credentials = gm.get_authorization_for_today(uuid, request.secret).await?;
-                let group = gm.get_group(request.secret, credentials).await?;
+                    GroupsManager::new(uuid, authenticated_service, &mut *credential_cache, zk_params);
+                let group = gm.fetch_encrypted_group(&master_key).await?;
+                let group = groups_v2::decrypt_group(&master_key, group)?;
+                // let group = gm.decrypt_
                 // We now know the group's name and properties
                 // XXX this is an assumption that we might want to check.
                 let acl = group
@@ -75,7 +76,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                                 Some(&group.avatar)
                             }),
                             // TODO: maybe rename the SQLite column to version
-                            revision.eq(group.version as i32),
+                            revision.eq(group.revision as i32),
                             invite_link_password.eq(&group.invite_link_password),
                             access_required_for_attributes.eq(acl.attributes),
                             access_required_for_members.eq(acl.members),
@@ -281,7 +282,7 @@ impl Handler<RequestGroupV2InfoBySessionId> for ClientActor {
                     secret,
                     revision: group_v2.revision as _,
                 };
-                ctx.notify(RequestGroupV2Info(store_v2));
+                ctx.notify(RequestGroupV2Info(store_v2, key_stack));
             }
             _ => {
                 log::warn!("No group_v2 with session id {}", sid);
@@ -324,6 +325,7 @@ impl Handler<RefreshGroupAvatar> for ClientActor {
 
         let service = self.authenticated_service();
         let zk_params = self.service_cfg().zkgroup_server_public_params;
+        let uuid = self.uuid().expect("whoami");
         ctx.spawn(
             async move {
                 let master_key = hex::decode(&master_key).expect("hex group key in db");
@@ -333,7 +335,7 @@ impl Handler<RefreshGroupAvatar> for ClientActor {
                 let secret = GroupSecretParams::derive_from_master_key(key);
 
                 let mut credential_cache = storage.credential_cache_mut().await;
-                let mut gm = GroupsManager::new(service, &mut *credential_cache, zk_params);
+                let mut gm = GroupsManager::new(uuid, service, &mut *credential_cache, zk_params);
 
                 let avatar = gm.retrieve_avatar(&avatar, secret).await?;
                 Ok((group_id, avatar))

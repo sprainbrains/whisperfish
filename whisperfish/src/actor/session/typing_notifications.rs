@@ -99,8 +99,8 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
             for typing in &typings {
                 // XXX check whether certain is allowed here
                 let sender_recipient = storage.merge_and_fetch_recipient(
-                    typing.sender.e164().as_deref(),
-                    typing.sender.uuid.map(|x| x.to_string()).as_deref(),
+                    None,
+                    Some(&typing.sender.uuid.to_string()),
                     crate::store::TrustLevel::Certain,
                 );
                 let session = match typing.inner.group_id.as_ref().map(hex::encode) {
