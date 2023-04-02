@@ -225,6 +225,7 @@ pub struct Storage {
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
     path: PathBuf,
+    identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
 }
 
 /// Fetches an `orm::Session`, for which the supplied closure can impose constraints.
@@ -386,6 +387,7 @@ impl Storage {
                 InMemoryCredentialsCache::default(),
             )),
             path: path.to_path_buf(),
+            identity_key_pair: Arc::new(tokio::sync::RwLock::new(Some(identity_key_pair))),
         })
     }
 
@@ -415,7 +417,7 @@ impl Storage {
 
         let protocol_store = ProtocolStore::open().await;
 
-        Ok(Storage {
+        let storage = Storage {
             db: Arc::new(AssertUnwindSafe(Mutex::new(db))),
             observatory: Default::default(),
             config,
@@ -425,7 +427,10 @@ impl Storage {
                 InMemoryCredentialsCache::default(),
             )),
             path: path.to_path_buf(),
-        })
+            identity_key_pair: Arc::new(tokio::sync::RwLock::new(None)),
+        };
+
+        Ok(storage)
     }
 
     async fn open_db<T: AsRef<Path>>(
@@ -2427,7 +2432,9 @@ mod tests {
             signaling_key,
             None,
         )
-        .await?;
+        .await;
+        assert!(storage.is_ok(), "{}", storage.err().unwrap());
+        let storage = storage.unwrap();
 
         macro_rules! tests {
             ($storage:ident) => {{
@@ -2463,7 +2470,9 @@ mod tests {
             &location,
             storage_password,
         )
-        .await?;
+        .await;
+        assert!(storage.is_ok(), "{}", storage.err().unwrap());
+        let storage = storage.unwrap();
 
         tests!(storage)?;
 

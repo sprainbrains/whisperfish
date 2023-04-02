@@ -91,25 +91,40 @@ impl protocol::IdentityKeyStore for Storage {
         &self,
         _: Context,
     ) -> Result<IdentityKeyPair, SignalProtocolError> {
-        log::trace!("Reading own identity key pair");
-        let _lock = self.protocol_store.read().await;
+        let identity_key_pair = self.identity_key_pair.read().await;
 
-        let path = self
-            .path
-            .join("storage")
-            .join("identity")
-            .join("identity_key");
-        let identity_key_pair = {
-            use std::convert::TryFrom;
-            let mut buf = self.read_file(path).await.map_err(|e| {
-                SignalProtocolError::InvalidArgument(format!("Cannot read own identity key {}", e))
-            })?;
-            buf.insert(0, DJB_TYPE);
-            let public = IdentityKey::decode(&buf[0..33])?;
-            let private = PrivateKey::try_from(&buf[33..])?;
-            IdentityKeyPair::new(public, private)
-        };
-        Ok(identity_key_pair)
+        if identity_key_pair.is_none() {
+            drop(identity_key_pair);
+
+            let mut identity_key_pair = self.identity_key_pair.write().await;
+
+            let _lock = self.protocol_store.read().await;
+
+            log::trace!("Reading own identity key pair");
+            let path = self
+                .path
+                .join("storage")
+                .join("identity")
+                .join("identity_key");
+            let key_pair = {
+                use std::convert::TryFrom;
+                let mut buf = self.read_file(path).await.map_err(|e| {
+                    SignalProtocolError::InvalidArgument(format!(
+                        "Cannot read own identity key {}",
+                        e
+                    ))
+                })?;
+                buf.insert(0, DJB_TYPE);
+                let public = IdentityKey::decode(&buf[0..33])?;
+                let private = PrivateKey::try_from(&buf[33..])?;
+                IdentityKeyPair::new(public, private)
+            };
+            *identity_key_pair = Some(key_pair);
+            Ok(identity_key_pair.unwrap())
+        } else {
+            log::trace!("Cached identity key pair");
+            Ok(identity_key_pair.unwrap())
+        }
     }
 
     async fn get_local_registration_id(&self, _: Context) -> Result<u32, SignalProtocolError> {
