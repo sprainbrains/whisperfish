@@ -598,7 +598,7 @@ impl Storage {
 mod tests {
     use std::sync::Arc;
 
-    use libsignal_service::prelude::protocol::*;
+    use libsignal_service::{prelude::protocol::*, ServiceAddress};
     use rstest::rstest;
 
     use crate::config::SignalConfig;
@@ -640,14 +640,16 @@ mod tests {
         Ok((storage, location))
     }
 
-    fn create_random_protocol_address() -> ProtocolAddress {
+    fn create_random_protocol_address() -> (ServiceAddress, ProtocolAddress) {
         use rand::Rng;
         let mut rng = rand::thread_rng();
 
         let user_id = uuid::Uuid::new_v4();
         let device_id = rng.gen_range(2, 20);
 
-        ProtocolAddress::new(user_id.to_string(), DeviceId::from(device_id))
+        let svc = ServiceAddress::from(user_id);
+        let prot = ProtocolAddress::new(user_id.to_string(), DeviceId::from(device_id));
+        (svc, prot)
     }
 
     fn create_random_identity_key() -> IdentityKey {
@@ -735,8 +737,8 @@ mod tests {
         let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
 
         // We need two identity keys and two addresses
-        let addr1 = create_random_protocol_address();
-        let addr2 = create_random_protocol_address();
+        let (_svc1, addr1) = create_random_protocol_address();
+        let (_svc2, addr2) = create_random_protocol_address();
         let key1 = create_random_identity_key();
         let key2 = create_random_identity_key();
 
@@ -782,7 +784,7 @@ mod tests {
         let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
 
         // We need two identity keys and two addresses
-        let addr1 = create_random_protocol_address();
+        let (_, addr1) = create_random_protocol_address();
         let key1 = create_random_identity_key();
         let key2 = create_random_identity_key();
 
@@ -954,9 +956,9 @@ mod tests {
         let (mut storage, _tempdir) = create_example_storage(password).await.unwrap();
 
         // Collection of some addresses and sessions
-        let addr1 = create_random_protocol_address();
-        let addr2 = create_random_protocol_address();
-        let addr3 = create_random_protocol_address();
+        let (_svc1, addr1) = create_random_protocol_address();
+        let (_svc2, addr2) = create_random_protocol_address();
+        let (svc3, addr3) = create_random_protocol_address();
         let addr4 = ProtocolAddress::new(
             addr3.name().to_string(),
             DeviceId::from(u32::from(addr3.device_id()) + 1),
@@ -1017,7 +1019,7 @@ mod tests {
             .expect("Overwrite session");
 
         // Get all device ids for the same address
-        let mut ids = storage.get_sub_device_sessions(addr3.name()).await.unwrap();
+        let mut ids = storage.get_sub_device_sessions(&svc3).await.unwrap();
         ids.sort_unstable();
         assert_eq!(
             DeviceId::from(ids[0]),
@@ -1029,7 +1031,7 @@ mod tests {
         );
 
         // If we call delete all sessions, all sessions of one person/address should be removed
-        assert_eq!(storage.delete_all_sessions(addr3.name()).await.unwrap(), 2);
+        assert_eq!(storage.delete_all_sessions(&svc3).await.unwrap(), 2);
         assert!(storage.load_session(&addr3, None).await.unwrap().is_none());
         assert!(storage.load_session(&addr4, None).await.unwrap().is_none());
 
