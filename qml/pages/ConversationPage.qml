@@ -184,6 +184,7 @@ Page {
             showSeparator: !messages.atYEnd || quotedMessageShown
             editor.onFocusChanged: if (editor.focus) panel.show()
             dockMoving: panel.moving
+            recipientIsRegistered: session.isRegistered // true for any group
 
             Component.onCompleted: text = session.draft
 

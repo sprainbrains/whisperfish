@@ -23,10 +23,11 @@ Item {
     property int maxHeight: 3*Theme.itemSizeLarge // TODO adapt based on screen size
     property bool showSeparator: false
     property bool clearAfterSend: true
-    property bool enableSending: true
+    property bool enableSending: recipientIsRegistered
     property bool enableAttachments: true
     property bool dockMoving
     property bool enableTypingIndicators: SettingsBridge.enable_typing_indicators
+    property bool recipientIsRegistered: true
 
     readonly property bool quotedMessageShown: quoteItem.messageId >= 0
     readonly property bool canSend: enableSending &&
@@ -202,14 +203,22 @@ Item {
                 hideLabelOnEmptyField: false
                 textRightMargin: 0
                 font.pixelSize: Theme.fontSizeSmall
-                placeholderText: ((enablePersonalizedPlaceholder || isLandscape) && placeholderContactName.length > 0) ?
-                                     //: Personalized placeholder for chat input, e.g. "Hi John"
-                                     //% "Hi %1"
-                                     qsTrId("whisperfish-chat-input-placeholder-personal").arg(
-                                         placeholderContactName) :
-                                     //: Generic placeholder for chat input
-                                     //% "Write a message"
-                                     qsTrId("whisperfish-chat-input-placeholder-default")
+                placeholderText: if (!recipientIsRegistered) {
+                        //: Chat text input placeholder for deleted/unregistered recipient
+                        //% "The recipient is not registered"
+                        qsTrId("whisperfish-chat-input-recipient-is-unregistered")
+                    }
+                    else if ((enablePersonalizedPlaceholder || isLandscape) && placeholderContactName.length > 0) {
+                        //: Personalized placeholder for chat input, e.g. "Hi John"
+                        //% "Hi %1"
+                        qsTrId("whisperfish-chat-input-placeholder-personal").arg(placeholderContactName)
+                    }
+                    else {
+                        //: Generic placeholder for chat input
+                        //% "Write a message"
+                        qsTrId("whisperfish-chat-input-placeholder-default")
+                    }
+
                 EnterKey.onClicked: {
                     if (canSend && SettingsBridge.enable_enter_send) {
                         _send()
@@ -226,6 +235,7 @@ Item {
 
             IconButton {
                 id: moreButton
+                enabled: enableSending
                 anchors {
                     right: sendButton.left; rightMargin: Theme.paddingSmall
                     bottom: parent.bottom; bottomMargin: Theme.paddingMedium
