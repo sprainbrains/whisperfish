@@ -2172,7 +2172,7 @@ impl Handler<ProofResponse> for ClientActor {
         });
 
         let service = self.authenticated_service();
-        let mut am = AccountManager::new(service, profile_key.map(|key| key.get_bytes()));
+        let mut am = AccountManager::new(service, profile_key);
 
         let addr = ctx.address();
 
