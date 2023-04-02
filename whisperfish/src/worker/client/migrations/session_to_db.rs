@@ -505,22 +505,3 @@ impl SessionStorageMigration {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[actix_rt::test]
-    async fn name_parsing() {
-        assert_eq!(
-            name_to_service_addr("32474123456").unwrap().identifier(),
-            "+32474123456"
-        );
-        assert_eq!(
-            name_to_service_addr("64d41108-1d4b-4b71-91b8-4e0fb7cad444")
-                .unwrap()
-                .identifier(),
-            "64d41108-1d4b-4b71-91b8-4e0fb7cad444"
-        );
-    }
-}
