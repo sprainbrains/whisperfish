@@ -6,7 +6,6 @@ use actix::prelude::*;
 use libsignal_service::prelude::protocol;
 use libsignal_service::prelude::protocol::ProtocolAddress;
 use protocol::SignalProtocolError;
-use std::convert::TryFrom;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -54,6 +53,23 @@ fn option_warn<T>(o: Option<T>, s: &'static str) -> Option<T> {
         log::warn!("{}", s)
     }
     o
+}
+
+fn name_to_protocol_addr(name: &str, id: u32) -> Option<ProtocolAddress> {
+    if let Ok(uuid) = uuid::Uuid::parse_str(name) {
+        return Some(ProtocolAddress::new(uuid.to_string(), id.into()));
+    }
+
+    let phonenumbers = [name, &format!("+{}", name)];
+    for pn in &phonenumbers {
+        if let Ok(addr) = phonenumber::parse(None, pn) {
+            return Some(ProtocolAddress::new(
+                addr.format().mode(phonenumber::Mode::E164).to_string(),
+                id.into(),
+            ));
+        }
+    }
+    None
 }
 
 impl SessionStorageMigration {
@@ -297,8 +313,8 @@ impl SessionStorageMigration {
                 let id = option_warn(split.next(), "no session id; skipping")?;
                 let id: u32 = option_warn(id.parse().ok(), "unparseable session id")?;
 
-                let svc = option_warn(ServiceAddress::try_from(name).ok(), "unparsable file name")?;
-                Some(svc.to_protocol_address(id))
+                let addr = option_warn(name_to_protocol_addr(name, id), "unparsable file name")?;
+                Some(addr)
             });
 
         // Now read the files, put them in the database, and remove the file
@@ -393,9 +409,12 @@ impl SessionStorageMigration {
                 }
 
                 let addr = &name["remote_".len()..];
-                let svc = option_warn(ServiceAddress::try_from(addr).ok(), "unparsable file name")?;
+                let addr = option_warn(
+                    name_to_protocol_addr(addr, DEFAULT_DEVICE_ID),
+                    "unparsable file name",
+                )?;
 
-                Some(svc.to_protocol_address(DEFAULT_DEVICE_ID))
+                Some(addr)
             });
 
         for addr in identities {
