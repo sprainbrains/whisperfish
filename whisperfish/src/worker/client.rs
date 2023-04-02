@@ -689,6 +689,9 @@ impl ClientActor {
         let storage = self.storage.clone().expect("storage initialized");
 
         match body {
+            ContentBody::NullMessage(_message) => {
+                log::trace!("Ignoring NullMessage");
+            }
             ContentBody::DataMessage(message) => {
                 let uuid = metadata.sender.uuid;
                 let message_id = self.handle_message(
