@@ -232,7 +232,7 @@ test:stable:
   needs:
     - build:host:stable
   script:
-    - cargo test --features bundled-sqlcipher
+    - cargo test --features whisperfish/bundled-sqlcipher
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
