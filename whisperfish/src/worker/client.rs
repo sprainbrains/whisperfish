@@ -1214,7 +1214,7 @@ impl Handler<SendMessage> for ClientActor {
                     }
                     Err(e) => {
                         storage.fail_message(mid);
-                        anyhow::bail!("Could not deliver message: {}", e)
+                        Err(e)
                     }
                 }
             }
@@ -1410,7 +1410,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                         .await;
                     for result in results {
                         if let Err(e) = result {
-                            anyhow::bail!("Error delivering message: {}", e);
+                            anyhow::bail!(e)
                         }
                     }
                 }
@@ -1419,37 +1419,17 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
 
                     if let Some(svc) = svc {
                         if !recipient.is_registered {
-                            anyhow::bail!(
-                                "Unregistered recipient {:?}; won't send message",
-                                svc.uuid.to_string()
-                            );
+                            anyhow::bail!("Unregistered recipient {}", svc.uuid.to_string());
                         }
 
                         if let Err(e) = sender
                             .send_message(&svc, None, content.clone(), timestamp, online)
                             .await
                         {
-                            // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
-                            let recaptcha = String::from("recaptcha");
-                            if let MessageSenderError::ProofRequired { token, options } = &e {
-                                if options.contains(&recaptcha) {
-                                    addr.send(ProofRequired {
-                                        token: token.to_owned(),
-                                        r#type: recaptcha,
-                                    })
-                                    .await
-                                    .expect("deliver captcha required");
-                                } else {
-                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
-                                }
-                            }
-                            anyhow::bail!("Error sending message: {}", e);
+                            anyhow::bail!(e);
                         }
                     } else {
-                        anyhow::bail!(
-                            "No UUID for {}; will not send message",
-                            recipient.e164_or_uuid()
-                        );
+                        anyhow::bail!("Recipient id {} has no UUID", recipient.id);
                     }
                 }
             }
