@@ -282,7 +282,7 @@ impl ClientActor {
             rand::thread_rng(),
             storage.clone(),
             storage,
-            self.local_addr.clone().unwrap(),
+            self.local_addr.unwrap(),
             self.config.get_device_id(),
         )
     }
@@ -578,7 +578,7 @@ impl ClientActor {
         use sync_message::request::Type;
         log::trace!("Processing sync request {:?}", req.r#type());
 
-        let local_addr = self.local_addr.clone().unwrap();
+        let local_addr = self.local_addr.unwrap();
         let storage = self.storage.clone().unwrap();
         let mut sender = self.message_sender();
 
@@ -1095,7 +1095,7 @@ impl Handler<SendMessage> for ClientActor {
         log::trace!("Sending for session: {:?}", session);
         log::trace!("Sending message: {:?}", msg.inner);
 
-        let local_addr = self.local_addr.clone().unwrap();
+        let local_addr = self.local_addr.unwrap();
         let storage = storage.clone();
         let addr = ctx.address();
         Box::pin(
@@ -1359,7 +1359,7 @@ impl Handler<SendTypingNotification> for ClientActor {
         let timestamp = Utc::now().timestamp_millis() as u64;
         self.typing_message_timestamps.insert(timestamp);
 
-        let local_addr = self.local_addr.clone().unwrap();
+        let local_addr = self.local_addr.unwrap();
         let storage = storage.clone();
         Box::pin(
             async move {
@@ -1512,7 +1512,7 @@ impl Handler<StorageReady> for ClientActor {
                 // Store credentials
                 let credentials = ServiceCredentials {
                     uuid,
-                    phonenumber: phonenumber.clone(),
+                    phonenumber,
                     password: Some(password),
                     signaling_key,
                     device_id: Some(device_id.into()),
