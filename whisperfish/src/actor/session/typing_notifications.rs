@@ -1,3 +1,5 @@
+use crate::store::orm::shorten;
+
 use super::*;
 use chrono::prelude::*;
 use libsignal_service::{
@@ -103,14 +105,15 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
                     Some(&typing.sender.uuid.to_string()),
                     crate::store::TrustLevel::Certain,
                 );
-                let session = match typing.inner.group_id.as_ref().map(hex::encode) {
+                let group_id = typing.inner.group_id.as_ref().map(hex::encode);
+                let session = match &group_id {
                     // Group V1
                     Some(group_id) if group_id.len() == 32 => {
-                        storage.fetch_session_by_group_v1_id(&group_id)
+                        storage.fetch_session_by_group_v1_id(group_id)
                     }
                     // Group V2
                     Some(group_id) if group_id.len() == 64 => {
-                        storage.fetch_session_by_group_v2_id(&group_id)
+                        storage.fetch_session_by_group_v2_id(group_id)
                     }
                     // Group version ?!?
                     Some(group_id) => {
@@ -122,11 +125,12 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
                 let session = if let Some(session) = session {
                     session
                 } else {
+                    let group_id = group_id.unwrap();
                     // XXX Don't bail for a single failure.
                     anyhow::bail!(
-                        "No session found for {:?} with group {:?}",
+                        "No session found for {} with group {:?}...",
                         sender_recipient,
-                        typing.inner.group_id
+                        shorten(&group_id, 12)
                     );
                 };
                 let session: &mut Vec<orm::Recipient> = map.entry(session.id).or_default();

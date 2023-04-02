@@ -1036,7 +1036,7 @@ impl Handler<QueueMessage> for ClientActor {
     type Result = ();
 
     fn handle(&mut self, msg: QueueMessage, ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("MessageActor::handle({:?})", msg);
+        log::trace!("MessageActor::handle({})", msg);
         let storage = self.storage.as_mut().unwrap();
 
         let has_attachment = !msg.attachment.is_empty();
@@ -1113,8 +1113,8 @@ impl Handler<SendMessage> for ClientActor {
         }
 
         let self_recipient = storage.fetch_self_recipient();
-        log::trace!("Sending for session: {:?}", session);
-        log::trace!("Sending message: {:?}", msg.inner);
+        log::trace!("Sending for session: {}", session);
+        log::trace!("Sending message: {}", msg.inner);
 
         let storage = storage.clone();
         let addr = ctx.address();
@@ -1299,14 +1299,19 @@ impl Handler<SendTypingNotification> for ClientActor {
         }: SendTypingNotification,
         ctx: &mut Self::Context,
     ) -> Self::Result {
-        log::info!("ClientActor::SendTypingNotification({:?})", session_id);
+        log::info!(
+            "ClientActor::SendTypingNotification({}, {})",
+            session_id,
+            is_start
+        );
+        let mut sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
         let addr = ctx.address();
 
         let session = storage.fetch_session_by_id(session_id).unwrap();
         assert_eq!(session_id, session.id);
 
-        log::trace!("Sending typing notification for session: {:?}", session);
+        log::trace!("Sending typing notification for session: {}", session);
 
         // Since we don't want to stress database needlessly,
         // cache the sent TypingMessage timestamps and try to
@@ -1478,7 +1483,7 @@ impl Handler<AttachmentDownloaded> for ClientActor {
         }: AttachmentDownloaded,
         _ctx: &mut Self::Context,
     ) {
-        log::info!("Attachment downloaded for message {:?}", mid);
+        log::info!("Attachment downloaded for message {}", mid);
         self.inner.pinned().borrow().attachmentDownloaded(sid, mid);
     }
 }
