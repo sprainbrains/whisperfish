@@ -1618,7 +1618,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#b348df18e7957cdb80f21296861b214cd423593c"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#975717c74696c75cbecbf124f2df0fb028e3d82e"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1650,7 +1650,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#b348df18e7957cdb80f21296861b214cd423593c"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#975717c74696c75cbecbf124f2df0fb028e3d82e"
 dependencies = [
  "actix",
  "actix-http",
