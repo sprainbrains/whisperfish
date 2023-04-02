@@ -15,7 +15,8 @@ impl Display for GroupV1 {
         write!(
             f,
             "GroupV1 {{ id: \"{}\", name: \"{}\" }}",
-            &self.id, &self.name
+            shorten(&self.id, 12),
+            &self.name
         )
     }
 }
@@ -51,12 +52,15 @@ impl Display for GroupV2 {
             Some(desc) => write!(
                 f,
                 "GroupV2 {{ id: \"{}\", name: \"{}\", description: \"{}\" }}",
-                &self.id, &self.name, desc
+                shorten(&self.id, 12),
+                &self.name,
+                desc
             ),
             None => write!(
                 f,
                 "GroupV2 {{ id: \"{}\", name: \"{}\" }}",
-                &self.id, &self.name
+                shorten(&self.id, 12),
+                &self.name
             ),
         }
     }
@@ -76,7 +80,9 @@ impl Display for GroupV2Member {
         write!(
             f,
             "GroupV2Member {{ group_v2_id: \"{}\", recipient_id: {}, member_since: \"{}\" }}",
-            &self.group_v2_id, &self.recipient_id, &self.member_since
+            shorten(&self.group_v2_id, 12),
+            &self.recipient_id,
+            &self.member_since
         )
     }
 }
@@ -113,7 +119,10 @@ impl Display for Message {
             (Some(text), Some(quote_id)) => write!(
                 f,
                 "Message {{ id: {}, session_id: {}, text: \"{}\", quote_id: {} }}",
-                &self.id, &self.session_id, text, quote_id
+                &self.id,
+                &self.session_id,
+                shorten(text, 9),
+                quote_id
             ),
             (None, Some(quote_id)) => write!(
                 f,
@@ -123,7 +132,9 @@ impl Display for Message {
             (Some(text), None) => write!(
                 f,
                 "Message {{ id: {}, session_id: {}, text: \"{}\" }}",
-                &self.id, &self.session_id, text
+                &self.id,
+                &self.session_id,
+                shorten(text, 9),
             ),
             (None, None) => write!(
                 f,
@@ -198,17 +209,24 @@ impl Display for Recipient {
             (Some(e164), Some(r_uuid)) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\" }}",
-                &self.id, profile_joined_name, e164, r_uuid
+                &self.id,
+                profile_joined_name,
+                shorten(e164, 6),
+                shorten(r_uuid, 9)
             ),
             (None, Some(r_uuid)) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\" }}",
-                &self.id, profile_joined_name, r_uuid
+                &self.id,
+                profile_joined_name,
+                shorten(r_uuid, 9)
             ),
             (Some(e164), None) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", INVALID }}",
-                &self.id, profile_joined_name, e164
+                &self.id,
+                profile_joined_name,
+                shorten(e164, 6)
             ),
             (None, None) => write!(
                 f,
@@ -232,7 +250,8 @@ impl Display for SessionRecord {
         write!(
             f,
             "SessionRecord {{ address: \"{}\", device_id: {} }}",
-            &self.address, &self.device_id
+            shorten(&self.address, 9),
+            &self.device_id
         )
     }
 }
@@ -246,7 +265,11 @@ pub struct IdentityRecord {
 
 impl Display for IdentityRecord {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
-        write!(f, "IdentityRecord {{ address: \"{}\" }}", &self.address)
+        write!(
+            f,
+            "IdentityRecord {{ address: \"{}\" }}",
+            shorten(&self.address, 9)
+        )
     }
 }
 
@@ -289,7 +312,9 @@ impl Display for SenderKeyRecord {
         write!(
             f,
             "SenderKeyRecord {{ address: \"{}\", device: {}, created_at: \"{}\" }}",
-            &self.address, &self.device, &self.created_at
+            shorten(&self.address, 9),
+            &self.device,
+            &self.created_at
         )
     }
 }
@@ -361,8 +386,8 @@ impl Display for DbSession {
         match (&self.direct_message_recipient_id, &self.group_v2_id) {
             (Some(r_id), Some(g_id)) => write!(
                 f,
-                "DbSession {{ id: {}, direct_message_recipient_id: {}, group_v2_id: \"{}\" }}",
-                &self.id, r_id, g_id
+                "DbSession {{ id: {}, direct_message_recipient_id: {}, group_v2_id: \"{}\", INVALID }}",
+                &self.id, r_id, shorten(g_id, 12)
             ),
             (Some(r_id), None) => write!(
                 f,
@@ -372,7 +397,7 @@ impl Display for DbSession {
             (_, Some(g_id)) => write!(
                 f,
                 "DbSession {{ id: {}, group_v2_id: \"{}\" }}",
-                &self.id, g_id
+                &self.id, shorten(g_id, 12)
             ),
             _ => write!(f, "DbSession {{ id: {}, INVALID }}", &self.id),
         }
@@ -956,6 +981,14 @@ impl AugmentedSession {
     }
 }
 
+pub fn shorten(text: &str, limit: usize) -> std::borrow::Cow<'_, str> {
+    if text.len() > limit {
+        format!("{}...", &text[..limit]).into()
+    } else {
+        text.into()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1168,9 +1201,12 @@ mod tests {
     #[test]
     fn display_recipient() {
         let mut r = get_recipient();
-        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" }");
         r.e164 = None;
-        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" }");
+        assert_eq!(
+            format!("{}", r),
+            "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-...\" }"
+        );
         r.uuid = None;
         r.profile_joined_name = None;
         assert_eq!(
@@ -1180,7 +1216,7 @@ mod tests {
         r.e164 = Some("+358401010102".to_string());
         assert_eq!(
             format!("{}", r),
-            "Recipient { id: 981, name: \"\", e164: \"+358401010102\", INVALID }"
+            "Recipient { id: 981, name: \"\", e164: \"+35840...\", INVALID }"
         );
     }
 
@@ -1257,7 +1293,7 @@ mod tests {
         };
         assert_eq!(
             format!("{}", s),
-            "DbSession { id: 55, direct_message_recipient_id: 413, group_v2_id: \"gv2_id\" }"
+            "DbSession { id: 55, direct_message_recipient_id: 413, group_v2_id: \"gv2_id\", INVALID }"
         );
         s.direct_message_recipient_id = None;
         assert_eq!(
@@ -1288,7 +1324,7 @@ mod tests {
     #[test]
     fn display_session() {
         let mut s = get_dm_session();
-        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }");
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }");
         s.r#type = SessionType::GroupV1(get_group_v1());
         assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
         s.r#type = SessionType::GroupV2(get_group_v2());
@@ -1328,9 +1364,9 @@ mod tests {
             inner: get_dm_session(),
             last_message: Some(get_augmented_message()),
         };
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
         s.last_message = None;
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+358401010101\", uuid: \"bff93979-a0fa-41f5-8ccf-e319135384d8\" } } }, last_message: None }");
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: None }");
     }
 
     #[test]
@@ -1437,5 +1473,12 @@ mod tests {
         assert_eq!(a.recipient_emoji(), "🦊");
         assert_eq!(a.recipient_about(), "About me!");
         assert!(!a.has_avatar());
+    }
+
+    #[test]
+    fn text_shortener() {
+        assert_eq!(shorten("abc", 4), "abc");
+        assert_eq!(shorten("abcd", 4), "abcd");
+        assert_eq!(shorten("abcde", 4), "abcd...");
     }
 }
