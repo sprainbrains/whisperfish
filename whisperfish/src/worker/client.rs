@@ -1214,6 +1214,35 @@ impl Handler<SendMessage> for ClientActor {
                     }
                     Err(e) => {
                         storage.fail_message(mid);
+
+                        match &e.downcast_ref() {
+                            Some(MessageSenderError::ProofRequired { token, options }) => {
+                                // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
+                                let recaptcha = String::from("recaptcha");
+
+                                if options.contains(&recaptcha) {
+                                    addr.send(ProofRequired {
+                                        token: token.to_owned(),
+                                        r#type: recaptcha,
+                                    })
+                                    .await
+                                    .expect("deliver captcha required");
+                                } else {
+                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
+                                }
+                            },
+                            Some(MessageSenderError::NotFound { uuid }) => {
+                                let uuid_s = uuid.to_string();
+                                log::warn!("Recipient not found, removing device sessions {}", uuid_s);
+                                let mut num = storage.delete_all_sessions(&ServiceAddress { uuid: *uuid }).await?;
+                                log::trace!("Removed {} device session(s)", num);
+                                num = storage.mark_recipient_registered(&uuid_s, false);
+                                log::trace!("Marked {} recipient(s) as unregistered", num);
+                                anyhow::bail!(MessageSenderError::NotFound { uuid: uuid.to_owned() });
+                            },
+                            _ => (),
+                        };
+
                         Err(e)
                     }
                 }
@@ -1231,6 +1260,13 @@ impl Handler<SendMessage> for ClientActor {
                     Err(e) => {
                         log::error!("Sending message: {}", e);
                         act.inner.pinned().borrow().messageNotSent(session_id, mid);
+                        if let Some(MessageSenderError::NotFound { uuid: _ }) = e.downcast_ref() {
+                            // Handles session-is-not-a-group ok
+                            act.inner
+                                .pinned()
+                                .borrow()
+                                .refresh_group_v2(session_id as _);
+                        }
                     }
                 };
             }),
