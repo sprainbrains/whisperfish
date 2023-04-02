@@ -140,7 +140,7 @@ impl Handler<RefreshOwnProfile> for ClientActor {
                             // No profile of ours online, let's upload one.
                             true
                         } else {
-                            log::error!("During profile fetch: {}", e);
+                            log::error!("Error fetching own profile: {}", e);
                             false
                         }
                     }

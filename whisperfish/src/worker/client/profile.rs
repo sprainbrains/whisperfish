@@ -40,7 +40,7 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
                         if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
                             ctx.notify(ProfileFetched(recipient_uuid, None))
                         } else {
-                            log::error!("During profile fetch: {}", e);
+                            log::error!("Error refreshing outdated profile: {}", e);
                         }
                     }
                 };
@@ -107,7 +107,7 @@ impl Handler<RefreshProfileAvatar> for ClientActor {
                         ctx.notify(ProfileAvatarFetched(recipient_uuid, avatar))
                     }
                     Err(e) => {
-                        log::error!("During profile fetch: {}", e);
+                        log::error!("Error fetching profile avatar: {}", e);
                     }
                 };
             }),
