@@ -1,6 +1,7 @@
+// @generated automatically by Diesel CLI.
 pub mod migrations;
 
-table! {
+diesel::table! {
     attachments (id) {
         id -> Integer,
         json -> Nullable<Text>,
@@ -36,7 +37,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     group_v1_members (group_v1_id, recipient_id) {
         group_v1_id -> Text,
         recipient_id -> Integer,
@@ -44,7 +45,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     group_v1s (id) {
         id -> Text,
         name -> Text,
@@ -52,7 +53,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     group_v2_members (group_v2_id, recipient_id) {
         group_v2_id -> Text,
         recipient_id -> Integer,
@@ -62,7 +63,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     group_v2s (id) {
         id -> Text,
         name -> Text,
@@ -77,14 +78,14 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     identity_records (address) {
         address -> Text,
         record -> Binary,
     }
 }
 
-table! {
+diesel::table! {
     messages (id) {
         id -> Integer,
         session_id -> Integer,
@@ -107,14 +108,14 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     prekeys (id) {
         id -> Integer,
         record -> Binary,
     }
 }
 
-table! {
+diesel::table! {
     reactions (reaction_id) {
         reaction_id -> Integer,
         message_id -> Integer,
@@ -125,7 +126,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     receipts (message_id, recipient_id) {
         message_id -> Integer,
         recipient_id -> Integer,
@@ -135,7 +136,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     recipients (id) {
         id -> Integer,
         e164 -> Nullable<Text>,
@@ -162,7 +163,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     sender_key_records (address, device, distribution_id) {
         address -> Text,
         device -> Integer,
@@ -172,7 +173,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     session_records (address, device_id) {
         address -> Text,
         device_id -> Integer,
@@ -180,7 +181,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     sessions (id) {
         id -> Integer,
         direct_message_recipient_id -> Nullable<Integer>,
@@ -195,14 +196,14 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     signed_prekeys (id) {
         id -> Integer,
         record -> Binary,
     }
 }
 
-table! {
+diesel::table! {
     stickers (pack_id, sticker_id) {
         pack_id -> Nullable<Text>,
         sticker_id -> Integer,
@@ -221,22 +222,22 @@ table! {
     }
 }
 
-joinable!(attachments -> messages (message_id));
-joinable!(group_v1_members -> group_v1s (group_v1_id));
-joinable!(group_v1_members -> recipients (recipient_id));
-joinable!(group_v2_members -> group_v2s (group_v2_id));
-joinable!(group_v2_members -> recipients (recipient_id));
-joinable!(messages -> recipients (sender_recipient_id));
-joinable!(messages -> sessions (session_id));
-joinable!(reactions -> messages (message_id));
-joinable!(reactions -> recipients (author));
-joinable!(receipts -> messages (message_id));
-joinable!(receipts -> recipients (recipient_id));
-joinable!(sessions -> group_v1s (group_v1_id));
-joinable!(sessions -> group_v2s (group_v2_id));
-joinable!(sessions -> recipients (direct_message_recipient_id));
+diesel::joinable!(attachments -> messages (message_id));
+diesel::joinable!(group_v1_members -> group_v1s (group_v1_id));
+diesel::joinable!(group_v1_members -> recipients (recipient_id));
+diesel::joinable!(group_v2_members -> group_v2s (group_v2_id));
+diesel::joinable!(group_v2_members -> recipients (recipient_id));
+diesel::joinable!(messages -> recipients (sender_recipient_id));
+diesel::joinable!(messages -> sessions (session_id));
+diesel::joinable!(reactions -> messages (message_id));
+diesel::joinable!(reactions -> recipients (author));
+diesel::joinable!(receipts -> messages (message_id));
+diesel::joinable!(receipts -> recipients (recipient_id));
+diesel::joinable!(sessions -> group_v1s (group_v1_id));
+diesel::joinable!(sessions -> group_v2s (group_v2_id));
+diesel::joinable!(sessions -> recipients (direct_message_recipient_id));
 
-allow_tables_to_appear_in_same_query!(
+diesel::allow_tables_to_appear_in_same_query!(
     attachments,
     group_v1_members,
     group_v1s,
