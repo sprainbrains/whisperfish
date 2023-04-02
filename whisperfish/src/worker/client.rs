@@ -584,7 +584,7 @@ impl ClientActor {
         use sync_message::request::Type;
         log::trace!("Processing sync request {:?}", req.r#type());
 
-        let local_addr = self.local_addr.clone().unwrap();
+        let local_addr = self.local_addr.unwrap();
         let storage = self.storage.clone().unwrap();
         let mut sender = self.message_sender();
 
@@ -1511,7 +1511,7 @@ impl Handler<StorageReady> for ClientActor {
                 // Store credentials
                 let credentials = ServiceCredentials {
                     uuid,
-                    phonenumber: phonenumber.clone(),
+                    phonenumber,
                     password: Some(password),
                     signaling_key,
                     device_id: Some(device_id.into()),
