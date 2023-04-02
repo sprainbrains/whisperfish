@@ -177,6 +177,18 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("ViewImagePage.qml"), { title: recipient.name, path: imageSource })
             }
 
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Qt.AlignHCenter
+                color: Theme.highlightColor
+                visible: !recipient.isRegistered
+                readOnly: true
+                width: parent.width
+                //: Profile page, user is not registered warning
+                //% "The recipient is not currently registered to Signal, so sending and receiving messages is not possible."
+                text: qsTrId("whisperfish-profile-page-unregistered-profile")
+            }
+
             // When not editing, display full/joined name
             TextField {
                 id: profileFullName
