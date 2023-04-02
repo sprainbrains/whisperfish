@@ -1362,7 +1362,7 @@ impl Handler<SendTypingNotification> for ClientActor {
 impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
     type Result = ResponseFuture<Result<(), anyhow::Error>>;
 
-    fn handle(&mut self, msg: DeliverMessage<T>, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: DeliverMessage<T>, _ctx: &mut Self::Context) -> Self::Result {
         let DeliverMessage {
             content,
             timestamp,
@@ -1377,7 +1377,6 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
         let session = storage.fetch_session_by_id(session_id).unwrap();
         let mut sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
-        let addr = ctx.address();
 
         Box::pin(async move {
             match &session.r#type {
@@ -1392,7 +1391,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                         .filter_map(|(_member, recipient)| {
                             let member = recipient.to_service_address();
 
-                            if Some(local_addr) == member {
+                            if !recipient.is_registered || Some(local_addr) == member {
                                 None
                             } else {
                                 if member.is_none() {
@@ -1419,6 +1418,13 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                     let svc = recipient.to_service_address();
 
                     if let Some(svc) = svc {
+                        if !recipient.is_registered {
+                            anyhow::bail!(
+                                "Unregistered recipient {:?}; won't send message",
+                                svc.uuid.to_string()
+                            );
+                        }
+
                         if let Err(e) = sender
                             .send_message(&svc, None, content.clone(), timestamp, online)
                             .await
