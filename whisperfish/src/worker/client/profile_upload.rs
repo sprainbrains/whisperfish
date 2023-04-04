@@ -136,7 +136,7 @@ impl Handler<RefreshOwnProfile> for ClientActor {
                             || capabilities != whisperfish_device_capabilities()
                     }
                     Err(e) => {
-                        if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                        if let ServiceError::NotFoundError = e {
                             // No profile of ours online, let's upload one.
                             true
                         } else {
