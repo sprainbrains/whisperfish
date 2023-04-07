@@ -166,7 +166,7 @@ fn main() {
     })
     .unwrap();
 
-    qtlog::install_message_handler();
+    qtlog::enable();
 
     log_panics::init();
 
