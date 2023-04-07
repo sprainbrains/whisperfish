@@ -4,6 +4,7 @@ use qmetaobject::{prelude::*, QMessageLogContext};
 
 cpp! {{
     #include <QtGlobal>
+    #include <QtCore/QString>
 }}
 
 static QLEVEL: &[Level] = &[
