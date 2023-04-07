@@ -1,16 +1,8 @@
-use cpp::{cpp, cpp_class};
+use anyhow::Context;
+
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
-
-cpp! {{
-    #include <QtCore/QSettings>
-    #include <QtCore/QStandardPaths>
-    #include <QtCore/QFile>
-}}
-
-cpp_class! (
-    unsafe struct QSettings as "QSettings"
-);
+use qttypes::QSettings;
 
 #[derive(QObject)]
 #[allow(non_snake_case, dead_code)]
@@ -68,27 +60,16 @@ impl Default for SettingsBridge {
 
             avatarExists: Default::default(),
 
-            inner: unsafe {
-                cpp!([] -> *mut QSettings as "QSettings *" {
-                    QString settingsFile = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation)
-                                                + "/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf";
-
-                    QSettings* settings = new QSettings(settingsFile, QSettings::NativeFormat);
-
-                    QStringList path_keys;
-                    path_keys << "attachment_dir" << "camera_dir";
-                    QString old_path = ".local/share/harbour-whisperfish";
-                    QString new_path = ".local/share/be.rubdos/harbour-whisperfish";
-
-                    foreach(const QString &key, path_keys) {
-                        if(settings->contains(key) && settings->value(key).toString().contains(old_path)) {
-                            settings->setValue(key, settings->value(key).toString().replace(old_path, new_path));
-                        }
-                    }
-
-                    return settings;
-                })
-            },
+            inner: QSettings::from_path(
+                dirs::config_dir()
+                    .context("Could not get xdg config directory path")
+                    .unwrap()
+                    .join("be.rubdos")
+                    .join("harbour-whisperfish")
+                    .join("harbour-whisperfish.conf")
+                    .to_str()
+                    .unwrap(),
+            ),
 
             enable_notify: true,
             debug_mode: false,
@@ -131,44 +112,50 @@ impl Default for SettingsBridge {
 
 impl Drop for SettingsBridge {
     fn drop(&mut self) {
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *"] {
-                delete settings;
-            })
+        {
+            self.inner().sync();
         }
     }
 }
 
 impl SettingsBridge {
-    fn contains(&self, key: &str) -> bool {
-        let key = QString::from(key);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString"] -> bool as "bool" {
-                return settings->contains(key);
-            })
+    pub fn migrate_qsettings_paths(&mut self) {
+        let settings = self.inner_mut();
+        let old_path = ".local/share/harbour-whisperfish";
+        let new_path = ".local/share/be.rubdos/harbour-whisperfish";
+        let keys = vec!["attachment_dir", "camera_dir"];
+        for key in keys.iter() {
+            if settings.contains("attachment_dir") {
+                settings.set_string(
+                    key,
+                    settings
+                        .value_string(key)
+                        .to_string()
+                        .replace(old_path, new_path)
+                        .as_str(),
+                );
+            }
         }
+    }
+
+    fn inner(&self) -> &QSettings {
+        unsafe { self.inner.as_ref().unwrap() }
+    }
+
+    fn inner_mut(&mut self) -> &mut QSettings {
+        unsafe { self.inner.as_mut().unwrap() }
+    }
+
+    fn contains(&self, key: &str) -> bool {
+        self.inner().contains(key)
     }
 
     fn value_bool(&self, key: &str) -> bool {
-        let key = QString::from(key);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString"] -> bool as "bool" {
-                return settings->value(key).toBool();
-            })
-        }
+        self.inner().value_bool(key)
     }
 
     pub fn set_bool(&mut self, key: &str, value: bool) {
-        let key = QString::from(key);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString", value as "bool"] {
-                settings->setValue(key, value);
-            })
-        };
+        self.inner_mut().set_bool(key, value);
     }
 
     pub fn set_bool_if_unset(&mut self, key: &str, value: bool) {
@@ -178,25 +165,11 @@ impl SettingsBridge {
     }
 
     fn value_string(&self, key: &str) -> String {
-        let key = QString::from(key);
-        let settings = self.inner;
-        let val = unsafe {
-            cpp!([settings as "QSettings *", key as "QString"] -> QString as "QString" {
-                return settings->value(key).toString();
-            })
-        };
-        val.into()
+        self.inner().value_string(key)
     }
 
     pub fn set_string(&mut self, key: &str, value: &str) {
-        let key = QString::from(key);
-        let value = QString::from(value);
-        let settings = self.inner;
-        unsafe {
-            cpp!([settings as "QSettings *", key as "QString", value as "QString"] {
-                settings->setValue(key, value);
-            })
-        };
+        self.inner_mut().set_string(key, value);
     }
 
     pub fn set_string_if_unset(&mut self, key: &str, value: &str) {
@@ -422,44 +395,26 @@ impl SettingsBridge {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
     use std::fs::File;
     use std::io::{Read, Write};
-    use std::path::Path;
-
-    struct SettingsDeleter<'a>(&'a Path);
-
-    impl<'a> Drop for SettingsDeleter<'a> {
-        fn drop(&mut self) {
-            fs::remove_file(self.0).unwrap();
-        }
-    }
 
     #[test]
     fn settings_integration_smoke_tests() {
         qmeta_async::run(|| {
-            // Prevent overriding the file in the test by mistake
-            let config_dir = dirs::config_dir().unwrap();
-            let settings_dir = config_dir.join("be.rubdos/harbour-whisperfish");
-            fs::create_dir_all(&settings_dir).unwrap();
+            let temp_dir = tempfile::tempdir().unwrap();
+            let settings_pathbuf = temp_dir.path().join("qsettings.conf");
+            let settings_file = settings_pathbuf.to_str().unwrap();
 
-            let settings_file = settings_dir.join("harbour-whisperfish.conf");
-            assert!(
-                !settings_file.exists(),
-                "{} exists. To make sure that tests do not override it, please back it up manually",
-                settings_file.display()
-            );
-
-            // Test read a sample settings
-            let _deleter = SettingsDeleter(&settings_file);
-
-            let mut file = File::create(&settings_file).unwrap();
+            let mut file = File::create(settings_file).unwrap();
             file.write_all(b"[General]\n").unwrap();
             file.write_all(b"test_bool=true\n").unwrap();
             file.write_all(b"test_string=Hello world\n").unwrap();
             drop(file);
 
+            // Can't use ..Default::default() because not everything is Copy
             let mut settings = SettingsBridge::default();
+            settings.inner = QSettings::from_path(settings_file);
+
             assert!(settings.get_bool("test_bool"));
             assert_eq!(
                 settings.get_string("test_string"),
@@ -470,11 +425,71 @@ mod tests {
             settings.set_string("test_string", "Hello Qt");
             drop(settings);
 
-            let mut file = File::open(&settings_file).unwrap();
+            let mut file = File::open(settings_file).unwrap();
             let mut content = String::new();
             file.read_to_string(&mut content).unwrap();
             assert!(content.contains("test_bool=false"));
             assert!(content.contains("test_string=Hello Qt"));
+
+            drop(temp_dir);
+            assert!(!settings_pathbuf.as_path().exists());
+        })
+        .unwrap();
+    }
+
+    #[test]
+    fn qsettings_path_migration() {
+        qmeta_async::run(|| {
+            let temp_dir = tempfile::tempdir().unwrap();
+            let settings_pathbuf = temp_dir.path().join("qsettings.conf");
+            let settings_file = settings_pathbuf.to_str().unwrap();
+
+            let mut file = File::create(settings_file).unwrap();
+            file.write_all(b"[General]\n").unwrap();
+            file.write_all(b"attachment_dir=/x/.local/share/harbour-whisperfish/a\n")
+                .unwrap();
+            file.write_all(b"camera_dir=/x/.local/share/harbour-whisperfish/c\n")
+                .unwrap();
+            drop(file);
+
+            // Can't use ..Default::default() because not everything is Copy
+            let mut settings = SettingsBridge::default();
+            settings.inner = QSettings::from_path(settings_file);
+
+            assert_eq!(
+                settings.get_string("attachment_dir"),
+                "/x/.local/share/harbour-whisperfish/a"
+            );
+            assert_eq!(
+                settings.get_string("camera_dir"),
+                "/x/.local/share/harbour-whisperfish/c"
+            );
+
+            settings.migrate_qsettings_paths();
+
+            assert_eq!(
+                settings.get_string("attachment_dir"),
+                "/x/.local/share/be.rubdos/harbour-whisperfish/a"
+            );
+            assert_eq!(
+                settings.get_string("camera_dir"),
+                "/x/.local/share/be.rubdos/harbour-whisperfish/c"
+            );
+
+            // Triggers QSettings::sync()
+            drop(settings);
+
+            let mut file = File::open(settings_file).unwrap();
+            let mut content = String::new();
+            file.read_to_string(&mut content).unwrap();
+            assert!(
+                content.contains("attachment_dir=/x/.local/share/be.rubdos/harbour-whisperfish/a")
+            );
+            assert!(content.contains("camera_dir=/x/.local/share/be.rubdos/harbour-whisperfish/c"));
+            drop(file);
+
+            drop(temp_dir);
+            assert!(!settings_pathbuf.exists());
         })
         .unwrap();
     }
