@@ -9,6 +9,8 @@ include:
   - https://gitlab.com/nobodyinperson/python3-openrepos-webclient/-/raw/master/openrepos-upload-rpm.gitlab-ci.yml
   # The MergeRequest-Pipelines template makes your pipelines run for the default branch, tags, and all types of merge request pipelines.
   - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
+  - project: "dependabot-gitlab/dependabot-standalone"
+    file: ".gitlab-ci.yml"
 
 stages:
   - build
@@ -300,14 +302,6 @@ translations:check:
     - if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
   script:
     - .ci/check-translations.sh
-
-cargo:update:
-  <<: *rust-stable
-  stage: deploy
-  only:
-    - schedules
-  script:
-    - .ci/cargo-update.sh
 
 translations:update:
   <<: *translations
