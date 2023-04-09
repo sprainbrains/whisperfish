@@ -9,6 +9,8 @@ include:
   - https://gitlab.com/nobodyinperson/python3-openrepos-webclient/-/raw/master/openrepos-upload-rpm.gitlab-ci.yml
   # The MergeRequest-Pipelines template makes your pipelines run for the default branch, tags, and all types of merge request pipelines.
   - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
+  - project: "dependabot-gitlab/dependabot-standalone"
+    file: ".gitlab-ci.yml"
 
 stages:
   - build
@@ -84,6 +86,10 @@ build:sailfishos:latest:armv7hl:
     TARGET_VERSION: $SFOS_VERSION
     DIST: .sf4
   <<: *build-sailfishos
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 build:sailfishos:3.4:armv7hl:
   variables:
@@ -93,6 +99,10 @@ build:sailfishos:3.4:armv7hl:
     SFOS_VERSION: 4.1.0.24
     DIST: .sf3
   <<: *build-sailfishos
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 build:sailfishos:latest:i486:
   variables:
@@ -104,6 +114,10 @@ build:sailfishos:latest:i486:
     <<: *rust-cache
     key: "target-i486-$CI_COMMIT_REF_SLUG"
   <<: *build-sailfishos
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 ## We don't build 3.4 for i486, because
 #  in that case, rust 1.52 gets installed without the sb2 passthrough,
@@ -117,6 +131,10 @@ build:sailfishos:latest:i486:
 #     TARGET_VERSION: 3.4.0.24
 #     DIST: .sf3
 #   <<: *build-sailfishos
+#   rules:
+#    - if: $CI_PIPELINE_SOURCE == "schedule"
+#      when: never
+#    - when: on_success
 
 build:sailfishos:latest:aarch64:
   variables:
@@ -125,6 +143,10 @@ build:sailfishos:latest:aarch64:
     TARGET_VERSION: $SFOS_VERSION
     DIST: .sf4
   <<: *build-sailfishos
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 build:sailfishos:3.4:aarch64:
   variables:
@@ -134,12 +156,20 @@ build:sailfishos:3.4:aarch64:
     SFOS_VERSION: 4.1.0.24
     DIST: .sf3
   <<: *build-sailfishos
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 build:host:stable:
   <<: *rust-stable
   stage: build
   script:
     - cargo build --features bundled-sqlcipher
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 build:host:nightly:
   <<: *rust-nightly
@@ -151,6 +181,10 @@ build:host:nightly:
     - build:host:stable
   script:
     - cargo build --features bundled-sqlcipher
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 build:host:stable:docs:
   <<: *rust-stable
@@ -171,6 +205,10 @@ build:host:stable:docs:
       files:
         - Cargo.lock
     policy: pull
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 qmllint:
   <<: *rust
@@ -179,6 +217,10 @@ qmllint:
   cache: {}
   script:
     - "qmllint qml/**/*.qml"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 test:stable:
   <<: *rust-stable
@@ -187,6 +229,10 @@ test:stable:
     - build:host:stable
   script:
     - cargo test --features bundled-sqlcipher
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 test:stable:diesel-schema:
   <<: *rust-stable
@@ -207,6 +253,10 @@ test:stable:diesel-schema:
     - cargo fmt -- --check whisperfish/src/schema.rs
   # Diesel does not need to access build artifacts of other stages.
   cache: {}
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 fmt:stable:
   <<: *rust-stable
@@ -222,6 +272,10 @@ fmt:stable:
   # not interfere with `coverage:stable` and `clippy:stable`. There is nothing
   # to store in the cache either.
   cache: {}
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 coverage:stable:
   <<: *rust-stable
@@ -255,6 +309,10 @@ coverage:stable:
       prefix: rust-stable-tarpaulin
       files:
         - Cargo.lock
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 clippy:stable:
   <<: *rust-stable
@@ -271,6 +329,10 @@ clippy:stable:
     #   https://github.com/tokio-rs/prost/issues/661
     # useless-transmute
     - cargo clippy --all-targets -- -A clippy::derive_partial_eq_without_eq -A clippy::useless_transmute
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 clippy:stable-warnings:
   <<: *rust-stable
@@ -285,6 +347,10 @@ clippy:stable-warnings:
     #
     # For allows, see above
     - cargo clippy --all-targets -- -D warnings -A clippy::derive_partial_eq_without_eq -A clippy::useless_transmute
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 .translations: &translations
   image: debian
@@ -297,22 +363,18 @@ translations:check:
   <<: *translations
   stage: test
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
   script:
     - .ci/check-translations.sh
-
-cargo:update:
-  <<: *rust-stable
-  stage: deploy
-  only:
-    - schedules
-  script:
-    - .ci/cargo-update.sh
 
 translations:update:
   <<: *translations
   stage: deploy
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
     - .ci/update-translations.sh
@@ -331,12 +393,18 @@ test:sailfishos:validate-rpms:
     - build:sailfishos:latest:i486
   script:
     - for rpm in RPMS/*.rpm; do rpmvalidation.sh $rpm; done
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
 
 notify_matrix_build_ready:
   stage: deploy
   image: debian
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
   environment:
     name: Whisperfish Matrix channel
     url: $MATRIX_HOME_SERVER
@@ -358,6 +426,8 @@ pages:
   stage: deploy
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
   script:
     - mkdir -p public
     - mv target/doc public/
