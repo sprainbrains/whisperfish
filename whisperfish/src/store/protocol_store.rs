@@ -257,7 +257,7 @@ impl protocol::SessionStore for Storage {
         addr: &ProtocolAddress,
         _: Context,
     ) -> Result<Option<SessionRecord>, SignalProtocolError> {
-        log::trace!("Loading session for {:?}", addr);
+        log::trace!("Loading session for {}", addr);
         use crate::schema::session_records::dsl::*;
         use diesel::prelude::*;
 
@@ -283,7 +283,7 @@ impl protocol::SessionStore for Storage {
         session: &protocol::SessionRecord,
         context: Context,
     ) -> Result<(), SignalProtocolError> {
-        log::trace!("Storing session for {:?}", addr);
+        log::trace!("Storing session for {}", addr);
         use crate::schema::session_records::dsl::*;
         use diesel::prelude::*;
 

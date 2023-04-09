@@ -158,6 +158,6 @@ async fn main() -> Result<(), anyhow::Error> {
             .to_str()
             .expect("attachment path utf-8"),
     );
-    log::info!("Attachment registered with message {:?}", msg);
+    log::info!("Attachment registered with message {}", msg);
     Ok(())
 }
