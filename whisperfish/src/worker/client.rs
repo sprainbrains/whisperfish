@@ -1260,7 +1260,7 @@ impl Handler<SendMessage> for ClientActor {
                     Err(e) => {
                         log::error!("Sending message: {}", e);
                         act.inner.pinned().borrow().messageNotSent(session_id, mid);
-                        if let Some(MessageSenderError::NotFound { uuid: _ }) = e.downcast_ref() {
+                        if let Some(MessageSenderError::NotFound { .. }) = e.downcast_ref() {
                             // Handles session-is-not-a-group ok
                             act.inner
                                 .pinned()
