@@ -4,6 +4,7 @@
 
 git config --global user.email "whisperfish@rubdos.be"
 git config --global user.name "Gitlab CI cargo update"
+git remote add origin-ssh git@gitlab.com:whisperfish/whisperfish.git
 
 WHITELIST="libsignal-service libsignal-service-actix libsignal-protocol"
 
