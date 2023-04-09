@@ -93,7 +93,7 @@ impl protocol::IdentityKeyStore for Storage {
     ) -> Result<IdentityKeyPair, SignalProtocolError> {
         let identity_key_pair = self.identity_key_pair.read().await;
 
-        if let Some(identity_key_pair) = identity_key_pair {
+        if let Some(identity_key_pair) = *identity_key_pair {
             Ok(identity_key_pair)
         } else {
             drop(identity_key_pair);
