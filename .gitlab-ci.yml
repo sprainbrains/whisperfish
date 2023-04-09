@@ -301,6 +301,14 @@ translations:check:
   script:
     - .ci/check-translations.sh
 
+cargo:update:
+  <<: *rust-stable
+  stage: deploy
+  only:
+    - schedules
+  script:
+    - .ci/cargo-update.sh
+
 translations:update:
   <<: *translations
   stage: deploy
@@ -448,7 +456,7 @@ policy:run:
     - gitlab-triage --token $PRIVATE_TOKEN --source projects --source-id $CI_PROJECT_PATH
   when: manual
 
-schedule:policyrun:
+.schedule:policyrun:
   stage: deploy
   image: ruby:2.4
   script:
