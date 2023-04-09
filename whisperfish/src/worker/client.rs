@@ -23,6 +23,7 @@ use crate::millis_to_naive_chrono;
 use crate::model::DeviceModel;
 use crate::platform::QmlApp;
 use crate::store::{orm, Storage};
+use crate::worker::client::orm::shorten;
 use actix::prelude::*;
 use anyhow::Context;
 use chrono::prelude::*;
@@ -51,6 +52,7 @@ use phonenumber::PhoneNumber;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 use std::collections::HashSet;
+use std::fmt::{Display, Error, Formatter};
 use std::fs::remove_file;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -68,6 +70,19 @@ pub struct QueueMessage {
     pub message: String,
     pub attachment: String,
     pub quote: i32,
+}
+
+impl Display for QueueMessage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "QueueMessage {{ session_id: {}, message: \"{}\", quote: {}, attachment: \"{}\" }}",
+            &self.session_id,
+            shorten(&self.message, 9),
+            &self.quote,
+            &self.attachment,
+        )
+    }
 }
 
 #[derive(Message)]
@@ -1021,7 +1036,7 @@ impl Handler<QueueMessage> for ClientActor {
     type Result = ();
 
     fn handle(&mut self, msg: QueueMessage, ctx: &mut Self::Context) -> Self::Result {
-        log::trace!("MessageActor::handle({:?})", msg);
+        log::trace!("MessageActor::handle({})", msg);
         let storage = self.storage.as_mut().unwrap();
 
         let has_attachment = !msg.attachment.is_empty();
@@ -1098,8 +1113,8 @@ impl Handler<SendMessage> for ClientActor {
         }
 
         let self_recipient = storage.fetch_self_recipient();
-        log::trace!("Sending for session: {:?}", session);
-        log::trace!("Sending message: {:?}", msg.inner);
+        log::trace!("Sending for session: {}", session);
+        log::trace!("Sending message: {}", msg.inner);
 
         let storage = storage.clone();
         let addr = ctx.address();
@@ -1320,14 +1335,18 @@ impl Handler<SendTypingNotification> for ClientActor {
         }: SendTypingNotification,
         ctx: &mut Self::Context,
     ) -> Self::Result {
-        log::info!("ClientActor::SendTypingNotification({:?})", session_id);
+        log::info!(
+            "ClientActor::SendTypingNotification({}, {})",
+            session_id,
+            is_start
+        );
         let storage = self.storage.as_mut().unwrap();
         let addr = ctx.address();
 
         let session = storage.fetch_session_by_id(session_id).unwrap();
         assert_eq!(session_id, session.id);
 
-        log::trace!("Sending typing notification for session: {:?}", session);
+        log::trace!("Sending typing notification for session: {}", session);
 
         // Since we don't want to stress database needlessly,
         // cache the sent TypingMessage timestamps and try to
@@ -1485,7 +1504,7 @@ impl Handler<AttachmentDownloaded> for ClientActor {
         }: AttachmentDownloaded,
         _ctx: &mut Self::Context,
     ) {
-        log::info!("Attachment downloaded for message {:?}", mid);
+        log::info!("Attachment downloaded for message {}", mid);
         self.inner.pinned().borrow().attachmentDownloaded(sid, mid);
     }
 }
@@ -2233,5 +2252,21 @@ impl Handler<ProofAccepted> for ClientActor {
             .pinned()
             .borrow_mut()
             .proofCaptchaResult(accepted.result);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn queue_message() {
+        let q = QueueMessage {
+            attachment: "Attachment!".into(),
+            session_id: 8,
+            message: "Lorem ipsum dolor sit amet".into(),
+            quote: 12,
+        };
+        assert_eq!(format!("{}", q), "QueueMessage { session_id: 8, message: \"Lorem ips...\", quote: 12, attachment: \"Attachment!\" }");
     }
 }

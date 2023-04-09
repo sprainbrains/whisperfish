@@ -1,5 +1,6 @@
 use super::schema::*;
 use chrono::prelude::*;
+use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -7,6 +8,17 @@ pub struct GroupV1 {
     pub id: String,
     pub name: String,
     pub expected_v2_id: Option<String>,
+}
+
+impl Display for GroupV1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "GroupV1 {{ id: \"{}\", name: \"{}\" }}",
+            shorten(&self.id, 12),
+            &self.name
+        )
+    }
 }
 
 #[derive(Queryable, Insertable, Debug, Clone)]
@@ -34,6 +46,26 @@ pub struct GroupV2 {
     pub description: Option<String>,
 }
 
+impl Display for GroupV2 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match &self.description {
+            Some(desc) => write!(
+                f,
+                "GroupV2 {{ id: \"{}\", name: \"{}\", description: \"{}\" }}",
+                shorten(&self.id, 12),
+                &self.name,
+                desc
+            ),
+            None => write!(
+                f,
+                "GroupV2 {{ id: \"{}\", name: \"{}\" }}",
+                shorten(&self.id, 12),
+                &self.name
+            ),
+        }
+    }
+}
+
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV2Member {
     pub group_v2_id: String,
@@ -41,6 +73,18 @@ pub struct GroupV2Member {
     pub member_since: NaiveDateTime,
     pub joined_at_revision: i32,
     pub role: i32,
+}
+
+impl Display for GroupV2Member {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "GroupV2Member {{ group_v2_id: \"{}\", recipient_id: {}, member_since: \"{}\" }}",
+            shorten(&self.group_v2_id, 12),
+            &self.recipient_id,
+            &self.member_since
+        )
+    }
 }
 
 #[derive(Queryable, Debug, Clone, PartialEq, Eq)]
@@ -67,6 +111,38 @@ pub struct Message {
     pub sending_has_failed: bool,
 
     pub quote_id: Option<i32>,
+}
+
+impl Display for Message {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match (&self.text, &self.quote_id) {
+            (Some(text), Some(quote_id)) => write!(
+                f,
+                "Message {{ id: {}, session_id: {}, text: \"{}\", quote_id: {} }}",
+                &self.id,
+                &self.session_id,
+                shorten(text, 9),
+                quote_id
+            ),
+            (None, Some(quote_id)) => write!(
+                f,
+                "Message {{ id: {}, session_id: {}, quote_id: {} }}",
+                &self.id, &self.session_id, quote_id
+            ),
+            (Some(text), None) => write!(
+                f,
+                "Message {{ id: {}, session_id: {}, text: \"{}\" }}",
+                &self.id,
+                &self.session_id,
+                shorten(text, 9),
+            ),
+            (None, None) => write!(
+                f,
+                "Message {{ id: {}, session_id: {} }}",
+                &self.id, &self.session_id
+            ),
+        }
+    }
 }
 
 impl Default for Message {
@@ -128,12 +204,58 @@ pub struct Recipient {
     pub is_registered: bool,
 }
 
+impl Display for Recipient {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        let profile_joined_name = self.profile_joined_name.as_deref().unwrap_or_default();
+        match (&self.e164, &self.uuid) {
+            (Some(e164), Some(r_uuid)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\" }}",
+                &self.id,
+                profile_joined_name,
+                shorten(e164, 6),
+                shorten(r_uuid, 9)
+            ),
+            (None, Some(r_uuid)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\" }}",
+                &self.id,
+                profile_joined_name,
+                shorten(r_uuid, 9)
+            ),
+            (Some(e164), None) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", INVALID }}",
+                &self.id,
+                profile_joined_name,
+                shorten(e164, 6)
+            ),
+            (None, None) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", INVALID }}",
+                &self.id, profile_joined_name
+            ),
+        }
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 #[diesel(primary_key(address, device_id))]
 pub struct SessionRecord {
     pub address: String,
     pub device_id: i32,
     pub record: Vec<u8>,
+}
+
+impl Display for SessionRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "SessionRecord {{ address: \"{}\", device_id: {} }}",
+            shorten(&self.address, 9),
+            &self.device_id
+        )
+    }
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
@@ -143,16 +265,38 @@ pub struct IdentityRecord {
     pub record: Vec<u8>,
 }
 
+impl Display for IdentityRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "IdentityRecord {{ address: \"{}\" }}",
+            shorten(&self.address, 9)
+        )
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 pub struct SignedPrekey {
     pub id: i32,
     pub record: Vec<u8>,
 }
 
+impl Display for SignedPrekey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "SignedPrekey {{ id: {} }}", &self.id)
+    }
+}
+
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 pub struct Prekey {
     pub id: i32,
     pub record: Vec<u8>,
+}
+
+impl Display for Prekey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "Prekey {{ id: {} }}", &self.id)
+    }
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
@@ -163,6 +307,18 @@ pub struct SenderKeyRecord {
     pub distribution_id: String,
     pub record: Vec<u8>,
     pub created_at: NaiveDateTime,
+}
+
+impl Display for SenderKeyRecord {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "SenderKeyRecord {{ address: \"{}\", device: {}, created_at: \"{}\" }}",
+            shorten(&self.address, 9),
+            &self.device,
+            &self.created_at
+        )
+    }
 }
 
 impl Recipient {
@@ -227,6 +383,29 @@ pub struct DbSession {
     pub expiring_message_timeout: Option<i32>,
 }
 
+impl Display for DbSession {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match (&self.direct_message_recipient_id, &self.group_v2_id) {
+            (Some(r_id), Some(g_id)) => write!(
+                f,
+                "DbSession {{ id: {}, direct_message_recipient_id: {}, group_v2_id: \"{}\", INVALID }}",
+                &self.id, r_id, shorten(g_id, 12)
+            ),
+            (Some(r_id), None) => write!(
+                f,
+                "DbSession {{ id: {}, direct_message_recipient_id: {} }}",
+                &self.id, r_id
+            ),
+            (_, Some(g_id)) => write!(
+                f,
+                "DbSession {{ id: {}, group_v2_id: \"{}\" }}",
+                &self.id, shorten(g_id, 12)
+            ),
+            _ => write!(f, "DbSession {{ id: {}, INVALID }}", &self.id),
+        }
+    }
+}
+
 #[derive(Queryable, Debug, Clone)]
 pub struct Attachment {
     pub id: i32,
@@ -262,6 +441,33 @@ pub struct Attachment {
     pub caption: Option<String>,
 }
 
+impl Display for Attachment {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match (&self.size, &self.file_name) {
+            (Some(size), Some(file_name)) => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", size: {}, file_name: \"{}\", is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, size, file_name, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+            (Some(size), _) => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", size: {}, is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, size, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+            (_, Some(file_name)) => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", file_name: \"{}\", is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, file_name, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+            _ => write!(
+                f,
+                "Attachment {{ id: {}, message_id: {}, content_type: \"{}\", is_voice_note: {}, _is_sticker_pack: {} }}",
+                &self.id, &self.message_id, &self.content_type, &self.is_voice_note, &self.sticker_pack_id.is_some()
+            ),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Session {
     pub id: i32,
@@ -278,6 +484,18 @@ pub struct Session {
     pub r#type: SessionType,
 }
 
+impl Display for Session {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "Session {{ id: {}, _has_draft: {}, type: {} }}",
+            &self.id,
+            &self.draft.is_some(),
+            &self.r#type,
+        )
+    }
+}
+
 #[derive(Queryable, Debug, Clone)]
 pub struct Reaction {
     pub reaction_id: i32,
@@ -286,6 +504,16 @@ pub struct Reaction {
     pub emoji: String,
     pub sent_time: NaiveDateTime,
     pub received_time: NaiveDateTime,
+}
+
+impl Display for Reaction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "Reaction {{ reaction_id: {}, message_id: {}, author: {}, emoji: \"{}\" }}",
+            &self.reaction_id, &self.message_id, &self.author, &self.emoji,
+        )
+    }
 }
 
 #[derive(Queryable, Debug, Clone)]
@@ -412,6 +640,22 @@ pub enum SessionType {
     GroupV2(GroupV2),
 }
 
+impl Display for SessionType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match self {
+            SessionType::DirectMessage(recipient) => {
+                write!(f, "DirectMessage {{ recipient: {} }}", recipient)
+            }
+            SessionType::GroupV1(group) => {
+                write!(f, "GroupV1 {{ group: {} }}", group)
+            }
+            SessionType::GroupV2(group) => {
+                write!(f, "GroupV2 {{ group: {} }}", group)
+            }
+        }
+    }
+}
+
 impl SessionType {
     pub fn is_dm(&self) -> bool {
         matches!(self, Self::DirectMessage(_))
@@ -460,6 +704,18 @@ pub struct AugmentedMessage {
     pub receipts: Vec<(Receipt, Recipient)>,
 }
 
+impl Display for AugmentedMessage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(
+            f,
+            "AugmentedMessage {{ attachments: {}, _receipts: {}, inner: {} }}",
+            &self.attachments,
+            &self.receipts.len(),
+            &self.inner
+        )
+    }
+}
+
 impl std::ops::Deref for AugmentedMessage {
     type Target = Message;
 
@@ -506,6 +762,23 @@ impl AugmentedMessage {
 pub struct AugmentedSession {
     pub inner: Session,
     pub last_message: Option<AugmentedMessage>,
+}
+
+impl Display for AugmentedSession {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        match &self.last_message {
+            Some(message) => write!(
+                f,
+                "AugmentedSession {{ inner: {}, last_message: {} }}",
+                &self.inner, message
+            ),
+            None => write!(
+                f,
+                "AugmentedSession {{ inner: {}, last_message: None }}",
+                &self.inner
+            ),
+        }
+    }
 }
 
 impl std::ops::Deref for AugmentedSession {
@@ -715,5 +988,507 @@ impl AugmentedSession {
         } else {
             0
         }
+    }
+}
+
+pub fn shorten(text: &str, limit: usize) -> std::borrow::Cow<'_, str> {
+    if text.len() > limit {
+        format!("{}...", &text[..limit]).into()
+    } else {
+        text.into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Helpers //
+
+    fn get_group_v1() -> GroupV1 {
+        GroupV1 {
+            id: "cba".into(),
+            name: "G1".into(),
+            expected_v2_id: None,
+        }
+    }
+
+    fn get_group_v2() -> GroupV2 {
+        GroupV2 {
+            id: "abc".into(),
+            name: "G2".into(),
+            master_key: "123".into(),
+            revision: 42,
+            invite_link_password: None,
+            access_required_for_add_from_invite_link: 0,
+            access_required_for_attributes: 0,
+            access_required_for_members: 0,
+            avatar: None,
+            description: Some("desc".into()),
+        }
+    }
+
+    fn get_message() -> Message {
+        Message {
+            id: 71,
+            text: Some("msg text".into()),
+            session_id: 66,
+            server_timestamp: NaiveDateTime::parse_from_str(
+                "2023-03-31 14:51:25",
+                "%Y-%m-%d %H:%M:%S",
+            )
+            .unwrap(),
+            ..Default::default()
+        }
+    }
+
+    fn get_recipient() -> Recipient {
+        Recipient {
+            id: 981,
+            e164: Some("+358401010101".into()),
+            uuid: Some("bff93979-a0fa-41f5-8ccf-e319135384d8".into()),
+            username: Some("nick".into()),
+            email: None,
+            blocked: false,
+            profile_key: None,
+            profile_key_credential: None,
+            profile_given_name: None,
+            profile_family_name: None,
+            profile_joined_name: Some("Nick Name".into()),
+            signal_profile_avatar: None,
+            profile_sharing: true,
+            last_profile_fetch: None,
+            unidentified_access_mode: true,
+            storage_service_id: None,
+            storage_proto: None,
+            capabilities: 0,
+            last_gv1_migrate_reminder: None,
+            last_session_reset: None,
+            about: Some("About me!".into()),
+            about_emoji: Some("🦊".into()),
+        }
+    }
+
+    fn get_attachment() -> Attachment {
+        Attachment {
+            id: 24,
+            json: None,
+            message_id: 313,
+            content_type: "image/jpeg".into(),
+            name: Some("Cat!".into()),
+            content_disposition: None,
+            content_location: None,
+            attachment_path: None,
+            is_pending_upload: false,
+            transfer_file_path: None,
+            size: Some(963012),
+            file_name: Some("cat.jpg".into()),
+            unique_id: None,
+            digest: None,
+            is_voice_note: false,
+            is_borderless: false,
+            is_quote: false,
+            width: Some(1024),
+            height: Some(768),
+            sticker_pack_id: None,
+            sticker_pack_key: None,
+            sticker_id: None,
+            sticker_emoji: None,
+            data_hash: None,
+            visual_hash: None,
+            transform_properties: None,
+            transfer_file: None,
+            display_order: 1,
+            upload_timestamp: NaiveDateTime::parse_from_str(
+                "2023-04-01 07:01:32",
+                "%Y-%m-%d %H:%M:%S",
+            )
+            .unwrap(),
+            cdn_number: None,
+            caption: Some("Funny cat!".into()),
+        }
+    }
+
+    fn get_dm_session() -> Session {
+        Session {
+            id: 2,
+            is_archived: false,
+            is_pinned: false,
+            is_silent: false,
+            is_muted: false,
+            expiring_message_timeout: None,
+            draft: None,
+            r#type: SessionType::DirectMessage(get_recipient()),
+        }
+    }
+
+    fn get_gv2_session() -> Session {
+        Session {
+            id: 2,
+            is_archived: false,
+            is_pinned: false,
+            is_silent: false,
+            is_muted: false,
+            expiring_message_timeout: None,
+            draft: None,
+            r#type: SessionType::GroupV2(get_group_v2()),
+        }
+    }
+
+    fn get_augmented_message() -> AugmentedMessage {
+        let timestamp =
+            NaiveDateTime::parse_from_str("2023-04-01 07:01:32", "%Y-%m-%d %H:%M:%S").unwrap();
+        AugmentedMessage {
+            attachments: 2,
+            inner: get_message(),
+            receipts: vec![(
+                Receipt {
+                    message_id: 1,
+                    recipient_id: 2,
+                    delivered: Some(timestamp),
+                    read: Some(timestamp),
+                    viewed: Some(timestamp),
+                },
+                get_recipient(),
+            )],
+        }
+    }
+
+    // Tests //
+
+    #[test]
+    fn display_groupv1() {
+        let g1 = get_group_v1();
+        assert_eq!(format!("{}", g1), "GroupV1 { id: \"cba\", name: \"G1\" }");
+    }
+
+    #[test]
+    fn display_groupv2() {
+        let mut g2 = get_group_v2();
+        assert_eq!(
+            format!("{}", g2),
+            "GroupV2 { id: \"abc\", name: \"G2\", description: \"desc\" }"
+        );
+        g2.description = None;
+        assert_eq!(format!("{}", g2), "GroupV2 { id: \"abc\", name: \"G2\" }");
+    }
+
+    #[test]
+    fn display_groupv2_member() {
+        let datetime =
+            NaiveDateTime::parse_from_str("2023-03-31 14:51:25", "%Y-%m-%d %H:%M:%S").unwrap();
+        let g2m = GroupV2Member {
+            group_v2_id: "id".into(),
+            recipient_id: 22,
+            member_since: datetime,
+            joined_at_revision: 999,
+            role: 2,
+        };
+        assert_eq!(format!("{}",g2m), "GroupV2Member { group_v2_id: \"id\", recipient_id: 22, member_since: \"2023-03-31 14:51:25\" }");
+    }
+
+    #[test]
+    fn display_message() {
+        let mut m = get_message();
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, text: \"msg text\" }"
+        );
+        m.text = None;
+        assert_eq!(format!("{}", m), "Message { id: 71, session_id: 66 }");
+        m.quote_id = Some(87);
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, quote_id: 87 }"
+        );
+        m.text = Some("wohoo".into());
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, text: \"wohoo\", quote_id: 87 }"
+        );
+    }
+
+    #[test]
+    fn display_recipient() {
+        let mut r = get_recipient();
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" }");
+        r.e164 = None;
+        assert_eq!(
+            format!("{}", r),
+            "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-...\" }"
+        );
+        r.uuid = None;
+        r.profile_joined_name = None;
+        assert_eq!(
+            format!("{}", r),
+            "Recipient { id: 981, name: \"\", INVALID }"
+        );
+        r.e164 = Some("+358401010102".to_string());
+        assert_eq!(
+            format!("{}", r),
+            "Recipient { id: 981, name: \"\", e164: \"+35840...\", INVALID }"
+        );
+    }
+
+    #[test]
+    fn display_session_record() {
+        let s = SessionRecord {
+            address: "something".into(),
+            device_id: 2,
+            record: vec![65],
+        };
+        assert_eq!(
+            format!("{}", s),
+            "SessionRecord { address: \"something\", device_id: 2 }"
+        )
+    }
+
+    #[test]
+    fn display_identity_record() {
+        let s = IdentityRecord {
+            address: "something".into(),
+            record: vec![65],
+        };
+        assert_eq!(
+            format!("{}", s),
+            "IdentityRecord { address: \"something\" }"
+        )
+    }
+
+    #[test]
+    fn display_signed_prekey() {
+        let s = SignedPrekey {
+            id: 2,
+            record: vec![65],
+        };
+        assert_eq!(format!("{}", s), "SignedPrekey { id: 2 }")
+    }
+
+    #[test]
+    fn display_prekey() {
+        let s = Prekey {
+            id: 2,
+            record: vec![65],
+        };
+        assert_eq!(format!("{}", s), "Prekey { id: 2 }")
+    }
+
+    #[test]
+    fn display_sender_key_record() {
+        let datetime =
+            NaiveDateTime::parse_from_str("2023-04-01 07:01:32", "%Y-%m-%d %H:%M:%S").unwrap();
+        let s = SenderKeyRecord {
+            address: "whateva".into(),
+            record: vec![65],
+            device: 13,
+            distribution_id: "huh".into(),
+            created_at: datetime,
+        };
+        assert_eq!(format!("{}", s), "SenderKeyRecord { address: \"whateva\", device: 13, created_at: \"2023-04-01 07:01:32\" }")
+    }
+
+    #[test]
+    pub fn display_db_session() {
+        let mut s = DbSession {
+            id: 55,
+            direct_message_recipient_id: Some(413),
+            group_v1_id: None,
+            group_v2_id: Some("gv2_id".into()),
+            is_archived: false,
+            is_pinned: false,
+            is_silent: false,
+            is_muted: false,
+            draft: None,
+            expiring_message_timeout: None,
+        };
+        assert_eq!(
+            format!("{}", s),
+            "DbSession { id: 55, direct_message_recipient_id: 413, group_v2_id: \"gv2_id\", INVALID }"
+        );
+        s.direct_message_recipient_id = None;
+        assert_eq!(
+            format!("{}", s),
+            "DbSession { id: 55, group_v2_id: \"gv2_id\" }"
+        );
+        s.group_v2_id = None;
+        assert_eq!(format!("{}", s), "DbSession { id: 55, INVALID }");
+        s.direct_message_recipient_id = Some(777);
+        assert_eq!(
+            format!("{}", s),
+            "DbSession { id: 55, direct_message_recipient_id: 777 }"
+        );
+    }
+
+    #[test]
+    fn display_attachment() {
+        let mut a = get_attachment();
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", size: 963012, file_name: \"cat.jpg\", is_voice_note: false, _is_sticker_pack: false }");
+        a.size = None;
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", file_name: \"cat.jpg\", is_voice_note: false, _is_sticker_pack: false }");
+        a.file_name = None;
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", is_voice_note: false, _is_sticker_pack: false }");
+        a.size = Some(0);
+        assert_eq!(format!("{}", a), "Attachment { id: 24, message_id: 313, content_type: \"image/jpeg\", size: 0, is_voice_note: false, _is_sticker_pack: false }");
+    }
+
+    #[test]
+    fn display_session() {
+        let mut s = get_dm_session();
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }");
+        s.r#type = SessionType::GroupV1(get_group_v1());
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
+        s.r#type = SessionType::GroupV2(get_group_v2());
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV2 { group: GroupV2 { id: \"abc\", name: \"G2\", description: \"desc\" } } }");
+    }
+
+    #[test]
+    fn display_reaction() {
+        let r = Reaction {
+            reaction_id: 1,
+            message_id: 86,
+            author: 5,
+            emoji: "🦊".into(),
+            sent_time: NaiveDateTime::parse_from_str("2023-04-01 09:03:18", "%Y-%m-%d %H:%M:%S")
+                .unwrap(),
+            received_time: NaiveDateTime::parse_from_str(
+                "2023-04-01 09:03:21",
+                "%Y-%m-%d %H:%M:%S",
+            )
+            .unwrap(),
+        };
+        assert_eq!(
+            format!("{}", r),
+            "Reaction { reaction_id: 1, message_id: 86, author: 5, emoji: \"🦊\" }"
+        );
+    }
+
+    #[test]
+    fn display_augmented_message() {
+        let m = get_augmented_message();
+        assert_eq!(format!("{}", m), "AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } }")
+    }
+
+    #[test]
+    fn display_augmented_session() {
+        let mut s = AugmentedSession {
+            inner: get_dm_session(),
+            last_message: Some(get_augmented_message()),
+        };
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
+        s.last_message = None;
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: None }");
+    }
+
+    #[test]
+    fn recipient() {
+        let mut r = get_recipient();
+        let key_ok: [u8; 32] = [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27, 28, 29, 30, 31, 32,
+        ];
+        let key_inv: [u8; 3] = [1, 2, 3];
+        assert!(r.profile_key().is_none());
+        r.profile_key = Some(key_inv.to_vec());
+        assert!(r.profile_key().is_none());
+        r.profile_key = Some(key_ok.to_vec());
+        assert_eq!(r.profile_key(), Some(key_ok));
+        assert_eq!(
+            r.to_service_address(),
+            Some(libsignal_service::ServiceAddress {
+                uuid: uuid::Uuid::parse_str("bff93979-a0fa-41f5-8ccf-e319135384d8").unwrap(),
+            })
+        );
+        assert_eq!(r.uuid(), "bff93979-a0fa-41f5-8ccf-e319135384d8");
+        assert_eq!(r.e164_or_uuid(), "+358401010101");
+        assert_eq!(r.name(), "Nick Name");
+    }
+
+    #[test]
+    fn session() {
+        let s = get_gv2_session();
+        assert!(s.is_group());
+        assert!(s.is_group_v2());
+        assert!(s.unwrap_group_v2().id.eq("abc"));
+    }
+
+    #[test]
+    fn session_type() {
+        let mut s = SessionType::DirectMessage(get_recipient());
+        assert!(!s.is_group_v2());
+        s = SessionType::GroupV2(get_group_v2());
+        assert!(s.unwrap_group_v2().id.eq("abc"));
+    }
+
+    #[test]
+    fn augmented_message() {
+        let a = get_augmented_message();
+        assert!(!a.sent());
+        assert!(!a.queued());
+        assert_eq!(a.delivered(), 1);
+        assert_eq!(a.read(), 1);
+        assert_eq!(a.viewed(), 1);
+        assert_eq!(a.attachments(), 2);
+    }
+
+    #[test]
+    fn augmented_session() {
+        let mut a = AugmentedSession {
+            inner: get_gv2_session(),
+            last_message: Some(get_augmented_message()),
+        };
+        a.inner.is_pinned = true;
+
+        assert_eq!(a.id, get_gv2_session().id);
+        assert_eq!(
+            a.timestamp(),
+            Some(
+                NaiveDateTime::parse_from_str("2023-03-31 14:51:25", "%Y-%m-%d %H:%M:%S").unwrap()
+            )
+        );
+        assert_eq!(a.recipient_name(), "");
+        assert_eq!(a.recipient_uuid(), "");
+        assert_eq!(a.recipient_e164(), "");
+        assert_eq!(a.recipient_emoji(), "");
+        assert_eq!(a.recipient_about(), "");
+        assert_eq!(a.group_name(), Some("G2"));
+        assert_eq!(a.group_description(), Some("desc".into()));
+        assert_eq!(a.group_id(), Some("abc"));
+        assert!(!a.sent());
+        assert!(!a.has_avatar());
+        assert!(a.has_attachment());
+        assert_eq!(a.draft(), "".to_string());
+        assert_eq!(a.last_message_text(), Some("msg text"));
+        assert!(a.is_pinned());
+        assert_eq!(a.section(), "pinned");
+        assert!(!a.is_read());
+        assert_eq!(a.read(), 1);
+        assert_eq!(a.delivered(), 1);
+        assert!(!a.is_muted());
+        assert!(!a.is_archived());
+        assert_eq!(a.viewed(), 1);
+
+        a = AugmentedSession {
+            inner: get_dm_session(),
+            last_message: Some(get_augmented_message()),
+        };
+        a.inner.is_pinned = true;
+
+        assert_eq!(a.group_name(), None);
+        assert_eq!(a.group_description(), None);
+        assert_eq!(a.group_id(), None);
+        assert_eq!(a.recipient_id(), 981);
+        assert_eq!(a.recipient_name(), "Nick Name");
+        assert_eq!(a.recipient_uuid(), "bff93979-a0fa-41f5-8ccf-e319135384d8");
+        assert_eq!(a.recipient_e164(), "+358401010101");
+        assert_eq!(a.recipient_emoji(), "🦊");
+        assert_eq!(a.recipient_about(), "About me!");
+        assert!(!a.has_avatar());
+    }
+
+    #[test]
+    fn text_shortener() {
+        assert_eq!(shorten("abc", 4), "abc");
+        assert_eq!(shorten("abcd", 4), "abcd");
+        assert_eq!(shorten("abcde", 4), "abcd...");
     }
 }

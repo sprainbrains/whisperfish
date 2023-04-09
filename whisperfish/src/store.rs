@@ -10,6 +10,7 @@ use crate::diesel::connection::SimpleConnection;
 use crate::diesel_migrations::MigrationHarness;
 use crate::schema;
 use crate::store::observer::PrimaryKey;
+use crate::store::orm::shorten;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
 use chrono::prelude::*;
@@ -720,7 +721,10 @@ impl Storage {
             .filter(uuid.eq(recipient_uuid.to_string()))
             .execute(&mut *self.db())
             .expect("existing record updated");
-        log::info!("Marked profile for {:?} as outdated.", recipient_uuid);
+        log::info!(
+            "Marked profile for {}... as outdated.",
+            shorten(&recipient_uuid.to_string(), 12),
+        );
         let recipient = self.fetch_recipient_by_uuid(recipient_uuid);
         if let Some(recipient) = &recipient {
             self.observe_update(recipients, recipient.id);

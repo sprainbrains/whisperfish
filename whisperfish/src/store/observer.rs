@@ -536,4 +536,143 @@ mod tests {
         assert!(!interest.is_interesting(&event_on_session_0));
         assert!(interest.is_interesting(&event_on_session_1));
     }
+
+    #[test]
+    fn table_event_generates_interest() {
+        let interest = Interest::whole_table(schema::messages::table);
+
+        let event = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 52.into(),
+            relations: vec![],
+        };
+
+        assert!(interest.is_interesting(&event));
+    }
+
+    #[test]
+    fn row_event_generates_interest() {
+        let interest = Interest::row(schema::messages::table, 2);
+
+        let negative = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 1.into(),
+            relations: vec![],
+        };
+        let positive = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 2.into(),
+            relations: vec![],
+        };
+
+        assert!(!interest.is_interesting(&negative));
+        assert!(interest.is_interesting(&positive));
+    }
+
+    #[test]
+    fn event() {
+        let e = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 1.into(),
+            relations: vec![Relation {
+                table: Table::Sessions,
+                key: 0.into(),
+            }],
+        };
+        assert!(e.for_table(crate::schema::messages::dsl::messages));
+        assert!(!e.for_table(crate::schema::sessions::dsl::sessions));
+
+        assert!(e.for_row(crate::schema::messages::dsl::messages, 1));
+        assert!(!e.for_row(crate::schema::messages::dsl::messages, 2));
+
+        assert!(e.is_insert());
+        assert!(e.is_update_or_insert());
+        assert!(!e.is_update());
+        assert!(!e.is_delete());
+
+        assert_eq!(*e.key(), PrimaryKey::RowId(1));
+
+        assert_eq!(
+            e.relation_key_for(crate::schema::sessions::dsl::sessions),
+            Some(&PrimaryKey::RowId(0))
+        );
+        assert_eq!(
+            e.relation_key_for(crate::schema::messages::dsl::messages),
+            Some(&PrimaryKey::RowId(1))
+        );
+    }
+
+    #[test]
+    fn interest() {
+        let i_all = Interest::All;
+        let i_row = Interest::Row {
+            table: Table::Messages,
+            key: 2.into(),
+        };
+        let e_1 = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 1.into(),
+            relations: vec![Relation {
+                table: Table::Sessions,
+                key: 0.into(),
+            }],
+        };
+        let e_2 = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: 2.into(),
+            relations: vec![Relation {
+                table: Table::Sessions,
+                key: 0.into(),
+            }],
+        };
+        let e_u = Event {
+            r#type: EventType::Insert,
+            table: Table::Messages,
+            key: PrimaryKey::Unknown,
+            relations: vec![Relation {
+                table: Table::Sessions,
+                key: 0.into(),
+            }],
+        };
+        let e_s = Event {
+            r#type: EventType::Insert,
+            table: Table::Sessions,
+            key: PrimaryKey::Unknown,
+            relations: vec![],
+        };
+        assert!(i_all.is_interesting(&e_1));
+        assert!(!i_row.is_interesting(&e_1));
+        assert!(i_row.is_interesting(&e_2));
+        assert!(i_row.is_interesting(&e_u));
+        assert!(!i_row.is_interesting(&e_s));
+
+        let i_cln = i_row.clone();
+        match (i_cln, i_row) {
+            (Interest::Row { table: t1, key: k1 }, Interest::Row { table: t2, key: k2 }) => {
+                assert_eq!(t1, t2);
+                assert_eq!(k1, k2);
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    #[test]
+    fn primary_key() {
+        let pk_u = PrimaryKey::Unknown;
+        let pk_i = PrimaryKey::RowId(5);
+        let pk_s = PrimaryKey::StringRowId("uuid".into());
+
+        assert!(pk_i.as_i32().is_some());
+        assert!(pk_s.as_i32().is_none());
+        assert!(pk_u.implies(&pk_i));
+        assert!(!pk_i.implies(&pk_s));
+        assert!(pk_i.implies(&PrimaryKey::RowId(5)));
+        assert!(!pk_s.implies(&PrimaryKey::StringRowId("other".into())));
+    }
 }

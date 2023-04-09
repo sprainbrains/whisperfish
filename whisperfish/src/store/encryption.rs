@@ -324,4 +324,20 @@ mod tests {
             .to_string()
             .contains("Attempt at decrypting a message with length 47 smaller"));
     }
+
+    #[actix_rt::test]
+    async fn storage_encryption_clone() {
+        let crypto = StorageEncryption::new("lol".into(), [3u8; 8], [7u8; 8])
+            .await
+            .unwrap();
+        let crypto_clone = crypto.clone();
+        assert_eq!(
+            crypto.key_database.expose_secret(),
+            crypto_clone.key_database.expose_secret()
+        );
+        assert_eq!(
+            crypto.key_storage.expose_secret(),
+            crypto_clone.key_storage.expose_secret()
+        );
+    }
 }
