@@ -5,38 +5,38 @@
     <name></name>
     <message id="whisperfish-session-has-attachment">
         <location filename="../qml/cover/CoverPage.qml" line="118"/>
-        <location filename="../qml/delegates/SessionDelegate.qml" line="34"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="35"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-delete-all">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="57"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="58"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-typing-1">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="107"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="108"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-typing-2">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="111"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="112"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-typing-3-plus">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="115"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="116"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="203"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="205"/>
         <location filename="../qml/harbour-whisperfish-main.qml" line="118"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="97"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="96"/>
@@ -45,51 +45,51 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="222"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="224"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="323"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="325"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="326"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="328"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="335"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="337"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="338"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="340"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="346"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="348"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-archived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="349"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="351"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="358"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="360"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation type="unfinished"></translation>
@@ -480,68 +480,74 @@
         <extracomment>Edit your own profile menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-profile-page-unregistered-profile">
+        <location filename="../qml/pages/ProfilePage.qml" line="189"/>
+        <source>The recipient is not currently registered to Signal, so sending and receiving messages is not possible.</source>
+        <extracomment>Profile page, user is not registered warning</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-profile-joined-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="190"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="202"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-given-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="204"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="216"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-family-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="222"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="234"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-uuid">
-        <location filename="../qml/pages/ProfilePage.qml" line="236"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="248"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-phone-number">
-        <location filename="../qml/pages/ProfilePage.qml" line="248"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="260"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-about">
-        <location filename="../qml/pages/ProfilePage.qml" line="260"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="272"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-emoji">
-        <location filename="../qml/pages/ProfilePage.qml" line="274"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="286"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-fingerprint">
-        <location filename="../qml/pages/ProfilePage.qml" line="288"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="300"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="331"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="343"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-own-profile-help-text">
-        <location filename="../qml/pages/ProfilePage.qml" line="348"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="360"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
-        <location filename="../qml/pages/ProfilePage.qml" line="356"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="368"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
         <translation type="unfinished"></translation>
@@ -1206,7 +1212,7 @@ Settings page share contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/ProfilePage.qml" line="282"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="294"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
@@ -1371,7 +1377,7 @@ Settings page share contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-chat-input-attachment-label" numerus="yes">
-        <location filename="../qml/components/ChatTextInput.qml" line="200"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="201"/>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation type="unfinished">
@@ -1379,20 +1385,26 @@ Settings page share contacts</extracomment>
             <numerusform></numerusform>
         </translation>
     </message>
+    <message id="whisperfish-chat-input-recipient-is-unregistered">
+        <location filename="../qml/components/ChatTextInput.qml" line="209"/>
+        <source>The recipient is not registered</source>
+        <extracomment>Chat text input placeholder for deleted/unregistered recipient</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-chat-input-placeholder-personal">
-        <location filename="../qml/components/ChatTextInput.qml" line="208"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="214"/>
         <source>Hi %1</source>
         <extracomment>Personalized placeholder for chat input, e.g. &quot;Hi John&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-default">
-        <location filename="../qml/components/ChatTextInput.qml" line="212"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="219"/>
         <source>Write a message</source>
         <extracomment>Generic placeholder for chat input</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
-        <location filename="../qml/components/ChatTextInput.qml" line="359"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="369"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
         <translation type="unfinished"></translation>
@@ -1607,7 +1619,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="277"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="278"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
@@ -1617,7 +1629,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="300"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="301"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation type="unfinished">
@@ -1626,7 +1638,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="309"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="310"/>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1636,14 +1648,14 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="317"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="318"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="329"/>
-        <location filename="../qml/pages/ConversationPage.qml" line="360"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="330"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="361"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1653,8 +1665,8 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="340"/>
-        <location filename="../qml/pages/ConversationPage.qml" line="369"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="341"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="370"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -1664,7 +1676,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="381"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="382"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation type="unfinished">
