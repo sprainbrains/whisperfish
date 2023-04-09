@@ -1,10 +1,5 @@
-use cpp::cpp;
 use log::{log, Level};
-use qmetaobject::{prelude::*, QMessageLogContext};
-
-cpp! {{
-    #include <QtGlobal>
-}}
+use qmetaobject::{log::*, prelude::*, QMessageLogContext, QtMsgType};
 
 static QLEVEL: &[Level] = &[
     Level::Debug, // 0 = QDebug
@@ -19,7 +14,7 @@ static QLEVEL: &[Level] = &[
 const FILE_START: &str = "file:///usr/share/harbour-whisperfish/";
 
 #[no_mangle]
-pub extern "C" fn log_qt(msg_type: i32, msg_context: &QMessageLogContext, msg: &QString) {
+pub extern "C" fn log_qt(msg_type: QtMsgType, msg_context: &QMessageLogContext, msg: &QString) {
     // QML may have prepended the message with the file information (so shorten it a bit),
     // or QMessageLogContext may provide it to us.
     let mut new_msg = msg.to_string();
@@ -40,56 +35,31 @@ pub extern "C" fn log_qt(msg_type: i32, msg_context: &QMessageLogContext, msg: &
     log!(*level, "{}", new_msg);
 }
 
-cpp! {{
-    extern "C" {
-        void log_qt(QtMsgType msgType, const QMessageLogContext &msgContext, const QString msg);
-    };
+pub fn enable() -> QtMessageHandler {
+    install_message_handler(Some(log_qt))
+}
 
-    void qDebugToRust(QtMsgType msgType, const QMessageLogContext &msgContext, const QString &msg)
-    {
-        log_qt(msgType, msgContext, msg);
-        if (msgType == QtFatalMsg) {
-            abort();
-        }
-    };
-}}
-
-pub fn install_message_handler() {
-    unsafe {
-        cpp!([] {
-            qInstallMessageHandler(qDebugToRust);
-        })
-    };
+pub fn disable() -> QtMessageHandler {
+    install_message_handler(None)
 }
 
 #[cfg(test)]
 mod tests {
-    use cpp::cpp;
+    use super::*;
 
     #[test]
     fn qml_to_rust_logging() {
-        cpp! {{
-            #include <QDebug>
-        }};
+        let handler_a = enable();
+        assert!(handler_a.is_some());
 
-        let mut _logged = false;
-        _logged = unsafe {
-            cpp!([] -> bool as "bool" {
-                qInstallMessageHandler(nullptr);
-                qDebug() << "stderr";
-                return true;
-            })
-        };
-        assert!(_logged);
+        let handler_b = disable();
+        assert!(handler_b.is_some());
 
-        _logged = false;
-        _logged = unsafe {
-            cpp!([] -> bool as "bool" {
-                qInstallMessageHandler(qDebugToRust);
-                qDebug() << "qInstallMessageHandler";
-                return true;
-            })
-        };
-        assert!(_logged);
+        assert_ne!(handler_a.unwrap() as usize, handler_b.unwrap() as usize);
+
+        let handler_b = enable();
+        assert!(handler_b.is_some());
+
+        assert_eq!(handler_a.unwrap() as usize, handler_b.unwrap() as usize);
     }
 }
