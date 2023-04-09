@@ -1229,7 +1229,36 @@ impl Handler<SendMessage> for ClientActor {
                     }
                     Err(e) => {
                         storage.fail_message(mid);
-                        anyhow::bail!("Could not deliver message: {}", e)
+
+                        match &e.downcast_ref() {
+                            Some(MessageSenderError::ProofRequired { token, options }) => {
+                                // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
+                                let recaptcha = String::from("recaptcha");
+
+                                if options.contains(&recaptcha) {
+                                    addr.send(ProofRequired {
+                                        token: token.to_owned(),
+                                        r#type: recaptcha,
+                                    })
+                                    .await
+                                    .expect("deliver captcha required");
+                                } else {
+                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
+                                }
+                            },
+                            Some(MessageSenderError::NotFound { uuid }) => {
+                                let uuid_s = uuid.to_string();
+                                log::warn!("Recipient not found, removing device sessions {}", uuid_s);
+                                let mut num = storage.delete_all_sessions(&ServiceAddress { uuid: *uuid }).await?;
+                                log::trace!("Removed {} device session(s)", num);
+                                num = storage.mark_recipient_registered(&uuid_s, false);
+                                log::trace!("Marked {} recipient(s) as unregistered", num);
+                                anyhow::bail!(MessageSenderError::NotFound { uuid: uuid.to_owned() });
+                            },
+                            _ => (),
+                        };
+
+                        Err(e)
                     }
                 }
             }
@@ -1246,6 +1275,13 @@ impl Handler<SendMessage> for ClientActor {
                     Err(e) => {
                         log::error!("Sending message: {}", e);
                         act.inner.pinned().borrow().messageNotSent(session_id, mid);
+                        if let Some(MessageSenderError::NotFound { .. }) = e.downcast_ref() {
+                            // Handles session-is-not-a-group ok
+                            act.inner
+                                .pinned()
+                                .borrow()
+                                .refresh_group_v2(session_id as _);
+                        }
                     }
                 };
             }),
@@ -1381,7 +1417,7 @@ impl Handler<SendTypingNotification> for ClientActor {
 impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
     type Result = ResponseFuture<Result<(), anyhow::Error>>;
 
-    fn handle(&mut self, msg: DeliverMessage<T>, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: DeliverMessage<T>, _ctx: &mut Self::Context) -> Self::Result {
         let DeliverMessage {
             content,
             timestamp,
@@ -1396,7 +1432,6 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
         let session = storage.fetch_session_by_id(session_id).unwrap();
         let mut sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
-        let addr = ctx.address();
 
         Box::pin(async move {
             match &session.r#type {
@@ -1411,7 +1446,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                         .filter_map(|(_member, recipient)| {
                             let member = recipient.to_service_address();
 
-                            if Some(local_addr) == member {
+                            if !recipient.is_registered || Some(local_addr) == member {
                                 None
                             } else {
                                 if member.is_none() {
@@ -1430,7 +1465,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                         .await;
                     for result in results {
                         if let Err(e) = result {
-                            anyhow::bail!("Error delivering message: {}", e);
+                            anyhow::bail!(e)
                         }
                     }
                 }
@@ -1438,31 +1473,18 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
                     let svc = recipient.to_service_address();
 
                     if let Some(svc) = svc {
+                        if !recipient.is_registered {
+                            anyhow::bail!("Unregistered recipient {}", svc.uuid.to_string());
+                        }
+
                         if let Err(e) = sender
                             .send_message(&svc, None, content.clone(), timestamp, online)
                             .await
                         {
-                            // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
-                            let recaptcha = String::from("recaptcha");
-                            if let MessageSenderError::ProofRequired { token, options } = &e {
-                                if options.contains(&recaptcha) {
-                                    addr.send(ProofRequired {
-                                        token: token.to_owned(),
-                                        r#type: recaptcha,
-                                    })
-                                    .await
-                                    .expect("deliver captcha required");
-                                } else {
-                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
-                                }
-                            }
-                            anyhow::bail!("Error sending message: {}", e);
+                            anyhow::bail!(e);
                         }
                     } else {
-                        anyhow::bail!(
-                            "No UUID for {}; will not send message",
-                            recipient.e164_or_uuid()
-                        );
+                        anyhow::bail!("Recipient id {} has no UUID", recipient.id);
                     }
                 }
             }

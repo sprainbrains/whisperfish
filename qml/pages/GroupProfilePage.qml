@@ -141,7 +141,7 @@ Page {
                 //% "Refresh group"
                 text: qsTrId("whisperfish-group-refresh")
                 onClicked: {
-                    console.log("Refreshing group for session", session)
+                    console.log("Refreshing group for session", session.sessionId)
                     ClientWorker.refresh_group_v2(session.sessionId)
                 }
             }

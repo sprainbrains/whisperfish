@@ -155,6 +155,7 @@ crate::observing_model! {
 
         isGroup IsGroup,
         isGroupV2 IsGroupV2,
+        isRegistered IsRegistered,
 
         groupId GroupId,
         groupName GroupName,

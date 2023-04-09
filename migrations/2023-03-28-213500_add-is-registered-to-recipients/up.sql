@@ -1,0 +1,1 @@
+ALTER TABLE recipients ADD COLUMN is_registered BOOLEAN NOT NULL DEFAULT TRUE;

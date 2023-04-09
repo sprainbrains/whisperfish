@@ -1852,6 +1852,38 @@ impl Storage {
         }
     }
 
+    pub fn mark_recipient_registered(&self, uuid_str: &str, registered: bool) -> usize {
+        log::trace!(
+            "Called mark_recipient_registered({}, {})",
+            uuid_str,
+            registered
+        );
+
+        use schema::recipients::dsl::*;
+
+        let rid: Vec<i32> = recipients
+            .select(id)
+            .filter(uuid.eq(uuid_str))
+            .load(&mut *self.db())
+            .expect("Recipient id by UUID");
+
+        if rid.is_empty() {
+            log::trace!("Recipient with UUID {} not found in database", uuid_str);
+            return 0;
+        }
+
+        let rid = rid.first().unwrap();
+
+        let affected_rows = diesel::update(recipients.filter(uuid.eq(uuid_str)))
+            .set(is_registered.eq(registered))
+            .execute(&mut *self.db())
+            .expect("mark recipient (un)registered");
+        if affected_rows > 0 {
+            self.observe_update(schema::recipients::table, *rid);
+        }
+        affected_rows
+    }
+
     pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
         use schema::attachments::dsl::*;
 

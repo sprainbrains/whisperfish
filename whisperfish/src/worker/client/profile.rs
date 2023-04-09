@@ -37,10 +37,10 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
                 match profile {
                     Ok(profile) => ctx.notify(ProfileFetched(recipient_uuid, Some(profile))),
                     Err(e) => {
-                        if let ServiceError::UnhandledResponseCode { http_code: 404 } = e {
+                        if let ServiceError::NotFoundError = e {
                             ctx.notify(ProfileFetched(recipient_uuid, None))
                         } else {
-                            log::error!("During profile fetch: {}", e);
+                            log::error!("Error refreshing outdated profile: {}", e);
                         }
                     }
                 };
@@ -107,7 +107,7 @@ impl Handler<RefreshProfileAvatar> for ClientActor {
                         ctx.notify(ProfileAvatarFetched(recipient_uuid, avatar))
                     }
                     Err(e) => {
-                        log::error!("During profile fetch: {}", e);
+                        log::error!("Error fetching profile avatar: {}", e);
                     }
                 };
             }),
@@ -241,6 +241,7 @@ impl ClientActor {
                 .execute(&mut *db)
                 .expect("db");
         } else {
+            // XXX: We came here through 404 error, can that mean unregistered user?
             diesel::update(recipients)
                 .set((last_profile_fetch.eq(Utc::now().naive_utc()),))
                 .filter(uuid.nullable().eq(&recipient_uuid.to_string()))

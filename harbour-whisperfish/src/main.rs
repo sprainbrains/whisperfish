@@ -129,7 +129,7 @@ fn main() {
         .set_max_level(LevelFilter::Error) // Always show e.g. [INFO]
         .set_thread_level(LevelFilter::Off) // Hide thread info
         .set_location_level(LevelFilter::Off) // Hide filename, row and column
-        .set_level_color(Level::Trace, Some(Color::Magenta))
+        .set_level_color(Level::Trace, None) // To make other colors pop up better
         .set_level_color(Level::Debug, Some(Color::Blue))
         .set_level_color(Level::Info, Some(Color::Green))
         .set_level_color(Level::Warn, Some(Color::Yellow))

@@ -257,6 +257,7 @@ define_model_roles! {
         RecipientAbout(fn recipient_about(&self) via QString::from):       "recipientAboutText",
         IsGroup(fn is_group(&self)):                                       "isGroup",
         IsGroupV2(fn is_group_v2(&self)):                                  "isGroupV2",
+        IsRegistered(fn is_registered(&self)):                             "isRegistered",
         GroupId(fn group_id(&self) via qstring_from_option):               "groupId",
         GroupName(fn group_name(&self) via qstring_from_option):           "groupName",
         GroupDescription(fn group_description(&self) via qstring_from_option):

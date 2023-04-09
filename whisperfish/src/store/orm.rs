@@ -200,6 +200,8 @@ pub struct Recipient {
 
     pub about: Option<String>,
     pub about_emoji: Option<String>,
+
+    pub is_registered: bool,
 }
 
 impl Display for Recipient {
@@ -884,6 +886,14 @@ impl AugmentedSession {
         }
     }
 
+    pub fn is_registered(&self) -> bool {
+        match &self.inner.r#type {
+            SessionType::GroupV1(_group) => true,
+            SessionType::GroupV2(_group) => true,
+            SessionType::DirectMessage(recipient) => recipient.is_registered,
+        }
+    }
+
     pub fn has_attachment(&self) -> bool {
         if let Some(m) = &self.last_message {
             m.attachments > 0
@@ -1056,6 +1066,7 @@ mod tests {
             last_session_reset: None,
             about: Some("About me!".into()),
             about_emoji: Some("🦊".into()),
+            is_registered: true,
         }
     }
 
