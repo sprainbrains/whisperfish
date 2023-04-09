@@ -301,6 +301,14 @@ translations:check:
   script:
     - .ci/check-translations.sh
 
+cargo:update:
+  <<: *rust-stable
+  stage: deploy
+  only:
+    - schedules
+  script:
+    - .ci/cargo-update.sh
+
 translations:update:
   <<: *translations
   stage: deploy
