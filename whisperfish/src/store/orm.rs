@@ -1066,6 +1066,7 @@ mod tests {
             last_session_reset: None,
             about: Some("About me!".into()),
             about_emoji: Some("🦊".into()),
+            is_registered: true,
         }
     }
 
