@@ -405,9 +405,9 @@ notify_matrix_build_ready:
   stage: deploy
   image: debian
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   environment:
     name: Whisperfish Matrix channel
     url: $MATRIX_HOME_SERVER
@@ -428,9 +428,9 @@ pages:
     - build:host:stable:docs
   stage: deploy
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
   script:
     - mkdir -p public
     - mv target/doc public/
