@@ -993,6 +993,10 @@ impl AugmentedSession {
 
 pub fn shorten(text: &str, limit: usize) -> std::borrow::Cow<'_, str> {
     if text.len() > limit {
+        let mut limit = limit;
+        while !text.is_char_boundary(limit) {
+            limit += 1;
+        }
         format!("{}...", &text[..limit]).into()
     } else {
         text.into()
