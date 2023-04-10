@@ -152,9 +152,7 @@ CoverBackground {
 
     CoverActionList {
         id: coverAction
-        // enabled: !placeholderLabel.visible
-        // XXX https://gitlab.com/whisperfish/whisperfish/-/issues/481
-        enabled: false
+        enabled: !placeholderLabel.visible
         CoverAction {
             iconSource: {
                 if (ClientWorker.connected) {
@@ -168,7 +166,8 @@ CoverBackground {
             onTriggered: {
                 if(!SetupWorker.locked) {
                     mainWindow.activate()
-                    mainWindow.newMessage(PageStackAction.Immediate)
+                    // XXX https://gitlab.com/whisperfish/whisperfish/-/issues/481
+                    // mainWindow.newMessage(PageStackAction.Immediate)
                 }
             }
         }
