@@ -1,6 +1,5 @@
 variables: &variables
   SFOS_VERSION: 4.4.0.58
-  CARGO_HOME: /home/mersdk/cargo
   GIT_FETCH_EXTRA_FLAGS: --tags
   RUST_BACKTRACE: full
 
@@ -62,6 +61,8 @@ stages:
 .build-sailfishos: &build-sailfishos
   image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
+  variables:
+    CARGO_HOME: /home/mersdk/cargo
   artifacts:
     paths:
       - RPMS/*.rpm
@@ -83,31 +84,32 @@ stages:
     - .ci/build-with-mb2.sh
 
 build:sailfishos:latest:armv7hl:
+  extends: .build-sailfishos
   variables:
     <<: *variables
     MER_ARCH: armv7hl
     TARGET_VERSION: $SFOS_VERSION
     DIST: .sf4
-  <<: *build-sailfishos
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - when: on_success
 
 build:sailfishos:3.4:armv7hl:
+  extends: .build-sailfishos
   variables:
     <<: *variables
     MER_ARCH: armv7hl
     TARGET_VERSION: 3.4.0.24
     SFOS_VERSION: 4.1.0.24
     DIST: .sf3
-  <<: *build-sailfishos
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - when: on_success
 
 build:sailfishos:latest:i486:
+  extends: .build-sailfishos
   variables:
     <<: *variables
     MER_ARCH: i486
@@ -116,7 +118,6 @@ build:sailfishos:latest:i486:
   cache:
     <<: *rust-cache
     key: "target-i486-$CI_COMMIT_REF_SLUG"
-  <<: *build-sailfishos
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -128,37 +129,37 @@ build:sailfishos:latest:i486:
 #  If this bothers someone (I don't think there's any i486 device that doesn't support 4.3;
 #  check conversation at https://matrix.to/#/!clfpfblSRQUbEUGwsD:rubdos.be/$QANC2ZqJuGElnp2Bkvll_4KLmmSmZUqPgthzzT1KRT0?via=libera.chat&via=matrix.org&via=rubdos.be)
 # build:sailfishos:3.4:i486:
+#  extends: .build-sailfishos
 #   variables:
 #     <<: *variables
 #     MER_ARCH: i486
 #     TARGET_VERSION: 3.4.0.24
 #     DIST: .sf3
-#   <<: *build-sailfishos
 #   rules:
 #    - if: $CI_PIPELINE_SOURCE == "schedule"
 #      when: never
 #    - when: on_success
 
 build:sailfishos:latest:aarch64:
+  extends: .build-sailfishos
   variables:
     <<: *variables
     MER_ARCH: aarch64
     TARGET_VERSION: $SFOS_VERSION
     DIST: .sf4
-  <<: *build-sailfishos
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - when: on_success
 
 build:sailfishos:3.4:aarch64:
+  extends: .build-sailfishos
   variables:
     <<: *variables
     MER_ARCH: aarch64
     TARGET_VERSION: 3.4.0.24
     SFOS_VERSION: 4.1.0.24
     DIST: .sf3
-  <<: *build-sailfishos
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
