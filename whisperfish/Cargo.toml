@@ -104,7 +104,7 @@ anyhow = "1.0"
 prost-build = "0.10"
 
 [dev-dependencies]
-actix-rt = "2.7.0"
+actix-rt = "2.8.0"
 # Git version for async tests. 0.6.5 will contain this feature,
 # so revert to crates.io on release
 criterion = "0.3"
