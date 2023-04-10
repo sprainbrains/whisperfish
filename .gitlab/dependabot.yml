@@ -5,3 +5,5 @@ updates:
     schedule:
       interval: daily
     auto-merge: true
+    rebase-strategy:
+      on-approval: true
