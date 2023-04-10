@@ -55,6 +55,9 @@ SilicaListView {
         isSelecting = true
     }
 
+    // WARNING It is problematic to reset the selection while
+    // a message action is running. The selection should only be reset through
+    // messageAction(), and all actions should use IDs instead of indices.
     function resetSelection(keepRemorse) {
         if (!keepRemorse && !!__running_remorse) {
             __running_remorse.triggered.disconnect(resetSelection)
@@ -179,13 +182,6 @@ SilicaListView {
         return selectedIds
     }
 
-    // TODO all model methods must take message id's instead of
-    // indices. When that is given, we can remove this line and
-    // keep the selection.
-    // WARNING It is problematic to reset the selection while
-    // a message action is running. The selection should only be reset through
-    // messageAction(), and all actions should use IDs instead of indices.
-    onCountChanged: resetSelection()
     onSelectedCountChanged: if (selectedCount === 0) isSelecting = false
     onItemSelectionToggled: {
         if (selectedMessages[modelData.id] === undefined) {
