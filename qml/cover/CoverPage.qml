@@ -142,12 +142,12 @@ CoverBackground {
     }
 
     Image {
-        source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+        source: "/usr/share/harbour-whisperfish/icons/172x172/cover-background.png"
         anchors.centerIn: parent
         width: Math.max(parent.width, parent.height)
         height: width
         fillMode: Image.PreserveAspectFit
-        opacity: 0.1
+        opacity: 0.2
     }
 
     CoverActionList {
