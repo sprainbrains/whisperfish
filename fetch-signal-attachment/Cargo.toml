@@ -20,7 +20,7 @@ anyhow = "1.0"
 actix-rt = "2.8.0"
 env_logger = "0.9"
 hex = "0.4"
-mime = "0.3.16"
+mime = "0.3.17"
 uuid = { version = "1", features=["v4"] }
 
 [features]
