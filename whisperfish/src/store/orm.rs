@@ -1207,6 +1207,13 @@ mod tests {
             format!("{}", m),
             "Message { id: 71, session_id: 66, text: \"wohoo\", quote_id: 87 }"
         );
+
+        m.text = Some("Onks yhtää jäitä pakkases?".into());
+        // Some characters are >1 bytes long
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, text: \"Onks yhtä...\", quote_id: 87 }"
+        );
     }
 
     #[test]
@@ -1491,5 +1498,12 @@ mod tests {
         assert_eq!(shorten("abc", 4), "abc");
         assert_eq!(shorten("abcd", 4), "abcd");
         assert_eq!(shorten("abcde", 4), "abcd...");
+        // Some characters are >1 bytes long.
+        // Sometimes the length boundary hits the middle.
+        assert_eq!(shorten("Tänään!", 5), "Tänä...");
+        assert_eq!(shorten("xää", 5), "xää"); // 1+2+2 -> full string
+        assert_eq!(shorten("äää", 5), "äää..."); // 2+2+2 -> 2+2+2...
+        assert_eq!(shorten("xäää", 5), "xää..."); // 1+2+2+2 -> 1+2+2...
+        assert_eq!(shorten("ääää", 5), "äää..."); // 2+2+2+2 -> 2+2+2...
     }
 }
