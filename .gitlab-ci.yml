@@ -12,6 +12,9 @@ include:
   - project: "dependabot-gitlab/dependabot-standalone"
     file: ".gitlab-ci.yml"
 
+.dependabot-gitlab:
+  stage: deploy
+
 stages:
   - build
   - test
