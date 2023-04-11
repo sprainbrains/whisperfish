@@ -992,6 +992,11 @@ impl AugmentedSession {
 }
 
 pub fn shorten(text: &str, limit: usize) -> std::borrow::Cow<'_, str> {
+    let limit = text
+        .char_indices()
+        .map(|(i, _)| i)
+        .nth(limit)
+        .unwrap_or(text.len());
     if text.len() > limit {
         format!("{}...", &text[..limit]).into()
     } else {
@@ -1206,6 +1211,13 @@ mod tests {
         assert_eq!(
             format!("{}", m),
             "Message { id: 71, session_id: 66, text: \"wohoo\", quote_id: 87 }"
+        );
+
+        m.text = Some("Onks yhtää jäitä pakkases?".into());
+        // Some characters are >1 bytes long
+        assert_eq!(
+            format!("{}", m),
+            "Message { id: 71, session_id: 66, text: \"Onks yhtä...\", quote_id: 87 }"
         );
     }
 
@@ -1491,5 +1503,11 @@ mod tests {
         assert_eq!(shorten("abc", 4), "abc");
         assert_eq!(shorten("abcd", 4), "abcd");
         assert_eq!(shorten("abcde", 4), "abcd...");
+        // Some characters are >1 bytes long.
+        assert_eq!(shorten("Hyvää huomenta", 5), "Hyvää...");
+        assert_eq!(shorten("Dobrý den", 5), "Dobrý...");
+        assert_eq!(shorten("こんにちは", 3), "こんに...");
+        assert_eq!(shorten("안녕하세요", 2), "안녕...");
+        assert_eq!(shorten("Здравствуйте", 5), "Здрав...");
     }
 }
