@@ -945,7 +945,7 @@ impl AugmentedSession {
         self.last_message
             .as_ref()
             .map(|m| m.is_read)
-            .unwrap_or(false)
+            .unwrap_or(true)
     }
 
     pub fn delivered(&self) -> u32 {
