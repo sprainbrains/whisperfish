@@ -361,6 +361,12 @@ SELECT group_id, recipients.id
 FROM old_group_members
 LEFT JOIN recipients ON old_group_members.group_member_e164 == recipients.e164;
 
+-- Manually drop the TEMPORARY VIEW, because it may still be tied to the recipients
+-- table by the time we hit DROP COLUMN statements in later migrations.  Whoever
+-- thought it was a good idea to then throw "SQL logic error" and nothing more owes
+-- me a beer or sixteen.
+DROP VIEW old_group_members;
+
 -- For sessions, too, we have two sources.
 -- They both come from old_session. 🐎 Hold your horses 🐎
 -- - 🐎 1:1 sessions have to be tied to the recipient table
