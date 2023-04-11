@@ -1,5 +1,4 @@
 use anyhow::Context;
-use fs_extra;
 use libsignal_protocol::DeviceId;
 
 /// Global Config
