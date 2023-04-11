@@ -489,10 +489,10 @@ impl Storage {
         // That said, our check_foreign_keys() does output more useful information for when things
         // go haywire, albeit a bit later.
         db.batch_execute("PRAGMA foreign_keys = OFF;").unwrap();
-        db.transaction::<_, Error, _>(|db| {
+        db.transaction::<_, anyhow::Error, _>(|db| {
             db.run_pending_migrations(MIGRATIONS)
-                .or(Err(Error::RollbackTransaction))?;
-            crate::check_foreign_keys(db).or(Err(Error::RollbackTransaction))?;
+                .map_err(|e| anyhow::anyhow!("Running migrations: {}", e))?;
+            crate::check_foreign_keys(db)?;
             Ok(())
         })?;
         db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
