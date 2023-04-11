@@ -311,7 +311,7 @@ WITH split(group_id, word, str) AS (
         FROM old_session
         WHERE is_group != 0
             AND group_members IS NOT NULL
-            AND group_members != ""
+            AND group_members != ''
     UNION ALL
     SELECT
         group_id,
@@ -335,7 +335,7 @@ INSERT INTO recipients (
 SELECT
     source
 FROM old_session
-WHERE source IS NOT NULL and source != "";
+WHERE source IS NOT NULL and source != '';
 
 -- - group messages, i.e. the `group_members` field of `old_session`.
 INSERT OR IGNORE INTO recipients (
@@ -487,7 +487,7 @@ SELECT
     messages.id,
     old_message.attachment,
     CASE WHEN old_message.mime_type IS NULL
-        THEN ""
+        THEN ''
         ELSE old_message.mime_type
     END,
 
