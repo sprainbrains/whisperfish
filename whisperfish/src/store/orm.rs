@@ -1095,7 +1095,7 @@ mod tests {
         Recipient {
             id: 981,
             e164: Some("+358401010101".into()),
-            uuid: Some("bff93979-a0fa-41f5-8ccf-e319135384d8".into()),
+            uuid: Some(Uuid::parse_str("bff93979-a0fa-41f5-8ccf-e319135384d8").unwrap()),
             username: Some("nick".into()),
             email: None,
             blocked: false,
