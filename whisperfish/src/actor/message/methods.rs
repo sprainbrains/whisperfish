@@ -19,12 +19,7 @@ pub struct MessageMethods {
     sendMessage: qt_method!(fn(&self, mid: i32)),
     endSession: qt_method!(fn(&self, recipient_id: i32)),
 
-    remove: qt_method!(
-        fn(
-            &self,
-            id: i32, /* FIXME the implemented method takes an *index* but should take a message ID */
-        )
-    ),
+    remove: qt_method!(fn(&self, id: i32)),
 }
 
 impl MessageMethods {

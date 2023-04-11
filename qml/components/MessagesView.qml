@@ -55,6 +55,9 @@ SilicaListView {
         isSelecting = true
     }
 
+    // WARNING It is problematic to reset the selection while
+    // a message action is running. The selection should only be reset through
+    // messageAction(), and all actions should use IDs instead of indices.
     function resetSelection(keepRemorse) {
         if (!keepRemorse && !!__running_remorse) {
             __running_remorse.triggered.disconnect(resetSelection)
@@ -132,7 +135,7 @@ SilicaListView {
     }
 
     function deleteSelectedForSelf() { // call through messageAction()
-        var selectedIndices = _getSelectedIndices()
+        var selectedIds = _getSelectedIds()
         hideSelected = true
 
         return Remorse.popupAction(
@@ -140,11 +143,9 @@ SilicaListView {
             //% "Locally deleted %n message(s)"
             root, qsTrId("whisperfish-remorse-deleted-messages-locally", selectedCount),
             function() {
-                for (var i in selectedIndices) {
-                    console.log("Delete message:", selectedIndices[i])
-                    // TODO MessageModel.remove takes a message ID.
-                    // Rewrite this function to use IDs when that is fixed.
-                    // MessageModel.remove(selectedIndices[i])
+                for (var i in selectedIds) {
+                    console.log("Delete message (id):", selectedIds[i])
+                    MessageModel.remove(selectedIds[i])
                 }
             })
     }
@@ -171,23 +172,16 @@ SilicaListView {
 
     /* ↑↑↑↑ message action functions to be used through messageAction(action, ...) */
 
-    function _getSelectedIndices() {
-        var selectedIndices = []
+    function _getSelectedIds() {
+        var selectedIds = []
         for (var i in selectedMessages) {
             if (!selectedMessages.hasOwnProperty(i)) continue
-            selectedIndices.push(selectedMessages[i].index)
+            selectedIds.push(selectedMessages[i].id)
         }
-        selectedIndices.sort(function(a,b){return b-a}) // descending
-        return selectedIndices
+        selectedIds.sort(function(a,b){return b-a}) // descending
+        return selectedIds
     }
 
-    // TODO all model methods must take message id's instead of
-    // indices. When that is given, we can remove this line and
-    // keep the selection.
-    // WARNING It is problematic to reset the selection while
-    // a message action is running. The selection should only be reset through
-    // messageAction(), and all actions should use IDs instead of indices.
-    onCountChanged: resetSelection()
     onSelectedCountChanged: if (selectedCount === 0) isSelecting = false
     onItemSelectionToggled: {
         if (selectedMessages[modelData.id] === undefined) {
