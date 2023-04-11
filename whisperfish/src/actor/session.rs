@@ -222,9 +222,9 @@ impl Handler<RemoveIdentities> for SessionActor {
                 log::debug!("No identities to remove");
                 return;
             }
-            (None, Some(uuid)) => vec![uuid],
+            (None, Some(uuid)) => vec![uuid.to_string()],
             (Some(e164), None) => vec![e164],
-            (Some(e164), Some(uuid)) => vec![e164, uuid],
+            (Some(e164), Some(uuid)) => vec![e164, uuid.to_string()],
         };
 
         let mut successes = 0;

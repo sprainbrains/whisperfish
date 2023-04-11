@@ -3,10 +3,12 @@ use chrono::prelude::*;
 use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::ProfileKeyExt;
+use std::borrow::Cow;
 use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
 
 mod sql_types;
+use sql_types::OptionUuidString;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV1 {
@@ -209,7 +211,8 @@ impl From<UnidentifiedAccessMode> for i32 {
 pub struct Recipient {
     pub id: i32,
     pub e164: Option<String>,
-    pub uuid: Option<String>,
+    #[diesel(deserialize_as = OptionUuidString)]
+    pub uuid: Option<Uuid>,
     pub username: Option<String>,
     pub email: Option<String>,
     pub blocked: bool,
@@ -249,14 +252,14 @@ impl Display for Recipient {
                 &self.id,
                 profile_joined_name,
                 shorten(e164, 6),
-                shorten(r_uuid, 9)
+                shorten(&r_uuid.to_string(), 9)
             ),
             (None, Some(r_uuid)) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\" }}",
                 &self.id,
                 profile_joined_name,
-                shorten(r_uuid, 9)
+                shorten(&r_uuid.to_string(), 9)
             ),
             (Some(e164), None) => write!(
                 f,
@@ -382,28 +385,26 @@ impl Recipient {
 
     pub fn to_service_address(&self) -> Option<libsignal_service::ServiceAddress> {
         self.uuid
-            .as_ref()
-            .map(|uuid| libsignal_service::ServiceAddress {
-                uuid: uuid::Uuid::parse_str(uuid).expect("only valid UUIDs in db"),
-            })
+            .map(|uuid| libsignal_service::ServiceAddress { uuid })
     }
 
-    pub fn uuid(&self) -> &str {
-        self.uuid.as_deref().or(Some("")).expect("uuid")
+    pub fn uuid(&self) -> String {
+        self.uuid.as_ref().map(Uuid::to_string).unwrap_or_default()
     }
 
-    pub fn e164_or_uuid(&self) -> &str {
+    pub fn e164_or_uuid(&self) -> Cow<'_, str> {
         self.e164
             .as_deref()
-            .or(self.uuid.as_deref())
+            .map(Cow::Borrowed)
+            .or_else(|| self.uuid.as_ref().map(Uuid::to_string).map(Cow::Owned))
             .expect("either uuid or e164")
     }
 
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> Cow<'_, str> {
         self.profile_joined_name
             .as_deref()
-            .or_else(|| Some(self.e164_or_uuid()))
-            .expect("either joined name, uuid or e164")
+            .map(Cow::Borrowed)
+            .unwrap_or_else(|| self.e164_or_uuid())
     }
 }
 
@@ -887,11 +888,11 @@ impl AugmentedSession {
         }
     }
 
-    pub fn recipient_uuid(&self) -> &str {
+    pub fn recipient_uuid(&self) -> Cow<'_, str> {
         match &self.inner.r#type {
-            SessionType::GroupV1(_group) => "",
-            SessionType::GroupV2(_group) => "",
-            SessionType::DirectMessage(recipient) => recipient.uuid(),
+            SessionType::GroupV1(_group) => "".into(),
+            SessionType::GroupV2(_group) => "".into(),
+            SessionType::DirectMessage(recipient) => recipient.uuid().into(),
         }
     }
 

@@ -1,5 +1,6 @@
 use anyhow::Context;
 use libsignal_protocol::DeviceId;
+use uuid::Uuid;
 
 /// Global Config
 ///
@@ -14,8 +15,7 @@ pub struct SignalConfig {
     tel: std::sync::Mutex<String>,
     /// Our uuid. This field is changed in threads and thus has to be Send/Sync but mutable at the
     /// same time.
-    // XXX use the uuid type here
-    uuid: std::sync::Mutex<String>,
+    uuid: std::sync::Mutex<Option<Uuid>>,
     /// Same goes for the device id
     device_id: std::sync::Mutex<u32>,
     /// Directory for persistent share files
@@ -45,7 +45,7 @@ impl Default for SignalConfig {
 
         Self {
             tel: std::sync::Mutex::new(String::from("")),
-            uuid: std::sync::Mutex::new(String::from("")),
+            uuid: std::sync::Mutex::new(None),
             device_id: std::sync::Mutex::new(libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
             verbose: false,
@@ -270,8 +270,8 @@ impl SignalConfig {
         self.tel.lock().unwrap().clone()
     }
 
-    pub fn get_uuid_clone(&self) -> String {
-        self.uuid.lock().unwrap().clone()
+    pub fn get_uuid(&self) -> Option<Uuid> {
+        *self.uuid.lock().unwrap()
     }
 
     pub fn get_device_id(&self) -> DeviceId {
@@ -282,8 +282,8 @@ impl SignalConfig {
         *self.tel.lock().unwrap() = tel;
     }
 
-    pub fn set_uuid(&self, uuid: String) {
-        *self.uuid.lock().unwrap() = uuid;
+    pub fn set_uuid(&self, uuid: Uuid) {
+        *self.uuid.lock().unwrap() = Some(uuid);
     }
 
     pub fn set_device_id(&self, id: u32) {

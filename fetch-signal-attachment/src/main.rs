@@ -76,7 +76,7 @@ async fn main() -> Result<(), anyhow::Error> {
     // Connection details for OWS servers
     // XXX: https://gitlab.com/whisperfish/whisperfish/-/issues/80
     let phonenumber = phonenumber::parse(None, config.get_tel_clone()).unwrap();
-    let uuid = uuid::Uuid::parse_str(&config.get_uuid_clone()).ok();
+    let uuid = config.get_uuid();
     let device_id = config.get_device_id();
     let e164 = phonenumber
         .format()

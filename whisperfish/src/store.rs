@@ -27,6 +27,7 @@ use protocol_store::ProtocolStore;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard};
+use uuid::Uuid;
 use zkgroup::api::groups::GroupSecretParams;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
@@ -90,7 +91,7 @@ pub struct Message {
 pub struct NewMessage {
     pub session_id: Option<i32>,
     pub source_e164: Option<String>,
-    pub source_uuid: Option<String>,
+    pub source_uuid: Option<Uuid>,
     pub text: String,
     pub timestamp: NaiveDateTime,
     pub sent: bool,
@@ -558,7 +559,7 @@ impl Storage {
         let session = session.unwrap_or_else(|| {
             let recipient = self.merge_and_fetch_recipient(
                 new_message.source_e164.as_deref(),
-                new_message.source_uuid.as_deref(),
+                new_message.source_uuid,
                 TrustLevel::Certain,
             );
             self.fetch_or_insert_session_by_recipient_id(recipient.id)
@@ -584,12 +585,16 @@ impl Storage {
             .fetch_session_by_id(message.session_id)
             .expect("session exists");
 
-        if let Some(uuid) = &sender.uuid {
-            if uuid != reaction.target_author_uuid() {
+        let target_author_uuid = Uuid::parse_str(reaction.target_author_uuid())
+            .map_err(|_| log::error!("ignoring reaction with invalid uuid"))
+            .ok()?;
+
+        if let Some(uuid) = sender.uuid {
+            if uuid != target_author_uuid {
                 log::warn!(
                     "uuid != reaction.target_author_uuid ({} != {}). Continuing, but this is a bug or attack.",
                     uuid,
-                    reaction.target_author_uuid(),
+                    target_author_uuid,
                 );
             }
         }
@@ -642,19 +647,16 @@ impl Storage {
 
     pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
         let e164 = self.config.get_tel_clone();
-        let uuid = self.config.get_uuid_clone();
+        let uuid = self.config.get_uuid();
         let e164 = if e164.is_empty() {
             log::warn!("No e164 set, cannot fetch self.");
             return None;
         } else {
             Some(e164.as_str())
         };
-        let uuid = if uuid.is_empty() {
+        if uuid.is_none() {
             log::warn!("No uuid set. Continuing with only e164");
-            None
-        } else {
-            Some(uuid.as_str())
-        };
+        }
         Some(self.merge_and_fetch_recipient(e164, uuid, TrustLevel::Certain))
     }
 
@@ -689,7 +691,7 @@ impl Storage {
     pub fn fetch_recipient(
         &self,
         e164: Option<&str>,
-        uuid: Option<&str>,
+        uuid: Option<Uuid>,
     ) -> Option<orm::Recipient> {
         if e164.is_none() && uuid.is_none() {
             panic!("fetch_recipient requires at least one of e164 or uuid");
@@ -709,7 +711,7 @@ impl Storage {
         let by_uuid: Option<orm::Recipient> = uuid
             .map(|uuid| {
                 recipients::table
-                    .filter(recipients::uuid.eq(uuid))
+                    .filter(recipients::uuid.eq(uuid.to_string()))
                     .first(&mut *self.db())
                     .optional()
             })
@@ -756,7 +758,7 @@ impl Storage {
 
     pub fn update_profile_details(
         &self,
-        profile_uuid: &uuid::Uuid,
+        profile_uuid: &Uuid,
         new_given_name: &Option<String>,
         new_family_name: &Option<String>,
         new_about: &Option<String>,
@@ -791,7 +793,7 @@ impl Storage {
     pub fn update_profile_key(
         &self,
         e164: Option<&str>,
-        uuid: Option<&str>,
+        uuid: Option<Uuid>,
         new_profile_key: &[u8],
         trust_level: TrustLevel,
     ) -> (orm::Recipient, bool) {
@@ -837,7 +839,7 @@ impl Storage {
         &self,
         // TODO: make these strong types
         e164: Option<&str>,
-        uuid: Option<&str>,
+        uuid: Option<Uuid>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
         let (id, uuid, e164, changed) = self
@@ -851,7 +853,7 @@ impl Storage {
                 .fetch_recipient_by_id(id)
                 .expect("existing updated recipient"),
             (_, Some(uuid), _) => self
-                .fetch_recipient_by_uuid(Uuid::parse_str(uuid).unwrap())
+                .fetch_recipient_by_uuid(uuid)
                 .expect("existing updated recipient"),
             (_, _, Some(e164)) => self
                 .fetch_recipient_by_e164(e164)
@@ -870,12 +872,12 @@ impl Storage {
     // Inner method because the coverage report is then sensible.
     #[allow(clippy::type_complexity)]
     // XXX this should get implemented with an Either or custom enum instead
-    fn merge_and_fetch_recipient_inner<'e, 'u>(
+    fn merge_and_fetch_recipient_inner<'e>(
         db: &mut SqliteConnection,
         e164: Option<&'e str>,
-        uuid: Option<&'u str>,
+        uuid: Option<Uuid>,
         trust_level: TrustLevel,
-    ) -> Result<(Option<i32>, Option<&'u str>, Option<&'e str>, bool), Error> {
+    ) -> Result<(Option<i32>, Option<Uuid>, Option<&'e str>, bool), Error> {
         if e164.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
@@ -893,7 +895,7 @@ impl Storage {
         let by_uuid: Option<orm::Recipient> = uuid
             .map(|uuid| {
                 recipients::table
-                    .filter(recipients::uuid.eq(uuid))
+                    .filter(recipients::uuid.eq(uuid.to_string()))
                     .first(db)
                     .optional()
             })
@@ -986,7 +988,7 @@ impl Storage {
                                 by_e164.e164.unwrap()
                             );
                             diesel::update(recipients::table)
-                                .set(recipients::uuid.eq(uuid))
+                                .set(recipients::uuid.eq(uuid.to_string()))
                                 .filter(recipients::id.eq(by_e164.id))
                                 .execute(db)?;
                             Ok((Some(by_e164.id), None, None, true))
@@ -999,7 +1001,7 @@ impl Storage {
                             );
 
                             diesel::insert_into(recipients::table)
-                                .values(recipients::uuid.eq(uuid))
+                                .values(recipients::uuid.eq(uuid.to_string()))
                                 .execute(db)
                                 .expect("insert new recipient");
                             Ok((None, Some(uuid), None, true))
@@ -1013,7 +1015,10 @@ impl Storage {
                 let insert_e164 = (trust_level == TrustLevel::Certain) || uuid.is_none();
                 let insert_e164 = if insert_e164 { e164 } else { None };
                 diesel::insert_into(recipients::table)
-                    .values((recipients::e164.eq(insert_e164), recipients::uuid.eq(uuid)))
+                    .values((
+                        recipients::e164.eq(insert_e164),
+                        recipients::uuid.eq(uuid.as_ref().map(Uuid::to_string)),
+                    ))
                     .execute(db)
                     .expect("insert new recipient");
 
@@ -1330,7 +1335,7 @@ impl Storage {
     /// Marks the message with a certain timestamp as received by a certain person.
     pub fn mark_message_received(
         &self,
-        receiver_uuid: uuid::Uuid,
+        receiver_uuid: Uuid,
         timestamp: NaiveDateTime,
         delivered_at: Option<chrono::DateTime<Utc>>,
     ) -> Option<(orm::Session, orm::Message)> {
@@ -1338,11 +1343,8 @@ impl Storage {
         let delivered_at = delivered_at.unwrap_or_else(chrono::Utc::now).naive_utc();
 
         // Find the recipient
-        let recipient = self.merge_and_fetch_recipient(
-            None,
-            Some(&receiver_uuid.to_string()),
-            TrustLevel::Certain,
-        );
+        let recipient =
+            self.merge_and_fetch_recipient(None, Some(receiver_uuid), TrustLevel::Certain);
         let message_id = schema::messages::table
             .select(schema::messages::id)
             .filter(schema::messages::server_timestamp.eq(timestamp))
@@ -1951,11 +1953,8 @@ impl Storage {
 
         let has_source = new_message.source_e164.is_some() || new_message.source_uuid.is_some();
         let sender_id = if has_source {
-            self.fetch_recipient(
-                new_message.source_e164.as_deref(),
-                new_message.source_uuid.as_deref(),
-            )
-            .map(|r| r.id)
+            self.fetch_recipient(new_message.source_e164.as_deref(), new_message.source_uuid)
+                .map(|r| r.id)
         } else {
             None
         };
@@ -2364,7 +2363,7 @@ impl Storage {
         ext: &str,
         attachment: &[u8],
     ) -> Result<PathBuf, anyhow::Error> {
-        let fname = uuid::Uuid::new_v4();
+        let fname = Uuid::new_v4();
         let fname = fname.as_simple();
         let fname_formatted = format!("{}", fname);
         let fname_path = Path::new(&fname_formatted);

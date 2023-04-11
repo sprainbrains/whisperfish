@@ -71,7 +71,7 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
 
             let contacts = std::iter::once(ContactDetails {
                 number: self_recipient.e164.clone(),
-                uuid: self_recipient.uuid.clone(),
+                uuid: self_recipient.uuid.as_ref().map(Uuid::to_string),
                 name: self_recipient.profile_joined_name.clone(),
                 profile_key: self_recipient.profile_key,
                 // XXX other profile stuff
@@ -100,8 +100,7 @@ impl Handler<RefreshOwnProfile> for ClientActor {
         let mut service = self.authenticated_service();
         let client = ctx.address();
         let config = self.config.clone();
-        let uuid = config.get_uuid_clone();
-        let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
+        let uuid = config.get_uuid().expect("valid uuid at this point");
 
         Box::pin(
             async move {
@@ -175,8 +174,7 @@ impl Handler<UpdateProfile> for ClientActor {
         let storage = self.storage.clone().unwrap();
         let client = ctx.address();
         let config = self.config.clone();
-        let uuid_str = config.get_uuid_clone();
-        let uuid = Uuid::parse_str(&uuid_str).unwrap();
+        let uuid = config.get_uuid().expect("valid uuid at this point");
 
         // XXX: Validate emoji character somehow
         Box::pin(async move {
@@ -204,8 +202,7 @@ impl Handler<UploadProfile> for ClientActor {
         let service = self.authenticated_service();
         let client = ctx.address();
         let config = self.config.clone();
-        let uuid = config.get_uuid_clone();
-        let uuid = uuid::Uuid::parse_str(&uuid).expect("valid uuid at this point");
+        let uuid = config.get_uuid().expect("valid uuid at this point");
 
         Box::pin(async move {
             let self_recipient = storage
@@ -253,7 +250,7 @@ impl Handler<UploadProfile> for ClientActor {
             // Now also set the database
             storage.update_profile_key(
                 None,
-                Some(&uuid.to_string()),
+                Some(uuid),
                 &profile_key.get_bytes(),
                 TrustLevel::Certain,
             );
