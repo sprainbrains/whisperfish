@@ -1778,7 +1778,6 @@ impl Handler<RefreshProfile> for ClientActor {
                 "Recipient without uuid; not refreshing profile: {:?}",
                 recipient
             );
-            return;
         }
         // Polling the actor will poll the OutdatedProfileStream, which should immediately fire the
         // necessary events.  This is hacky (XXX), we should in fact wake the stream somehow to ensure

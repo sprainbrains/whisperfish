@@ -64,14 +64,14 @@ where
     }
 }
 
-impl Into<Uuid> for UuidString {
-    fn into(self) -> Uuid {
-        self.0
+impl From<UuidString> for Uuid {
+    fn from(val: UuidString) -> Self {
+        val.0
     }
 }
 
-impl Into<Option<Uuid>> for OptionUuidString {
-    fn into(self) -> Option<Uuid> {
-        self.0
+impl From<OptionUuidString> for Option<Uuid> {
+    fn from(val: OptionUuidString) -> Self {
+        val.0
     }
 }
