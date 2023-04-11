@@ -1,13 +1,12 @@
 use super::schema::*;
 use chrono::prelude::*;
-use diesel::backend;
-use diesel::deserialize;
-use diesel::serialize;
 use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::ProfileKeyExt;
 use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
+
+mod sql_types;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV1 {
@@ -203,35 +202,6 @@ impl std::convert::TryFrom<i32> for UnidentifiedAccessMode {
 impl From<UnidentifiedAccessMode> for i32 {
     fn from(value: UnidentifiedAccessMode) -> Self {
         value as i32
-    }
-}
-
-impl<DB> deserialize::FromSql<Integer, DB> for UnidentifiedAccessMode
-where
-    DB: backend::Backend,
-    i32: deserialize::FromSql<Integer, DB>,
-{
-    fn from_sql(bytes: backend::RawValue<DB>) -> deserialize::Result<Self> {
-        match i32::from_sql(bytes)? {
-            0 => Ok(UnidentifiedAccessMode::Unknown),
-            1 => Ok(UnidentifiedAccessMode::Disabled),
-            2 => Ok(UnidentifiedAccessMode::Enabled),
-            3 => Ok(UnidentifiedAccessMode::Unrestricted),
-            x => Err(format!("Unrecognized variant {}", x).into()),
-        }
-    }
-}
-
-impl serialize::ToSql<Integer, diesel::sqlite::Sqlite> for UnidentifiedAccessMode
-where
-    i32: serialize::ToSql<Integer, diesel::sqlite::Sqlite>,
-{
-    fn to_sql<'b>(
-        &'b self,
-        out: &mut serialize::Output<'b, '_, diesel::sqlite::Sqlite>,
-    ) -> serialize::Result {
-        out.set_value(*self as i32);
-        Ok(serialize::IsNull::No)
     }
 }
 
