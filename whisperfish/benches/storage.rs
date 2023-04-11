@@ -28,18 +28,19 @@ pub fn storage() -> InMemoryDb {
 fn fetch_augmented_messages(c: &mut Criterion) {
     let mut group = c.benchmark_group("fetch_augmented_messages");
     group.significance_level(0.05).sample_size(20);
+    let pn = phonenumber::parse(None, "+32474000000").unwrap();
     for elements in (9..18).map(|x| 1 << x) {
         group.throughput(Throughput::Elements(elements));
         for attachments in 0..3 {
             // for receipts in (0..6) {
             let (mut storage, _loc) = storage();
             // Insert `elements` messages
-            let session = storage.fetch_or_insert_session_by_e164("+32474");
+            let session = storage.fetch_or_insert_session_by_phonenumber(&pn);
             for _ in 0..elements {
                 let (msg, _) = storage.process_message(
                     NewMessage {
                         session_id: Some(session.id),
-                        source_e164: Some("+32474".into()),
+                        source_e164: Some(pn.clone()),
                         source_uuid: None,
                         text: "Foo bar".into(),
                         timestamp: chrono::Utc::now().naive_utc(),

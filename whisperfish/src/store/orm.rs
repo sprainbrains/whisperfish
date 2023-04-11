@@ -3,12 +3,13 @@ use chrono::prelude::*;
 use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
 use libsignal_service::push_service::ProfileKeyExt;
+use phonenumber::PhoneNumber;
 use std::borrow::Cow;
 use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
 
 mod sql_types;
-use sql_types::OptionUuidString;
+use sql_types::{OptionPhoneNumberString, OptionUuidString};
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV1 {
@@ -210,7 +211,8 @@ impl From<UnidentifiedAccessMode> for i32 {
 #[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct Recipient {
     pub id: i32,
-    pub e164: Option<String>,
+    #[diesel(deserialize_as = OptionPhoneNumberString)]
+    pub e164: Option<PhoneNumber>,
     #[diesel(deserialize_as = OptionUuidString)]
     pub uuid: Option<Uuid>,
     pub username: Option<String>,
@@ -251,7 +253,7 @@ impl Display for Recipient {
                 "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\" }}",
                 &self.id,
                 profile_joined_name,
-                shorten(e164, 6),
+                shorten(&e164.to_string(), 6),
                 shorten(&r_uuid.to_string(), 9)
             ),
             (None, Some(r_uuid)) => write!(
@@ -266,7 +268,7 @@ impl Display for Recipient {
                 "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", INVALID }}",
                 &self.id,
                 profile_joined_name,
-                shorten(e164, 6)
+                shorten(&e164.to_string(), 6)
             ),
             (None, None) => write!(
                 f,
@@ -392,11 +394,18 @@ impl Recipient {
         self.uuid.as_ref().map(Uuid::to_string).unwrap_or_default()
     }
 
-    pub fn e164_or_uuid(&self) -> Cow<'_, str> {
+    pub fn e164(&self) -> String {
         self.e164
-            .as_deref()
-            .map(Cow::Borrowed)
-            .or_else(|| self.uuid.as_ref().map(Uuid::to_string).map(Cow::Owned))
+            .as_ref()
+            .map(PhoneNumber::to_string)
+            .unwrap_or_default()
+    }
+
+    pub fn e164_or_uuid(&self) -> String {
+        self.e164
+            .as_ref()
+            .map(PhoneNumber::to_string)
+            .or_else(|| self.uuid.as_ref().map(Uuid::to_string))
             .expect("either uuid or e164")
     }
 
@@ -404,7 +413,7 @@ impl Recipient {
         self.profile_joined_name
             .as_deref()
             .map(Cow::Borrowed)
-            .unwrap_or_else(|| self.e164_or_uuid())
+            .unwrap_or_else(|| Cow::Owned(self.e164_or_uuid()))
     }
 }
 
@@ -896,11 +905,11 @@ impl AugmentedSession {
         }
     }
 
-    pub fn recipient_e164(&self) -> &str {
+    pub fn recipient_e164(&self) -> Cow<'_, str> {
         match &self.inner.r#type {
-            SessionType::GroupV1(_group) => "",
-            SessionType::GroupV2(_group) => "",
-            SessionType::DirectMessage(recipient) => recipient.e164.as_deref().unwrap_or_default(),
+            SessionType::GroupV1(_group) => "".into(),
+            SessionType::GroupV2(_group) => "".into(),
+            SessionType::DirectMessage(recipient) => recipient.e164().into(),
         }
     }
 
@@ -1094,7 +1103,7 @@ mod tests {
     fn get_recipient() -> Recipient {
         Recipient {
             id: 981,
-            e164: Some("+358401010101".into()),
+            e164: Some(phonenumber::parse(None, "+358401010101").unwrap()),
             uuid: Some(Uuid::parse_str("bff93979-a0fa-41f5-8ccf-e319135384d8").unwrap()),
             username: Some("nick".into()),
             email: None,
@@ -1280,7 +1289,7 @@ mod tests {
             format!("{}", r),
             "Recipient { id: 981, name: \"\", INVALID }"
         );
-        r.e164 = Some("+358401010102".to_string());
+        r.e164 = Some(phonenumber::parse(None, "+358401010102").unwrap());
         assert_eq!(
             format!("{}", r),
             "Recipient { id: 981, name: \"\", e164: \"+35840...\", INVALID }"

@@ -28,7 +28,8 @@ pub struct SetupWorker {
     clientFailed: qt_signal!(),
     setupComplete: qt_signal!(),
 
-    phoneNumber: qt_property!(QString; NOTIFY setupChanged),
+    phonenumber: Option<PhoneNumber>,
+    _phoneNumber: qt_property!(QString; READ phonenumber NOTIFY setupChanged),
     uuid: Option<Uuid>,
     _uuid: qt_property!(QString; READ uuid NOTIFY setupChanged ALIAS uuid),
     deviceId: qt_property!(u32; NOTIFY setupChanged),
@@ -64,13 +65,19 @@ impl SetupWorker {
         app.settings_bridge.pinned().borrow_mut().defaults();
 
         // XXX: nice formatting?
-        this.borrow_mut().phoneNumber = config.get_tel_clone().into();
+        this.borrow_mut().phonenumber = config.get_tel();
         this.borrow_mut().uuid = config.get_uuid();
         this.borrow_mut().deviceId = config.get_device_id().into();
 
         if !this.borrow().registered {
             // change fields in config struct
-            config.set_tel(this.borrow().phoneNumber.to_string());
+            config.set_tel(
+                this.borrow()
+                    .phonenumber
+                    .clone()
+                    // XXX This won't be true anymore soon
+                    .expect("phonenumber present when registered"),
+            );
             config.set_uuid(this.borrow().uuid.expect("uuid present when registered"));
             config.set_device_id(this.borrow().deviceId);
 
@@ -219,16 +226,11 @@ impl SetupWorker {
             Some(storage_password)
         };
 
-        let e164 = reg
-            .phonenumber
-            .format()
-            .mode(phonenumber::Mode::E164)
-            .to_string();
-        this.phoneNumber = e164.clone().into();
+        this.phonenumber = Some(reg.phonenumber.clone());
         this.uuid = Some(reg.uuid);
         this.deviceId = reg.device_id.device_id;
 
-        config.set_tel(e164.clone());
+        config.set_tel(reg.phonenumber.clone());
         config.set_uuid(reg.uuid);
         config.set_device_id(reg.device_id.device_id);
 
@@ -246,7 +248,7 @@ impl SetupWorker {
 
         if let Some(profile_key) = reg.profile_key {
             storage.update_profile_key(
-                Some(&e164),
+                Some(reg.phonenumber),
                 Some(reg.uuid),
                 &profile_key,
                 TrustLevel::Certain,
@@ -401,6 +403,14 @@ impl SetupWorker {
         self.uuid
             .as_ref()
             .map(Uuid::to_string)
+            .unwrap_or_default()
+            .into()
+    }
+
+    fn phonenumber(&self) -> QString {
+        self.phonenumber
+            .as_ref()
+            .map(PhoneNumber::to_string)
             .unwrap_or_default()
             .into()
     }

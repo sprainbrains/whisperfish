@@ -252,7 +252,7 @@ define_model_roles! {
         RecipientId(fn recipient_id(&self)):                               "recipientId",
         RecipientName(fn recipient_name(&self) via QString::from):         "recipientName",
         RecipientUuid(fn recipient_uuid(&self) via std::borrow::Cow::into_owned via QString::from):         "recipientUuid",
-        RecipientE164(fn recipient_e164(&self) via QString::from):         "recipientE164",
+        RecipientE164(fn recipient_e164(&self) via std::borrow::Cow::into_owned via QString::from):         "recipientE164",
         RecipientEmoji(fn recipient_emoji(&self) via QString::from):       "recipientEmoji",
         RecipientAbout(fn recipient_about(&self) via QString::from):       "recipientAboutText",
         IsGroup(fn is_group(&self)):                                       "isGroup",

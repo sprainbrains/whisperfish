@@ -202,10 +202,10 @@ define_model_roles! {
     pub(super) enum RecipientWithFingerprintRoles for RecipientWithFingerprint {
         Id(id): "id",
         DirectMessageSessionId(direct_message_recipient_id): "directMessageSessionId",
-        Uuid(uuid via qstring_from_optional_uuid): "uuid",
+        Uuid(uuid via qstring_from_optional_to_string): "uuid",
         // These two are aliases
-        E164(e164 via qstring_from_option): "e164",
-        PhoneNumber(e164 via qstring_from_option): "phoneNumber",
+        E164(e164 via qstring_from_optional_to_string): "e164",
+        PhoneNumber(e164 via qstring_from_optional_to_string): "phoneNumber",
         Username(username via qstring_from_option): "username",
         Email(email via qstring_from_option): "email",
         IsRegistered(is_registered): "isRegistered",
@@ -229,10 +229,10 @@ define_model_roles! {
 define_model_roles! {
     pub(super) enum RecipientRoles for orm::Recipient {
         Id(id): "id",
-        Uuid(uuid via qstring_from_optional_uuid): "uuid",
+        Uuid(uuid via qstring_from_optional_to_string): "uuid",
         // These two are aliases
-        E164(e164 via qstring_from_option): "e164",
-        PhoneNumber(e164 via qstring_from_option): "phoneNumber",
+        E164(e164 via qstring_from_optional_to_string): "e164",
+        PhoneNumber(e164 via qstring_from_optional_to_string): "phoneNumber",
         Username(username via qstring_from_option): "username",
         Email(email via qstring_from_option): "email",
 

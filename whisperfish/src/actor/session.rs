@@ -223,8 +223,8 @@ impl Handler<RemoveIdentities> for SessionActor {
                 return;
             }
             (None, Some(uuid)) => vec![uuid.to_string()],
-            (Some(e164), None) => vec![e164],
-            (Some(e164), Some(uuid)) => vec![e164, uuid.to_string()],
+            (Some(e164), None) => vec![e164.to_string()],
+            (Some(e164), Some(uuid)) => vec![e164.to_string(), uuid.to_string()],
         };
 
         let mut successes = 0;

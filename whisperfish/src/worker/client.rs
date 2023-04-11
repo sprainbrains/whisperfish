@@ -385,7 +385,7 @@ impl ClientActor {
         &mut self,
         ctx: &mut <Self as Actor>::Context,
         // XXX: remove this argument
-        source_e164: Option<String>,
+        source_phonenumber: Option<PhoneNumber>,
         source_uuid: Option<Uuid>,
         msg: &DataMessage,
         sync_sent: Option<Sent>,
@@ -396,9 +396,9 @@ impl ClientActor {
         let is_sync_sent = sync_sent.is_some();
 
         let storage = self.storage.as_mut().expect("storage");
-        let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {
+        let sender_recipient = if source_phonenumber.is_some() || source_uuid.is_some() {
             Some(storage.merge_and_fetch_recipient(
-                source_e164.as_deref(),
+                source_phonenumber.clone(),
                 source_uuid,
                 crate::store::TrustLevel::Certain,
             ))
@@ -430,10 +430,10 @@ impl ClientActor {
             // XXX Update profile key (which happens just below); don't insert this message.
         }
 
-        if (source_e164.is_some() || source_uuid.is_some()) && !is_sync_sent {
+        if (source_phonenumber.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
                 let (recipient, was_updated) = storage.update_profile_key(
-                    source_e164.as_deref(),
+                    source_phonenumber.clone(),
                     source_uuid,
                     key,
                     crate::store::TrustLevel::Certain,
@@ -478,8 +478,9 @@ impl ClientActor {
         {
             Some(format!(
                 "Group changed by {}",
-                source_e164
-                    .clone()
+                source_phonenumber
+                    .as_ref()
+                    .map(PhoneNumber::to_string)
                     .or(source_uuid.as_ref().map(Uuid::to_string))
                     .as_deref()
                     .unwrap_or("nobody")
@@ -518,7 +519,7 @@ impl ClientActor {
         };
 
         let new_message = crate::store::NewMessage {
-            source_e164,
+            source_e164: source_phonenumber,
             source_uuid,
             text,
             flags: msg.flags() as i32,
@@ -624,7 +625,7 @@ impl ClientActor {
                     .unwrap_or_else(|| "".into()),
                 sender_recipient
                     .as_ref()
-                    .map(|x| x.e164_or_uuid().as_ref().into())
+                    .map(|x| x.e164_or_uuid().into())
                     .unwrap_or_else(|| "".into()),
                 sender_recipient
                     .map(|x| x.uuid().into())
@@ -665,7 +666,7 @@ impl ClientActor {
                     let contacts = recipients.into_iter().map(|recipient| {
                             ContactDetails {
                                 // XXX: expire timer from dm session
-                                number: recipient.e164.clone(),
+                                number: recipient.e164.as_ref().map(PhoneNumber::to_string),
                                 uuid: recipient.uuid.as_ref().map(Uuid::to_string),
                                 name: recipient.profile_joined_name.clone(),
                                 profile_key: recipient.profile_key,
@@ -685,7 +686,7 @@ impl ClientActor {
                         let members = storage.fetch_group_members_by_group_v1_id(&group.id);
                         GroupDetails {
                             name: Some(group.name.clone()),
-                            members_e164: members.iter().filter_map(|(_member, recipient)| recipient.e164.clone()).collect(),
+                            members_e164: members.iter().filter_map(|(_member, recipient)| recipient.e164.as_ref().map(PhoneNumber::to_string)).collect(),
                             // XXX: update proto file and add more.
                             // members: members.iter().filter_map(|(_member, recipient)| Member {e164: recipient.e164}).collect(),
                             // avatar, active?, color, ..., many cool things to add here!
@@ -788,11 +789,21 @@ impl ClientActor {
                             .map_err(|_| log::warn!("Unparsable UUID {}", sent.destination_uuid()))
                             .ok()
                             .flatten();
+                        let phonenumber = sent
+                            .destination_e164
+                            .as_deref()
+                            .map(|s| phonenumber::parse(None, s))
+                            .transpose()
+                            .map_err(|_| {
+                                log::warn!("Unparsable phonenumber {}", sent.destination_e164())
+                            })
+                            .ok()
+                            .flatten();
                         self.handle_message(
                             ctx,
                             // Empty string mainly when groups,
                             // but maybe needs a check. TODO
-                            sent.destination_e164.clone(),
+                            phonenumber,
                             uuid,
                             message,
                             Some(sent.clone()),
@@ -1616,7 +1627,10 @@ impl Handler<StorageReady> for ClientActor {
 
     fn handle(&mut self, storageready: StorageReady, _ctx: &mut Self::Context) -> Self::Result {
         self.storage = Some(storageready.storage.clone());
-        let tel = self.config.get_tel_clone();
+        let phonenumber = self
+            .config
+            .get_tel()
+            .expect("phonenumber present after any registration");
         let uuid = self.config.get_uuid();
         let device_id = self.config.get_device_id();
 
@@ -1624,10 +1638,7 @@ impl Handler<StorageReady> for ClientActor {
 
         let storage_for_password = storageready.storage;
         let request_password = async move {
-            // Web socket
-            let phonenumber = phonenumber::parse(None, tel).unwrap();
-
-            log::info!("Phone number: {}", phonenumber);
+            log::info!("Phone number: {:?}", phonenumber);
             log::info!("UUID: {:?}", uuid);
             log::info!("DeviceId: {}", device_id);
 

@@ -1,5 +1,6 @@
 use anyhow::Context;
 use libsignal_protocol::DeviceId;
+use phonenumber::PhoneNumber;
 use uuid::Uuid;
 
 /// Global Config
@@ -11,8 +12,7 @@ use uuid::Uuid;
 pub struct SignalConfig {
     /// Our telephone number. This field is changed in threads and thus has to be Send/Sync but
     /// mutable at the same time.
-    // XXX use the corresponding phonenumber::phonenumber type
-    tel: std::sync::Mutex<String>,
+    tel: std::sync::Mutex<Option<PhoneNumber>>,
     /// Our uuid. This field is changed in threads and thus has to be Send/Sync but mutable at the
     /// same time.
     uuid: std::sync::Mutex<Option<Uuid>>,
@@ -44,7 +44,7 @@ impl Default for SignalConfig {
             crate::store::default_location().expect("Could not get xdg share directory path");
 
         Self {
-            tel: std::sync::Mutex::new(String::from("")),
+            tel: std::sync::Mutex::new(None),
             uuid: std::sync::Mutex::new(None),
             device_id: std::sync::Mutex::new(libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
@@ -266,7 +266,7 @@ impl SignalConfig {
             .join("identity_key")
     }
 
-    pub fn get_tel_clone(&self) -> String {
+    pub fn get_tel(&self) -> Option<PhoneNumber> {
         self.tel.lock().unwrap().clone()
     }
 
@@ -278,8 +278,8 @@ impl SignalConfig {
         DeviceId::from(*self.device_id.lock().unwrap())
     }
 
-    pub fn set_tel(&self, tel: String) {
-        *self.tel.lock().unwrap() = tel;
+    pub fn set_tel(&self, tel: PhoneNumber) {
+        *self.tel.lock().unwrap() = Some(tel);
     }
 
     pub fn set_uuid(&self, uuid: Uuid) {

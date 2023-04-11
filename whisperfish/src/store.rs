@@ -23,6 +23,7 @@ use libsignal_service::groups_v2::InMemoryCredentialsCache;
 use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::{attachment_pointer, data_message::Reaction, DataMessage};
+use phonenumber::PhoneNumber;
 use protocol_store::ProtocolStore;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
@@ -90,7 +91,7 @@ pub struct Message {
 #[derive(Clone, Debug)]
 pub struct NewMessage {
     pub session_id: Option<i32>,
-    pub source_e164: Option<String>,
+    pub source_e164: Option<PhoneNumber>,
     pub source_uuid: Option<Uuid>,
     pub text: String,
     pub timestamp: NaiveDateTime,
@@ -131,8 +132,8 @@ pub struct GroupV1 {
     pub id: Vec<u8>,
     /// Group name
     pub name: String,
-    /// List of E164
-    pub members: Vec<String>,
+    /// List of phone numbers
+    pub members: Vec<PhoneNumber>,
 }
 
 #[derive(Clone)]
@@ -558,7 +559,7 @@ impl Storage {
     ) -> (orm::Message, orm::Session) {
         let session = session.unwrap_or_else(|| {
             let recipient = self.merge_and_fetch_recipient(
-                new_message.source_e164.as_deref(),
+                new_message.source_e164.clone(),
                 new_message.source_uuid,
                 TrustLevel::Certain,
             );
@@ -646,25 +647,26 @@ impl Storage {
     }
 
     pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
-        let e164 = self.config.get_tel_clone();
+        let e164 = self.config.get_tel();
         let uuid = self.config.get_uuid();
-        let e164 = if e164.is_empty() {
+        if e164.is_none() {
             log::warn!("No e164 set, cannot fetch self.");
             return None;
-        } else {
-            Some(e164.as_str())
-        };
+        }
         if uuid.is_none() {
             log::warn!("No uuid set. Continuing with only e164");
         }
         Some(self.merge_and_fetch_recipient(e164, uuid, TrustLevel::Certain))
     }
 
-    pub fn fetch_recipient_by_e164(&self, new_e164: &str) -> Option<orm::Recipient> {
+    pub fn fetch_recipient_by_phonenumber(
+        &self,
+        phonenumber: &PhoneNumber,
+    ) -> Option<orm::Recipient> {
         use crate::schema::recipients::dsl::*;
 
         recipients
-            .filter(e164.eq(new_e164))
+            .filter(e164.eq(phonenumber.to_string()))
             .first(&mut *self.db())
             .ok()
     }
@@ -690,18 +692,18 @@ impl Storage {
 
     pub fn fetch_recipient(
         &self,
-        e164: Option<&str>,
+        phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
     ) -> Option<orm::Recipient> {
-        if e164.is_none() && uuid.is_none() {
+        if phonenumber.is_none() && uuid.is_none() {
             panic!("fetch_recipient requires at least one of e164 or uuid");
         }
 
         use schema::recipients;
-        let by_e164: Option<orm::Recipient> = e164
-            .map(|e164| {
+        let by_e164: Option<orm::Recipient> = phonenumber
+            .map(|phonenumber| {
                 recipients::table
-                    .filter(recipients::e164.eq(e164))
+                    .filter(recipients::e164.eq(phonenumber.to_string()))
                     .first(&mut *self.db())
                     .optional()
             })
@@ -792,13 +794,13 @@ impl Storage {
 
     pub fn update_profile_key(
         &self,
-        e164: Option<&str>,
+        phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
         new_profile_key: &[u8],
         trust_level: TrustLevel,
     ) -> (orm::Recipient, bool) {
         // XXX check profile_key length
-        let recipient = self.merge_and_fetch_recipient(e164, uuid, trust_level);
+        let recipient = self.merge_and_fetch_recipient(phonenumber, uuid, trust_level);
 
         let is_unset = recipient.profile_key.is_none()
             || recipient.profile_key.as_ref().map(Vec::len) == Some(0);
@@ -837,18 +839,17 @@ impl Storage {
     /// XXX: This does *not* trigger observations for removed recipients.
     pub fn merge_and_fetch_recipient(
         &self,
-        // TODO: make these strong types
-        e164: Option<&str>,
+        phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
-        let (id, uuid, e164, changed) = self
+        let (id, uuid, phonenumber, changed) = self
             .db()
             .transaction::<_, Error, _>(|db| {
-                Self::merge_and_fetch_recipient_inner(db, e164, uuid, trust_level)
+                Self::merge_and_fetch_recipient_inner(db, phonenumber, uuid, trust_level)
             })
             .expect("database");
-        let recipient = match (id, uuid, e164) {
+        let recipient = match (id, uuid, &phonenumber) {
             (Some(id), _, _) => self
                 .fetch_recipient_by_id(id)
                 .expect("existing updated recipient"),
@@ -856,7 +857,7 @@ impl Storage {
                 .fetch_recipient_by_uuid(uuid)
                 .expect("existing updated recipient"),
             (_, _, Some(e164)) => self
-                .fetch_recipient_by_e164(e164)
+                .fetch_recipient_by_phonenumber(e164)
                 .expect("existing updated recipient"),
             (None, None, None) => {
                 unreachable!("this should get implemented with an Either or custom enum instead")
@@ -872,21 +873,22 @@ impl Storage {
     // Inner method because the coverage report is then sensible.
     #[allow(clippy::type_complexity)]
     // XXX this should get implemented with an Either or custom enum instead
-    fn merge_and_fetch_recipient_inner<'e>(
+    fn merge_and_fetch_recipient_inner(
         db: &mut SqliteConnection,
-        e164: Option<&'e str>,
+        phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
         trust_level: TrustLevel,
-    ) -> Result<(Option<i32>, Option<Uuid>, Option<&'e str>, bool), Error> {
-        if e164.is_none() && uuid.is_none() {
+    ) -> Result<(Option<i32>, Option<Uuid>, Option<PhoneNumber>, bool), Error> {
+        if phonenumber.is_none() && uuid.is_none() {
             panic!("merge_and_fetch_recipient requires at least one of e164 or uuid");
         }
 
         use schema::recipients;
-        let by_e164: Option<orm::Recipient> = e164
-            .map(|e164| {
+        let by_e164: Option<orm::Recipient> = phonenumber
+            .as_ref()
+            .map(|phonenumber| {
                 recipients::table
-                    .filter(recipients::e164.eq(e164))
+                    .filter(recipients::e164.eq(phonenumber.to_string()))
                     .first(db)
                     .optional()
             })
@@ -923,7 +925,10 @@ impl Storage {
                             .execute(db)?;
                         // Set the new one
                         diesel::update(recipients::table)
-                            .set(recipients::e164.eq(e164))
+                            .set(
+                                recipients::e164
+                                    .eq(phonenumber.as_ref().map(PhoneNumber::to_string)),
+                            )
                             .filter(recipients::id.eq(by_uuid.id))
                             .execute(db)?;
                         // Fetch again for the update
@@ -940,7 +945,10 @@ impl Storage {
                         let merged = Self::merge_recipients_inner(db, by_e164.id, by_uuid.id)?;
                         // XXX probably more recipient identifiers should be moved
                         diesel::update(recipients::table)
-                            .set(recipients::e164.eq(e164))
+                            .set(
+                                recipients::e164
+                                    .eq(phonenumber.as_ref().map(PhoneNumber::to_string)),
+                            )
                             .filter(recipients::id.eq(merged))
                             .execute(db)?;
 
@@ -955,22 +963,22 @@ impl Storage {
                 }
             }
             (None, Some(by_uuid)) => {
-                if let Some(e164) = e164 {
+                if let Some(phonenumber) = phonenumber {
                     match trust_level {
                         TrustLevel::Certain => {
                             log::info!(
                                 "Found phone number {} for contact {}. High trust, so updating.",
-                                e164,
+                                phonenumber,
                                 by_uuid.uuid.as_ref().unwrap()
                             );
                             diesel::update(recipients::table)
-                                .set(recipients::e164.eq(e164))
+                                .set(recipients::e164.eq(phonenumber.to_string()))
                                 .filter(recipients::id.eq(by_uuid.id))
                                 .execute(db)?;
                             Ok((Some(by_uuid.id), None, None, true))
                         }
                         TrustLevel::Uncertain => {
-                            log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", e164, by_uuid.uuid.as_ref().unwrap());
+                            log::info!("Found phone number {} for contact {}. Low trust, so doing nothing. Sorry again.", phonenumber, by_uuid.uuid.as_ref().unwrap());
                             Ok((Some(by_uuid.id), None, None, false))
                         }
                     }
@@ -1013,16 +1021,17 @@ impl Storage {
             }
             (None, None) => {
                 let insert_e164 = (trust_level == TrustLevel::Certain) || uuid.is_none();
-                let insert_e164 = if insert_e164 { e164 } else { None };
+                let insert_phonenumber = if insert_e164 { phonenumber } else { None };
                 diesel::insert_into(recipients::table)
                     .values((
-                        recipients::e164.eq(insert_e164),
+                        recipients::e164
+                            .eq(insert_phonenumber.as_ref().map(PhoneNumber::to_string)),
                         recipients::uuid.eq(uuid.as_ref().map(Uuid::to_string)),
                     ))
                     .execute(db)
                     .expect("insert new recipient");
 
-                Ok((None, uuid, insert_e164, true))
+                Ok((None, uuid, insert_phonenumber, true))
             }
         }
     }
@@ -1250,20 +1259,26 @@ impl Storage {
         }
     }
 
-    pub fn fetch_or_insert_recipient_by_e164(&self, new_e164: &str) -> orm::Recipient {
+    pub fn fetch_or_insert_recipient_by_phonenumber(
+        &self,
+        phonenumber: &PhoneNumber,
+    ) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
         let mut db = self.db();
         let db = &mut *db;
-        if let Ok(recipient) = recipients.filter(e164.eq(new_e164)).first(db) {
+        if let Ok(recipient) = recipients
+            .filter(e164.eq(phonenumber.to_string()))
+            .first(db)
+        {
             recipient
         } else {
             diesel::insert_into(recipients)
-                .values(e164.eq(new_e164))
+                .values(e164.eq(phonenumber.to_string()))
                 .execute(db)
                 .expect("insert new recipient");
             let recipient: orm::Recipient = recipients
-                .filter(e164.eq(new_e164))
+                .filter(e164.eq(phonenumber.to_string()))
                 .first(db)
                 .expect("newly inserted recipient");
             self.observe_insert(recipients, recipient.id);
@@ -1451,10 +1466,10 @@ impl Storage {
         })
     }
 
-    pub fn fetch_session_by_e164(&self, e164: &str) -> Option<orm::Session> {
-        log::trace!("Called fetch_session_by_e164({})", e164);
+    pub fn fetch_session_by_phonenumber(&self, phonenumber: &PhoneNumber) -> Option<orm::Session> {
+        log::trace!("Called fetch_session_by_phonenumber({})", phonenumber);
         fetch_session!(self.db(), |query| {
-            query.filter(schema::recipients::e164.eq(e164))
+            query.filter(schema::recipients::e164.eq(phonenumber.to_string()))
         })
     }
 
@@ -1542,13 +1557,19 @@ impl Storage {
             .unwrap()
     }
 
-    pub fn fetch_or_insert_session_by_e164(&self, e164: &str) -> orm::Session {
-        log::trace!("Called fetch_or_insert_session_by_e164({})", e164);
-        if let Some(session) = self.fetch_session_by_e164(e164) {
+    pub fn fetch_or_insert_session_by_phonenumber(
+        &self,
+        phonenumber: &PhoneNumber,
+    ) -> orm::Session {
+        log::trace!(
+            "Called fetch_or_insert_session_by_phonenumber({})",
+            phonenumber
+        );
+        if let Some(session) = self.fetch_session_by_phonenumber(phonenumber) {
             return session;
         }
 
-        let recipient = self.fetch_or_insert_recipient_by_e164(e164);
+        let recipient = self.fetch_or_insert_recipient_by_phonenumber(phonenumber);
 
         use schema::sessions::dsl::*;
         diesel::insert_into(sessions)
@@ -1615,7 +1636,7 @@ impl Storage {
         let now = chrono::Utc::now().naive_utc();
         for member in &group.members {
             use schema::group_v1_members::dsl::*;
-            let recipient = self.fetch_or_insert_recipient_by_e164(member);
+            let recipient = self.fetch_or_insert_recipient_by_phonenumber(member);
 
             diesel::insert_into(group_v1_members)
                 .values((
@@ -1953,7 +1974,7 @@ impl Storage {
 
         let has_source = new_message.source_e164.is_some() || new_message.source_uuid.is_some();
         let sender_id = if has_source {
-            self.fetch_recipient(new_message.source_e164.as_deref(), new_message.source_uuid)
+            self.fetch_recipient(new_message.source_e164.clone(), new_message.source_uuid)
                 .map(|r| r.id)
         } else {
             None

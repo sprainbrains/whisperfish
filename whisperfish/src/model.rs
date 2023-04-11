@@ -108,7 +108,7 @@ fn qdatetime_from_naive(timestamp: NaiveDateTime) -> QDateTime {
     qdatetime_from_chrono(DateTime::<Utc>::from_utc(timestamp, Utc))
 }
 
-fn qstring_from_optional_uuid(opt: Option<uuid::Uuid>) -> QVariant {
+fn qstring_from_optional_to_string(opt: Option<impl ToString>) -> QVariant {
     match opt {
         Some(s) => QString::from(s.to_string()).into(),
         None => QVariant::default(),

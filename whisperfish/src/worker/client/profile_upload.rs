@@ -70,7 +70,7 @@ impl Handler<MultideviceSyncProfile> for ClientActor {
             use libsignal_service::sender::ContactDetails;
 
             let contacts = std::iter::once(ContactDetails {
-                number: self_recipient.e164.clone(),
+                number: self_recipient.e164.as_ref().map(PhoneNumber::to_string),
                 uuid: self_recipient.uuid.as_ref().map(Uuid::to_string),
                 name: self_recipient.profile_joined_name.clone(),
                 profile_key: self_recipient.profile_key,

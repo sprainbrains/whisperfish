@@ -68,7 +68,7 @@ impl CreateConversationImpl {
         let recipient = if let Some(uuid) = self.uuid {
             storage.fetch_recipient_by_uuid(uuid)
         } else if let Some(e164) = &self.e164 {
-            storage.fetch_recipient_by_e164(&e164.to_string())
+            storage.fetch_recipient_by_phonenumber(e164)
         } else {
             log::trace!("Neither e164 nor uuid set; not fetching.");
             return;
@@ -78,7 +78,7 @@ impl CreateConversationImpl {
             if let Some(name) = &recipient.profile_joined_name {
                 self.name = Some(name.clone());
             } else if let Some(e164) = &recipient.e164 {
-                self.name = Some(e164.clone());
+                self.name = Some(e164.to_string());
             }
 
             storage.fetch_or_insert_session_by_recipient_id(recipient.id)

@@ -2,6 +2,7 @@ mod common;
 
 use self::common::*;
 use chrono::prelude::*;
+use phonenumber::PhoneNumber;
 use rstest::rstest;
 use std::future::Future;
 use whisperfish::store::GroupV1;
@@ -21,16 +22,16 @@ async fn fetch_session_none(storage: impl Future<Output = InMemoryDb>) {
 async fn insert_and_fetch_dm(storage: impl Future<Output = InMemoryDb>) {
     let (storage, _temp_dir) = storage.await;
 
-    let e164 = "+358501234567";
+    let phonenumber = phonenumber::parse(None, "+358501234567").unwrap();
 
-    let inserted = storage.fetch_or_insert_session_by_e164(e164);
+    let inserted = storage.fetch_or_insert_session_by_phonenumber(&phonenumber);
     assert_eq!(inserted.id, 1);
 
     let session = storage.fetch_session_by_id(inserted.id).unwrap();
     let recipient = session.unwrap_dm();
 
     assert_eq!(session.id, inserted.id);
-    assert_eq!(recipient.e164, Some(e164.into()));
+    assert_eq!(recipient.e164, Some(phonenumber));
 }
 
 #[rstest]
@@ -44,7 +45,10 @@ async fn insert_and_fetch_group_session(storage: impl Future<Output = InMemoryDb
     let group = GroupV1 {
         id: group_id,
         name: "Spurdospärde".into(),
-        members: vec!["+32474".into(), "+32475".into()],
+        members: vec![
+            phonenumber::parse(None, "+32474000000").unwrap(),
+            phonenumber::parse(None, "+32475000000").unwrap(),
+        ],
     };
 
     let inserted = storage.fetch_or_insert_session_by_group_v1(&group);
@@ -57,17 +61,11 @@ async fn insert_and_fetch_group_session(storage: impl Future<Output = InMemoryDb
     assert_eq!(fetched_group.name, group.name);
 
     let mut members = storage.fetch_group_members_by_group_v1_id(&fetched_group.id);
-    members.sort_by_key(|(_member, recipient)| recipient.e164.clone());
+    members.sort_by_key(|(_member, recipient)| recipient.e164.as_ref().map(PhoneNumber::to_string));
 
     assert_eq!(members.len(), group.members.len());
-    assert_eq!(
-        members[0].1.e164.as_deref(),
-        Some(&group.members[0] as &str)
-    );
-    assert_eq!(
-        members[1].1.e164.as_deref(),
-        Some(&group.members[1] as &str)
-    );
+    assert_eq!(members[0].1.e164.as_ref(), Some(&group.members[0]));
+    assert_eq!(members[1].1.e164.as_ref(), Some(&group.members[1]));
 }
 
 #[rstest]
@@ -75,8 +73,11 @@ async fn insert_and_fetch_group_session(storage: impl Future<Output = InMemoryDb
 async fn fetch_two_distinct_session(storage: impl Future<Output = InMemoryDb>) {
     let (storage, _temp_dir) = storage.await;
 
-    let session_1_inserted = storage.fetch_or_insert_session_by_e164("+32474");
-    let session_2_inserted = storage.fetch_or_insert_session_by_e164("+32475");
+    let pn1 = phonenumber::parse(None, "+32474000000").unwrap();
+    let pn2 = phonenumber::parse(None, "+32475000000").unwrap();
+
+    let session_1_inserted = storage.fetch_or_insert_session_by_phonenumber(&pn1);
+    let session_2_inserted = storage.fetch_or_insert_session_by_phonenumber(&pn2);
 
     assert_ne!(session_1_inserted.id, session_2_inserted.id);
 
@@ -84,12 +85,12 @@ async fn fetch_two_distinct_session(storage: impl Future<Output = InMemoryDb>) {
     let session = storage.fetch_session_by_id(session_2_inserted.id).unwrap();
     let recipient = session.unwrap_dm();
     assert_eq!(session.id, 2);
-    assert_eq!(recipient.e164.as_deref(), Some("+32475"));
+    assert_eq!(recipient.e164.as_ref(), Some(&pn2));
 
     let session = storage.fetch_session_by_id(session_1_inserted.id).unwrap();
     let recipient = session.unwrap_dm();
     assert_eq!(session.id, 1);
-    assert_eq!(recipient.e164.as_deref(), Some("+32474"));
+    assert_eq!(recipient.e164.as_ref(), Some(&pn1));
 }
 
 #[rstest]
@@ -110,10 +111,12 @@ async fn process_message_no_session_source(storage: impl Future<Output = InMemor
     let session = storage.fetch_session_by_id(1);
     assert!(session.is_none());
 
+    let pn1 = phonenumber::parse(None, "+32474000000").unwrap();
+
     // Now try to add a message.
     let new_message = NewMessage {
         session_id: Some(1),
-        source_e164: Some(String::from("a number")),
+        source_e164: Some(pn1),
         source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
@@ -150,9 +153,11 @@ async fn process_message_unresolved_session_source_resolved(
 ) {
     let (storage, _temp_dir) = storage.await;
 
+    let pn1 = phonenumber::parse(None, "+32474000000").unwrap();
+
     let new_message = NewMessage {
         session_id: None,
-        source_e164: Some(String::from("a number")),
+        source_e164: Some(pn1),
         source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
@@ -180,14 +185,15 @@ async fn process_message_unresolved_session_source_resolved(
 async fn process_message_exists_session_source(storage: impl Future<Output = InMemoryDb>) {
     let (storage, _temp_dir) = storage.await;
 
-    let sess1 = storage.fetch_or_insert_session_by_e164("+358501234567");
+    let pn1 = phonenumber::parse(None, "+358501234567").unwrap();
+    let sess1 = storage.fetch_or_insert_session_by_phonenumber(&pn1);
 
     for second in 1..11 {
         let timestamp = Utc.timestamp_opt(second, 0).unwrap().naive_utc();
 
         let new_message = NewMessage {
             session_id: Some(1),
-            source_e164: Some(String::from("+358501234567")),
+            source_e164: Some(pn1.clone()),
             source_uuid: None,
             text: String::from("nyt joni ne velat!"),
             timestamp,
@@ -223,13 +229,14 @@ async fn process_message_exists_session_source(storage: impl Future<Output = InM
 async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
     let (storage, _temp_dir) = storage.await;
 
-    let session = storage.fetch_or_insert_session_by_e164("+358501234567");
+    let pn1 = phonenumber::parse(None, "+358501234567").unwrap();
+    let session = storage.fetch_or_insert_session_by_phonenumber(&pn1);
 
     let timestamp = Utc::now().naive_utc();
     // Receive basic message
     let new_message = NewMessage {
         session_id: Some(session.id),
-        source_e164: Some(String::from("+358501234567")),
+        source_e164: Some(pn1.clone()),
         source_uuid: None,
         text: String::from("nyt joni ne velat!"),
         timestamp,
@@ -255,7 +262,7 @@ async fn dev_message_update(storage: impl Future<Output = InMemoryDb>) {
     // which the Go worker would do before `process_message`
     let other_message = NewMessage {
         session_id: Some(session.id),
-        source_e164: Some(String::from("+358501234567")),
+        source_e164: Some(pn1),
         source_uuid: None,
         text: String::from("nyt joni ne velat!"),
         timestamp,
@@ -304,14 +311,13 @@ async fn process_inbound_group_message_without_sender(storage: impl Future<Outpu
 
     // Here the client worker will have resolved a group exists
     let group_id = vec![42u8, 126u8, 71u8, 75u8];
+    let pn1 = phonenumber::parse(None, "+358501234567").unwrap();
+    let pn2 = phonenumber::parse(None, "+358501234568").unwrap();
+    let pn3 = phonenumber::parse(None, "+358501234569").unwrap();
     let group = GroupV1 {
         id: group_id,
         name: String::from("Spurdospärde"),
-        members: vec![
-            String::from("Joni"),
-            String::from("Make"),
-            String::from("Spurdoliina"),
-        ],
+        members: vec![pn1, pn2, pn3],
     };
 
     let (message_inserted, session_inserted) = storage.process_message(
@@ -355,14 +361,13 @@ async fn process_outbound_group_message_without_sender(storage: impl Future<Outp
 
     // Here the client worker will have resolved a group exists
     let group_id = vec![42u8, 126u8, 71u8, 75u8];
+    let pn1 = phonenumber::parse(None, "+358501234567").unwrap();
+    let pn2 = phonenumber::parse(None, "+358501234568").unwrap();
+    let pn3 = phonenumber::parse(None, "+358501234569").unwrap();
     let group = GroupV1 {
         id: group_id,
         name: String::from("Spurdospärde"),
-        members: vec![
-            String::from("Joni"),
-            String::from("Make"),
-            String::from("Spurdoliina"),
-        ],
+        members: vec![pn1, pn2, pn3],
     };
 
     let (message_inserted, session_inserted) = storage.process_message(
@@ -386,9 +391,12 @@ async fn process_outbound_group_message_without_sender(storage: impl Future<Outp
 async fn process_message_with_group(storage: impl Future<Output = InMemoryDb>) {
     let (storage, _temp_dir) = storage.await;
 
+    let pn1 = phonenumber::parse(None, "+358501234567").unwrap();
+    let pn2 = phonenumber::parse(None, "+358501234568").unwrap();
+    let pn3 = phonenumber::parse(None, "+358501234569").unwrap();
     let new_message = NewMessage {
         session_id: Some(1),
-        source_e164: Some(String::from("Joni")),
+        source_e164: Some(pn1.clone()),
         source_uuid: None,
         text: String::from("MSG 1"),
         timestamp: Utc::now().naive_utc(),
@@ -409,11 +417,7 @@ async fn process_message_with_group(storage: impl Future<Output = InMemoryDb>) {
     let group = GroupV1 {
         id: group_id,
         name: String::from("Spurdospärde"),
-        members: vec![
-            String::from("Joni"),
-            String::from("Make"),
-            String::from("Spurdoliina"),
-        ],
+        members: vec![pn1, pn2, pn3],
     };
 
     let (message_inserted, session_inserted) = storage.process_message(
