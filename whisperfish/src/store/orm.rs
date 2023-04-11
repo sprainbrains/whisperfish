@@ -992,11 +992,12 @@ impl AugmentedSession {
 }
 
 pub fn shorten(text: &str, limit: usize) -> std::borrow::Cow<'_, str> {
+    let limit = text
+        .char_indices()
+        .map(|(i, _)| i)
+        .nth(limit)
+        .unwrap_or(text.len());
     if text.len() > limit {
-        let mut limit = limit;
-        while !text.is_char_boundary(limit) {
-            limit += 1;
-        }
         format!("{}...", &text[..limit]).into()
     } else {
         text.into()
@@ -1503,11 +1504,10 @@ mod tests {
         assert_eq!(shorten("abcd", 4), "abcd");
         assert_eq!(shorten("abcde", 4), "abcd...");
         // Some characters are >1 bytes long.
-        // Sometimes the length boundary hits the middle.
-        assert_eq!(shorten("Tänään!", 5), "Tänä...");
-        assert_eq!(shorten("xää", 5), "xää"); // 1+2+2 -> full string
-        assert_eq!(shorten("äää", 5), "äää..."); // 2+2+2 -> 2+2+2...
-        assert_eq!(shorten("xäää", 5), "xää..."); // 1+2+2+2 -> 1+2+2...
-        assert_eq!(shorten("ääää", 5), "äää..."); // 2+2+2+2 -> 2+2+2...
+        assert_eq!(shorten("Hyvää huomenta", 5), "Hyvää...");
+        assert_eq!(shorten("Dobrý den", 5), "Dobrý...");
+        assert_eq!(shorten("こんにちは", 3), "こんに...");
+        assert_eq!(shorten("안녕하세요", 2), "안녕...");
+        assert_eq!(shorten("Здравствуйте", 5), "Здрав...");
     }
 }
