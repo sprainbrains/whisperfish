@@ -142,19 +142,17 @@ CoverBackground {
     }
 
     Image {
-        source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+        source: "/usr/share/harbour-whisperfish/icons/172x172/cover-background.png"
         anchors.centerIn: parent
         width: Math.max(parent.width, parent.height)
         height: width
         fillMode: Image.PreserveAspectFit
-        opacity: 0.1
+        opacity: 0.2
     }
 
     CoverActionList {
         id: coverAction
-        // enabled: !placeholderLabel.visible
-        // XXX https://gitlab.com/whisperfish/whisperfish/-/issues/481
-        enabled: false
+        enabled: !placeholderLabel.visible
         CoverAction {
             iconSource: {
                 if (ClientWorker.connected) {
@@ -168,7 +166,8 @@ CoverBackground {
             onTriggered: {
                 if(!SetupWorker.locked) {
                     mainWindow.activate()
-                    mainWindow.newMessage(PageStackAction.Immediate)
+                    // XXX https://gitlab.com/whisperfish/whisperfish/-/issues/481
+                    // mainWindow.newMessage(PageStackAction.Immediate)
                 }
             }
         }
