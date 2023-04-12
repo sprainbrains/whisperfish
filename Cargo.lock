@@ -27,6 +27,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f728064aca1c318585bf4bb04ffcfac9e75e508ab4e8b1bd9ba5dfe04e2cbed5"
+dependencies = [
+ "actix-rt",
+ "actix_derive",
+ "bitflags",
+ "bytes",
+ "crossbeam-channel",
+ "futures-core",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+ "log",
+ "once_cell",
+ "parking_lot 0.12.1",
+ "pin-project-lite",
+ "smallvec",
+ "tokio",
+ "tokio-util 0.7.7",
+]
+
+[[package]]
 name = "actix-codec"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1648,7 +1672,7 @@ name = "libsignal-service-actix"
 version = "0.1.0"
 source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#975717c74696c75cbecbf124f2df0fb028e3d82e"
 dependencies = [
- "actix",
+ "actix 0.12.0",
  "actix-http",
  "actix-rt",
  "async-trait",
@@ -3541,7 +3565,7 @@ dependencies = [
 name = "whisperfish"
 version = "0.6.0-dev"
 dependencies = [
- "actix",
+ "actix 0.13.0",
  "actix-http",
  "actix-rt",
  "aes",

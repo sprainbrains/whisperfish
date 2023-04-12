@@ -16,7 +16,7 @@ harness = false
 [dependencies]
 async-trait = "0.1"
 bincode = "1.2.1"
-actix = "0.12"
+actix = "0.13"
 rand = "0.7"
 parking_lot = "0.12"
 uuid = { version = "1", features=["v4"] }
