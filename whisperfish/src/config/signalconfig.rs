@@ -1,5 +1,4 @@
 use anyhow::Context;
-use fs_extra;
 use libsignal_protocol::DeviceId;
 
 /// Global Config
@@ -131,77 +130,6 @@ impl SignalConfig {
         std::fs::copy(old_file, new_file)?;
         std::fs::remove_file(old_file)?;
         eprintln!("QSettings file migrated");
-        Ok(())
-    }
-
-    // XXX: This probably shouldn't be in signalconfig.rs
-    pub fn migrate_storage() -> Result<(), anyhow::Error> {
-        let data_dir = dirs::data_local_dir().context("No data directory found")?;
-
-        let old_path = data_dir.join("harbour-whisperfish");
-        let old_db = &old_path.join("db");
-        let old_storage = &old_path.join("storage");
-
-        let new_path = data_dir.join("be.rubdos").join("harbour-whisperfish");
-        let new_db = &new_path.join("db");
-        let new_storage = &new_path.join("storage");
-
-        if !new_path.exists() {
-            eprintln!("Creating new storage path...");
-            std::fs::create_dir_all(&new_path)?;
-        }
-
-        // Remove unused directories, if empty
-        for dir_name in &["groups", "prekeys", "signed_prekeys"] {
-            let dir_path = &new_storage.join(dir_name);
-            if dir_path.exists() {
-                match std::fs::remove_dir(dir_path) {
-                    Ok(()) => eprintln!("Empty '{}' directory removed", dir_name),
-                    _ => eprintln!("Couldn't remove '{}' directory, is it empty?", dir_name),
-                }
-            }
-        }
-
-        // New paths already in use
-        if new_db.exists() && new_storage.exists() {
-            return Ok(());
-        } else if !new_db.exists() && !new_storage.exists() && !old_db.exists() {
-            // No new or old paths exist; must be clean install
-            if !old_storage.exists() {
-                eprintln!("Creating storage and db folders...");
-                std::fs::create_dir(new_db)?;
-                std::fs::create_dir(new_storage)?;
-                return Ok(());
-            }
-            // Only old storage path exists -- this indicates that
-            // the Whisperfish was previously started but never registered.
-            // Create the old database directory, so the migration can continue.
-            else {
-                eprintln!("No old database found, creating empty directory...");
-                std::fs::create_dir(old_db)?;
-            }
-        }
-        // Try to detect incomplete migration state
-        else if (new_db.exists() ^ new_storage.exists())
-            || (old_db.exists() ^ old_storage.exists())
-        {
-            eprintln!("Storage state is abnormal, aborting!");
-            eprintln!("new db exists: {}", new_db.exists());
-            eprintln!("new storage exists: {}", new_storage.exists());
-            eprintln!("old db exists: {}", old_db.exists());
-            eprintln!("old storage exists: {}", old_storage.exists());
-            std::process::exit(1);
-        }
-
-        // Sailjail mounts the old and new paths separately, which makes
-        // std::fs::rename fail. That means we have to copy-and-delete
-        // recursively instead, handled by fs_extra::dir::move_dir.
-        let options = fs_extra::dir::CopyOptions::new();
-        eprintln!("Migrating old db folder...");
-        fs_extra::dir::move_dir(old_db, &new_path, &options)?;
-        eprintln!("Migrating old storage folder...");
-        fs_extra::dir::move_dir(old_storage, &new_path, &options)?;
-        eprintln!("Storage folders migrated");
         Ok(())
     }
 

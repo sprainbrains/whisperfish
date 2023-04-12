@@ -93,7 +93,7 @@ fn main() {
     // Migrate the db and storage folders from
     // ~/.local/share/harbour-whisperfish/[...] to
     // ~/.local/share/rubdos.be/harbour-whisperfish/[...]
-    match config::SignalConfig::migrate_storage() {
+    match store::Storage::migrate_storage() {
         Ok(()) => (),
         Err(e) => {
             eprintln!("Could not migrate db and storage: {}", e);
