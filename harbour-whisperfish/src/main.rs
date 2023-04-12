@@ -232,8 +232,24 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
         }
     }
 
+    // Push verbose and logfile settings to QSettings...
+    settings.set_bool("verbose", config.verbose);
+    settings.set_bool("logfile", config.logfile);
+
     // This will panic here if feature `sailfish` is not enabled
     gui::run(config).unwrap();
+
+    // ...and pull them back after execution.
+    match config::SignalConfig::read_from_file() {
+        Ok(mut config) => {
+            config.verbose = settings.get_verbose();
+            config.logfile = settings.get_logfile();
+            if let Err(e) = config.write_to_file() {
+                log::error!("Could not save config.yml: {}", e)
+            };
+        }
+        Err(e) => log::error!("Could not open config.yml: {}", e),
+    };
 
     log::info!("Shut down.");
 
