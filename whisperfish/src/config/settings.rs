@@ -119,25 +119,6 @@ impl Drop for SettingsBridge {
 }
 
 impl SettingsBridge {
-    pub fn migrate_qsettings_paths(&mut self) {
-        let settings = self.inner_mut();
-        let old_path = ".local/share/harbour-whisperfish";
-        let new_path = ".local/share/be.rubdos/harbour-whisperfish";
-        let keys = vec!["attachment_dir", "camera_dir"];
-        for key in keys.iter() {
-            if settings.contains("attachment_dir") {
-                settings.set_string(
-                    key,
-                    settings
-                        .value_string(key)
-                        .to_string()
-                        .replace(old_path, new_path)
-                        .as_str(),
-                );
-            }
-        }
-    }
-
     fn inner(&self) -> &QSettings {
         unsafe { self.inner.as_ref().unwrap() }
     }
@@ -389,6 +370,63 @@ impl SettingsBridge {
             .get_avatar_dir()
             .join(uuid.as_ref())
             .exists()
+    }
+
+    pub fn migrate_qsettings_paths(&mut self) {
+        let settings = self.inner_mut();
+        let old_path = ".local/share/harbour-whisperfish";
+        let new_path = ".local/share/be.rubdos/harbour-whisperfish";
+        let keys = vec!["attachment_dir", "camera_dir"];
+        for key in keys.iter() {
+            if settings.contains("attachment_dir") {
+                settings.set_string(
+                    key,
+                    settings
+                        .value_string(key)
+                        .to_string()
+                        .replace(old_path, new_path)
+                        .as_str(),
+                );
+            }
+        }
+    }
+
+    pub fn migrate_qsettings() -> Result<(), anyhow::Error> {
+        let config_dir = dirs::config_dir().expect("No config directory found");
+
+        let old_path = config_dir.join("harbour-whisperfish");
+
+        let new_path = config_dir.join("be.rubdos").join("harbour-whisperfish");
+
+        let old_file = &old_path.join("harbour-whisperfish.conf");
+        let new_file = &new_path.join("harbour-whisperfish.conf");
+
+        if new_file.exists() {
+            return Ok(());
+        }
+
+        if !new_path.exists() {
+            eprintln!("Creating new config path...");
+            std::fs::create_dir_all(&new_path)?;
+        }
+
+        if !old_file.exists() {
+            if !new_file.exists() {
+                eprintln!("Creating empty QSettings file...");
+                std::fs::File::create(new_file)?;
+                return Ok(());
+            }
+            eprintln!("Old QSettings file doesn't exist, migration not needed");
+            return Ok(());
+        }
+
+        // Sailjail mounts the old and new paths separately, which makes
+        // std::fs::rename fail. That means we have to use copy-and-delete.
+        eprintln!("Migrating old QSettings file...");
+        std::fs::copy(old_file, new_file)?;
+        std::fs::remove_file(old_file)?;
+        eprintln!("QSettings file migrated");
+        Ok(())
     }
 }
 

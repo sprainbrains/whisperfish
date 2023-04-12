@@ -95,44 +95,6 @@ impl SignalConfig {
         Ok(())
     }
 
-    pub fn migrate_qsettings() -> Result<(), anyhow::Error> {
-        let config_dir = dirs::config_dir().expect("No config directory found");
-
-        let old_path = config_dir.join("harbour-whisperfish");
-
-        let new_path = config_dir.join("be.rubdos").join("harbour-whisperfish");
-
-        let old_file = &old_path.join("harbour-whisperfish.conf");
-        let new_file = &new_path.join("harbour-whisperfish.conf");
-
-        if new_file.exists() {
-            return Ok(());
-        }
-
-        if !new_path.exists() {
-            eprintln!("Creating new config path...");
-            std::fs::create_dir_all(&new_path)?;
-        }
-
-        if !old_file.exists() {
-            if !new_file.exists() {
-                eprintln!("Creating empty QSettings file...");
-                std::fs::File::create(new_file)?;
-                return Ok(());
-            }
-            eprintln!("Old QSettings file doesn't exist, migration not needed");
-            return Ok(());
-        }
-
-        // Sailjail mounts the old and new paths separately, which makes
-        // std::fs::rename fail. That means we have to use copy-and-delete.
-        eprintln!("Migrating old QSettings file...");
-        std::fs::copy(old_file, new_file)?;
-        std::fs::remove_file(old_file)?;
-        eprintln!("QSettings file migrated");
-        Ok(())
-    }
-
     pub fn read_from_file() -> Result<Self, anyhow::Error> {
         let path = dirs::config_dir()
             .context("Could not get xdg config directory path")?

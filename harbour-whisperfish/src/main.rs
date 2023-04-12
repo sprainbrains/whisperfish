@@ -74,7 +74,7 @@ fn main() {
     // Migrate the QSettings file from
     // ~/.config/harbour-whisperfish/harbour-whisperfish.conf to
     // ~/.config/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf
-    match config::SignalConfig::migrate_qsettings() {
+    match config::SettingsBridge::migrate_qsettings() {
         Ok(()) => (),
         Err(e) => {
             eprintln!("Could not migrate QSettings file: {}", e);
