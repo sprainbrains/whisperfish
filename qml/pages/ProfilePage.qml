@@ -273,6 +273,38 @@ Page {
                 text: recipient.about
             }
 
+            ComboBox {
+                id: recipientUnidentifiedMode
+                visible: SettingsBridge.debug_mode
+                //: Profile, sealed sending mode option
+                //% "Sealed sending mode"
+                label: qsTrId("whisperfish-profile-unidentified")
+                currentIndex: recipient.unidentifiedAccessMode
+                enabled: false
+                menu: ContextMenu {
+                    MenuItem {
+                        //: Profile, sealed sending mode, unknown option
+                        //% "Unknown"
+                        text: qsTrId("whisperfish-unidentified-unknown")
+                    }
+                    MenuItem {
+                        //: Profile, sealed sending mode, disabled option
+                        //% "Disabled"
+                        text: qsTrId("whisperfish-unidentified-disabled")
+                    }
+                    MenuItem {
+                        //: Profile, sealed sending mode, enabled option
+                        //% "Enabled"
+                        text: qsTrId("whisperfish-unidentified-enabled")
+                    }
+                    MenuItem {
+                        //: Profile, sealed sending mode, unrestricted option
+                        //% "Unrestricted"
+                        text: qsTrId("whisperfish-unidentified-unrestricted")
+                    }
+                }
+            }
+
             TextField {
                 id: profileEmojiEdit
                 // XXX: Validate emoji character somehow

@@ -311,7 +311,7 @@ WITH split(group_id, word, str) AS (
         FROM old_session
         WHERE is_group != 0
             AND group_members IS NOT NULL
-            AND group_members != ""
+            AND group_members != ''
     UNION ALL
     SELECT
         group_id,
@@ -335,7 +335,7 @@ INSERT INTO recipients (
 SELECT
     source
 FROM old_session
-WHERE source IS NOT NULL and source != "";
+WHERE source IS NOT NULL and source != '';
 
 -- - group messages, i.e. the `group_members` field of `old_session`.
 INSERT OR IGNORE INTO recipients (
@@ -360,6 +360,12 @@ INSERT INTO group_v1_members (
 SELECT group_id, recipients.id
 FROM old_group_members
 LEFT JOIN recipients ON old_group_members.group_member_e164 == recipients.e164;
+
+-- Manually drop the TEMPORARY VIEW, because it may still be tied to the recipients
+-- table by the time we hit DROP COLUMN statements in later migrations.  Whoever
+-- thought it was a good idea to then throw "SQL logic error" and nothing more owes
+-- me a beer or sixteen.
+DROP VIEW old_group_members;
 
 -- For sessions, too, we have two sources.
 -- They both come from old_session. 🐎 Hold your horses 🐎
@@ -487,7 +493,7 @@ SELECT
     messages.id,
     old_message.attachment,
     CASE WHEN old_message.mime_type IS NULL
-        THEN ""
+        THEN ''
         ELSE old_message.mime_type
     END,
 

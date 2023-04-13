@@ -5,7 +5,7 @@ pub mod observer;
 mod protocol_store;
 mod utils;
 
-use self::orm::AugmentedMessage;
+use self::orm::{AugmentedMessage, UnidentifiedAccessMode};
 use crate::diesel::connection::SimpleConnection;
 use crate::diesel_migrations::MigrationHarness;
 use crate::schema;
@@ -489,10 +489,10 @@ impl Storage {
         // That said, our check_foreign_keys() does output more useful information for when things
         // go haywire, albeit a bit later.
         db.batch_execute("PRAGMA foreign_keys = OFF;").unwrap();
-        db.transaction::<_, Error, _>(|db| {
+        db.transaction::<_, anyhow::Error, _>(|db| {
             db.run_pending_migrations(MIGRATIONS)
-                .or(Err(Error::RollbackTransaction))?;
-            crate::check_foreign_keys(db).or(Err(Error::RollbackTransaction))?;
+                .map_err(|e| anyhow::anyhow!("Running migrations: {}", e))?;
+            crate::check_foreign_keys(db)?;
             Ok(())
         })?;
         db.batch_execute("PRAGMA foreign_keys = ON;").unwrap();
@@ -719,6 +719,23 @@ impl Storage {
         by_uuid.or(by_e164)
     }
 
+    pub fn set_recipient_unidentified(
+        &self,
+        recipient_id: i32,
+        mode: UnidentifiedAccessMode,
+    ) -> bool {
+        use crate::schema::recipients::dsl::*;
+        let affected = diesel::update(recipients)
+            .set(unidentified_access_mode.eq(mode))
+            .filter(id.eq(recipient_id))
+            .execute(&mut *self.db())
+            .expect("existing record updated");
+        if affected > 0 {
+            self.observe_update(recipients, recipient_id);
+        }
+        affected > 0
+    }
+
     pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
         use crate::schema::recipients::dsl::*;
         diesel::update(recipients)
@@ -792,7 +809,10 @@ impl Storage {
 
             use crate::schema::recipients::dsl::*;
             let affected_rows = diesel::update(recipients)
-                .set(profile_key.eq(new_profile_key))
+                .set((
+                    profile_key.eq(new_profile_key),
+                    unidentified_access_mode.eq(UnidentifiedAccessMode::Unknown),
+                ))
                 .filter(id.eq(recipient.id))
                 .execute(&mut *self.db())
                 .expect("existing record updated");
@@ -2303,12 +2323,13 @@ impl Storage {
         self.observe_update(schema::messages::table, mid);
     }
 
-    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime) {
+    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime, unidentified: bool) {
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
             .set((
                 schema::messages::sent_timestamp.eq(sent_time),
                 schema::messages::sending_has_failed.eq(false),
+                schema::messages::use_unidentified.eq(unidentified),
             ))
             .execute(&mut *self.db())
             .unwrap();

@@ -152,7 +152,6 @@ diesel::table! {
         signal_profile_avatar -> Nullable<Text>,
         profile_sharing_enabled -> Bool,
         last_profile_fetch -> Nullable<Timestamp>,
-        unidentified_access_mode -> Bool,
         storage_service_id -> Nullable<Binary>,
         storage_proto -> Nullable<Binary>,
         capabilities -> Integer,
@@ -161,6 +160,7 @@ diesel::table! {
         about -> Nullable<Text>,
         about_emoji -> Nullable<Text>,
         is_registered -> Bool,
+        unidentified_access_mode -> Integer,
     }
 }
 

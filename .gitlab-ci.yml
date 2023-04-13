@@ -232,7 +232,7 @@ test:stable:
   needs:
     - build:host:stable
   script:
-    - cargo test --features bundled-sqlcipher
+    - cargo test --features whisperfish/bundled-sqlcipher
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -248,7 +248,7 @@ test:stable:diesel-schema:
     # Diesel is not running a long time/often. We don't need the release
     # version here and the debug version is enough. We save a lot of
     # compilation time for small overhead when running the binary.
-    - cargo install -f --debug diesel_cli --version ^2
+    - cargo install -f --debug diesel_cli --version ^2 --features "sqlite-bundled"
     - export PATH="$CARGO_HOME/bin:$PATH"
     - export DATABASE_URL=test_whisperfish.db
     - diesel setup

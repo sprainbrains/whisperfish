@@ -1,7 +1,12 @@
 use super::schema::*;
 use chrono::prelude::*;
+use diesel::sql_types::Integer;
+use libsignal_service::prelude::*;
+use libsignal_service::push_service::ProfileKeyExt;
 use std::fmt::{Display, Error, Formatter};
 use std::time::Duration;
+
+mod sql_types;
 
 #[derive(Queryable, Insertable, Debug, Clone)]
 pub struct GroupV1 {
@@ -170,6 +175,36 @@ impl Default for Message {
     }
 }
 
+#[derive(Clone, Copy, Debug, FromSqlRow, PartialEq, Eq, AsExpression)]
+#[diesel(sql_type = Integer)]
+#[repr(i32)]
+pub enum UnidentifiedAccessMode {
+    Unknown = 0,
+    Disabled = 1,
+    Enabled = 2,
+    Unrestricted = 3,
+}
+
+impl std::convert::TryFrom<i32> for UnidentifiedAccessMode {
+    type Error = ();
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Unknown),
+            1 => Ok(Self::Disabled),
+            2 => Ok(Self::Enabled),
+            3 => Ok(Self::Unrestricted),
+            _ => Err(()),
+        }
+    }
+}
+
+impl From<UnidentifiedAccessMode> for i32 {
+    fn from(value: UnidentifiedAccessMode) -> Self {
+        value as i32
+    }
+}
+
 #[derive(Queryable, Identifiable, Debug, Clone)]
 pub struct Recipient {
     pub id: i32,
@@ -189,7 +224,6 @@ pub struct Recipient {
     pub profile_sharing: bool,
 
     pub last_profile_fetch: Option<NaiveDateTime>,
-    pub unidentified_access_mode: bool,
 
     pub storage_service_id: Option<Vec<u8>>,
     pub storage_proto: Option<Vec<u8>>,
@@ -202,6 +236,7 @@ pub struct Recipient {
     pub about_emoji: Option<String>,
 
     pub is_registered: bool,
+    pub unidentified_access_mode: UnidentifiedAccessMode,
 }
 
 impl Display for Recipient {
@@ -322,6 +357,14 @@ impl Display for SenderKeyRecord {
 }
 
 impl Recipient {
+    pub fn unidentified_access_key(&self) -> Option<Vec<u8>> {
+        self.profile_key()
+            .map(ProfileKey::create)
+            .as_ref()
+            .map(ProfileKey::derive_access_key)
+    }
+
+    // XXX should become ProfileKey
     pub fn profile_key(&self) -> Option<[u8; 32]> {
         if let Some(pk) = self.profile_key.as_ref() {
             if pk.len() != 32 {
@@ -1063,7 +1106,7 @@ mod tests {
             signal_profile_avatar: None,
             profile_sharing: true,
             last_profile_fetch: None,
-            unidentified_access_mode: true,
+            unidentified_access_mode: UnidentifiedAccessMode::Enabled,
             storage_service_id: None,
             storage_proto: None,
             capabilities: 0,

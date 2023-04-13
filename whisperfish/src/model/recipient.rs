@@ -219,7 +219,7 @@ define_model_roles! {
         About(about via qstring_from_option): "about",
         Emoji(about_emoji via qstring_from_option): "emoji",
 
-        UnidentifiedAccessMode(unidentified_access_mode): "unidentifiedAccessMode",
+        UnidentifiedAccessMode(unidentified_access_mode via Into<i32>::into): "unidentifiedAccessMode",
         ProfileSharing(profile_sharing): "profileSharing",
 
         SessionFingerprint(fingerprint via qstring_from_option): "sessionFingerprint",
@@ -245,7 +245,7 @@ define_model_roles! {
         About(about via qstring_from_option): "about",
         Emoji(about_emoji via qstring_from_option): "emoji",
 
-        UnidentifiedAccessMode(unidentified_access_mode): "unidentifiedAccessMode",
+        UnidentifiedAccessMode(unidentified_access_mode via Into<i32>::into): "unidentifiedAccessMode",
         ProfileSharing(profile_sharing): "profileSharing",
 
         IsRegistered(is_registered): "isRegistered",

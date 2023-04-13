@@ -5,15 +5,20 @@ mod groupv2;
 mod linked_devices;
 mod profile;
 mod profile_upload;
+mod unidentified;
 
 pub use self::groupv2::*;
 pub use self::linked_devices::*;
 use self::migrations::MigrationCondVar;
 pub use self::profile::*;
 pub use self::profile_upload::*;
+use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::Quote;
+use libsignal_service::proto::sync_message::Sent;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
-pub use libsignal_service::push_service::DeviceInfo;
+pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
+use libsignal_service::sender::SendMessageResult;
+use libsignal_service::sender::SentMessage;
 use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
@@ -22,8 +27,10 @@ use crate::gui::StorageReady;
 use crate::millis_to_naive_chrono;
 use crate::model::DeviceModel;
 use crate::platform::QmlApp;
+use crate::store::orm::UnidentifiedAccessMode;
 use crate::store::{orm, Storage};
 use crate::worker::client::orm::shorten;
+use crate::worker::client::unidentified::CertType;
 use actix::prelude::*;
 use anyhow::Context;
 use chrono::prelude::*;
@@ -93,12 +100,15 @@ impl Display for QueueMessage {
 pub struct SendMessage(pub i32);
 
 /// Delivers a constructed T: Into<ContentBody> to a session.
+///
+/// Returns true when delivered via unidentified sending.
 #[derive(Message)]
-#[rtype(result = "Result<(), anyhow::Error>")]
+#[rtype(result = "Result<Vec<SendMessageResult>, anyhow::Error>")]
 struct DeliverMessage<T> {
     content: T,
     timestamp: u64,
     online: bool,
+    for_story: bool,
     session_id: i32,
 }
 
@@ -183,6 +193,7 @@ pub struct ClientActor {
 
     migration_state: MigrationCondVar,
 
+    unidentified_certificates: unidentified::UnidentifiedCertificates,
     credentials: Option<ServiceCredentials>,
     local_addr: Option<ServiceAddress>,
     storage: Option<Storage>,
@@ -247,6 +258,7 @@ impl ClientActor {
         Ok(Self {
             inner,
             migration_state: MigrationCondVar::new(),
+            unidentified_certificates: UnidentifiedCertificates::default(),
             credentials: None,
             local_addr: None,
             storage: None,
@@ -291,27 +303,42 @@ impl ClientActor {
 
     fn message_sender(
         &self,
-    ) -> MessageSender<
-        AwcPushService,
-        crate::store::Storage,
-        crate::store::Storage,
-        crate::store::Storage,
-        crate::store::Storage,
-        crate::store::Storage,
-        rand::rngs::ThreadRng,
+    ) -> impl Future<
+        Output = Result<
+            MessageSender<
+                AwcPushService,
+                crate::store::Storage,
+                crate::store::Storage,
+                crate::store::Storage,
+                crate::store::Storage,
+                crate::store::Storage,
+                rand::rngs::ThreadRng,
+            >,
+            ServiceError,
+        >,
     > {
         let storage = self.storage.clone().unwrap();
         let service = self.authenticated_service();
-        MessageSender::new(
-            self.ws.clone().unwrap(),
-            service,
-            self.cipher.clone().unwrap(),
-            rand::thread_rng(),
-            storage.clone(),
-            storage,
-            self.local_addr.unwrap(),
-            self.config.get_device_id(),
-        )
+        let mut u_service = self.unauthenticated_service();
+
+        let ws = self.ws.clone().unwrap();
+        let cipher = self.cipher.clone().unwrap();
+        let local_addr = self.local_addr.unwrap();
+        let device_id = self.config.get_device_id();
+        async move {
+            let u_ws = u_service.ws("/v1/websocket/", None, false).await?;
+            Ok(MessageSender::new(
+                ws,
+                u_ws,
+                service,
+                cipher,
+                rand::thread_rng(),
+                storage.clone(),
+                storage,
+                local_addr,
+                device_id,
+            ))
+        }
     }
 
     fn service_cfg(&self) -> ServiceConfiguration {
@@ -341,6 +368,7 @@ impl ClientActor {
             // XXX Session ID is artificial here.
             session_id: session.id,
             online: false,
+            for_story: false,
         });
 
         Some(())
@@ -358,11 +386,12 @@ impl ClientActor {
         source_e164: Option<String>,
         source_uuid: Option<String>,
         msg: &DataMessage,
-        is_sync_sent: bool,
+        sync_sent: Option<Sent>,
         metadata: &Metadata,
     ) -> Option<i32> {
         let timestamp = metadata.timestamp;
         let settings = crate::config::SettingsBridge::default();
+        let is_sync_sent = sync_sent.is_some();
 
         let storage = self.storage.as_mut().expect("storage");
         let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {
@@ -476,13 +505,21 @@ impl ClientActor {
             return None;
         };
 
+        let is_unidentified = if let Some(sent) = &sync_sent {
+            sent.unidentified_status
+                .iter()
+                .any(|x| Some(x.destination_uuid()) == source_uuid.as_deref() && x.unidentified())
+        } else {
+            metadata.unidentified_sender
+        };
+
         let new_message = crate::store::NewMessage {
             source_e164,
             source_uuid,
             text,
             flags: msg.flags() as i32,
             outgoing: is_sync_sent,
-            is_unidentified: metadata.unidentified_sender,
+            is_unidentified,
             sent: is_sync_sent,
             timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
                 timestamp
@@ -601,9 +638,10 @@ impl ClientActor {
 
         let local_addr = self.local_addr.unwrap();
         let storage = self.storage.clone().unwrap();
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
 
         actix::spawn(async move {
+            let mut sender = sender.await?;
             match req.r#type() {
                 Type::Unknown => {
                     log::warn!("Unknown sync request from {:?}:{}. Please upgrade Whisperfish or file an issue.", meta.sender, meta.sender_device);
@@ -720,7 +758,7 @@ impl ClientActor {
                     None,
                     Some(uuid.to_string()),
                     &message,
-                    false,
+                    None,
                     &metadata,
                 );
                 if metadata.needs_receipt {
@@ -743,15 +781,15 @@ impl ClientActor {
                     log::trace!("Sync sent message");
                     // These are messages sent through a paired device.
 
-                    if let Some(message) = sent.message {
+                    if let Some(message) = &sent.message {
                         self.handle_message(
                             ctx,
                             // Empty string mainly when groups,
                             // but maybe needs a check. TODO
-                            sent.destination_e164,
-                            sent.destination_uuid,
-                            &message,
-                            true,
+                            sent.destination_e164.clone(),
+                            sent.destination_uuid.clone(),
+                            message,
+                            Some(sent.clone()),
                             &metadata,
                         );
                     } else {
@@ -1101,7 +1139,7 @@ impl Handler<SendMessage> for ClientActor {
     // Equiv of worker/send.go
     fn handle(&mut self, SendMessage(mid): SendMessage, ctx: &mut Self::Context) -> Self::Result {
         log::info!("ClientActor::SendMessage({:?})", mid);
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
         let storage = self.storage.as_mut().unwrap();
         let msg = storage.fetch_augmented_message(mid).unwrap();
         let session = storage.fetch_session_by_id(msg.session_id).unwrap();
@@ -1120,6 +1158,7 @@ impl Handler<SendMessage> for ClientActor {
         let addr = ctx.address();
         Box::pin(
             async move {
+                let mut sender = sender.await?;
                 if let orm::SessionType::GroupV1(_group) = &session.r#type {
                     // FIXME
                     log::error!("Cannot send to Group V1 anymore.");
@@ -1219,13 +1258,65 @@ impl Handler<SendMessage> for ClientActor {
                         online: false,
                         timestamp,
                         session_id,
+                        for_story: false,
                     })
                     .await?;
 
                 match res {
-                    Ok(()) => {
-                        storage.dequeue_message(mid, chrono::Utc::now().naive_utc());
-                        Ok((session.id, mid, msg.inner.text))
+                    Ok(results) => {
+                        let unidentified = results.iter().all(|res| match res {
+                            Ok(SentMessage { unidentified, .. }) => *unidentified,
+                            _ => false,
+                        });
+
+                        // Look for Ok recipients that couldn't deliver on unidentified.
+                        for result in results.iter().filter_map(|res| res.as_ref().ok()) {
+                            // Look up recipient to check the current state
+                            let recipient = storage
+                                .fetch_recipient_by_uuid(result.recipient.uuid)
+                                .expect("sent recipient in db");
+                            let target_state = if result.unidentified {
+                                // Unrestricted and success; keep unrestricted
+                                if recipient.unidentified_access_mode
+                                    == UnidentifiedAccessMode::Unrestricted
+                                {
+                                    UnidentifiedAccessMode::Unrestricted
+                                } else {
+                                    // Success; set Enabled
+                                    UnidentifiedAccessMode::Enabled
+                                }
+                            } else {
+                                // Failure; set Disabled
+                                UnidentifiedAccessMode::Disabled
+                            };
+                            if recipient.profile_key().is_some()
+                                && recipient.unidentified_access_mode != target_state
+                            {
+                                // Recipient with profile key, but could not send unidentified.
+                                // Mark as disabled.
+                                log::info!(
+                                    "Setting unidentified access mode for {:?} as {:?}",
+                                    recipient,
+                                    target_state
+                                );
+                                storage.set_recipient_unidentified(recipient.id, target_state);
+                            }
+                        }
+
+                        let successes = results.iter().filter(|res| res.is_ok()).count();
+                        let all_ok = successes == results.len();
+                        if all_ok {
+                            storage.dequeue_message(mid, chrono::Utc::now().naive_utc(), unidentified);
+
+                            Ok((session.id, mid, msg.inner.text))
+                        } else {
+                            storage.fail_message(mid);
+                            for error in results.iter().filter_map(|res| res.as_ref().err()) {
+                                log::error!("Could not deliver message: {}", error)
+                            }
+                            log::error!("Successfully delivered message to {} out of {} recipients", successes, results.len());
+                            anyhow::bail!("Could not deliver message.")
+                        }
                     }
                     Err(e) => {
                         storage.fail_message(mid);
@@ -1395,9 +1486,10 @@ impl Handler<SendTypingNotification> for ClientActor {
                     online: true,
                     timestamp,
                     session_id,
+                    for_story: false,
                 })
                 .await?
-                .map(|()| session.id)
+                .map(|_unidentified| session.id)
             }
             .into_actor(self)
             .map(move |res, _act, _ctx| {
@@ -1415,7 +1507,7 @@ impl Handler<SendTypingNotification> for ClientActor {
 }
 
 impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
-    type Result = ResponseFuture<Result<(), anyhow::Error>>;
+    type Result = ResponseFuture<Result<Vec<SendMessageResult>, anyhow::Error>>;
 
     fn handle(&mut self, msg: DeliverMessage<T>, _ctx: &mut Self::Context) -> Self::Result {
         let DeliverMessage {
@@ -1423,6 +1515,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
             timestamp,
             online,
             session_id,
+            for_story,
         } = msg;
         let content = content.into();
 
@@ -1430,14 +1523,18 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
 
         let storage = self.storage.clone().unwrap();
         let session = storage.fetch_session_by_id(session_id).unwrap();
-        let mut sender = self.message_sender();
+        let sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
 
+        let certs = self.unidentified_certificates.clone();
+
         Box::pin(async move {
-            match &session.r#type {
+            let mut sender = sender.await?;
+            let results = match &session.r#type {
                 orm::SessionType::GroupV1(_group) => {
                     // FIXME
                     log::error!("Cannot send to Group V1 anymore.");
+                    Vec::new()
                 }
                 orm::SessionType::GroupV2(group) => {
                     let members = storage.fetch_group_members_by_group_v2_id(&group.id);
@@ -1448,47 +1545,46 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
 
                             if !recipient.is_registered || Some(local_addr) == member {
                                 None
+                            } else if let Some(member) = member {
+                                // XXX change the cert type when we want to introduce E164 privacy.
+                                let access =
+                                    certs.access_for(CertType::Complete, recipient, for_story);
+                                Some((member, access))
                             } else {
-                                if member.is_none() {
-                                    log::warn!(
-                                        "No known UUID for {}; will not deliver this message.",
-                                        recipient.e164_or_uuid()
-                                    );
-                                }
-                                member
+                                log::warn!(
+                                    "No known UUID for {}; will not deliver this message.",
+                                    recipient.e164_or_uuid()
+                                );
+                                None
                             }
                         })
                         .collect::<Vec<_>>();
                     // Clone + async closure means we can use an immutable borrow.
-                    let results = sender
-                        .send_message_to_group(&members, None, content, timestamp, online)
-                        .await;
-                    for result in results {
-                        if let Err(e) = result {
-                            anyhow::bail!(e)
-                        }
-                    }
+                    sender
+                        .send_message_to_group(&members, content, timestamp, online)
+                        .await
                 }
                 orm::SessionType::DirectMessage(recipient) => {
                     let svc = recipient.to_service_address();
+
+                    let access = certs.access_for(CertType::Complete, recipient, for_story);
 
                     if let Some(svc) = svc {
                         if !recipient.is_registered {
                             anyhow::bail!("Unregistered recipient {}", svc.uuid.to_string());
                         }
 
-                        if let Err(e) = sender
-                            .send_message(&svc, None, content.clone(), timestamp, online)
-                            .await
-                        {
-                            anyhow::bail!(e);
-                        }
+                        vec![
+                            sender
+                                .send_message(&svc, access, content.clone(), timestamp, online)
+                                .await,
+                        ]
                     } else {
                         anyhow::bail!("Recipient id {} has no UUID", recipient.id);
                     }
                 }
-            }
-            Ok(())
+            };
+            Ok(results)
         })
     }
 }
@@ -1608,14 +1704,14 @@ impl Handler<Restart> for ClientActor {
                 migrations_ready.await;
                 let mut receiver = MessageReceiver::new(service.clone());
 
-                receiver
-                    .create_message_pipe(credentials)
-                    .await
-                    .map(|pipe| (pipe.ws(), pipe))
+                let pipe = receiver.create_message_pipe(credentials).await?;
+                let ws = pipe.ws();
+                Result::<_, ServiceError>::Ok((pipe, ws))
             }
             .into_actor(self)
             .map(move |pipe, act, ctx| match pipe {
-                Ok((ws, pipe)) => {
+                Ok((pipe, ws)) => {
+                    ctx.notify(unidentified::RotateUnidentifiedCertificates);
                     ctx.add_stream(pipe.stream());
 
                     ctx.set_mailbox_capacity(1);
