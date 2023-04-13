@@ -788,7 +788,7 @@ impl ClientActor {
                             // but maybe needs a check. TODO
                             sent.destination_e164.clone(),
                             sent.destination_uuid.clone(),
-                            &message,
+                            message,
                             Some(sent.clone()),
                             &metadata,
                         );
@@ -1264,7 +1264,7 @@ impl Handler<SendMessage> for ClientActor {
 
                 match res {
                     Ok(results) => {
-                        let unident = results.iter().all(|res| match res {
+                        let unidentified = results.iter().all(|res| match res {
                             Ok(SentMessage { unidentified, .. }) => *unidentified,
                             _ => false,
                         });
@@ -1303,9 +1303,10 @@ impl Handler<SendMessage> for ClientActor {
                             }
                         }
 
-                        let all_ok = results.iter().all(Result::is_ok);
+                        let successes = results.iter().filter(|res| res.is_ok()).count();
+                        let all_ok = successes == results.len();
                         if all_ok {
-                            storage.dequeue_message(mid, chrono::Utc::now().naive_utc(), unident);
+                            storage.dequeue_message(mid, chrono::Utc::now().naive_utc(), unidentified);
 
                             Ok((session.id, mid, msg.inner.text))
                         } else {
@@ -1313,6 +1314,7 @@ impl Handler<SendMessage> for ClientActor {
                             for error in results.iter().filter_map(|res| res.as_ref().err()) {
                                 log::error!("Could not deliver message: {}", error)
                             }
+                            log::error!("Successfully delivered message to {} out of {} recipients", successes, results.len());
                             anyhow::bail!("Could not deliver message.")
                         }
                     }
