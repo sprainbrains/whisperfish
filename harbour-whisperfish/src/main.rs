@@ -116,7 +116,10 @@ fn main() {
     config.override_captcha = opt.captcha;
 
     // Build simplelog configuration
-    let shared_dir = config.get_share_dir().join("harbour-whisperfish.log");
+    let shared_dir = config.get_share_dir().join(format!(
+        "harbour-whisperfish.{}.log",
+        chrono::Utc::now().format("%Y%m%d_%H%M%S")
+    ));
     let log_file = shared_dir.to_str().expect("log file path");
     let mut log_level = LevelFilter::Warn;
     let mut config_builder = ConfigBuilder::new();
