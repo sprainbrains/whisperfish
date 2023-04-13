@@ -526,32 +526,62 @@
         <extracomment>Profile, about you (greeting/status) field</extracomment>
         <translation>Schreibe etwas über dich</translation>
     </message>
+    <message id="whisperfish-profile-unidentified">
+        <location filename="../qml/pages/ProfilePage.qml" line="281"/>
+        <source>Sealed sending mode</source>
+        <extracomment>Profile, sealed sending mode option</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-unidentified-unknown">
+        <location filename="../qml/pages/ProfilePage.qml" line="288"/>
+        <source>Unknown</source>
+        <extracomment>Profile, sealed sending mode, unknown option</extracomment>
+        <translation type="unfinished">Unbekannt</translation>
+    </message>
+    <message id="whisperfish-unidentified-disabled">
+        <location filename="../qml/pages/ProfilePage.qml" line="293"/>
+        <source>Disabled</source>
+        <extracomment>Profile, sealed sending mode, disabled option</extracomment>
+        <translation type="unfinished">Deaktiviert</translation>
+    </message>
+    <message id="whisperfish-unidentified-enabled">
+        <location filename="../qml/pages/ProfilePage.qml" line="298"/>
+        <source>Enabled</source>
+        <extracomment>Profile, sealed sending mode, enabled option</extracomment>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message id="whisperfish-unidentified-unrestricted">
+        <location filename="../qml/pages/ProfilePage.qml" line="303"/>
+        <source>Unrestricted</source>
+        <extracomment>Profile, sealed sending mode, unrestricted option</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-profile-emoji">
-        <location filename="../qml/pages/ProfilePage.qml" line="286"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="318"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
         <translation>Ein paar Worte zu deiner Person</translation>
     </message>
     <message id="whisperfish-show-fingerprint">
-        <location filename="../qml/pages/ProfilePage.qml" line="300"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="332"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
         <translation>Fingerabdruck anzeigen</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="343"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="375"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Um die Sicherheit der Ende-zu-Ende-Verschlüsselung mit %1 zu verifizieren, vergleiche die obigen Nummern mit denen auf dem Gerät des Gesprächspartners.</translation>
     </message>
     <message id="whisperfish-own-profile-help-text">
-        <location filename="../qml/pages/ProfilePage.qml" line="360"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="392"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
         <translation>Dein Profil ist verschlüsselt. Dein Profil und Änderungen daran sind für deine Kontakte sichtbar und wenn du neue Unterhaltungen beginnst oder annimmst.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
-        <location filename="../qml/pages/ProfilePage.qml" line="368"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="400"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
         <translation>Mehr erfahren</translation>
@@ -1268,7 +1298,7 @@ Settings page share contacts</extracomment>
         <translation>Deaktiviert</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/ProfilePage.qml" line="294"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="326"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
