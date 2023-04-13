@@ -7,3 +7,40 @@ updates:
     auto-merge: true
     rebase-strategy:
       on-approval: true
+    ignore:
+      - dependency-name: "indexmap"
+        versions: [ "1.8.1" ]
+      - dependency-name: "actix-http"
+        versions: [ "3.0.0-beta.19" ]
+      - dependency-name: "proc-macro2"
+        versions: [ "1.0.43" ]
+      - dependency-name: "pbkdf2"
+        versions: [ "0.9.0" ]
+      - dependency-name: "hmac"
+        versions: [ "0.11" ]
+      - dependency-name: "sha2"
+        versions: [ "0.9" ]
+      - dependency-name: "sha-1"
+        versions: [ "0.9" ]
+      - dependency-name: "aes"
+        versions: [ "0.7" ]
+      - dependency-name: "once_cell"
+        versions: [ "1.14.0" ]
+      - dependency-name: "cmake"
+        versions: [ "0.1.48" ]
+      - dependency-name: "rustls"
+        versions: [ "0.20.6" ]
+      - dependency-name: "qttypes"
+        versions: [ "0.2.6" ]
+      - dependency-name: "qmetaobject"
+        versions: [ "0.2.5" ]
+      - dependency-name: "time"
+        versions: [ "0.3.5" ]
+      - dependency-name: "scrypt"
+        versions: [ "0.8.1" ]
+      - dependency-name: "phonenumber"
+        versions: [ "0.3.1" ]
+      - dependency-name: "serde_yaml"
+        versions: [ "0.8.25" ]
+      - dependency-name: "env_logger"
+        versions: [ "0.9.3" ]
