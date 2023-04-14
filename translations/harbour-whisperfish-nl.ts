@@ -531,31 +531,31 @@
         <location filename="../qml/pages/ProfilePage.qml" line="281"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verzegelde verzendingsmodus</translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
         <location filename="../qml/pages/ProfilePage.qml" line="288"/>
         <source>Unknown</source>
         <extracomment>Profile, sealed sending mode, unknown option</extracomment>
-        <translation type="unfinished">Onbekend</translation>
+        <translation>Onbekend</translation>
     </message>
     <message id="whisperfish-unidentified-disabled">
         <location filename="../qml/pages/ProfilePage.qml" line="293"/>
         <source>Disabled</source>
         <extracomment>Profile, sealed sending mode, disabled option</extracomment>
-        <translation type="unfinished">Uitgeschakeld</translation>
+        <translation>Uitgeschakeld</translation>
     </message>
     <message id="whisperfish-unidentified-enabled">
         <location filename="../qml/pages/ProfilePage.qml" line="298"/>
         <source>Enabled</source>
         <extracomment>Profile, sealed sending mode, enabled option</extracomment>
-        <translation type="unfinished">Ingeschakeld</translation>
+        <translation>Ingeschakeld</translation>
     </message>
     <message id="whisperfish-unidentified-unrestricted">
         <location filename="../qml/pages/ProfilePage.qml" line="303"/>
         <source>Unrestricted</source>
         <extracomment>Profile, sealed sending mode, unrestricted option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Onbeperkt</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="318"/>
