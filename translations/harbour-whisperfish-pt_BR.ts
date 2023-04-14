@@ -1210,57 +1210,81 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
         <translation type="unfinished">Mostra informação para depuração na interface de usuário.</translation>
     </message>
+    <message id="whisperfish-settings-enable-verbose">
+        <location filename="../qml/pages/Settings.qml" line="423"/>
+        <source>Verbose logging</source>
+        <extracomment>Settings page enable verbose logging</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-enable-verbose-description">
+        <location filename="../qml/pages/Settings.qml" line="426"/>
+        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</source>
+        <extracomment>Settings page enable verbose logging description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-logfile-autostart">
+        <location filename="../qml/pages/Settings.qml" line="440"/>
+        <source>Enable log file</source>
+        <extracomment>Settings page enable logging to a file</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-enable-logfile-description">
+        <location filename="../qml/pages/Settings.qml" line="443"/>
+        <source>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</source>
+        <extracomment>Settings page enable logfile description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-compress-db">
-        <location filename="../qml/pages/Settings.qml" line="424"/>
+        <location filename="../qml/pages/Settings.qml" line="459"/>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
         <translation>Comprimir base de dados</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="435"/>
+        <location filename="../qml/pages/Settings.qml" line="470"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation>Estatísticas</translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="440"/>
+        <location filename="../qml/pages/Settings.qml" line="475"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation>Estado do Websocket</translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="444"/>
+        <location filename="../qml/pages/Settings.qml" line="479"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation>Conectado</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="447"/>
+        <location filename="../qml/pages/Settings.qml" line="482"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation>Desconectado</translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="452"/>
+        <location filename="../qml/pages/Settings.qml" line="487"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation>Mensagens não enviadas</translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="458"/>
+        <location filename="../qml/pages/Settings.qml" line="493"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation>Número total de sessões</translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="464"/>
+        <location filename="../qml/pages/Settings.qml" line="499"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation>Número total de mensagens</translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="470"/>
+        <location filename="../qml/pages/Settings.qml" line="505"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation>Contatos no Signal</translation>
@@ -1281,19 +1305,19 @@ Settings page share contacts</extracomment>
         <translation type="vanished">Desligada</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="476"/>
+        <location filename="../qml/pages/Settings.qml" line="511"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation>Criptografia da Base de dados</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="480"/>
+        <location filename="../qml/pages/Settings.qml" line="515"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation>Ligada</translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="483"/>
+        <location filename="../qml/pages/Settings.qml" line="518"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation>Desligada</translation>
