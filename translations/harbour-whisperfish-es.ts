@@ -104,7 +104,7 @@
         <location filename="../qml/harbour-whisperfish-main.qml" line="261"/>
         <source>Failed to setup Signal client</source>
         <extracomment>Failed to setup signal client error message</extracomment>
-        <translation>No se ha podido configurar el cliente Signal</translation>
+        <translation>No se pudo configurar el cliente de Signal</translation>
     </message>
     <message id="whisperfish-fatal-error-invalid-datastore">
         <location filename="../qml/harbour-whisperfish-main.qml" line="266"/>
@@ -245,7 +245,7 @@
         <location filename="../qml/pages/About.qml" line="142"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
-        <translation>Visitar la Wiki</translation>
+        <translation>Visita la Wiki</translation>
     </message>
     <message id="whisperfish-extra-copyright">
         <location filename="../qml/pages/About.qml" line="151"/>
@@ -391,8 +391,9 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
-            <numerusform>Mensaje %n eliminado localmente</numerusform>
-            <numerusform>Mensajes %n eliminados localmente</numerusform>
+            <numerusform>Mensaje %n borrado localmente</numerusform>
+            <numerusform>Mensajes %n borrados localmente</numerusform>
+            <numerusform>Mensajes %n borrados localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -531,31 +532,31 @@
         <location filename="../qml/pages/ProfilePage.qml" line="281"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modo de envío sellado</translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
         <location filename="../qml/pages/ProfilePage.qml" line="288"/>
         <source>Unknown</source>
         <extracomment>Profile, sealed sending mode, unknown option</extracomment>
-        <translation type="unfinished">Desconocido</translation>
+        <translation>Desconocida</translation>
     </message>
     <message id="whisperfish-unidentified-disabled">
         <location filename="../qml/pages/ProfilePage.qml" line="293"/>
         <source>Disabled</source>
         <extracomment>Profile, sealed sending mode, disabled option</extracomment>
-        <translation type="unfinished">Deshabilitado</translation>
+        <translation>Deshabilitada</translation>
     </message>
     <message id="whisperfish-unidentified-enabled">
         <location filename="../qml/pages/ProfilePage.qml" line="298"/>
         <source>Enabled</source>
         <extracomment>Profile, sealed sending mode, enabled option</extracomment>
-        <translation type="unfinished">Habilitado</translation>
+        <translation>Habilitada</translation>
     </message>
     <message id="whisperfish-unidentified-unrestricted">
         <location filename="../qml/pages/ProfilePage.qml" line="303"/>
         <source>Unrestricted</source>
         <extracomment>Profile, sealed sending mode, unrestricted option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>No restringida</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="318"/>
@@ -1214,25 +1215,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="423"/>
         <source>Verbose logging</source>
         <extracomment>Settings page enable verbose logging</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Registro detallado</translation>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
         <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</source>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Cuando está activado, Whisperfish produce una salida detallada. Útil para ejecutar en el terminal. Requiere un reinicio para surtir efecto.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
         <source>Enable log file</source>
         <extracomment>Settings page enable logging to a file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar el archivo del registro</translation>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
         <source>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</source>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Cuando está habilitado, Whisperfish guarda tu salida en un archivo de registro. Requiere reiniciar para que surta efecto.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>
@@ -1497,8 +1498,9 @@ Settings page share contacts</extracomment>
         <source>%n attachment(s)</source>
         <extracomment>Number of attachments currently selected for sending</extracomment>
         <translation>
-            <numerusform>%n adjunto</numerusform>
-            <numerusform>%n adjuntos</numerusform>
+            <numerusform>%n archivo adjunto</numerusform>
+            <numerusform>%n archivos adjuntos</numerusform>
+            <numerusform>%n archivos adjuntos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
@@ -1530,8 +1532,9 @@ Settings page share contacts</extracomment>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
-            <numerusform>+%n</numerusform>
-            <numerusform>+%n</numerusform>
+            <numerusform>y %n más</numerusform>
+            <numerusform>y %n más</numerusform>
+            <numerusform>y %n más</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1541,7 +1544,8 @@ Settings page share contacts</extracomment>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
             <numerusform>y %n más</numerusform>
-            <numerusform>y muchos %n más</numerusform>
+            <numerusform>y más de %n</numerusform>
+            <numerusform>y más de %n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1732,6 +1736,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n miembro</numerusform>
             <numerusform>%n miembros</numerusform>
+            <numerusform>%n miembros</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1742,6 +1747,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensaje seleccionado</numerusform>
             <numerusform>%n mensajes seleccionados</numerusform>
+            <numerusform>%n mensajes seleccionados</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1750,6 +1756,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
             <numerusform>Borrar la selección</numerusform>
+            <numerusform>Borrar las selecciones</numerusform>
             <numerusform>Borrar las selecciones</numerusform>
         </translation>
     </message>
@@ -1760,6 +1767,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copiar el %n mensaje</numerusform>
+            <numerusform>Copiar los %n mensajes</numerusform>
             <numerusform>Copiar los %n mensajes</numerusform>
         </translation>
     </message>
@@ -1776,8 +1784,9 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Borrar localmente el mensaje %n</numerusform>
-            <numerusform>Borrar localmente los mensajes %n</numerusform>
+            <numerusform>Borrar localmente %n mensaje</numerusform>
+            <numerusform>Borrar localmente %n mensajes</numerusform>
+            <numerusform>Borrar localmente %n mensajes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1787,8 +1796,9 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Borrar el mensaje %n para todos</numerusform>
-            <numerusform>Borrar los mensajes %n para todos</numerusform>
+            <numerusform>Eliminar %n mensaje para todos</numerusform>
+            <numerusform>Eliminar %n mensajes para todos</numerusform>
+            <numerusform>Eliminar %n mensajes para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1796,8 +1806,9 @@ Settings page share contacts</extracomment>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Reintentar el envío (del) mensaje fallido</numerusform>
-            <numerusform>Reintentar el envío de (los) mensajes fallidos</numerusform>
+            <numerusform>Reintentar enviar (el) mensaje fallido</numerusform>
+            <numerusform>Reintentar enviar (los) mensajes fallidos</numerusform>
+            <numerusform>Reintentar enviar (los) mensajes fallidos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
@@ -1818,8 +1829,9 @@ Settings page share contacts</extracomment>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
-            <numerusform>Sin leer&lt;br/&gt;mensaje</numerusform>
-            <numerusform>Sin leer&lt;br/&gt;mensajes</numerusform>
+            <numerusform>Mensaje&lt;br/&gt;sin leer</numerusform>
+            <numerusform>Mensajes&lt;br/&gt;sin leer</numerusform>
+            <numerusform>Mensajes&lt;br/&gt;sin leer</numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
