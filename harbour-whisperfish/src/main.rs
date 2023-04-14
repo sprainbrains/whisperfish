@@ -74,7 +74,7 @@ fn main() {
     // Migrate the QSettings file from
     // ~/.config/harbour-whisperfish/harbour-whisperfish.conf to
     // ~/.config/be.rubdos/harbour-whisperfish/harbour-whisperfish.conf
-    match config::SignalConfig::migrate_qsettings() {
+    match config::SettingsBridge::migrate_qsettings() {
         Ok(()) => (),
         Err(e) => {
             eprintln!("Could not migrate QSettings file: {}", e);
@@ -93,7 +93,7 @@ fn main() {
     // Migrate the db and storage folders from
     // ~/.local/share/harbour-whisperfish/[...] to
     // ~/.local/share/rubdos.be/harbour-whisperfish/[...]
-    match config::SignalConfig::migrate_storage() {
+    match store::Storage::migrate_storage() {
         Ok(()) => (),
         Err(e) => {
             eprintln!("Could not migrate db and storage: {}", e);
@@ -116,7 +116,10 @@ fn main() {
     config.override_captcha = opt.captcha;
 
     // Build simplelog configuration
-    let shared_dir = config.get_share_dir().join("harbour-whisperfish.log");
+    let shared_dir = config.get_share_dir().join(format!(
+        "harbour-whisperfish.{}.log",
+        chrono::Utc::now().format("%Y%m%d_%H%M%S")
+    ));
     let log_file = shared_dir.to_str().expect("log file path");
     let mut log_level = LevelFilter::Warn;
     let mut config_builder = ConfigBuilder::new();
@@ -217,7 +220,8 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     // Right now, we only create the attachment (and storage) directory if necessary
     // With more refactoring there should be probably more initialization here
     // Not creating the storage/attachment directory is fatal and we return here.
-    let settings = crate::config::SettingsBridge::default();
+    let mut settings = crate::config::SettingsBridge::default();
+    settings.migrate_qsettings_paths();
 
     for dir in &[
         settings.get_string("attachment_dir"),
@@ -231,8 +235,24 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
         }
     }
 
+    // Push verbose and logfile settings to QSettings...
+    settings.set_bool("verbose", config.verbose);
+    settings.set_bool("logfile", config.logfile);
+
     // This will panic here if feature `sailfish` is not enabled
     gui::run(config).unwrap();
+
+    // ...and pull them back after execution.
+    match config::SignalConfig::read_from_file() {
+        Ok(mut config) => {
+            config.verbose = settings.get_verbose();
+            config.logfile = settings.get_logfile();
+            if let Err(e) = config.write_to_file() {
+                log::error!("Could not save config.yml: {}", e)
+            };
+        }
+        Err(e) => log::error!("Could not open config.yml: {}", e),
+    };
 
     log::info!("Shut down.");
 
