@@ -286,6 +286,14 @@ impl Storage {
         self.store_enc.is_some()
     }
 
+    pub fn clear_old_logs(
+        path: &std::path::PathBuf,
+        keep_count: usize,
+        filename_regex: &str,
+    ) -> bool {
+        self::utils::clear_old_logs(path, keep_count, filename_regex)
+    }
+
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), anyhow::Error> {
         let root = root.as_ref();
 
