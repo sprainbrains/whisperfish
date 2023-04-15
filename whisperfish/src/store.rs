@@ -24,6 +24,7 @@ use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::{attachment_pointer, data_message::Reaction, DataMessage};
 use protocol_store::ProtocolStore;
+use std::collections::HashMap;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -227,6 +228,7 @@ pub struct Storage {
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
     path: PathBuf,
     identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
+    typings: HashMap<i32, Vec<String>>,
 }
 
 /// Fetches an `orm::Session`, for which the supplied closure can impose constraints.
@@ -389,6 +391,7 @@ impl Storage {
             )),
             path: path.to_path_buf(),
             identity_key_pair: Arc::new(tokio::sync::RwLock::new(Some(identity_key_pair))),
+            typings: Default::default(),
         })
     }
 
@@ -429,6 +432,7 @@ impl Storage {
             )),
             path: path.to_path_buf(),
             identity_key_pair: Arc::new(tokio::sync::RwLock::new(None)),
+            typings: Default::default(),
         };
 
         Ok(storage)
@@ -1442,10 +1446,16 @@ impl Storage {
     pub fn fetch_session_by_id_augmented(&self, sid: i32) -> Option<orm::AugmentedSession> {
         let session = self.fetch_session_by_id(sid)?;
         let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
+        let typings: Vec<String> = if let Some(t) = self.typings.get(&sid) {
+            t.to_vec()
+        } else {
+            vec![]
+        };
 
         Some(orm::AugmentedSession {
             inner: session,
             last_message,
+            typings,
         })
     }
 
@@ -2163,9 +2173,15 @@ impl Storage {
             .into_iter()
             .map(|session| {
                 let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
+                let typings: Vec<String> = if let Some(t) = self.typings.get(&session.id) {
+                    t.to_vec()
+                } else {
+                    vec![]
+                };
                 orm::AugmentedSession {
                     inner: session,
                     last_message,
+                    typings,
                 }
             })
             .collect();
