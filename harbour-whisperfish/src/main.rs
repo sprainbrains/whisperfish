@@ -115,12 +115,47 @@ fn main() {
     }
     config.override_captcha = opt.captcha;
 
-    // Build simplelog configuration
-    let shared_dir = config.get_share_dir().join(format!(
+    // Timestamped log files and keeping only N+1 of them.
+    // Logger creates the N+1'th file after this.
+    const MAX_LOGFILE_COUNT: usize = 4; // "5"
+    let shared_dir = config.get_share_dir();
+
+    match std::fs::read_dir(&shared_dir) {
+        Ok(file_list) => {
+            // Get list of logfiles
+            let log_regex = regex::Regex::new(r"harbour-whisperfish.\d{8}_\d{6}\.log").unwrap();
+            let mut file_list: Vec<String> = file_list
+                .filter_map(|a| if let Ok(a) = a { Some(a) } else { None })
+                .filter(|a| {
+                    a.metadata().unwrap().is_file()
+                        && log_regex.is_match(&a.file_name().to_string_lossy())
+                })
+                .map(|f| f.file_name().to_str().unwrap().to_owned())
+                .collect();
+
+            // If enough files, remove the oldest ones
+            if file_list.len() > MAX_LOGFILE_COUNT {
+                file_list.sort_by(|b, a| a.cmp(b));
+
+                for file in file_list[MAX_LOGFILE_COUNT..].iter() {
+                    match std::fs::remove_file(shared_dir.join(file)) {
+                        Ok(()) => println!("Deleted old log file: {}", file),
+                        Err(e) => eprintln!("Could not delete old log file {}: {:?}", file, e),
+                    }
+                }
+            }
+        }
+        Err(e) => eprintln!("Could not read log file folder contents: {:?}", e),
+    };
+
+    let shared_dir = shared_dir.join(format!(
         "harbour-whisperfish.{}.log",
+        // Keep in sync with regex above
         chrono::Utc::now().format("%Y%m%d_%H%M%S")
     ));
     let log_file = shared_dir.to_str().expect("log file path");
+
+    // Build simplelog configuration
     let mut log_level = LevelFilter::Warn;
     let mut config_builder = ConfigBuilder::new();
 

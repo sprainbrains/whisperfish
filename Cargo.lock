@@ -1304,6 +1304,7 @@ dependencies = [
  "dbus",
  "log",
  "log-panics",
+ "regex",
  "simplelog",
  "single-instance",
  "structopt",
