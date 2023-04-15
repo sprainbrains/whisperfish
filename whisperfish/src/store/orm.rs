@@ -805,6 +805,7 @@ impl AugmentedMessage {
 pub struct AugmentedSession {
     pub inner: Session,
     pub last_message: Option<AugmentedMessage>,
+    pub typings: Vec<String>,
 }
 
 impl Display for AugmentedSession {
@@ -947,6 +948,15 @@ impl AugmentedSession {
 
     pub fn draft(&self) -> String {
         self.draft.clone().unwrap_or_default()
+    }
+
+    pub fn typings(&self) -> Option<String> {
+        if self.typings.is_empty() {
+            return None;
+        }
+        // XXX make this a QStringList
+        log::trace!("Typings requested!");
+        Some(self.typings.join(", "))
     }
 
     pub fn last_message_text(&self) -> Option<&str> {
@@ -1429,6 +1439,7 @@ mod tests {
         let mut s = AugmentedSession {
             inner: get_dm_session(),
             last_message: Some(get_augmented_message()),
+            typings: Default::default(),
         };
         assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
         s.last_message = None;
@@ -1491,6 +1502,7 @@ mod tests {
         let mut a = AugmentedSession {
             inner: get_gv2_session(),
             last_message: Some(get_augmented_message()),
+            typings: Default::default(),
         };
         a.inner.is_pinned = true;
 
@@ -1526,6 +1538,7 @@ mod tests {
         a = AugmentedSession {
             inner: get_dm_session(),
             last_message: Some(get_augmented_message()),
+            typings: Default::default(),
         };
         a.inner.is_pinned = true;
 

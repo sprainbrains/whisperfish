@@ -175,6 +175,8 @@ crate::observing_model! {
         hasAttachment HasAttachment,
         hasAvatar HasAvatar,
         draft Draft,
+
+        typings Typings,
     }
 }
 
