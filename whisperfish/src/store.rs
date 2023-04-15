@@ -1785,6 +1785,26 @@ impl Storage {
         }
     }
 
+    pub fn update_typings(&mut self, typings: &HashMap<i32, Vec<orm::Recipient>>) {
+        log::trace!("Called update_typings()");
+        for (sid, recipients) in typings {
+            let names = recipients
+                .iter()
+                .map(|r| {
+                    if let Some(name) = r.profile_given_name.to_owned() {
+                        name
+                    } else {
+                        String::from(r.e164_or_uuid())
+                    }
+                })
+                .collect();
+            self.typings.insert(*sid, names);
+            // XXX This triggers a full AugmentedSession update or three
+            // XXX How to make the whichever-observer update QML too?
+            self.observe_update(schema::sessions::table, *sid);
+        }
+    }
+
     pub fn delete_session(&self, id: i32) {
         log::trace!("Called delete_session({})", id);
 
