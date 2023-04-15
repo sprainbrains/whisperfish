@@ -2069,15 +2069,6 @@ checksum = "9f746c4065a8fa3fe23974dd82f15431cc8d40779821001404d10d2e79ca7d79"
 
 [[package]]
 name = "pbkdf2"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f05894bce6a1ba4be299d0c5f29563e08af2bc18bb7d48313113bed71e904739"
-dependencies = [
- "crypto-mac",
-]
-
-[[package]]
-name = "pbkdf2"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "271779f35b581956db91a3e55737327a03aa051e90b1c47aeb189508533adfd7"
@@ -2791,7 +2782,7 @@ checksum = "e73d6d7c6311ebdbd9184ad6c4447b2f36337e327bda107d3ba9e3c374f9d325"
 dependencies = [
  "hmac 0.12.1",
  "password-hash",
- "pbkdf2 0.10.1",
+ "pbkdf2",
  "salsa20",
  "sha2 0.10.6",
 ]
@@ -3566,7 +3557,7 @@ dependencies = [
  "mime_guess",
  "once_cell",
  "parking_lot",
- "pbkdf2 0.9.0",
+ "pbkdf2",
  "phonenumber",
  "proc-macro2",
  "prost 0.10.4",
