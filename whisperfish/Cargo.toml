@@ -47,7 +47,7 @@ quote = "=1.0.10"
 # which is what Sailfish SDK 3.9.3 (4.4.0.58) comes with
 # Due to that, we need to pin the sha2 and sha-1 versions too.
 pbkdf2 = { version = "=0.9.0", default-features = false }
-hmac = "=0.11"
+hmac = "=0.12"
 sha2 = "=0.9"
 sha-1 = "=0.9"
 aes = "0.7"

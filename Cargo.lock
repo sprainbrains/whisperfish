@@ -3552,7 +3552,7 @@ dependencies = [
  "futures",
  "getrandom 0.2.9",
  "hex",
- "hmac 0.11.0",
+ "hmac 0.12.1",
  "image",
  "indexmap",
  "itertools 0.10.5",
