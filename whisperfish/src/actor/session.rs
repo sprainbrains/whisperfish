@@ -11,7 +11,7 @@ use crate::store::{orm, Storage};
 use actix::prelude::*;
 use libsignal_protocol::{DeviceId, ProtocolAddress};
 use qmetaobject::prelude::*;
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -97,6 +97,10 @@ impl SessionActor {
             storage: None,
             typing_queue: VecDeque::new(),
         }
+    }
+
+    pub fn handle_update_typing(&mut self, typings: &HashMap<i32, Vec<orm::Recipient>>) {
+        self.storage.as_mut().unwrap().update_typings(typings);
     }
 }
 

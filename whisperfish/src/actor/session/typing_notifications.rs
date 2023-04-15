@@ -145,14 +145,10 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
         Box::pin(
             fetch_sessions
                 .into_actor(self)
-                .map(|result, _act, _ctx| match result {
+                .map(|result, act, _ctx| match result {
                     Ok(typings) => {
                         log::info!("Sending typings {:?} to model", typings);
-                        // TODO: put this back to some model
-                        // act.inner
-                        //     .pinned()
-                        //     .borrow_mut()
-                        //     .handle_update_typing(typings);
+                        act.handle_update_typing(&typings);
                     }
                     Err(e) => log::error!("Could not process typings: {}", e),
                 }),

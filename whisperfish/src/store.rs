@@ -1438,12 +1438,14 @@ impl Storage {
     }
 
     pub fn fetch_session_by_id(&self, sid: i32) -> Option<orm::Session> {
+        log::trace!("fetch_session_by_id({})", sid);
         fetch_session!(self.db(), |query| {
             query.filter(schema::sessions::columns::id.eq(sid))
         })
     }
 
     pub fn fetch_session_by_id_augmented(&self, sid: i32) -> Option<orm::AugmentedSession> {
+        log::trace!("fetch_session_by_id({})", sid);
         let session = self.fetch_session_by_id(sid)?;
         let last_message = self.fetch_last_message_by_session_id_augmented(session.id);
         let typings: Vec<String> = if let Some(t) = self.typings.get(&sid) {
