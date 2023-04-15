@@ -34,15 +34,28 @@ mod tests {
         assert!(Storage::clear_old_logs(&temp_pathbuf, 3, LOGFILE_REGEX));
         assert_eq!(fs::read_dir(&temp_pathbuf).unwrap().count(), 5);
 
-        let mut remaining = fs::read_dir(&temp_pathbuf).unwrap();
-        assert_eq!("leave-me-alone.tmp",                      remaining.next().unwrap().unwrap().file_name().to_str().unwrap());
-        assert_eq!("harbour-whisperfish.20001231_164500.log", remaining.next().unwrap().unwrap().file_name().to_str().unwrap());
-        assert_eq!("harbour-whisperfish.20001231_154500.log", remaining.next().unwrap().unwrap().file_name().to_str().unwrap());
-        assert_eq!("harbour-whisperfish.20001231_144500.log", remaining.next().unwrap().unwrap().file_name().to_str().unwrap());
+        let mut remaining: Vec<String> = fs::read_dir(&temp_pathbuf)
+            .unwrap()
+            .filter_map(|f| {
+                if let Ok(f) = f {
+                    Some(String::from(f.file_name().to_string_lossy()))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        remaining.sort_by(|b, a| a.cmp(b));
+
+        let mut files = remaining.iter();
+
+        assert_eq!("leave-me-alone.tmp",                      files.next().unwrap());
+        assert_eq!("harbour-whisperfish.20001231_164500.log", files.next().unwrap());
+        assert_eq!("harbour-whisperfish.20001231_154500.log", files.next().unwrap());
+        assert_eq!("harbour-whisperfish.20001231_144500.log", files.next().unwrap());
         // deleted: harbour-whisperfish.20001231_134500.log
         // deleted: harbour-whisperfish.20001231_124500.log
-        assert_eq!("dont-touch-me.tmp",                       remaining.next().unwrap().unwrap().file_name().to_str().unwrap());
-        assert!(remaining.next().is_none());
+        assert_eq!("dont-touch-me.tmp",                       files.next().unwrap());
+        assert!(files.next().is_none());
 
         drop(temp_path);
     }
