@@ -107,7 +107,7 @@ var Style = { // could be initialized on startup with user-configured values
     'apple': {
       name: 'Apple',
       key: 'apple',
-      versions: ['ios-15.4', 'ios-14.2'],
+      versions: ['ios-16.4', 'ios-15.4', 'ios-14.2'],
       ext: 'png',
       type: 'r',
       url: 'https://emojipedia.org/apple',
