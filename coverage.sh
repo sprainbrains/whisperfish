@@ -35,6 +35,7 @@ grcov . \
 	--ignore 'target/*' \
 	--ignore 'coverage/*' \
 	--llvm-path "${LLVM_PATH}" \
+	--excl-start "#\[cfg\(test\)\]" \
 	-s . \
 	-t html \
 	-o coverage/html
