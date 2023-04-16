@@ -2,12 +2,15 @@ mod common;
 
 use self::common::*;
 use chrono::prelude::*;
+use libsignal_service::content::Reaction;
+use libsignal_service::proto::DataMessage;
 use rstest::rstest;
 use std::future::Future;
 use std::sync::Arc;
-use whisperfish::store;
-use whisperfish::store::{GroupV1, NewMessage, Storage};
 use whisperfish::config::SignalConfig;
+use whisperfish::store;
+use whisperfish::store::orm::UnidentifiedAccessMode;
+use whisperfish::store::{GroupV1, NewMessage, Storage};
 
 #[rstest]
 #[actix_rt::test]
@@ -579,6 +582,178 @@ async fn test_create_and_open_storage(
     tests!(storage)?;
 
     Ok(())
+}
+
+#[actix_rt::test]
+async fn test_recipient_actions() {
+    use rand::distributions::Alphanumeric;
+    use rand::{Rng, RngCore};
+
+    env_logger::try_init().ok();
+
+    let location = store::temp();
+    let rng = rand::thread_rng();
+
+    // Signaling password for REST API
+    let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
+
+    // Signaling key that decrypts the incoming Signal messages
+    let mut rng = rand::thread_rng();
+    let mut signaling_key = [0u8; 52];
+    rng.fill_bytes(&mut signaling_key);
+    let signaling_key = signaling_key;
+
+    // Registration ID
+    let regid = 12345;
+
+    let storage = Storage::new(
+        Arc::new(SignalConfig::default()),
+        &location,
+        None,
+        regid,
+        &password,
+        signaling_key,
+        None,
+    )
+    .await;
+    assert!(storage.is_ok(), "{}", storage.err().unwrap());
+    let mut storage = storage.unwrap();
+
+    // It seems this function is completely unused!
+    let tmp_write_dir = tempfile::tempdir().unwrap();
+    let tmp_write_file = tmp_write_dir.path().join("tmp.file");
+    storage
+        .write_file(tmp_write_file, "something")
+        .await
+        .unwrap();
+
+    let uuid1 = uuid::Uuid::new_v4();
+
+    let recip = storage.fetch_or_insert_recipient_by_uuid(&uuid1.to_string());
+
+    assert_eq!(
+        recip.unidentified_access_mode,
+        UnidentifiedAccessMode::Unknown
+    );
+    storage.set_recipient_unidentified(recip.id, UnidentifiedAccessMode::Disabled);
+    let recip = storage.fetch_or_insert_recipient_by_uuid(&uuid1.to_string());
+    assert_eq!(
+        recip.unidentified_access_mode,
+        UnidentifiedAccessMode::Disabled
+    );
+    storage.set_recipient_unidentified(recip.id, UnidentifiedAccessMode::Enabled);
+    let recip = storage.fetch_or_insert_recipient_by_uuid(&uuid1.to_string());
+    assert_eq!(
+        recip.unidentified_access_mode,
+        UnidentifiedAccessMode::Enabled
+    );
+    storage.set_recipient_unidentified(recip.id, UnidentifiedAccessMode::Unrestricted);
+    let recip = storage.fetch_or_insert_recipient_by_uuid(&uuid1.to_string());
+    assert_eq!(
+        recip.unidentified_access_mode,
+        UnidentifiedAccessMode::Unrestricted
+    );
+
+    let session = storage.fetch_or_insert_session_by_e164(recip.e164_or_uuid());
+    let ts = NaiveDateTime::parse_from_str("2023-04-01 07:01:32", "%Y-%m-%d %H:%M:%S").unwrap();
+    let msg = NewMessage {
+        session_id: Some(session.id),
+        timestamp: ts,
+        sent: true,
+        received: true,
+        flags: 0,
+        attachment: None,
+        outgoing: true,
+        source_e164: Some(String::from(recip.e164_or_uuid())),
+        source_uuid: None,
+        text: "Hi!".into(),
+        is_read: false,
+        mime_type: None,
+        has_attachment: false,
+        is_unidentified: false,
+        quote_timestamp: None,
+    };
+
+    let msg = storage.create_message(&msg);
+    storage.dequeue_message(msg.id, ts, false);
+
+    assert!(!msg.is_read);
+    let (_, msg) = storage.mark_message_read(msg.server_timestamp).unwrap();
+    assert!(msg.is_read);
+
+    assert!(storage.fetch_message_receipts(msg.id).is_empty());
+    storage.mark_message_received(uuid1, msg.server_timestamp, None);
+    assert!(!storage.fetch_message_receipts(msg.id).is_empty());
+
+    let reaction = Reaction {
+        emoji: Some("❤".into()),
+        remove: Some(false),
+        target_author_uuid: recip.uuid.clone(),
+        target_sent_timestamp: Some(msg.server_timestamp.timestamp_millis() as _),
+    };
+    let data_msg = DataMessage {
+        body: None,
+        attachments: [].to_vec(),
+        group_v2: None,
+        flags: None,
+        expire_timer: None,
+        profile_key: Some([0].to_vec()),
+        timestamp: Some(msg.server_timestamp.timestamp_millis() as _),
+        quote: None,
+        contact: [].to_vec(),
+        preview: [].to_vec(),
+        sticker: None,
+        required_protocol_version: None,
+        is_view_once: None,
+        reaction: Some(reaction.clone()),
+        delete: None,
+        body_ranges: [].to_vec(),
+        group_call_update: None,
+        payment: None,
+        story_context: None,
+        gift_badge: None,
+    };
+    let (m, s) = storage
+        .process_reaction(&recip, &data_msg, &reaction)
+        .unwrap();
+    assert_eq!(m.id, msg.id);
+    assert_eq!(s.id, session.id);
+    let r = storage.fetch_reactions_for_message(msg.id);
+    assert!(!r.is_empty());
+    assert_eq!(r.first().unwrap().0.emoji, String::from("❤"));
+
+    let m = storage
+        .fetch_last_message_by_session_id_augmented(session.id)
+        .unwrap();
+    assert_eq!(m.text.as_ref().unwrap(), &msg.text.unwrap());
+
+    assert!(!msg.sending_has_failed);
+    storage.fail_message(msg.id);
+    let msg = storage.fetch_message_by_id(msg.id).unwrap();
+    assert!(msg.sending_has_failed);
+
+    assert_eq!(storage.mark_pending_messages_failed(), 0);
+
+    assert!(storage.fetch_group_sessions().is_empty());
+    assert!(storage
+        .fetch_session_by_id_augmented(session.id + 1)
+        .is_none());
+    assert!(storage.fetch_session_by_id_augmented(session.id).is_some());
+    assert!(storage.fetch_attachment(42).is_none());
+    assert!(storage.fetch_attachments_for_message(msg.id).is_empty());
+
+    assert_eq!(storage.fetch_all_messages_augmented(session.id).len(), 1);
+
+    assert_eq!(storage.fetch_all_sessions_augmented().len(), 1);
+
+    storage.delete_message(msg.id);
+    assert!(storage.fetch_message_by_id(msg.id).is_none());
+    drop(msg);
+
+    assert_eq!(storage.fetch_all_messages_augmented(session.id).len(), 0);
+
+    storage.delete_session(session.id);
+    assert_eq!(storage.fetch_all_sessions_augmented().len(), 0);
 }
 
 // XXX: These tests worked back when Storage had the message_handler implemented.
