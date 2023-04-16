@@ -2277,7 +2277,7 @@ impl Storage {
     }
 
     /// Marks all messages that are outbound and unsent as failed.
-    pub fn mark_pending_messages_failed(&self) {
+    pub fn mark_pending_messages_failed(&self) -> usize {
         use schema::messages::dsl::*;
         let failed_messages: Vec<orm::Message> = messages
             .filter(
@@ -2310,6 +2310,7 @@ impl Storage {
             log::Level::Warn
         };
         log::log!(level, "Set {} messages to failed", count);
+        count
     }
 
     /// Marks a message as failed to send
