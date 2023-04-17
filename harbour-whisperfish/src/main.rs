@@ -115,12 +115,16 @@ fn main() {
     }
     config.override_captcha = opt.captcha;
 
-    // Build simplelog configuration
-    let shared_dir = config.get_share_dir().join(format!(
+    let shared_dir = config.get_share_dir();
+
+    let log_file_path = shared_dir.join(format!(
         "harbour-whisperfish.{}.log",
+        // Keep in sync with regex above
         chrono::Utc::now().format("%Y%m%d_%H%M%S")
     ));
-    let log_file = shared_dir.to_str().expect("log file path");
+    let log_file = log_file_path.to_str().expect("log file path");
+
+    // Build simplelog configuration
     let mut log_level = LevelFilter::Warn;
     let mut config_builder = ConfigBuilder::new();
 
@@ -172,6 +176,10 @@ fn main() {
     qtlog::enable();
 
     log_panics::init();
+
+    const MAX_LOGFILE_COUNT: usize = 5;
+    const LOGFILE_REGEX: &str = r"harbour-whisperfish.\d{8}_\d{6}\.log";
+    store::Storage::clear_old_logs(&shared_dir, MAX_LOGFILE_COUNT, LOGFILE_REGEX);
 
     let instance_lock = SingleInstance::new("whisperfish").unwrap();
     if !instance_lock.is_single() {
