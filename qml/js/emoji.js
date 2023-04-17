@@ -47,7 +47,7 @@
 // NOTE This version string must be updated with each change to the script.
 // We strictly follow Semantic Versioning 2.0.0, https://semver.org/.
 // While at version < 1.0.0, the public API may change at any time.
-var version = '0.3.0'
+var version = '0.3.1'
 
 // Data directories: emojis are by default located in StandardPaths.data/emojis,
 // which is typically $HOME/.local/share/sailor-emoji. The base directory has to
