@@ -2285,7 +2285,7 @@ impl Storage {
     }
 
     /// Marks all messages that are outbound and unsent as failed.
-    pub fn mark_pending_messages_failed(&self) {
+    pub fn mark_pending_messages_failed(&self) -> usize {
         use schema::messages::dsl::*;
         let failed_messages: Vec<orm::Message> = messages
             .filter(
@@ -2318,6 +2318,7 @@ impl Storage {
             log::Level::Warn
         };
         log::log!(level, "Set {} messages to failed", count);
+        count
     }
 
     /// Marks a message as failed to send
@@ -2459,158 +2460,6 @@ impl Storage {
         eprintln!("Migrating old storage folder...");
         fs_extra::dir::move_dir(old_storage, &new_path, &options)?;
         eprintln!("Storage folders migrated");
-        Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rstest::rstest;
-
-    #[rstest(ext, case("mp4"), case("jpg"), case("jpg"), case("png"), case("txt"))]
-    #[actix_rt::test]
-    async fn test_save_attachment(ext: &str) {
-        use rand::distributions::Alphanumeric;
-        use rand::{Rng, RngCore};
-
-        env_logger::try_init().ok();
-
-        let location = super::temp();
-        let rng = rand::thread_rng();
-
-        // Signaling password for REST API
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
-
-        // Signaling key that decrypts the incoming Signal messages
-        let mut rng = rand::thread_rng();
-        let mut signaling_key = [0u8; 52];
-        rng.fill_bytes(&mut signaling_key);
-        let signaling_key = signaling_key;
-
-        // Registration ID
-        let regid = 12345;
-
-        let storage = Storage::new(
-            Arc::new(SignalConfig::default()),
-            &location,
-            None,
-            regid,
-            &password,
-            signaling_key,
-            None,
-        )
-        .await
-        .unwrap();
-
-        // Create content for attachment and write to file
-        let content = [1u8; 10];
-        let fname = storage
-            .save_attachment(
-                &storage.path().join("storage").join("attachments"),
-                ext,
-                &content,
-            )
-            .await
-            .unwrap();
-
-        // Check existence of attachment
-        let exists = std::path::Path::new(&fname).exists();
-
-        println!("Looking for {}", fname.to_str().unwrap());
-        assert!(exists);
-
-        assert_eq!(
-            fname.extension().unwrap(),
-            ext,
-            "{} <> {}",
-            fname.to_str().unwrap(),
-            ext
-        );
-    }
-
-    #[rstest(
-        storage_password,
-        case(Some(String::from("some password"))),
-        case(None)
-    )]
-    #[actix_rt::test]
-    async fn test_create_and_open_storage(
-        storage_password: Option<String>,
-    ) -> Result<(), anyhow::Error> {
-        use rand::distributions::Alphanumeric;
-        use rand::{Rng, RngCore};
-
-        env_logger::try_init().ok();
-
-        let location = super::temp();
-        let rng = rand::thread_rng();
-
-        // Signaling password for REST API
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
-
-        // Signaling key that decrypts the incoming Signal messages
-        let mut rng = rand::thread_rng();
-        let mut signaling_key = [0u8; 52];
-        rng.fill_bytes(&mut signaling_key);
-        let signaling_key = signaling_key;
-
-        // Registration ID
-        let regid = 12345;
-
-        let storage = Storage::new(
-            Arc::new(SignalConfig::default()),
-            &location,
-            storage_password.as_deref(),
-            regid,
-            &password,
-            signaling_key,
-            None,
-        )
-        .await;
-        assert!(storage.is_ok(), "{}", storage.err().unwrap());
-        let storage = storage.unwrap();
-
-        macro_rules! tests {
-            ($storage:ident) => {{
-                use libsignal_service::prelude::protocol::IdentityKeyStore;
-                // TODO: assert that tables exist
-                assert_eq!(password, $storage.signal_password().await?);
-                assert_eq!(signaling_key, $storage.signaling_key().await?);
-                assert_eq!(regid, $storage.get_local_registration_id(None).await?);
-
-                let (signed, unsigned) = $storage.next_pre_key_ids().await;
-                // Unstarted client will have no pre-keys.
-                assert_eq!(0, signed);
-                assert_eq!(0, unsigned);
-
-                Result::<_, anyhow::Error>::Ok(())
-            }};
-        }
-
-        tests!(storage)?;
-        drop(storage);
-
-        if storage_password.is_some() {
-            assert!(
-                Storage::open(Arc::new(SignalConfig::default()), &location, None)
-                    .await
-                    .is_err(),
-                "Storage was not encrypted"
-            );
-        }
-
-        let storage = Storage::open(
-            Arc::new(SignalConfig::default()),
-            &location,
-            storage_password,
-        )
-        .await;
-        assert!(storage.is_ok(), "{}", storage.err().unwrap());
-        let storage = storage.unwrap();
-
-        tests!(storage)?;
-
         Ok(())
     }
 }

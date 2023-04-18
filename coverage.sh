@@ -15,7 +15,7 @@ if ! which grcov >/dev/null ; then
 fi
 
 export LLVM_PATH=$(dirname "${LLVM_TOOL}")
-export RUSTFLAGS="-Cinstrument-coverage"
+export RUSTFLAGS="-Cinstrument-coverage -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
 export LLVM_PROFILE_FILE="whisperfish-%p-%m.profraw"
 export CARGO_TARGET_DIR="coverage"
 
@@ -35,6 +35,7 @@ grcov . \
 	--ignore 'target/*' \
 	--ignore 'coverage/*' \
 	--llvm-path "${LLVM_PATH}" \
+	--excl-start "#\[cfg\(test\)\]" \
 	-s . \
 	-t html \
 	-o coverage/html
