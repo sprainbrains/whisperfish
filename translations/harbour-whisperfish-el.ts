@@ -153,7 +153,7 @@
         <location filename="../qml/pages/MainPage.qml" line="267"/>
         <source>No archived conversations</source>
         <extracomment>Showing archived conversations, but the list is empty</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Καμμία αρχειοθετημένη συνομιλία</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
         <location filename="../qml/pages/MainPage.qml" line="285"/>
@@ -471,85 +471,85 @@
         <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Απόρριψη αλλαγών</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="138"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποθήκευση αλλαγών προφίλ</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
         <location filename="../qml/pages/ProfilePage.qml" line="141"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επεξεργασία προφίλ</translation>
     </message>
     <message id="whisperfish-profile-page-unregistered-profile">
         <location filename="../qml/pages/ProfilePage.qml" line="189"/>
         <source>The recipient is not currently registered to Signal, so sending and receiving messages is not possible.</source>
         <extracomment>Profile page, user is not registered warning</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ο παραλήπτης δεν είναι εγγεγραμένος στο Signal, επομένως η αποστολή και λήψη μηνυμάτων δεν είναι δυνατή.</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="202"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Όνομα</translation>
     </message>
     <message id="whisperfish-profile-given-name">
         <location filename="../qml/pages/ProfilePage.qml" line="216"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Μικρό όνομα (απαραίτητο)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
         <location filename="../qml/pages/ProfilePage.qml" line="234"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Επώνυμο (προαιρετικό)</translation>
     </message>
     <message id="whisperfish-profile-uuid">
         <location filename="../qml/pages/ProfilePage.qml" line="248"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>UUID</translation>
     </message>
     <message id="whisperfish-profile-phone-number">
         <location filename="../qml/pages/ProfilePage.qml" line="260"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
-        <translation type="unfinished">Αριθμός τηλεφώνου</translation>
+        <translation>Αριθμός τηλεφώνου</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="272"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Γράψτε κάτι για τον εαυτό σας</translation>
     </message>
     <message id="whisperfish-profile-unidentified">
         <location filename="../qml/pages/ProfilePage.qml" line="281"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Προστατευμένος αποστολέας</translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
         <location filename="../qml/pages/ProfilePage.qml" line="288"/>
         <source>Unknown</source>
         <extracomment>Profile, sealed sending mode, unknown option</extracomment>
-        <translation type="unfinished">Άγνωστος</translation>
+        <translation>Άγνωστος</translation>
     </message>
     <message id="whisperfish-unidentified-disabled">
         <location filename="../qml/pages/ProfilePage.qml" line="293"/>
         <source>Disabled</source>
         <extracomment>Profile, sealed sending mode, disabled option</extracomment>
-        <translation type="unfinished">Απενεργοποιημένη</translation>
+        <translation>Απενεργοποιημένο</translation>
     </message>
     <message id="whisperfish-unidentified-enabled">
         <location filename="../qml/pages/ProfilePage.qml" line="298"/>
         <source>Enabled</source>
         <extracomment>Profile, sealed sending mode, enabled option</extracomment>
-        <translation type="unfinished">Ενεργοποιημένη</translation>
+        <translation>Ενεργοποιημένο</translation>
     </message>
     <message id="whisperfish-unidentified-unrestricted">
         <location filename="../qml/pages/ProfilePage.qml" line="303"/>
@@ -561,13 +561,13 @@
         <location filename="../qml/pages/ProfilePage.qml" line="318"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Λίγα λόγια για εσάς</translation>
     </message>
     <message id="whisperfish-show-fingerprint">
         <location filename="../qml/pages/ProfilePage.qml" line="332"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση δακτυλικού αποτυπώματος</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="375"/>
@@ -579,13 +579,13 @@
         <location filename="../qml/pages/ProfilePage.qml" line="392"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Το προφίλ σας είναι κρυπτογραφημένο. Το προφίλ σας και οι αλλαγές σε αυτό θα είναι ορατά στα άτομα στα οποία στέλνετε μηνύματα, στις επαφές και στις ομάδες σας.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="400"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Μάθετε περισσότερα</translation>
     </message>
     <message id="whisperfish-recipient-number-invalid-chars">
         <location filename="../qml/pages/NewMessage.qml" line="61"/>
@@ -1069,26 +1069,26 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="301"/>
         <source>Unlock Password</source>
         <extracomment>Settings page autostart password field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Κωδικός ξεκλειδώματος</translation>
     </message>
     <message id="whisperfish-settings-save-password-button">
         <location filename="../qml/pages/Settings.qml" line="313"/>
         <source>Save password</source>
         <extracomment>Settings page save autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Αποθήκευση κωδικού</translation>
     </message>
     <message id="whisperfish-settings-clear-password-button">
         <location filename="../qml/pages/Settings.qml" line="316"/>
         <source>clear password</source>
         <extracomment>Settings page clear autologin password button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Καθάρισμα κωδικού</translation>
     </message>
     <message id="whisperfish-settings-auto-unlock-password-info">
         <location filename="../qml/pages/Settings.qml" line="329"/>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
         <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Μπορείτε να εισάγετε τον κωδικό σας ώστε το Whisperfish να ξεκλειδώνει αυτόματα τη βάση δεδομένων κατά την εκκίνηση. Παρακαλώ λάβετε υπόψιν ότι ο κωδικός αποθηκεύεται σαν απλό κείμενο και κατά συνέπεια η χρήση αυτής της επιλογής δεν συνίσταται.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="351"/>
@@ -1107,7 +1107,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="46"/>
         <source>Show my profile</source>
         <extracomment>Show own profile menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Προβολή του προφίλ μου</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators">
         <location filename="../qml/pages/Settings.qml" line="74"/>
@@ -1214,27 +1214,27 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="423"/>
         <source>Verbose logging</source>
         <extracomment>Settings page enable verbose logging</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Λεπτομερής καταγραφή</translation>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
         <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Όταν ενεργοποιηθεί το Whisperfish καταγράφει περισσότερες λεπτομέρειες για τη λειτουργία της εφαρμογής. Χρήσιμη επιλογή όταν εκτελείτε την εφαρμογή σε τερματικό. Απαιτείται επανεκκίνηση της εφαρμογής για να εφαρμοστεί η αλλαγή αυτής της ρύθμισης.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
         <source>Enable log file</source>
         <extracomment>Settings page enable logging to a file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποίηση καταγραφής πληροφοριών λειτουργίας</translation>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
         <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&apos;Οταν είναι ενεργοποιημένο, το Whisperfish αποθηκεύει πληροφορίες λειτουργίας σε ένα αρχείο. Απαιτέιται επανεκκίνηση της εφαρμογής για να εφαρμοστούν οι αλλαγές αυτής της ρύθμισης.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>
@@ -1396,7 +1396,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="229"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ξεκινήστε συνομιλία με το χρήστη %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="241"/>
@@ -1507,7 +1507,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="209"/>
         <source>The recipient is not registered</source>
         <extracomment>Chat text input placeholder for deleted/unregistered recipient</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ο παραλήπτης δεν είναι εγγεγραμένος</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
         <location filename="../qml/components/ChatTextInput.qml" line="214"/>
@@ -1883,7 +1883,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Δημιουργία συνομιλίας</translation>
     </message>
 </context>
 </TS>
