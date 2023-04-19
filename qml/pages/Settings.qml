@@ -422,7 +422,7 @@ Page {
                 //% "Verbose logging"
                 text: qsTrId("whisperfish-settings-enable-verbose")
                 //: Settings page enable verbose logging description
-                //% "When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect."
+                //% "When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect."
                 description: qsTrId("whisperfish-settings-enable-verbose-description")
                 checked: SettingsBridge.verbose
                 icon.source: "image://theme/icon-m-about"
@@ -439,7 +439,7 @@ Page {
                 //% "Enable log file"
                 text: qsTrId("whisperfish-settings-logfile-autostart")
                 //: Settings page enable logfile description
-                //% "When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect."
+                //% "When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect."
                 description: qsTrId("whisperfish-settings-enable-logfile-description")
                 checked: SettingsBridge.logfile
                 icon.source: "image://theme/icon-m-downloads"
