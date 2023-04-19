@@ -9,7 +9,7 @@ ListItem {
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: hasDraft || model.message !== undefined && !model.read // TODO investigate: is this really a bool?
-    property bool isNoteToSelf: SetupWorker.phoneNumber === model.recipientE164
+    property bool isNoteToSelf: SetupWorker.uuid === model.recipientUuid
     property bool isPinned: model.isPinned
     property bool isArchived: model.isArchived
     property bool isRegistered: model.isRegistered
