@@ -275,7 +275,7 @@ Page {
 
             ComboBox {
                 id: recipientUnidentifiedMode
-                visible: SettingsBridge.debug_mode
+                visible: !isOwnProfile && SettingsBridge.debug_mode
                 //: Profile, sealed sending mode option
                 //% "Sealed sending mode"
                 label: qsTrId("whisperfish-profile-unidentified")
