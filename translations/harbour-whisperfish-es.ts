@@ -391,8 +391,9 @@
         <oldsource>Locally deleted %1 messages</oldsource>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
-            <numerusform>Mensaje %n borrado localmente</numerusform>
-            <numerusform>Mensajes %n borrados localmente</numerusform>
+            <numerusform>%n mensaje eliminado localmente</numerusform>
+            <numerusform>%n mensajes eliminados localmente</numerusform>
+            <numerusform>%n mensajes eliminados localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -1221,7 +1222,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation type="unfinished">Cuando está activado, Whisperfish produce una salida detallada. Útil para ejecutar en el terminal. Requiere un reinicio para surtir efecto.</translation>
+        <translation>Cuando está activado, Whisperfish produce una salida detallada. Útil para ejecutar en el terminal. Requiere un reinicio para tener efecto.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
@@ -1234,7 +1235,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation type="unfinished">Cuando está habilitado, Whisperfish guarda tu salida en un archivo de registro. Requiere reiniciar para que surta efecto.</translation>
+        <translation>Cuando está activado, Whisperfish guarda sus resultados en un archivo de registro. Requiere un reinicio para surtir efecto.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>
@@ -1501,6 +1502,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n archivo adjunto</numerusform>
             <numerusform>%n archivos adjuntos</numerusform>
+            <numerusform>%n archivos adjuntos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
@@ -1532,8 +1534,9 @@ Settings page share contacts</extracomment>
         <source>+%n</source>
         <extracomment>Label hinting at more attachments than are currently shown. Read as &quot;and %n more&quot;.</extracomment>
         <translation>
-            <numerusform>y %n más</numerusform>
-            <numerusform>y %n más</numerusform>
+            <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1543,7 +1546,8 @@ Settings page share contacts</extracomment>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
             <numerusform>y %n más</numerusform>
-            <numerusform>y más de %n</numerusform>
+            <numerusform>y %n más</numerusform>
+            <numerusform>y %n más</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -1734,6 +1738,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n miembro</numerusform>
             <numerusform>%n miembros</numerusform>
+            <numerusform>%n miembros</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1744,6 +1749,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensaje seleccionado</numerusform>
             <numerusform>%n mensajes seleccionados</numerusform>
+            <numerusform>%n mensajes seleccionados</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1751,8 +1757,9 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
-            <numerusform>Borrar la selección</numerusform>
-            <numerusform>Borrar las selecciones</numerusform>
+            <numerusform>Eliminar la selección</numerusform>
+            <numerusform>Eliminar las selecciones</numerusform>
+            <numerusform>Eliminar las selecciones</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -1761,8 +1768,9 @@ Settings page share contacts</extracomment>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Copiar el %n mensaje</numerusform>
-            <numerusform>Copiar los %n mensajes</numerusform>
+            <numerusform>Copiar %n mensaje</numerusform>
+            <numerusform>Copiar %n mensajes</numerusform>
+            <numerusform>Copiar %n mensajes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -1778,8 +1786,9 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Borrar localmente %n mensaje</numerusform>
-            <numerusform>Borrar localmente %n mensajes</numerusform>
+            <numerusform>Eliminar localmente %n mensaje</numerusform>
+            <numerusform>Eliminar localmente %n mensajes</numerusform>
+            <numerusform>Eliminar localmente %n mensajes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1791,6 +1800,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Eliminar %n mensaje para todos</numerusform>
             <numerusform>Eliminar %n mensajes para todos</numerusform>
+            <numerusform>Eliminar %n mensajes para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1798,8 +1808,9 @@ Settings page share contacts</extracomment>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Reintentar enviar (el) mensaje fallido</numerusform>
-            <numerusform>Reintentar enviar (los) mensajes fallidos</numerusform>
+            <numerusform>Vuelve a intentar enviar (el) mensaje fallido</numerusform>
+            <numerusform>Vuelve a intentar enviar (los) mensajes fallidos</numerusform>
+            <numerusform>Vuelve a intentar enviar (los) mensajes fallidos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
@@ -1820,8 +1831,9 @@ Settings page share contacts</extracomment>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
-            <numerusform>Mensaje&lt;br/&gt;sin leer</numerusform>
-            <numerusform>Mensajes&lt;br/&gt;sin leer</numerusform>
+            <numerusform>Mensaje&lt;br/&gt;no leído</numerusform>
+            <numerusform>Mensajes&lt;br/&gt;no leídos</numerusform>
+            <numerusform>Mensajes&lt;br/&gt;no leídos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
