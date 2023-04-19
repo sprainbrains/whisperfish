@@ -199,11 +199,14 @@ ListItem {
             highlighted: _labelsHighlighted
             maximumLineCount: 1
             truncationMode: TruncationMode.Fade
-            text: isNoteToSelf ?
-                      //: Name of the conversation with one's own number
-                      //% "Note to self"
-                      qsTrId("whisperfish-session-note-to-self") :
-                      name
+            text: (_debugMode && !model.isGroup ? "[" + model.recipientId + "] " : "") +
+                (
+                    isNoteToSelf ?
+                    //: Name of the conversation with one's own number
+                    //% "Note to self"
+                    qsTrId("whisperfish-session-note-to-self") :
+                    name
+                )
         }
 
         LinkedEmojiLabel {
