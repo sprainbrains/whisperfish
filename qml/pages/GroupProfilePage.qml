@@ -202,7 +202,7 @@ Page {
             // For when we need the augmented fields
             Recipient {
                 id: recipient
-                recipientId: model.id
+                recipientUuid: model.uuid
                 app: AppState
             }
 
@@ -248,7 +248,7 @@ Page {
                         text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
                         visible: !isVerified
                         onClicked: {
-                            pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientId: model.id, profilePicture: profilePicture })
+                            pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientUuid: model.uuid })
                         }
                     }
                     MenuItem {
