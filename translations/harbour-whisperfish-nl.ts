@@ -1215,9 +1215,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
-        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation>Ingeschakeld produceert Whisperfish uitgebreide logboeken. Nuttig voor gebruik in een terminal. Vereist een herstart om in effect te treden.</translation>
+        <translation type="unfinished">Ingeschakeld produceert Whisperfish uitgebreide logboeken. Nuttig voor gebruik in een terminal. Vereist een herstart om in effect te treden.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
@@ -1227,9 +1228,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
-        <source>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation>Ingeschakeld slaat Whisperfish de logboeken op naar een bestand. Vereist een herstart om in te schakelen.</translation>
+        <translation type="unfinished">Ingeschakeld slaat Whisperfish de logboeken op naar een bestand. Vereist een herstart om in te schakelen.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>

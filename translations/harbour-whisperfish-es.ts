@@ -1218,9 +1218,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
-        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation>Cuando está activado, Whisperfish produce una salida detallada. Útil para ejecutar en el terminal. Requiere un reinicio para surtir efecto.</translation>
+        <translation type="unfinished">Cuando está activado, Whisperfish produce una salida detallada. Útil para ejecutar en el terminal. Requiere un reinicio para surtir efecto.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
@@ -1230,9 +1231,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
-        <source>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation>Cuando está habilitado, Whisperfish guarda tu salida en un archivo de registro. Requiere reiniciar para que surta efecto.</translation>
+        <translation type="unfinished">Cuando está habilitado, Whisperfish guarda tu salida en un archivo de registro. Requiere reiniciar para que surta efecto.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>

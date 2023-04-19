@@ -1217,9 +1217,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
-        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation>Etkinleştirildiğinde, Whisperfish ayrıntılı çıktı üretir. Terminalde çalıştırmak için kullanışlıdır. Etkili olması için yeniden başlatma gerektirir.</translation>
+        <translation type="unfinished">Etkinleştirildiğinde, Whisperfish ayrıntılı çıktı üretir. Terminalde çalıştırmak için kullanışlıdır. Etkili olması için yeniden başlatma gerektirir.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
@@ -1229,9 +1230,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
-        <source>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation>Etkinleştirildiğinde, Whisperfish çıktısını bir günlük dosyasına kaydeder. Etkili olması için yeniden başlatma gerektirir.</translation>
+        <translation type="unfinished">Etkinleştirildiğinde, Whisperfish çıktısını bir günlük dosyasına kaydeder. Etkili olması için yeniden başlatma gerektirir.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>

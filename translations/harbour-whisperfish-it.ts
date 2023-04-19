@@ -1218,7 +1218,8 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
-        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -1230,7 +1231,8 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
-        <source>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</source>
+        <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
         <translation type="unfinished"></translation>
     </message>
