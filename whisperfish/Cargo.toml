@@ -93,7 +93,7 @@ tempfile = { version = "3.4.0", default-features = false }
 rpassword = "5.0"
 secrecy = "0.7"
 
-regex = "1.5"
+regex = "1.8"
 
 sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", optional = true }
 
