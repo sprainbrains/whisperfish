@@ -1221,7 +1221,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation type="unfinished">Om aktiverat, skriver Whisperfish felsökningsnivålogg. Fördelaktigt när man kör Whisperfish via terminalen. Kräver en omstart för att träda i kraft.</translation>
+        <translation>När detta är aktiverat, producerar Whisperfish utförlig utdata. Användbart för att köra i terminal. Kräver omstart för att träda i kraft.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
@@ -1234,7 +1234,7 @@ Settings page share contacts</extracomment>
         <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation type="unfinished">Om aktiverat, sparar Whisperfish utdata i en loggfil. Kräver en omstart för att träda i kraft.</translation>
+        <translation>När aktiverat sparar Whisperfish dess utdata i en loggfil. Kräver omstart för att träda i kraft.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>
