@@ -16,7 +16,7 @@ use uuid::Uuid;
 pub struct RecipientImpl {
     base: qt_base_class!(trait QObject),
     recipient_id: Option<i32>,
-    recipient_uuid: Option<String>,
+    recipient_uuid: Option<Uuid>,
     recipient: Option<RecipientWithFingerprint>,
 }
 
@@ -118,7 +118,10 @@ impl RecipientImpl {
     }
 
     fn get_recipient_uuid(&self) -> String {
-        self.recipient_uuid.clone().unwrap_or("".into())
+        self.recipient_uuid
+            .as_ref()
+            .map(Uuid::to_string)
+            .unwrap_or("".into())
     }
 
     fn get_valid(&self) -> bool {
@@ -136,8 +139,13 @@ impl RecipientImpl {
 
     #[with_executor]
     fn set_recipient_uuid(&mut self, ctx: Option<ModelContext<Self>>, uuid: String) {
-        self.recipient_uuid = Some(uuid);
         self.recipient_id = None; // Set in init()
+        if let Ok(uuid) = Uuid::parse_str(&uuid) {
+            self.recipient_uuid = Some(uuid);
+        } else {
+            log::warn!("QML requested unparsable UUID");
+            self.recipient_uuid = None;
+        }
         if let Some(ctx) = ctx {
             self.init(ctx);
         }
@@ -145,100 +153,74 @@ impl RecipientImpl {
 
     fn init(&mut self, ctx: ModelContext<Self>) {
         let storage = ctx.storage();
-        // XXX De-duplicate code
-        if let Some(uuid_str) = &self.recipient_uuid {
-            let recipient = if let Ok(uuid) = Uuid::parse_str(uuid_str) {
-                let recipient = storage.fetch_recipient_by_uuid(uuid).map(|inner| {
-                    let direct_message_recipient_id = storage
-                        .fetch_session_by_recipient_id(inner.id)
-                        .map(|session| session.id)
-                        .unwrap_or(-1);
-                    self.recipient_id = Some(inner.id);
-                    // XXX trigger Qt signal for this?
-                    RecipientWithFingerprint {
-                        inner,
-                        direct_message_recipient_id,
-                        fingerprint: None,
-                    }
-                });
-                // If a recipient was found, attempt to compute the fingeprint
-                if let Some(r) = &recipient {
-                    let id = r.id;
-                    if let Some(recipient_svc) = r.to_service_address() {
-                        let compute_fingerprint = async move {
-                            let local = storage
-                                .fetch_self_recipient()
-                                .expect("self recipient present in db");
-                            let local_svc =
-                                local.to_service_address().expect("self-recipient has UUID");
-                            let fingerprint = storage
-                                .compute_safety_number(&local_svc, &recipient_svc, None)
-                                .await?;
-                            ctx.addr()
-                                .send(FingerprintComputed {
-                                    recipient_id: id,
-                                    fingerprint,
-                                })
-                                .await?;
-
-                            Result::<_, anyhow::Error>::Ok(())
-                        }
-                        .map_ok_or_else(|e| log::error!("Computing fingeprint: {}", e), |_| ());
-                        actix::spawn(compute_fingerprint);
-                    }
+        let recipient = if let Some(uuid) = self.recipient_uuid {
+            storage.fetch_recipient_by_uuid(uuid).map(|inner| {
+                let direct_message_recipient_id = storage
+                    .fetch_session_by_recipient_id(inner.id)
+                    .map(|session| session.id)
+                    .unwrap_or(-1);
+                self.recipient_id = Some(inner.id);
+                // XXX trigger Qt signal for this?
+                RecipientWithFingerprint {
+                    inner,
+                    direct_message_recipient_id,
+                    fingerprint: None,
                 }
-                recipient
-            } else {
-                None
-            };
-            self.recipient = recipient;
-            // XXX trigger Qt signal for this?
+            })
         } else if let Some(id) = self.recipient_id {
-            let recipient = if id >= 0 {
-                let recipient = storage.fetch_recipient_by_id(id).map(|inner| {
+            if id >= 0 {
+                storage.fetch_recipient_by_id(id).map(|inner| {
                     let direct_message_recipient_id = storage
                         .fetch_session_by_recipient_id(inner.id)
                         .map(|session| session.id)
                         .unwrap_or(-1);
-                    self.recipient_uuid = inner.uuid.clone();
+                    self.recipient_uuid = inner
+                        .uuid
+                        .as_deref()
+                        .map(Uuid::parse_str)
+                        .transpose()
+                        .expect("valid uuid in db");
                     // XXX trigger Qt signal for this?
                     RecipientWithFingerprint {
                         inner,
                         direct_message_recipient_id,
                         fingerprint: None,
                     }
-                });
-                // If a recipient was found, attempt to compute the fingeprint
-                if let Some(r) = &recipient {
-                    if let Some(recipient_svc) = r.to_service_address() {
-                        let compute_fingerprint = async move {
-                            let local = storage
-                                .fetch_self_recipient()
-                                .expect("self recipient present in db");
-                            let local_svc =
-                                local.to_service_address().expect("self-recipient has UUID");
-                            let fingerprint = storage
-                                .compute_safety_number(&local_svc, &recipient_svc, None)
-                                .await?;
-                            ctx.addr()
-                                .send(FingerprintComputed {
-                                    recipient_id: id,
-                                    fingerprint,
-                                })
-                                .await?;
-
-                            Result::<_, anyhow::Error>::Ok(())
-                        }
-                        .map_ok_or_else(|e| log::error!("Computing fingeprint: {}", e), |_| ());
-                        actix::spawn(compute_fingerprint);
-                    }
-                }
-                recipient
+                })
             } else {
                 None
-            };
-            self.recipient = recipient;
-            // XXX trigger Qt signal for this?
+            }
+        } else {
+            None
+        };
+
+        // XXX trigger Qt signal for this?
+        self.recipient = recipient;
+
+        // If a recipient was found, attempt to compute the fingeprint
+        if let Some(r) = &self.recipient {
+            let id = r.id;
+            if let Some(recipient_svc) = r.to_service_address() {
+                let compute_fingerprint = async move {
+                    let local = storage
+                        .fetch_self_recipient()
+                        .expect("self recipient present in db");
+                    let local_svc = local.to_service_address().expect("self-recipient has UUID");
+                    let fingerprint = storage
+                        .compute_safety_number(&local_svc, &recipient_svc, None)
+                        .await?;
+                    ctx.addr()
+                        .send(FingerprintComputed {
+                            recipient_id: id,
+                            fingerprint,
+                        })
+                        .await?;
+
+                    Result::<_, anyhow::Error>::Ok(())
+                }
+                .map_ok_or_else(|e| log::error!("Computing fingeprint: {}", e), |_| ());
+                actix::spawn(compute_fingerprint);
+            }
         }
     }
 }
