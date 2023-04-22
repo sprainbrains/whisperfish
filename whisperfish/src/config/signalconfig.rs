@@ -3,6 +3,53 @@ use libsignal_protocol::DeviceId;
 use phonenumber::PhoneNumber;
 use uuid::Uuid;
 
+mod phonenumber_serde_e164 {
+    use std::{fmt, sync::Mutex};
+
+    use serde::{Deserializer, Serializer};
+
+    use super::*;
+
+    pub fn serialize<S>(p: &Mutex<Option<PhoneNumber>>, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match p.lock().expect("mutex alive").as_ref() {
+            Some(pn) => s.serialize_str(&pn.to_string()),
+            None => s.serialize_str(""),
+        }
+    }
+
+    pub fn deserialize<'de, D>(d: D) -> Result<Mutex<Option<PhoneNumber>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct PhoneNumberStringVisitor;
+        impl<'de> serde::de::Visitor<'de> for PhoneNumberStringVisitor {
+            type Value = Option<PhoneNumber>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a string containing a phone number")
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                // unfortunately we lose some typed information
+                // from errors deserializing the json string
+                if v.is_empty() {
+                    Ok(None)
+                } else {
+                    phonenumber::parse(None, v).map_err(E::custom).map(Some)
+                }
+            }
+        }
+
+        d.deserialize_any(PhoneNumberStringVisitor).map(Mutex::new)
+    }
+}
+
 /// Global Config
 ///
 /// This struct holds the global configuration of the whisperfish app.
@@ -12,6 +59,7 @@ use uuid::Uuid;
 pub struct SignalConfig {
     /// Our telephone number. This field is changed in threads and thus has to be Send/Sync but
     /// mutable at the same time.
+    #[serde(with = "phonenumber_serde_e164")]
     tel: std::sync::Mutex<Option<PhoneNumber>>,
     /// Our uuid. This field is changed in threads and thus has to be Send/Sync but mutable at the
     /// same time.
