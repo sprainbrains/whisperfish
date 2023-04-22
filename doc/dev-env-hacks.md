@@ -125,3 +125,66 @@ automatically rebuilding the app. (Use `-b` to enable building.)
 Now you can click on "run" (or press Ctrl+R) to start the live runner.
 All log output will be in the "program output" pane (Alt+3). QML
 errors will become clickable links to the respective files.
+
+## Vistual Studio Code
+
+Since Qt Creator doesn't really support Rust, you can use Visual
+Studio Code for writing Rust code instead. To make it better handle
+the Silica QML (and C++ content), you can copy the include directory
+from the build target to your project directory for easier access:
+
+    cp -r ~/SailfishOS/mersdk/targets/SailfishOS-4.5.0.18-aarch64.default/usr/include ~/SFOS/
+
+Then you can add this to your `.vscode/c_cpp_properties.json`:
+
+    {
+      "configurations": [
+        {
+          "name": "Sailfish OS",
+          "includePath": [
+            "${workspaceFolder}/**",
+            "${workspaceFolder}/../include/**"
+          ],
+          "defines": [],
+          "compilerPath": "/usr/bin/clang",
+          "cStandard": "c11",
+          "cppStandard": "c++11",
+          "intelliSenseMode": "linux-clang-x64"
+        }
+      ],
+      (...)
+    }
+
+## Keeping CI and Clippy happy, usually
+
+The CI in Whisperfish makes sure the Rust code is properly formatted
+and idiomatic. This can lead to the following scenario:
+
+- You make a branch
+- You make changes and commit them
+- You push the branch
+- You make a merge commit
+- The CI runs
+- Clippy has issues with your code
+- You mumble and fix your code
+
+To prevent this from happening, to save both your ~~nerves~~ time
+and CI from spinning up the pipeline only to get stuck on something
+trivial, you can have the locally-installed Rust run similar set of
+commands locally before you push.
+
+    $ cat local-ci.sh
+    #!/bin/sh
+    set -e
+    cargo fmt --check
+    find qml/ -name "*.qml" -print0 | xargs -0 qmllint
+    cargo clippy --all-targets -- \
+      -D warnings \
+      -A clippy::useless-transmute \
+      -A clippy::too-many-arguments \
+      -A clippy::type-complexity
+    cargo test
+
+If you really want to enforce it, you can copy the script as
+`.git/hooks/pre-push` to prevent the non-passing branch going upstream  in the
+first place! This takes
