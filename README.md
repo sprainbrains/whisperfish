@@ -4,8 +4,9 @@ Whisperfish is a native [Signal](https://www.whispersystems.org/) client
 for [Sailfish OS](https://sailfishos.org/). The user interface is
 heavily based on the jolla-messages application written by Jolla Ltd.
 
-It is currently mostly working state. Join our development channel on
-Matrix ([#whisperfish:rubdos.be](https://matrix.to/#/#whisperfish:rubdos.be))
+Whisperfish has plenty of features these days and is in a mostly usable state.
+Join our development channel on Matrix
+([#whisperfish:rubdos.be](https://matrix.to/#/#whisperfish:rubdos.be))
 or Libera.Chat (#whisperfish) to get in touch, and check
 [our wiki](https://gitlab.com/whisperfish/whisperfish/-/wikis/home) to see
 whether Whisperfish would work for you.
@@ -51,17 +52,21 @@ In current releases the paths have changed:
 - [ ] Contact Discovery
 - [x] Direct messages
 - [x] Group messages
+- [x] Sealed sending
 - [x] Storing conversations
-- [x] Photo attachments
+- [x] Sending attachments
+- [x] Taking a photo as an attachment
+- [ ] Taking a video as an attachment
 - [x] Encrypted identity and session store
 - [x] Encrypted message store
 - [x] Advanced user settings
-- [ ] Multi-Device support (links with Signal Desktop)
+- [x] Multi-Device support (links with Signal Desktop)
 - [ ] Encrypted local attachment store
-- [ ] Archiving conversations
+- [x] Archiving conversations
+- [x] Muting conversations
 
-Please search the [issue
-tracker](https://gitlab.com/whisperfish/whisperfish/-/issues) before
+Please search the
+[issue tracker](https://gitlab.com/whisperfish/whisperfish/-/issues) before
 filing any bug report or feature request. Please upvote issues that are
 important to you. We use the vote counter for determining a feature's
 priority.
@@ -91,121 +96,40 @@ See here for more information.
 
 Whisperfish is written in Rust (and QML), and Rust is a bit of a special
 entity in Sailfish OS. Luckily, Jolla has provided a more or less decent
-Rust compiler since Sailfish OS 3.4, but it has a few issues, at least
-up to and including Sailfish OS 4.4. The issues are already fixed and
-upstreamed, but as they are not yet released (this *should* happen
-with SFOS 4.5), compiling Whisperfish requires a patched version of
-Rust.
+Rust compiler since Sailfish OS 3.4, but it had some issues, which were
+[https://github.com/sailfishos/rust/pull/14](fixed) only in Sailfish OS
+4.5. Using the corresponding Sailfish SDK 3.10.4 is *highly* recommended.
 
-Unlike the C and C++ compilers, which are emulated, the Rust compiler in
-SFDK works as a cross-compiler. This means a bit of preparation is
-necessary in the *tooling* as well as in the target.
+**Note:** Only the Docker build engine supports Rust compiling. VirtualBox build engine will not work.
 
-The installation instructions below are for 4.4.0.58, but they work with
-4.3.0.12 and 4.1.0.24 as well. Make sure you have both the tooling and
-the target(s) installed. Use the SDK Maintenance tool to install or
-upgrade if necessary.
+Building Whisperfish for yourself is, despite its size and it being a Rust
+project, very simple! Just install Sailfish SDK 3.10.4 or newer, download the
+source and compile it! (Older SDK versions and build targets work too, but
+they need a good amount of setup. Please see
+[the previous version](https://gitlab.com/whisperfish/whisperfish/-/blob/1af345a5deb7900e9dd540aacb57b3ba50fb6cd8/README.rst)
+of the readme for instructions.)
 
-Only the Docker build engine supports Rust compiling. VirtualBox build
-engine will not work.
+When you have the SDK up and running, and the Whisperfish sources fetched,
+it compiles just like any other native Sailfish OS application.
 
-If you are running Sailfish SDK 3.9.6 or older and/or your build target
-is 4.4.0.58 or older, you need to set up a patched version of Rust.
+Set the build target 4.5.0.18 and architecture of your choice (builds for
+target 4.5.0.18 should also work for a few Sailfish OS versions back, too):
 
-1. Make sure you have access to the [sfdk]{.title-ref} tool; we will
-   use it for setting up the environment.
+    sfdk config target=SailfishOS-4.5.0.18-aarch64 build
 
-   Clone Whisperfish to a subdirectory of your SFDK project root, just
-   like any other Sailfish OS project.
+Then just build it:
 
-2. Enable the repository that contains the patched Rust compiler and
-   cargo tooling. This repository contains [rubdos.key]{.title-ref},
-   which is used to sign the packages, if you want to check.:
+    sfdk build
 
-        $ sfdk tools exec SailfishOS-4.4.0.58 \
-            ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-        $ sfdk tools exec SailfishOS-4.4.0.58-aarch64 \
-            ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-        $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
-            ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-        $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
-            ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+If you want to also build the sharing plugin for SFOS 4.3+, use this command (note the double double dashes):
 
-3. Install the tooling and development packages:
+    sfdk build -- --with shareplugin_v2
 
-        $ sfdk tools exec SailfishOS-4.4.0.58 \
-          zypper install --oldpackage -y \
-            rust=1.52.1+git3-1 \
-            cargo=1.52.1+git3-1 \
-            rust-std-static-aarch64-unknown-linux-gnu=1.52.1+git3-1 \
-            rust-std-static-armv7-unknown-linux-gnueabihf=1.52.1+git3-1 \
-            rust-std-static-i686-unknown-linux-gnu=1.52.1+git3-1
-        $ sfdk engine exec \
-          sudo zypper install -y openssl-devel sqlcipher-devel
+For Sailfish 4.2 and older, use `--with shareplugin_v1` instead.
 
-4. Install the stub compilers.
+Because of a bug in `sb2`, it is currently not possible to (reliably) build Whisperfish (or any other Rust project) using more than a single thread. This means your compilation is going to take a while, especially the first time. Get yourself some coffee!
 
-   For aarch64:
-
-        $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
-          zypper install --oldpackage --repo rubdos -y \
-            rust=1.52.1+git3-1 \
-            cargo=1.52.1+git3-1 \
-            rust-std-static-aarch64-unknown-linux-gnu=1.0+git3-1 \
-            rust-std-static-i686-unknown-linux-gnu=1.0+git3-1
-
-   For armv7hl:
-
-        $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
-          zypper install --oldpackage --repo rubdos -y \
-            rust=1.52.1+git3-1 \
-            cargo=1.52.1+git3-1 \
-            ust-std-static-armv7-unknown-linux-gnueabihf=1.0+git3-1 \
-            rust-std-static-i686-unknown-linux-gnu=1.0+git3-1
-
-   For i486:
-
-        $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
-          zypper install --oldpackage --repo rubdos -y \
-            rust=1.52.1+git3-1 \
-            cargo=1.52.1+git3-1 \
-            rust-std-static-i686-unknown-linux-gnu=1.52.1+git3-1
-
-   If there are errors with the commands, you can try adding
-   `--allow-vendor-change` to explicitly tell it's ok to
-   use "third-party" packages, and `--force` to
-   re-download and re-install packages.
-
-5. You can now proceed to build as you would with a normal SailfishOS application:
-
-   Choose your architecture:
-
-        sfdk config --push target SailfishOS-4.4.0.58-aarch64 # or
-        sfdk config --push target SailfishOS-4.4.0.58-armv7hl # or
-        sfdk config --push target SailfishOS-4.4.0.58-i486
-
-   Then start the build:
-
-        sfdk build
-
-   Or in a single command. e.g. for aarch64:
-
-        sfdk -c target=SailfishOS-4.4.0.58-aarch64 build
-
-6. If you want to also build the sharing plugin for SFOS 4.3+, use this command:
-
-        sfdk -c target=SailfishOS-4.4.0.58-aarch64 build -- --with shareplugin_v2
-
-   For Sailfish 4.2 and older, use `shareplugin_v1` instead.
-
-Because of a bug in `sb2`, it is currently not possible to
-(reliably) build Whisperfish (or any other Rust project) using more than
-a single thread. This means your compilation is going to take a while,
-especially the first time. Get yourself some coffee!
-
-If you get errors (command not found or status 126) at linking stage,
-make sure that you are not using `~/.cargo/config` to
-override linkers or compilers.
+If you get errors (command not found or status 126) at linking stage, make sure that you are not using `~/.cargo/config` to override linkers or compilers.
 
 ## Development environment tips, tricks and hacks
 
