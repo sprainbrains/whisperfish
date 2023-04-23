@@ -489,7 +489,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="189"/>
         <source>The recipient is not currently registered to Signal, so sending and receiving messages is not possible.</source>
         <extracomment>Profile page, user is not registered warning</extracomment>
-        <translation>De correspondent is momenteel niet geregistreerd bij Signal, dus is het verzenden en ontvangen van berichten onmogelijk.</translation>
+        <translation>De ontvanger is momenteel niet geregistreerd bij Signal, dus is het verzenden en ontvangen van berichten onmogelijk.</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="202"/>
@@ -531,7 +531,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="281"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
-        <translation>Verzegelde verzendingsmodus</translation>
+        <translation>Verzegeldeverzendingsmodus</translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
         <location filename="../qml/pages/ProfilePage.qml" line="288"/>
@@ -579,7 +579,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="392"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation>Je profiel is geëncrypteerd. Je profiel en diens wijzigingen zullen zichtbaar zijn voor je contacten en wanneer je een nieuwe chat begint of accepteert.</translation>
+        <translation>Je profiel is versleuteld. Je profiel en wijzigingen eraan zullen zichtbaar zijn voor je contacten en wanneer je een nieuw gesprek begint of accepteert.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="400"/>
@@ -1224,7 +1224,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="440"/>
         <source>Enable log file</source>
         <extracomment>Settings page enable logging to a file</extracomment>
-        <translation>Schakel logboekbestand in</translation>
+        <translation>Logboekbestand inschakelen</translation>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
@@ -1516,7 +1516,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/ChatTextInput.qml" line="209"/>
         <source>The recipient is not registered</source>
         <extracomment>Chat text input placeholder for deleted/unregistered recipient</extracomment>
-        <translation>Deze correspondent is niet geregistreerd</translation>
+        <translation>Deze ontvanger is niet geregistreerd</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
         <location filename="../qml/components/ChatTextInput.qml" line="214"/>
