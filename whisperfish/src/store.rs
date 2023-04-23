@@ -1544,6 +1544,7 @@ impl Storage {
         schema::group_v2_members::table
             .inner_join(schema::recipients::table)
             .filter(schema::group_v2_members::group_v2_id.eq(id))
+            .order(schema::group_v2_members::role.desc())
             .load(&mut *self.db())
             .unwrap()
     }
