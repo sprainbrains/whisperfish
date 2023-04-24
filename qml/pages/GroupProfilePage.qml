@@ -181,6 +181,22 @@ Page {
             }
         }
 
+        section {
+            property: 'role'
+            delegate: SectionHeader {
+                height: Theme.itemSizeExtraSmall
+                // 2 = admin
+                // 1 = user
+                text: section == 2
+                      //: Group member section label for administrator level user
+                      //% "Administrator"
+                      ? qsTrId("whisperfish-group-member-admin")
+                      //: Group member section label for regular level user
+                      //% "Member"
+                      : qsTrId("whisperfish-group-member-regular")
+            }
+        }
+
         delegate: ListItem {
             id: item
             contentHeight: Theme.itemSizeMedium
