@@ -426,28 +426,28 @@
         <translation>Erneut senden</translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="263"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="279"/>
         <location filename="../qml/pages/ProfilePage.qml" line="80"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation>Identitätsschlüssel zurücksetzen</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="270"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="286"/>
         <location filename="../qml/pages/ProfilePage.qml" line="85"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation>Identitätsschlüssel zurückgesetzt</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="279"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="295"/>
         <location filename="../qml/pages/ProfilePage.qml" line="95"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Sichere Sitzung zurücksetzen</translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="286"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="302"/>
         <location filename="../qml/pages/ProfilePage.qml" line="100"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
@@ -1337,7 +1337,7 @@ Settings page share contacts</extracomment>
         <translation>Mitglieder hinzufügen</translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="328"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="344"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation>Unbekannt</translation>
@@ -1379,44 +1379,56 @@ Settings page share contacts</extracomment>
         <extracomment>Create invite link menu item</extracomment>
         <translation>Einladungslink erstellen</translation>
     </message>
+    <message id="whisperfish-group-member-admin">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
+        <source>Administrator</source>
+        <extracomment>Group member section label for administrator level user</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-regular">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
+        <source>Member</source>
+        <extracomment>Group member section label for regular level user</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="231"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
         <translation>Notiz an mich selbst öffnen</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="218"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="234"/>
         <source>Message to %1</source>
         <extracomment>Menu item to open the private chat with a group member</extracomment>
         <translation>Nachricht an %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-new-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="229"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="245"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
         <translation>Unterhaltung mit %1 beginnen</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="241"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation>Zu Kontakten hinzufügen</translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="248"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="264"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation>Sicherheitsnummer überprüfen</translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="273"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation>Aus dieser Gruppe entfernen</translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="324"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="340"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation>Du</translation>
