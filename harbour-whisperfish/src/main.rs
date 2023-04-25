@@ -1,7 +1,8 @@
 use anyhow::Context;
 use dbus::blocking::Connection;
+use signal_hook::{consts::SIGINT, iterator::Signals};
 use single_instance::SingleInstance;
-use std::{os::unix::prelude::OsStrExt, time::Duration};
+use std::{os::unix::prelude::OsStrExt, thread, time::Duration};
 use structopt::StructOpt;
 use whisperfish::*;
 
@@ -38,6 +39,23 @@ struct Opts {
 }
 
 fn main() {
+    // Ctrl-C --> graceful shutdown
+    if let Ok(mut signals) = Signals::new([SIGINT].iter()) {
+        thread::spawn(move || {
+            let mut terminate = false;
+            for _ in signals.forever() {
+                if !terminate {
+                    log::info!("[SIGINT] Trying to exit gracefully...");
+                    terminate = true;
+                    dbus_quit_app().ok();
+                } else {
+                    log::info!("[SIGINT] Exiting forcefully...");
+                    std::process::exit(1);
+                }
+            }
+        });
+    }
+
     // Sailjail only accepts -prestart on the command line as optional argument,
     // structopt however only supports --prestart.
     // See: https://github.com/clap-rs/clap/issues/1210

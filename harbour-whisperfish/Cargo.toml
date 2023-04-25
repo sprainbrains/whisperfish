@@ -19,6 +19,7 @@ anyhow = "1.0"
 structopt = "0.3"
 chrono = "0.4"
 regex = "1.7.3"
+signal-hook = "0.3.15"
 
 [features]
 bundled-sqlcipher = ["whisperfish/bundled-sqlcipher"]
