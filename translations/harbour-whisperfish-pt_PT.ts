@@ -60,7 +60,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="331"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afixar no topo</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="340"/>
@@ -80,7 +80,7 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="351"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Restaurar para a caixa de entrada</translation>
     </message>
     <message id="whisperfish-session-mark-archived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="354"/>
