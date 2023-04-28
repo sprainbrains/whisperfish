@@ -45,18 +45,3 @@ echo "                ""text: {" >> $ABOUT
 echo "$text" >> $ABOUT
 echo "                ""}" >> $ABOUT
 echo "$end" >> $ABOUT
-
-if $CI; then
-    . .ci/load-ssh-key
-
-    if git diff --exit-code; then
-        echo "No about page update needed";
-    else
-        echo "Committing translation contributor list update";
-        git config --global user.email "whisperfish@rubdos.be"
-        git config --global user.name "Gitlab CI translation file sync"
-        git commit $ABOUT -m "Translation contributor list synchronisation";
-        git remote add origin-ssh git@gitlab.com:whisperfish/whisperfish.git
-        git push origin-ssh HEAD:master
-    fi
-end
