@@ -105,6 +105,180 @@ Page {
                 }
             }
 
+            SectionHeader {
+                //: Translators heading in About page
+                //% "Translators"
+                text: qsTrId("whisperfish-translators")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                /// BEGIN TRANSLATORS
+                text: {
+                    //: Name of the Norwegian Bokmål (nb_NO) language, about page translation section
+                    //% "Norwegian Bokmål"
+                    qsTrId("whisperfish-lang-nb_NO") + ": " +
+                    "Allan Nordhøy," +
+                    "\n" +
+                    //: Name of the Dutch (Belgium) (nl_BE) language, about page translation section
+                    //% "Dutch (Belgium)"
+                    qsTrId("whisperfish-lang-nl_BE") + ": " +
+                    "Nathan," +
+                    "Alexander Schlarb," +
+                    "J. Lavoie," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Lithuanian (lt) language, about page translation section
+                    //% "Lithuanian"
+                    qsTrId("whisperfish-lang-lt") + ": " +
+                    "Gediminas Murauskas," +
+                    "\n" +
+                    //: Name of the Dutch (nl) language, about page translation section
+                    //% "Dutch"
+                    qsTrId("whisperfish-lang-nl") + ": " +
+                    "Nathan," +
+                    "Alexander Schlarb," +
+                    "J. Lavoie," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Italian (it) language, about page translation section
+                    //% "Italian"
+                    qsTrId("whisperfish-lang-it") + ": " +
+                    "J. Lavoie," +
+                    "\n" +
+                    //: Name of the German (de) language, about page translation section
+                    //% "German"
+                    qsTrId("whisperfish-lang-de") + ": " +
+                    "J. Lavoie," +
+                    "PawelSpoon," +
+                    "Yo," +
+                    "Stephan Lohse," +
+                    "Alexander Schlarb," +
+                    "Sebastian Maus," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the French (fr) language, about page translation section
+                    //% "French"
+                    qsTrId("whisperfish-lang-fr") + ": " +
+                    "J. Lavoie," +
+                    "Alexander Schlarb," +
+                    "Bérenger," +
+                    "Thibaut Vandervelden," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Finnish (fi) language, about page translation section
+                    //% "Finnish"
+                    qsTrId("whisperfish-lang-fi") + ": " +
+                    "J. Lavoie," +
+                    "jmcwine," +
+                    "Tuomas F Nyqvist," +
+                    "Alexander Schlarb," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Slovenian (sl) language, about page translation section
+                    //% "Slovenian"
+                    qsTrId("whisperfish-lang-sl") + ": " +
+                    "Jože Prijatelj," +
+                    "\n" +
+                    //: Name of the Swedish (sv) language, about page translation section
+                    //% "Swedish"
+                    qsTrId("whisperfish-lang-sv") + ": " +
+                    "Tuomas F Nyqvist," +
+                    "fluffysfriends," +
+                    "Luna Jernberg," +
+                    "\n" +
+                    //: Name of the Polish (pl) language, about page translation section
+                    //% "Polish"
+                    qsTrId("whisperfish-lang-pl") + ": " +
+                    "A," +
+                    "Alexander Schlarb," +
+                    "Karol Kurek," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Chinese (Simplified) (zh_CN) language, about page translation section
+                    //% "Chinese (Simplified)"
+                    qsTrId("whisperfish-lang-zh_CN") + ": " +
+                    "dashinfantry," +
+                    "Alexander Schlarb," +
+                    "Rui Kon," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Hungarian (hu) language, about page translation section
+                    //% "Hungarian"
+                    qsTrId("whisperfish-lang-hu") + ": " +
+                    "Sz. G," +
+                    "Alexander Schlarb," +
+                    "carlosgonz," +
+                    "\n" +
+                    //: Name of the Portuguese (Brazil) (pt_PT) language, about page translation section
+                    //% "Portuguese (Brazil)"
+                    qsTrId("whisperfish-lang-pt_PT") + ": " +
+                    "Júlio," +
+                    "Antonio Maretzek," +
+                    "J. Lavoie," +
+                    "ssantos," +
+                    "\n" +
+                    //: Name of the Czech (cs) language, about page translation section
+                    //% "Czech"
+                    qsTrId("whisperfish-lang-cs") + ": " +
+                    "PawelSpoon," +
+                    "\n" +
+                    //: Name of the Catalan (ca) language, about page translation section
+                    //% "Catalan"
+                    qsTrId("whisperfish-lang-ca") + ": " +
+                    "Jaume," +
+                    "\n" +
+                    //: Name of the Russian (ru) language, about page translation section
+                    //% "Russian"
+                    qsTrId("whisperfish-lang-ru") + ": " +
+                    "Николай Синёв," +
+                    "\n" +
+                    //: Name of the Portuguese (Brazil) (pt_BR) language, about page translation section
+                    //% "Portuguese (Brazil)"
+                    qsTrId("whisperfish-lang-pt_BR") + ": " +
+                    "J. Lavoie," +
+                    "Caio 2k," +
+                    "\n" +
+                    //: Name of the Romanian (ro) language, about page translation section
+                    //% "Romanian"
+                    qsTrId("whisperfish-lang-ro") + ": " +
+                    "Florin Voicu," +
+                    "\n" +
+                    //: Name of the Turkish (tr) language, about page translation section
+                    //% "Turkish"
+                    qsTrId("whisperfish-lang-tr") + ": " +
+                    "Oğuz Ersen," +
+                    "\n" +
+                    //: Name of the Greek (el) language, about page translation section
+                    //% "Greek"
+                    qsTrId("whisperfish-lang-el") + ": " +
+                    "Chris," +
+                    "J. Lavoie," +
+                    "\n" +
+                    //: Name of the Basque (eu) language, about page translation section
+                    //% "Basque"
+                    qsTrId("whisperfish-lang-eu") + ": " +
+                    "Sergio Varela," +
+                    "\n" +
+                    //: Name of the Spanish (es) language, about page translation section
+                    //% "Spanish"
+                    qsTrId("whisperfish-lang-es") + ": " +
+                    "gallegonovato," +
+                    "J. Lavoie," +
+                    "Jose Manuel REGUEIRA," +
+                    "Alexander Schlarb," +
+                    "PawelSpoon," +
+                    "carlosgonz," +
+                    "Allan Nordhøy," +
+                    "\n" +
+                    ""
+                }
+                /// END TRANSLATORS
+            }
+
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Support on Liberapay
