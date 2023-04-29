@@ -95,11 +95,11 @@ Page {
                 readOnly: true
                 text: {
                     "Andrew E. Bruno (2016-2018)\n" +
-                    "Ruben De Smet (2019-2022)\n" +
-                    "Matti \"direc85\" Viljanen (2021-2022)\n" +
+                    "Ruben De Smet (2019-2023)\n" +
+                    "Matti \"direc85\" Viljanen (2021-2023)\n" +
                     "Markus Törnqvist (2019-2021)\n" +
-                    "Mirian Margiani (2021)\n" +
-                    "Gabriel Margiani (2021)\n" +
+                    "Mirian Margiani (2021-2023)\n" +
+                    "Gabriel Margiani (2021-2022)\n" +
                     "Thomas Michel (2021)\n" +
                     "License: AGPLv3 & GPLv3"
                 }
