@@ -44,7 +44,7 @@ Page {
                 //: Show own profile menu
                 //% "Show my profile"
                 text: qsTrId("whisperfish-settings-show-own-profile-menu")
-                onClicked: pageStack.push(Qt.resolvedUrl("ProfilePage.qml"), { recipientId: 1, profilePicture: getRecipientAvatar(SetupWorker.phoneNumber, SetupWorker.uuid) })
+                onClicked: pageStack.push(Qt.resolvedUrl("ProfilePage.qml"), { recipientUuid: SetupWorker.uuid })
             }
         }
 

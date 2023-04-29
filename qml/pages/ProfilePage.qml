@@ -9,6 +9,7 @@ Page {
     objectName: "profilePage"
 
     property string profilePicture: ""
+    property string recipientUuid: ""
     property int recipientId: -1
 
     property bool isOwnProfile: SetupWorker.uuid === recipient.uuid
@@ -23,7 +24,8 @@ Page {
     Recipient {
         id: recipient
         app: AppState
-        recipientId: profilePage.recipientId
+        recipientUuid: profilePage.recipientUuid
+        Component.onCompleted: profilePage.profilePicture = getRecipientAvatar(recipient.e164, recipient.uuid)
     }
 
     // Enter edit mode, or save changes
@@ -275,7 +277,7 @@ Page {
 
             ComboBox {
                 id: recipientUnidentifiedMode
-                visible: SettingsBridge.debug_mode
+                visible: !isOwnProfile && SettingsBridge.debug_mode
                 //: Profile, sealed sending mode option
                 //% "Sealed sending mode"
                 label: qsTrId("whisperfish-profile-unidentified")

@@ -9,7 +9,7 @@ ListItem {
     property bool isGroup: model.isGroup
     property int unreadCount: 0 // TODO implement in model
     property bool isUnread: hasDraft || model.message !== undefined && !model.read // TODO investigate: is this really a bool?
-    property bool isNoteToSelf: SetupWorker.phoneNumber === model.recipientE164
+    property bool isNoteToSelf: SetupWorker.uuid === model.recipientUuid
     property bool isPinned: model.isPinned
     property bool isArchived: model.isArchived
     property bool isRegistered: model.isRegistered
@@ -184,7 +184,7 @@ ListItem {
                 if (isGroup) {
                     pageStack.push(Qt.resolvedUrl("../pages/GroupProfilePage.qml"), { session: model, group: group })
                 } else {
-                    pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientId: model.recipientId, profilePicture: delegate.profilePicture })
+                    pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientUuid: model.recipientUuid })
                 }
             }
         }
@@ -199,11 +199,14 @@ ListItem {
             highlighted: _labelsHighlighted
             maximumLineCount: 1
             truncationMode: TruncationMode.Fade
-            text: isNoteToSelf ?
-                      //: Name of the conversation with one's own number
-                      //% "Note to self"
-                      qsTrId("whisperfish-session-note-to-self") :
-                      name
+            text: (_debugMode && !model.isGroup ? "[" + model.recipientId + "] " : "") +
+                (
+                    isNoteToSelf ?
+                    //: Name of the conversation with one's own number
+                    //% "Note to self"
+                    qsTrId("whisperfish-session-note-to-self") :
+                    name
+                )
         }
 
         LinkedEmojiLabel {
