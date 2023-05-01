@@ -70,17 +70,6 @@ impl SetupWorker {
         this.borrow_mut().deviceId = config.get_device_id().into();
 
         if !this.borrow().registered {
-            // change fields in config struct
-            config.set_tel(
-                this.borrow()
-                    .phonenumber
-                    .clone()
-                    // XXX This won't be true anymore soon
-                    .expect("phonenumber present when registered"),
-            );
-            config.set_uuid(this.borrow().uuid.expect("uuid present when registered"));
-            config.set_device_id(this.borrow().deviceId);
-
             if let Err(e) = SetupWorker::register(app.clone(), config.clone()).await {
                 log::error!("Error in registration: {}", e);
                 this.borrow().clientFailed();
