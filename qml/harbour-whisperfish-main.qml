@@ -284,6 +284,7 @@ ApplicationWindow
     Connections {
         target: RootApp
         onLastWindowClosed: {
+            showMainPage()
             AppState.setClosed()
             if (AppState.mayExit()) {
                 Qt.quit();
