@@ -114,13 +114,13 @@
         <translation>Fallo al configurar l&apos;emmagatzamatge de dades</translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="399"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="400"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation>Emmagatzamatge de Wisperfish</translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="403"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="404"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation>Guardar configuració i missatges</translation>
