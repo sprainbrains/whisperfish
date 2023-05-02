@@ -658,7 +658,7 @@ async fn test_recipient_actions() {
         UnidentifiedAccessMode::Unrestricted
     );
 
-    let session = storage.fetch_or_insert_session_by_e164(recip.e164_or_uuid());
+    let session = storage.fetch_or_insert_session_by_recipient_id(recip.id);
     let ts = NaiveDateTime::parse_from_str("2023-04-01 07:01:32", "%Y-%m-%d %H:%M:%S").unwrap();
     let msg = NewMessage {
         session_id: Some(session.id),
@@ -668,7 +668,7 @@ async fn test_recipient_actions() {
         flags: 0,
         attachment: None,
         outgoing: true,
-        source_e164: Some(String::from(recip.e164_or_uuid())),
+        source_e164: recip.e164.clone(),
         source_uuid: None,
         text: "Hi!".into(),
         is_read: false,
@@ -692,7 +692,7 @@ async fn test_recipient_actions() {
     let reaction = Reaction {
         emoji: Some("❤".into()),
         remove: Some(false),
-        target_author_uuid: recip.uuid.clone(),
+        target_author_uuid: Some(recip.uuid.unwrap().to_string()),
         target_sent_timestamp: Some(msg.server_timestamp.timestamp_millis() as _),
     };
     let data_msg = DataMessage {
