@@ -44,7 +44,7 @@ Page {
                 //: Show own profile menu
                 //% "Show my profile"
                 text: qsTrId("whisperfish-settings-show-own-profile-menu")
-                onClicked: pageStack.push(Qt.resolvedUrl("ProfilePage.qml"), { recipientId: 1, profilePicture: getRecipientAvatar(SetupWorker.phoneNumber, SetupWorker.uuid) })
+                onClicked: pageStack.push(Qt.resolvedUrl("ProfilePage.qml"), { recipientUuid: SetupWorker.uuid })
             }
         }
 
@@ -415,8 +415,43 @@ Page {
                     }
                 }
             }
+            IconTextSwitch {
+                id: enableVerbose
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page enable verbose logging
+                //% "Verbose logging"
+                text: qsTrId("whisperfish-settings-enable-verbose")
+                //: Settings page enable verbose logging description
+                //% "When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect."
+                description: qsTrId("whisperfish-settings-enable-verbose-description")
+                checked: SettingsBridge.verbose
+                icon.source: "image://theme/icon-m-about"
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.verbose) {
+                        SettingsBridge.verbose = checked
+                    }
+                }
+            }
+            IconTextSwitch {
+                id: enableLogfile
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page enable logging to a file
+                //% "Enable log file"
+                text: qsTrId("whisperfish-settings-logfile-autostart")
+                //: Settings page enable logfile description
+                //% "When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect."
+                description: qsTrId("whisperfish-settings-enable-logfile-description")
+                checked: SettingsBridge.logfile
+                icon.source: "image://theme/icon-m-downloads"
+                onCheckedChanged: {
+                    if(checked != SettingsBridge.logfile) {
+                        SettingsBridge.logfile = checked
+                    }
+                }
+            }
             Button {
                 id: compressDb
+                visible: SettingsBridge.debug_mode
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width - 2*Theme.horizontalPageMargin
                 //: Settings page 'Compact database' button: execute 'VACUUM' command on SQLite-database

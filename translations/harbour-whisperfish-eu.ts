@@ -36,7 +36,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-note-to-self">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="205"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="207"/>
         <location filename="../qml/harbour-whisperfish-main.qml" line="118"/>
         <location filename="../qml/pages/ShareDestinationV1.qml" line="97"/>
         <location filename="../qml/pages/ShareDestinationV2.qml" line="96"/>
@@ -45,51 +45,51 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-message-preview-draft">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="224"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="227"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="325"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="328"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="328"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="331"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="337"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="340"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-muted">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="340"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="343"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="348"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="351"/>
         <source>Restore to inbox</source>
         <extracomment>Show archived messages again in the main page</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-mark-archived">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="351"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="354"/>
         <source>Archive conversation</source>
         <extracomment>Move the conversation to archived conversations</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-session-delete">
-        <location filename="../qml/delegates/SessionDelegate.qml" line="360"/>
+        <location filename="../qml/delegates/SessionDelegate.qml" line="363"/>
         <source>Delete conversation</source>
         <extracomment>Delete all messages from session menu</extracomment>
         <translation type="unfinished"></translation>
@@ -114,13 +114,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="permission-la-data">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="399"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="400"/>
         <source>Whisperfish data storage</source>
         <extracomment>Permission for Whisperfish data storage</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="permission-la-data_description">
-        <location filename="../qml/harbour-whisperfish-main.qml" line="403"/>
+        <location filename="../qml/harbour-whisperfish-main.qml" line="404"/>
         <source>Store configuration and messages</source>
         <extracomment>Permission description for Whisperfish data storage</extracomment>
         <translation type="unfinished"></translation>
@@ -217,20 +217,164 @@
         <extracomment>Whisperfish long version string and build ID</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-translators">
+        <location filename="../qml/pages/About.qml" line="111"/>
+        <source>Translators</source>
+        <extracomment>Translators heading in About page</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-nb_NO">
+        <location filename="../qml/pages/About.qml" line="123"/>
+        <source>Norwegian Bokmål</source>
+        <extracomment>Name of the Norwegian Bokmål (nb_NO) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-nl_BE">
+        <location filename="../qml/pages/About.qml" line="128"/>
+        <source>Dutch (Belgium)</source>
+        <extracomment>Name of the Dutch (Belgium) (nl_BE) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-lt">
+        <location filename="../qml/pages/About.qml" line="136"/>
+        <source>Lithuanian</source>
+        <extracomment>Name of the Lithuanian (lt) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-nl">
+        <location filename="../qml/pages/About.qml" line="141"/>
+        <source>Dutch</source>
+        <extracomment>Name of the Dutch (nl) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-it">
+        <location filename="../qml/pages/About.qml" line="149"/>
+        <source>Italian</source>
+        <extracomment>Name of the Italian (it) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-de">
+        <location filename="../qml/pages/About.qml" line="154"/>
+        <source>German</source>
+        <extracomment>Name of the German (de) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-fr">
+        <location filename="../qml/pages/About.qml" line="165"/>
+        <source>French</source>
+        <extracomment>Name of the French (fr) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-fi">
+        <location filename="../qml/pages/About.qml" line="174"/>
+        <source>Finnish</source>
+        <extracomment>Name of the Finnish (fi) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-sl">
+        <location filename="../qml/pages/About.qml" line="183"/>
+        <source>Slovenian</source>
+        <extracomment>Name of the Slovenian (sl) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-sv">
+        <location filename="../qml/pages/About.qml" line="188"/>
+        <source>Swedish</source>
+        <extracomment>Name of the Swedish (sv) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-pl">
+        <location filename="../qml/pages/About.qml" line="195"/>
+        <source>Polish</source>
+        <extracomment>Name of the Polish (pl) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-zh_CN">
+        <location filename="../qml/pages/About.qml" line="203"/>
+        <source>Chinese (Simplified)</source>
+        <extracomment>Name of the Chinese (Simplified) (zh_CN) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-hu">
+        <location filename="../qml/pages/About.qml" line="211"/>
+        <source>Hungarian</source>
+        <extracomment>Name of the Hungarian (hu) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-pt_PT">
+        <location filename="../qml/pages/About.qml" line="218"/>
+        <source>Portuguese (Brazil)</source>
+        <extracomment>Name of the Portuguese (Brazil) (pt_PT) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-cs">
+        <location filename="../qml/pages/About.qml" line="226"/>
+        <source>Czech</source>
+        <extracomment>Name of the Czech (cs) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-ca">
+        <location filename="../qml/pages/About.qml" line="231"/>
+        <source>Catalan</source>
+        <extracomment>Name of the Catalan (ca) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-ru">
+        <location filename="../qml/pages/About.qml" line="236"/>
+        <source>Russian</source>
+        <extracomment>Name of the Russian (ru) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-pt_BR">
+        <location filename="../qml/pages/About.qml" line="241"/>
+        <source>Portuguese (Brazil)</source>
+        <extracomment>Name of the Portuguese (Brazil) (pt_BR) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-ro">
+        <location filename="../qml/pages/About.qml" line="247"/>
+        <source>Romanian</source>
+        <extracomment>Name of the Romanian (ro) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-tr">
+        <location filename="../qml/pages/About.qml" line="252"/>
+        <source>Turkish</source>
+        <extracomment>Name of the Turkish (tr) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-el">
+        <location filename="../qml/pages/About.qml" line="257"/>
+        <source>Greek</source>
+        <extracomment>Name of the Greek (el) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-eu">
+        <location filename="../qml/pages/About.qml" line="263"/>
+        <source>Basque</source>
+        <extracomment>Name of the Basque (eu) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-lang-es">
+        <location filename="../qml/pages/About.qml" line="268"/>
+        <source>Spanish</source>
+        <extracomment>Name of the Spanish (es) language, about page translation section</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-liberapay">
-        <location filename="../qml/pages/About.qml" line="112"/>
+        <location filename="../qml/pages/About.qml" line="286"/>
         <source>Support on Liberapay</source>
         <extracomment>Support on Liberapay</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-source-code">
-        <location filename="../qml/pages/About.qml" line="122"/>
+        <location filename="../qml/pages/About.qml" line="296"/>
         <source>Source Code</source>
         <extracomment>Source Code</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-bug-report">
-        <location filename="../qml/pages/About.qml" line="132"/>
+        <location filename="../qml/pages/About.qml" line="306"/>
         <source>Report a Bug</source>
         <extracomment>Report a Bug</extracomment>
         <translation type="unfinished"></translation>
@@ -242,13 +386,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-about-wiki-link">
-        <location filename="../qml/pages/About.qml" line="142"/>
+        <location filename="../qml/pages/About.qml" line="316"/>
         <source>Visit the Wiki</source>
         <extracomment>Visit the Wiki button, tapping links to the Whisperfish Wiki</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-extra-copyright">
-        <location filename="../qml/pages/About.qml" line="151"/>
+        <location filename="../qml/pages/About.qml" line="325"/>
         <source>Additional Copyright</source>
         <extracomment>Additional Copyright</extracomment>
         <translation type="unfinished"></translation>
@@ -422,162 +566,162 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-reset-identity-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="263"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="80"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="279"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="82"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-reset-identity-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="270"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="85"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="286"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="87"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-reset-session-menu">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="279"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="95"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="295"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="97"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-reset-session-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="286"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="100"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="302"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="102"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-refresh-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="110"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="112"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="119"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="121"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-revert-profile-changes-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="129"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="131"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-save-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="138"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="140"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="141"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="143"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-page-unregistered-profile">
-        <location filename="../qml/pages/ProfilePage.qml" line="189"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="191"/>
         <source>The recipient is not currently registered to Signal, so sending and receiving messages is not possible.</source>
         <extracomment>Profile page, user is not registered warning</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-joined-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="202"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="204"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-given-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="216"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="218"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-family-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="234"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="236"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-uuid">
-        <location filename="../qml/pages/ProfilePage.qml" line="248"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="250"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-phone-number">
-        <location filename="../qml/pages/ProfilePage.qml" line="260"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="262"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-about">
-        <location filename="../qml/pages/ProfilePage.qml" line="272"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="274"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-unidentified">
-        <location filename="../qml/pages/ProfilePage.qml" line="281"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="283"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
-        <location filename="../qml/pages/ProfilePage.qml" line="288"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="290"/>
         <source>Unknown</source>
         <extracomment>Profile, sealed sending mode, unknown option</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-unidentified-disabled">
-        <location filename="../qml/pages/ProfilePage.qml" line="293"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="295"/>
         <source>Disabled</source>
         <extracomment>Profile, sealed sending mode, disabled option</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-unidentified-enabled">
-        <location filename="../qml/pages/ProfilePage.qml" line="298"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="300"/>
         <source>Enabled</source>
         <extracomment>Profile, sealed sending mode, enabled option</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-unidentified-unrestricted">
-        <location filename="../qml/pages/ProfilePage.qml" line="303"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="305"/>
         <source>Unrestricted</source>
         <extracomment>Profile, sealed sending mode, unrestricted option</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-emoji">
-        <location filename="../qml/pages/ProfilePage.qml" line="318"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="320"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-show-fingerprint">
-        <location filename="../qml/pages/ProfilePage.qml" line="332"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="334"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="375"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="377"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-own-profile-help-text">
-        <location filename="../qml/pages/ProfilePage.qml" line="392"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="394"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
-        <location filename="../qml/pages/ProfilePage.qml" line="400"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="402"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
         <translation type="unfinished"></translation>
@@ -1168,81 +1312,107 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-settings-enable-verbose">
+        <location filename="../qml/pages/Settings.qml" line="423"/>
+        <source>Verbose logging</source>
+        <extracomment>Settings page enable verbose logging</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-enable-verbose-description">
+        <location filename="../qml/pages/Settings.qml" line="426"/>
+        <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
+        <extracomment>Settings page enable verbose logging description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-logfile-autostart">
+        <location filename="../qml/pages/Settings.qml" line="440"/>
+        <source>Enable log file</source>
+        <extracomment>Settings page enable logging to a file</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-settings-enable-logfile-description">
+        <location filename="../qml/pages/Settings.qml" line="443"/>
+        <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
+        <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
+        <extracomment>Settings page enable logfile description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-compress-db">
-        <location filename="../qml/pages/Settings.qml" line="424"/>
+        <location filename="../qml/pages/Settings.qml" line="459"/>
         <source>Compact database</source>
         <oldsource>Compress database</oldsource>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="435"/>
+        <location filename="../qml/pages/Settings.qml" line="470"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="440"/>
+        <location filename="../qml/pages/Settings.qml" line="475"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="444"/>
+        <location filename="../qml/pages/Settings.qml" line="479"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="447"/>
+        <location filename="../qml/pages/Settings.qml" line="482"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="452"/>
+        <location filename="../qml/pages/Settings.qml" line="487"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="458"/>
+        <location filename="../qml/pages/Settings.qml" line="493"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="464"/>
+        <location filename="../qml/pages/Settings.qml" line="499"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="470"/>
+        <location filename="../qml/pages/Settings.qml" line="505"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="476"/>
+        <location filename="../qml/pages/Settings.qml" line="511"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="480"/>
+        <location filename="../qml/pages/Settings.qml" line="515"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="483"/>
+        <location filename="../qml/pages/Settings.qml" line="518"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/ProfilePage.qml" line="326"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="328"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
@@ -1255,7 +1425,7 @@ Settings page share contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-unknown-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="328"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="344"/>
         <source>Unknown</source>
         <extracomment>Unknown contact in group member list</extracomment>
         <translation type="unfinished"></translation>
@@ -1292,44 +1462,56 @@ Settings page share contacts</extracomment>
         <extracomment>Create invite link menu item</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-group-member-admin">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
+        <source>Administrator</source>
+        <extracomment>Group member section label for administrator level user</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-group-member-regular">
+        <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
+        <source>Member</source>
+        <extracomment>Group member section label for regular level user</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="215"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="231"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="218"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="234"/>
         <source>Message to %1</source>
         <extracomment>Menu item to open the private chat with a group member</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-new-direct-message">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="229"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="245"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="241"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
         <source>Add to contacts</source>
         <extracomment>Menu item to save a group member to the local address book</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-verify-fingerprint">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="248"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="264"/>
         <source>Verify safety number</source>
         <extracomment>Menu item to verify safety numbers with a group member</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-menu-remove-from-group">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="273"/>
         <source>Remove from this group</source>
         <extracomment>Menu item to remove a member from a group (requires admin privileges)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-group-member-name-self">
-        <location filename="../qml/pages/GroupProfilePage.qml" line="324"/>
+        <location filename="../qml/pages/GroupProfilePage.qml" line="340"/>
         <source>You</source>
         <extracomment>Title for the user&apos;s entry in a list of group members</extracomment>
         <translation type="unfinished"></translation>

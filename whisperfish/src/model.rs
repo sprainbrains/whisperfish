@@ -131,3 +131,77 @@ where
         None => QVariant::default(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_qdate_from_chrono() {
+        std::env::set_var("TZ", "UTC");
+
+        // Same day as at UTC
+        let qdate = qdate_from_chrono::<FixedOffset>(
+            DateTime::parse_from_rfc3339("1996-12-19T16:39:57+08:00").unwrap(),
+        );
+        assert_eq!(qdate.get_y_m_d(), (1996, 12, 19));
+
+        // Different day as at UTC
+        let qdate = qdate_from_chrono::<FixedOffset>(
+            DateTime::parse_from_rfc3339("1996-12-19T16:39:57-08:00").unwrap(),
+        );
+        assert_eq!(qdate.get_y_m_d(), (1996, 12, 20));
+    }
+
+    #[test]
+    fn test_qdatetime_from_chrono() {
+        std::env::set_var("TZ", "UTC");
+
+        // Same day as at UTC
+        let qdatetime = qdatetime_from_chrono::<FixedOffset>(
+            DateTime::parse_from_rfc3339("1996-12-19T16:39:57+08:00").unwrap(),
+        );
+        let (qdate, qtime) = qdatetime.get_date_time();
+        assert_eq!(qdate.get_y_m_d(), (1996, 12, 19));
+        assert_eq!(qtime.get_h_m_s_ms(), (8, 39, 57, 0));
+
+        // Different day as at UTC
+        let qdatetime = qdatetime_from_chrono::<FixedOffset>(
+            DateTime::parse_from_rfc3339("1996-12-19T16:39:57-08:00").unwrap(),
+        );
+        let (qdate, qtime) = qdatetime.get_date_time();
+        assert_eq!(qdate.get_y_m_d(), (1996, 12, 20));
+        assert_eq!(qtime.get_h_m_s_ms(), (0, 39, 57, 0));
+    }
+
+    #[test]
+    fn test_qdatetime_from_naive() {
+        std::env::set_var("TZ", "UTC");
+
+        let qdatetime = qdatetime_from_naive(
+            chrono::NaiveDateTime::parse_from_str("1996-12-19 16:39:57", "%Y-%m-%d %H:%M:%S")
+                .unwrap(),
+        );
+        let (qdate, qtime) = qdatetime.get_date_time();
+        assert_eq!(qdate.get_y_m_d(), (1996, 12, 19));
+        assert_eq!(qtime.get_h_m_s_ms(), (16, 39, 57, 0));
+    }
+
+    #[test]
+    fn test_qstring_from_option() {
+        let s = qstring_from_option(Some("test"));
+        assert_eq!(s.to_qbytearray().to_string(), String::from("test"));
+
+        let s = qstring_from_option(None::<&str>);
+        assert_eq!(s.to_qbytearray().to_string(), String::from(""));
+    }
+
+    #[test]
+    fn test_qvariant_from_option() {
+        let s = qvariant_from_option(Some(QString::from("test")));
+        assert_eq!(s.to_qbytearray().to_string(), String::from("test"));
+
+        let s = qvariant_from_option(None::<&QString>);
+        assert_eq!(s.to_qbytearray().to_string(), String::from(""));
+    }
+}

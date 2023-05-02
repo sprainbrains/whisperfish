@@ -48,7 +48,7 @@ Page {
                 pageStack.pushAttached(Qt.resolvedUrl("GroupProfilePage.qml"), { session: session, group: group })
             }
             if(!session.isGroup && nextPageName !== 'profilePage'){
-                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"), { recipientId: session.recipientId, profilePicture: profilePicture })
+                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"), { recipientUuid: session.recipientUuid })
             }
         }
     }

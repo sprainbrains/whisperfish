@@ -78,9 +78,9 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                             // TODO: maybe rename the SQLite column to version
                             revision.eq(group.revision as i32),
                             invite_link_password.eq(&group.invite_link_password),
-                            access_required_for_attributes.eq(acl.attributes),
-                            access_required_for_members.eq(acl.members),
-                            access_required_for_add_from_invite_link.eq(acl.add_from_invite_link),
+                            access_required_for_attributes.eq(i32::from(acl.attributes)),
+                            access_required_for_members.eq(i32::from(acl.members)),
+                            access_required_for_add_from_invite_link.eq(i32::from(acl.add_from_invite_link)),
                         ))
                         .filter(id.eq(&group_id_hex))
                         .execute(&mut *storage.db())

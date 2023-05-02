@@ -288,6 +288,14 @@ impl Storage {
         self.store_enc.is_some()
     }
 
+    pub fn clear_old_logs(
+        path: &std::path::PathBuf,
+        keep_count: usize,
+        filename_regex: &str,
+    ) -> bool {
+        self::utils::clear_old_logs(path, keep_count, filename_regex)
+    }
+
     fn scaffold_directories(root: impl AsRef<Path>) -> Result<(), anyhow::Error> {
         let root = root.as_ref();
 
@@ -1553,6 +1561,7 @@ impl Storage {
         schema::group_v2_members::table
             .inner_join(schema::recipients::table)
             .filter(schema::group_v2_members::group_v2_id.eq(id))
+            .order(schema::group_v2_members::role.desc())
             .load(&mut *self.db())
             .unwrap()
     }
@@ -2297,7 +2306,7 @@ impl Storage {
     }
 
     /// Marks all messages that are outbound and unsent as failed.
-    pub fn mark_pending_messages_failed(&self) {
+    pub fn mark_pending_messages_failed(&self) -> usize {
         use schema::messages::dsl::*;
         let failed_messages: Vec<orm::Message> = messages
             .filter(
@@ -2330,6 +2339,7 @@ impl Storage {
             log::Level::Warn
         };
         log::log!(level, "Set {} messages to failed", count);
+        count
     }
 
     /// Marks a message as failed to send
@@ -2403,156 +2413,74 @@ impl Storage {
 
         Ok(path)
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rstest::rstest;
+    pub fn migrate_storage() -> Result<(), anyhow::Error> {
+        let data_dir = dirs::data_local_dir().context("No data directory found")?;
 
-    #[rstest(ext, case("mp4"), case("jpg"), case("jpg"), case("png"), case("txt"))]
-    #[actix_rt::test]
-    async fn test_save_attachment(ext: &str) {
-        use rand::distributions::Alphanumeric;
-        use rand::{Rng, RngCore};
+        let old_path = data_dir.join("harbour-whisperfish");
+        let old_db = &old_path.join("db");
+        let old_storage = &old_path.join("storage");
 
-        env_logger::try_init().ok();
+        let new_path = data_dir.join("be.rubdos").join("harbour-whisperfish");
+        let new_db = &new_path.join("db");
+        let new_storage = &new_path.join("storage");
 
-        let location = super::temp();
-        let rng = rand::thread_rng();
-
-        // Signaling password for REST API
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
-
-        // Signaling key that decrypts the incoming Signal messages
-        let mut rng = rand::thread_rng();
-        let mut signaling_key = [0u8; 52];
-        rng.fill_bytes(&mut signaling_key);
-        let signaling_key = signaling_key;
-
-        // Registration ID
-        let regid = 12345;
-
-        let storage = Storage::new(
-            Arc::new(SignalConfig::default()),
-            &location,
-            None,
-            regid,
-            &password,
-            signaling_key,
-            None,
-        )
-        .await
-        .unwrap();
-
-        // Create content for attachment and write to file
-        let content = [1u8; 10];
-        let fname = storage
-            .save_attachment(
-                &storage.path().join("storage").join("attachments"),
-                ext,
-                &content,
-            )
-            .await
-            .unwrap();
-
-        // Check existence of attachment
-        let exists = std::path::Path::new(&fname).exists();
-
-        println!("Looking for {}", fname.to_str().unwrap());
-        assert!(exists);
-
-        assert_eq!(
-            fname.extension().unwrap(),
-            ext,
-            "{} <> {}",
-            fname.to_str().unwrap(),
-            ext
-        );
-    }
-
-    #[rstest(
-        storage_password,
-        case(Some(String::from("some password"))),
-        case(None)
-    )]
-    #[actix_rt::test]
-    async fn test_create_and_open_storage(
-        storage_password: Option<String>,
-    ) -> Result<(), anyhow::Error> {
-        use rand::distributions::Alphanumeric;
-        use rand::{Rng, RngCore};
-
-        env_logger::try_init().ok();
-
-        let location = super::temp();
-        let rng = rand::thread_rng();
-
-        // Signaling password for REST API
-        let password: String = rng.sample_iter(&Alphanumeric).take(24).collect();
-
-        // Signaling key that decrypts the incoming Signal messages
-        let mut rng = rand::thread_rng();
-        let mut signaling_key = [0u8; 52];
-        rng.fill_bytes(&mut signaling_key);
-        let signaling_key = signaling_key;
-
-        // Registration ID
-        let regid = 12345;
-
-        let storage = Storage::new(
-            Arc::new(SignalConfig::default()),
-            &location,
-            storage_password.as_deref(),
-            regid,
-            &password,
-            signaling_key,
-            None,
-        )
-        .await;
-        assert!(storage.is_ok(), "{}", storage.err().unwrap());
-        let storage = storage.unwrap();
-
-        macro_rules! tests {
-            ($storage:ident) => {{
-                use libsignal_service::prelude::protocol::IdentityKeyStore;
-                // TODO: assert that tables exist
-                assert_eq!(password, $storage.signal_password().await?);
-                assert_eq!(signaling_key, $storage.signaling_key().await?);
-                assert_eq!(regid, $storage.get_local_registration_id(None).await?);
-
-                let (signed, unsigned) = $storage.next_pre_key_ids().await;
-                // Unstarted client will have no pre-keys.
-                assert_eq!(0, signed);
-                assert_eq!(0, unsigned);
-
-                Result::<_, anyhow::Error>::Ok(())
-            }};
+        if !new_path.exists() {
+            eprintln!("Creating new storage path...");
+            std::fs::create_dir_all(&new_path)?;
         }
 
-        tests!(storage)?;
-        drop(storage);
-
-        if storage_password.is_some() {
-            assert!(
-                Storage::open(Arc::new(SignalConfig::default()), &location, None)
-                    .await
-                    .is_err(),
-                "Storage was not encrypted"
-            );
+        // Remove unused directories, if empty
+        for dir_name in &["groups", "prekeys", "signed_prekeys"] {
+            let dir_path = &new_storage.join(dir_name);
+            if dir_path.exists() {
+                match std::fs::remove_dir(dir_path) {
+                    Ok(()) => eprintln!("Empty '{}' directory removed", dir_name),
+                    _ => eprintln!("Couldn't remove '{}' directory, is it empty?", dir_name),
+                }
+            }
         }
 
-        let storage = Storage::open(
-            Arc::new(SignalConfig::default()),
-            &location,
-            storage_password,
-        )
-        .await;
-        assert!(storage.is_ok(), "{}", storage.err().unwrap());
-        let storage = storage.unwrap();
+        // New paths already in use
+        if new_db.exists() && new_storage.exists() {
+            return Ok(());
+        } else if !new_db.exists() && !new_storage.exists() && !old_db.exists() {
+            // No new or old paths exist; must be clean install
+            if !old_storage.exists() {
+                eprintln!("Creating storage and db folders...");
+                std::fs::create_dir(new_db)?;
+                std::fs::create_dir(new_storage)?;
+                return Ok(());
+            }
+            // Only old storage path exists -- this indicates that
+            // the Whisperfish was previously started but never registered.
+            // Create the old database directory, so the migration can continue.
+            else {
+                eprintln!("No old database found, creating empty directory...");
+                std::fs::create_dir(old_db)?;
+            }
+        }
+        // Try to detect incomplete migration state
+        else if (new_db.exists() ^ new_storage.exists())
+            || (old_db.exists() ^ old_storage.exists())
+        {
+            eprintln!("Storage state is abnormal, aborting!");
+            eprintln!("new db exists: {}", new_db.exists());
+            eprintln!("new storage exists: {}", new_storage.exists());
+            eprintln!("old db exists: {}", old_db.exists());
+            eprintln!("old storage exists: {}", old_storage.exists());
+            std::process::exit(1);
+        }
 
-        tests!(storage)?;
-
+        // Sailjail mounts the old and new paths separately, which makes
+        // std::fs::rename fail. That means we have to copy-and-delete
+        // recursively instead, handled by fs_extra::dir::move_dir.
+        let options = fs_extra::dir::CopyOptions::new();
+        eprintln!("Migrating old db folder...");
+        fs_extra::dir::move_dir(old_db, &new_path, &options)?;
+        eprintln!("Migrating old storage folder...");
+        fs_extra::dir::move_dir(old_storage, &new_path, &options)?;
+        eprintln!("Storage folders migrated");
         Ok(())
     }
 }

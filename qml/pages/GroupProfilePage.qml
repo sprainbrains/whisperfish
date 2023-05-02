@@ -181,6 +181,22 @@ Page {
             }
         }
 
+        section {
+            property: 'role'
+            delegate: SectionHeader {
+                height: Theme.itemSizeExtraSmall
+                // 2 = admin
+                // 1 = user
+                text: section == 2
+                      //: Group member section label for administrator level user
+                      //% "Administrator"
+                      ? qsTrId("whisperfish-group-member-admin")
+                      //: Group member section label for regular level user
+                      //% "Member"
+                      : qsTrId("whisperfish-group-member-regular")
+            }
+        }
+
         delegate: ListItem {
             id: item
             contentHeight: Theme.itemSizeMedium
@@ -202,7 +218,7 @@ Page {
             // For when we need the augmented fields
             Recipient {
                 id: recipient
-                recipientId: model.id
+                recipientUuid: model.uuid
                 app: AppState
             }
 
@@ -248,7 +264,7 @@ Page {
                         text: qsTrId("whisperfish-group-member-menu-verify-fingerprint")
                         visible: !isVerified
                         onClicked: {
-                            pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientId: model.id, profilePicture: profilePicture })
+                            pageStack.push(Qt.resolvedUrl("../pages/ProfilePage.qml"), { recipientUuid: model.uuid })
                         }
                     }
                     MenuItem {
