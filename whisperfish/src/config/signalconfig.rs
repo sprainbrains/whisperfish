@@ -1,5 +1,54 @@
 use anyhow::Context;
 use libsignal_protocol::DeviceId;
+use phonenumber::PhoneNumber;
+use uuid::Uuid;
+
+mod phonenumber_serde_e164 {
+    use std::{fmt, sync::Mutex};
+
+    use serde::{Deserializer, Serializer};
+
+    use super::*;
+
+    pub fn serialize<S>(p: &Mutex<Option<PhoneNumber>>, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match p.lock().expect("mutex alive").as_ref() {
+            Some(pn) => s.serialize_str(&pn.to_string()),
+            None => s.serialize_str(""),
+        }
+    }
+
+    pub fn deserialize<'de, D>(d: D) -> Result<Mutex<Option<PhoneNumber>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct PhoneNumberStringVisitor;
+        impl<'de> serde::de::Visitor<'de> for PhoneNumberStringVisitor {
+            type Value = Option<PhoneNumber>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a string containing a phone number")
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                // unfortunately we lose some typed information
+                // from errors deserializing the json string
+                if v.is_empty() {
+                    Ok(None)
+                } else {
+                    phonenumber::parse(None, v).map_err(E::custom).map(Some)
+                }
+            }
+        }
+
+        d.deserialize_any(PhoneNumberStringVisitor).map(Mutex::new)
+    }
+}
 
 /// Global Config
 ///
@@ -10,12 +59,11 @@ use libsignal_protocol::DeviceId;
 pub struct SignalConfig {
     /// Our telephone number. This field is changed in threads and thus has to be Send/Sync but
     /// mutable at the same time.
-    // XXX use the corresponding phonenumber::phonenumber type
-    tel: std::sync::Mutex<String>,
+    #[serde(with = "phonenumber_serde_e164")]
+    tel: std::sync::Mutex<Option<PhoneNumber>>,
     /// Our uuid. This field is changed in threads and thus has to be Send/Sync but mutable at the
     /// same time.
-    // XXX use the uuid type here
-    uuid: std::sync::Mutex<String>,
+    uuid: std::sync::Mutex<Option<Uuid>>,
     /// Same goes for the device id
     device_id: std::sync::Mutex<u32>,
     /// Directory for persistent share files
@@ -44,8 +92,8 @@ impl Default for SignalConfig {
             crate::store::default_location().expect("Could not get xdg share directory path");
 
         Self {
-            tel: std::sync::Mutex::new(String::from("")),
-            uuid: std::sync::Mutex::new(String::from("")),
+            tel: std::sync::Mutex::new(None),
+            uuid: std::sync::Mutex::new(None),
             device_id: std::sync::Mutex::new(libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
             verbose: false,
@@ -157,24 +205,24 @@ impl SignalConfig {
             .join("identity_key")
     }
 
-    pub fn get_tel_clone(&self) -> String {
+    pub fn get_tel(&self) -> Option<PhoneNumber> {
         self.tel.lock().unwrap().clone()
     }
 
-    pub fn get_uuid_clone(&self) -> String {
-        self.uuid.lock().unwrap().clone()
+    pub fn get_uuid(&self) -> Option<Uuid> {
+        *self.uuid.lock().unwrap()
     }
 
     pub fn get_device_id(&self) -> DeviceId {
         DeviceId::from(*self.device_id.lock().unwrap())
     }
 
-    pub fn set_tel(&self, tel: String) {
-        *self.tel.lock().unwrap() = tel;
+    pub fn set_tel(&self, tel: PhoneNumber) {
+        *self.tel.lock().unwrap() = Some(tel);
     }
 
-    pub fn set_uuid(&self, uuid: String) {
-        *self.uuid.lock().unwrap() = uuid;
+    pub fn set_uuid(&self, uuid: Uuid) {
+        *self.uuid.lock().unwrap() = Some(uuid);
     }
 
     pub fn set_device_id(&self, id: u32) {

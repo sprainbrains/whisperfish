@@ -14,8 +14,8 @@ impl Handler<WhoAmI> for ClientActor {
 
         Box::pin(
             async move {
-                if !config.get_uuid_clone().is_empty() {
-                    log::trace!("UUID is already set: {}", config.get_uuid_clone());
+                if let Some(uuid) = config.get_uuid() {
+                    log::trace!("UUID is already set: {}", uuid);
                     return Ok(None);
                 }
 
@@ -36,7 +36,7 @@ impl Handler<WhoAmI> for ClientActor {
 
                 if let Some(credentials) = act.credentials.as_mut() {
                     credentials.uuid = Some(uuid);
-                    config2.set_uuid(uuid.to_string());
+                    config2.set_uuid(uuid);
                     config2.write_to_file().expect("write config");
                 } else {
                     log::error!("Credentials was none while setting UUID");

@@ -1,4 +1,9 @@
-use diesel::{backend, deserialize, serialize, sql_types::Integer};
+use diesel::{
+    backend, deserialize, serialize,
+    sql_types::{Integer, Nullable, Text},
+};
+use phonenumber::PhoneNumber;
+use uuid::Uuid;
 
 use super::UnidentifiedAccessMode;
 
@@ -28,5 +33,90 @@ where
     ) -> serialize::Result {
         out.set_value(*self as i32);
         Ok(serialize::IsNull::No)
+    }
+}
+
+pub struct OptionUuidString(Option<Uuid>);
+pub struct UuidString(Uuid);
+
+impl<DB> deserialize::Queryable<Nullable<Text>, DB> for OptionUuidString
+where
+    DB: backend::Backend,
+    Option<String>: deserialize::FromSql<Nullable<Text>, DB>,
+{
+    type Row = Option<String>;
+
+    fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
+        let uuid = s.as_deref().map(Uuid::parse_str).transpose()?;
+        Ok(OptionUuidString(uuid))
+    }
+}
+
+impl<DB> deserialize::Queryable<Text, DB> for UuidString
+where
+    DB: backend::Backend,
+    String: deserialize::FromSql<Text, DB>,
+{
+    type Row = String;
+
+    fn build(s: String) -> diesel::deserialize::Result<Self> {
+        let uuid = Uuid::parse_str(&s)?;
+        Ok(UuidString(uuid))
+    }
+}
+
+impl From<UuidString> for Uuid {
+    fn from(val: UuidString) -> Self {
+        val.0
+    }
+}
+
+impl From<OptionUuidString> for Option<Uuid> {
+    fn from(val: OptionUuidString) -> Self {
+        val.0
+    }
+}
+
+pub struct OptionPhoneNumberString(Option<PhoneNumber>);
+pub struct PhoneNumberString(PhoneNumber);
+
+impl<DB> deserialize::Queryable<Nullable<Text>, DB> for OptionPhoneNumberString
+where
+    DB: backend::Backend,
+    Option<String>: deserialize::FromSql<Nullable<Text>, DB>,
+{
+    type Row = Option<String>;
+
+    fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
+        let uuid = s
+            .as_deref()
+            .map(|s| phonenumber::parse(None, s))
+            .transpose()?;
+        Ok(OptionPhoneNumberString(uuid))
+    }
+}
+
+impl<DB> deserialize::Queryable<Text, DB> for PhoneNumberString
+where
+    DB: backend::Backend,
+    String: deserialize::FromSql<Text, DB>,
+{
+    type Row = String;
+
+    fn build(s: String) -> diesel::deserialize::Result<Self> {
+        let uuid = phonenumber::parse(None, s)?;
+        Ok(PhoneNumberString(uuid))
+    }
+}
+
+impl From<PhoneNumberString> for PhoneNumber {
+    fn from(val: PhoneNumberString) -> Self {
+        val.0
+    }
+}
+
+impl From<OptionPhoneNumberString> for Option<PhoneNumber> {
+    fn from(val: OptionPhoneNumberString) -> Self {
+        val.0
     }
 }

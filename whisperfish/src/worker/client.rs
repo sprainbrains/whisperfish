@@ -19,6 +19,7 @@ pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccoun
 pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
 use libsignal_service::sender::SendMessageResult;
 use libsignal_service::sender::SentMessage;
+use uuid::Uuid;
 use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
@@ -58,6 +59,7 @@ use mime_classifier::{ApacheBugFlag, LoadContext, MimeClassifier, NoSniffFlag};
 use phonenumber::PhoneNumber;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
+use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fmt::{Display, Error, Formatter};
 use std::fs::remove_file;
@@ -352,9 +354,9 @@ impl ClientActor {
         message: &DataMessage,
         metadata: &Metadata,
     ) -> Option<()> {
-        let uuid = metadata.sender.uuid.to_string();
+        let uuid = metadata.sender.uuid;
         let storage = self.storage.as_mut().expect("storage");
-        let recipient = storage.fetch_recipient(None, Some(&uuid))?;
+        let recipient = storage.fetch_recipient(None, Some(uuid))?;
         let session = storage.fetch_or_insert_session_by_recipient_id(recipient.id);
 
         let content = ReceiptMessage {
@@ -383,8 +385,8 @@ impl ClientActor {
         &mut self,
         ctx: &mut <Self as Actor>::Context,
         // XXX: remove this argument
-        source_e164: Option<String>,
-        source_uuid: Option<String>,
+        source_phonenumber: Option<PhoneNumber>,
+        source_uuid: Option<Uuid>,
         msg: &DataMessage,
         sync_sent: Option<Sent>,
         metadata: &Metadata,
@@ -394,10 +396,10 @@ impl ClientActor {
         let is_sync_sent = sync_sent.is_some();
 
         let storage = self.storage.as_mut().expect("storage");
-        let sender_recipient = if source_e164.is_some() || source_uuid.is_some() {
+        let sender_recipient = if source_phonenumber.is_some() || source_uuid.is_some() {
             Some(storage.merge_and_fetch_recipient(
-                source_e164.as_deref(),
-                source_uuid.as_deref(),
+                source_phonenumber.clone(),
+                source_uuid,
                 crate::store::TrustLevel::Certain,
             ))
         } else {
@@ -428,11 +430,11 @@ impl ClientActor {
             // XXX Update profile key (which happens just below); don't insert this message.
         }
 
-        if (source_e164.is_some() || source_uuid.is_some()) && !is_sync_sent {
+        if (source_phonenumber.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
                 let (recipient, was_updated) = storage.update_profile_key(
-                    source_e164.as_deref(),
-                    source_uuid.as_deref(),
+                    source_phonenumber.clone(),
+                    source_uuid,
                     key,
                     crate::store::TrustLevel::Certain,
                 );
@@ -476,9 +478,11 @@ impl ClientActor {
         {
             Some(format!(
                 "Group changed by {}",
-                source_e164
+                source_phonenumber
+                    .as_ref()
+                    .map(PhoneNumber::to_string)
+                    .or(source_uuid.as_ref().map(Uuid::to_string))
                     .as_deref()
-                    .or(source_uuid.as_deref())
                     .unwrap_or("nobody")
             ))
         } else if !msg.attachments.is_empty() {
@@ -506,15 +510,16 @@ impl ClientActor {
         };
 
         let is_unidentified = if let Some(sent) = &sync_sent {
-            sent.unidentified_status
-                .iter()
-                .any(|x| Some(x.destination_uuid()) == source_uuid.as_deref() && x.unidentified())
+            sent.unidentified_status.iter().any(|x| {
+                Some(x.destination_uuid()) == source_uuid.as_ref().map(Uuid::to_string).as_deref()
+                    && x.unidentified()
+            })
         } else {
             metadata.unidentified_sender
         };
 
         let new_message = crate::store::NewMessage {
-            source_e164,
+            source_e164: source_phonenumber,
             source_uuid,
             text,
             flags: msg.flags() as i32,
@@ -604,19 +609,19 @@ impl ClientActor {
 
         // XXX If from ourselves, skip
         if settings.get_bool("enable_notify") && !is_sync_sent && !session.is_muted {
-            let session_name: &str = match &session.r#type {
-                orm::SessionType::GroupV1(group) => &group.name,
-                orm::SessionType::GroupV2(group) => &group.name,
+            let session_name: Cow<'_, str> = match &session.r#type {
+                orm::SessionType::GroupV1(group) => Cow::from(&group.name),
+                orm::SessionType::GroupV2(group) => Cow::from(&group.name),
                 orm::SessionType::DirectMessage(recipient) => recipient.name(),
             };
 
             self.inner.pinned().borrow_mut().notifyMessage(
                 session.id,
                 message.id,
-                session_name.into(),
+                session_name.as_ref().into(),
                 sender_recipient
                     .as_ref()
-                    .map(|x| x.name().into())
+                    .map(|x| x.name().as_ref().into())
                     .unwrap_or_else(|| "".into()),
                 sender_recipient
                     .as_ref()
@@ -661,8 +666,8 @@ impl ClientActor {
                     let contacts = recipients.into_iter().map(|recipient| {
                             ContactDetails {
                                 // XXX: expire timer from dm session
-                                number: recipient.e164.clone(),
-                                uuid: recipient.uuid.clone(),
+                                number: recipient.e164.as_ref().map(PhoneNumber::to_string),
+                                uuid: recipient.uuid.as_ref().map(Uuid::to_string),
                                 name: recipient.profile_joined_name.clone(),
                                 profile_key: recipient.profile_key,
                                 // XXX other profile stuff
@@ -681,7 +686,7 @@ impl ClientActor {
                         let members = storage.fetch_group_members_by_group_v1_id(&group.id);
                         GroupDetails {
                             name: Some(group.name.clone()),
-                            members_e164: members.iter().filter_map(|(_member, recipient)| recipient.e164.clone()).collect(),
+                            members_e164: members.iter().filter_map(|(_member, recipient)| recipient.e164.as_ref().map(PhoneNumber::to_string)).collect(),
                             // XXX: update proto file and add more.
                             // members: members.iter().filter_map(|(_member, recipient)| Member {e164: recipient.e164}).collect(),
                             // avatar, active?, color, ..., many cool things to add here!
@@ -753,14 +758,8 @@ impl ClientActor {
             }
             ContentBody::DataMessage(message) => {
                 let uuid = metadata.sender.uuid;
-                let message_id = self.handle_message(
-                    ctx,
-                    None,
-                    Some(uuid.to_string()),
-                    &message,
-                    None,
-                    &metadata,
-                );
+                let message_id =
+                    self.handle_message(ctx, None, Some(uuid), &message, None, &metadata);
                 if metadata.needs_receipt {
                     if let Some(_message_id) = message_id {
                         self.handle_needs_delivery_receipt(ctx, &message, &metadata);
@@ -782,12 +781,30 @@ impl ClientActor {
                     // These are messages sent through a paired device.
 
                     if let Some(message) = &sent.message {
+                        let uuid = sent
+                            .destination_uuid
+                            .as_deref()
+                            .map(Uuid::parse_str)
+                            .transpose()
+                            .map_err(|_| log::warn!("Unparsable UUID {}", sent.destination_uuid()))
+                            .ok()
+                            .flatten();
+                        let phonenumber = sent
+                            .destination_e164
+                            .as_deref()
+                            .map(|s| phonenumber::parse(None, s))
+                            .transpose()
+                            .map_err(|_| {
+                                log::warn!("Unparsable phonenumber {}", sent.destination_e164())
+                            })
+                            .ok()
+                            .flatten();
                         self.handle_message(
                             ctx,
                             // Empty string mainly when groups,
                             // but maybe needs a check. TODO
-                            sent.destination_e164.clone(),
-                            sent.destination_uuid.clone(),
+                            phonenumber,
+                            uuid,
                             message,
                             Some(sent.clone()),
                             &metadata,
@@ -1189,7 +1206,7 @@ impl Handler<SendMessage> for ClientActor {
 
                         Quote {
                             id: Some(quoted_message.server_timestamp.timestamp_millis() as u64),
-                            author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.clone()),
+                            author_uuid: quote_sender.as_ref().and_then(|r| r.uuid.as_ref().map(Uuid::to_string)),
                             text: quoted_message.text.clone(),
 
                             ..Default::default()
@@ -1610,29 +1627,18 @@ impl Handler<StorageReady> for ClientActor {
 
     fn handle(&mut self, storageready: StorageReady, _ctx: &mut Self::Context) -> Self::Result {
         self.storage = Some(storageready.storage.clone());
-        let tel = self.config.get_tel_clone();
-        let uuid = self.config.get_uuid_clone();
+        let phonenumber = self
+            .config
+            .get_tel()
+            .expect("phonenumber present after any registration");
+        let uuid = self.config.get_uuid();
         let device_id = self.config.get_device_id();
 
         storageready.storage.mark_pending_messages_failed();
 
         let storage_for_password = storageready.storage;
         let request_password = async move {
-            // Web socket
-            let phonenumber = phonenumber::parse(None, tel).unwrap();
-            let uuid = if !uuid.is_empty() {
-                match uuid::Uuid::parse_str(&uuid) {
-                    Ok(uuid) => Some(uuid),
-                    Err(e) => {
-                        log::error!("Could not parse uuid {}. Try removing the uuid field in config.yaml and restart Whisperfish. {}", &uuid, e);
-                        None
-                    }
-                }
-            } else {
-                None
-            };
-
-            log::info!("Phone number: {}", phonenumber);
+            log::info!("Phone number: {:?}", phonenumber);
             log::info!("UUID: {:?}", uuid);
             log::info!("DeviceId: {}", device_id);
 
@@ -1776,19 +1782,16 @@ impl Handler<RefreshProfile> for ClientActor {
                 }
             },
         };
-        let recipient_uuid = match recipient.uuid {
-            Some(uuid) => uuid.parse().expect("valid uuid in db"),
-            None => {
-                log::error!(
-                    "Recipient without uuid; not refreshing profile: {:?}",
-                    recipient
-                );
-                return;
-            }
-        };
-        storage.mark_profile_outdated(recipient_uuid);
+        if let Some(uuid) = recipient.uuid {
+            storage.mark_profile_outdated(uuid);
+        } else {
+            log::error!(
+                "Recipient without uuid; not refreshing profile: {:?}",
+                recipient
+            );
+        }
         // Polling the actor will poll the OutdatedProfileStream, which should immediately fire the
-        // necessary events.  This is hacky, we should in fact wake the stream somehow to ensure
+        // necessary events.  This is hacky (XXX), we should in fact wake the stream somehow to ensure
         // correct behaviour.
     }
 }
@@ -1834,11 +1837,12 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                         )) => {
                             // This branch is the only one that loops, and it *should not* loop
                             // more than once.
+                            let source_uuid = Uuid::parse_str(addr.name()).expect("only uuid-based identities accessible in the database");
                             log::warn!("Untrusted identity for {}; replacing identity and inserting a warning.", addr);
                             let msg = crate::store::NewMessage {
                                 session_id: None,
                                 source_e164: None,
-                                source_uuid: Some(addr.name().into()),
+                                source_uuid: Some(source_uuid),
                                 text: "[Whisperfish] The identity key for this contact has changed.  Please verify your safety number.".into(),
                                 timestamp: chrono::Utc::now().naive_utc(),
                                 sent: false,
@@ -2030,7 +2034,7 @@ pub struct RegisterLinkedResponse {
     pub phone_number: PhoneNumber,
     pub registration_id: u32,
     pub device_id: DeviceId,
-    pub uuid: String,
+    pub uuid: Uuid,
     pub identity_key_pair: libsignal_protocol::IdentityKeyPair,
     pub profile_key: Vec<u8>,
 }
@@ -2091,7 +2095,7 @@ impl Handler<RegisterLinked> for ClientActor {
                                         phone_number,
                                         registration_id,
                                         device_id,
-                                        uuid: uuid.to_string(),
+                                        uuid,
                                         identity_key_pair,
                                         profile_key,
                                     },

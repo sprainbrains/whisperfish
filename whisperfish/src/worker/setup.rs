@@ -6,11 +6,12 @@ use phonenumber::PhoneNumber;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
 use std::sync::Arc;
+use uuid::Uuid;
 
 pub struct RegistrationResult {
     regid: u32,
     phonenumber: PhoneNumber,
-    uuid: String,
+    uuid: Uuid,
     device_id: DeviceId,
     identity_key_pair: Option<libsignal_protocol::IdentityKeyPair>,
     profile_key: Option<Vec<u8>>,
@@ -27,8 +28,10 @@ pub struct SetupWorker {
     clientFailed: qt_signal!(),
     setupComplete: qt_signal!(),
 
-    phoneNumber: qt_property!(QString; NOTIFY setupChanged),
-    uuid: qt_property!(QString; NOTIFY setupChanged),
+    phonenumber: Option<PhoneNumber>,
+    _phoneNumber: qt_property!(QString; READ phonenumber NOTIFY setupChanged),
+    uuid: Option<Uuid>,
+    _uuid: qt_property!(QString; READ uuid NOTIFY setupChanged ALIAS uuid),
     deviceId: qt_property!(u32; NOTIFY setupChanged),
 
     registered: qt_property!(bool; NOTIFY setupChanged),
@@ -62,16 +65,11 @@ impl SetupWorker {
         app.settings_bridge.pinned().borrow_mut().defaults();
 
         // XXX: nice formatting?
-        this.borrow_mut().phoneNumber = config.get_tel_clone().into();
-        this.borrow_mut().uuid = config.get_uuid_clone().into();
+        this.borrow_mut().phonenumber = config.get_tel();
+        this.borrow_mut().uuid = config.get_uuid();
         this.borrow_mut().deviceId = config.get_device_id().into();
 
         if !this.borrow().registered {
-            // change fields in config struct
-            config.set_tel(this.borrow().phoneNumber.to_string());
-            config.set_uuid(this.borrow().uuid.to_string());
-            config.set_device_id(this.borrow().deviceId);
-
             if let Err(e) = SetupWorker::register(app.clone(), config.clone()).await {
                 log::error!("Error in registration: {}", e);
                 this.borrow().clientFailed();
@@ -217,17 +215,12 @@ impl SetupWorker {
             Some(storage_password)
         };
 
-        let e164 = reg
-            .phonenumber
-            .format()
-            .mode(phonenumber::Mode::E164)
-            .to_string();
-        this.phoneNumber = e164.clone().into();
-        this.uuid = reg.uuid.clone().into();
+        this.phonenumber = Some(reg.phonenumber.clone());
+        this.uuid = Some(reg.uuid);
         this.deviceId = reg.device_id.device_id;
 
-        config.set_tel(e164.clone());
-        config.set_uuid(reg.uuid.clone());
+        config.set_tel(reg.phonenumber.clone());
+        config.set_uuid(reg.uuid);
         config.set_device_id(reg.device_id.device_id);
 
         // Install storage
@@ -244,8 +237,8 @@ impl SetupWorker {
 
         if let Some(profile_key) = reg.profile_key {
             storage.update_profile_key(
-                Some(&e164),
-                Some(&reg.uuid),
+                Some(reg.phonenumber),
+                Some(reg.uuid),
                 &profile_key,
                 TrustLevel::Certain,
             );
@@ -341,7 +334,7 @@ impl SetupWorker {
         Ok(RegistrationResult {
             regid,
             phonenumber: number,
-            uuid: res.uuid.to_string(),
+            uuid: res.uuid,
             device_id: DeviceId {
                 device_id: DEFAULT_DEVICE_ID,
             },
@@ -393,5 +386,21 @@ impl SetupWorker {
                 complete => return Err(anyhow::Error::msg("Linking to device completed without any result")),
             }
         }
+    }
+
+    fn uuid(&self) -> QString {
+        self.uuid
+            .as_ref()
+            .map(Uuid::to_string)
+            .unwrap_or_default()
+            .into()
+    }
+
+    fn phonenumber(&self) -> QString {
+        self.phonenumber
+            .as_ref()
+            .map(PhoneNumber::to_string)
+            .unwrap_or_default()
+            .into()
     }
 }

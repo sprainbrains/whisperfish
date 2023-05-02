@@ -129,7 +129,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                 for (uuid, profile_key) in members_to_assert {
                     let recipient = storage.fetch_or_insert_recipient_by_uuid(&uuid.to_string());
                     if let Some(profile_key) = profile_key {
-                        let (recipient, _was_changed) = storage.update_profile_key(recipient.e164.as_deref(), recipient.uuid.as_deref(), &profile_key.get_bytes(), TrustLevel::Uncertain);
+                        let (recipient, _was_changed) = storage.update_profile_key(recipient.e164, recipient.uuid, &profile_key.get_bytes(), TrustLevel::Uncertain);
                         match recipient.profile_key {
                             Some(key) if key == profile_key.get_bytes() => {
                                 log::trace!("Profile key matches server-stored profile key");

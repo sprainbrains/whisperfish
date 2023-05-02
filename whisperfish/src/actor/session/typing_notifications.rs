@@ -102,7 +102,7 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
                 // XXX check whether certain is allowed here
                 let sender_recipient = storage.merge_and_fetch_recipient(
                     None,
-                    Some(&typing.sender.uuid.to_string()),
+                    Some(typing.sender.uuid),
                     crate::store::TrustLevel::Certain,
                 );
                 let group_id = typing.inner.group_id.as_ref().map(hex::encode);

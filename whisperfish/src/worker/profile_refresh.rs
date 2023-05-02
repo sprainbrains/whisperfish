@@ -67,14 +67,7 @@ impl OutdatedProfileStream {
             .expect("db");
 
         for recipient in out_of_date_profiles {
-            let recipient_uuid = recipient.uuid.as_ref().expect("database precondition");
-            let recipient_uuid = match Uuid::parse_str(recipient_uuid) {
-                Ok(u) => u,
-                e => {
-                    log::warn!("{:?}", e);
-                    continue;
-                }
-            };
+            let recipient_uuid = recipient.uuid.expect("database precondition");
             let recipient_key = if let Some(key) = recipient.profile_key {
                 if key.len() != 32 {
                     log::warn!("Invalid profile key in db. Skipping.");

@@ -174,12 +174,8 @@ impl RecipientImpl {
                         .fetch_session_by_recipient_id(inner.id)
                         .map(|session| session.id)
                         .unwrap_or(-1);
-                    self.recipient_uuid = inner
-                        .uuid
-                        .as_deref()
-                        .map(Uuid::parse_str)
-                        .transpose()
-                        .expect("valid uuid in db");
+                    // XXX Clean this up after #532
+                    self.recipient_uuid = Some(inner.uuid.expect("valid uuid in db"));
                     // XXX trigger Qt signal for this?
                     RecipientWithFingerprint {
                         inner,
@@ -251,10 +247,10 @@ define_model_roles! {
     pub(super) enum RecipientWithFingerprintRoles for RecipientWithFingerprint {
         Id(id): "id",
         DirectMessageSessionId(direct_message_recipient_id): "directMessageSessionId",
-        Uuid(uuid via qstring_from_option): "uuid",
+        Uuid(uuid via qstring_from_optional_to_string): "uuid",
         // These two are aliases
-        E164(e164 via qstring_from_option): "e164",
-        PhoneNumber(e164 via qstring_from_option): "phoneNumber",
+        E164(e164 via qstring_from_optional_to_string): "e164",
+        PhoneNumber(e164 via qstring_from_optional_to_string): "phoneNumber",
         Username(username via qstring_from_option): "username",
         Email(email via qstring_from_option): "email",
         IsRegistered(is_registered): "isRegistered",
@@ -278,10 +274,10 @@ define_model_roles! {
 define_model_roles! {
     pub(super) enum RecipientRoles for orm::Recipient {
         Id(id): "id",
-        Uuid(uuid via qstring_from_option): "uuid",
+        Uuid(uuid via qstring_from_optional_to_string): "uuid",
         // These two are aliases
-        E164(e164 via qstring_from_option): "e164",
-        PhoneNumber(e164 via qstring_from_option): "phoneNumber",
+        E164(e164 via qstring_from_optional_to_string): "e164",
+        PhoneNumber(e164 via qstring_from_optional_to_string): "phoneNumber",
         Username(username via qstring_from_option): "username",
         Email(email via qstring_from_option): "email",
 
