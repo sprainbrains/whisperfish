@@ -174,12 +174,8 @@ impl RecipientImpl {
                         .fetch_session_by_recipient_id(inner.id)
                         .map(|session| session.id)
                         .unwrap_or(-1);
-                    self.recipient_uuid = inner
-                        .uuid
-                        .as_deref()
-                        .map(Uuid::parse_str)
-                        .transpose()
-                        .expect("valid uuid in db");
+                    // XXX Clean this up after #532
+                    self.recipient_uuid = Some(inner.uuid.expect("valid uuid in db"));
                     // XXX trigger Qt signal for this?
                     RecipientWithFingerprint {
                         inner,
