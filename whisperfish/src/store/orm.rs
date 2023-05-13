@@ -242,6 +242,10 @@ pub struct Recipient {
 
     pub is_registered: bool,
     pub unidentified_access_mode: UnidentifiedAccessMode,
+
+    #[diesel(deserialize_as = OptionUuidString)]
+    pub pni: Option<Uuid>,
+    pub needs_pni_signature: bool,
 }
 
 impl Display for Recipient {
