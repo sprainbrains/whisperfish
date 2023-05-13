@@ -269,11 +269,10 @@ impl ClientActor {
     }
 
     fn service_ids(&self) -> Option<ServiceIds> {
-        todo!()
-    }
-
-    fn uuid(&self) -> Option<Uuid> {
-        self.credentials.as_ref().and_then(|c| c.uuid)
+        Some(ServiceIds {
+            aci: self.config.get_uuid()?,
+            pni: self.config.get_pni()?,
+        })
     }
 
     fn user_agent(&self) -> String {

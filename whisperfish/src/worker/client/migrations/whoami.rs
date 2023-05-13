@@ -1,5 +1,6 @@
 use super::*;
 use actix::prelude::*;
+use libsignal_service::push_service::WhoAmIResponse;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -14,36 +15,40 @@ impl Handler<WhoAmI> for ClientActor {
 
         Box::pin(
             async move {
-                if let Some(uuid) = config.get_uuid() {
-                    log::trace!("UUID is already set: {}", uuid);
+                if let (Some(aci), Some(pni)) = (config.get_uuid(), config.get_pni()) {
+                    log::trace!("ACI ({}) and PNI ({}) already set.", aci, pni);
                     return Ok(None);
                 }
 
                 let response = service.whoami().await?;
 
-                Ok::<_, anyhow::Error>(Some(response.uuid))
+                Ok::<_, anyhow::Error>(Some(response))
             }
             .into_actor(self)
-            .map(move |result: Result<Option<uuid::Uuid>, _>, act, _ctx| {
-                let uuid = match result {
-                    Ok(Some(uuid)) => uuid,
-                    Ok(None) => return,
-                    Err(e) => {
-                        log::error!("fetching UUID: {}", e);
-                        return;
+            .map(
+                move |result: Result<Option<WhoAmIResponse>, _>, act, _ctx| {
+                    let result = match result {
+                        Ok(Some(result)) => result,
+                        Ok(None) => return,
+                        Err(e) => {
+                            log::error!("fetching UUID: {}", e);
+                            return;
+                        }
+                    };
+                    log::info!("Retrieved ACI ({}) and PNI ({})", result.uuid, result.pni);
+
+                    if let Some(credentials) = act.credentials.as_mut() {
+                        credentials.uuid = Some(result.uuid);
+                        config2.set_uuid(result.uuid);
+                        config2.set_pni(result.pni);
+                        config2.write_to_file().expect("write config");
+                    } else {
+                        log::error!("Credentials was none while setting UUID");
                     }
-                };
 
-                if let Some(credentials) = act.credentials.as_mut() {
-                    credentials.uuid = Some(uuid);
-                    config2.set_uuid(uuid);
-                    config2.write_to_file().expect("write config");
-                } else {
-                    log::error!("Credentials was none while setting UUID");
-                }
-
-                act.migration_state.notify_whoami();
-            }),
+                    act.migration_state.notify_whoami();
+                },
+            ),
         )
     }
 }

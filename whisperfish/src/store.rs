@@ -229,6 +229,8 @@ pub struct Storage {
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
     path: PathBuf,
     aci_identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
+    // XXX: Implement PNI https://gitlab.com/whisperfish/whisperfish/-/issues/459
+    #[allow(unused)]
     pni_identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
 }
 
@@ -865,7 +867,7 @@ impl Storage {
         &self,
         phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
-        pni: Option<Uuid>,
+        _pni: Option<Uuid>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
         let (id, uuid, phonenumber, changed) = self
