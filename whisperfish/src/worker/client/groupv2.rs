@@ -40,7 +40,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
         ctx: &mut Self::Context,
     ) -> Self::Result {
         let storage = self.storage.clone().unwrap();
-        let uuid = self.uuid().expect("whoami");
+        let service_ids = self.service_ids().expect("whoami");
 
         let authenticated_service = self.authenticated_service();
         let zk_params = self.service_cfg().zkgroup_server_public_params;
@@ -53,7 +53,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
             async move {
                 let mut credential_cache = storage.credential_cache_mut().await;
                 let mut gm =
-                    GroupsManager::new(uuid, authenticated_service, &mut *credential_cache, zk_params);
+                    GroupsManager::new(service_ids, authenticated_service, &mut *credential_cache, zk_params);
                 let group = gm.fetch_encrypted_group(&master_key).await?;
                 let group = groups_v2::decrypt_group(&master_key, group)?;
                 // let group = gm.decrypt_
@@ -129,7 +129,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                 for (uuid, profile_key) in members_to_assert {
                     let recipient = storage.fetch_or_insert_recipient_by_uuid(&uuid.to_string());
                     if let Some(profile_key) = profile_key {
-                        let (recipient, _was_changed) = storage.update_profile_key(recipient.e164, recipient.uuid, &profile_key.get_bytes(), TrustLevel::Uncertain);
+                        let (recipient, _was_changed) = storage.update_profile_key(recipient.e164, recipient.uuid, None, &profile_key.get_bytes(), TrustLevel::Uncertain);
                         match recipient.profile_key {
                             Some(key) if key == profile_key.get_bytes() => {
                                 log::trace!("Profile key matches server-stored profile key");
@@ -325,7 +325,7 @@ impl Handler<RefreshGroupAvatar> for ClientActor {
 
         let service = self.authenticated_service();
         let zk_params = self.service_cfg().zkgroup_server_public_params;
-        let uuid = self.uuid().expect("whoami");
+        let service_ids = self.service_ids().expect("whoami");
         ctx.spawn(
             async move {
                 let master_key = hex::decode(&master_key).expect("hex group key in db");
@@ -335,7 +335,8 @@ impl Handler<RefreshGroupAvatar> for ClientActor {
                 let secret = GroupSecretParams::derive_from_master_key(key);
 
                 let mut credential_cache = storage.credential_cache_mut().await;
-                let mut gm = GroupsManager::new(uuid, service, &mut *credential_cache, zk_params);
+                let mut gm =
+                    GroupsManager::new(service_ids, service, &mut *credential_cache, zk_params);
 
                 let avatar = gm.retrieve_avatar(&avatar, secret).await?;
                 Ok((group_id, avatar))

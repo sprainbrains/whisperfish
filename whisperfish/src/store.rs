@@ -228,7 +228,8 @@ pub struct Storage {
     pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
     path: PathBuf,
-    identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
+    aci_identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
+    pni_identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
 }
 
 /// Fetches an `orm::Session`, for which the supplied closure can impose constraints.
@@ -330,9 +331,11 @@ impl Storage {
         db_path: &StorageLocation<T>,
         password: Option<&str>,
         regid: u32,
+        pni_regid: u32,
         http_password: &str,
         signaling_key: [u8; 52],
-        identity_key_pair: Option<protocol::IdentityKeyPair>,
+        aci_identity_key_pair: Option<protocol::IdentityKeyPair>,
+        pni_identity_key_pair: Option<protocol::IdentityKeyPair>,
     ) -> Result<Storage, anyhow::Error> {
         let path: &Path = std::ops::Deref::deref(db_path);
 
@@ -367,11 +370,20 @@ impl Storage {
         let db = Self::open_db(db_path, store_enc.as_ref().map(|x| x.get_database_key())).await?;
 
         // 3. initialize protocol store
-        let identity_key_pair = identity_key_pair
+        let aci_identity_key_pair = aci_identity_key_pair
+            .unwrap_or_else(|| protocol::IdentityKeyPair::generate(&mut rand::thread_rng()));
+        let pni_identity_key_pair = pni_identity_key_pair
             .unwrap_or_else(|| protocol::IdentityKeyPair::generate(&mut rand::thread_rng()));
 
-        let protocol_store =
-            ProtocolStore::new(store_enc.as_ref(), path, regid, identity_key_pair).await?;
+        let protocol_store = ProtocolStore::new(
+            store_enc.as_ref(),
+            path,
+            regid,
+            pni_regid,
+            aci_identity_key_pair,
+            pni_identity_key_pair,
+        )
+        .await?;
 
         // 4. save http password and signaling key
         let identity_path = path.join("storage").join("identity");
@@ -398,7 +410,8 @@ impl Storage {
                 InMemoryCredentialsCache::default(),
             )),
             path: path.to_path_buf(),
-            identity_key_pair: Arc::new(tokio::sync::RwLock::new(Some(identity_key_pair))),
+            aci_identity_key_pair: Arc::new(tokio::sync::RwLock::new(Some(aci_identity_key_pair))),
+            pni_identity_key_pair: Arc::new(tokio::sync::RwLock::new(Some(pni_identity_key_pair))),
         })
     }
 
@@ -438,7 +451,8 @@ impl Storage {
                 InMemoryCredentialsCache::default(),
             )),
             path: path.to_path_buf(),
-            identity_key_pair: Arc::new(tokio::sync::RwLock::new(None)),
+            aci_identity_key_pair: Arc::new(tokio::sync::RwLock::new(None)),
+            pni_identity_key_pair: Arc::new(tokio::sync::RwLock::new(None)),
         };
 
         Ok(storage)
@@ -569,6 +583,7 @@ impl Storage {
             let recipient = self.merge_and_fetch_recipient(
                 new_message.source_e164.clone(),
                 new_message.source_uuid,
+                None,
                 TrustLevel::Certain,
             );
             self.fetch_or_insert_session_by_recipient_id(recipient.id)
@@ -664,7 +679,7 @@ impl Storage {
         if uuid.is_none() {
             log::warn!("No uuid set. Continuing with only e164");
         }
-        Some(self.merge_and_fetch_recipient(e164, uuid, TrustLevel::Certain))
+        Some(self.merge_and_fetch_recipient(e164, uuid, None, TrustLevel::Certain))
     }
 
     pub fn fetch_recipient_by_phonenumber(
@@ -804,11 +819,12 @@ impl Storage {
         &self,
         phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
+        pni: Option<Uuid>,
         new_profile_key: &[u8],
         trust_level: TrustLevel,
     ) -> (orm::Recipient, bool) {
         // XXX check profile_key length
-        let recipient = self.merge_and_fetch_recipient(phonenumber, uuid, trust_level);
+        let recipient = self.merge_and_fetch_recipient(phonenumber, uuid, pni, trust_level);
 
         let is_unset = recipient.profile_key.is_none()
             || recipient.profile_key.as_ref().map(Vec::len) == Some(0);
@@ -849,6 +865,7 @@ impl Storage {
         &self,
         phonenumber: Option<PhoneNumber>,
         uuid: Option<Uuid>,
+        pni: Option<Uuid>,
         trust_level: TrustLevel,
     ) -> orm::Recipient {
         let (id, uuid, phonenumber, changed) = self
@@ -1367,7 +1384,7 @@ impl Storage {
 
         // Find the recipient
         let recipient =
-            self.merge_and_fetch_recipient(None, Some(receiver_uuid), TrustLevel::Certain);
+            self.merge_and_fetch_recipient(None, Some(receiver_uuid), None, TrustLevel::Certain);
         let message_id = schema::messages::table
             .select(schema::messages::id)
             .filter(schema::messages::server_timestamp.eq(timestamp))

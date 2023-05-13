@@ -42,14 +42,17 @@ async fn create_storage(
 
     // Registration ID
     let regid: u32 = 12345;
+    let pni_regid: u32 = 12346;
 
     store::Storage::new(
         config,
         &path,
         storage_password,
         regid,
+        pni_regid,
         &password,
         signaling_key,
+        None,
         None,
     )
     .await

@@ -103,6 +103,7 @@ impl Handler<UpdateTypingNotifications> for SessionActor {
                 let sender_recipient = storage.merge_and_fetch_recipient(
                     None,
                     Some(typing.sender.uuid),
+                    None,
                     crate::store::TrustLevel::Certain,
                 );
                 let group_id = typing.inner.group_id.as_ref().map(hex::encode);

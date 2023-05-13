@@ -251,6 +251,7 @@ impl Handler<UploadProfile> for ClientActor {
             storage.update_profile_key(
                 None,
                 Some(uuid),
+                None,
                 &profile_key.get_bytes(),
                 TrustLevel::Certain,
             );
@@ -272,6 +273,7 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
 
         Box::pin(async move {
             let registration_id = storage.get_local_registration_id(None).await.unwrap();
+            let pni_registration_id = storage.get_local_pni_registration_id(None).await.unwrap();
             let self_recipient = storage.fetch_self_recipient().expect("self set by now");
 
             let profile_key = self_recipient.profile_key();
@@ -293,7 +295,8 @@ impl Handler<RefreshProfileAttributes> for ClientActor {
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
                 capabilities: whisperfish_device_capabilities(),
-                name: "Whisperfish".into(),
+                name: Some("Whisperfish".into()),
+                pni_registration_id,
             };
             if let Err(e) = am.set_account_attributes(account_attributes).await {
                 log::error!("Error refreshing profile attributes: {}", e);

@@ -1,7 +1,7 @@
 use crate::gui::WhisperfishApp;
 use crate::store::{Storage, TrustLevel};
 use anyhow::Context;
-use libsignal_service::push_service::{DeviceId, DEFAULT_DEVICE_ID};
+use libsignal_service::push_service::{DeviceId, ServiceIds, DEFAULT_DEVICE_ID};
 use phonenumber::PhoneNumber;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
@@ -10,10 +10,12 @@ use uuid::Uuid;
 
 pub struct RegistrationResult {
     regid: u32,
+    pni_regid: u32,
     phonenumber: PhoneNumber,
-    uuid: Uuid,
+    service_ids: ServiceIds,
     device_id: DeviceId,
-    identity_key_pair: Option<libsignal_protocol::IdentityKeyPair>,
+    aci_identity_key_pair: Option<libsignal_protocol::IdentityKeyPair>,
+    pni_identity_key_pair: Option<libsignal_protocol::IdentityKeyPair>,
     profile_key: Option<Vec<u8>>,
 }
 
@@ -216,11 +218,11 @@ impl SetupWorker {
         };
 
         this.phonenumber = Some(reg.phonenumber.clone());
-        this.uuid = Some(reg.uuid);
+        this.uuid = Some(reg.service_ids.aci);
         this.deviceId = reg.device_id.device_id;
 
         config.set_tel(reg.phonenumber.clone());
-        config.set_uuid(reg.uuid);
+        config.set_uuid(reg.service_ids.aci);
         config.set_device_id(reg.device_id.device_id);
 
         // Install storage
@@ -229,16 +231,19 @@ impl SetupWorker {
             &config.get_share_dir().to_owned().into(),
             storage_password.as_deref(),
             reg.regid,
+            reg.pni_regid,
             &password,
             signaling_key,
-            reg.identity_key_pair,
+            reg.aci_identity_key_pair,
+            reg.pni_identity_key_pair,
         )
         .await?;
 
         if let Some(profile_key) = reg.profile_key {
             storage.update_profile_key(
                 Some(reg.phonenumber),
-                Some(reg.uuid),
+                Some(reg.service_ids.aci),
+                Some(reg.service_ids.pni),
                 &profile_key,
                 TrustLevel::Certain,
             );
@@ -319,7 +324,7 @@ impl SetupWorker {
             .into();
         let code = code.parse()?;
 
-        let (regid, res) = app
+        let (regid, pni_regid, res) = app
             .client_actor
             .send(super::client::ConfirmRegistration {
                 phonenumber: number.clone(),
@@ -333,12 +338,17 @@ impl SetupWorker {
 
         Ok(RegistrationResult {
             regid,
+            pni_regid,
             phonenumber: number,
-            uuid: res.uuid,
+            service_ids: ServiceIds {
+                aci: res.uuid,
+                pni: res.pni,
+            },
             device_id: DeviceId {
                 device_id: DEFAULT_DEVICE_ID,
             },
-            identity_key_pair: None,
+            aci_identity_key_pair: None,
+            pni_identity_key_pair: None,
             profile_key: None,
         })
     }
@@ -376,10 +386,12 @@ impl SetupWorker {
                     let res = res??;
                     return Ok(RegistrationResult {
                         regid: res.registration_id,
+                        pni_regid: res.pni_registration_id,
                         phonenumber: res.phone_number,
-                        uuid: res.uuid,
+                        service_ids: res.service_ids,
                         device_id: res.device_id,
-                        identity_key_pair: Some(res.identity_key_pair),
+                        aci_identity_key_pair: Some(res.aci_identity_key_pair),
+                        pni_identity_key_pair: Some(res.pni_identity_key_pair),
                         profile_key: Some(res.profile_key),
                     });
                 }

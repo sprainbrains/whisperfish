@@ -16,6 +16,7 @@ use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::Quote;
 use libsignal_service::proto::sync_message::Sent;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
+use libsignal_service::push_service::ServiceIds;
 pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
 use libsignal_service::sender::SendMessageResult;
 use libsignal_service::sender::SentMessage;
@@ -208,16 +209,7 @@ pub struct ClientActor {
     // Having ServiceCipher implement `Clone` is imo. a problem, now that everything is `async`.
     // Putting in behind a Mutex is a lot of work now though,
     // especially considering this should be *internal* to ServiceCipher.
-    cipher: Option<
-        ServiceCipher<
-            crate::store::Storage,
-            crate::store::Storage,
-            crate::store::Storage,
-            crate::store::Storage,
-            crate::store::Storage,
-            rand::rngs::ThreadRng,
-        >,
-    >,
+    cipher: Option<ServiceCipher<crate::store::Storage, rand::rngs::ThreadRng>>,
     config: std::sync::Arc<crate::config::SignalConfig>,
 
     typing_message_timestamps: HashSet<u64>,
@@ -276,6 +268,10 @@ impl ClientActor {
         })
     }
 
+    fn service_ids(&self) -> Option<ServiceIds> {
+        todo!()
+    }
+
     fn uuid(&self) -> Option<Uuid> {
         self.credentials.as_ref().and_then(|c| c.uuid)
     }
@@ -307,15 +303,7 @@ impl ClientActor {
         &self,
     ) -> impl Future<
         Output = Result<
-            MessageSender<
-                AwcPushService,
-                crate::store::Storage,
-                crate::store::Storage,
-                crate::store::Storage,
-                crate::store::Storage,
-                crate::store::Storage,
-                rand::rngs::ThreadRng,
-            >,
+            MessageSender<AwcPushService, crate::store::Storage, rand::rngs::ThreadRng>,
             ServiceError,
         >,
     > {
@@ -335,7 +323,6 @@ impl ClientActor {
                 service,
                 cipher,
                 rand::thread_rng(),
-                storage.clone(),
                 storage,
                 local_addr,
                 device_id,
@@ -400,6 +387,7 @@ impl ClientActor {
             Some(storage.merge_and_fetch_recipient(
                 source_phonenumber.clone(),
                 source_uuid,
+                None,
                 crate::store::TrustLevel::Certain,
             ))
         } else {
@@ -435,6 +423,7 @@ impl ClientActor {
                 let (recipient, was_updated) = storage.update_profile_key(
                     source_phonenumber.clone(),
                     source_uuid,
+                    None,
                     key,
                     crate::store::TrustLevel::Certain,
                 );
@@ -1667,10 +1656,6 @@ impl Handler<StorageReady> for ClientActor {
                 // XXX What about the whoami migration?
                 let uuid = uuid.expect("local uuid to initialize service cipher");
                 let cipher = ServiceCipher::new(
-                    storage.clone(),
-                    storage.clone(),
-                    storage.clone(),
-                    storage.clone(),
                     storage,
                     rand::thread_rng(),
                     service_cfg.unidentified_sender_trust_root,
@@ -1955,7 +1940,7 @@ impl Handler<Register> for ClientActor {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<(u32, VerifyAccountResponse), anyhow::Error>")]
+#[rtype(result = "Result<(u32, u32, VerifyAccountResponse), anyhow::Error>")]
 pub struct ConfirmRegistration {
     pub phonenumber: PhoneNumber,
     pub password: String,
@@ -1964,7 +1949,8 @@ pub struct ConfirmRegistration {
 }
 
 impl Handler<ConfirmRegistration> for ClientActor {
-    type Result = ResponseActFuture<Self, Result<(u32, VerifyAccountResponse), anyhow::Error>>;
+    // regid, pni_regid, response
+    type Result = ResponseActFuture<Self, Result<(u32, u32, VerifyAccountResponse), anyhow::Error>>;
 
     fn handle(&mut self, confirm: ConfirmRegistration, _ctx: &mut Self::Context) -> Self::Result {
         use libsignal_service::provisioning::*;
@@ -1977,7 +1963,9 @@ impl Handler<ConfirmRegistration> for ClientActor {
         } = confirm;
 
         let registration_id = generate_registration_id(&mut rand::thread_rng());
+        let pni_registration_id = generate_registration_id(&mut rand::thread_rng());
         log::trace!("registration_id: {}", registration_id);
+        log::trace!("pni_registration_id: {}", pni_registration_id);
 
         let mut push_service = self.authenticated_service_with_credentials(ServiceCredentials {
             uuid: None,
@@ -2006,7 +1994,8 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 unrestricted_unidentified_access: false,
                 discoverable_by_phone_number: true,
                 capabilities: whisperfish_device_capabilities(),
-                name: "Whisperfish".into(),
+                name: Some("Whisperfish".into()),
+                pni_registration_id,
             };
             provisioning_manager
                 .confirm_verification_code(confirm_code, account_attrs)
@@ -2016,7 +2005,7 @@ impl Handler<ConfirmRegistration> for ClientActor {
         Box::pin(
             confirmation_procedure
                 .into_actor(self)
-                .map(move |result, _act, _ctx| Ok((registration_id, result?))),
+                .map(move |result, _act, _ctx| Ok((registration_id, pni_registration_id, result?))),
         )
     }
 }
@@ -2033,9 +2022,11 @@ pub struct RegisterLinked {
 pub struct RegisterLinkedResponse {
     pub phone_number: PhoneNumber,
     pub registration_id: u32,
+    pub pni_registration_id: u32,
     pub device_id: DeviceId,
-    pub uuid: Uuid,
-    pub identity_key_pair: libsignal_protocol::IdentityKeyPair,
+    pub service_ids: ServiceIds,
+    pub aci_identity_key_pair: libsignal_protocol::IdentityKeyPair,
+    pub pni_identity_key_pair: libsignal_protocol::IdentityKeyPair,
     pub profile_key: Vec<u8>,
 }
 
@@ -2080,23 +2071,34 @@ impl Handler<RegisterLinked> for ClientActor {
                                 phone_number,
                                 device_id,
                                 registration_id,
-                                uuid,
-                                private_key,
-                                public_key,
+                                pni_registration_id,
                                 profile_key,
+                                service_ids,
+                                aci_private_key,
+                                aci_public_key,
+                                pni_private_key,
+                                pni_public_key,
                             } => {
-                                let identity_key_pair = libsignal_protocol::IdentityKeyPair::new(
-                                    libsignal_protocol::IdentityKey::new(public_key),
-                                    private_key,
-                                );
+                                let aci_identity_key_pair =
+                                    libsignal_protocol::IdentityKeyPair::new(
+                                        libsignal_protocol::IdentityKey::new(aci_public_key),
+                                        aci_private_key,
+                                    );
+                                let pni_identity_key_pair =
+                                    libsignal_protocol::IdentityKeyPair::new(
+                                        libsignal_protocol::IdentityKey::new(pni_public_key),
+                                        pni_private_key,
+                                    );
 
                                 res = Result::<RegisterLinkedResponse, anyhow::Error>::Ok(
                                     RegisterLinkedResponse {
                                         phone_number,
                                         registration_id,
+                                        pni_registration_id,
                                         device_id,
-                                        uuid,
-                                        identity_key_pair,
+                                        service_ids,
+                                        aci_identity_key_pair,
+                                        pni_identity_key_pair,
                                         profile_key,
                                     },
                                 );
@@ -2140,8 +2142,6 @@ impl Handler<RefreshPreKeys> for ClientActor {
             let (next_signed_pre_key_id, pre_keys_offset_id) = storage.next_pre_key_ids().await;
 
             am.update_pre_key_bundle(
-                &storage.clone(),
-                &mut storage.clone(),
                 &mut storage.clone(),
                 &mut rand::thread_rng(),
                 next_signed_pre_key_id,
