@@ -251,30 +251,59 @@ pub struct Recipient {
 impl Display for Recipient {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         let profile_joined_name = self.profile_joined_name.as_deref().unwrap_or_default();
-        match (&self.e164, &self.uuid) {
-            (Some(e164), Some(r_uuid)) => write!(
+        match (&self.e164, &self.uuid, &self.pni) {
+            (Some(e164), Some(r_uuid), pni) => write!(
                 f,
-                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\" }}",
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\", pni: {} }}",
                 &self.id,
                 profile_joined_name,
                 shorten(&e164.to_string(), 6),
-                shorten(&r_uuid.to_string(), 9)
+                shorten(&r_uuid.to_string(), 9),
+                if pni.is_some() {
+                    "available"
+                } else {
+                    "unavailable"
+                },
             ),
-            (None, Some(r_uuid)) => write!(
+            (None, Some(r_uuid), pni) => write!(
                 f,
-                "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\" }}",
+                "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\", pni: {} }}",
                 &self.id,
                 profile_joined_name,
-                shorten(&r_uuid.to_string(), 9)
+                shorten(&r_uuid.to_string(), 9),
+                if pni.is_some() {
+                    "available"
+                } else {
+                    "unavailable"
+                },
             ),
-            (Some(e164), None) => write!(
+            // XXX: is this invalid?  PNI without ACI and E164 might actually be valid.
+            (None, None, Some(pni)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", pni: \"{}\", INVALID }}",
+                &self.id,
+                profile_joined_name,
+                shorten(&pni.to_string(), 9),
+            ),
+            // XXX: is this invalid?  PNI without ACI might actually be valid.
+            (Some(e164), None, Some(pni)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", pni: \"{}\", INVALID }}",
+                &self.id,
+                profile_joined_name,
+                shorten(&e164.to_string(), 6),
+                shorten(&pni.to_string(), 9),
+            ),
+            // XXX: is this invalid?  Phonenumber without ACI/PNI is unreachable atm,
+            //      but only because of current technical limitations in WF
+            (Some(e164), None, None) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", INVALID }}",
                 &self.id,
                 profile_joined_name,
-                shorten(&e164.to_string(), 6)
+                shorten(&e164.to_string(), 6),
             ),
-            (None, None) => write!(
+            (None, None, None) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", INVALID }}",
                 &self.id, profile_joined_name
