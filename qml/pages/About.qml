@@ -344,6 +344,421 @@ Page {
                 horizontalAlignment: Text.AlignLeft
                 x: Theme.paddingLarge
             }
+
+            /// BEGIN TRANSLATORS
+            SectionHeader {
+                //: Norwegian Bokmål (nb_NO) language about page translation section
+                //% "Norwegian Bokmål translators"
+                text: qsTrId("whisperfish-translators-nb_NO")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Allan Nordhøy"
+                }
+            }
+
+            SectionHeader {
+                //: Dutch (Belgium) (nl_BE) language about page translation section
+                //% "Dutch (Belgium) translators"
+                text: qsTrId("whisperfish-translators-nl_BE")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Ruben De Smet" + "\n" +
+                    "Nathan" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "J. Lavoie" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Lithuanian (lt) language about page translation section
+                //% "Lithuanian translators"
+                text: qsTrId("whisperfish-translators-lt")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Gediminas Murauskas"
+                }
+            }
+
+            SectionHeader {
+                //: Dutch (nl) language about page translation section
+                //% "Dutch translators"
+                text: qsTrId("whisperfish-translators-nl")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Ruben De Smet" + "\n" +
+                    "Nathan" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "J. Lavoie" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Italian (it) language about page translation section
+                //% "Italian translators"
+                text: qsTrId("whisperfish-translators-it")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "J. Lavoie"
+                }
+            }
+
+            SectionHeader {
+                //: German (de) language about page translation section
+                //% "German translators"
+                text: qsTrId("whisperfish-translators-de")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "J. Lavoie" + "\n" +
+                    "PawelSpoon" + "\n" +
+                    "Yo" + "\n" +
+                    "Stephan Lohse" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "Sebastian Maus" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: French (fr) language about page translation section
+                //% "French translators"
+                text: qsTrId("whisperfish-translators-fr")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "J. Lavoie" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "Bérenger" + "\n" +
+                    "Thibaut Vandervelden" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Finnish (fi) language about page translation section
+                //% "Finnish translators"
+                text: qsTrId("whisperfish-translators-fi")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Matti Viljanen" + "\n" +
+                    "J. Lavoie" + "\n" +
+                    "jmcwine" + "\n" +
+                    "Tuomas F Nyqvist" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Slovenian (sl) language about page translation section
+                //% "Slovenian translators"
+                text: qsTrId("whisperfish-translators-sl")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Jože Prijatelj"
+                }
+            }
+
+            SectionHeader {
+                //: Swedish (sv) language about page translation section
+                //% "Swedish translators"
+                text: qsTrId("whisperfish-translators-sv")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Tuomas F Nyqvist" + "\n" +
+                    "fluffysfriends" + "\n" +
+                    "Luna Jernberg" + "\n" +
+                    "bittin1ddc447d824349b2"
+                }
+            }
+
+            SectionHeader {
+                //: Polish (pl) language about page translation section
+                //% "Polish translators"
+                text: qsTrId("whisperfish-translators-pl")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "A" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "Karol Kurek" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Chinese (Simplified) (zh_CN) language about page translation section
+                //% "Chinese (Simplified) translators"
+                text: qsTrId("whisperfish-translators-zh_CN")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "dashinfantry" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "Rui Kon" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Hungarian (hu) language about page translation section
+                //% "Hungarian translators"
+                text: qsTrId("whisperfish-translators-hu")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Sz. G" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "carlosgonz"
+                }
+            }
+
+            SectionHeader {
+                //: Portuguese (Portugal) (pt_PT) language about page translation section
+                //% "Portuguese (Portugal) translators"
+                text: qsTrId("whisperfish-translators-pt_PT")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Júlio" + "\n" +
+                    "Antonio Maretzek" + "\n" +
+                    "J. Lavoie" + "\n" +
+                    "ssantos"
+                }
+            }
+
+            SectionHeader {
+                //: Czech (cs) language about page translation section
+                //% "Czech translators"
+                text: qsTrId("whisperfish-translators-cs")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "PawelSpoon"
+                }
+            }
+
+            SectionHeader {
+                //: Catalan (ca) language about page translation section
+                //% "Catalan translators"
+                text: qsTrId("whisperfish-translators-ca")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Jaume"
+                }
+            }
+
+            SectionHeader {
+                //: Russian (ru) language about page translation section
+                //% "Russian translators"
+                text: qsTrId("whisperfish-translators-ru")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Николай Синёв"
+                }
+            }
+
+            SectionHeader {
+                //: Portuguese (Brazil) (pt_BR) language about page translation section
+                //% "Portuguese (Brazil) translators"
+                text: qsTrId("whisperfish-translators-pt_BR")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "J. Lavoie" + "\n" +
+                    "Caio 2k"
+                }
+            }
+
+            SectionHeader {
+                //: Romanian (ro) language about page translation section
+                //% "Romanian translators"
+                text: qsTrId("whisperfish-translators-ro")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Florin Voicu"
+                }
+            }
+
+            SectionHeader {
+                //: Turkish (tr) language about page translation section
+                //% "Turkish translators"
+                text: qsTrId("whisperfish-translators-tr")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Oğuz Ersen"
+                }
+            }
+
+            SectionHeader {
+                //: Greek (el) language about page translation section
+                //% "Greek translators"
+                text: qsTrId("whisperfish-translators-el")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Chris" + "\n" +
+                    "J. Lavoie"
+                }
+            }
+
+            SectionHeader {
+                //: Basque (eu) language about page translation section
+                //% "Basque translators"
+                text: qsTrId("whisperfish-translators-eu")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "Sergio Varela"
+                }
+            }
+
+            SectionHeader {
+                //: Spanish (es) language about page translation section
+                //% "Spanish translators"
+                text: qsTrId("whisperfish-translators-es")
+            }
+
+            TextArea {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: TextEdit.Center
+                readOnly: true
+                text: {
+                    "gallegonovato" + "\n" +
+                    "J. Lavoie" + "\n" +
+                    "Jose Manuel REGUEIRA" + "\n" +
+                    "Alexander Schlarb" + "\n" +
+                    "PawelSpoon" + "\n" +
+                    "carlosgonz" + "\n" +
+                    "Allan Nordhøy"
+                }
+            }
+            /// END TRANSLATORS
         }
     }
 }
