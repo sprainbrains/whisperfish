@@ -88,11 +88,13 @@ where
     type Row = Option<String>;
 
     fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
-        let uuid = s
+        let phonenumber = s
             .as_deref()
+            // XXX: a migration should be made to set these to NULL instead in the db.
+            .filter(|x| !x.is_empty())
             .map(|s| phonenumber::parse(None, s))
             .transpose()?;
-        Ok(OptionPhoneNumberString(uuid))
+        Ok(OptionPhoneNumberString(phonenumber))
     }
 }
 
