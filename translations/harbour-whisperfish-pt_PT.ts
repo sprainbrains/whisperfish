@@ -171,145 +171,145 @@
         <location filename="../qml/pages/About.qml" line="111"/>
         <source>Translators</source>
         <extracomment>Translators heading in About page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores</translation>
     </message>
     <message id="whisperfish-lang-nb_NO">
         <location filename="../qml/pages/About.qml" line="123"/>
         <source>Norwegian Bokmål</source>
         <extracomment>Name of the Norwegian Bokmål (nb_NO) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bokmål Norueguês</translation>
     </message>
     <message id="whisperfish-lang-nl_BE">
         <location filename="../qml/pages/About.qml" line="128"/>
         <source>Dutch (Belgium)</source>
         <extracomment>Name of the Dutch (Belgium) (nl_BE) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Holandês (Bélgica)</translation>
     </message>
     <message id="whisperfish-lang-lt">
         <location filename="../qml/pages/About.qml" line="136"/>
         <source>Lithuanian</source>
         <extracomment>Name of the Lithuanian (lt) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lituano</translation>
     </message>
     <message id="whisperfish-lang-nl">
         <location filename="../qml/pages/About.qml" line="141"/>
         <source>Dutch</source>
         <extracomment>Name of the Dutch (nl) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Holandês</translation>
     </message>
     <message id="whisperfish-lang-it">
         <location filename="../qml/pages/About.qml" line="149"/>
         <source>Italian</source>
         <extracomment>Name of the Italian (it) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Italiano</translation>
     </message>
     <message id="whisperfish-lang-de">
         <location filename="../qml/pages/About.qml" line="154"/>
         <source>German</source>
         <extracomment>Name of the German (de) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alemão</translation>
     </message>
     <message id="whisperfish-lang-fr">
         <location filename="../qml/pages/About.qml" line="165"/>
         <source>French</source>
         <extracomment>Name of the French (fr) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Francês</translation>
     </message>
     <message id="whisperfish-lang-fi">
         <location filename="../qml/pages/About.qml" line="174"/>
         <source>Finnish</source>
         <extracomment>Name of the Finnish (fi) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Filandês</translation>
     </message>
     <message id="whisperfish-lang-sl">
         <location filename="../qml/pages/About.qml" line="183"/>
         <source>Slovenian</source>
         <extracomment>Name of the Slovenian (sl) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Esloveno</translation>
     </message>
     <message id="whisperfish-lang-sv">
         <location filename="../qml/pages/About.qml" line="188"/>
         <source>Swedish</source>
         <extracomment>Name of the Swedish (sv) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sueco</translation>
     </message>
     <message id="whisperfish-lang-pl">
         <location filename="../qml/pages/About.qml" line="195"/>
         <source>Polish</source>
         <extracomment>Name of the Polish (pl) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Polaco</translation>
     </message>
     <message id="whisperfish-lang-zh_CN">
         <location filename="../qml/pages/About.qml" line="203"/>
         <source>Chinese (Simplified)</source>
         <extracomment>Name of the Chinese (Simplified) (zh_CN) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Chinês (Simplificado)</translation>
     </message>
     <message id="whisperfish-lang-hu">
         <location filename="../qml/pages/About.qml" line="211"/>
         <source>Hungarian</source>
         <extracomment>Name of the Hungarian (hu) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Húngaro</translation>
     </message>
     <message id="whisperfish-lang-pt_PT">
         <location filename="../qml/pages/About.qml" line="218"/>
         <source>Portuguese (Brazil)</source>
         <extracomment>Name of the Portuguese (Brazil) (pt_PT) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Português (Portugal)</translation>
     </message>
     <message id="whisperfish-lang-cs">
         <location filename="../qml/pages/About.qml" line="226"/>
         <source>Czech</source>
         <extracomment>Name of the Czech (cs) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Checo</translation>
     </message>
     <message id="whisperfish-lang-ca">
         <location filename="../qml/pages/About.qml" line="231"/>
         <source>Catalan</source>
         <extracomment>Name of the Catalan (ca) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Catalão</translation>
     </message>
     <message id="whisperfish-lang-ru">
         <location filename="../qml/pages/About.qml" line="236"/>
         <source>Russian</source>
         <extracomment>Name of the Russian (ru) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Russo</translation>
     </message>
     <message id="whisperfish-lang-pt_BR">
         <location filename="../qml/pages/About.qml" line="241"/>
         <source>Portuguese (Brazil)</source>
         <extracomment>Name of the Portuguese (Brazil) (pt_BR) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Português (Brasil)</translation>
     </message>
     <message id="whisperfish-lang-ro">
         <location filename="../qml/pages/About.qml" line="247"/>
         <source>Romanian</source>
         <extracomment>Name of the Romanian (ro) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Romeno</translation>
     </message>
     <message id="whisperfish-lang-tr">
         <location filename="../qml/pages/About.qml" line="252"/>
         <source>Turkish</source>
         <extracomment>Name of the Turkish (tr) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Turco</translation>
     </message>
     <message id="whisperfish-lang-el">
         <location filename="../qml/pages/About.qml" line="257"/>
         <source>Greek</source>
         <extracomment>Name of the Greek (el) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Grego</translation>
     </message>
     <message id="whisperfish-lang-eu">
         <location filename="../qml/pages/About.qml" line="263"/>
         <source>Basque</source>
         <extracomment>Name of the Basque (eu) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Basco</translation>
     </message>
     <message id="whisperfish-lang-es">
         <location filename="../qml/pages/About.qml" line="268"/>
         <source>Spanish</source>
         <extracomment>Name of the Spanish (es) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Espanhol</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="286"/>
@@ -1196,7 +1196,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="74"/>
         <source>Enable typing indicators</source>
         <extracomment>Settings page use typing indicators</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ativar indicadores de escrita</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators-description">
         <location filename="../qml/pages/Settings.qml" line="77"/>
@@ -1291,33 +1291,33 @@ Settings page share contacts</extracomment>
         <source>Show debugging information and controls in the user interface.</source>
         <oldsource>Show debugging information in the user interface.</oldsource>
         <extracomment>Settings page: debug info toggle extended description</extracomment>
-        <translation type="unfinished">Mostra informação para depuração no interface do utilizador.</translation>
+        <translation>Mostra informação e controlos para depuração no interface do utilizador.</translation>
     </message>
     <message id="whisperfish-settings-enable-verbose">
         <location filename="../qml/pages/Settings.qml" line="423"/>
         <source>Verbose logging</source>
         <extracomment>Settings page enable verbose logging</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Registo detalhado</translation>
     </message>
     <message id="whisperfish-settings-enable-verbose-description">
         <location filename="../qml/pages/Settings.qml" line="426"/>
         <source>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish produces verbose output. Useful for running in terminal. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable verbose logging description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Quando ativado, o Whisperfish devolve dados de saída mais detalhados. Opção útil para execução na linha de comandos. É necessário reiniciar a aplicação para fazer efeito.</translation>
     </message>
     <message id="whisperfish-settings-logfile-autostart">
         <location filename="../qml/pages/Settings.qml" line="440"/>
         <source>Enable log file</source>
         <extracomment>Settings page enable logging to a file</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ativar o ficheiro de registo</translation>
     </message>
     <message id="whisperfish-settings-enable-logfile-description">
         <location filename="../qml/pages/Settings.qml" line="443"/>
         <source>When enabled, Whisperfish saves its output to a log file. Requires a restart to take effect.</source>
         <oldsource>When enabled, Whisperfish saves its output to a log file. Requires a reboot to take effect.</oldsource>
         <extracomment>Settings page enable logfile description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Quando ativado, o Whisperfish guarda a saída de dados para um ficheiro de registo. É necessário reiniciar a aplicação para fazer efeito.</translation>
     </message>
     <message id="whisperfish-settings-compress-db">
         <location filename="../qml/pages/Settings.qml" line="459"/>
@@ -1518,7 +1518,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="290"/>
         <source>Unknown</source>
         <extracomment>Profile, sealed sending mode, unknown option</extracomment>
-        <translation type="unfinished">Desconhecido</translation>
+        <translation>Desconhecido</translation>
     </message>
     <message id="whisperfish-unidentified-disabled">
         <location filename="../qml/pages/ProfilePage.qml" line="295"/>
@@ -2009,25 +2009,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="46"/>
         <source>Message Info</source>
         <extracomment>Page title for message info/details page</extracomment>
-        <translation type="unfinished">Informações da mensagem</translation>
+        <translation>Informação sobre a mensagem</translation>
     </message>
     <message id="whisperfish-message-info-details">
         <location filename="../qml/pages/MessageInfoPage.qml" line="83"/>
         <source>Details</source>
         <extracomment>Details section header</extracomment>
-        <translation type="unfinished">Detalhes</translation>
+        <translation>Detalhes</translation>
     </message>
     <message id="whisperfish-message-message-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="88"/>
         <source>Message ID</source>
         <extracomment>Label for id of the message (in database)</extracomment>
-        <translation type="unfinished">Identificação da mensagem</translation>
+        <translation>Identificação da mensagem</translation>
     </message>
     <message id="whisperfish-message-session-id">
         <location filename="../qml/pages/MessageInfoPage.qml" line="94"/>
         <source>Session ID</source>
         <extracomment>Label for session id of the message (in database)</extracomment>
-        <translation type="unfinished">Identificação de sessão</translation>
+        <translation>Identificação de sessão</translation>
     </message>
     <message id="whisperfish-message-timestamp">
         <location filename="../qml/pages/MessageInfoPage.qml" line="100"/>
