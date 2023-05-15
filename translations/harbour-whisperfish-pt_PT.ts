@@ -21,19 +21,19 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="108"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation>%1 está a digitar</translation>
+        <translation>%1 está a escrever</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="112"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation>%1 e %2 estão a digitar</translation>
+        <translation>%1 e %2 estão a escrever</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="116"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation>%1 e %n outros estão a digitar</translation>
+        <translation>%1 e %n outros estão a escrever</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="207"/>
@@ -544,7 +544,7 @@
         <location filename="../qml/pages/MainPage.qml" line="29"/>
         <source>Please check for updates</source>
         <extracomment>Update notification title text</extracomment>
-        <translation>Verifique por favor para atualizações</translation>
+        <translation>Por favor verifica se há atualizações</translation>
     </message>
     <message id="whisperfish-update-reminder-body">
         <location filename="../qml/pages/MainPage.qml" line="33"/>
@@ -562,7 +562,7 @@
         <location filename="../qml/pages/MainPage.qml" line="102"/>
         <source>Return to conversations</source>
         <extracomment>Menu item for returning to &quot;inbox&quot; from archived sessions</extracomment>
-        <translation>Retornar às conversas</translation>
+        <translation>Voltar às conversas</translation>
     </message>
     <message id="whisperfish-new-message-menu">
         <location filename="../qml/pages/MainPage.qml" line="120"/>
@@ -1997,13 +1997,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="50"/>
         <source>Primary device</source>
         <extracomment>register as primary device button label</extracomment>
-        <translation>Aparelho principal</translation>
+        <translation>Dispositivo principal</translation>
     </message>
     <message id="whisperfish-register-secondary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="59"/>
         <source>Secondary device</source>
         <extracomment>link as secondary device button label</extracomment>
-        <translation>Aparelho secundário</translation>
+        <translation>Dispositivo secundário</translation>
     </message>
     <message id="whisperfish-message-info-title">
         <location filename="../qml/pages/MessageInfoPage.qml" line="46"/>
@@ -2033,7 +2033,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="100"/>
         <source>Timestamp</source>
         <extracomment>Label for timestamp of the message</extracomment>
-        <translation>Marca da hora</translation>
+        <translation>Registo de data e hora</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="107"/>
