@@ -430,7 +430,7 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="231"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
-        <translation>Apontamento para mim</translation>
+        <translation>Nota para mim</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="234"/>
