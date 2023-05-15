@@ -1476,43 +1476,43 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="204"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message id="whisperfish-profile-given-name">
         <location filename="../qml/pages/ProfilePage.qml" line="218"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Nome próprio (obrigatório)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
         <location filename="../qml/pages/ProfilePage.qml" line="236"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Apelido (opcional)</translation>
     </message>
     <message id="whisperfish-profile-uuid">
         <location filename="../qml/pages/ProfilePage.qml" line="250"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>UUID</translation>
     </message>
     <message id="whisperfish-profile-phone-number">
         <location filename="../qml/pages/ProfilePage.qml" line="262"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
-        <translation type="unfinished">Número de telefone</translation>
+        <translation>Número de telefone</translation>
     </message>
     <message id="whisperfish-profile-about">
         <location filename="../qml/pages/ProfilePage.qml" line="274"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Escreve algo sobre ti</translation>
     </message>
     <message id="whisperfish-profile-unidentified">
         <location filename="../qml/pages/ProfilePage.qml" line="283"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modo de envio selado</translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
         <location filename="../qml/pages/ProfilePage.qml" line="290"/>
@@ -1524,25 +1524,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="295"/>
         <source>Disabled</source>
         <extracomment>Profile, sealed sending mode, disabled option</extracomment>
-        <translation type="unfinished">Desativado</translation>
+        <translation>Desativado</translation>
     </message>
     <message id="whisperfish-unidentified-enabled">
         <location filename="../qml/pages/ProfilePage.qml" line="300"/>
         <source>Enabled</source>
         <extracomment>Profile, sealed sending mode, enabled option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ativado</translation>
     </message>
     <message id="whisperfish-unidentified-unrestricted">
         <location filename="../qml/pages/ProfilePage.qml" line="305"/>
         <source>Unrestricted</source>
         <extracomment>Profile, sealed sending mode, unrestricted option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sem restrições</translation>
     </message>
     <message id="whisperfish-profile-emoji">
         <location filename="../qml/pages/ProfilePage.qml" line="320"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Umas palavras sobre ti</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
         <location filename="../qml/pages/ProfilePage.qml" line="328"/>
@@ -1554,7 +1554,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="334"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar impressão digital</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
         <location filename="../qml/pages/ProfilePage.qml" line="377"/>
@@ -1566,7 +1566,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="394"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>O teu perfil está encriptado. As modificações ao teu perfil serão visíveis para os teus contactos quando começares ou aceitares uma nova conversa.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="402"/>
