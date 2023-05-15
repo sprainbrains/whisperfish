@@ -1220,13 +1220,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="227"/>
         <source>Prefer device contacts</source>
         <extracomment>Settings page prefer phone contacts</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Preferir contactos do dispositivo</translation>
     </message>
     <message id="whisperfish-settings-notifications-prefer-device-contacts-description">
         <location filename="../qml/pages/Settings.qml" line="230"/>
         <source>Prefer Sailfish OS address book contact names and avatars over Signal Profile data.</source>
         <extracomment>Settings page prefer phone contacts description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Preferir nomes e avatares do livro de endereços do Sailfish OS em vez dos dados de perfil do Signal.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="278"/>
@@ -1238,7 +1238,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="341"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>O Whisperfish não tem permissões para alterar a configuaração de arranque automático. Podes ativar ou desativar o arranque automático na linha de comando executando  &apos;systemctl --user enable harbour-whisperfish.service&apos; ou &apos;systemctl --user disable harbour-whisperfish.service&apos;</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="369"/>
