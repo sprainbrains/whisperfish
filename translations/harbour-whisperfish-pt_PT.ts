@@ -1190,7 +1190,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="46"/>
         <source>Show my profile</source>
         <extracomment>Show own profile menu</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar o meu perfil</translation>
     </message>
     <message id="whisperfish-settings-enable-typing-indicators">
         <location filename="../qml/pages/Settings.qml" line="74"/>
@@ -1202,7 +1202,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="77"/>
         <source>See when others are typing, and let others see when you are typing, if they also have this enabled.</source>
         <extracomment>Settings page scale image attachments description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Visualiza quando outros estão a escrever, e permite que outros vejam quando tu estás a escrever, em caso de eles tenham ativado isto.</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise">
         <location filename="../qml/pages/Settings.qml" line="123"/>
