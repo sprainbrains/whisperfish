@@ -1171,7 +1171,7 @@ Settings page share contacts</extracomment>
         <source>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommended.</source>
         <oldsource>You can enter your password to make Whisperfish unlock the database automatically at startup. Please note that the password is stored in plain text, and as such usage of this feature is not recommened.</oldsource>
         <extracomment>Settings page info about setting auto unlock password</extracomment>
-        <translation>Podes introduzir a tua senha para desbloquear a base de dados do Whisperfish no arranque. Tem em conta que a senha é guardada legível, e, como tal, a utilização é desrecomendada.</translation>
+        <translation>Podes introduzir a tua senha para desbloquear a base de dados do Whisperfish automaticamente no arranque. Tem em conta que a senha é guardada num formato legível e, como tal, a utilização desta funcionalidade não é recomendada.</translation>
     </message>
     <message id="whisperfish-settings-enable-background-mode-description">
         <location filename="../qml/pages/Settings.qml" line="351"/>
