@@ -1238,7 +1238,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="341"/>
         <source>Whisperfish does not have the permission to change the autostart settings. You can enable or disable autostart manually from the command line by running &apos;systemctl --user enable harbour-whisperfish.service&apos; or &apos;systemctl --user disable harbour-whisperfish.service&apos;</source>
         <extracomment>Settings page info how to enable autostart manually</extracomment>
-        <translation>O Whisperfish não tem permissões para alterar a configuaração de arranque automático. Podes ativar ou desativar o arranque automático na linha de comando executando  &apos;systemctl --user enable harbour-whisperfish.service&apos; ou &apos;systemctl --user disable harbour-whisperfish.service&apos;</translation>
+        <translation>O Whisperfish não tem permissões para alterar a configuaração de arranque automático. Podes ativar o arranque automático na linha de comando executando &apos;systemctl --user enable harbour-whisperfish.service&apos; ou desativar com &apos;systemctl --user disable harbour-whisperfish.service&apos;</translation>
     </message>
     <message id="whisperfish-settings-quit-button">
         <location filename="../qml/pages/Settings.qml" line="369"/>
