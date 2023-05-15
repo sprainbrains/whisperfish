@@ -2046,7 +2046,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>A criar uma conversa nova</translation>
     </message>
 </context>
 </TS>
