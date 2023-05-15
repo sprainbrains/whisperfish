@@ -418,19 +418,19 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
         <source>Administrator</source>
         <extracomment>Group member section label for administrator level user</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Administrador</translation>
     </message>
     <message id="whisperfish-group-member-regular">
         <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
         <source>Member</source>
         <extracomment>Group member section label for regular level user</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Membro</translation>
     </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
         <location filename="../qml/pages/GroupProfilePage.qml" line="231"/>
         <source>Open Note to Self</source>
         <extracomment>Menu item to open the conversation with oneself</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Apontamento para mim</translation>
     </message>
     <message id="whisperfish-group-member-menu-direct-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="234"/>
