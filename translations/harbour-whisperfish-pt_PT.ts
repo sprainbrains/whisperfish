@@ -1470,7 +1470,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="191"/>
         <source>The recipient is not currently registered to Signal, so sending and receiving messages is not possible.</source>
         <extracomment>Profile page, user is not registered warning</extracomment>
-        <translation>O destinatário não está registado de momento, ao que não é possível enviar e receber mensagens.</translation>
+        <translation>O destinatário não está registado de momento, pelo que não é possível enviar e receber mensagens.</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
         <location filename="../qml/pages/ProfilePage.qml" line="204"/>
