@@ -442,7 +442,7 @@
         <location filename="../qml/pages/GroupProfilePage.qml" line="245"/>
         <source>Start conversation with %1</source>
         <extracomment>Menu item to start a new private chat with a group member</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar conversa com %1</translation>
     </message>
     <message id="whisperfish-group-member-menu-save-contact">
         <location filename="../qml/pages/GroupProfilePage.qml" line="257"/>
@@ -550,7 +550,7 @@
         <location filename="../qml/pages/MainPage.qml" line="33"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Esta versão do Whisperfish tem mais de 90 dias. Verifica se há uma versão atualizada a fim de manter o Whisperfish a funcionar sobre rodas.</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
         <location filename="../qml/pages/MainPage.qml" line="99"/>
