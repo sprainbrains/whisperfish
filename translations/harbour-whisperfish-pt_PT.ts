@@ -1572,7 +1572,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="402"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Saber mais</translation>
     </message>
     <message id="whisperfish-info-page-default-title">
         <location filename="../qml/components/BlockingInfoPageBase.qml" line="17"/>
@@ -1653,13 +1653,14 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n anexo</numerusform>
             <numerusform>%n anexos</numerusform>
+            <numerusform>%n anexos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
         <location filename="../qml/components/ChatTextInput.qml" line="209"/>
         <source>The recipient is not registered</source>
         <extracomment>Chat text input placeholder for deleted/unregistered recipient</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>O destinatário não está registado</translation>
     </message>
     <message id="whisperfish-chat-input-placeholder-personal">
         <location filename="../qml/components/ChatTextInput.qml" line="214"/>
@@ -1686,6 +1687,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1694,6 +1696,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>e mais %n</numerusform>
             <numerusform>e mais %n</numerusform>
             <numerusform>e mais %n</numerusform>
         </translation>
@@ -1728,7 +1731,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="111"/>
         <source>Unknown sender</source>
         <extracomment>Text shown on quotes when the sender of a quote is unknown</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Remetente desconhecido</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
         <location filename="../qml/components/QuotedMessagePreview.qml" line="130"/>
@@ -1883,9 +1886,10 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="76"/>
         <source>%n member(s)</source>
         <extracomment>The number of members in a group, you included</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n membro</numerusform>
+            <numerusform>%n membros</numerusform>
+            <numerusform>%n membros</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -1896,6 +1900,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensagem selecionada</numerusform>
             <numerusform>%n mensagens selecionadas</numerusform>
+            <numerusform>%n mensagens selecionadas</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -1903,6 +1908,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Cancelar seleção</numerusform>
             <numerusform>Cancelar seleção</numerusform>
             <numerusform>Cancelar seleção</numerusform>
         </translation>
@@ -1914,6 +1920,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copiar %n mensagem</numerusform>
+            <numerusform>Copiar %n mensagens</numerusform>
             <numerusform>Copiar %n mensagens</numerusform>
         </translation>
     </message>
@@ -1932,6 +1939,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem localmente</numerusform>
             <numerusform>Apagar %n mensagens localmente</numerusform>
+            <numerusform>Apagar %n mensagens localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -1943,6 +1951,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem em todos os locais</numerusform>
             <numerusform>Apagar %n mensagens em todos os locais</numerusform>
+            <numerusform>Apagar %n mensagens em todos os locais</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -1951,6 +1960,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Tenta enviar a mensagem falhada outra vez</numerusform>
+            <numerusform>Tenta enviar as mensagens falhadas outra vez</numerusform>
             <numerusform>Tenta enviar as mensagens falhadas outra vez</numerusform>
         </translation>
     </message>
@@ -1965,7 +1975,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/RegistrationCaptcha.qml" line="54"/>
         <source>Signal Captcha</source>
         <extracomment>Registration captcha page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Captcha do Signal</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
         <location filename="../qml/cover/CoverPage.qml" line="53"/>
@@ -1974,13 +1984,14 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Mensagem&lt;br/&gt;não lida</numerusform>
             <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
+            <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="19"/>
         <source>Do you want to register whisperfish as primariy device or link it as secondary device to an existing signal app?</source>
         <extracomment>registration type prompt text</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Queres registar o Whisperfish como dispositivo principal ou associá-lo como dispositivo secundário a uma app Signal existente?</translation>
     </message>
     <message id="whisperfish-register-primary-button-label">
         <location filename="../qml/pages/SetupRegistrationTypePage.qml" line="50"/>
@@ -2022,7 +2033,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/MessageInfoPage.qml" line="100"/>
         <source>Timestamp</source>
         <extracomment>Label for timestamp of the message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Marca da hora</translation>
     </message>
     <message id="whisperfish-message-info-reactions">
         <location filename="../qml/pages/MessageInfoPage.qml" line="107"/>
