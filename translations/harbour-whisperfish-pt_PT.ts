@@ -550,7 +550,7 @@
         <location filename="../qml/pages/MainPage.qml" line="33"/>
         <source>This Whisperfish release is more than 90 days old. Please check for an update in order to keep Whisperfish running smoothly.</source>
         <extracomment>About whisperfish menu item</extracomment>
-        <translation>Esta versão do Whisperfish tem mais de 90 dias. Verifica se há uma versão atualizada a fim de manter o Whisperfish a funcionar sobre rodas.</translation>
+        <translation>Esta versão do Whisperfish tem mais de 90 dias. Verifica se há uma versão atualizada a fim de manter o Whisperfish a funcionar bem.</translation>
     </message>
     <message id="whisperfish-show-archived-menu">
         <location filename="../qml/pages/MainPage.qml" line="99"/>
