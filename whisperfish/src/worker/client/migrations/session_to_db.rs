@@ -397,7 +397,9 @@ impl SessionStorageMigration {
                         "http_password",
                         "http_signaling_key",
                         "identity_key",
+                        "pni_identity_key",
                         "regid",
+                        "pni_regid",
                     ];
                     if !allow_list.contains(&name.as_str()) {
                         log::warn!(
