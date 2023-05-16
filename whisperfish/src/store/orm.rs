@@ -242,35 +242,68 @@ pub struct Recipient {
 
     pub is_registered: bool,
     pub unidentified_access_mode: UnidentifiedAccessMode,
+
+    #[diesel(deserialize_as = OptionUuidString)]
+    pub pni: Option<Uuid>,
+    pub needs_pni_signature: bool,
 }
 
 impl Display for Recipient {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         let profile_joined_name = self.profile_joined_name.as_deref().unwrap_or_default();
-        match (&self.e164, &self.uuid) {
-            (Some(e164), Some(r_uuid)) => write!(
+        match (&self.e164, &self.uuid, &self.pni) {
+            (Some(e164), Some(r_uuid), pni) => write!(
                 f,
-                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\" }}",
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", uuid: \"{}\", pni: {} }}",
                 &self.id,
                 profile_joined_name,
                 shorten(&e164.to_string(), 6),
-                shorten(&r_uuid.to_string(), 9)
+                shorten(&r_uuid.to_string(), 9),
+                if pni.is_some() {
+                    "available"
+                } else {
+                    "unavailable"
+                },
             ),
-            (None, Some(r_uuid)) => write!(
+            (None, Some(r_uuid), pni) => write!(
                 f,
-                "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\" }}",
+                "Recipient {{ id: {}, name: \"{}\", uuid: \"{}\", pni: {} }}",
                 &self.id,
                 profile_joined_name,
-                shorten(&r_uuid.to_string(), 9)
+                shorten(&r_uuid.to_string(), 9),
+                if pni.is_some() {
+                    "available"
+                } else {
+                    "unavailable"
+                },
             ),
-            (Some(e164), None) => write!(
+            // XXX: is this invalid?  PNI without ACI and E164 might actually be valid.
+            (None, None, Some(pni)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", pni: \"{}\", INVALID }}",
+                &self.id,
+                profile_joined_name,
+                shorten(&pni.to_string(), 9),
+            ),
+            // XXX: is this invalid?  PNI without ACI might actually be valid.
+            (Some(e164), None, Some(pni)) => write!(
+                f,
+                "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", pni: \"{}\", INVALID }}",
+                &self.id,
+                profile_joined_name,
+                shorten(&e164.to_string(), 6),
+                shorten(&pni.to_string(), 9),
+            ),
+            // XXX: is this invalid?  Phonenumber without ACI/PNI is unreachable atm,
+            //      but only because of current technical limitations in WF
+            (Some(e164), None, None) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", e164: \"{}\", INVALID }}",
                 &self.id,
                 profile_joined_name,
-                shorten(&e164.to_string(), 6)
+                shorten(&e164.to_string(), 6),
             ),
-            (None, None) => write!(
+            (None, None, None) => write!(
                 f,
                 "Recipient {{ id: {}, name: \"{}\", INVALID }}",
                 &self.id, profile_joined_name
@@ -1105,6 +1138,7 @@ mod tests {
             id: 981,
             e164: Some(phonenumber::parse(None, "+358401010101").unwrap()),
             uuid: Some(Uuid::parse_str("bff93979-a0fa-41f5-8ccf-e319135384d8").unwrap()),
+            pni: None,
             username: Some("nick".into()),
             email: None,
             blocked: false,
@@ -1125,6 +1159,7 @@ mod tests {
             about: Some("About me!".into()),
             about_emoji: Some("🦊".into()),
             is_registered: true,
+            needs_pni_signature: false,
         }
     }
 
@@ -1277,11 +1312,11 @@ mod tests {
     #[test]
     fn display_recipient() {
         let mut r = get_recipient();
-        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" }");
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable }");
         r.e164 = None;
         assert_eq!(
             format!("{}", r),
-            "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-...\" }"
+            "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-...\", pni: unavailable }"
         );
         r.uuid = None;
         r.profile_joined_name = None;
@@ -1400,7 +1435,7 @@ mod tests {
     #[test]
     fn display_session() {
         let mut s = get_dm_session();
-        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }");
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable } } }");
         s.r#type = SessionType::GroupV1(get_group_v1());
         assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
         s.r#type = SessionType::GroupV2(get_group_v2());
@@ -1440,9 +1475,9 @@ mod tests {
             inner: get_dm_session(),
             last_message: Some(get_augmented_message()),
         };
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
         s.last_message = None;
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: None }");
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable } } }, last_message: None }");
     }
 
     #[test]

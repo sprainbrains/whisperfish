@@ -463,14 +463,17 @@ async fn test_save_attachment(ext: &str) {
 
     // Registration ID
     let regid = 12345;
+    let pni_regid = 12345;
 
     let storage = Storage::new(
         Arc::new(SignalConfig::default()),
         &location,
         None,
         regid,
+        pni_regid,
         &password,
         signaling_key,
+        None,
         None,
     )
     .await
@@ -530,14 +533,17 @@ async fn test_create_and_open_storage(
 
     // Registration ID
     let regid = 12345;
+    let pni_regid = 12345;
 
     let storage = Storage::new(
         Arc::new(SignalConfig::default()),
         &location,
         storage_password.as_deref(),
         regid,
+        pni_regid,
         &password,
         signaling_key,
+        None,
         None,
     )
     .await;
@@ -609,14 +615,17 @@ async fn test_recipient_actions() {
 
     // Registration ID
     let regid = 12345;
+    let pni_regid = 12346;
 
     let storage = Storage::new(
         Arc::new(SignalConfig::default()),
         &location,
         None,
         regid,
+        pni_regid,
         &password,
         signaling_key,
+        None,
         None,
     )
     .await;

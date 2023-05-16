@@ -161,6 +161,8 @@ diesel::table! {
         about_emoji -> Nullable<Text>,
         is_registered -> Bool,
         unidentified_access_mode -> Integer,
+        pni -> Nullable<Text>,
+        needs_pni_signature -> Bool,
     }
 }
 

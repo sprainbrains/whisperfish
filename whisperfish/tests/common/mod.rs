@@ -20,8 +20,10 @@ pub fn storage() -> impl Future<Output = InMemoryDb> {
                 &temp,
                 None,
                 12345,
+                12346,
                 "Some Password",
                 [0; 52],
+                None,
                 None,
             )
             .await

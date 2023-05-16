@@ -1,5 +1,6 @@
 use super::*;
 use libsignal_service::prelude::protocol::{self, Context};
+use libsignal_service::provisioning::generate_registration_id;
 use protocol::IdentityKeyPair;
 use protocol::SignalProtocolError;
 use std::path::Path;
@@ -9,15 +10,7 @@ pub struct ProtocolStore;
 pub const DJB_TYPE: u8 = 0x05;
 
 impl ProtocolStore {
-    pub async fn new(
-        store_enc: Option<&encryption::StorageEncryption>,
-        path: &Path,
-        regid: u32,
-        identity_key_pair: IdentityKeyPair,
-    ) -> Result<Self, anyhow::Error> {
-        // Identity
-        let identity_path = path.join("storage").join("identity");
-
+    pub fn serialize_identity_key(identity_key_pair: IdentityKeyPair) -> Vec<u8> {
         // XXX move to quirk
         let mut identity_key = Vec::new();
         let public = identity_key_pair.public_key().serialize();
@@ -29,6 +22,23 @@ impl ProtocolStore {
         assert_eq!(private.len(), 32);
         identity_key.extend(private);
 
+        identity_key
+    }
+
+    pub async fn new(
+        store_enc: Option<&encryption::StorageEncryption>,
+        path: &Path,
+        regid: u32,
+        pni_regid: u32,
+        aci_identity_key_pair: IdentityKeyPair,
+        pni_identity_key_pair: IdentityKeyPair,
+    ) -> Result<Self, anyhow::Error> {
+        // Identity
+        let identity_path = path.join("storage").join("identity");
+
+        let aci_identity_key = Self::serialize_identity_key(aci_identity_key_pair);
+        let pni_identity_key = Self::serialize_identity_key(pni_identity_key_pair);
+
         // Encrypt regid if necessary and write to file
         utils::write_file_async_encrypted(
             identity_path.join("regid"),
@@ -36,11 +46,26 @@ impl ProtocolStore {
             store_enc,
         )
         .await?;
+        // Encrypt pni regid if necessary and write to file
+        utils::write_file_async_encrypted(
+            identity_path.join("pni_regid"),
+            format!("{}", pni_regid).into_bytes(),
+            store_enc,
+        )
+        .await?;
 
         // Encrypt identity key if necessary and write to file
         utils::write_file_async_encrypted(
             identity_path.join("identity_key"),
-            identity_key,
+            aci_identity_key,
+            store_enc,
+        )
+        .await?;
+
+        // Encrypt PNI if necessary and write to file
+        utils::write_file_async_encrypted(
+            identity_path.join("pni_identity_key"),
+            pni_identity_key,
             store_enc,
         )
         .await?;
@@ -86,19 +111,63 @@ impl Storage {
 }
 
 #[async_trait::async_trait(?Send)]
+impl protocol::ProtocolStore for Storage {}
+
+impl Storage {
+    pub async fn get_local_pni_registration_id(
+        &self,
+        _: Context,
+    ) -> Result<u32, SignalProtocolError> {
+        let path = self.path.join("storage").join("identity").join("pni_regid");
+        if !tokio::fs::try_exists(&path).await.expect("fs error") {
+            log::info!("Generating PNI regid");
+            let regid = generate_registration_id(&mut rand::thread_rng());
+
+            // Encrypt regid if necessary and write to file
+            self.write_file(&path, format!("{}", regid).into_bytes())
+                .await
+                .map_err(|e| {
+                    SignalProtocolError::InvalidArgument(format!("Cannot write PNI regid {}", e))
+                })?;
+        }
+
+        log::trace!("Reading PNI regid");
+        let _lock = self.protocol_store.read().await;
+
+        let regid = self.read_file(path).await.map_err(|e| {
+            SignalProtocolError::InvalidArgument(format!("Cannot read PNI regid {}", e))
+        })?;
+        let regid = String::from_utf8(regid).map_err(|e| {
+            SignalProtocolError::InvalidArgument(format!(
+                "Convert PNI regid from bytes to string {}",
+                e
+            ))
+        })?;
+        let regid = regid.parse().map_err(|e| {
+            SignalProtocolError::InvalidArgument(format!(
+                "Convert PNI regid from string to number {}",
+                e
+            ))
+        })?;
+
+        Ok(regid)
+    }
+}
+
+#[async_trait::async_trait(?Send)]
 impl protocol::IdentityKeyStore for Storage {
     async fn get_identity_key_pair(
         &self,
         _: Context,
     ) -> Result<IdentityKeyPair, SignalProtocolError> {
-        let identity_key_pair = self.identity_key_pair.read().await;
+        let identity_key_pair = self.aci_identity_key_pair.read().await;
 
         if let Some(identity_key_pair) = *identity_key_pair {
             Ok(identity_key_pair)
         } else {
             drop(identity_key_pair);
 
-            let mut identity_key_pair = self.identity_key_pair.write().await;
+            let mut identity_key_pair = self.aci_identity_key_pair.write().await;
 
             let _lock = self.protocol_store.read().await;
 
@@ -639,14 +708,17 @@ mod tests {
 
         // Registration ID
         let regid = 12345;
+        let pni_regid = 12345;
 
         let storage = super::Storage::new(
             Arc::new(SignalConfig::default()),
             &location,
             storage_password,
             regid,
+            pni_regid,
             &password,
             signaling_key,
+            None,
             None,
         )
         .await?;

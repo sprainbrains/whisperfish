@@ -61,9 +61,12 @@ pub struct SignalConfig {
     /// mutable at the same time.
     #[serde(with = "phonenumber_serde_e164")]
     tel: std::sync::Mutex<Option<PhoneNumber>>,
-    /// Our uuid. This field is changed in threads and thus has to be Send/Sync but mutable at the
+    /// Our ACI. This field is changed in threads and thus has to be Send/Sync but mutable at the
     /// same time.
     uuid: std::sync::Mutex<Option<Uuid>>,
+    /// Our PNI. This field is changed in threads and thus has to be Send/Sync but mutable at the
+    /// same time.
+    pni: std::sync::Mutex<Option<Uuid>>,
     /// Same goes for the device id
     device_id: std::sync::Mutex<u32>,
     /// Directory for persistent share files
@@ -94,6 +97,7 @@ impl Default for SignalConfig {
         Self {
             tel: std::sync::Mutex::new(None),
             uuid: std::sync::Mutex::new(None),
+            pni: std::sync::Mutex::new(None),
             device_id: std::sync::Mutex::new(libsignal_service::push_service::DEFAULT_DEVICE_ID),
             share_dir: path.to_path_buf(),
             verbose: false,
@@ -213,6 +217,10 @@ impl SignalConfig {
         *self.uuid.lock().unwrap()
     }
 
+    pub fn get_pni(&self) -> Option<Uuid> {
+        *self.pni.lock().unwrap()
+    }
+
     pub fn get_device_id(&self) -> DeviceId {
         DeviceId::from(*self.device_id.lock().unwrap())
     }
@@ -223,6 +231,10 @@ impl SignalConfig {
 
     pub fn set_uuid(&self, uuid: Uuid) {
         *self.uuid.lock().unwrap() = Some(uuid);
+    }
+
+    pub fn set_pni(&self, uuid: Uuid) {
+        *self.pni.lock().unwrap() = Some(uuid);
     }
 
     pub fn set_device_id(&self, id: u32) {
