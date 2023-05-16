@@ -1138,6 +1138,7 @@ mod tests {
             id: 981,
             e164: Some(phonenumber::parse(None, "+358401010101").unwrap()),
             uuid: Some(Uuid::parse_str("bff93979-a0fa-41f5-8ccf-e319135384d8").unwrap()),
+            pni: None,
             username: Some("nick".into()),
             email: None,
             blocked: false,
@@ -1158,6 +1159,7 @@ mod tests {
             about: Some("About me!".into()),
             about_emoji: Some("🦊".into()),
             is_registered: true,
+            needs_pni_signature: false,
         }
     }
 
@@ -1310,11 +1312,11 @@ mod tests {
     #[test]
     fn display_recipient() {
         let mut r = get_recipient();
-        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" }");
+        assert_eq!(format!("{}", r), "Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable }");
         r.e164 = None;
         assert_eq!(
             format!("{}", r),
-            "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-...\" }"
+            "Recipient { id: 981, name: \"Nick Name\", uuid: \"bff93979-...\", pni: unavailable }"
         );
         r.uuid = None;
         r.profile_joined_name = None;
@@ -1433,7 +1435,7 @@ mod tests {
     #[test]
     fn display_session() {
         let mut s = get_dm_session();
-        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }");
+        assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable } } }");
         s.r#type = SessionType::GroupV1(get_group_v1());
         assert_eq!(format!("{}", s), "Session { id: 2, _has_draft: false, type: GroupV1 { group: GroupV1 { id: \"cba\", name: \"G1\" } } }");
         s.r#type = SessionType::GroupV2(get_group_v2());
@@ -1473,9 +1475,9 @@ mod tests {
             inner: get_dm_session(),
             last_message: Some(get_augmented_message()),
         };
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable } } }, last_message: AugmentedMessage { attachments: 2, _receipts: 1, inner: Message { id: 71, session_id: 66, text: \"msg text\" } } }");
         s.last_message = None;
-        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\" } } }, last_message: None }");
+        assert_eq!(format!("{}", s), "AugmentedSession { inner: Session { id: 2, _has_draft: false, type: DirectMessage { recipient: Recipient { id: 981, name: \"Nick Name\", e164: \"+35840...\", uuid: \"bff93979-...\", pni: unavailable } } }, last_message: None }");
     }
 
     #[test]

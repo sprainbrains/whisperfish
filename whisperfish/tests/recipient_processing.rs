@@ -88,6 +88,7 @@ mod merge_and_fetch {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         assert_eq!(recipient.e164.as_ref(), Some(&phonenumber));
@@ -97,6 +98,7 @@ mod merge_and_fetch {
         let recipient_check = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         assert_eq!(recipient.e164.as_ref(), Some(&phonenumber));
@@ -114,6 +116,7 @@ mod merge_and_fetch {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Uncertain,
         );
         assert_eq!(recipient.e164, None);
@@ -132,6 +135,7 @@ mod merge_and_fetch {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         assert_eq!(recipient.e164.as_ref(), Some(&phonenumber));
@@ -152,6 +156,7 @@ mod merge_and_fetch {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Uncertain,
         );
         assert_eq!(recipient.e164, None);
@@ -185,6 +190,7 @@ mod merge_and_fetch {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         assert_eq!(recipient.e164.as_ref(), Some(&phonenumber));
@@ -206,6 +212,7 @@ mod merge_and_fetch {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Uncertain,
         );
         assert_eq!(recipient.e164.as_ref(), None);
@@ -245,6 +252,7 @@ mod merge_and_fetch_conflicting_recipients {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         assert_eq!(recipient.e164.as_ref(), Some(&phonenumber));
@@ -276,6 +284,7 @@ mod merge_and_fetch_conflicting_recipients {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Uncertain,
         );
         assert_eq!(recipient.e164.as_ref(), None);
@@ -300,6 +309,7 @@ mod merge_and_fetch_conflicting_recipients {
         let r1 = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         let r2 = storage.fetch_or_insert_recipient_by_uuid(UUID2);
@@ -318,6 +328,7 @@ mod merge_and_fetch_conflicting_recipients {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid2),
+            None,
             TrustLevel::Certain,
         );
         assert_eq!(recipient.e164.as_ref(), Some(&phonenumber));
@@ -347,6 +358,7 @@ mod merge_and_fetch_conflicting_recipients {
         let r1 = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid1),
+            None,
             TrustLevel::Certain,
         );
         let r2 = storage.fetch_or_insert_recipient_by_uuid(UUID2);
@@ -362,6 +374,7 @@ mod merge_and_fetch_conflicting_recipients {
         let recipient = storage.merge_and_fetch_recipient(
             Some(phonenumber.clone()),
             Some(uuid2),
+            None,
             TrustLevel::Uncertain,
         );
         assert_eq!(recipient.e164.as_ref(), None);

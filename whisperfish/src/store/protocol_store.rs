@@ -708,14 +708,17 @@ mod tests {
 
         // Registration ID
         let regid = 12345;
+        let pni_regid = 12345;
 
         let storage = super::Storage::new(
             Arc::new(SignalConfig::default()),
             &location,
             storage_password,
             regid,
+            pni_regid,
             &password,
             signaling_key,
+            None,
             None,
         )
         .await?;

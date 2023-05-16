@@ -33,14 +33,17 @@ async fn create_old_storage(
 
     // Registration ID
     let regid: u32 = 12345;
+    let pni_regid: u32 = 12345;
 
     current_storage::Storage::new(
         Arc::new(SignalConfig::default()),
         path,
         storage_password,
         regid,
+        pni_regid,
         &password,
         signaling_key,
+        None,
         None,
     )
     .await
