@@ -328,6 +328,7 @@ impl Storage {
     }
 
     /// Writes (*overwrites*) a new Storage object to the provided path.
+    #[allow(clippy::too_many_arguments)]
     pub async fn new<T: AsRef<Path>>(
         config: Arc<SignalConfig>,
         db_path: &StorageLocation<T>,
