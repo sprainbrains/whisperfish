@@ -1,6 +1,5 @@
 #!/bin/sh
 
-. .ci/load-ssh-key
 lupdate qml/ -ts translations/*.ts
 if git diff --exit-code; then
     echo "No translation update needed";
