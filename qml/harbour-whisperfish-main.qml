@@ -154,8 +154,6 @@ ApplicationWindow
         var name = getRecipientName(senderIdentifier, senderName)
         var contactName = isGroup ? sessionName : name
 
-        var avatar = getRecipientAvatar(senderIdentifier, senderUuid)
-
         // Only ConversationPage.qml has `sessionId` property.
         if(Qt.application.state == Qt.ApplicationActive &&
            (pageStack.currentPage == _mainPage || pageStack.currentPage.sessionId == sid)) {
@@ -199,7 +197,7 @@ ApplicationWindow
             console.log("Activating session: " + sid)
             mainWindow.activate()
             showMainPage()
-            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { profilePicture: avatar, sessionId: sid }, PageStackAction.Immediate)
+            pageStack.push(Qt.resolvedUrl("pages/ConversationPage.qml"), { sessionId: sid }, PageStackAction.Immediate)
         })
         // This is needed to call default action
         m.remoteActions = [ {
