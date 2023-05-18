@@ -211,6 +211,7 @@ ListItem {
 
         LinkedEmojiLabel {
             id: lowerLabel
+            enabled: false
             anchors {
                 left: upperLabel.left; right: unreadBackground.left
                 top: upperLabel.bottom; bottom: parent.bottom
@@ -228,8 +229,6 @@ ListItem {
                       message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
-            defaultLinkActions: false
-            onLinkActivated: delegate.clicked(null)
         }
 
         Row {
