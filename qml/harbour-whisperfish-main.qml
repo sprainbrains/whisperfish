@@ -214,7 +214,7 @@ ApplicationWindow
         } ]
         m.publish()
         m.mid = mid
-        if(sid in notificationMap) {
+        if(sid in notificationMap && !SettingsBridge.minimise_notify) {
               notificationMap[sid].push(m)
         } else {
               notificationMap[sid] = [m]
