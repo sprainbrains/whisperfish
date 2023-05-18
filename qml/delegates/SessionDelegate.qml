@@ -160,13 +160,12 @@ ListItem {
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
             // TODO: Rework infomarks to four corners or something like that; we can currently show only one status or emoji
-            showInfoMark: !isRegistered || isPinned || isArchived || hasDraft || isNoteToSelf || isMuted || infoMarkEmoji !== ''
+            showInfoMark: !isRegistered || isPinned || hasDraft || isNoteToSelf || isMuted || infoMarkEmoji !== ''
             infoMarkSource: {
                 if (!isRegistered) 'image://theme/icon-s-warning'
                 else if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (isPinned) 'image://theme/icon-s-high-importance'
-                else if (isArchived) 'image://theme/icon-s-time'
                 else if (isMuted) 'image://theme/icon-s-low-importance'
                 else ''
             }
