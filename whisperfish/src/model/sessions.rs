@@ -148,34 +148,31 @@ impl SessionListModel {
                         let idx = self.row_index(idx as i32);
                         self.data_changed(idx, idx);
                     }
-                    // Session matches by position, replace
-                    (Err(idx), Some((original_idx, _))) if idx == original_idx => {
-                        // Replace session
-                        self.content[idx] = session;
-                        let idx = self.row_index(idx as i32);
-                        self.data_changed(idx, idx);
-                    }
-                    (Err(mut idx), Some((original_idx, _))) => {
-                        // If the session exists, but not at that index, we need to move the
-                        // session.
-                        let zero = QModelIndex::default();
-                        self.begin_move_rows(
-                            zero,
-                            original_idx as i32,
-                            original_idx as i32,
-                            zero,
-                            idx as i32,
-                        );
-                        self.content.remove(original_idx);
-                        if idx > original_idx {
-                            idx -= 1
+                    (Err(mut dest_idx), Some((src_idx, _))) => {
+                        if dest_idx == src_idx {
+                            // Moving "up above itself"
+                            self.content[dest_idx] = session;
+                            let m_idx = self.row_index(dest_idx as i32);
+                            self.data_changed(m_idx, m_idx);
+                        } else if dest_idx == (src_idx + 1) {
+                            // Moving "down below itself"
+                            self.content[src_idx] = session;
+                            let m_idx = self.row_index(src_idx as i32);
+                            self.data_changed(m_idx, m_idx);
+                        } else {
+                            // Moving somewhere else
+                            self.begin_remove_rows(src_idx as i32, src_idx as i32);
+                            self.content.remove(src_idx);
+                            self.end_remove_rows();
+
+                            if dest_idx > src_idx {
+                                dest_idx -= 1;
+                            }
+
+                            self.begin_insert_rows(dest_idx as i32, dest_idx as i32);
+                            self.content.insert(dest_idx, session);
+                            self.end_insert_rows();
                         }
-
-                        self.content.insert(idx, session);
-                        self.end_move_rows();
-
-                        let dest_m_idx = self.row_index(idx as i32);
-                        self.data_changed(dest_m_idx, dest_m_idx);
                     }
                     (Err(idx), None) => {
                         // Insert session at idx
