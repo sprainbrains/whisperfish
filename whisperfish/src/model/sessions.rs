@@ -173,6 +173,9 @@ impl SessionListModel {
 
                         self.content.insert(idx, session);
                         self.end_move_rows();
+
+                        let dest_m_idx = self.row_index(idx as i32);
+                        self.data_changed(dest_m_idx, dest_m_idx);
                     }
                     (Err(idx), None) => {
                         // Insert session at idx
