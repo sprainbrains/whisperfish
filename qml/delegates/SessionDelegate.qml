@@ -74,6 +74,10 @@ ListItem {
         }
     }
 
+    // ...but only when it's manually activated
+    // to prevent scrolled-out-of-view cases. Augh.
+    property bool relocationActive: false
+
     // FIXME after the session model is stable with row-moving instead of reinsertion
     // (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271)
     // the typing variable can be 100% declarative and in the page header.
@@ -126,10 +130,6 @@ ListItem {
     }
 
     Component.onCompleted: sendTypingToHeader()
-
-    // ...but only when it's manually activated
-    // to prevent scrolled-out-of-view cases. Augh.
-    property bool relocationActive: false
 
     function toggleReadState() {
         // TODO implement in model
