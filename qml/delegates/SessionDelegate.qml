@@ -311,6 +311,27 @@ ListItem {
         ContextMenu {
             id: menu
 
+            property bool delayedPinnedAction: false
+            property bool delayedArchivedAction: false
+            property bool delayedMutedAction: false
+
+            // Trigger the actions when the menu has closed
+            // so the UI actions don't overlap with
+            // the menu closing animation, which results
+            // in a _very_ jerky session list movement
+            onClosed: {
+                if (delayedPinnedAction) {
+                    delayedPinnedAction = false
+                    togglePinState()
+                } else if (delayedArchivedAction) {
+                    delayedArchivedAction = false
+                    toggleArchivedState()
+                } else if (delayedMutedAction) {
+                    delayedMutedAction = false
+                    toggleMutedState()
+                }
+            }
+
             /* MenuItem {
                 text: isUnread ?
                           //: Mark conversation as 'read', even though it isn't
@@ -329,8 +350,8 @@ ListItem {
                         //: 'Pin' conversation to the top of the view
                         //% "Pin to top"
                       : qsTrId("whisperfish-session-mark-pinned")
-
-                onClicked: togglePinState()
+                // To prevent jerkiness
+                onClicked: delayedPinnedAction = true
             }
 
             MenuItem {
@@ -341,7 +362,7 @@ ListItem {
                           //: Mark conversation as muted
                           //% "Mute conversation"
                           qsTrId("whisperfish-session-mark-muted")
-                onClicked: toggleMutedState()
+                onClicked: delayedPinnedAction = true
             }
 
             MenuItem {
@@ -352,7 +373,7 @@ ListItem {
                           //: Move the conversation to archived conversations
                           //% "Archive conversation"
                           qsTrId("whisperfish-session-mark-archived")
-                onClicked: toggleArchivedState()
+                onClicked: delayedArchivedAction = true
             }
 
             MenuItem {
