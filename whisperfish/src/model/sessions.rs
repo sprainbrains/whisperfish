@@ -122,11 +122,13 @@ impl SessionListModel {
             if let Some(session) = storage.fetch_session_by_id_augmented(session_id) {
                 let new_idx = self.content.binary_search_by_key(
                     &std::cmp::Reverse((
+                        session.is_pinned,
                         session.last_message.as_ref().map(|m| &m.server_timestamp),
                         session.id,
                     )),
                     |session| {
                         std::cmp::Reverse((
+                            session.is_pinned,
                             session.last_message.as_ref().map(|m| &m.server_timestamp),
                             session.id,
                         ))
