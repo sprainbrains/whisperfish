@@ -221,145 +221,145 @@
         <location filename="../qml/pages/About.qml" line="111"/>
         <source>Translators</source>
         <extracomment>Translators heading in About page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Översättarna</translation>
     </message>
     <message id="whisperfish-lang-nb_NO">
         <location filename="../qml/pages/About.qml" line="123"/>
         <source>Norwegian Bokmål</source>
         <extracomment>Name of the Norwegian Bokmål (nb_NO) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Norskt Bokmål</translation>
     </message>
     <message id="whisperfish-lang-nl_BE">
         <location filename="../qml/pages/About.qml" line="128"/>
         <source>Dutch (Belgium)</source>
         <extracomment>Name of the Dutch (Belgium) (nl_BE) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Holländska (Belgien)</translation>
     </message>
     <message id="whisperfish-lang-lt">
         <location filename="../qml/pages/About.qml" line="136"/>
         <source>Lithuanian</source>
         <extracomment>Name of the Lithuanian (lt) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Litauiska</translation>
     </message>
     <message id="whisperfish-lang-nl">
         <location filename="../qml/pages/About.qml" line="141"/>
         <source>Dutch</source>
         <extracomment>Name of the Dutch (nl) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Holländska</translation>
     </message>
     <message id="whisperfish-lang-it">
         <location filename="../qml/pages/About.qml" line="149"/>
         <source>Italian</source>
         <extracomment>Name of the Italian (it) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Italienska</translation>
     </message>
     <message id="whisperfish-lang-de">
         <location filename="../qml/pages/About.qml" line="154"/>
         <source>German</source>
         <extracomment>Name of the German (de) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tyska</translation>
     </message>
     <message id="whisperfish-lang-fr">
         <location filename="../qml/pages/About.qml" line="165"/>
         <source>French</source>
         <extracomment>Name of the French (fr) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Franska</translation>
     </message>
     <message id="whisperfish-lang-fi">
         <location filename="../qml/pages/About.qml" line="174"/>
         <source>Finnish</source>
         <extracomment>Name of the Finnish (fi) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Finska</translation>
     </message>
     <message id="whisperfish-lang-sl">
         <location filename="../qml/pages/About.qml" line="183"/>
         <source>Slovenian</source>
         <extracomment>Name of the Slovenian (sl) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Slovenska</translation>
     </message>
     <message id="whisperfish-lang-sv">
         <location filename="../qml/pages/About.qml" line="188"/>
         <source>Swedish</source>
         <extracomment>Name of the Swedish (sv) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Svenska</translation>
     </message>
     <message id="whisperfish-lang-pl">
         <location filename="../qml/pages/About.qml" line="195"/>
         <source>Polish</source>
         <extracomment>Name of the Polish (pl) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Polska</translation>
     </message>
     <message id="whisperfish-lang-zh_CN">
         <location filename="../qml/pages/About.qml" line="203"/>
         <source>Chinese (Simplified)</source>
         <extracomment>Name of the Chinese (Simplified) (zh_CN) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kinesiska (förenklad)</translation>
     </message>
     <message id="whisperfish-lang-hu">
         <location filename="../qml/pages/About.qml" line="211"/>
         <source>Hungarian</source>
         <extracomment>Name of the Hungarian (hu) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ungerska</translation>
     </message>
     <message id="whisperfish-lang-pt_PT">
         <location filename="../qml/pages/About.qml" line="218"/>
         <source>Portuguese (Brazil)</source>
         <extracomment>Name of the Portuguese (Brazil) (pt_PT) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Portugisiska (Brasilien)</translation>
     </message>
     <message id="whisperfish-lang-cs">
         <location filename="../qml/pages/About.qml" line="226"/>
         <source>Czech</source>
         <extracomment>Name of the Czech (cs) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tjeckiska</translation>
     </message>
     <message id="whisperfish-lang-ca">
         <location filename="../qml/pages/About.qml" line="231"/>
         <source>Catalan</source>
         <extracomment>Name of the Catalan (ca) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Katalanska</translation>
     </message>
     <message id="whisperfish-lang-ru">
         <location filename="../qml/pages/About.qml" line="236"/>
         <source>Russian</source>
         <extracomment>Name of the Russian (ru) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ryska</translation>
     </message>
     <message id="whisperfish-lang-pt_BR">
         <location filename="../qml/pages/About.qml" line="241"/>
         <source>Portuguese (Brazil)</source>
         <extracomment>Name of the Portuguese (Brazil) (pt_BR) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Portugisiska (Brasilien)</translation>
     </message>
     <message id="whisperfish-lang-ro">
         <location filename="../qml/pages/About.qml" line="247"/>
         <source>Romanian</source>
         <extracomment>Name of the Romanian (ro) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rumänska</translation>
     </message>
     <message id="whisperfish-lang-tr">
         <location filename="../qml/pages/About.qml" line="252"/>
         <source>Turkish</source>
         <extracomment>Name of the Turkish (tr) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Turkiska</translation>
     </message>
     <message id="whisperfish-lang-el">
         <location filename="../qml/pages/About.qml" line="257"/>
         <source>Greek</source>
         <extracomment>Name of the Greek (el) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Grekiska</translation>
     </message>
     <message id="whisperfish-lang-eu">
         <location filename="../qml/pages/About.qml" line="263"/>
         <source>Basque</source>
         <extracomment>Name of the Basque (eu) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Baskiska</translation>
     </message>
     <message id="whisperfish-lang-es">
         <location filename="../qml/pages/About.qml" line="268"/>
         <source>Spanish</source>
         <extracomment>Name of the Spanish (es) language, about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Spanska</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="286"/>
