@@ -41,7 +41,10 @@ Page {
         delegate: ListItem {
             id: conversation
             property bool isGroup: model.isGroup
-            property string profilePicture: ''
+            property string profilePicture: model !== undefined ? (isGroup
+                ? getGroupAvatar(model.groupId)
+                : getRecipientAvatar(model.recipientE164, model.recipientUuid)
+            ) : ''
             property string name: model.isGroup ? model.groupName : getRecipientName(model.recipientE164, model.recipientName, false)
             property bool isNoteToSelf: false
             property bool selected: (sessionList.recipients.indexOf(model.id) > -1)
