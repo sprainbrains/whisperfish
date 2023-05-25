@@ -410,6 +410,10 @@ translations:update:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  variables:
+    # Clone with full depth for translation contribution analysis
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0
   script:
     - . .ci/load-ssh-key
     - .ci/update-translation-contributors.sh
