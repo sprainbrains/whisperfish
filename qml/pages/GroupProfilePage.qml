@@ -235,7 +235,7 @@ Page {
                                       isUnknownContact ? (model.e164 ? model.e164 : model.uuid) : name)
                         onClicked: {
                             var main = pageStack.find(function(page) { return page.objectName == "mainPage"; });
-                            pageStack.replaceAbove(main, Qt.resolvedUrl("../pages/ConversationPage.qml"), { sessionId: recipient.directMessageSessionId, profilePicture: profilePicture });
+                            pageStack.replaceAbove(main, Qt.resolvedUrl("../pages/ConversationPage.qml"), { sessionId: recipient.directMessageSessionId });
                         }
                         visible: recipient.directMessageSessionId != -1
                     }

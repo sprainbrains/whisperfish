@@ -10,7 +10,6 @@ Page {
 
     property string profilePicture: ""
     property string recipientUuid: ""
-    property int recipientId: -1
 
     property bool isOwnProfile: SetupWorker.uuid === recipient.uuid
     property bool editingProfile: false
@@ -87,7 +86,7 @@ Page {
                     remorse.execute(qsTrId("whisperfish-reset-identity-message"),
                         function() {
                             console.log("Resetting identity key: " + recipient.e164)
-                            SessionModel.removeIdentities(recipientId)
+                            SessionModel.removeIdentities(recipient.recipientId)
                         })
                 }
             }
@@ -102,7 +101,7 @@ Page {
                     remorse.execute(qsTrId("whisperfish-reset-session-message"),
                         function() {
                             console.log("Resetting secure session with " + recipient.e164)
-                            MessageModel.endSession(recipientId)
+                            MessageModel.endSession(recipient.recipientId)
                         })
                 }
             }
@@ -112,7 +111,7 @@ Page {
                 text: qsTrId("whisperfish-refresh-profile-menu")
                 visible: SettingsBridge.debug_mode
                 onClicked: {
-                    ClientWorker.refresh_profile(recipientId)
+                    ClientWorker.refresh_profile(recipient.recipientId)
                 }
             }
             MenuItem {

@@ -13,7 +13,7 @@ Page {
     property bool editorFocus: false
 
     property string conversationName: session.isGroup ? session.groupName : getRecipientName(session.recipientE164, session.recipientName, true)
-    property string profilePicture: ""
+    property string profilePicture: session.isGroup ? getGroupAvatar(session.groupId) : getRecipientAvatar(session.recipientE164, session.recipientUuid)
     property alias sessionId: session.sessionId
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
