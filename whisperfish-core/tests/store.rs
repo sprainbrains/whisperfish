@@ -8,10 +8,10 @@ use phonenumber::PhoneNumber;
 use rstest::rstest;
 use std::future::Future;
 use std::sync::Arc;
-use whisperfish::config::SignalConfig;
-use whisperfish::store;
-use whisperfish::store::orm::UnidentifiedAccessMode;
-use whisperfish::store::{GroupV1, NewMessage, Storage};
+use whisperfish_core::config::SignalConfig;
+use whisperfish_core::store;
+use whisperfish_core::store::orm::UnidentifiedAccessMode;
+use whisperfish_core::store::{GroupV1, NewMessage, Storage};
 
 #[rstest]
 #[actix_rt::test]

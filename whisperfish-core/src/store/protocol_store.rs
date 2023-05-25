@@ -771,7 +771,7 @@ mod tests {
     /// XXX Right now, this functions seems a bit unnecessary, but we will change the creation of a
     /// storage and it might be necessary to check the own identity_key_pair in the protocol store.
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn own_identity_key_pair(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -797,7 +797,7 @@ mod tests {
     /// XXX Right now, this functions seems a bit unnecessary, but we will change the creation of a
     /// storage and it might be necessary to check the regid in the protocol store.
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn own_regid(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -815,7 +815,7 @@ mod tests {
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn save_retrieve_identity_key(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -862,7 +862,7 @@ mod tests {
 
     // Direction does not matter yet
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn is_trusted_identity(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -895,7 +895,7 @@ mod tests {
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn save_retrieve_prekey(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -972,7 +972,7 @@ mod tests {
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn save_retrieve_signed_prekey(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -1034,7 +1034,7 @@ mod tests {
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn save_retrieve_session(password: Option<&str>) {
         env_logger::try_init().ok();
 
@@ -1133,7 +1133,7 @@ mod tests {
     }
 
     #[rstest(password, case(Some("some password")), case(None))]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn get_next_pre_key_ids(password: Option<&str>) {
         env_logger::try_init().ok();
 

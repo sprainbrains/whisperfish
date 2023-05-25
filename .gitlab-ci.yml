@@ -283,8 +283,8 @@ test:stable:diesel-schema:
     - export DATABASE_URL=test_whisperfish.db
     - diesel setup
     - diesel migration run
-    - diesel print-schema > whisperfish/src/schema.rs
-    - cargo fmt -- --check whisperfish/src/schema.rs
+    - diesel print-schema > whisperfish-core/src/schema.rs
+    - cargo fmt -- --check whisperfish-core/src/schema.rs
   # Diesel does not need to access build artifacts of other stages.
   cache: {}
   rules:

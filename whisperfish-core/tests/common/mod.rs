@@ -1,9 +1,9 @@
 use rstest::fixture;
 use std::future::Future;
 use std::sync::Arc;
-use whisperfish::config::SignalConfig;
-use whisperfish::store::temp;
-use whisperfish::store::{Storage, StorageLocation};
+use whisperfish_core::config::SignalConfig;
+use whisperfish_core::store::temp;
+use whisperfish_core::store::{Storage, StorageLocation};
 
 pub type InMemoryDb = (Storage, StorageLocation<tempfile::TempDir>);
 

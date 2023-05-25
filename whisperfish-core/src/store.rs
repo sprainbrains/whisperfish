@@ -222,11 +222,11 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 
 #[derive(Clone)]
 pub struct Storage {
-    pub db: Arc<AssertUnwindSafe<Mutex<SqliteConnection>>>,
+    db: Arc<AssertUnwindSafe<Mutex<SqliteConnection>>>,
     observatory: Arc<tokio::sync::RwLock<observer::Observatory>>,
     config: Arc<SignalConfig>,
     store_enc: Option<encryption::StorageEncryption>,
-    pub(crate) protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
+    protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
     credential_cache: Arc<tokio::sync::RwLock<InMemoryCredentialsCache>>,
     path: PathBuf,
     aci_identity_key_pair: Arc<tokio::sync::RwLock<Option<IdentityKeyPair>>>,
@@ -284,7 +284,7 @@ impl Storage {
         &self.path
     }
 
-    pub(crate) fn db(&self) -> MutexGuard<'_, SqliteConnection> {
+    pub fn db(&self) -> MutexGuard<'_, SqliteConnection> {
         self.db.lock().expect("storage is alive")
     }
 

@@ -173,7 +173,7 @@ mod tests {
     use super::*;
 
     /// Check basic encryption and decryption of data.
-    #[actix_rt::test]
+    #[tokio::test]
     async fn crypto_encrypt_decrypt() {
         let crypto = StorageEncryption::new(String::from("my secret key"), [0u8; 8], [0u8; 8])
             .await
@@ -198,7 +198,7 @@ mod tests {
         assert_eq!(cleartext, ciphertext.as_slice());
     }
 
-    #[actix_rt::test]
+    #[tokio::test]
     async fn crypto_invalid_key() {
         let crypto = StorageEncryption::new(String::from("my secret key"), [0u8; 8], [0u8; 8])
             .await
@@ -223,7 +223,7 @@ mod tests {
     /// In this function we test whether padding of input vector is correct even if length of the
     /// input vector is the same size as aes block size. According to the RFC a whole block is
     /// added if message length is a multiple of aes block size.
-    #[actix_rt::test]
+    #[tokio::test]
     async fn check_padding_length() {
         let crypto = StorageEncryption::new(String::from("my secret key"), [0u8; 8], [0u8; 8])
             .await
@@ -255,7 +255,7 @@ mod tests {
 
     /// Encrypt with the previous implementation and decrypt with the current implementation ->
     /// Test the backwards compatibility of the current implementation.
-    #[actix_rt::test]
+    #[tokio::test]
     async fn previous_implementation_encrypt_current_implementation_decrypt() {
         // Our common key and our common salt for the key and cleartext
         let my_key = String::from("my secret key");
@@ -311,7 +311,7 @@ mod tests {
         assert_eq!(my_cleartext, my_ciphertext.as_slice());
     }
 
-    #[actix_rt::test]
+    #[tokio::test]
     async fn decrypt_too_short() {
         let crypto = StorageEncryption::new("lol".into(), [0u8; 8], [0u8; 8])
             .await
@@ -325,7 +325,7 @@ mod tests {
             .contains("Attempt at decrypting a message with length 47 smaller"));
     }
 
-    #[actix_rt::test]
+    #[tokio::test]
     async fn storage_encryption_clone() {
         let crypto = StorageEncryption::new("lol".into(), [3u8; 8], [7u8; 8])
             .await

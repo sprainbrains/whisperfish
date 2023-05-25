@@ -3212,7 +3212,19 @@ dependencies = [
  "pin-project-lite",
  "signal-hook-registry",
  "socket2",
+ "tokio-macros",
  "windows-sys 0.45.0",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d266c00fde287f55d3f1c3e96c500c362a2b8c695076ec180f27918820bc6df8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -3546,9 +3558,7 @@ dependencies = [
  "actix-rt",
  "aes",
  "anyhow",
- "async-trait",
  "base64",
- "bincode",
  "block-modes",
  "cc",
  "chrono",
@@ -3560,7 +3570,6 @@ dependencies = [
  "diesel_migrations",
  "dirs",
  "env_logger",
- "fs_extra",
  "futures",
  "getrandom 0.2.9",
  "hex",
@@ -3577,12 +3586,9 @@ dependencies = [
  "mime_classifier",
  "mime_guess",
  "once_cell",
- "parking_lot",
  "pbkdf2 0.9.0",
  "phonenumber",
  "proc-macro2",
- "prost 0.10.4",
- "prost-build 0.10.4",
  "qmeta-async",
  "qmetaobject",
  "qrcode",
@@ -3590,7 +3596,6 @@ dependencies = [
  "quote",
  "rand 0.7.3",
  "regex",
- "rpassword",
  "rstest",
  "rstest_reuse",
  "rustls",
@@ -3604,6 +3609,53 @@ dependencies = [
  "tempfile",
  "thiserror",
  "time 0.3.5",
+ "tokio",
+ "uuid",
+ "whisperfish-core",
+ "zkgroup",
+]
+
+[[package]]
+name = "whisperfish-core"
+version = "0.6.0-dev"
+dependencies = [
+ "actix",
+ "actix-rt",
+ "aes",
+ "anyhow",
+ "async-trait",
+ "bincode",
+ "block-modes",
+ "chrono",
+ "criterion",
+ "diesel",
+ "diesel_migrations",
+ "dirs",
+ "env_logger",
+ "fs_extra",
+ "futures",
+ "hex",
+ "hmac 0.11.0",
+ "itertools 0.10.5",
+ "libsignal-protocol",
+ "libsignal-service",
+ "libsqlite3-sys",
+ "log",
+ "pbkdf2 0.9.0",
+ "phonenumber",
+ "prost 0.10.4",
+ "prost-build 0.10.4",
+ "rand 0.7.3",
+ "regex",
+ "rstest",
+ "rstest_reuse",
+ "scrypt",
+ "secrecy",
+ "serde",
+ "serde_yaml",
+ "sha-1 0.9.8",
+ "sha2 0.9.9",
+ "tempfile",
  "tokio",
  "uuid",
  "zkgroup",
