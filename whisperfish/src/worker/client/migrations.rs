@@ -1,7 +1,3 @@
-/// Migration to get rid of file based session and identity data.
-// XXX maybe the session-to-db migration should move into the store module.
-pub mod session_to_db;
-
 /// Migrations related to groupv2
 mod groupv2;
 /// Migration to remove R@ reactions and dump them in the correct table.
@@ -13,9 +9,9 @@ mod whoami;
 
 use self::groupv2::*;
 use self::parse_reactions::*;
-use self::session_to_db::*;
 use self::whoami::*;
 use super::*;
+use crate::store::migrations::session_to_db::SessionStorageMigration;
 use actix::prelude::*;
 use std::sync::Arc;
 use tokio::sync::{Notify, RwLock};
