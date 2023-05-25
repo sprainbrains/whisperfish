@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use whisperfish::store::Storage;
+    use whisperfish_store::store::Storage;
 
     #[test]
     #[rustfmt::skip]

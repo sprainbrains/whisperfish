@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use libsignal_service::proto::AttachmentPointer;
-use whisperfish::config::SignalConfig;
-use whisperfish::store::{temp, NewMessage};
-use whisperfish::store::{Storage, StorageLocation};
+use whisperfish_store::config::SignalConfig;
+use whisperfish_store::store::{temp, NewMessage};
+use whisperfish_store::store::{Storage, StorageLocation};
 
 pub type InMemoryDb = (Storage, StorageLocation<tempfile::TempDir>);
 
