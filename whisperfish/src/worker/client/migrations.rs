@@ -122,3 +122,24 @@ impl ClientActor {
         ctx.notify(ParseOldReaction);
     }
 }
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct MoveSessionsToDatabase;
+
+impl Handler<MoveSessionsToDatabase> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+    fn handle(&mut self, _: MoveSessionsToDatabase, _ctx: &mut Self::Context) -> Self::Result {
+        let storage = self.storage.clone().expect("initialized storage");
+
+        let proc = async move {
+            let migration = SessionStorageMigration(storage.clone());
+            migration.execute().await;
+        };
+
+        Box::pin(
+            proc.into_actor(self)
+                .map(|_, act, _| act.migration_state.notify_protocol_store_in_db()),
+        )
+    }
+}
