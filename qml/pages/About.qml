@@ -262,7 +262,8 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 text: {
-                    "J. Lavoie"
+                    "J. Lavoie" + "\n" +
+                    "Andrea Scarpino"
                 }
             }
 
