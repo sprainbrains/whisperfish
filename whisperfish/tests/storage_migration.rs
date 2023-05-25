@@ -269,7 +269,7 @@ async fn test_2022_06_migration(
     #[case] storage_password: Option<String>,
 ) {
     use std::str::FromStr;
-    use whisperfish::worker::client::migrations::session_to_db::SessionStorageMigration;
+    use whisperfish::store::migrations::session_to_db::SessionStorageMigration;
 
     env_logger::try_init().ok();
 

@@ -1,6 +1,7 @@
 pub mod orm;
 
 mod encryption;
+pub mod migrations;
 pub mod observer;
 mod protocol_store;
 mod utils;

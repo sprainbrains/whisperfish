@@ -1,15 +1,13 @@
 mod quirk;
 
-use super::*;
 use crate::store::orm::{Prekey, SessionRecord, SignedPrekey};
-use actix::prelude::*;
+use crate::store::Storage;
+use libsignal_protocol::{IdentityKey, PreKeyId, SignedPreKeyId};
 use libsignal_service::prelude::protocol;
 use libsignal_service::prelude::protocol::ProtocolAddress;
+use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use protocol::SignalProtocolError;
-
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct MoveSessionsToDatabase;
+use std::path::{Path, PathBuf};
 
 pub struct SessionStorageMigration(pub Storage);
 impl std::ops::Deref for SessionStorageMigration {
@@ -22,23 +20,6 @@ impl std::ops::Deref for SessionStorageMigration {
 impl std::ops::DerefMut for SessionStorageMigration {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
-    }
-}
-
-impl Handler<MoveSessionsToDatabase> for ClientActor {
-    type Result = ResponseActFuture<Self, ()>;
-    fn handle(&mut self, _: MoveSessionsToDatabase, _ctx: &mut Self::Context) -> Self::Result {
-        let storage = self.storage.clone().expect("initialized storage");
-
-        let proc = async move {
-            let migration = SessionStorageMigration(storage.clone());
-            migration.execute().await;
-        };
-
-        Box::pin(
-            proc.into_actor(self)
-                .map(|_, act, _| act.migration_state.notify_protocol_store_in_db()),
-        )
     }
 }
 

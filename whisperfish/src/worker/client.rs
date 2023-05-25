@@ -49,9 +49,7 @@ use libsignal_service::prelude::*;
 use libsignal_service::proto::typing_message::Action;
 use libsignal_service::proto::{receipt_message, ReceiptMessage};
 use libsignal_service::provisioning::ProvisioningManager;
-use libsignal_service::push_service::{
-    AccountAttributes, DeviceCapabilities, DeviceId, DEFAULT_DEVICE_ID,
-};
+use libsignal_service::push_service::{AccountAttributes, DeviceCapabilities, DeviceId};
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::websocket::SignalWebSocket;
 use libsignal_service::AccountManager;
