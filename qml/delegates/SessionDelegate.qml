@@ -74,6 +74,10 @@ ListItem {
         }
     }
 
+    // ...but only when it's manually activated
+    // to prevent scrolled-out-of-view cases. Augh.
+    property bool relocationActive: false
+
     // FIXME after the session model is stable with row-moving instead of reinsertion
     // (https://gitlab.com/whisperfish/whisperfish/-/merge_requests/271)
     // the typing variable can be 100% declarative and in the page header.
@@ -127,10 +131,6 @@ ListItem {
 
     Component.onCompleted: sendTypingToHeader()
 
-    // ...but only when it's manually activated
-    // to prevent scrolled-out-of-view cases. Augh.
-    property bool relocationActive: false
-
     function toggleReadState() {
         // TODO implement in model
         console.warn("setting read/unread is not implemented yet")
@@ -160,13 +160,12 @@ ListItem {
             isNoteToSelf: delegate.isNoteToSelf
             isGroup: delegate.isGroup
             // TODO: Rework infomarks to four corners or something like that; we can currently show only one status or emoji
-            showInfoMark: !isRegistered || isPinned || isArchived || hasDraft || isNoteToSelf || isMuted || infoMarkEmoji !== ''
+            showInfoMark: !isRegistered || isPinned || hasDraft || isNoteToSelf || isMuted || infoMarkEmoji !== ''
             infoMarkSource: {
                 if (!isRegistered) 'image://theme/icon-s-warning'
                 else if (hasDraft) 'image://theme/icon-s-edit'
                 else if (isNoteToSelf) 'image://theme/icon-s-retweet' // task|secure|retweet
                 else if (isPinned) 'image://theme/icon-s-high-importance'
-                else if (isArchived) 'image://theme/icon-s-time'
                 else if (isMuted) 'image://theme/icon-s-low-importance'
                 else ''
             }
@@ -211,6 +210,7 @@ ListItem {
 
         LinkedEmojiLabel {
             id: lowerLabel
+            enabled: false
             anchors {
                 left: upperLabel.left; right: unreadBackground.left
                 top: upperLabel.bottom; bottom: parent.bottom
@@ -228,8 +228,6 @@ ListItem {
                       message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
-            defaultLinkActions: false
-            onLinkActivated: delegate.clicked(null)
         }
 
         Row {
@@ -311,6 +309,27 @@ ListItem {
         ContextMenu {
             id: menu
 
+            property bool delayedPinnedAction: false
+            property bool delayedArchivedAction: false
+            property bool delayedMutedAction: false
+
+            // Trigger the actions when the menu has closed
+            // so the UI actions don't overlap with
+            // the menu closing animation, which results
+            // in a _very_ jerky session list movement
+            onClosed: {
+                if (delayedPinnedAction) {
+                    delayedPinnedAction = false
+                    togglePinState()
+                } else if (delayedArchivedAction) {
+                    delayedArchivedAction = false
+                    toggleArchivedState()
+                } else if (delayedMutedAction) {
+                    delayedMutedAction = false
+                    toggleMutedState()
+                }
+            }
+
             /* MenuItem {
                 text: isUnread ?
                           //: Mark conversation as 'read', even though it isn't
@@ -329,8 +348,8 @@ ListItem {
                         //: 'Pin' conversation to the top of the view
                         //% "Pin to top"
                       : qsTrId("whisperfish-session-mark-pinned")
-
-                onClicked: togglePinState()
+                // To prevent jerkiness
+                onClicked: delayedPinnedAction = true
             }
 
             MenuItem {
@@ -341,7 +360,7 @@ ListItem {
                           //: Mark conversation as muted
                           //% "Mute conversation"
                           qsTrId("whisperfish-session-mark-muted")
-                onClicked: toggleMutedState()
+                onClicked: delayedPinnedAction = true
             }
 
             MenuItem {
@@ -352,7 +371,7 @@ ListItem {
                           //: Move the conversation to archived conversations
                           //% "Archive conversation"
                           qsTrId("whisperfish-session-mark-archived")
-                onClicked: toggleArchivedState()
+                onClicked: delayedArchivedAction = true
             }
 
             MenuItem {
