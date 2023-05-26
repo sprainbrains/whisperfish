@@ -177,139 +177,139 @@
         <location filename="../qml/pages/About.qml" line="184"/>
         <source>Norwegian Bokmål translators</source>
         <extracomment>Norwegian Bokmål (nb_NO) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Norueguês Bokmål</translation>
     </message>
     <message id="whisperfish-translators-nl_BE">
         <location filename="../qml/pages/About.qml" line="200"/>
         <source>Dutch (Belgium) translators</source>
         <extracomment>Dutch (Belgium) (nl_BE) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Holandês (Bélgica)</translation>
     </message>
     <message id="whisperfish-translators-lt">
         <location filename="../qml/pages/About.qml" line="220"/>
         <source>Lithuanian translators</source>
         <extracomment>Lithuanian (lt) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Lituano</translation>
     </message>
     <message id="whisperfish-translators-nl">
         <location filename="../qml/pages/About.qml" line="236"/>
         <source>Dutch translators</source>
         <extracomment>Dutch (nl) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Holandês</translation>
     </message>
     <message id="whisperfish-translators-it">
         <location filename="../qml/pages/About.qml" line="256"/>
         <source>Italian translators</source>
         <extracomment>Italian (it) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Italiano</translation>
     </message>
     <message id="whisperfish-translators-de">
         <location filename="../qml/pages/About.qml" line="273"/>
         <source>German translators</source>
         <extracomment>German (de) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Alemão</translation>
     </message>
     <message id="whisperfish-translators-fr">
         <location filename="../qml/pages/About.qml" line="295"/>
         <source>French translators</source>
         <extracomment>French (fr) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Francês</translation>
     </message>
     <message id="whisperfish-translators-fi">
         <location filename="../qml/pages/About.qml" line="315"/>
         <source>Finnish translators</source>
         <extracomment>Finnish (fi) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Filandês</translation>
     </message>
     <message id="whisperfish-translators-sl">
         <location filename="../qml/pages/About.qml" line="336"/>
         <source>Slovenian translators</source>
         <extracomment>Slovenian (sl) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Esloveno</translation>
     </message>
     <message id="whisperfish-translators-sv">
         <location filename="../qml/pages/About.qml" line="352"/>
         <source>Swedish translators</source>
         <extracomment>Swedish (sv) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Sueco</translation>
     </message>
     <message id="whisperfish-translators-pl">
         <location filename="../qml/pages/About.qml" line="371"/>
         <source>Polish translators</source>
         <extracomment>Polish (pl) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Polaco</translation>
     </message>
     <message id="whisperfish-translators-zh_CN">
         <location filename="../qml/pages/About.qml" line="390"/>
         <source>Chinese (Simplified) translators</source>
         <extracomment>Chinese (Simplified) (zh_CN) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Chinês (Simplificado)</translation>
     </message>
     <message id="whisperfish-translators-hu">
         <location filename="../qml/pages/About.qml" line="409"/>
         <source>Hungarian translators</source>
         <extracomment>Hungarian (hu) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Húngaro</translation>
     </message>
     <message id="whisperfish-translators-pt_PT">
         <location filename="../qml/pages/About.qml" line="427"/>
         <source>Portuguese (Portugal) translators</source>
         <extracomment>Portuguese (Portugal) (pt_PT) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Português (Portugal)</translation>
     </message>
     <message id="whisperfish-translators-cs">
         <location filename="../qml/pages/About.qml" line="446"/>
         <source>Czech translators</source>
         <extracomment>Czech (cs) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Checo</translation>
     </message>
     <message id="whisperfish-translators-ca">
         <location filename="../qml/pages/About.qml" line="462"/>
         <source>Catalan translators</source>
         <extracomment>Catalan (ca) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Catalão</translation>
     </message>
     <message id="whisperfish-translators-ru">
         <location filename="../qml/pages/About.qml" line="478"/>
         <source>Russian translators</source>
         <extracomment>Russian (ru) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Russo</translation>
     </message>
     <message id="whisperfish-translators-pt_BR">
         <location filename="../qml/pages/About.qml" line="494"/>
         <source>Portuguese (Brazil) translators</source>
         <extracomment>Portuguese (Brazil) (pt_BR) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Português (Brasil)</translation>
     </message>
     <message id="whisperfish-translators-ro">
         <location filename="../qml/pages/About.qml" line="511"/>
         <source>Romanian translators</source>
         <extracomment>Romanian (ro) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Romeno</translation>
     </message>
     <message id="whisperfish-translators-tr">
         <location filename="../qml/pages/About.qml" line="527"/>
         <source>Turkish translators</source>
         <extracomment>Turkish (tr) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Turco</translation>
     </message>
     <message id="whisperfish-translators-el">
         <location filename="../qml/pages/About.qml" line="543"/>
         <source>Greek translators</source>
         <extracomment>Greek (el) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Grego</translation>
     </message>
     <message id="whisperfish-translators-eu">
         <location filename="../qml/pages/About.qml" line="560"/>
         <source>Basque translators</source>
         <extracomment>Basque (eu) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Basco</translation>
     </message>
     <message id="whisperfish-translators-es">
         <location filename="../qml/pages/About.qml" line="576"/>
         <source>Spanish translators</source>
         <extracomment>Spanish (es) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tradutores de Espanhol</translation>
     </message>
     <message id="whisperfish-lang-nb_NO">
         <source>Norwegian Bokmål</source>
@@ -754,6 +754,7 @@
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>%n mensagem foi apagada localmente</numerusform>
+            <numerusform>%n mensagens foram apagadas localmente</numerusform>
             <numerusform>%n mensagens foram apagadas localmente</numerusform>
         </translation>
     </message>
@@ -1767,6 +1768,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n anexo</numerusform>
             <numerusform>%n anexos</numerusform>
+            <numerusform>%n anexos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
@@ -1800,6 +1802,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1808,6 +1811,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>e mais %n</numerusform>
             <numerusform>e mais %n</numerusform>
             <numerusform>e mais %n</numerusform>
         </translation>
@@ -2000,6 +2004,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membro</numerusform>
             <numerusform>%n membros</numerusform>
+            <numerusform>%n membros</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -2010,6 +2015,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensagem selecionada</numerusform>
             <numerusform>%n mensagens selecionadas</numerusform>
+            <numerusform>%n mensagens selecionadas</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -2017,6 +2023,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Cancelar seleção</numerusform>
             <numerusform>Cancelar seleção</numerusform>
             <numerusform>Cancelar seleção</numerusform>
         </translation>
@@ -2028,6 +2035,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copiar %n mensagem</numerusform>
+            <numerusform>Copiar %n mensagens</numerusform>
             <numerusform>Copiar %n mensagens</numerusform>
         </translation>
     </message>
@@ -2046,6 +2054,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem localmente</numerusform>
             <numerusform>Apagar %n mensagens localmente</numerusform>
+            <numerusform>Apagar %n mensagens localmente</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -2057,6 +2066,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem em todos os locais</numerusform>
             <numerusform>Apagar %n mensagens em todos os locais</numerusform>
+            <numerusform>Apagar %n mensagens em todos os locais</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -2065,6 +2075,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Tenta enviar a mensagem falhada outra vez</numerusform>
+            <numerusform>Tenta enviar as mensagens falhadas outra vez</numerusform>
             <numerusform>Tenta enviar as mensagens falhadas outra vez</numerusform>
         </translation>
     </message>
@@ -2087,6 +2098,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Mensagem&lt;br/&gt;não lida</numerusform>
+            <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
             <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
         </translation>
     </message>
