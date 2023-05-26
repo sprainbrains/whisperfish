@@ -10,7 +10,7 @@ use self::orm::{AugmentedMessage, UnidentifiedAccessMode};
 use crate::diesel::connection::SimpleConnection;
 use crate::diesel_migrations::MigrationHarness;
 use crate::schema;
-use crate::store::observer::PrimaryKey;
+use crate::store::observer::{Observatory, PrimaryKey};
 use crate::store::orm::shorten;
 use crate::{config::SignalConfig, millis_to_naive_chrono};
 use anyhow::Context;
@@ -221,9 +221,9 @@ impl<P: AsRef<Path>> StorageLocation<P> {
 }
 
 #[derive(Clone)]
-pub struct Storage {
+pub struct Storage<O> {
     db: Arc<AssertUnwindSafe<Mutex<SqliteConnection>>>,
-    observatory: Arc<tokio::sync::RwLock<observer::Observatory>>,
+    observatory: O,
     config: Arc<SignalConfig>,
     store_enc: Option<encryption::StorageEncryption>,
     protocol_store: Arc<tokio::sync::RwLock<ProtocolStore>>,
@@ -278,7 +278,7 @@ macro_rules! fetch_sessions {
     }};
 }
 
-impl Storage {
+impl<O> Storage<O> {
     /// Returns the path to the storage.
     pub fn path(&self) -> &Path {
         &self.path
@@ -340,7 +340,10 @@ impl Storage {
         signaling_key: [u8; 52],
         aci_identity_key_pair: Option<protocol::IdentityKeyPair>,
         pni_identity_key_pair: Option<protocol::IdentityKeyPair>,
-    ) -> Result<Storage, anyhow::Error> {
+    ) -> Result<Self, anyhow::Error>
+    where
+        O: Default,
+    {
         let path: &Path = std::ops::Deref::deref(db_path);
 
         log::info!("Creating directory structure");
@@ -423,7 +426,10 @@ impl Storage {
         config: Arc<SignalConfig>,
         db_path: &StorageLocation<T>,
         password: Option<String>,
-    ) -> Result<Storage, anyhow::Error> {
+    ) -> Result<Self, anyhow::Error>
+    where
+        O: Default,
+    {
         let path: &Path = std::ops::Deref::deref(db_path);
 
         let store_enc = if let Some(password) = password {
@@ -582,7 +588,10 @@ impl Storage {
         &self,
         mut new_message: NewMessage,
         session: Option<orm::Session>,
-    ) -> (orm::Message, orm::Session) {
+    ) -> (orm::Message, orm::Session)
+    where
+        O: Observatory,
+    {
         let session = session.unwrap_or_else(|| {
             let recipient = self.merge_and_fetch_recipient(
                 new_message.source_e164.clone(),
@@ -604,7 +613,10 @@ impl Storage {
         sender: &orm::Recipient,
         data_message: &DataMessage,
         reaction: &Reaction,
-    ) -> Option<(orm::Message, orm::Session)> {
+    ) -> Option<(orm::Message, orm::Session)>
+    where
+        O: Observatory,
+    {
         // XXX error handling...
         let ts = reaction.target_sent_timestamp.expect("target timestamp");
         let ts = millis_to_naive_chrono(ts);
@@ -673,7 +685,10 @@ impl Storage {
         Some((message, session))
     }
 
-    pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
+    pub fn fetch_self_recipient(&self) -> Option<orm::Recipient>
+    where
+        O: Observatory,
+    {
         let e164 = self.config.get_tel();
         let uuid = self.config.get_uuid();
         if e164.is_none() {
@@ -754,7 +769,10 @@ impl Storage {
         &self,
         recipient_id: i32,
         mode: UnidentifiedAccessMode,
-    ) -> bool {
+    ) -> bool
+    where
+        O: Observatory,
+    {
         use crate::schema::recipients::dsl::*;
         let affected = diesel::update(recipients)
             .set(unidentified_access_mode.eq(mode))
@@ -767,7 +785,10 @@ impl Storage {
         affected > 0
     }
 
-    pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) -> Option<orm::Recipient> {
+    pub fn mark_profile_outdated(&self, recipient_uuid: Uuid) -> Option<orm::Recipient>
+    where
+        O: Observatory,
+    {
         use crate::schema::recipients::dsl::*;
         diesel::update(recipients)
             .set(last_profile_fetch.eq(Option::<NaiveDateTime>::None))
@@ -792,7 +813,9 @@ impl Storage {
         new_family_name: &Option<String>,
         new_about: &Option<String>,
         new_emoji: &Option<String>,
-    ) {
+    ) where
+        O: Observatory,
+    {
         let new_joined_name = match (new_given_name.clone(), new_family_name.clone()) {
             (Some(g), Some(f)) => Some(format!("{} {}", g, f)),
             (Some(g), None) => Some(g),
@@ -826,7 +849,10 @@ impl Storage {
         pni: Option<Uuid>,
         new_profile_key: &[u8],
         trust_level: TrustLevel,
-    ) -> (orm::Recipient, bool) {
+    ) -> (orm::Recipient, bool)
+    where
+        O: Observatory,
+    {
         // XXX check profile_key length
         let recipient = self.merge_and_fetch_recipient(phonenumber, uuid, pni, trust_level);
 
@@ -871,7 +897,10 @@ impl Storage {
         uuid: Option<Uuid>,
         _pni: Option<Uuid>,
         trust_level: TrustLevel,
-    ) -> orm::Recipient {
+    ) -> orm::Recipient
+    where
+        O: Observatory,
+    {
         let (id, uuid, phonenumber, changed) = self
             .db()
             .transaction::<_, Error, _>(|db| {
@@ -1069,7 +1098,10 @@ impl Storage {
     ///
     /// Executes `merge_recipient_inner` inside a transaction, and then returns the result.
     #[allow(unused)]
-    fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient {
+    fn merge_recipients(&self, source_id: i32, dest_id: i32) -> orm::Recipient
+    where
+        O: Observatory,
+    {
         let mut db = self.db();
         let merged_id = db
             .transaction::<_, Error, _>(|db| Self::merge_recipients_inner(db, source_id, dest_id))
@@ -1267,7 +1299,10 @@ impl Storage {
         }
     }
 
-    pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
+    pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient
+    where
+        O: Observatory,
+    {
         use crate::schema::recipients::dsl::*;
 
         let mut db = self.db();
@@ -1291,7 +1326,10 @@ impl Storage {
     pub fn fetch_or_insert_recipient_by_phonenumber(
         &self,
         phonenumber: &PhoneNumber,
-    ) -> orm::Recipient {
+    ) -> orm::Recipient
+    where
+        O: Observatory,
+    {
         use crate::schema::recipients::dsl::*;
 
         let mut db = self.db();
@@ -1348,7 +1386,10 @@ impl Storage {
     pub fn mark_message_read(
         &self,
         timestamp: NaiveDateTime,
-    ) -> Option<(orm::Session, orm::Message)> {
+    ) -> Option<(orm::Session, orm::Message)>
+    where
+        O: Observatory,
+    {
         use schema::messages::dsl::*;
         diesel::update(messages)
             .filter(server_timestamp.eq(timestamp))
@@ -1382,7 +1423,10 @@ impl Storage {
         receiver_uuid: Uuid,
         timestamp: NaiveDateTime,
         delivered_at: Option<chrono::DateTime<Utc>>,
-    ) -> Option<(orm::Session, orm::Message)> {
+    ) -> Option<(orm::Session, orm::Message)>
+    where
+        O: Observatory,
+    {
         // XXX: probably, the trigger for this method call knows a better time stamp.
         let delivered_at = delivered_at.unwrap_or_else(chrono::Utc::now).naive_utc();
 
@@ -1587,10 +1631,10 @@ impl Storage {
             .unwrap()
     }
 
-    pub fn fetch_or_insert_session_by_phonenumber(
-        &self,
-        phonenumber: &PhoneNumber,
-    ) -> orm::Session {
+    pub fn fetch_or_insert_session_by_phonenumber(&self, phonenumber: &PhoneNumber) -> orm::Session
+    where
+        O: Observatory,
+    {
         log::trace!(
             "Called fetch_or_insert_session_by_phonenumber({})",
             phonenumber
@@ -1616,7 +1660,10 @@ impl Storage {
     }
 
     /// Fetches recipient's DM session, or creates the session.
-    pub fn fetch_or_insert_session_by_recipient_id(&self, rid: i32) -> orm::Session {
+    pub fn fetch_or_insert_session_by_recipient_id(&self, rid: i32) -> orm::Session
+    where
+        O: Observatory,
+    {
         log::trace!("Called fetch_or_insert_session_by_recipient_id({})", rid);
         if let Some(session) = self.fetch_session_by_recipient_id(rid) {
             return session;
@@ -1636,7 +1683,10 @@ impl Storage {
         session
     }
 
-    pub fn fetch_or_insert_session_by_group_v1(&self, group: &GroupV1) -> orm::Session {
+    pub fn fetch_or_insert_session_by_group_v1(&self, group: &GroupV1) -> orm::Session
+    where
+        O: Observatory,
+    {
         let group_id = hex::encode(&group.id);
 
         log::trace!(
@@ -1721,7 +1771,10 @@ impl Storage {
         })
     }
 
-    pub fn fetch_or_insert_session_by_group_v2(&self, group: &GroupV2) -> orm::Session {
+    pub fn fetch_or_insert_session_by_group_v2(&self, group: &GroupV2) -> orm::Session
+    where
+        O: Observatory,
+    {
         let group_id = group.secret.get_group_identifier();
         let group_id_hex = hex::encode(group_id);
 
@@ -1828,7 +1881,10 @@ impl Storage {
         }
     }
 
-    pub fn delete_session(&self, id: i32) {
+    pub fn delete_session(&self, id: i32)
+    where
+        O: Observatory,
+    {
         log::trace!("Called delete_session({})", id);
 
         let affected_rows =
@@ -1840,7 +1896,10 @@ impl Storage {
         log::trace!("delete_session({}) affected {} rows", id, affected_rows);
     }
 
-    pub fn save_draft(&self, sid: i32, draft: String) {
+    pub fn save_draft(&self, sid: i32, draft: String)
+    where
+        O: Observatory,
+    {
         log::trace!("Called save_draft({}, \"{}\")", sid, draft);
 
         let draft = if draft.is_empty() { None } else { Some(draft) };
@@ -1858,7 +1917,10 @@ impl Storage {
         }
     }
 
-    pub fn mark_session_read(&self, sid: i32) {
+    pub fn mark_session_read(&self, sid: i32)
+    where
+        O: Observatory,
+    {
         log::trace!("Called mark_session_read({})", sid);
 
         use schema::messages::dsl::*;
@@ -1883,7 +1945,10 @@ impl Storage {
         }
     }
 
-    pub fn mark_session_muted(&self, sid: i32, muted: bool) {
+    pub fn mark_session_muted(&self, sid: i32, muted: bool)
+    where
+        O: Observatory,
+    {
         log::trace!("Called mark_session_muted({}, {})", sid, muted);
 
         use schema::sessions::dsl::*;
@@ -1897,7 +1962,10 @@ impl Storage {
         }
     }
 
-    pub fn mark_session_archived(&self, sid: i32, archived: bool) {
+    pub fn mark_session_archived(&self, sid: i32, archived: bool)
+    where
+        O: Observatory,
+    {
         log::trace!("Called mark_session_archived({}, {})", sid, archived);
 
         use schema::sessions::dsl::*;
@@ -1911,7 +1979,10 @@ impl Storage {
         }
     }
 
-    pub fn mark_session_pinned(&self, sid: i32, pinned: bool) {
+    pub fn mark_session_pinned(&self, sid: i32, pinned: bool)
+    where
+        O: Observatory,
+    {
         log::trace!("Called mark_session_pinned({}, {})", sid, pinned);
 
         use schema::sessions::dsl::*;
@@ -1925,7 +1996,10 @@ impl Storage {
         }
     }
 
-    pub fn mark_recipient_registered(&self, uuid_str: &str, registered: bool) -> usize {
+    pub fn mark_recipient_registered(&self, uuid_str: &str, registered: bool) -> usize
+    where
+        O: Observatory,
+    {
         log::trace!(
             "Called mark_recipient_registered({}, {})",
             uuid_str,
@@ -1957,7 +2031,10 @@ impl Storage {
         affected_rows
     }
 
-    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
+    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str)
+    where
+        O: Observatory,
+    {
         use schema::attachments::dsl::*;
 
         diesel::insert_into(attachments)
@@ -1995,7 +2072,10 @@ impl Storage {
     /// Create a new message. This was transparent within SaveMessage in Go.
     ///
     /// Panics is new_message.session_id is None.
-    pub fn create_message(&self, new_message: &NewMessage) -> orm::Message {
+    pub fn create_message(&self, new_message: &NewMessage) -> orm::Message
+    where
+        O: Observatory,
+    {
         // XXX Storing the message with its attachments should happen in a transaction.
         // Meh.
         let session = new_message.session_id.expect("session id");
@@ -2310,7 +2390,10 @@ impl Storage {
         aug_messages
     }
 
-    pub fn delete_message(&self, id: i32) -> usize {
+    pub fn delete_message(&self, id: i32) -> usize
+    where
+        O: Observatory,
+    {
         log::trace!("Called delete_message({})", id);
 
         // XXX: Assume `sentq` has nothing pending, as the Go version does
@@ -2327,7 +2410,10 @@ impl Storage {
     }
 
     /// Marks all messages that are outbound and unsent as failed.
-    pub fn mark_pending_messages_failed(&self) -> usize {
+    pub fn mark_pending_messages_failed(&self) -> usize
+    where
+        O: Observatory,
+    {
         use schema::messages::dsl::*;
         let failed_messages: Vec<orm::Message> = messages
             .filter(
@@ -2364,7 +2450,10 @@ impl Storage {
     }
 
     /// Marks a message as failed to send
-    pub fn fail_message(&self, mid: i32) {
+    pub fn fail_message(&self, mid: i32)
+    where
+        O: Observatory,
+    {
         log::trace!("Setting message {} to failed", mid);
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
@@ -2374,7 +2463,10 @@ impl Storage {
         self.observe_update(schema::messages::table, mid);
     }
 
-    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime, unidentified: bool) {
+    pub fn dequeue_message(&self, mid: i32, sent_time: NaiveDateTime, unidentified: bool)
+    where
+        O: Observatory,
+    {
         diesel::update(schema::messages::table)
             .filter(schema::messages::id.eq(mid))
             .set((

@@ -6,16 +6,19 @@
 //! Currently the storage implementation in `current_storage` is at git commit
 //! e8ef69ba76b5f40fc149bf1c240df99b62f19b60. Be aware that only necessary parts were copied that
 //! were changed in later commits.
+mod common;
 
+use self::common::SimpleStorage;
 use libsignal_service::prelude::protocol::{DeviceId, IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::{ops::Deref, sync::Arc};
-use whisperfish_core::{config::SignalConfig, store as current_storage};
+use whisperfish_core::config::SignalConfig;
+use whisperfish_core::store::{temp, StorageLocation};
 
 async fn create_old_storage(
     storage_password: Option<&str>,
-    path: &current_storage::StorageLocation<tempfile::TempDir>,
-) -> current_storage::Storage {
+    path: &StorageLocation<tempfile::TempDir>,
+) -> SimpleStorage {
     use rand::{Rng, RngCore};
     let rng = rand::thread_rng();
 
@@ -35,7 +38,7 @@ async fn create_old_storage(
     let regid: u32 = 12345;
     let pni_regid: u32 = 12345;
 
-    current_storage::Storage::new(
+    SimpleStorage::new(
         Arc::new(SignalConfig::default()),
         path,
         storage_password,
@@ -53,14 +56,10 @@ async fn create_old_storage(
 async fn open_storage(
     storage_password: Option<String>,
     path: &whisperfish_core::store::StorageLocation<std::path::PathBuf>,
-) -> whisperfish_core::store::Storage {
-    whisperfish_core::store::Storage::open(
-        Arc::new(SignalConfig::default()),
-        path,
-        storage_password,
-    )
-    .await
-    .unwrap()
+) -> SimpleStorage {
+    SimpleStorage::open(Arc::new(SignalConfig::default()), path, storage_password)
+        .await
+        .unwrap()
 }
 
 fn create_random_protocol_address() -> libsignal_service::prelude::protocol::ProtocolAddress {
@@ -89,9 +88,9 @@ fn create_random_identity_key() -> libsignal_service::prelude::protocol::Identit
     case(Some(String::from("some password"))),
     case(None)
 )]
-#[actix_rt::test]
+#[tokio::test]
 async fn read_own_identity_key(storage_password: Option<String>) {
-    let location = current_storage::temp();
+    let location = temp();
     let storage = create_old_storage(storage_password.as_deref(), &location).await;
 
     // Get own identity key
@@ -120,9 +119,9 @@ async fn read_own_identity_key(storage_password: Option<String>) {
     case(Some(String::from("some password"))),
     case(None)
 )]
-#[actix_rt::test]
+#[tokio::test]
 async fn read_regid(storage_password: Option<String>) {
-    let location = current_storage::temp();
+    let location = temp();
     let storage = create_old_storage(storage_password.as_deref(), &location).await;
 
     // Get own identity key
@@ -148,9 +147,9 @@ async fn read_regid(storage_password: Option<String>) {
     case(Some(String::from("some password"))),
     case(None)
 )]
-#[actix_rt::test]
+#[tokio::test]
 async fn read_signal_password(storage_password: Option<String>) {
-    let location = current_storage::temp();
+    let location = temp();
     let storage = create_old_storage(storage_password.as_deref(), &location).await;
 
     // Get own identity key
@@ -176,9 +175,9 @@ async fn read_signal_password(storage_password: Option<String>) {
     case(Some(String::from("some password"))),
     case(None)
 )]
-#[actix_rt::test]
+#[tokio::test]
 async fn read_signaling_key(storage_password: Option<String>) {
-    let location = current_storage::temp();
+    let location = temp();
     let storage = create_old_storage(storage_password.as_deref(), &location).await;
 
     // Get own identity key
@@ -204,9 +203,9 @@ async fn read_signaling_key(storage_password: Option<String>) {
     case(Some(String::from("some password"))),
     case(None)
 )]
-#[actix_rt::test]
+#[tokio::test]
 async fn read_other_identity_key(storage_password: Option<String>) {
-    let location = current_storage::temp();
+    let location = temp();
     let mut storage = create_old_storage(storage_password.as_deref(), &location).await;
 
     // Create new identity key
@@ -267,7 +266,7 @@ async fn copy_to_temp(root: std::path::PathBuf) -> tempfile::TempDir {
 #[rstest]
 #[case("tests/resources/storage_migration/without-password-2022-06".into(), None)]
 #[case("tests/resources/storage_migration/with-password-123456-2022-06".into(), Some("123456".into()))]
-#[actix_rt::test]
+#[tokio::test]
 async fn test_2022_06_migration(
     #[case] path: std::path::PathBuf,
     #[case] storage_password: Option<String>,
@@ -277,14 +276,10 @@ async fn test_2022_06_migration(
 
     env_logger::try_init().ok();
 
-    let path = current_storage::StorageLocation::Path(copy_to_temp(path).await);
-    let storage = whisperfish_core::store::Storage::open(
-        Arc::new(SignalConfig::default()),
-        &path,
-        storage_password,
-    )
-    .await
-    .expect("open older storage");
+    let path = StorageLocation::Path(copy_to_temp(path).await);
+    let storage = SimpleStorage::open(Arc::new(SignalConfig::default()), &path, storage_password)
+        .await
+        .expect("open older storage");
     let migration = SessionStorageMigration(storage);
     println!("Start migration");
     migration.execute().await;

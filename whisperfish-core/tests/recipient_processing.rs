@@ -48,7 +48,7 @@ fn storage_with_uuid_recipient(
 }
 
 #[rstest]
-#[actix_rt::test]
+#[tokio::test]
 async fn insert_then_fetch_by_e164(
     phonenumber: PhoneNumber,
     storage: impl Future<Output = InMemoryDb>,
@@ -62,7 +62,7 @@ async fn insert_then_fetch_by_e164(
 }
 
 #[rstest]
-#[actix_rt::test]
+#[tokio::test]
 async fn insert_then_fetch_by_uuid(storage: impl Future<Output = InMemoryDb>) {
     let uuid1 = Uuid::parse_str(UUID).unwrap();
 
@@ -79,7 +79,7 @@ mod merge_and_fetch {
     use whisperfish_core::store::TrustLevel;
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn trusted_pair(storage: impl Future<Output = InMemoryDb>, phonenumber: PhoneNumber) {
         let uuid1 = Uuid::parse_str(UUID).unwrap();
 
@@ -107,7 +107,7 @@ mod merge_and_fetch {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn untrusted_pair(storage: impl Future<Output = InMemoryDb>, phonenumber: PhoneNumber) {
         let uuid1 = Uuid::parse_str(UUID).unwrap();
 
@@ -124,7 +124,7 @@ mod merge_and_fetch {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn trusted_amend_e164(
         storage_with_e164_recipient: impl Future<Output = (InMemoryDb, PhoneNumber)>,
     ) {
@@ -145,7 +145,7 @@ mod merge_and_fetch {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn untrusted_amend_e164(
         storage_with_e164_recipient: impl Future<Output = (InMemoryDb, PhoneNumber)>,
     ) {
@@ -178,7 +178,7 @@ mod merge_and_fetch {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn trusted_amend_uuid(
         storage_with_uuid_recipient: impl Future<Output = InMemoryDb>,
         phonenumber: PhoneNumber,
@@ -200,7 +200,7 @@ mod merge_and_fetch {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn untrusted_amend_uuid(
         storage_with_uuid_recipient: impl Future<Output = InMemoryDb>,
         phonenumber: PhoneNumber,
@@ -231,7 +231,7 @@ mod merge_and_fetch_conflicting_recipients {
     use whisperfish_core::store::TrustLevel;
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn trusted_disjunct_recipients(
         storage: impl Future<Output = InMemoryDb>,
         phonenumber: PhoneNumber,
@@ -263,7 +263,7 @@ mod merge_and_fetch_conflicting_recipients {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn untrusted_disjunct_recipients(
         storage: impl Future<Output = InMemoryDb>,
         phonenumber: PhoneNumber,
@@ -296,7 +296,7 @@ mod merge_and_fetch_conflicting_recipients {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn trusted_recipient_with_new_uuid(
         storage: impl Future<Output = InMemoryDb>,
         phonenumber: PhoneNumber,
@@ -345,7 +345,7 @@ mod merge_and_fetch_conflicting_recipients {
     }
 
     #[rstest]
-    #[actix_rt::test]
+    #[tokio::test]
     async fn untrusted_recipient_with_new_uuid(
         storage: impl Future<Output = InMemoryDb>,
         phonenumber: PhoneNumber,

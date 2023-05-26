@@ -4,7 +4,7 @@ use qmetaobject::{QObject, QObjectBox};
 use crate::store::observer::Event;
 use crate::store::observer::EventObserving;
 use crate::store::observer::Interest;
-use crate::store::Storage;
+use crate::store::{ActixEvent, Storage};
 
 #[macro_export]
 macro_rules! observing_model {
@@ -162,13 +162,13 @@ impl<T: QObject + 'static> actix::Actor for ObservingModelActor<T> {
     type Context = actix::Context<Self>;
 }
 
-impl<T: QObject + 'static> actix::Handler<Event> for ObservingModelActor<T>
+impl<T: QObject + 'static> actix::Handler<ActixEvent> for ObservingModelActor<T>
 where
     T: EventObserving<Context = ModelContext<T>>,
 {
     type Result = Vec<Interest>;
 
-    fn handle(&mut self, event: Event, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, event: ActixEvent, ctx: &mut Self::Context) -> Self::Result {
         match self.model.upgrade() {
             Some(model) => {
                 let model = model.pinned();
@@ -177,7 +177,7 @@ where
                     storage: self.storage.clone(),
                     addr: ctx.address(),
                 };
-                model.observe(ctx, event);
+                model.observe(ctx, Event::from(event));
                 model.interests()
             }
             None => {

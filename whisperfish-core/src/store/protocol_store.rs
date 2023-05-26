@@ -78,7 +78,7 @@ impl ProtocolStore {
     }
 }
 
-impl Storage {
+impl<O> Storage<O> {
     /// Returns a tuple of the next free signed pre-key ID and the next free pre-key ID
     pub async fn next_pre_key_ids(&self) -> (u32, u32) {
         use diesel::dsl::*;
@@ -111,9 +111,9 @@ impl Storage {
 }
 
 #[async_trait::async_trait(?Send)]
-impl protocol::ProtocolStore for Storage {}
+impl<O> protocol::ProtocolStore for Storage<O> {}
 
-impl Storage {
+impl<O> Storage<O> {
     pub async fn get_local_pni_registration_id(
         &self,
         _: Context,
@@ -155,7 +155,7 @@ impl Storage {
 }
 
 #[async_trait::async_trait(?Send)]
-impl protocol::IdentityKeyStore for Storage {
+impl<O> protocol::IdentityKeyStore for Storage<O> {
     async fn get_identity_key_pair(
         &self,
         _: Context,
@@ -256,7 +256,7 @@ impl protocol::IdentityKeyStore for Storage {
 }
 
 #[async_trait::async_trait(?Send)]
-impl protocol::PreKeyStore for Storage {
+impl<O> protocol::PreKeyStore for Storage<O> {
     async fn get_pre_key(
         &self,
         prekey_id: PreKeyId,
@@ -316,7 +316,7 @@ impl protocol::PreKeyStore for Storage {
     }
 }
 
-impl Storage {
+impl<O> Storage<O> {
     // XXX Rewrite in terms of get_pre_key
     #[allow(dead_code)]
     async fn contains_pre_key(&self, prekey_id: u32) -> bool {
@@ -334,7 +334,7 @@ impl Storage {
 }
 
 #[async_trait::async_trait(?Send)]
-impl protocol::SessionStore for Storage {
+impl<O> protocol::SessionStore for Storage<O> {
     async fn load_session(
         &self,
         addr: &ProtocolAddress,
@@ -395,7 +395,7 @@ impl protocol::SessionStore for Storage {
     }
 }
 
-impl Storage {
+impl<O> Storage<O> {
     #[allow(dead_code)]
     /// Check whether session exists.
     ///
@@ -424,7 +424,7 @@ impl Storage {
 }
 
 // BEGIN identity key block
-impl Storage {
+impl<O> Storage<O> {
     /// Fetches the identity matching `addr` from the database
     ///
     /// Does not lock the protocol storage.
@@ -482,7 +482,7 @@ impl Storage {
 // END identity key
 
 #[async_trait::async_trait(?Send)]
-impl protocol::SessionStoreExt for Storage {
+impl<O> protocol::SessionStoreExt for Storage<O> {
     async fn get_sub_device_sessions(
         &self,
         addr: &ServiceAddress,
@@ -542,7 +542,7 @@ impl protocol::SessionStoreExt for Storage {
 }
 
 #[async_trait::async_trait(?Send)]
-impl protocol::SignedPreKeyStore for Storage {
+impl<O> protocol::SignedPreKeyStore for Storage<O> {
     async fn get_signed_pre_key(
         &self,
         signed_prekey_id: SignedPreKeyId,
@@ -588,7 +588,7 @@ impl protocol::SignedPreKeyStore for Storage {
 }
 
 #[async_trait::async_trait(?Send)]
-impl SenderKeyStore for Storage {
+impl<O> SenderKeyStore for Storage<O> {
     async fn store_sender_key(
         &mut self,
         addr: &ProtocolAddress,
@@ -644,7 +644,7 @@ impl SenderKeyStore for Storage {
     }
 }
 
-impl Storage {
+impl<O> Storage<O> {
     #[allow(dead_code)]
     async fn remove_signed_pre_key(
         &self,
@@ -679,6 +679,7 @@ impl Storage {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use std::sync::Arc;
 
     use libsignal_service::{prelude::protocol::*, ServiceAddress};
@@ -686,9 +687,18 @@ mod tests {
 
     use crate::config::SignalConfig;
 
+    #[derive(Default)]
+    struct DummyObservatory;
+
     async fn create_example_storage(
         storage_password: Option<&str>,
-    ) -> Result<(super::Storage, super::StorageLocation<tempfile::TempDir>), anyhow::Error> {
+    ) -> Result<
+        (
+            Storage<DummyObservatory>,
+            StorageLocation<tempfile::TempDir>,
+        ),
+        anyhow::Error,
+    > {
         use rand::distributions::Alphanumeric;
         use rand::{Rng, RngCore};
 
@@ -710,7 +720,7 @@ mod tests {
         let regid = 12345;
         let pni_regid = 12345;
 
-        let storage = super::Storage::new(
+        let storage = Storage::new(
             Arc::new(SignalConfig::default()),
             &location,
             storage_password,

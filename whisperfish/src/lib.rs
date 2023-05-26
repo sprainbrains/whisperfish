@@ -6,9 +6,10 @@ pub mod gui;
 pub mod model;
 pub mod platform;
 pub mod qtlog;
+pub mod store;
 pub mod worker;
 
-pub use whisperfish_core::{check_foreign_keys, millis_to_naive_chrono, schema, store};
+pub use whisperfish_core::{check_foreign_keys, millis_to_naive_chrono, schema};
 
 pub fn user_agent() -> String {
     format!("Whisperfish/{}", env!("CARGO_PKG_VERSION"))

@@ -7,17 +7,18 @@ use libsignal_service::prelude::protocol;
 use libsignal_service::prelude::protocol::ProtocolAddress;
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use protocol::SignalProtocolError;
+use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 
-pub struct SessionStorageMigration(pub Storage);
-impl std::ops::Deref for SessionStorageMigration {
-    type Target = Storage;
+pub struct SessionStorageMigration<O>(pub Storage<O>);
+impl<O> Deref for SessionStorageMigration<O> {
+    type Target = Storage<O>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
-impl std::ops::DerefMut for SessionStorageMigration {
+impl<O> DerefMut for SessionStorageMigration<O> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -53,7 +54,7 @@ fn name_to_protocol_addr(name: &str, id: u32) -> Option<ProtocolAddress> {
     None
 }
 
-impl SessionStorageMigration {
+impl<O> SessionStorageMigration<O> {
     pub async fn execute(&self) {
         let session_dir = self.0.path().join("storage").join("sessions");
         if session_dir.exists() {

@@ -3619,8 +3619,6 @@ dependencies = [
 name = "whisperfish-core"
 version = "0.6.0-dev"
 dependencies = [
- "actix",
- "actix-rt",
  "aes",
  "anyhow",
  "async-trait",
