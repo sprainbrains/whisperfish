@@ -415,7 +415,6 @@ translations:update:
     GIT_STRATEGY: clone
     GIT_DEPTH: 0
   script:
-    - . .ci/load-ssh-key
     - .ci/update-translation-contributors.sh
     - .ci/update-translations.sh
 

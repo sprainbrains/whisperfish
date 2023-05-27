@@ -76,8 +76,6 @@ echo "$text" >> $ABOUT
 echo "$end" >> $ABOUT
 
 if [ "$CI" = "true" ]; then
-    . .ci/load-ssh-key
-
     if git diff --exit-code; then
         echo "No about page update needed";
     else
@@ -86,6 +84,8 @@ if [ "$CI" = "true" ]; then
         git config --global user.name "Gitlab CI translation file sync"
         git commit $ABOUT -m "Translation contributor list synchronisation";
         git remote add origin-ssh git@gitlab.com:whisperfish/whisperfish.git
+
+        .ci/load-ssh-key
         git push origin-ssh HEAD:master
     fi
 fi
