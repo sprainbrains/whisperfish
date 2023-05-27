@@ -14,7 +14,7 @@ PREFIX="            "
 
 git fetch --unshallow || echo "Repository already complete"
 git remote -v
-git shortlog -s -n translations/harbour-whisperfish-nl_BE.ts
+git shortlog -s -n HEAD -- translations/harbour-whisperfish-nl_BE.ts
 
 for key in "${!languages[@]}"; do
     lang=${languages[$key]}
@@ -59,7 +59,7 @@ for key in "${!languages[@]}"; do
 
         echo -n "$PREFIX        \"$contributor\""
 
-    done <<< "`git shortlog -s -n translations/harbour-whisperfish-$key.ts`"
+    done <<< "`git shortlog -s -n HEAD -- translations/harbour-whisperfish-$key.ts`"
     echo ""
     echo "$PREFIX""    }";
     echo "$PREFIX""}";
