@@ -12,6 +12,8 @@ ABOUT=qml/pages/About.qml
 
 PREFIX="            "
 
+git fetch --unshallow || echo "Repository already complete"
+
 for key in "${!languages[@]}"; do
     lang=${languages[$key]}
 
