@@ -13,6 +13,7 @@ ABOUT=qml/pages/About.qml
 PREFIX="            "
 
 git fetch --unshallow || echo "Repository already complete"
+git shortlog -s -n translations/harbour-whisperfish-nl_BE.ts
 
 for key in "${!languages[@]}"; do
     lang=${languages[$key]}
