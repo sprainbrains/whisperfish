@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 declare -A languages=( [ca]="Catalan" [cs]="Czech" [de]="German" [el]="Greek" [es]="Spanish" [eu]="Basque" [fi]="Finnish" [fr]="French" [hu]="Hungarian" [it]="Italian" [lt]="Lithuanian" [nb_NO]="Norwegian Bokmål" [nl_BE]="Dutch (Belgium)" [nl]="Dutch" [pl]="Polish" [pt_BR]="Portuguese (Brazil)" [pt_PT]="Portuguese (Portugal)" [ro]="Romanian" [ru]="Russian" [sl]="Slovenian" [sv]="Swedish" [tr]="Turkish" [zh_CN]="Chinese (Simplified)")
 
