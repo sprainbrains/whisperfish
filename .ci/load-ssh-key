@@ -11,4 +11,4 @@ echo "$SSH_CI_KEY" | tr -d '\r' | ssh-add -
 
 # disable host key checking (NOTE: makes you susceptible to man-in-the-middle attacks)
 mkdir -p ~/.ssh
-echo "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config

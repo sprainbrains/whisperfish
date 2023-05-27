@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 lupdate qml/ -ts translations/*.ts
 
