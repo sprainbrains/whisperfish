@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 import be.rubdos.whisperfish 1.0
 
 CoverBackground {
+    property bool rightToLeft: Qt.application.layoutDirection === Qt.RightToLeft
     Connections {
         target: SetupWorker
         onSetupComplete: {
@@ -34,9 +35,11 @@ CoverBackground {
         text: sessions.unread
         anchors {
             top: parent.top
-            left: parent.left
+            left: rightToLeft ? undefined : parent.left
+            right: rightToLeft ? parent.right : undefined
             topMargin: Theme.paddingMedium
-            leftMargin: Theme.paddingLarge
+            leftMargin: rightToLeft ? undefined : Theme.paddingLarge
+            rightMargin: rightToLeft ? Theme.paddingLarge : undefined
         }
         font.pixelSize: Theme.fontSizeHuge
 
@@ -64,9 +67,9 @@ CoverBackground {
         Behavior on opacity { NumberAnimation {} }
 
         anchors {
-            right: parent.right
+            right: rightToLeft ? unreadCount.left : parent.right
             rightMargin: Theme.paddingMedium
-            left: unreadCount.right
+            left: rightToLeft ? parent.left : unreadCount.right
             leftMargin: Theme.paddingMedium
             baseline: unreadCount.baseline
             baselineOffset: lineCount > 1 ? -implicitHeight/2 : -(height-implicitHeight)/2
@@ -74,10 +77,11 @@ CoverBackground {
     }
 
     OpacityRampEffect {
-        offset: 0.75
-        slope: 4
+        offset: 0.9
+        slope: 10
         sourceItem: unreadLabel
         enabled: unreadLabel.contentWidth > unreadLabel.width
+        direction: rightToLeft ? OpacityRamp.RightToLeft : OpacityRamp.LeftToRight
     }
 
     SilicaListView {
@@ -88,6 +92,7 @@ CoverBackground {
             right: parent.right
             topMargin: Theme.paddingMedium + (sessions.unread > 0 ? unreadCount.height : Theme.paddingMedium)
             leftMargin: Theme.paddingLarge
+            rightMargin: Theme.paddingLarge
             bottom: coverActionArea.top
             Behavior on topMargin { NumberAnimation {} }
         }
@@ -135,8 +140,8 @@ CoverBackground {
         }
     }
     OpacityRampEffect {
-        offset: 0.75
-        slope: 4
+        offset: 0.8
+        slope: 5
         sourceItem: sessionList
         direction: OpacityRamp.TopToBottom
     }
