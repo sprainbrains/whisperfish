@@ -1,6 +1,5 @@
 use super::*;
-use crate::schema;
-use crate::store::orm;
+use crate::store::{orm, schema};
 use anyhow::Context;
 use chrono::Utc;
 use diesel::prelude::*;

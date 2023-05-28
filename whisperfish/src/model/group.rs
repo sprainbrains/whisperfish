@@ -2,10 +2,10 @@
 
 use std::collections::HashMap;
 
+use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
 use crate::store::orm::{GroupV1Member, GroupV2Member};
-use crate::store::{orm, Storage};
-use crate::{model::*, schema};
+use crate::store::{orm, schema, Storage};
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
 

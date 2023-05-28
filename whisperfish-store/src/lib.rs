@@ -8,7 +8,9 @@ extern crate diesel_migrations;
 
 pub mod config;
 pub mod schema;
-pub mod store;
+mod store;
+
+pub use self::store::*;
 
 use diesel::connection::SimpleConnection;
 

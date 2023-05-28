@@ -8,7 +8,7 @@ pub mod platform;
 pub mod qtlog;
 pub mod worker;
 
-pub use whisperfish_store::{check_foreign_keys, millis_to_naive_chrono, schema, store};
+pub use whisperfish_store as store;
 
 pub fn user_agent() -> String {
     format!("Whisperfish/{}", env!("CARGO_PKG_VERSION"))

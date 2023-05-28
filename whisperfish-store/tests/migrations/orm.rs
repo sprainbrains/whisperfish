@@ -156,5 +156,5 @@ mod corrected_datatypes {
 }
 
 pub mod current {
-    pub use whisperfish_store::store::orm::*;
+    pub use whisperfish_store::orm::*;
 }

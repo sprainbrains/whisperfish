@@ -10,7 +10,8 @@
 use libsignal_service::prelude::protocol::{DeviceId, IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::{ops::Deref, sync::Arc};
-use whisperfish_store::{config::SignalConfig, store as current_storage};
+use whisperfish_store as current_storage;
+use whisperfish_store::config::SignalConfig;
 
 async fn create_old_storage(
     storage_password: Option<&str>,
@@ -52,15 +53,11 @@ async fn create_old_storage(
 
 async fn open_storage(
     storage_password: Option<String>,
-    path: &whisperfish_store::store::StorageLocation<std::path::PathBuf>,
-) -> whisperfish_store::store::Storage {
-    whisperfish_store::store::Storage::open(
-        Arc::new(SignalConfig::default()),
-        path,
-        storage_password,
-    )
-    .await
-    .unwrap()
+    path: &whisperfish_store::StorageLocation<std::path::PathBuf>,
+) -> whisperfish_store::Storage {
+    whisperfish_store::Storage::open(Arc::new(SignalConfig::default()), path, storage_password)
+        .await
+        .unwrap()
 }
 
 fn create_random_protocol_address() -> libsignal_service::prelude::protocol::ProtocolAddress {
@@ -101,7 +98,7 @@ async fn read_own_identity_key(storage_password: Option<String>) {
     drop(storage);
 
     // Open storage with new implementation
-    let location: whisperfish_store::store::StorageLocation<std::path::PathBuf> =
+    let location: whisperfish_store::StorageLocation<std::path::PathBuf> =
         location.deref().to_path_buf().into();
     let storage = open_storage(storage_password, &location).await;
 
@@ -132,7 +129,7 @@ async fn read_regid(storage_password: Option<String>) {
     drop(storage);
 
     // Open storage with new implementation
-    let location: whisperfish_store::store::StorageLocation<std::path::PathBuf> =
+    let location: whisperfish_store::StorageLocation<std::path::PathBuf> =
         location.deref().to_path_buf().into();
     let storage = open_storage(storage_password, &location).await;
 
@@ -160,7 +157,7 @@ async fn read_signal_password(storage_password: Option<String>) {
     drop(storage);
 
     // Open storage with new implementation
-    let location: whisperfish_store::store::StorageLocation<std::path::PathBuf> =
+    let location: whisperfish_store::StorageLocation<std::path::PathBuf> =
         location.deref().to_path_buf().into();
     let storage = open_storage(storage_password, &location).await;
 
@@ -188,7 +185,7 @@ async fn read_signaling_key(storage_password: Option<String>) {
     drop(storage);
 
     // Open storage with new implementation
-    let location: whisperfish_store::store::StorageLocation<std::path::PathBuf> =
+    let location: whisperfish_store::StorageLocation<std::path::PathBuf> =
         location.deref().to_path_buf().into();
     let storage = open_storage(storage_password, &location).await;
 
@@ -220,7 +217,7 @@ async fn read_other_identity_key(storage_password: Option<String>) {
     drop(storage);
 
     // Open storage with new implementation
-    let location: whisperfish_store::store::StorageLocation<std::path::PathBuf> =
+    let location: whisperfish_store::StorageLocation<std::path::PathBuf> =
         location.deref().to_path_buf().into();
     let storage = open_storage(storage_password, &location).await;
 
@@ -273,12 +270,12 @@ async fn test_2022_06_migration(
     #[case] storage_password: Option<String>,
 ) {
     use std::str::FromStr;
-    use whisperfish_store::store::migrations::session_to_db::SessionStorageMigration;
+    use whisperfish_store::migrations::session_to_db::SessionStorageMigration;
 
     env_logger::try_init().ok();
 
     let path = current_storage::StorageLocation::Path(copy_to_temp(path).await);
-    let storage = whisperfish_store::store::Storage::open(
+    let storage = whisperfish_store::Storage::open(
         Arc::new(SignalConfig::default()),
         &path,
         storage_password,

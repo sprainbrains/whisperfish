@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
+use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
-use crate::store::{orm, Storage};
-use crate::{model::*, schema};
+use crate::store::{orm, schema, Storage};
 use qmetaobject::prelude::*;
 use std::collections::HashMap;
 

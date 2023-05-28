@@ -199,7 +199,7 @@ impl ClientActor {
 
         let mut db = storage.db();
 
-        use crate::schema::recipients::dsl::*;
+        use crate::store::schema::recipients::dsl::*;
         use diesel::prelude::*;
 
         if let Some(profile) = profile {
