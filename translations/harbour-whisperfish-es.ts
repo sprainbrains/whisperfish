@@ -4,7 +4,7 @@
 <context>
     <name></name>
     <message id="whisperfish-session-has-attachment">
-        <location filename="../qml/cover/CoverPage.qml" line="118"/>
+        <location filename="../qml/cover/CoverPage.qml" line="123"/>
         <location filename="../qml/delegates/SessionDelegate.qml" line="35"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
@@ -1808,7 +1808,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
-        <location filename="../qml/components/message/AttachmentsLoader.qml" line="312"/>
+        <location filename="../qml/components/message/AttachmentsLoader.qml" line="313"/>
         <source>and %n more</source>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
@@ -1818,19 +1818,19 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
-        <location filename="../qml/components/message/InfoItem.qml" line="59"/>
+        <location filename="../qml/components/message/InfoItem.qml" line="88"/>
         <source>no time</source>
         <extracomment>Placeholder note if a message doesn&apos;t have a timestamp (which must not happen).</extracomment>
         <translation>sin marca de tiempo</translation>
     </message>
     <message id="whisperfish-message-show-less">
-        <location filename="../qml/components/message/InfoItem.qml" line="100"/>
+        <location filename="../qml/components/message/InfoItem.qml" line="32"/>
         <source>show less</source>
         <extracomment>Hint for very long messages, while expanded</extracomment>
         <translation>mostrar menos</translation>
     </message>
     <message id="whisperfish-message-show-more">
-        <location filename="../qml/components/message/InfoItem.qml" line="103"/>
+        <location filename="../qml/components/message/InfoItem.qml" line="35"/>
         <source>show more</source>
         <extracomment>Hint for very long messages, while not expanded</extracomment>
         <translation>mostrar más</translation>
@@ -2087,7 +2087,7 @@ Settings page share contacts</extracomment>
         <translation>Señal Captcha</translation>
     </message>
     <message id="whisperfish-cover-unread-label" numerus="yes">
-        <location filename="../qml/cover/CoverPage.qml" line="53"/>
+        <location filename="../qml/cover/CoverPage.qml" line="56"/>
         <source>Unread&lt;br/&gt;message(s)</source>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
