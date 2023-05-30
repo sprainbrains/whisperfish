@@ -9,8 +9,8 @@ use diesel::sql_types::*;
 use diesel_migrations::EmbeddedMigrations;
 use std::io::Read;
 use std::path::Path;
-use whisperfish::schema::migrations as schemas;
 use whisperfish::store;
+use whisperfish::store::schema::migrations as schemas;
 
 #[derive(Queryable, QueryableByName, Debug)]
 #[allow(dead_code)]

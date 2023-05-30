@@ -15,7 +15,7 @@ use diesel::sqlite::Sqlite;
 use diesel_migrations::EmbeddedMigrations;
 use rstest::*;
 use rstest_reuse::{self, *};
-use whisperfish::schema::migrations as schemas;
+use whisperfish_store::schema::migrations as schemas;
 
 type MigrationList = Vec<Box<dyn Migration<Sqlite> + 'static>>;
 
@@ -112,7 +112,7 @@ mod original_data {
 }
 
 fn assert_foreign_keys(db: &mut SqliteConnection) {
-    whisperfish::check_foreign_keys(db).expect("foreign keys intact");
+    whisperfish_store::check_foreign_keys(db).expect("foreign keys intact");
 }
 
 #[fixture]
@@ -766,7 +766,7 @@ fn timestamp_conversion(original_go_db: SqliteConnection) {
     for _ in 0..count {
         let ts: u64 = rng.gen_range(0, 1614425253000);
         message.timestamp = ts as i64;
-        let ts = whisperfish::millis_to_naive_chrono(ts);
+        let ts = whisperfish_store::millis_to_naive_chrono(ts);
         timestamps.push(ts);
 
         diesel::insert_into(message::table)

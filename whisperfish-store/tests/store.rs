@@ -8,10 +8,9 @@ use phonenumber::PhoneNumber;
 use rstest::rstest;
 use std::future::Future;
 use std::sync::Arc;
-use whisperfish::config::SignalConfig;
-use whisperfish::store;
-use whisperfish::store::orm::UnidentifiedAccessMode;
-use whisperfish::store::{GroupV1, NewMessage, Storage};
+use whisperfish_store::config::SignalConfig;
+use whisperfish_store::orm::UnidentifiedAccessMode;
+use whisperfish_store::{GroupV1, NewMessage, Storage};
 
 #[rstest]
 #[actix_rt::test]
@@ -449,7 +448,7 @@ async fn test_save_attachment(ext: &str) {
 
     env_logger::try_init().ok();
 
-    let location = store::temp();
+    let location = whisperfish_store::temp();
     let rng = rand::thread_rng();
 
     // Signaling password for REST API
@@ -519,7 +518,7 @@ async fn test_create_and_open_storage(
 
     env_logger::try_init().ok();
 
-    let location = store::temp();
+    let location = whisperfish_store::temp();
     let rng = rand::thread_rng();
 
     // Signaling password for REST API
@@ -601,7 +600,7 @@ async fn test_recipient_actions() {
 
     env_logger::try_init().ok();
 
-    let location = store::temp();
+    let location = whisperfish_store::temp();
     let rng = rand::thread_rng();
 
     // Signaling password for REST API

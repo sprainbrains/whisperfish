@@ -1,7 +1,7 @@
 //! Helper structs that map directly on `old_schema::*`
 
 use chrono::prelude::*;
-use whisperfish::schema::migrations as schemas;
+use whisperfish_store::schema::migrations as schemas;
 
 pub mod original {
     use super::*;
@@ -156,5 +156,5 @@ mod corrected_datatypes {
 }
 
 pub mod current {
-    pub use whisperfish::store::orm::*;
+    pub use whisperfish_store::orm::*;
 }

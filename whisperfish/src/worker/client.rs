@@ -26,11 +26,10 @@ use zkgroup::profiles::ProfileKey;
 use super::profile_refresh::OutdatedProfileStream;
 use crate::actor::SessionActor;
 use crate::gui::StorageReady;
-use crate::millis_to_naive_chrono;
 use crate::model::DeviceModel;
 use crate::platform::QmlApp;
 use crate::store::orm::UnidentifiedAccessMode;
-use crate::store::{orm, Storage};
+use crate::store::{millis_to_naive_chrono, orm, Storage};
 use crate::worker::client::orm::shorten;
 use crate::worker::client::unidentified::CertType;
 use actix::prelude::*;
@@ -643,7 +642,7 @@ impl ClientActor {
                     // In fact, we should query for registered contacts instead of sessions here.
                     // https://gitlab.com/whisperfish/whisperfish/-/issues/133
                     let recipients: Vec<orm::Recipient> = {
-                        use crate::schema::recipients::dsl::*;
+                        use crate::store::schema::recipients::dsl::*;
                         use diesel::prelude::*;
                         let mut db = storage.db();
                         recipients.load(&mut *db)?

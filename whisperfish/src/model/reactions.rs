@@ -2,9 +2,9 @@
 
 use std::collections::HashMap;
 
+use crate::model::*;
 use crate::store::observer::{EventObserving, Interest};
-use crate::store::{orm, Storage};
-use crate::{model::*, schema};
+use crate::store::{orm, schema, Storage};
 use qmetaobject::{prelude::*, QJsonObject};
 
 /// QML-constructable object that interacts with a single session.

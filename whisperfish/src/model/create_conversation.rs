@@ -1,10 +1,8 @@
 #![allow(non_snake_case)]
 
 use crate::model::*;
-use crate::schema;
-use crate::store::observer::EventObserving;
-use crate::store::observer::Interest;
-use crate::store::Storage;
+use crate::store::observer::{EventObserving, Interest};
+use crate::store::{schema, Storage};
 use phonenumber::PhoneNumber;
 use qmetaobject::prelude::*;
 

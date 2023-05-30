@@ -76,7 +76,7 @@ async fn insert_then_fetch_by_uuid(storage: impl Future<Output = InMemoryDb>) {
 
 mod merge_and_fetch {
     use super::*;
-    use whisperfish::store::TrustLevel;
+    use whisperfish_store::TrustLevel;
 
     #[rstest]
     #[actix_rt::test]
@@ -228,7 +228,7 @@ mod merge_and_fetch {
 mod merge_and_fetch_conflicting_recipients {
     use super::*;
     use uuid::Uuid;
-    use whisperfish::store::TrustLevel;
+    use whisperfish_store::TrustLevel;
 
     #[rstest]
     #[actix_rt::test]

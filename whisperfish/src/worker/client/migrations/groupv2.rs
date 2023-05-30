@@ -15,7 +15,7 @@ impl Handler<ComputeGroupV2ExpectedIds> for ClientActor {
 
         Box::pin(
             async move {
-                use crate::schema::group_v1s::dsl::*;
+                use crate::store::schema::group_v1s::dsl::*;
                 let pending_ids: Vec<String> = {
                     group_v1s
                         .select(id)
