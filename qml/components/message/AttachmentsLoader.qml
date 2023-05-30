@@ -270,8 +270,9 @@ Loader {
                 property int currentAttachmentIndex: 0
                 width: parent.width
                 height: parent.height/Math.min(maxDetails, detailAttachmentCount)
-                sourceComponent: detailAttachmentCount >= 1 && detailAttachments[0].type !== undefined ?
-                                     parent.componentForMime(detailAttachments[0].type) : null
+                sourceComponent: detailAttachmentCount >= 1
+                                ? parent.componentForMime(detailAttachments.get(currentAttachmentIndex).type)
+                                : null
             }
 
             Item {

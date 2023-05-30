@@ -6,17 +6,46 @@ import Sailfish.Silica 1.0
 // This component must be a child of MessageDelegate.
 Item {
     id: infoRow
-    width: privacyIcon.width + statusIcon.width + infoLabel.width + debugLabel.width
-    height: Math.max(privacyIcon.height, statusIcon.height, infoLabel.height, debugLabel.height)
+    width: privacyIcon.width + statusIcon.width + infoLabel.width + debugLabel.width + showMoreRow.width
+    height: Math.max(privacyIcon.height, statusIcon.height, infoLabel.height, debugLabel.height, showMoreRow.height)
+
+    Row {
+        id: showMoreRow
+        visible: showExpand
+        width: visible ? implicitWidth : 0
+        spacing: Theme.paddingSmall
+        layoutDirection: isOutbound ? Qt.LeftToRight : Qt.RightToLeft
+        anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+        }
+
+        Item { width: Theme.paddingSmall; height: parent.height }
+        Label {
+            font.pixelSize: Theme.fontSizeExtraSmall
+            text: "\u2022 \u2022 \u2022" // three dots
+        }
+        Label {
+            text: isExpanded ?
+                      //: Hint for very long messages, while expanded
+                      //% "show less"
+                      qsTrId("whisperfish-message-show-less") :
+                      //: Hint for very long messages, while not expanded
+                      //% "show more"
+                      qsTrId("whisperfish-message-show-more")
+            font.pixelSize: Theme.fontSizeExtraSmall
+        }
+    }
 
     HighlightImage {
         id: privacyIcon
         anchors {
             verticalCenter: parent.verticalCenter
-            left: parent.left
+            left: showMoreRow.visible ? showMoreRow.right : parent.left
         }
+
         visible: SettingsBridge.debug_mode
-        width: visible ? Theme.iconSizeSmall : 0
+        width: visible ? implicitWidth : 0
         height: width
         color: unidentifiedSender ? "green" : "red"
         source: "image://theme/icon-m-device-lock"
@@ -25,7 +54,7 @@ Item {
     HighlightImage {
         id: statusIcon
         visible: isOutbound
-        width: visible ? Theme.iconSizeSmall : 0
+        width: visible ? implicitWidth : 0
         anchors {
             verticalCenter: parent.verticalCenter
             left: privacyIcon.right
@@ -78,30 +107,5 @@ Item {
         text: (visible && modelData) ? " [%1] ".arg(modelData.id) : ""
         color: infoLabel.color
         font.pixelSize: Theme.fontSizeExtraSmall
-    }
-
-    Row {
-        id: showMoreRow
-        visible: showExpand
-        spacing: Theme.paddingSmall
-        layoutDirection: isOutbound ? Qt.LeftToRight : Qt.RightToLeft
-        width: !visible ? 0 : parent.width - infoLabel.width -
-                          statusIcon.width - debugLabel.width
-
-        Item { width: Theme.paddingSmall; height: 1 }
-        Label {
-            font.pixelSize: Theme.fontSizeExtraSmall
-            text: "\u2022 \u2022 \u2022" // three dots
-        }
-        Label {
-            text: isExpanded ?
-                      //: Hint for very long messages, while expanded
-                      //% "show less"
-                      qsTrId("whisperfish-message-show-less") :
-                      //: Hint for very long messages, while not expanded
-                      //% "show more"
-                      qsTrId("whisperfish-message-show-more")
-            font.pixelSize: Theme.fontSizeExtraSmall
-        }
     }
 }
