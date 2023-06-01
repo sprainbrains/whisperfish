@@ -47,7 +47,11 @@ where
     type Row = Option<String>;
 
     fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
-        let uuid = s.as_deref().map(Uuid::parse_str).transpose()?;
+        let uuid = s
+            .as_deref()
+            .filter(|x| !x.is_empty())
+            .map(Uuid::parse_str)
+            .transpose()?;
         Ok(OptionUuidString(uuid))
     }
 }
