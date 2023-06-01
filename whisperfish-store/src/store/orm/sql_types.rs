@@ -47,6 +47,7 @@ where
     type Row = Option<String>;
 
     fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
+        log::trace!("OptionUuidString: deserializing {:?}", s);
         let uuid = s
             .as_deref()
             .filter(|x| !x.is_empty())
@@ -64,6 +65,7 @@ where
     type Row = String;
 
     fn build(s: String) -> diesel::deserialize::Result<Self> {
+        log::trace!("UuidString: deserializing {}", s);
         let uuid = Uuid::parse_str(&s)?;
         Ok(UuidString(uuid))
     }
@@ -92,6 +94,7 @@ where
     type Row = Option<String>;
 
     fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
+        log::trace!("OptionPhoneNumberString: deserializing {:?}", s);
         let phonenumber = s
             .as_deref()
             // XXX: a migration should be made to set these to NULL instead in the db.
@@ -110,6 +113,7 @@ where
     type Row = String;
 
     fn build(s: String) -> diesel::deserialize::Result<Self> {
+        log::trace!("PhoneNumberString: deserializing {}", s);
         let uuid = phonenumber::parse(None, s)?;
         Ok(PhoneNumberString(uuid))
     }
