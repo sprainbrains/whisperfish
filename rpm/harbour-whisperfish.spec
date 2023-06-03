@@ -198,8 +198,11 @@ export RUSTFLAGS="%{?rustflags}"
 export GIT_VERSION=$(git describe  --exclude release,tag --dirty=-dirty)
 
 # Configure Cargo.toml
+# https://blog.rust-lang.org/2022/09/22/Rust-1.64.0.html#cargo-improvements-workspace-inheritance-and-multi-target-builds
 %if 0%{?cargo_version:1}
-sed -ie "s/^version\s\?=\s\?\".*\"/version = \"%{cargo_version}\"/" %{_sourcedir}/../Cargo.toml
+for TOML in $(ls %{_sourcedir}/../Cargo.toml %{_sourcedir}/../*/Cargo.toml) ; do
+  sed -i.bak "s/^version\s*=\s*\"[-\.0-9a-zA-Z]*\"$/version = \"%{cargo_version}\"/" "$TOML"
+done
 export CARGO_PROFILE_RELEASE_LTO=thin
 %endif
 cat %{_sourcedir}/../Cargo.toml
