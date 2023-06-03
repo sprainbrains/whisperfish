@@ -1,3 +1,4 @@
+use anyhow::Context;
 use diesel::{
     backend, deserialize, serialize,
     sql_types::{Integer, Nullable, Text},
@@ -21,6 +22,31 @@ where
             x => Err(format!("Unrecognized variant {}", x).into()),
         }
     }
+}
+
+// Diesel really doesn't like having an Err variant, and apparently we unwrap the errors without
+// Rust being able to print a backtrace.  This makes for very undebuggable errors, see e.g. https://gitlab.com/whisperfish/whisperfish/-/merge_requests/462
+// For that reason, we deserialize invalid values to None instead, and log the error.
+//
+// Semantically this is usually correct: the invalid field should be replaced at a certain point.
+fn log_error_return_none<T>(res: anyhow::Result<Option<T>>) -> Option<T> {
+    match res {
+        Err(e) => {
+            log::error!(
+                "Error deserializing: {}. Please file an issue if this error persists.",
+                e
+            );
+            None
+        }
+        Ok(x) => x,
+    }
+}
+
+fn log_error<T>(res: anyhow::Result<T>) -> anyhow::Result<T> {
+    if let Err(e) = &res {
+        log::error!("Error deserializing; this will crash: {}", e);
+    }
+    res
 }
 
 impl serialize::ToSql<Integer, diesel::sqlite::Sqlite> for UnidentifiedAccessMode
@@ -47,8 +73,13 @@ where
     type Row = Option<String>;
 
     fn build(s: Option<String>) -> diesel::deserialize::Result<Self> {
-        let uuid = s.as_deref().map(Uuid::parse_str).transpose()?;
-        Ok(OptionUuidString(uuid))
+        let uuid = s
+            .as_deref()
+            .filter(|x| !x.is_empty())
+            .map(Uuid::parse_str)
+            .transpose()
+            .with_context(|| format!("OptionUuidString: deserializing {:?}", s));
+        Ok(OptionUuidString(log_error_return_none(uuid)))
     }
 }
 
@@ -60,8 +91,8 @@ where
     type Row = String;
 
     fn build(s: String) -> diesel::deserialize::Result<Self> {
-        let uuid = Uuid::parse_str(&s)?;
-        Ok(UuidString(uuid))
+        let uuid = Uuid::parse_str(&s).with_context(|| format!("UuidString: deserializing {}", s));
+        Ok(UuidString(log_error(uuid)?))
     }
 }
 
@@ -93,8 +124,9 @@ where
             // XXX: a migration should be made to set these to NULL instead in the db.
             .filter(|x| !x.is_empty())
             .map(|s| phonenumber::parse(None, s))
-            .transpose()?;
-        Ok(OptionPhoneNumberString(phonenumber))
+            .transpose()
+            .with_context(|| format!("OptionPhoneNumberString: deserializing {:?}", s));
+        Ok(OptionPhoneNumberString(log_error_return_none(phonenumber)))
     }
 }
 
@@ -106,8 +138,9 @@ where
     type Row = String;
 
     fn build(s: String) -> diesel::deserialize::Result<Self> {
-        let uuid = phonenumber::parse(None, s)?;
-        Ok(PhoneNumberString(uuid))
+        let phonenumber = phonenumber::parse(None, &s)
+            .with_context(|| format!("PhoneNumberString: deserializing {}", s));
+        Ok(PhoneNumberString(log_error(phonenumber)?))
     }
 }
 
