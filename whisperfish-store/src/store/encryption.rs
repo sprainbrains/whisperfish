@@ -339,5 +339,6 @@ mod tests {
             crypto.key_storage.expose_secret(),
             crypto_clone.key_storage.expose_secret()
         );
+        drop(crypto_clone);
     }
 }
