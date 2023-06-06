@@ -7,7 +7,7 @@ import Sailfish.Silica 1.0
 Item {
     id: infoRow
     width: privacyIcon.width + statusIcon.width + infoLabel.width + debugLabel.width + showMoreRow.width
-    height: Math.max(privacyIcon.height, statusIcon.height, infoLabel.height, debugLabel.height, showMoreRow.height)
+    height: Math.max(infoLabel.height, debugLabel.height, showMoreRow.height)
 
     Row {
         id: showMoreRow
@@ -45,8 +45,8 @@ Item {
         }
 
         visible: SettingsBridge.debug_mode
-        width: visible ? implicitWidth : 0
-        height: width
+        width: visible ? infoLabel.height : 0
+        height: infoLabel.height
         color: unidentifiedSender ? "green" : "red"
         source: "image://theme/icon-m-device-lock"
     }
@@ -54,12 +54,12 @@ Item {
     HighlightImage {
         id: statusIcon
         visible: isOutbound
-        width: visible ? implicitWidth : 0
+        width: visible ? infoLabel.height : 0
+        height: infoLabel.height
         anchors {
             verticalCenter: parent.verticalCenter
             left: privacyIcon.right
         }
-        height: width
         color: infoLabel.color
         source: {
             if (!hasData) "../../../icons/icon-s-queued.png" // cf. below
