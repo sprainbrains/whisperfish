@@ -75,7 +75,7 @@ Page {
                 //% "%n member(s)"
                 return qsTrId("whisperfish-group-n-members", group.member_count)
             }
-            else return (session.recipientName === session.recipientE164 ?
+            else return (!SettingsBridge.show_phone_number || session.recipientName === session.recipientE164 ?
                              "" : session.recipientE164)
         }
         profilePicture: root.profilePicture

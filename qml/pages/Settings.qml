@@ -237,6 +237,22 @@ Page {
                 }
             }
             IconTextSwitch {
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Settings page, show recipient phone number in conversation view
+                //% "Show phone number"
+                text: qsTrId("whisperfish-settings-show-phone-number")
+                //: Settings page, show recipient phone number in conversation view description
+                //% "Show the phone number of the recipient in the conversation page header."
+                description: qsTrId("whisperfish-settings-show-phone-number-description")
+                checked: SettingsBridge.show_phone_number
+                icon.source: "image://theme/icon-m-phone"
+                onCheckedChanged: {
+                    if(checked!= SettingsBridge.show_phone_number) {
+                        SettingsBridge.show_phone_number = checked
+                    }
+                }
+            }
+            IconTextSwitch {
                 id: enableEnterSend
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page enable enter send
