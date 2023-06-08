@@ -16,10 +16,9 @@ pub struct SettingsBridge {
 
     inner: *mut QSettings,
 
-    enable_notify: qt_property!(bool; READ get_enable_notify WRITE set_enable_notify NOTIFY enable_notify_changed),
     debug_mode: qt_property!(bool; READ get_debug_mode WRITE set_debug_mode NOTIFY debug_mode_changed),
     enable_typing_indicators: qt_property!(bool; READ get_enable_typing_indicators WRITE set_enable_typing_indicators NOTIFY enable_typing_indicators_changed),
-    show_notify_message: qt_property!(bool; READ get_show_notify_message WRITE set_show_notify_message NOTIFY show_notify_message_changed),
+    notification_privacy: qt_property!(String; READ get_notification_privacy WRITE set_notification_privacy NOTIFY notification_privacy_changed),
     prefer_device_contacts: qt_property!(bool; READ get_prefer_device_contacts WRITE set_prefer_device_contacts NOTIFY prefer_device_contacts_changed),
     minimise_notify: qt_property!(bool; READ get_minimise_notify WRITE set_minimise_notify NOTIFY minimise_notify_changed),
     save_attachments: qt_property!(bool; READ get_save_attachments WRITE set_save_attachments NOTIFY save_attachments_changed),
@@ -39,10 +38,9 @@ pub struct SettingsBridge {
     camera_dir: qt_property!(String; READ get_camera_dir WRITE set_camera_dir NOTIFY camera_dir_changed),
     plaintext_password: qt_property!(String; READ get_plaintext_password WRITE set_plaintext_password NOTIFY plaintext_password_changed),
 
-    enable_notify_changed: qt_signal!(value: bool),
     debug_mode_changed: qt_signal!(value: bool),
     enable_typing_indicators_changed: qt_signal!(value: bool),
-    show_notify_message_changed: qt_signal!(value: bool),
+    notification_privacy_changed: qt_signal!(value: String),
     prefer_device_contacts_changed: qt_signal!(value: bool),
     minimise_notify_changed: qt_signal!(value: bool),
     save_attachments_changed: qt_signal!(value: bool),
@@ -80,10 +78,9 @@ impl Default for SettingsBridge {
                     .unwrap(),
             ),
 
-            enable_notify: true,
             debug_mode: false,
             enable_typing_indicators: false,
-            show_notify_message: false,
+            notification_privacy: "complete".into(),
             prefer_device_contacts: false,
             minimise_notify: false,
             save_attachments: true,
@@ -102,10 +99,9 @@ impl Default for SettingsBridge {
             camera_dir: Default::default(),
             plaintext_password: Default::default(),
 
-            enable_notify_changed: Default::default(),
             debug_mode_changed: Default::default(),
             enable_typing_indicators_changed: Default::default(),
-            show_notify_message_changed: Default::default(),
+            notification_privacy_changed: Default::default(),
             prefer_device_contacts_changed: Default::default(),
             minimise_notify_changed: Default::default(),
             save_attachments_changed: Default::default(),
@@ -175,8 +171,28 @@ impl SettingsBridge {
         }
     }
 
-    pub fn get_enable_notify(&self) -> bool {
-        self.get_bool("enable_notify")
+    pub fn get_notification_privacy(&self) -> String {
+        let np = self.get_string("notification_privacy");
+        match np.as_ref() {
+            "" => {
+                log::debug!("Fallback notification_privacy setting onto legacy options");
+                let enable = self.get_bool("enable_notify");
+                let show_message = self.get_bool("show_notify_message");
+                match (enable, show_message) {
+                    (false, _) => "off".into(),
+                    (true, false) => "sender-only".into(),
+                    (true, true) => "complete".into(),
+                }
+            }
+            "off" | "minimal" | "sender-only" | "complete" => np,
+            _ => {
+                log::warn!(
+                    "Unrecognised notification privacy setting {}, reverting to off",
+                    np
+                );
+                "off".into()
+            }
+        }
     }
 
     pub fn get_debug_mode(&self) -> bool {
@@ -185,10 +201,6 @@ impl SettingsBridge {
 
     pub fn get_enable_typing_indicators(&self) -> bool {
         self.get_bool("enable_typing_indicators")
-    }
-
-    pub fn get_show_notify_message(&self) -> bool {
-        self.get_bool("show_notify_message")
     }
 
     pub fn get_prefer_device_contacts(&self) -> bool {
@@ -251,9 +263,9 @@ impl SettingsBridge {
         self.get_string("plaintext_password")
     }
 
-    pub fn set_enable_notify(&mut self, value: bool) {
-        self.set_bool("enable_notify", value);
-        self.enable_notify_changed(value);
+    pub fn set_notification_privacy(&mut self, value: String) {
+        self.set_string("notification_privacy", &value);
+        self.notification_privacy_changed(value);
     }
 
     pub fn set_debug_mode(&mut self, value: bool) {
@@ -264,11 +276,6 @@ impl SettingsBridge {
     pub fn set_enable_typing_indicators(&mut self, value: bool) {
         self.set_bool("enable_typing_indicators", value);
         self.enable_typing_indicators_changed(value);
-    }
-
-    pub fn set_show_notify_message(&mut self, value: bool) {
-        self.set_bool("show_notify_message", value);
-        self.show_notify_message_changed(value);
     }
 
     pub fn set_prefer_device_contacts(&mut self, value: bool) {
