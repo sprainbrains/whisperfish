@@ -593,7 +593,7 @@ impl ClientActor {
             .messageReceived(session.id, message.id);
 
         // XXX If from ourselves, skip
-        if settings.get_bool("enable_notify") && !is_sync_sent && !session.is_muted {
+        if !is_sync_sent && !session.is_muted {
             let session_name: Cow<'_, str> = match &session.r#type {
                 orm::SessionType::GroupV1(group) => Cow::from(&group.name),
                 orm::SessionType::GroupV2(group) => Cow::from(&group.name),
