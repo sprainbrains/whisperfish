@@ -163,22 +163,20 @@ ApplicationWindow
             return
         }
 
-        var m
-        if(SettingsBridge.show_notify_message) {
-            m = messageNotification.createObject(null)
+        var m = messageNotification.createObject(null)
+        m.itemCount = 1
+        var setting = SettingsBridge.notification_privacy.toString();
+        if(setting === "complete") {
             m.body = message
-            m.itemCount = 1
-        } else {
-            if (sid in notificationMap) {
-                m = notificationMap[sid][0]
-                m.itemCount++
-            } else {
-                m = messageNotification.createObject(null)
-                m.itemCount = 1
-            }
+        } else if(setting === "minimal" || setting === "sender-only") {
             //: Default label for new message notification
             //% "New Message"
             m.body = qsTrId("whisperfish-notification-default-message")
+        } else if(setting === "off") {
+            return;
+        } else {
+            console.error("Unrecognised notification privacy setting " + setting);
+            return;
         }
 
         if (SettingsBridge.minimise_notify && (sid in notificationMap)) {
@@ -187,12 +185,16 @@ ApplicationWindow
             m.itemCount = first_message.itemCount + 1
         }
 
-        m.previewSummary = name
-        m.previewBody = m.body
-        m.summary = name
-        if(m.subText !== undefined) {
-            m.subText = contactName
+        if(setting === "complete" || setting === "sender-only") {
+            m.previewSummary = name
+            m.summary = name
+            if(m.subText !== undefined) {
+                m.subText = contactName
+            }
         }
+        // XXX: maybe we do want a summary?
+
+        m.previewBody = m.body
         m.clicked.connect(function() {
             console.log("Activating session: " + sid)
             mainWindow.activate()
