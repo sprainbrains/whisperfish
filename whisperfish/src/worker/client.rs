@@ -1213,6 +1213,7 @@ impl Handler<SendMessage> for ClientActor {
 
                     profile_key: self_recipient.and_then(|r| r.profile_key),
                     quote,
+                    expire_timer: msg.expires_in.map(|x| x as u32),
                     ..Default::default()
                 };
 
