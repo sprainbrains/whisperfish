@@ -448,7 +448,7 @@ impl ClientActor {
             }
             None
         } else if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
-            Some(format!("Expiration timer has been changed ({:?} seconds), but unimplemented in Whisperfish.", msg.expire_timer))
+            Some(format!("Expiration timer has been changed ({:?} seconds).  This is only partially implemented in Whisperfish.", msg.expire_timer))
         } else if let Some(GroupContextV2 {
             group_change: Some(ref _group_change),
             ..
