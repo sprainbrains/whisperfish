@@ -21,6 +21,7 @@ pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
 use libsignal_service::sender::SendMessageResult;
 use libsignal_service::sender::SentMessage;
 use uuid::Uuid;
+use whisperfish_store::TrustLevel;
 use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
@@ -499,28 +500,6 @@ impl ClientActor {
             metadata.unidentified_sender
         };
 
-        let new_message = crate::store::NewMessage {
-            source_e164: source_phonenumber,
-            source_uuid,
-            text,
-            flags: msg.flags() as i32,
-            outgoing: is_sync_sent,
-            is_unidentified,
-            sent: is_sync_sent,
-            timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
-                timestamp
-            } else {
-                msg.timestamp()
-            }),
-            has_attachment: !msg.attachments.is_empty(),
-            mime_type: None,  // Attachments are further handled asynchronously
-            received: false,  // This is set true by a receipt handler
-            session_id: None, // Canary value checked later
-            attachment: None,
-            is_read: is_sync_sent,
-            quote_timestamp: msg.quote.as_ref().and_then(|x| x.id),
-        };
-
         let group = if let Some(group) = msg.group_v2.as_ref() {
             let mut key_stack = [0u8; zkgroup::GROUP_MASTER_KEY_LEN];
             key_stack.clone_from_slice(group.master_key.as_ref().expect("group message with key"));
@@ -548,7 +527,39 @@ impl ClientActor {
             None
         };
 
-        let (message, session) = storage.process_message(new_message, group);
+        let session = group.unwrap_or_else(|| {
+            let recipient = storage.merge_and_fetch_recipient(
+                source_phonenumber.clone(),
+                source_uuid,
+                None,
+                TrustLevel::Certain,
+            );
+            storage.fetch_or_insert_session_by_recipient_id(recipient.id)
+        });
+
+        let new_message = crate::store::NewMessage {
+            source_e164: source_phonenumber,
+            source_uuid,
+            text,
+            flags: msg.flags() as i32,
+            outgoing: is_sync_sent,
+            is_unidentified,
+            sent: is_sync_sent,
+            timestamp: millis_to_naive_chrono(if is_sync_sent && timestamp > 0 {
+                timestamp
+            } else {
+                msg.timestamp()
+            }),
+            has_attachment: !msg.attachments.is_empty(),
+            mime_type: None, // Attachments are further handled asynchronously
+            received: false, // This is set true by a receipt handler
+            session_id: session.id,
+            attachment: None,
+            is_read: is_sync_sent,
+            quote_timestamp: msg.quote.as_ref().and_then(|x| x.id),
+        };
+
+        let message = storage.create_message(&new_message);
 
         if settings.get_bool("attachment_log") && !msg.attachments.is_empty() {
             log::trace!("Logging message to the attachment log");
@@ -1079,9 +1090,6 @@ impl Handler<QueueMessage> for ClientActor {
         let self_recipient = storage
             .fetch_self_recipient()
             .expect("self recipient set when sending");
-        let session = storage
-            .fetch_session_by_id(msg.session_id)
-            .expect("existing session when sending");
 
         let quote = if msg.quote >= 0 {
             Some(
@@ -1093,39 +1101,36 @@ impl Handler<QueueMessage> for ClientActor {
             None
         };
 
-        let (msg, _session) = storage.process_message(
-            crate::store::NewMessage {
-                session_id: Some(msg.session_id),
-                source_e164: self_recipient.e164,
-                source_uuid: self_recipient.uuid,
-                text: msg.message,
-                timestamp: chrono::Utc::now().naive_utc(),
-                has_attachment,
-                mime_type: if has_attachment {
-                    Some(
-                        mime_guess::from_path(&msg.attachment)
-                            .first_or_octet_stream()
-                            .essence_str()
-                            .into(),
-                    )
-                } else {
-                    None
-                },
-                attachment: if has_attachment {
-                    Some(msg.attachment)
-                } else {
-                    None
-                },
-                flags: 0,
-                outgoing: true,
-                received: false,
-                sent: false,
-                is_read: true,
-                is_unidentified: false,
-                quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
+        let msg = storage.create_message(&crate::store::NewMessage {
+            session_id: msg.session_id,
+            source_e164: self_recipient.e164,
+            source_uuid: self_recipient.uuid,
+            text: msg.message,
+            timestamp: chrono::Utc::now().naive_utc(),
+            has_attachment,
+            mime_type: if has_attachment {
+                Some(
+                    mime_guess::from_path(&msg.attachment)
+                        .first_or_octet_stream()
+                        .essence_str()
+                        .into(),
+                )
+            } else {
+                None
             },
-            Some(session),
-        );
+            attachment: if has_attachment {
+                Some(msg.attachment)
+            } else {
+                None
+            },
+            flags: 0,
+            outgoing: true,
+            received: false,
+            sent: false,
+            is_read: true,
+            is_unidentified: false,
+            quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
+        });
 
         ctx.notify(SendMessage(msg.id));
     }
@@ -1388,27 +1393,25 @@ impl Handler<EndSession> for ClientActor {
         let recipient = storage
             .fetch_recipient_by_id(id)
             .expect("existing recipient id");
+        let session = storage.fetch_or_insert_session_by_recipient_id(recipient.id);
 
-        let (msg, _session) = storage.process_message(
-            crate::store::NewMessage {
-                session_id: None,
-                source_e164: recipient.e164,
-                source_uuid: recipient.uuid,
-                text: "[Whisperfish] Reset secure session".into(),
-                timestamp: chrono::Utc::now().naive_utc(),
-                has_attachment: false,
-                mime_type: None,
-                attachment: None,
-                flags: DataMessageFlags::EndSession.into(),
-                outgoing: true,
-                received: false,
-                sent: false,
-                is_read: true,
-                is_unidentified: false,
-                quote_timestamp: None,
-            },
-            None,
-        );
+        let msg = storage.create_message(&crate::store::NewMessage {
+            session_id: session.id,
+            source_e164: recipient.e164,
+            source_uuid: recipient.uuid,
+            text: "[Whisperfish] Reset secure session".into(),
+            timestamp: chrono::Utc::now().naive_utc(),
+            has_attachment: false,
+            mime_type: None,
+            attachment: None,
+            flags: DataMessageFlags::EndSession.into(),
+            outgoing: true,
+            received: false,
+            sent: false,
+            is_read: true,
+            is_unidentified: false,
+            quote_timestamp: None,
+        });
         ctx.notify(SendMessage(msg.id));
     }
 }
@@ -1816,8 +1819,10 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                             // more than once.
                             let source_uuid = Uuid::parse_str(addr.name()).expect("only uuid-based identities accessible in the database");
                             log::warn!("Untrusted identity for {}; replacing identity and inserting a warning.", addr);
+                            let recipient = storage.fetch_or_insert_recipient_by_uuid(source_uuid);
+                            let session = storage.fetch_or_insert_session_by_recipient_id(recipient.id);
                             let msg = crate::store::NewMessage {
-                                session_id: None,
+                                session_id: session.id,
                                 source_e164: None,
                                 source_uuid: Some(source_uuid),
                                 text: "[Whisperfish] The identity key for this contact has changed.  Please verify your safety number.".into(),
@@ -1833,7 +1838,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                                 is_unidentified: false,
                                 quote_timestamp: None,
                             };
-                            storage.process_message(msg, None);
+                            storage.create_message(&msg);
                             let removed = storage.delete_identity_key(&addr);
                             if ! removed {
                                 log::error!("Could not remove identity key for {}.  Please file a bug.", addr);

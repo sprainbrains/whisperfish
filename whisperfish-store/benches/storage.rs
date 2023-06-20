@@ -46,26 +46,24 @@ fn fetch_augmented_messages(c: &mut Criterion) {
             // Insert `elements` messages
             let session = storage.fetch_or_insert_session_by_phonenumber(&pn);
             for _ in 0..elements {
-                let (msg, _) = storage.process_message(
-                    NewMessage {
-                        session_id: Some(session.id),
-                        source_e164: Some(pn.clone()),
-                        source_uuid: None,
-                        text: "Foo bar".into(),
-                        timestamp: chrono::Utc::now().naive_utc(),
-                        sent: false,
-                        received: false,
-                        is_read: false,
-                        flags: 0,
-                        attachment: None,
-                        mime_type: None,
-                        has_attachment: false,
-                        outgoing: false,
-                        is_unidentified: false,
-                        quote_timestamp: None,
-                    },
-                    None,
-                );
+                let msg = storage.create_message(&NewMessage {
+                    session_id: session.id,
+                    source_e164: Some(pn.clone()),
+                    source_uuid: None,
+                    text: "Foo bar".into(),
+                    timestamp: chrono::Utc::now().naive_utc(),
+                    sent: false,
+                    received: false,
+                    is_read: false,
+                    flags: 0,
+                    attachment: None,
+                    mime_type: None,
+                    has_attachment: false,
+                    outgoing: false,
+                    is_unidentified: false,
+                    quote_timestamp: None,
+                    expires_in: None,
+                });
                 for _attachment in 0..attachments {
                     storage.register_attachment(msg.id, AttachmentPointer::default(), "");
                 }
