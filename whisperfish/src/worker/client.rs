@@ -410,10 +410,6 @@ impl ClientActor {
             // XXX Update expiration timer and notify UI
         }
 
-        if msg.flags() & DataMessageFlags::ProfileKeyUpdate as u32 != 0 {
-            // XXX Update profile key (which happens just below); don't insert this message.
-        }
-
         if (source_phonenumber.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
                 let (recipient, was_updated) = storage.update_profile_key(
