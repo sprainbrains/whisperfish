@@ -106,6 +106,7 @@ pub struct NewMessage {
     pub outgoing: bool,
     pub is_unidentified: bool,
     pub quote_timestamp: Option<u64>,
+    pub expires_in: Option<std::time::Duration>,
 }
 
 #[derive(Clone, Debug)]
@@ -2041,6 +2042,7 @@ impl Storage {
                     use_unidentified.eq(new_message.is_unidentified),
                     flags.eq(new_message.flags),
                     quote_id.eq(quoted_message_id),
+                    expires_in.eq(new_message.expires_in.map(|x| x.as_secs() as i32)),
                 ))
                 .execute(&mut *self.db())
                 .expect("inserting a message")

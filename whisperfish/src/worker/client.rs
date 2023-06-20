@@ -557,6 +557,7 @@ impl ClientActor {
             attachment: None,
             is_read: is_sync_sent,
             quote_timestamp: msg.quote.as_ref().and_then(|x| x.id),
+            expires_in: session.expiring_message_timeout,
         };
 
         let message = storage.create_message(&new_message);
@@ -1090,6 +1091,9 @@ impl Handler<QueueMessage> for ClientActor {
         let self_recipient = storage
             .fetch_self_recipient()
             .expect("self recipient set when sending");
+        let session = storage
+            .fetch_session_by_id(msg.session_id)
+            .expect("existing session when sending");
 
         let quote = if msg.quote >= 0 {
             Some(
@@ -1130,6 +1134,7 @@ impl Handler<QueueMessage> for ClientActor {
             is_read: true,
             is_unidentified: false,
             quote_timestamp: quote.map(|msg| msg.server_timestamp.timestamp_millis() as u64),
+            expires_in: session.expiring_message_timeout,
         });
 
         ctx.notify(SendMessage(msg.id));
@@ -1412,6 +1417,7 @@ impl Handler<EndSession> for ClientActor {
             is_read: true,
             is_unidentified: false,
             quote_timestamp: None,
+            expires_in: session.expiring_message_timeout,
         });
         ctx.notify(SendMessage(msg.id));
     }
@@ -1838,6 +1844,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                                 outgoing: false,
                                 is_unidentified: false,
                                 quote_timestamp: None,
+                                expires_in: session.expiring_message_timeout,
                             };
                             storage.create_message(&msg);
                             let removed = storage.delete_identity_key(&addr);
