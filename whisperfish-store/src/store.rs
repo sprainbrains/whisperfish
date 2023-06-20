@@ -796,6 +796,20 @@ impl Storage {
         }
     }
 
+    pub fn update_expiration_timer(&self, session_id: i32, timer: Option<u32>) {
+        // Carry out the update only if the timer changes
+        use crate::schema::sessions::dsl::*;
+        let affected_rows = diesel::update(sessions)
+            .set((expiring_message_timeout.eq(timer.map(|i| i as i32)),))
+            .filter(id.eq(session_id))
+            .execute(&mut *self.db())
+            .expect("existing record updated");
+
+        if affected_rows > 0 {
+            self.observe_update(sessions, session_id);
+        }
+    }
+
     pub fn update_profile_key(
         &self,
         phonenumber: Option<PhoneNumber>,

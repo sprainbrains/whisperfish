@@ -407,10 +407,6 @@ impl ClientActor {
             }
         }
 
-        if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
-            // XXX Update expiration timer and notify UI
-        }
-
         if (source_phonenumber.is_some() || source_uuid.is_some()) && !is_sync_sent {
             if let Some(key) = msg.profile_key.as_deref() {
                 let (recipient, was_updated) = storage.update_profile_key(
@@ -536,6 +532,10 @@ impl ClientActor {
             );
             storage.fetch_or_insert_session_by_recipient_id(recipient.id)
         });
+
+        if msg.flags() & DataMessageFlags::ExpirationTimerUpdate as u32 != 0 {
+            storage.update_expiration_timer(session.id, msg.expire_timer);
+        }
 
         let new_message = crate::store::NewMessage {
             source_e164: source_phonenumber,

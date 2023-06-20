@@ -709,6 +709,7 @@ impl
             draft,
 
             expiring_message_timeout: expiring_message_timeout
+                .and_then(|i| if i == 0 { None } else { Some(i) })
                 .map(|i| i as u64)
                 .map(Duration::from_secs),
 
