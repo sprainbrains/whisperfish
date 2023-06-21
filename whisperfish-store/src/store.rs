@@ -1971,12 +1971,13 @@ impl Storage {
                 is_quote.eq(false),
                 message_id.eq(mid),
                 attachment_path.eq(path),
-                visual_hash.eq(ptr.blur_hash),
-                file_name.eq(ptr.file_name),
-                caption.eq(ptr.caption),
-                data_hash.eq(ptr.digest),
+                visual_hash.eq(&ptr.blur_hash),
+                file_name.eq(&ptr.file_name),
+                caption.eq(&ptr.caption),
+                data_hash.eq(&ptr.digest),
                 width.eq(ptr.width.map(|x| x as i32)),
                 height.eq(ptr.height.map(|x| x as i32)),
+                pointer.eq(ptr.encode_to_vec()),
             ))
             .execute(&mut *self.db())
             .expect("insert attachment");

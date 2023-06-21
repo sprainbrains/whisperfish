@@ -34,6 +34,7 @@ diesel::table! {
         upload_timestamp -> Timestamp,
         cdn_number -> Nullable<Integer>,
         caption -> Nullable<Text>,
+        pointer -> Nullable<Binary>,
     }
 }
 
