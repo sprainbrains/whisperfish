@@ -65,7 +65,7 @@ fn fetch_augmented_messages(c: &mut Criterion) {
                     expires_in: None,
                 });
                 for _attachment in 0..attachments {
-                    storage.register_attachment(msg.id, AttachmentPointer::default(), "");
+                    storage.register_attachment(msg.id, AttachmentPointer::default());
                 }
                 // for _receipt in 0..receipts {
                 //     storage.register_attachment(msg.id, "", "");

@@ -379,7 +379,7 @@ impl ClientActor {
         let settings = crate::config::SettingsBridge::default();
         let is_sync_sent = sync_sent.is_some();
 
-        let storage = self.storage.as_mut().expect("storage");
+        let mut storage = self.storage.clone().expect("storage");
         let sender_recipient = if source_phonenumber.is_some() || source_uuid.is_some() {
             Some(storage.merge_and_fetch_recipient(
                 source_phonenumber.clone(),
@@ -577,20 +577,12 @@ impl ClientActor {
             .expect("write to the attachment log");
         }
 
-        if settings.get_bool("save_attachments") {
-            for attachment in &msg.attachments {
-                // Go used to always set has_attachment and mime_type, but also
-                // in this method, as well as the generated path.
-                // We have this function that returns a filesystem path, so we can
-                // set it ourselves.
-                let dir = settings.get_string("attachment_dir");
-                let dest = Path::new(&dir);
+        for attachment in &msg.attachments {
+            let attachment = storage.register_attachment(message.id, attachment.clone());
 
+            if settings.get_bool("save_attachments") {
                 ctx.notify(FetchAttachment {
-                    session_id: session.id,
-                    message_id: message.id,
-                    dest: dest.to_path_buf(),
-                    ptr: attachment.clone(),
+                    attachment_id: attachment.id,
                 });
             }
         }
@@ -936,10 +928,7 @@ impl Actor for ClientActor {
 #[derive(Message)]
 #[rtype(result = "()")]
 struct FetchAttachment {
-    session_id: i32,
-    message_id: i32,
-    dest: PathBuf,
-    ptr: AttachmentPointer,
+    attachment_id: i32,
 }
 
 impl Handler<FetchAttachment> for ClientActor {
@@ -954,17 +943,38 @@ impl Handler<FetchAttachment> for ClientActor {
         fetch: FetchAttachment,
         ctx: &mut <Self as Actor>::Context,
     ) -> Self::Result {
-        let FetchAttachment {
-            session_id,
-            message_id,
-            dest,
-            ptr,
-        } = fetch;
+        let FetchAttachment { attachment_id } = fetch;
 
         let client_addr = ctx.address();
 
         let mut service = self.unauthenticated_service();
-        let mut storage = self.storage.clone().unwrap();
+        let storage = self.storage.clone().unwrap();
+
+        let attachment = storage
+            .fetch_attachment(attachment_id)
+            .expect("existing attachment");
+        let message = storage
+            .fetch_message_by_id(attachment.message_id)
+            .expect("existing message");
+        let session = storage
+            .fetch_message_by_id(message.session_id)
+            .expect("existing session");
+        // XXX We may want some graceful error handling here
+        let ptr = AttachmentPointer::decode(
+            attachment
+                .pointer
+                .as_deref()
+                .expect("fetch attachment on attachments with associated pointer"),
+        )
+        .expect("valid attachment pointer");
+
+        // Go used to always set has_attachment and mime_type, but also
+        // in this method, as well as the generated path.
+        // We have this function that returns a filesystem path, so we can
+        // set it ourselves.
+        let settings = crate::config::SettingsBridge::default();
+        let dir = settings.get_string("attachment_dir");
+        let dest = PathBuf::from(dir);
 
         // Sailfish and/or Rust needs "image/jpg" and some others need coaching
         // before taking a wild guess
@@ -981,7 +991,10 @@ impl Handler<FetchAttachment> for ClientActor {
                 .unwrap(),
         };
 
-        let ptr2 = ptr.clone();
+        let ptr2 = attachment.clone();
+        let attachment_id = attachment.id;
+        let session_id = session.id;
+        let message_id = message.id;
         Box::pin(
             async move {
                 use futures::io::AsyncReadExt;
@@ -1046,13 +1059,10 @@ impl Handler<FetchAttachment> for ClientActor {
                     }
                 }
 
-                let attachment_path = storage.save_attachment(&dest, ext, &ciphertext).await?;
+                let _attachment_path = storage
+                    .save_attachment(attachment_id, &dest, ext, &ciphertext)
+                    .await?;
 
-                storage.register_attachment(
-                    message_id,
-                    ptr,
-                    attachment_path.to_str().expect("attachment path utf-8"),
-                );
                 client_addr
                     .send(AttachmentDownloaded {
                         session_id,
@@ -1067,7 +1077,7 @@ impl Handler<FetchAttachment> for ClientActor {
                 if let Err(e) = r {
                     let e = format!(
                         "Error fetching attachment for message with ID `{}` {:?}: {:?}",
-                        message_id, ptr2, e
+                        message.id, ptr2, e
                     );
                     log::error!("{} in handle()", e);
                     let mut log = act.attachment_log();

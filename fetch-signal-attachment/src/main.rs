@@ -138,26 +138,21 @@ async fn main() -> Result<(), anyhow::Error> {
         }
     }
 
-    let attachment_path = storage
-        .save_attachment(dest, &opt.ext, &ciphertext)
-        .await
-        .unwrap();
-
-    log::info!("Attachment stored at {:?}", attachment_path);
-
-    storage.register_attachment(
+    let attachment = storage.register_attachment(
         mid,
         // Reconstruct attachment pointer
         AttachmentPointer {
             content_type: Some(opt.mime_type),
             ..Default::default()
         },
-        attachment_path
-            .canonicalize()
-            .unwrap()
-            .to_str()
-            .expect("attachment path utf-8"),
     );
+
+    let attachment_path = storage
+        .save_attachment(attachment.id, dest, &opt.ext, &ciphertext)
+        .await
+        .unwrap();
+
+    log::info!("Attachment stored at {:?}", attachment_path);
     log::info!("Attachment registered with message {}", msg);
     Ok(())
 }

@@ -1950,7 +1950,7 @@ impl Storage {
         affected_rows
     }
 
-    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) -> orm::Attachment {
+    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer) -> orm::Attachment {
         use schema::attachments::dsl::*;
 
         diesel::insert_into(attachments)
@@ -1970,7 +1970,6 @@ impl Storage {
                 // Then the fields that we immediately access
                 is_quote.eq(false),
                 message_id.eq(mid),
-                attachment_path.eq(path),
                 visual_hash.eq(&ptr.blur_hash),
                 file_name.eq(&ptr.file_name),
                 caption.eq(&ptr.caption),
@@ -2419,6 +2418,7 @@ impl Storage {
     /// Saves a given attachment into a random-generated path. Returns the path.
     pub async fn save_attachment(
         &self,
+        id: i32,
         dest: &Path,
         ext: &str,
         attachment: &[u8],
@@ -2439,6 +2439,14 @@ impl Storage {
                     path.display()
                 )
             })?;
+
+        diesel::update(schema::attachments::table)
+            .filter(schema::attachments::id.eq(id))
+            .set(schema::attachments::attachment_path.eq(path.to_str().expect("valid UTF8 path")))
+            .execute(&mut *self.db())
+            .unwrap();
+
+        self.observe_update(schema::attachments::table, id);
 
         Ok(path)
     }
