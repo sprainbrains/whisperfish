@@ -91,7 +91,7 @@ pub struct Message {
 /// ID-free Message model for insertions
 #[derive(Clone, Debug)]
 pub struct NewMessage {
-    pub session_id: Option<i32>,
+    pub session_id: i32,
     pub source_e164: Option<PhoneNumber>,
     pub source_uuid: Option<Uuid>,
     pub text: String,
@@ -106,6 +106,7 @@ pub struct NewMessage {
     pub outgoing: bool,
     pub is_unidentified: bool,
     pub quote_timestamp: Option<u64>,
+    pub expires_in: Option<std::time::Duration>,
 }
 
 #[derive(Clone, Debug)]
@@ -575,29 +576,6 @@ impl Storage {
         utils::write_file_async_encrypted(path, content, self.store_enc.as_ref()).await
     }
 
-    /// Process message and store in database and update or create a session.
-    ///
-    /// This assumes that the metadata (source_e164 and source_uuid) are correct and verified.
-    pub fn process_message(
-        &self,
-        mut new_message: NewMessage,
-        session: Option<orm::Session>,
-    ) -> (orm::Message, orm::Session) {
-        let session = session.unwrap_or_else(|| {
-            let recipient = self.merge_and_fetch_recipient(
-                new_message.source_e164.clone(),
-                new_message.source_uuid,
-                None,
-                TrustLevel::Certain,
-            );
-            self.fetch_or_insert_session_by_recipient_id(recipient.id)
-        });
-
-        new_message.session_id = Some(session.id);
-        let message = self.create_message(&new_message);
-        (message, session)
-    }
-
     /// Process reaction and store in database.
     pub fn process_reaction(
         &mut self,
@@ -816,6 +794,20 @@ impl Storage {
 
         if affected_rows > 0 {
             self.observe_update(recipients, recipient.id);
+        }
+    }
+
+    pub fn update_expiration_timer(&self, session_id: i32, timer: Option<u32>) {
+        // Carry out the update only if the timer changes
+        use crate::schema::sessions::dsl::*;
+        let affected_rows = diesel::update(sessions)
+            .set((expiring_message_timeout.eq(timer.map(|i| i as i32)),))
+            .filter(id.eq(session_id))
+            .execute(&mut *self.db())
+            .expect("existing record updated");
+
+        if affected_rows > 0 {
+            self.observe_update(sessions, session_id);
         }
     }
 
@@ -1267,20 +1259,21 @@ impl Storage {
         }
     }
 
-    pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: &str) -> orm::Recipient {
+    pub fn fetch_or_insert_recipient_by_uuid(&self, new_uuid: Uuid) -> orm::Recipient {
         use crate::schema::recipients::dsl::*;
 
+        let new_uuid = new_uuid.to_string();
         let mut db = self.db();
         let db = &mut *db;
-        if let Ok(recipient) = recipients.filter(uuid.eq(new_uuid)).first(db) {
+        if let Ok(recipient) = recipients.filter(uuid.eq(&new_uuid)).first(db) {
             recipient
         } else {
             diesel::insert_into(recipients)
-                .values(uuid.eq(new_uuid))
+                .values(uuid.eq(&new_uuid))
                 .execute(db)
                 .expect("insert new recipient");
             let recipient: orm::Recipient = recipients
-                .filter(uuid.eq(new_uuid))
+                .filter(uuid.eq(&new_uuid))
                 .first(db)
                 .expect("newly inserted recipient");
             self.observe_insert(recipients, recipient.id);
@@ -1998,7 +1991,7 @@ impl Storage {
     pub fn create_message(&self, new_message: &NewMessage) -> orm::Message {
         // XXX Storing the message with its attachments should happen in a transaction.
         // Meh.
-        let session = new_message.session_id.expect("session id");
+        let session = new_message.session_id;
 
         log::trace!("Called create_message(..) for session {}", session);
 
@@ -2049,6 +2042,7 @@ impl Storage {
                     use_unidentified.eq(new_message.is_unidentified),
                     flags.eq(new_message.flags),
                     quote_id.eq(quoted_message_id),
+                    expires_in.eq(new_message.expires_in.map(|x| x.as_secs() as i32)),
                 ))
                 .execute(&mut *self.db())
                 .expect("inserting a message")

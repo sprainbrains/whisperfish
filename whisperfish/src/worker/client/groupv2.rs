@@ -127,7 +127,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
 
                 // We need all the profile keys and UUIDs in the database.
                 for (uuid, profile_key) in members_to_assert {
-                    let recipient = storage.fetch_or_insert_recipient_by_uuid(&uuid.to_string());
+                    let recipient = storage.fetch_or_insert_recipient_by_uuid(*uuid);
                     if let Some(profile_key) = profile_key {
                         let (recipient, _was_changed) = storage.update_profile_key(recipient.e164, recipient.uuid, None, &profile_key.get_bytes(), TrustLevel::Uncertain);
                         match recipient.profile_key {
@@ -188,7 +188,7 @@ impl Handler<RequestGroupV2Info> for ClientActor {
                     for member in &group.members {
                         // XXX there's a bit of duplicate work going on here.
                         let recipient =
-                            storage.fetch_or_insert_recipient_by_uuid(&member.uuid.to_string());
+                            storage.fetch_or_insert_recipient_by_uuid(member.uuid);
                         log::trace!(
                             "Asserting {} as a member of the group",
                             recipient.e164_or_uuid()
