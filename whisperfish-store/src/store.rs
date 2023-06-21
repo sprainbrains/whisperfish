@@ -1950,7 +1950,7 @@ impl Storage {
         affected_rows
     }
 
-    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
+    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) -> orm::Attachment {
         use schema::attachments::dsl::*;
 
         diesel::insert_into(attachments)
@@ -1982,8 +1982,14 @@ impl Storage {
             .execute(&mut *self.db())
             .expect("insert attachment");
 
-        self.observe_insert(schema::attachments::table, PrimaryKey::Unknown)
-            .with_relation(schema::messages::table, mid);
+        let latest_attachment = self.fetch_latest_attachment().expect("inserted attachment");
+
+        self.observe_insert(
+            schema::attachments::table,
+            PrimaryKey::RowId(latest_attachment.id),
+        )
+        .with_relation(schema::messages::table, mid);
+        latest_attachment
     }
 
     /// Create a new message. This was transparent within SaveMessage in Go.
@@ -2102,6 +2108,13 @@ impl Storage {
     fn fetch_latest_message(&self) -> Option<orm::Message> {
         schema::messages::table
             .filter(schema::messages::id.eq(last_insert_rowid()))
+            .first(&mut *self.db())
+            .ok()
+    }
+
+    fn fetch_latest_attachment(&self) -> Option<orm::Attachment> {
+        schema::attachments::table
+            .filter(schema::attachments::id.eq(last_insert_rowid()))
             .first(&mut *self.db())
             .ok()
     }
