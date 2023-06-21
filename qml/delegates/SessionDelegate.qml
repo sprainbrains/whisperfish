@@ -360,7 +360,7 @@ ListItem {
                           //: Mark conversation as muted
                           //% "Mute conversation"
                           qsTrId("whisperfish-session-mark-muted")
-                onClicked: delayedPinnedAction = true
+                onClicked: delayedMutedAction = true
             }
 
             MenuItem {
