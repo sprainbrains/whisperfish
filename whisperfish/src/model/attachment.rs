@@ -20,6 +20,7 @@ crate::observing_model! {
     } WITH OPTIONAL PROPERTIES FROM attachment WITH ROLE AttachmentRoles {
         r#type MimeType,
         data Data,
+        visual_hash VisualHash,
     }
 }
 
@@ -72,6 +73,7 @@ define_model_roles! {
         // There's a lot more useful stuff to expose.
         MimeType(content_type via QString::from):       "type",
         Data(attachment_path via qstring_from_option):  "data",
+        VisualHash(visual_hash via qstring_from_option):  "visual_hash",
     }
 }
 
