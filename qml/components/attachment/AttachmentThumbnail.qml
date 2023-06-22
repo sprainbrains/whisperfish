@@ -67,6 +67,13 @@ MouseArea {
         }
     }
 
+    Image {
+        id: blurhashThumb
+        visible: !_isAnimated && attach.data == null && attach.visual_hash != null
+        width: parent.width; height: parent.height
+        source: "image://blurhash/" + attach.visual_hash
+    }
+
     Loader {
         id: animationLoader
         anchors.fill: parent
