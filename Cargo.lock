@@ -452,6 +452,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 
 [[package]]
+name = "blurhash"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8671e4c8bf59f8784aa27fe4c8e152f2a45dfeb91a52d114e5d104a451494bb4"
+
+[[package]]
 name = "brotli"
 version = "3.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3560,6 +3566,7 @@ dependencies = [
  "anyhow",
  "base64",
  "block-modes",
+ "blurhash",
  "cc",
  "chrono",
  "cmake",
@@ -3587,6 +3594,7 @@ dependencies = [
  "mime_guess",
  "once_cell",
  "pbkdf2 0.9.0",
+ "percent-encoding",
  "phonenumber",
  "proc-macro2",
  "qmeta-async",
