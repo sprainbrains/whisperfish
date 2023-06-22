@@ -44,6 +44,10 @@ cpp! {{
                 size_in_bytes : usize as "size_t"
             ] -> i32 as "int" {
                 let id = id.to_string();
+                // XXX We might want some *real* error handling at some point.
+                if id == "null" {
+                    return -1;
+                }
                 let id = percent_encoding::percent_decode_str(&id).decode_utf8().unwrap();
                 let img = blurhash::decode(id.as_ref(), width, height, 1.0);
                 assert_eq!(img.len(), size_in_bytes);
