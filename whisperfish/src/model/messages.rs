@@ -50,9 +50,20 @@ crate::observing_model! {
 impl EventObserving for MessageImpl {
     type Context = ModelContext<Self>;
 
-    fn observe(&mut self, ctx: Self::Context, _event: crate::store::observer::Event) {
+    fn observe(&mut self, ctx: Self::Context, event: crate::store::observer::Event) {
         if let Some(id) = self.message_id {
-            self.fetch(ctx.storage(), id);
+            if let Some(attachment_id) = event.relation_key_for(schema::attachments::table) {
+                if event.is_delete() {
+                    // XXX This could also be implemented efficiently
+                    self.fetch(ctx.storage(), id);
+                } else {
+                    // Only reload the attachments.
+                    // We could also just reload the necessary attachment, but we're lazy today.
+                    self.load_attachment(ctx.storage(), id, attachment_id.as_i32().unwrap());
+                }
+            } else {
+                self.fetch(ctx.storage(), id);
+            }
         }
     }
 
@@ -94,6 +105,10 @@ impl MessageImpl {
 
     fn fetch(&mut self, storage: Storage, id: i32) {
         self.message = storage.fetch_augmented_message(id);
+        self.fetch_attachments(storage, id);
+    }
+
+    fn fetch_attachments(&mut self, storage: Storage, id: i32) {
         let attachments = storage.fetch_attachments_for_message(id);
         self.attachments
             .pinned()
@@ -106,6 +121,28 @@ impl MessageImpl {
 
         self.detail_attachments.pinned().borrow_mut().set(detail);
         self.visual_attachments.pinned().borrow_mut().set(visual);
+    }
+
+    fn load_attachment(&mut self, storage: Storage, _id: i32, attachment_id: i32) {
+        let attachment = storage
+            .fetch_attachment(attachment_id)
+            .expect("existing attachment");
+
+        for container in &[
+            &self.attachments,
+            if attachment.content_type.contains("image")
+                || attachment.content_type.contains("video")
+            {
+                &self.visual_attachments
+            } else {
+                &self.detail_attachments
+            },
+        ] {
+            container
+                .pinned()
+                .borrow_mut()
+                .update_attachment(attachment.clone());
+        }
     }
 
     fn set_message_id(&mut self, ctx: Option<ModelContext<Self>>, id: i32) {
@@ -184,6 +221,12 @@ impl EventObserving for SessionImpl {
             let message_id = event
                 .relation_key_for(schema::messages::table)
                 .and_then(|x| x.as_i32());
+
+            if event.for_table(schema::attachments::table) && event.is_update() {
+                // Don't care, because AugmentedMessage only takes into account the number of
+                // attachments.
+                return;
+            }
 
             if event.for_row(schema::sessions::table, id) {
                 self.session = storage.fetch_session_by_id_augmented(id);

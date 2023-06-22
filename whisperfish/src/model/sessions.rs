@@ -59,7 +59,10 @@ impl EventObserving for SessionsImpl {
         let message_id = event
             .relation_key_for(schema::messages::table)
             .and_then(|x| x.as_i32());
-        if session_id.is_some() || message_id.is_some() {
+        let attachment_id = event
+            .relation_key_for(schema::attachments::table)
+            .and_then(|x| x.as_i32());
+        if session_id.is_some() || message_id.is_some() || attachment_id.is_some() {
             self.session_list
                 .pinned()
                 .borrow_mut()
@@ -117,6 +120,17 @@ impl SessionListModel {
         let message_id = event
             .relation_key_for(schema::messages::table)
             .and_then(|x| x.as_i32());
+        let attachment_id = event
+            .relation_key_for(schema::attachments::table)
+            .and_then(|x| x.as_i32());
+
+        if attachment_id.is_some() && event.is_update() {
+            // Don't care, because SessionListModel only takes into account the number of
+            // attachments.
+            // Furthermore, inserts will have an associated message_id, and deletes don't occur
+            // (so we fall back in that case).
+            return;
+        }
 
         if let Some(session_id) = session_id {
             if let Some(session) = storage.fetch_session_by_id_augmented(session_id) {

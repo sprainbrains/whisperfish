@@ -6,13 +6,26 @@ import Nemo.Thumbnailer 1.0
 
 MouseArea {
     id: root
-    property var attach: null
+    property int index: 0
+    property var attach: JSON.parse(thumbsAttachments.get(index))
+    property var attachments: null
     property var message: null
     property bool highlighted: containsPress
     property bool _hasAttach: attach !== null
     property bool _isAnimated: _hasAttach ? /\.(gif)$/i.test(attach.data) : false
     property bool _isVideo: _hasAttach ? /^video\//.test(attach.type) : false
     property bool _isAnimatedPaused: false
+
+    Connections {
+        target: attachments
+        onDataChanged: {
+            var i = topLeft.row;
+            if (i != index) {
+                return;
+            }
+            attach = JSON.parse(thumbsAttachments.get(i));
+        }
+    }
 
     onClicked: {
         if (!_hasAttach) {

@@ -91,7 +91,8 @@ Loader {
         id: mediaComponent_1
         AttachmentThumbnail {
             anchors.fill: parent
-            attach: JSON.parse(thumbsAttachments.get(0))
+            attachments: thumbsAttachments
+            index: 0
             message: modelData
             onPressAndHold: root.pressAndHold(mouse)
             enabled: !listView.isSelecting
@@ -104,13 +105,15 @@ Loader {
             enabled: !listView.isSelecting
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
-                attach: JSON.parse(thumbsAttachments.get(0))
+                attachments: thumbsAttachments
+                index: 0
                 message: modelData
                 onPressAndHold: root.pressAndHold(mouse)
             }
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
-                attach: JSON.parse(thumbsAttachments.get(1))
+                attachments: thumbsAttachments
+                index: 1
                 message: modelData
                 onPressAndHold: root.pressAndHold(mouse)
             }
@@ -123,7 +126,8 @@ Loader {
             enabled: !listView.isSelecting
             AttachmentThumbnail {
                 width: parent.width/2; height: parent.height
-                attach: JSON.parse(thumbsAttachments.get(0))
+                attachments: thumbsAttachments
+                index: 0
                 message: modelData
                 onPressAndHold: root.pressAndHold(mouse)
             }
@@ -132,13 +136,15 @@ Loader {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: JSON.parse(thumbsAttachments.get(1))
+                    attachments: thumbsAttachments
+                    index: 1
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: JSON.parse(thumbsAttachments.get(2))
+                    attachments: thumbsAttachments
+                    index: 2
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
@@ -154,13 +160,15 @@ Loader {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: JSON.parse(thumbsAttachments.get(0))
+                    attachments: thumbsAttachments
+                    index: 0
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: JSON.parse(thumbsAttachments.get(1))
+                    attachments: thumbsAttachments
+                    index: 1
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
@@ -169,13 +177,15 @@ Loader {
                 width: parent.width/2; height: parent.height
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: JSON.parse(thumbsAttachments.get(2))
+                    attachments: thumbsAttachments
+                    index: 2
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width; height: parent.height/2
-                    attach: JSON.parse(thumbsAttachments.get(3))
+                    attachments: thumbsAttachments
+                    index: 3
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
@@ -191,13 +201,15 @@ Loader {
                 width: parent.width; height: parent.height/5*3
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
-                    attach: JSON.parse(thumbsAttachments.get(0))
+                    attachments: thumbsAttachments
+                    index: 0
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/2; height: parent.height
-                    attach: JSON.parse(thumbsAttachments.get(1))
+                    attachments: thumbsAttachments
+                    index: 1
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
@@ -206,20 +218,23 @@ Loader {
                 width: parent.width; height: parent.height/5*2
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
-                    attach: JSON.parse(thumbsAttachments.get(2))
+                    attachments: thumbsAttachments
+                    index: 2
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     width: parent.width/3; height: parent.height
-                    attach: JSON.parse(thumbsAttachments.get(3))
+                    attachments: thumbsAttachments
+                    index: 3
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
                 }
                 AttachmentThumbnail {
                     id: showMoreThumb
                     width: parent.width/3; height: parent.height
-                    attach: JSON.parse(thumbsAttachments.get(4))
+                    attachments: thumbsAttachments
+                    index: 4
                     message: modelData
                     onPressAndHold: root.pressAndHold(mouse)
 

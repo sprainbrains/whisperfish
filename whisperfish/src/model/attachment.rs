@@ -106,6 +106,25 @@ impl AttachmentListModel {
         self.rowCountChanged();
     }
 
+    pub fn update_attachment(&mut self, attachment: orm::Attachment) {
+        let result = self
+            .attachments
+            .iter_mut()
+            .enumerate()
+            .find(|(_i, a)| a.id == attachment.id);
+
+        if let Some((idx, old_attachment)) = result {
+            *old_attachment = attachment;
+
+            let idx = self.row_index(idx as i32);
+            self.data_changed(idx, idx);
+        } else {
+            self.begin_insert_rows(self.attachments.len() as i32, self.attachments.len() as i32);
+            self.attachments.push(attachment);
+            self.end_insert_rows();
+        }
+    }
+
     // XXX When we're able to run Rust 1.a-bit-more, with qmetaobject 0.2.7+, we have QVariantMap.
     fn get(&self, idx: i32) -> QByteArray {
         let mut map = qmetaobject::QJsonObject::default();
