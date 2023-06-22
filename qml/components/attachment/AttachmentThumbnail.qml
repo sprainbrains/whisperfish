@@ -55,9 +55,9 @@ MouseArea {
     // TODO fix: there are no thumbnails for video files in Whisperfish, even though
     //      the thumbnailer supports videos
     Thumbnail {
-        visible: !_isAnimated
+        visible: !_isAnimated && attach.data != null
         width: parent.width; height: parent.height
-        source: (!_isAnimated && _hasAttach) ? attach.data : ''
+        source: (!_isAnimated && _hasAttach && attach.data != null) ? attach.data : ''
         sourceSize { width: width; height: height }
 
         onStatusChanged: {
