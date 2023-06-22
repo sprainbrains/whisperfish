@@ -69,7 +69,7 @@ fn main() {
         .build("src/lib.rs");
 
     // Add lib.rs to the list, because it's the root of the CPP tree
-    let contains_cpp = ["config/settings.rs", "lib.rs"];
+    let contains_cpp = ["config/settings.rs", "lib.rs", "qblurhashimageprovider.rs"];
     for f in &contains_cpp {
         println!("cargo:rerun-if-changed=src/{}", f);
     }
@@ -89,13 +89,8 @@ fn main() {
         );
     }
 
-    let sailfish_libs: &[&str] = if cfg!(feature = "sailfish") {
-        &["qt5embedwidget"]
-    } else {
-        &[]
-    };
     let libs = ["dbus-1"];
-    for lib in libs.iter().chain(sailfish_libs.iter()) {
+    for lib in libs.iter() {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 }
