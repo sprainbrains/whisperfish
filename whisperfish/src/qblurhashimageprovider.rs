@@ -50,6 +50,13 @@ cpp! {{
                 }
                 let id = percent_encoding::percent_decode_str(&id).decode_utf8().unwrap();
                 let img = blurhash::decode(id.as_ref(), width, height, 1.0);
+                let img = match img {
+                    Ok(img) => img,
+                    Err(e) => {
+                        log::warn!("Could not decode blurhash: {}", e);
+                        return -2;
+                    }
+                };
                 assert_eq!(img.len(), size_in_bytes);
                 let slice = unsafe { std::slice::from_raw_parts_mut(buf, size_in_bytes) };
                 slice.copy_from_slice(&img);

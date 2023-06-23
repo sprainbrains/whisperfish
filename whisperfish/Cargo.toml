@@ -23,7 +23,7 @@ futures = "0.3"
 # 1.9.1 requires Rust 2021
 indexmap = "=1.8.1"
 
-blurhash = "0.1"
+blurhash = { git = "https://github.com/Raincal/blurhash-rs.git", branch = "master" }
 percent-encoding = "2.2"
 
 # 3.0.0-rc.1 requires Rist 1.54
