@@ -83,39 +83,68 @@ Page {
                     }
                 }
             }
-            IconTextSwitch {
-                id: enableNotify
-                anchors.horizontalCenter: parent.horizontalCenter
-                //: Settings page notifications enable
-                //% "Enable notifications"
-                text: qsTrId("whisperfish-settings-notifications-enable")
-                //: Settings page notifications enable description
-                //% "If turned off, Whisperfish will not send any notification"
-                description: qsTrId("whisperfish-settings-notifications-enable-description")
-                checked: SettingsBridge.enable_notify
-                icon.source: "image://theme/icon-m-notifications"
-                onCheckedChanged: {
-                    if(checked != SettingsBridge.enable_notify) {
-                        SettingsBridge.enable_notify = checked
+
+            ComboBox {
+                id: notificationPrivacyCombo
+                property string _setting: SettingsBridge.notification_privacy
+                width: parent.width
+                //: Settings page notification privacy
+                //% "Notification privacy"
+                label: qsTrId("whisperfish-settings-notification-privacy")
+                //: Settings page notification privacy description
+                //% "Select how Whisperfish produces notifications"
+                description: currentItem.description
+                // Sync this in three places: the menu, here, and settings.rs
+                currentIndex: ["off", "minimal", "sender-only", "complete"].indexOf(SettingsBridge.notification_privacy.toString())
+                menu: ContextMenu {
+                    MenuItem {
+                        property string name: "off"
+                        //: Settings page, turn notifications off
+                        //% "Disable notifications"
+                        text: qsTrId("whisperfish-settings-notifications-disable")
+                        //: Settings page, turn notifications off description
+                        //% "Whisperfish will not display any notification"
+                        property string description: qsTrId("whisperfish-settings-notifications-disable-description")
+                    }
+                    MenuItem {
+                        property string name: "minimal"
+                        //: Settings page, minimal notifications
+                        //% "Minimal notifications"
+                        text: qsTrId("whisperfish-settings-notifications-minimal")
+                        //: Settings page, minimal notifications description
+                        //% "Notification without disclosing the sender or content of the message"
+                        property string description: qsTrId("whisperfish-settings-notifications-minimal-description")
+                    }
+                    MenuItem {
+                        property string name: "sender-only"
+                        //: Settings page, sender-only notifications
+                        //% "Sender-only notifications"
+                        text: qsTrId("whisperfish-settings-notifications-sender-only")
+                        //: Settings page, sender-only notifications description
+                        //% "Notifications displaying the sender of a message, without the contents"
+                        property string description: qsTrId("whisperfish-settings-notifications-sender-only-description")
+                    }
+                    MenuItem {
+                        property string name: "complete"
+                        //: Settings page, complete notifications
+                        //% "Complete notifications"
+                        text: qsTrId("whisperfish-settings-notifications-complete")
+                        //: Settings page, sender-only notifications description
+                        //% "Notifications displaying the contents and sender of a message"
+                        property string description: qsTrId("whisperfish-settings-notifications-complete-description")
+                    }
+                }
+                onCurrentIndexChanged: {
+                    if(
+                        currentIndex > -1
+                        && currentItem !== null
+                        && SettingsBridge.notification_privacy !== currentItem.name
+                    ) {
+                        SettingsBridge.notification_privacy = currentItem.name
                     }
                 }
             }
-            IconTextSwitch {
-                anchors.horizontalCenter: parent.horizontalCenter
-                //: Settings page notifications show message body
-                //% "Show Message Body"
-                text: qsTrId("whisperfish-settings-notifications-show-body")
-                //: Settings page notifications show message body description
-                //% "If turned off, Whisperfish will only show the sender of a message, not the contents."
-                description: qsTrId("whisperfish-settings-notifications-show-body-description")
-                checked: SettingsBridge.show_notify_message
-                icon.source: "image://theme/icon-m-screenlock"
-                onCheckedChanged: {
-                    if(checked != SettingsBridge.show_notify_message) {
-                        SettingsBridge.show_notify_message = checked
-                    }
-                }
-            }
+
             IconTextSwitch {
                 anchors.horizontalCenter: parent.horizontalCenter
                 //: Settings page notifications show minimum number of notifications
