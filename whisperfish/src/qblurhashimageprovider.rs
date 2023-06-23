@@ -48,9 +48,14 @@ cpp! {{
                 if id == "null" {
                     return -1;
                 }
-                let id = percent_encoding::percent_decode_str(&id).decode_utf8().unwrap();
-                let img = blurhash::decode(id.as_ref(), width, height, 1.0);
-                let img = match img {
+                let id = match percent_encoding::percent_decode_str(&id).decode_utf8() {
+                    Ok(id) => id,
+                    Err(e) => {
+                        log::warn!("Could not percent-decode {} ({}). Continuing with raw string.", id, e);
+                        std::borrow::Cow::Borrowed(&id as &str)
+                    }
+                };
+                let img = match blurhash::decode(id.as_ref(), width, height, 1.0) {
                     Ok(img) => img,
                     Err(e) => {
                         log::warn!("Could not decode blurhash: {}", e);
