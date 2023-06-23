@@ -55,7 +55,8 @@ MouseArea {
     // TODO fix: there are no thumbnails for video files in Whisperfish, even though
     //      the thumbnailer supports videos
     Thumbnail {
-        visible: !_isAnimated && attach.data != null
+        id: nemoThumbnail
+        visible: !_isAnimated && attach.data != null && (attach.visual_hash == null || status == Thumbnail.Ready)
         width: parent.width; height: parent.height
         source: (!_isAnimated && _hasAttach && attach.data != null) ? attach.data : ''
         sourceSize { width: width; height: height }
@@ -69,7 +70,7 @@ MouseArea {
 
     Image {
         id: blurhashThumb
-        visible: !_isAnimated && attach.data == null && attach.visual_hash != null
+        visible: !_isAnimated && (attach.data == null || nemoThumbnail.status != Thumbnail.Ready) && attach.visual_hash != null
         width: parent.width; height: parent.height
         source: "image://blurhash/" + attach.visual_hash
     }
