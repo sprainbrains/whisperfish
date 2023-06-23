@@ -30,6 +30,8 @@ Requires:   sailfish-components-webview-qt5
 Requires:   openssl-libs
 Requires:   dbus
 
+Requires:  qtmozembed-qt5
+
 Recommends:   sailjail
 Recommends:   sailjail-permissions
 
@@ -61,7 +63,6 @@ BuildRequires:  cargo == 1.52.1+git3-1
 BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
-BuildRequires:  qtmozembed-qt5-devel
 BuildRequires:  qt5-qtwebsockets-devel
 BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel

@@ -1950,7 +1950,7 @@ impl Storage {
         affected_rows
     }
 
-    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer, path: &str) {
+    pub fn register_attachment(&mut self, mid: i32, ptr: AttachmentPointer) -> orm::Attachment {
         use schema::attachments::dsl::*;
 
         diesel::insert_into(attachments)
@@ -1970,19 +1970,25 @@ impl Storage {
                 // Then the fields that we immediately access
                 is_quote.eq(false),
                 message_id.eq(mid),
-                attachment_path.eq(path),
-                visual_hash.eq(ptr.blur_hash),
-                file_name.eq(ptr.file_name),
-                caption.eq(ptr.caption),
-                data_hash.eq(ptr.digest),
+                visual_hash.eq(&ptr.blur_hash),
+                file_name.eq(&ptr.file_name),
+                caption.eq(&ptr.caption),
+                data_hash.eq(&ptr.digest),
                 width.eq(ptr.width.map(|x| x as i32)),
                 height.eq(ptr.height.map(|x| x as i32)),
+                pointer.eq(ptr.encode_to_vec()),
             ))
             .execute(&mut *self.db())
             .expect("insert attachment");
 
-        self.observe_insert(schema::attachments::table, PrimaryKey::Unknown)
-            .with_relation(schema::messages::table, mid);
+        let latest_attachment = self.fetch_latest_attachment().expect("inserted attachment");
+
+        self.observe_insert(
+            schema::attachments::table,
+            PrimaryKey::RowId(latest_attachment.id),
+        )
+        .with_relation(schema::messages::table, mid);
+        latest_attachment
     }
 
     /// Create a new message. This was transparent within SaveMessage in Go.
@@ -2101,6 +2107,13 @@ impl Storage {
     fn fetch_latest_message(&self) -> Option<orm::Message> {
         schema::messages::table
             .filter(schema::messages::id.eq(last_insert_rowid()))
+            .first(&mut *self.db())
+            .ok()
+    }
+
+    fn fetch_latest_attachment(&self) -> Option<orm::Attachment> {
+        schema::attachments::table
+            .filter(schema::attachments::id.eq(last_insert_rowid()))
             .first(&mut *self.db())
             .ok()
     }
@@ -2405,6 +2418,7 @@ impl Storage {
     /// Saves a given attachment into a random-generated path. Returns the path.
     pub async fn save_attachment(
         &self,
+        id: i32,
         dest: &Path,
         ext: &str,
         attachment: &[u8],
@@ -2425,6 +2439,14 @@ impl Storage {
                     path.display()
                 )
             })?;
+
+        diesel::update(schema::attachments::table)
+            .filter(schema::attachments::id.eq(id))
+            .set(schema::attachments::attachment_path.eq(path.to_str().expect("valid UTF8 path")))
+            .execute(&mut *self.db())
+            .unwrap();
+
+        self.observe_update(schema::attachments::table, id);
 
         Ok(path)
     }

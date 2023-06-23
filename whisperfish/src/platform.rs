@@ -1,6 +1,6 @@
 #[cfg(feature = "sailfish")]
 mod sailfish_inner {
-    pub use sailors::sailfishapp::QmlApp;
+    pub use sailors::sailfishapp::{QQmlEngine, QmlApp};
 }
 
 #[cfg(not(feature = "sailfish"))]
@@ -12,6 +12,7 @@ mod sailfish_inner {
     // Enable the `sailfish` feature to build the app correctly
 
     pub struct QmlApp;
+    pub struct QQmlEngine;
 
     impl QmlApp {
         pub fn application(_app: String) -> Self {
@@ -36,10 +37,13 @@ mod sailfish_inner {
         pub fn exec(self) {
             panic!("Whisperfish has been compiled in development mode. The application will not work. Please compile Whisperfish with the `sailfish` feature to have a working application.");
         }
+        pub fn engine(&mut self) -> &mut QQmlEngine {
+            panic!("Whisperfish has been compiled in development mode. The application will not work. Please compile Whisperfish with the `sailfish` feature to have a working application.");
+        }
     }
 }
 
-pub use self::sailfish_inner::QmlApp;
+pub use self::sailfish_inner::*;
 
 #[cfg(feature = "harbour")]
 mod harbour_inner {

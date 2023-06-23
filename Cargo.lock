@@ -452,6 +452,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 
 [[package]]
+name = "blurhash"
+version = "0.1.1"
+source = "git+https://github.com/Raincal/blurhash-rs.git?branch=master#fa6a6a31e6ba416ee651ad09c81368afca595405"
+
+[[package]]
 name = "brotli"
 version = "3.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2745,7 +2750,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 [[package]]
 name = "sailors"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/sailo-rs.git#4247d1f17f6918db0af2a2a06766548e1386c0d5"
+source = "git+https://gitlab.com/whisperfish/sailo-rs.git#71ab6ef7001b501ab376f0d62119df4a531eb00b"
 dependencies = [
  "anyhow",
  "cpp",
@@ -3560,6 +3565,7 @@ dependencies = [
  "anyhow",
  "base64",
  "block-modes",
+ "blurhash",
  "cc",
  "chrono",
  "cmake",
@@ -3587,6 +3593,7 @@ dependencies = [
  "mime_guess",
  "once_cell",
  "pbkdf2 0.9.0",
+ "percent-encoding",
  "phonenumber",
  "proc-macro2",
  "qmeta-async",

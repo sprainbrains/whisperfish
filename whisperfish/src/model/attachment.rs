@@ -20,6 +20,7 @@ crate::observing_model! {
     } WITH OPTIONAL PROPERTIES FROM attachment WITH ROLE AttachmentRoles {
         r#type MimeType,
         data Data,
+        visual_hash VisualHash,
     }
 }
 
@@ -72,6 +73,7 @@ define_model_roles! {
         // There's a lot more useful stuff to expose.
         MimeType(content_type via QString::from):       "type",
         Data(attachment_path via qstring_from_option):  "data",
+        VisualHash(visual_hash via qstring_from_option):  "visual_hash",
     }
 }
 
@@ -104,6 +106,25 @@ impl AttachmentListModel {
         self.end_reset_model();
 
         self.rowCountChanged();
+    }
+
+    pub fn update_attachment(&mut self, attachment: orm::Attachment) {
+        let result = self
+            .attachments
+            .iter_mut()
+            .enumerate()
+            .find(|(_i, a)| a.id == attachment.id);
+
+        if let Some((idx, old_attachment)) = result {
+            *old_attachment = attachment;
+
+            let idx = self.row_index(idx as i32);
+            self.data_changed(idx, idx);
+        } else {
+            self.begin_insert_rows(self.attachments.len() as i32, self.attachments.len() as i32);
+            self.attachments.push(attachment);
+            self.end_insert_rows();
+        }
     }
 
     // XXX When we're able to run Rust 1.a-bit-more, with qmetaobject 0.2.7+, we have QVariantMap.

@@ -6,13 +6,26 @@ import Nemo.Thumbnailer 1.0
 
 MouseArea {
     id: root
-    property var attach: null
+    property int index: 0
+    property var attach: JSON.parse(thumbsAttachments.get(index))
+    property var attachments: null
     property var message: null
     property bool highlighted: containsPress
     property bool _hasAttach: attach !== null
     property bool _isAnimated: _hasAttach ? /\.(gif)$/i.test(attach.data) : false
     property bool _isVideo: _hasAttach ? /^video\//.test(attach.type) : false
     property bool _isAnimatedPaused: false
+
+    Connections {
+        target: attachments
+        onDataChanged: {
+            var i = topLeft.row;
+            if (i != index) {
+                return;
+            }
+            attach = JSON.parse(thumbsAttachments.get(i));
+        }
+    }
 
     onClicked: {
         if (!_hasAttach) {
@@ -42,9 +55,10 @@ MouseArea {
     // TODO fix: there are no thumbnails for video files in Whisperfish, even though
     //      the thumbnailer supports videos
     Thumbnail {
-        visible: !_isAnimated
+        id: nemoThumbnail
+        visible: !_isAnimated && attach.data != null && (attach.visual_hash == null || status == Thumbnail.Ready)
         width: parent.width; height: parent.height
-        source: (!_isAnimated && _hasAttach) ? attach.data : ''
+        source: (!_isAnimated && _hasAttach && attach.data != null) ? attach.data : ''
         sourceSize { width: width; height: height }
 
         onStatusChanged: {
@@ -52,6 +66,13 @@ MouseArea {
                 console.warn("thumbnail failed for", attach.data)
             }
         }
+    }
+
+    Image {
+        id: blurhashThumb
+        visible: !_isAnimated && (attach.data == null || nemoThumbnail.status != Thumbnail.Ready) && attach.visual_hash != null
+        width: parent.width; height: parent.height
+        source: "image://blurhash/" + attach.visual_hash
     }
 
     Loader {

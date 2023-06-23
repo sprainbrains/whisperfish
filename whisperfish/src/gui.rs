@@ -250,6 +250,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
             app.set_title("Whisperfish".into());
             app.set_application_version(version.clone());
             app.install_default_translator().unwrap();
+            crate::qblurhashimageprovider::install(app.engine());
 
             // XXX Spaghetti
             let session_actor = actor::SessionActor::new(&mut app).start();
