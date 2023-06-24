@@ -31,8 +31,13 @@ cpp! {{
                            requestedSize.height() > 0 ? requestedSize.height() : height,
                            QImage::Format::Format_RGBX8888);
             uchar *buf = img.bits();
-            // size_t size = img.sizeInBytes(); // Qt 5.10+
+
+            #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+            size_t size_in_bytes = img.sizeInBytes();
+            #else
             size_t size_in_bytes = img.byteCount();
+            #endif
+
             width = img.width();
             height = img.height();
 
