@@ -56,7 +56,9 @@ MouseArea {
     //      the thumbnailer supports videos
     Thumbnail {
         id: nemoThumbnail
-        visible: !_isAnimated && attach.data != null && (attach.visual_hash == null || status == Thumbnail.Ready)
+        visible: opacity > 0.0
+        opacity: (!_isAnimated && attach.data != null && (attach.visual_hash == null || status == Thumbnail.Ready)) ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation { duration: 250 } }
         width: parent.width; height: parent.height
         source: (!_isAnimated && _hasAttach && attach.data != null) ? attach.data : ''
         sourceSize { width: width; height: height }
@@ -70,7 +72,9 @@ MouseArea {
 
     Image {
         id: blurhashThumb
-        visible: !_isAnimated && (attach.data == null || nemoThumbnail.status != Thumbnail.Ready) && attach.visual_hash != null
+        visible: opacity > 0.0
+        opacity: (!_isAnimated && (nemoThumbnail.status != Thumbnail.Ready) && attach.visual_hash != null) ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation { duration: 250 } }
         width: parent.width; height: parent.height
         source: "image://blurhash/" + attach.visual_hash
     }

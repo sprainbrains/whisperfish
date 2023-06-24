@@ -171,7 +171,8 @@ and idiomatic. This can lead to the following scenario:
 To prevent this from happening, to save both your ~~nerves~~ time
 and CI from spinning up the pipeline only to get stuck on something
 trivial, you can have the locally-installed Rust run similar set of
-commands locally before you push.
+commands locally before you push. At the time of writing,
+with Rust 1.70 you can use the following script:
 
     $ cat local-ci.sh
     #!/bin/sh
@@ -182,8 +183,13 @@ commands locally before you push.
       -D warnings \
       -A clippy::useless-transmute \
       -A clippy::too-many-arguments \
-      -A clippy::type-complexity
+      -A clippy::type-complexity \
+      -A clippy::redundant-clone \
+      -A clippy::size-of-ref
     cargo test
+
+The allowed clippy lints are required to make the clippy behave
+like clippy in Rust 1.52, which is the SFDK Rust version.
 
 If you really want to enforce it, you can copy the script as
 `.git/hooks/pre-push` to prevent the non-passing branch going upstream  in the
