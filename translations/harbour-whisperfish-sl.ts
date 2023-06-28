@@ -530,7 +530,7 @@
         <translation>Zaklenjeno</translation>
     </message>
     <message id="whisperfish-remorse-deleted-messages-locally" numerus="yes">
-        <location filename="../qml/components/MessagesView.qml" line="144"/>
+        <location filename="../qml/components/MessagesView.qml" line="156"/>
         <source>Locally deleted %n message(s)</source>
         <extracomment>Remorse: *locally* deleted one or multiple message (past tense)</extracomment>
         <translation>
@@ -541,31 +541,30 @@
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="367"/>
         <source>React</source>
         <extracomment>React with emoji to message menu item</extracomment>
-        <translation>Reagiraj</translation>
+        <translation type="vanished">Reagiraj</translation>
     </message>
     <message id="whisperfish-copy-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="381"/>
+        <location filename="../qml/components/MessagesView.qml" line="406"/>
         <source>Copy</source>
         <extracomment>Copy message menu item</extracomment>
         <translation>Kopiraj</translation>
     </message>
     <message id="whisperfish-forward-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="388"/>
+        <location filename="../qml/components/MessagesView.qml" line="413"/>
         <source>Forward</source>
         <extracomment>Forward message menu item</extracomment>
         <translation>Deli z</translation>
     </message>
     <message id="whisperfish-select-or-options-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="395"/>
+        <location filename="../qml/components/MessagesView.qml" line="420"/>
         <source>Select • more</source>
         <extracomment>&quot;Select and show more options&quot; message menu item</extracomment>
         <translation>Izberite • več</translation>
     </message>
     <message id="whisperfish-resend-message-menu">
-        <location filename="../qml/components/MessagesView.qml" line="374"/>
+        <location filename="../qml/components/MessagesView.qml" line="399"/>
         <source>Retry sending</source>
         <oldsource>Resend</oldsource>
         <extracomment>Resend message menu item</extracomment>
