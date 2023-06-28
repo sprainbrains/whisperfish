@@ -2,6 +2,7 @@ use super::schema::*;
 use chrono::prelude::*;
 use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
+use libsignal_service::proto::GroupContextV2;
 use libsignal_service::push_service::ProfileKeyExt;
 use phonenumber::PhoneNumber;
 use std::borrow::Cow;
@@ -639,6 +640,19 @@ impl Session {
 
     pub fn unwrap_group_v2(&self) -> &GroupV2 {
         self.r#type.unwrap_group_v2()
+    }
+
+    pub fn group_context_v2(&self) -> Option<GroupContextV2> {
+        if let SessionType::GroupV2(group) = &self.r#type {
+            let master_key = hex::decode(&group.master_key).expect("hex group id in db");
+            Some(GroupContextV2 {
+                master_key: Some(master_key),
+                revision: Some(group.revision as u32),
+                group_change: None,
+            })
+        } else {
+            None
+        }
     }
 }
 

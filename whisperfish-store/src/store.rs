@@ -607,48 +607,73 @@ impl Storage {
 
         // Two options, either it's a *removal* or an update-or-replace
         // Both cases, we remove existing reactions for this author-message pair.
-        use crate::schema::reactions::dsl::*;
-        use diesel::dsl::*;
-
         if reaction.remove() {
-            let removed = diesel::delete(reactions)
-                .filter(message_id.eq(message.id))
-                .filter(author.eq(sender.id))
-                .execute(&mut *self.db())
-                .expect("remove old reaction from database");
-
-            if removed > 0 {
-                self.observe_delete(reactions, PrimaryKey::Unknown)
-                    .with_relation(schema::recipients::table, sender.id)
-                    .with_relation(schema::messages::table, message.id);
-            }
+            self.remove_reaction(message.id, sender.id);
         } else {
             // If this was not a removal action, we have a replacement
             let message_sent_time = millis_to_naive_chrono(data_message.timestamp());
-            diesel::insert_into(reactions)
-                .values((
-                    message_id.eq(message.id),
-                    author.eq(sender.id),
-                    emoji.eq(reaction.emoji()),
-                    sent_time.eq(message_sent_time),
-                    received_time.eq(now),
-                ))
-                .on_conflict((message_id, author))
-                .do_update()
-                .set((
-                    emoji.eq(reaction.emoji()),
-                    sent_time.eq(message_sent_time),
-                    received_time.eq(now),
-                ))
-                .execute(&mut *self.db())
-                .expect("insert reaction into database");
-
-            self.observe_upsert(reactions, PrimaryKey::Unknown)
-                .with_relation(schema::recipients::table, sender.id)
-                .with_relation(schema::messages::table, message.id);
+            self.save_reaction(
+                message.id,
+                sender.id,
+                reaction.emoji.to_owned().unwrap(),
+                message_sent_time,
+            );
         }
 
         Some((message, session))
+    }
+
+    pub fn save_reaction(
+        &mut self,
+        msg_id: i32,
+        sender_id: i32,
+        new_emoji: String,
+        sent_ts: NaiveDateTime,
+    ) {
+        use crate::schema::reactions::dsl::*;
+        use diesel::dsl::*;
+        diesel::insert_into(reactions)
+            .values((
+                message_id.eq(msg_id),
+                author.eq(sender_id),
+                emoji.eq(new_emoji.clone()),
+                sent_time.eq(sent_ts),
+                received_time.eq(now),
+            ))
+            .on_conflict((author, message_id))
+            .do_update()
+            .set((
+                emoji.eq(new_emoji),
+                sent_time.eq(sent_ts),
+                received_time.eq(now),
+            ))
+            .execute(&mut *self.db())
+            .expect("insert reaction into database");
+        log::trace!("Saved reaction for message {} from {}", msg_id, sender_id);
+        self.observe_upsert(reactions, PrimaryKey::Unknown)
+            .with_relation(schema::recipients::table, sender_id)
+            .with_relation(schema::messages::table, msg_id);
+    }
+
+    pub fn remove_reaction(&mut self, msg_id: i32, sender_id: i32) {
+        use crate::schema::reactions::dsl::*;
+        let removed = diesel::delete(reactions)
+            .filter(author.eq(sender_id))
+            .filter(message_id.eq(msg_id))
+            .execute(&mut *self.db())
+            .expect("remove old reaction from database");
+        if removed > 0 {
+            log::trace!("Removed reaction for message {}", msg_id);
+            self.observe_delete(reactions, PrimaryKey::Unknown)
+                .with_relation(schema::recipients::table, sender_id)
+                .with_relation(schema::messages::table, msg_id);
+        } else {
+            log::trace!(
+                "Reaction not removed for message {} from {}",
+                msg_id,
+                sender_id
+            );
+        }
     }
 
     pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
@@ -1526,6 +1551,19 @@ impl Storage {
             .inner_join(recipients::table)
             .filter(reactions::message_id.eq(mid))
             .load(&mut *self.db())
+            .expect("db")
+    }
+
+    pub fn fetch_reaction(&self, msg_id: i32, rcpt_id: i32) -> Option<orm::Reaction> {
+        use schema::reactions;
+        reactions::table
+            .filter(
+                reactions::message_id
+                    .eq(msg_id)
+                    .and(reactions::author.eq(rcpt_id)),
+            )
+            .first(&mut *self.db())
+            .optional()
             .expect("db")
     }
 

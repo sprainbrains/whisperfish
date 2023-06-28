@@ -26,6 +26,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "../delegates"
+import "message"
 
 SilicaListView {
     id: messagesView
@@ -96,8 +97,19 @@ SilicaListView {
     //      *before* the remorse item's callback has been executed. I.e. the
     //      selection cannot be used within the remorse callback.
 
-    function reactInline(listItem) { // call through messageAction()
-        listItem.remorseAction("Emoji reactions are not yet implemented.", function(){})
+    RemorsePopup { id: emojiRemorse }
+
+    function reactInline(listItem, emoji, remove) { // call through messageAction()
+        console.log("Message:", listItem.modelData.id)
+        console.log("Sender:", listItem.modelData.senderRecipientId)
+        console.log("Reaction:", emoji)
+        console.log("Remove:", remove)
+        MessageModel.sendReaction(
+            listItem.modelData.id,
+            listItem.modelData.senderRecipientId,
+            emoji,
+            remove
+        )
     }
 
     function resendInline(listItem) { // call through messageAction()
@@ -360,13 +372,26 @@ SilicaListView {
                 if (active) messagesView.menuOpen = true
                 else messagesView.menuOpen = false
             }
-
             MenuItem {
-                //: React with emoji to message menu item
-                //% "React"
-                text: qsTrId("whisperfish-react-message-menu")
+                id: reactMenuItem
                 visible: !!(menu.parent && !menu.parent.modelData.queued && !menu.parent.modelData.failed) // TODO use .failed
-                onClicked: reactInline(menu.parent)
+                Grid {
+                    anchors {
+                        top: parent.top
+                        bottom: parent.bottom
+                        horizontalCenter: parent.horizontalCenter
+                    }
+                    width: reactMenuItem.height * columns + spacing * (columns - 1)
+                    rows: 1
+                    columns: 5
+                    spacing: Theme.paddingMedium
+                    // XXX: Emoji picker
+                    ReactionButton { menuItem: menu; plainText: "😂" } // Laughing with tears
+                    ReactionButton { menuItem: menu; plainText: "❤️" } // Red heart
+                    ReactionButton { menuItem: menu; plainText: "👍" } // Thumbs up
+                    ReactionButton { menuItem: menu; plainText: "🚀" } // Rocket
+                    ReactionButton { menuItem: menu; plainText: "🗑️" ; remove: true }
+                }
             }
             MenuItem {
                 //: Resend message menu item

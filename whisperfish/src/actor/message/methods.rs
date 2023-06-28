@@ -17,6 +17,8 @@ pub struct MessageMethods {
     ),
 
     sendMessage: qt_method!(fn(&self, mid: i32)),
+    sendReaction:
+        qt_method!(fn(&self, message_id: i32, sender_id: i32, emoji: QString, remove: bool)),
     endSession: qt_method!(fn(&self, recipient_id: i32)),
 
     remove: qt_method!(fn(&self, id: i32)),
@@ -57,6 +59,24 @@ impl MessageMethods {
                 .as_mut()
                 .unwrap()
                 .send(crate::worker::SendMessage(mid))
+                .map(Result::unwrap),
+        );
+    }
+
+    #[with_executor]
+    fn sendReaction(&self, message_id: i32, sender_id: i32, emoji: QString, remove: bool) {
+        let emoji = emoji.to_string();
+
+        actix::spawn(
+            self.client_actor
+                .as_ref()
+                .unwrap()
+                .send(SendReaction {
+                    message_id,
+                    sender_id,
+                    emoji,
+                    remove,
+                })
                 .map(Result::unwrap),
         );
     }
