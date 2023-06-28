@@ -33,6 +33,15 @@ pub struct FetchAllMessages(pub i32);
 #[rtype(result = "()")]
 pub struct DeleteMessage(pub i32);
 
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct SendReaction {
+    pub message_id: i32,
+    pub sender_id: i32,
+    pub emoji: String,
+    pub remove: bool,
+}
+
 pub struct MessageActor {
     inner: QObjectBox<MessageMethods>,
     storage: Option<Storage>,

@@ -25,6 +25,7 @@ use whisperfish_store::TrustLevel;
 use zkgroup::profiles::ProfileKey;
 
 use super::profile_refresh::OutdatedProfileStream;
+use crate::actor::SendReaction;
 use crate::actor::SessionActor;
 use crate::gui::StorageReady;
 use crate::model::DeviceModel;
@@ -41,7 +42,7 @@ use libsignal_service::configuration::SignalServers;
 use libsignal_service::content::sync_message::Request as SyncRequest;
 use libsignal_service::content::DataMessageFlags;
 use libsignal_service::content::{
-    sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContextV2, Metadata,
+    sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContextV2, Metadata, Reaction,
     TypingMessage,
 };
 use libsignal_service::prelude::protocol::*;
@@ -66,10 +67,11 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-// Maximum theoretical TypingMessage send rate
-const TM_MAX_RATE: f32 = 24.0; // messages per minute
-const TM_CACHE_CAPACITY: f32 = 2.0; // 2 min
-const TM_CACHE_TRESHOLD: f32 = 1.75; // 1 min 45 sec
+// Maximum theoretical TypingMessage send rate,
+// plus some change for Reaction messages etc.
+const TM_MAX_RATE: f32 = 30.0; // messages per minute
+const TM_CACHE_CAPACITY: f32 = 5.0; // 5 min
+const TM_CACHE_TRESHOLD: f32 = 4.5; // 4 min 30 sec
 
 #[derive(actix::Message, Debug)]
 #[rtype(result = "()")]
@@ -119,6 +121,16 @@ struct DeliverMessage<T> {
 pub struct SendTypingNotification {
     pub session_id: i32,
     pub is_start: bool,
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+struct ReactionSent {
+    message_id: i32,
+    sender_id: i32,
+    emoji: String,
+    remove: bool,
+    timestamp: NaiveDateTime,
 }
 
 #[derive(Message)]
@@ -210,7 +222,7 @@ pub struct ClientActor {
     cipher: Option<ServiceCipher<crate::store::Storage, rand::rngs::ThreadRng>>,
     config: std::sync::Arc<crate::config::SignalConfig>,
 
-    typing_message_timestamps: HashSet<u64>,
+    transient_timestamps: HashSet<u64>,
 
     start_time: DateTime<Local>,
 
@@ -244,7 +256,7 @@ impl ClientActor {
         inner.pinned().borrow_mut().session_actor = Some(session_actor);
         inner.pinned().borrow_mut().device_model = Some(device_model);
 
-        let typing_message_timestamps: HashSet<u64> =
+        let transient_timestamps: HashSet<u64> =
             HashSet::with_capacity((TM_CACHE_CAPACITY * TM_MAX_RATE) as _);
 
         Ok(Self {
@@ -258,7 +270,7 @@ impl ClientActor {
             ws: None,
             config,
 
-            typing_message_timestamps,
+            transient_timestamps,
 
             start_time: Local::now(),
 
@@ -330,6 +342,22 @@ impl ClientActor {
     fn service_cfg(&self) -> ServiceConfiguration {
         // XXX: read the configuration files!
         SignalServers::Production.into()
+    }
+
+    pub fn clear_transient_timstamps(&mut self) {
+        if self.transient_timestamps.len() > (TM_CACHE_CAPACITY * TM_MAX_RATE) as _ {
+            // slots / slots_per_minute = minutes
+            const DURATION: u64 = (TM_CACHE_TRESHOLD * 60.0 * 1000.0) as _;
+            let limit = (Utc::now().timestamp_millis() as u64) - DURATION;
+
+            let len_before = self.transient_timestamps.len();
+            self.transient_timestamps.retain(|t| *t > limit);
+            log::trace!(
+                "Removed {}/{} cached transient timestamps",
+                len_before - self.transient_timestamps.len(),
+                self.transient_timestamps.len()
+            );
+        }
     }
 
     pub fn handle_needs_delivery_receipt(
@@ -703,10 +731,11 @@ impl ClientActor {
     fn process_receipt(&mut self, msg: &Envelope) {
         let millis = msg.timestamp();
 
-        // If the receipt timestamp matches a cached TypingMessage timestamp,
+        // If the receipt timestamp matches a transient timestamp,
+        // such as a TypingMessage or a sent/updated/removed Reaction,
         // stop processing, since there's no such message in database.
-        if self.typing_message_timestamps.contains(&millis) {
-            log::info!("Received TypingMessage receipt: {}", millis);
+        if self.transient_timestamps.contains(&millis) {
+            log::info!("Transient receipt: {}", millis);
             return;
         }
 
@@ -1181,16 +1210,7 @@ impl Handler<SendMessage> for ClientActor {
                     // FIXME
                     log::error!("Cannot send to Group V1 anymore.");
                 }
-                let group_v2 = if let orm::SessionType::GroupV2(group) = &session.r#type {
-                    let master_key = hex::decode(&group.master_key).expect("hex group id in db");
-                    Some(GroupContextV2 {
-                        master_key: Some(master_key),
-                        revision: Some(group.revision as u32),
-                        group_change: None,
-                    })
-                } else {
-                    None
-                };
+                let group_v2 = session.group_context_v2();
 
                 let timestamp = msg.server_timestamp.timestamp_millis() as u64;
 
@@ -1461,21 +1481,9 @@ impl Handler<SendTypingNotification> for ClientActor {
         // cache the sent TypingMessage timestamps and try to
         // match delivery receipts against it when they arrive.
 
-        if self.typing_message_timestamps.len() > (TM_CACHE_CAPACITY * TM_MAX_RATE) as _ {
-            // slots / slots_per_minute = minutes
-            const DURATION: u64 = (TM_CACHE_TRESHOLD * 60.0 * 1000.0) as _;
-            let limit = (Utc::now().timestamp_millis() as u64) - DURATION;
-
-            let len_before = self.typing_message_timestamps.len();
-            self.typing_message_timestamps.retain(|t| *t > limit);
-            log::trace!(
-                "Removed {} cached TypingMessage timestamps",
-                len_before - self.typing_message_timestamps.len()
-            );
-        }
-
-        let timestamp = Utc::now().timestamp_millis() as u64;
-        self.typing_message_timestamps.insert(timestamp);
+        self.clear_transient_timstamps();
+        let now = Utc::now().timestamp_millis() as u64;
+        self.transient_timestamps.insert(now);
 
         Box::pin(
             async move {
@@ -1490,7 +1498,7 @@ impl Handler<SendTypingNotification> for ClientActor {
                 };
 
                 let content = TypingMessage {
-                    timestamp: Some(timestamp),
+                    timestamp: Some(now),
                     action: Some(if is_start {
                         Action::Started
                     } else {
@@ -1502,7 +1510,7 @@ impl Handler<SendTypingNotification> for ClientActor {
                 addr.send(DeliverMessage {
                     content,
                     online: true,
-                    timestamp,
+                    timestamp: now,
                     session_id,
                     for_story: false,
                 })
@@ -1521,6 +1529,139 @@ impl Handler<SendTypingNotification> for ClientActor {
                 };
             }),
         )
+    }
+}
+
+impl Handler<SendReaction> for ClientActor {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(
+        &mut self,
+        SendReaction {
+            message_id,
+            sender_id,
+            emoji,
+            remove,
+        }: SendReaction,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        log::info!(
+            "ClientActor::SendReaction({}, {}, {}, {:?})",
+            message_id,
+            sender_id,
+            emoji,
+            remove
+        );
+
+        let storage = self.storage.as_mut().unwrap();
+        let self_recipient = storage.fetch_self_recipient().unwrap();
+        let message = storage.fetch_message_by_id(message_id).unwrap();
+
+        // Outgoing messages should not have sender_recipient_id set
+        let (sender_id, emoji) = if sender_id > 0 && sender_id != self_recipient.id {
+            (sender_id, emoji)
+        } else {
+            if !message.is_outbound {
+                panic!("Inbound message {} has no sender recipient ID", message_id);
+            }
+            if remove {
+                let reaction = storage.fetch_reaction(message_id, self_recipient.id);
+                if let Some(r) = reaction {
+                    (self_recipient.id, r.emoji)
+                } else {
+                    // XXX: Don't continue - we should remove the same emoji
+                    log::error!("Message {} doesn't have our own reaction!", message_id);
+                    (self_recipient.id, emoji)
+                }
+            } else {
+                (self_recipient.id, emoji)
+            }
+        };
+
+        let session = storage.fetch_session_by_id(message.session_id).unwrap();
+        let sender_recipient = storage.fetch_recipient_by_id(sender_id).unwrap();
+        assert_eq!(
+            sender_id, sender_recipient.id,
+            "message sender recipient id mismatch"
+        );
+
+        self.clear_transient_timstamps();
+        let now = Utc::now();
+        self.transient_timestamps
+            .insert(now.timestamp_millis() as u64);
+
+        let addr = ctx.address();
+        Box::pin(
+            async move {
+                let group_v2 = session.group_context_v2();
+
+                let content = DataMessage {
+                    group_v2,
+                    timestamp: Some(now.timestamp_millis() as u64),
+                    required_protocol_version: Some(4), // Source: received emoji from Signal Android
+                    reaction: Some(Reaction {
+                        emoji: Some(emoji.clone()),
+                        remove: Some(remove),
+                        target_author_uuid: sender_recipient.uuid.map(|u| u.to_string()),
+                        target_sent_timestamp: Some(
+                            message.server_timestamp.timestamp_millis() as u64
+                        ),
+                    }),
+                    ..Default::default()
+                };
+
+                addr.send(DeliverMessage {
+                    content,
+                    online: false,
+                    timestamp: now.timestamp_millis() as u64,
+                    session_id: session.id,
+                    for_story: false,
+                })
+                .await?
+                .map(|_| (emoji, now, self_recipient.id))
+            }
+            .into_actor(self)
+            .map(move |res, _act, ctx| {
+                match res {
+                    Ok((emoji, timestamp, sender_id)) => {
+                        ctx.notify(ReactionSent {
+                            message_id,
+                            sender_id,
+                            remove,
+                            emoji,
+                            timestamp: timestamp.naive_utc(),
+                        });
+                        log::trace!("Reaction sent to message {}", message_id);
+                    }
+                    Err(e) => {
+                        log::error!("Could not sent Reaction: {}", e);
+                    }
+                };
+            }),
+        )
+    }
+}
+
+impl Handler<ReactionSent> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        ReactionSent {
+            message_id,
+            sender_id,
+            remove,
+            emoji,
+            timestamp,
+        }: ReactionSent,
+        _ctx: &mut Self::Context,
+    ) {
+        let storage = self.storage.as_mut().unwrap();
+        if remove {
+            storage.remove_reaction(message_id, sender_id);
+        } else {
+            storage.save_reaction(message_id, sender_id, emoji, timestamp);
+        }
     }
 }
 
