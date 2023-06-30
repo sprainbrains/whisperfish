@@ -193,8 +193,6 @@ fn main() {
 
     qtlog::enable();
 
-    log_panics::init();
-
     const MAX_LOGFILE_COUNT: usize = 5;
     const LOGFILE_REGEX: &str = r"harbour-whisperfish.\d{8}_\d{6}\.log";
     store::Storage::clear_old_logs(&shared_dir, MAX_LOGFILE_COUNT, LOGFILE_REGEX);
