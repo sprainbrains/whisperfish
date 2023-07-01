@@ -15,14 +15,14 @@ libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs
 libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
 structopt = "0.3"
 mime_classifier = "0.0.1"
-log = "0.4"
+log = "=0.4.18"
 anyhow = "1.0"
 actix-rt = "2.8.0"
-# 0.10 requires Rust 1.60
-env_logger = "=0.9.3"
 hex = "0.4"
 mime = "0.3.17"
-uuid = { version = "1", features=["v4"] }
+# Rust 1.52
+env_logger = "=0.9.3"
+uuid = { version = "=1.3.2", features=["v4"] }
 
 [features]
 bundled-sqlcipher = ["whisperfish/bundled-sqlcipher"]
