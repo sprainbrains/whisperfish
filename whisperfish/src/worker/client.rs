@@ -112,7 +112,7 @@ struct DeliverMessage<T> {
     timestamp: u64,
     online: bool,
     for_story: bool,
-    session_id: i32,
+    session: orm::Session,
 }
 
 #[derive(actix::Message)]
@@ -380,7 +380,7 @@ impl ClientActor {
             content,
             timestamp: Utc::now().timestamp_millis() as u64,
             // XXX Session ID is artificial here.
-            session_id: session.id,
+            session,
             online: false,
             for_story: false,
         });
@@ -1296,7 +1296,7 @@ impl Handler<SendMessage> for ClientActor {
                         content,
                         online: false,
                         timestamp,
-                        session_id,
+                        session,
                         for_story: false,
                     })
                     .await?;
@@ -1347,7 +1347,7 @@ impl Handler<SendMessage> for ClientActor {
                         if all_ok {
                             storage.dequeue_message(mid, chrono::Utc::now().naive_utc(), unidentified);
 
-                            Ok((session.id, mid, msg.inner.text))
+                            Ok((session_id, mid, msg.inner.text))
                         } else {
                             storage.fail_message(mid);
                             for error in results.iter().filter_map(|res| res.as_ref().err()) {
@@ -1511,11 +1511,11 @@ impl Handler<SendTypingNotification> for ClientActor {
                     content,
                     online: true,
                     timestamp: now,
-                    session_id,
+                    session,
                     for_story: false,
                 })
                 .await?
-                .map(|_unidentified| session.id)
+                .map(|_unidentified| session_id)
             }
             .into_actor(self)
             .map(move |res, _act, _ctx| {
@@ -1614,7 +1614,7 @@ impl Handler<SendReaction> for ClientActor {
                     content,
                     online: false,
                     timestamp: now.timestamp_millis() as u64,
-                    session_id: session.id,
+                    session,
                     for_story: false,
                 })
                 .await?
@@ -1673,7 +1673,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
             content,
             timestamp,
             online,
-            session_id,
+            session,
             for_story,
         } = msg;
         let content = content.into();
@@ -1681,7 +1681,6 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
         log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
 
         let storage = self.storage.clone().unwrap();
-        let session = storage.fetch_session_by_id(session_id).unwrap();
         let sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
 
