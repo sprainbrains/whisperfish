@@ -677,11 +677,18 @@ async fn test_recipient_actions() {
 
     assert_eq!(storage.fetch_all_sessions_augmented().len(), 1);
 
+    assert!(!msg.is_remote_deleted);
+    assert!(msg.text.is_some());
     storage.delete_message(msg.id);
-    assert!(storage.fetch_message_by_id(msg.id).is_none());
+    let msg = storage.fetch_message_by_id(msg.id).unwrap();
+    assert!(msg.is_remote_deleted);
+    assert!(msg.text.is_none());
+    let r = storage.fetch_reactions_for_message(msg.id);
+    assert!(r.is_empty());
     drop(msg);
 
-    assert_eq!(storage.fetch_all_messages_augmented(session.id).len(), 0);
+    // The one deleted message is "only" marked as deleted
+    assert_eq!(storage.fetch_all_messages_augmented(session.id).len(), 1);
 
     storage.delete_session(session.id);
     assert_eq!(storage.fetch_all_sessions_augmented().len(), 0);

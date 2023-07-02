@@ -2355,20 +2355,69 @@ impl Storage {
         aug_messages
     }
 
-    pub fn delete_message(&self, id: i32) -> usize {
-        log::trace!("Called delete_message({})", id);
+    /// Don't actually delete, but mark the message as deleted
+    /// and clear the body text, delete its reactions,
+    /// and if it was an incoming message, also its attachments from the disk.
+    pub fn delete_message(&mut self, message_id: i32) -> usize {
+        log::trace!("Called delete_message({})", message_id);
+        let n_messages = diesel::update(schema::messages::table)
+            .filter(schema::messages::id.eq(message_id))
+            .set((
+                schema::messages::is_remote_deleted.eq(true),
+                schema::messages::text.eq(None::<String>),
+            ))
+            .execute(&mut *self.db())
+            .unwrap();
 
-        // XXX: Assume `sentq` has nothing pending, as the Go version does
-        let query = diesel::delete(schema::messages::table.filter(schema::messages::id.eq(id)));
-
-        let debug = debug_query::<diesel::sqlite::Sqlite, _>(&query);
-        log::trace!("{}", debug.to_string());
-
-        let affected = query.execute(&mut *self.db()).expect("db");
-        if affected > 0 {
-            self.observe_delete(schema::messages::table, id);
+        if n_messages == 0 {
+            log::warn!("Tried to remove non-existing message {}", message_id);
+            return n_messages;
         }
-        affected
+
+        let message: orm::Message = schema::messages::table
+            .filter(schema::messages::id.eq(message_id))
+            .first(&mut *self.db())
+            .expect("message we just marked as deleted");
+
+        let mut n_attachments: usize = 0;
+
+        if !message.is_outbound {
+            log::trace!("Message is from someone else, deleting attachments...");
+            let attachments = self.fetch_attachments_for_message(message.id);
+            for attachment in attachments.into_iter() {
+                if let Some(path) = attachment.attachment_path {
+                    match std::fs::remove_file(&path) {
+                        Ok(()) => {
+                            log::trace!("Deleted file {}", path);
+                            n_attachments += 1;
+                        }
+                        Err(e) => {
+                            log::trace!("Could not delete file {}: {:?}", path, e);
+                        }
+                    };
+                }
+                diesel::delete(schema::attachments::table)
+                    .filter(schema::attachments::id.eq(attachment.id))
+                    .execute(&mut *self.db())
+                    .unwrap();
+            }
+        }
+
+        let n_reactions = diesel::delete(schema::reactions::table)
+            .filter(schema::reactions::message_id.eq(message.id))
+            .execute(&mut *self.db())
+            .unwrap();
+
+        self.observe_update(schema::messages::table, message.id)
+            .with_relation(schema::sessions::table, message.session_id);
+
+        log::trace!("Marked Message {{ id: {} }} deleted", message.id);
+        log::trace!(
+            "Deleted {} attachment(s) and {} reaction(s)",
+            n_attachments,
+            n_reactions
+        );
+        n_messages
     }
 
     /// Marks all messages that are outbound and unsent as failed.
