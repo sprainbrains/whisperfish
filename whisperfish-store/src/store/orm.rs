@@ -1043,6 +1043,13 @@ impl AugmentedSession {
         }
     }
 
+    pub fn is_remote_deleted(&self) -> bool {
+        self.last_message
+            .as_ref()
+            .map(|m| m.is_remote_deleted)
+            .unwrap_or(false)
+    }
+
     pub fn is_read(&self) -> bool {
         self.last_message
             .as_ref()
