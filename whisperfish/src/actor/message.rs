@@ -94,8 +94,7 @@ impl Handler<DeleteMessage> for MessageActor {
         DeleteMessage(id): DeleteMessage,
         _ctx: &mut Self::Context,
     ) -> Self::Result {
-        let _del_rows = self.storage.as_ref().unwrap().delete_message(id);
-        // TODO: maybe show some error when this is None or Some(x) if x != 1
+        self.storage.as_mut().unwrap().delete_message(id);
     }
 }
 

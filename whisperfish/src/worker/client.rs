@@ -2531,6 +2531,56 @@ impl Handler<ProofAccepted> for ClientActor {
     }
 }
 
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct DeleteMessageForAll(pub i32);
+
+impl Handler<DeleteMessageForAll> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        DeleteMessageForAll(id): DeleteMessageForAll,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.clear_transient_timstamps();
+
+        let storage = self.storage.as_mut().unwrap();
+        let self_recipient = storage.fetch_self_recipient().expect("self recipient");
+
+        let message = storage
+            .fetch_message_by_id(id)
+            .expect("message to delete by id");
+        let session = storage
+            .fetch_session_by_id(message.session_id)
+            .expect("session to delete message from by id");
+
+        let now = Utc::now().timestamp_millis() as u64;
+        self.transient_timestamps.insert(now);
+
+        let delete_message = DeliverMessage {
+            content: DataMessage {
+                group_v2: session.group_context_v2(),
+                profile_key: self_recipient.profile_key,
+                timestamp: Some(now),
+                delete: Some(Delete {
+                    target_sent_timestamp: Some(message.server_timestamp.timestamp_millis() as u64),
+                }),
+                required_protocol_version: Some(4),
+                ..Default::default()
+            },
+            for_story: false,
+            timestamp: now,
+            online: false,
+            session,
+        };
+
+        // XXX: We can't get a result back, I think we should?
+        ctx.notify(delete_message);
+        storage.delete_message(message.id);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
