@@ -13,6 +13,7 @@ ListItem {
     highlighted: down || menuOpen || replyArea.pressed || isSelected
     _backgroundColor: "transparent"
     hidden: !!(isSelected && listView.hideSelected)
+    enabled: !isRemoteDeleted
 
     // REQUIRED PROPERTIES
     property QtObject modelData
