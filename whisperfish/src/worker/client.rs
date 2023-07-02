@@ -13,7 +13,7 @@ use self::migrations::MigrationCondVar;
 pub use self::profile::*;
 pub use self::profile_upload::*;
 use self::unidentified::UnidentifiedCertificates;
-use libsignal_service::proto::data_message::Quote;
+use libsignal_service::proto::data_message::{Delete, Quote};
 use libsignal_service::proto::sync_message::Sent;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 use libsignal_service::push_service::ServiceIds;
@@ -498,7 +498,6 @@ impl ClientActor {
             log::warn!("Received a sticker, but inserting empty message.");
             Some("This is a sticker, but stickers are currently unsupported.".into())
         } else if msg.payment.is_some()
-            || msg.delete.is_some()
             || msg.group_call_update.is_some()
             || !msg.contact.is_empty()
         {
@@ -506,6 +505,28 @@ impl ClientActor {
         } else {
             None
         };
+
+        if let Some(msg_delete) = &msg.delete {
+            let target_sent_timestamp = millis_to_naive_chrono(
+                msg_delete
+                    .target_sent_timestamp
+                    .expect("Delete message has no timestamp"),
+            );
+            let db_message = storage.fetch_message_by_timestamp(target_sent_timestamp);
+            if let Some(db_message) = db_message {
+                let own_id = storage
+                    .fetch_self_recipient()
+                    .expect("self recipient in db")
+                    .id;
+                // Missing sender_recipient_id => we are the sender
+                let sender_id = db_message.sender_recipient_id.unwrap_or(own_id);
+                if sender_id != sender_recipient.as_ref().unwrap().id {
+                    log::warn!("Received a delete message from a different user, ignoring it.");
+                } else {
+                    storage.delete_message(db_message.id);
+                }
+            }
+        }
 
         let body = msg.body.clone().or(alt_body);
         let text = if let Some(body) = body {
