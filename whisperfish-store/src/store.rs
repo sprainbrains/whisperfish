@@ -2383,24 +2383,30 @@ impl Storage {
 
         if !message.is_outbound {
             log::trace!("Message is from someone else, deleting attachments...");
-            let attachments = self.fetch_attachments_for_message(message.id);
-            for attachment in attachments.into_iter() {
-                if let Some(path) = attachment.attachment_path {
-                    match std::fs::remove_file(&path) {
-                        Ok(()) => {
-                            log::trace!("Deleted file {}", path);
-                            n_attachments += 1;
+            let regex = self.config.get_attachments_regex();
+            self.fetch_attachments_for_message(message.id)
+                .into_iter()
+                .for_each(|attachment| {
+                    if let Some(path) = attachment.attachment_path {
+                        if regex.is_match(&path) {
+                            match std::fs::remove_file(&path) {
+                                Ok(()) => {
+                                    log::trace!("Deleted file {}", path);
+                                    n_attachments += 1;
+                                }
+                                Err(e) => {
+                                    log::trace!("Could not delete file {}: {:?}", path, e);
+                                }
+                            };
+                        } else {
+                            log::warn!("Not deleting attachment: {}", path);
                         }
-                        Err(e) => {
-                            log::trace!("Could not delete file {}: {:?}", path, e);
-                        }
-                    };
-                }
-                diesel::delete(schema::attachments::table)
-                    .filter(schema::attachments::id.eq(attachment.id))
-                    .execute(&mut *self.db())
-                    .unwrap();
-            }
+                    }
+                    diesel::delete(schema::attachments::table)
+                        .filter(schema::attachments::id.eq(attachment.id))
+                        .execute(&mut *self.db())
+                        .unwrap();
+                });
         }
 
         let n_reactions = diesel::delete(schema::reactions::table)

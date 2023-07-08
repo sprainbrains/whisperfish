@@ -194,6 +194,10 @@ impl SignalConfig {
         self.share_dir.join("storage").join("avatars")
     }
 
+    pub fn get_attachments_regex(&self) -> regex::Regex {
+        regex::Regex::new(r"/home/[a-zA-Z][a-zA-Z0-9]*/\.local/share(/be.rubdos)?/harbour-whisperfish/storage/(attachments|camera)/([a-zA-Z0-9_-]+\.[a-zA-Z0-9]+)").unwrap()
+    }
+
     pub fn default_attachment_dir(&self) -> std::path::PathBuf {
         self.share_dir.join("storage").join("attachments")
     }
