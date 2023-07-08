@@ -73,6 +73,7 @@ define_model_roles! {
         // There's a lot more useful stuff to expose.
         MimeType(content_type via QString::from):       "type",
         Data(attachment_path via qstring_from_option):  "data",
+        OriginalName(file_name via qstring_from_option): "original_name",
         VisualHash(visual_hash via qstring_from_option):  "visual_hash",
     }
 }
