@@ -96,19 +96,13 @@ Page {
             }
         }
 
-        // Whisperfish related issue (works in File Browser):
-        // Video playback is partly broken. Showing anything only works if
-        // autoPlay is true, but play/pause does not work even though the
-        // media player changes its playbackState property correctly.
-        // Looping is not possible. (This may be related to WF#158.)
         Video {
             id: video
             anchors.fill: parent
-            autoPlay: true // TODO set to false once possible
+            autoPlay: false
             fillMode: VideoOutput.PreserveAspectFit
             muted: false
-            onStopped: play() // we have to restart manually because
-                              // seamless looping is only available since Qt 5.13
+            onStopped: if (autoPlay) { play() }
             onErrorChanged: {
                 if (error === MediaPlayer.NoError) return;
                 // we don't want to risk crashes by trying any further
