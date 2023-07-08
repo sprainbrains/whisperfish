@@ -19,6 +19,7 @@ mime_classifier = "0.0.1"
 chrono = "=0.4.25"
 tokio = "=1.26.0"
 futures = "0.3"
+fs2 = "0.4.3"
 
 # These require Rust >1.52
 indexmap = "=1.8.1"

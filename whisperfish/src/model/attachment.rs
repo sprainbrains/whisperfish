@@ -71,6 +71,7 @@ impl EventObserving for AttachmentImpl {
 define_model_roles! {
     enum AttachmentRoles for orm::Attachment {
         // There's a lot more useful stuff to expose.
+        Id(id):                                         "id",
         MimeType(content_type via QString::from):       "type",
         Data(attachment_path via qstring_from_option):  "data",
         OriginalName(file_name via qstring_from_option): "original_name",

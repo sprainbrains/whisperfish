@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::worker::{DeleteMessageForAll, QueueMessage};
+use crate::worker::{DeleteMessageForAll, ExportAttachment, QueueMessage};
 
 use super::*;
 use futures::prelude::*;
@@ -23,6 +23,8 @@ pub struct MessageMethods {
 
     remove: qt_method!(fn(&self, id: i32)),
     removeForAll: qt_method!(fn(&self, id: i32)),
+
+    exportAttachment: qt_method!(fn(&self, attachment_id: i32)),
 }
 
 impl MessageMethods {
@@ -119,5 +121,18 @@ impl MessageMethods {
         );
 
         log::trace!("Dispatched DeleteMessageRemotely({})", id);
+    }
+
+    #[with_executor]
+    pub fn exportAttachment(&self, attachment_id: i32) {
+        actix::spawn(
+            self.client_actor
+                .as_ref()
+                .unwrap()
+                .send(ExportAttachment { attachment_id })
+                .map(Result::unwrap),
+        );
+
+        log::trace!("Dispatched ExportAttachment({})", attachment_id);
     }
 }
