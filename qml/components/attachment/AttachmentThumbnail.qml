@@ -53,6 +53,8 @@ MouseArea {
                 'titleOverlay.subtitleItem.wrapMode': _debugMode ? Text.Wrap : Text.NoWrap,
                 'path': attach.data,
                 'isAnimated': _isAnimated,
+                'attachment': attach,
+                'isViewOnce': false, // TODO: Implement attachment can only be viewed once
             })
         }
     }

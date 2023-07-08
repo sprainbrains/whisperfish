@@ -19,6 +19,19 @@ Page {
         anchors.fill: parent
         contentHeight: header.height + attachment.height
 
+        PullDownMenu {
+            MenuItem {
+                enabled: attachmentId > 0 && !isViewOnce
+                visible: enabled
+                //: Copy the attachment file out of Whisperfish
+                //% "Export file"
+                text: qsTrId("whisperfish-export-file-menu")
+                onClicked: {
+                    MessageModel.exportAttachment(attachmentId)
+                }
+            }
+        }
+
         PageHeader {
             id: header
         }
