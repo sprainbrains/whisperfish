@@ -3,6 +3,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Nemo.Thumbnailer 1.0
+import be.rubdos.whisperfish 1.0
 
 MouseArea {
     id: root
@@ -15,6 +16,12 @@ MouseArea {
     property bool _isAnimated: _hasAttach ? /\.(gif)$/i.test(attach.data) : false
     property bool _isVideo: _hasAttach ? /^video\//.test(attach.type) : false
     property bool _isAnimatedPaused: false
+
+    Recipient {
+        id: recipient
+        app: AppState
+        recipientId: message ? message.senderRecipientId : -1
+    }
 
     Connections {
         target: attachments
@@ -38,7 +45,7 @@ MouseArea {
             var _viewPage = _isVideo ? '../../pages/ViewVideoPage.qml' : '../../pages/ViewImagePage.qml'
 
             pageStack.push(_viewPage, {
-                'title': message.recipientName,
+                'title': message ? recipient.name : "",
                 // TODO don't show the file path once attachments work reliably (#many)
                 //      and attachments are saved in a WF-controlled directory (#253)
                 'subtitle': attach.original_name && attach.original_name.length > 0 ? attach.original_name : attach.data,
