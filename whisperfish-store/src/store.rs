@@ -2387,8 +2387,18 @@ impl Storage {
             self.fetch_attachments_for_message(message.id)
                 .into_iter()
                 .for_each(|attachment| {
+                    diesel::delete(schema::attachments::table)
+                        .filter(schema::attachments::id.eq(attachment.id))
+                        .execute(&mut *self.db())
+                        .unwrap();
                     if let Some(path) = attachment.attachment_path {
-                        if regex.is_match(&path) {
+                        let remaining = diesel::select(diesel::dsl::count_star())
+                            .filter(schema::attachments::attachment_path.eq(&path))
+                            .execute(&mut *self.db())
+                            .unwrap();
+                        if remaining > 0 {
+                            log::warn!("References to attachment exist, not deleting: {}", path);
+                        } else if regex.is_match(&path) {
                             match std::fs::remove_file(&path) {
                                 Ok(()) => {
                                     log::trace!("Deleted file {}", path);
@@ -2402,10 +2412,6 @@ impl Storage {
                             log::warn!("Not deleting attachment: {}", path);
                         }
                     }
-                    diesel::delete(schema::attachments::table)
-                        .filter(schema::attachments::id.eq(attachment.id))
-                        .execute(&mut *self.db())
-                        .unwrap();
                 });
         }
 
