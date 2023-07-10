@@ -1379,55 +1379,55 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="93"/>
         <source>Notification privacy</source>
         <extracomment>Settings page notification privacy</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aviseringssekretess</translation>
     </message>
     <message id="whisperfish-settings-notifications-disable">
         <location filename="../qml/pages/Settings.qml" line="104"/>
         <source>Disable notifications</source>
         <extracomment>Settings page, turn notifications off</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inaktivera aviseringar</translation>
     </message>
     <message id="whisperfish-settings-notifications-disable-description">
         <location filename="../qml/pages/Settings.qml" line="107"/>
         <source>Whisperfish will not display any notification</source>
         <extracomment>Settings page, turn notifications off description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish kommer inte att visa några aviseringar</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimal">
         <location filename="../qml/pages/Settings.qml" line="113"/>
         <source>Minimal notifications</source>
         <extracomment>Settings page, minimal notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Minimalt med aviseringar</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimal-description">
         <location filename="../qml/pages/Settings.qml" line="116"/>
         <source>Notification without disclosing the sender or content of the message</source>
         <extracomment>Settings page, minimal notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aviseringar utan att avslöja avsändaren eller innehållet i meddelandet</translation>
     </message>
     <message id="whisperfish-settings-notifications-sender-only">
         <location filename="../qml/pages/Settings.qml" line="122"/>
         <source>Sender-only notifications</source>
         <extracomment>Settings page, sender-only notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Avsändare-endast aviseringar</translation>
     </message>
     <message id="whisperfish-settings-notifications-sender-only-description">
         <location filename="../qml/pages/Settings.qml" line="125"/>
         <source>Notifications displaying the sender of a message, without the contents</source>
         <extracomment>Settings page, sender-only notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aviseringar visar avsändaren av ett meddelande, utan innehållet</translation>
     </message>
     <message id="whisperfish-settings-notifications-complete">
         <location filename="../qml/pages/Settings.qml" line="131"/>
         <source>Complete notifications</source>
         <extracomment>Settings page, complete notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kompletta aviseringar</translation>
     </message>
     <message id="whisperfish-settings-notifications-complete-description">
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Notifications displaying the contents and sender of a message</source>
         <extracomment>Settings page, sender-only notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aviseringar visar innehållet och avsändaren av ett meddelande</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise">
         <location filename="../qml/pages/Settings.qml" line="152"/>
