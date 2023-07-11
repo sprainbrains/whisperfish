@@ -359,8 +359,8 @@ Page {
                 readOnly: true
                 text: {
                     "Tuomas F Nyqvist" + "\n" +
-                    "fluffysfriends" + "\n" +
                     "Luna Jernberg" + "\n" +
+                    "fluffysfriends" + "\n" +
                     "bittin1ddc447d824349b2"
                 }
             }
