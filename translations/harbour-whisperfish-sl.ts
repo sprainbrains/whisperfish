@@ -1421,68 +1421,74 @@ Settings page share contacts</extracomment>
         <extracomment>Settings page &apos;Compact database&apos; button: execute &apos;VACUUM&apos; command on SQLite-database</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message id="whisperfish-settings-test-captcha">
+        <location filename="../qml/pages/Settings.qml" line="500"/>
+        <source>Test captcha</source>
+        <extracomment>Settings page, test captcha button</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-settings-stats-section">
-        <location filename="../qml/pages/Settings.qml" line="499"/>
+        <location filename="../qml/pages/Settings.qml" line="511"/>
         <source>Statistics</source>
         <extracomment>Settings page stats section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-websocket">
-        <location filename="../qml/pages/Settings.qml" line="504"/>
+        <location filename="../qml/pages/Settings.qml" line="516"/>
         <source>Websocket Status</source>
         <extracomment>Settings page websocket status</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-connected">
-        <location filename="../qml/pages/Settings.qml" line="508"/>
+        <location filename="../qml/pages/Settings.qml" line="520"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-disconnected">
-        <location filename="../qml/pages/Settings.qml" line="511"/>
+        <location filename="../qml/pages/Settings.qml" line="523"/>
         <source>Disconnected</source>
         <extracomment>Settings page disconnected message</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-unsent-messages">
-        <location filename="../qml/pages/Settings.qml" line="516"/>
+        <location filename="../qml/pages/Settings.qml" line="528"/>
         <source>Unsent Messages</source>
         <extracomment>Settings page unsent messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-sessions">
-        <location filename="../qml/pages/Settings.qml" line="522"/>
+        <location filename="../qml/pages/Settings.qml" line="534"/>
         <source>Total Sessions</source>
         <extracomment>Settings page total sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-messages">
-        <location filename="../qml/pages/Settings.qml" line="528"/>
+        <location filename="../qml/pages/Settings.qml" line="540"/>
         <source>Total Messages</source>
         <extracomment>Settings page total messages</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-total-contacts">
-        <location filename="../qml/pages/Settings.qml" line="534"/>
+        <location filename="../qml/pages/Settings.qml" line="546"/>
         <source>Signal Contacts</source>
         <extracomment>Settings page total signal contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db">
-        <location filename="../qml/pages/Settings.qml" line="540"/>
+        <location filename="../qml/pages/Settings.qml" line="552"/>
         <source>Encrypted Database</source>
         <extracomment>Settings page encrypted database</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-enabled">
-        <location filename="../qml/pages/Settings.qml" line="544"/>
+        <location filename="../qml/pages/Settings.qml" line="556"/>
         <source>Enabled</source>
         <extracomment>Settings page encrypted db enabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-settings-encrypted-db-disabled">
-        <location filename="../qml/pages/Settings.qml" line="547"/>
+        <location filename="../qml/pages/Settings.qml" line="559"/>
         <source>Disabled</source>
         <extracomment>Settings page encrypted db disabled</extracomment>
         <translation type="unfinished"></translation>
@@ -2075,6 +2081,38 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/CreateConversationPage.qml" line="47"/>
         <source>Creating conversation</source>
         <extracomment>Page header title when a new conversation is being created</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-captcha-test-title">
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="15"/>
+        <source>Captcha Test</source>
+        <extracomment>Captcha test page title</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-captcha-test-message">
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="19"/>
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="53"/>
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="84"/>
+        <source>You can use this page to test the Whisperfish captcha challenge integration</source>
+        <extracomment>Captcha test page description</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-captcha-test-success">
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="56"/>
+        <source>Captcha token received!</source>
+        <extracomment>Captcha test successful message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-start-test-button-label">
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="80"/>
+        <source>Start</source>
+        <extracomment>continue button label</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-captcha-test-started">
+        <location filename="../qml/pages/TestCaptchaPage.qml" line="87"/>
+        <source>Test started...</source>
+        <extracomment>Captcha test has been started message</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
