@@ -490,6 +490,18 @@ Page {
                     ClientWorker.compact_db();
                 }
             }
+            Button {
+                id: testCaptcha
+                visible: SettingsBridge.debug_mode
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 2*Theme.horizontalPageMargin
+                //: Settings page, test captcha button
+                //% "Test captcha"
+                text: qsTrId("whisperfish-settings-test-captcha")
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("TestCaptchaPage.qml"));
+                }
+            }
             // ------ END ADVANCED SETTINGS ------
 
             // ------ BEGIN STATS ------
