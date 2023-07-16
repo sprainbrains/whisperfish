@@ -525,6 +525,11 @@ impl ClientActor {
                 } else {
                     storage.delete_message(db_message.id);
                 }
+            } else {
+                log::warn!(
+                    "Message {} not found for deletion!",
+                    target_sent_timestamp.timestamp_millis()
+                );
             }
         }
 
