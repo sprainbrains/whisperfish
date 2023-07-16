@@ -13,7 +13,7 @@ ListItem {
     highlighted: down || menuOpen || replyArea.pressed || isSelected
     _backgroundColor: "transparent"
     hidden: !!(isSelected && listView.hideSelected)
-    enabled: !isRemoteDeleted
+    enabled: !modelData.remoteDeleted
 
     // REQUIRED PROPERTIES
     property QtObject modelData
@@ -89,7 +89,7 @@ ListItem {
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: session.isGroup
     readonly property bool isEmpty: !hasText && !hasAttachments
-    readonly property bool isRemoteDeleted: hasData && modelData.remoteDeleted
+    readonly property bool isRemoteDeleted: hasData && ((isSelected && listView.appearDeleted) || modelData.remoteDeleted)
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 

@@ -47,6 +47,7 @@ SilicaListView {
     property bool isSelecting: false
     property bool selectionBlocked: false
     property bool hideSelected: false
+    property bool appearDeleted: false
     property var __running_remorse: null
 
     signal replyTriggered(var index, var modelData)
@@ -72,6 +73,7 @@ SilicaListView {
         selectedCount = 0
         selectionBlocked = false
         hideSelected = false
+        appearDeleted = false
         showDeleteAll = false
         shouldShowDeleteAll(showDeleteAll)
         if (!keepRemorse) __running_remorse = null
@@ -152,7 +154,7 @@ SilicaListView {
 
     function deleteSelectedForSelf() { // call through messageAction()
         var selectedIds = _getSelectedIds()
-        hideSelected = true
+        appearDeleted = true
 
         return Remorse.popupAction(
             //: Remorse: *locally* deleted one or multiple message (past tense)
@@ -168,7 +170,7 @@ SilicaListView {
 
     function deleteSelectedForAll() { // call through messageAction()
         var selectedIds = _getSelectedIds()
-        hideSelected = true
+        appearDeleted = true
 
         return Remorse.popupAction(
             //: Remorse: *globally* deleted one or multiple message (past tense)
