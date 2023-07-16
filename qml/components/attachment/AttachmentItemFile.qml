@@ -16,6 +16,7 @@ AttachmentItemBase {
 
     onClicked: pageStack.push(Qt.resolvedUrl('../../pages/ViewFilePage.qml'), {
         'title': recipientId > -1 ? recipient.name : "",
+        // Translated in QuotedMessagePreview.qml
         'subtitle': qsTrId('whisperfish-quoted-message-preview-attachment'),
         'titleOverlay.subtitleItem.wrapMode': SettingsBridge.debug_mode ? Text.Wrap : Text.NoWrap,
         'path': attach.data,
