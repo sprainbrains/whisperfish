@@ -18,6 +18,7 @@ Page {
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
+    property bool _showDeleteAll: false
 
     Session {
         id: session
@@ -151,13 +152,7 @@ Page {
             else if (isSelecting) actionsPanel.show()
         }
         onShouldShowDeleteAll: {
-            if (isSelecting) {
-                deleteAllPortrait.enabled = showDeleteAll
-                deleteAllLandscape.enabled = showDeleteAll
-            } else {
-                deleteAllPortrait.enabled = false
-                deleteAllLandscape.enabled = false
-            }
+            _showDeleteAll = showDeleteAll
         }
     }
 
@@ -350,7 +345,7 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-all", _selectedCount))
                     onClicked: messages.messageAction(messages.deleteSelectedForAll)
-                    enabled: false
+                    enabled: _showDeleteAll
                     visible: root.isLandscape
                 }
             }
@@ -380,7 +375,7 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-all", _selectedCount))
                     onClicked: messages.messageAction(messages.deleteSelectedForAll)
-                    enabled: false
+                    enabled: _showDeleteAll
                 }
 
                 // TODO find a way to count failed messages in the current selection
