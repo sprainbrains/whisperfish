@@ -882,7 +882,7 @@ fn test_remove_attachment_filenames() {
     let regex = SignalConfig::default().get_attachments_regex();
 
     // List of known good and bad locations, feel free to add samples.
-    const FILENAMES: [(bool, &str); 21]= [
+    let test_data: [(bool, &str); 21]= [
         // defaultuser, new
         (true, "/home/defaultuser/.local/share/be.rubdos/harbour-whisperfish/storage/attachments/5da77b73f271bd460956d3807643f6b8.png"),
         (true, "/home/defaultuser/.local/share/be.rubdos/harbour-whisperfish/storage/attachments/Photo_20220417_233207.jpg"),
@@ -916,7 +916,7 @@ fn test_remove_attachment_filenames() {
         (false, "/home/defaultuser/.local/share/commhistory/data/1241/image000000.jpg"),
     ];
 
-    FILENAMES.map(|(deleted, filename)| {
+    test_data.map(|(deleted, filename)| {
         assert_eq!(
             deleted,
             regex.is_match(filename),
