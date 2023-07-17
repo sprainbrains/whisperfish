@@ -16,8 +16,8 @@ use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::Quote;
 use libsignal_service::proto::sync_message::Sent;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
+pub use libsignal_service::push_service::DeviceInfo;
 use libsignal_service::push_service::ServiceIds;
-pub use libsignal_service::push_service::{DeviceInfo, ProfileKeyExt};
 use libsignal_service::sender::SendMessageResult;
 use libsignal_service::sender::SentMessage;
 use uuid::Uuid;
@@ -2295,12 +2295,14 @@ impl Handler<RefreshPreKeys> for ClientActor {
         let storage = self.storage.clone().unwrap();
 
         let proc = async move {
-            let (next_signed_pre_key_id, pre_keys_offset_id) = storage.next_pre_key_ids().await;
+            let (next_signed_pre_key_id, next_kyber_pre_key_id, pre_keys_offset_id) =
+                storage.next_pre_key_ids().await;
 
             am.update_pre_key_bundle(
                 &mut storage.clone(),
                 &mut rand::thread_rng(),
                 next_signed_pre_key_id,
+                next_kyber_pre_key_id,
                 pre_keys_offset_id,
                 false,
             )

@@ -1,0 +1,4 @@
+CREATE TABLE kyber_prekeys (
+    id INTEGER PRIMARY KEY ON CONFLICT REPLACE NOT NULL,
+    record BLOB NOT NULL
+);

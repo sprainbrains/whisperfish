@@ -3,7 +3,6 @@ use chrono::prelude::*;
 use diesel::sql_types::Integer;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::GroupContextV2;
-use libsignal_service::push_service::ProfileKeyExt;
 use phonenumber::PhoneNumber;
 use std::borrow::Cow;
 use std::fmt::{Display, Error, Formatter};
@@ -374,6 +373,18 @@ impl Display for Prekey {
 }
 
 #[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
+pub struct KyberPrekey {
+    pub id: i32,
+    pub record: Vec<u8>,
+}
+
+impl Display for KyberPrekey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "KyberPrekey {{ id: {} }}", &self.id)
+    }
+}
+
+#[derive(Queryable, Identifiable, Insertable, Debug, Clone)]
 #[diesel(primary_key(address, device, distribution_id))]
 pub struct SenderKeyRecord {
     pub address: String,
@@ -396,7 +407,7 @@ impl Display for SenderKeyRecord {
 }
 
 impl Recipient {
-    pub fn unidentified_access_key(&self) -> Option<Vec<u8>> {
+    pub fn unidentified_access_key(&self) -> Option<[u8; 16]> {
         self.profile_key()
             .map(ProfileKey::create)
             .as_ref()
