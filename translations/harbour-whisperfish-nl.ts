@@ -227,145 +227,145 @@
         <location filename="../qml/pages/About.qml" line="111"/>
         <source>Translators</source>
         <extracomment>Translators heading in About page</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers</translation>
     </message>
     <message id="whisperfish-translators-nb_NO">
         <location filename="../qml/pages/About.qml" line="184"/>
         <source>Norwegian Bokmål translators</source>
         <extracomment>Norwegian Bokmål (nb_NO) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Bokmål Noors</translation>
     </message>
     <message id="whisperfish-translators-nl_BE">
         <location filename="../qml/pages/About.qml" line="200"/>
         <source>Dutch (Belgium) translators</source>
         <extracomment>Dutch (Belgium) (nl_BE) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Belgisch Nederlands</translation>
     </message>
     <message id="whisperfish-translators-lt">
         <location filename="../qml/pages/About.qml" line="220"/>
         <source>Lithuanian translators</source>
         <extracomment>Lithuanian (lt) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Litouws</translation>
     </message>
     <message id="whisperfish-translators-nl">
         <location filename="../qml/pages/About.qml" line="236"/>
         <source>Dutch translators</source>
         <extracomment>Dutch (nl) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Nederlands</translation>
     </message>
     <message id="whisperfish-translators-it">
         <location filename="../qml/pages/About.qml" line="256"/>
         <source>Italian translators</source>
         <extracomment>Italian (it) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Italiaans</translation>
     </message>
     <message id="whisperfish-translators-de">
         <location filename="../qml/pages/About.qml" line="273"/>
         <source>German translators</source>
         <extracomment>German (de) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Duits</translation>
     </message>
     <message id="whisperfish-translators-fr">
         <location filename="../qml/pages/About.qml" line="295"/>
         <source>French translators</source>
         <extracomment>French (fr) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Frans</translation>
     </message>
     <message id="whisperfish-translators-fi">
         <location filename="../qml/pages/About.qml" line="315"/>
         <source>Finnish translators</source>
         <extracomment>Finnish (fi) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Fins</translation>
     </message>
     <message id="whisperfish-translators-sl">
         <location filename="../qml/pages/About.qml" line="336"/>
         <source>Slovenian translators</source>
         <extracomment>Slovenian (sl) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Sloveens</translation>
     </message>
     <message id="whisperfish-translators-sv">
         <location filename="../qml/pages/About.qml" line="352"/>
         <source>Swedish translators</source>
         <extracomment>Swedish (sv) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Zweeds</translation>
     </message>
     <message id="whisperfish-translators-pl">
         <location filename="../qml/pages/About.qml" line="371"/>
         <source>Polish translators</source>
         <extracomment>Polish (pl) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Pools</translation>
     </message>
     <message id="whisperfish-translators-zh_CN">
         <location filename="../qml/pages/About.qml" line="390"/>
         <source>Chinese (Simplified) translators</source>
         <extracomment>Chinese (Simplified) (zh_CN) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers vereenvoudigd Chinees</translation>
     </message>
     <message id="whisperfish-translators-hu">
         <location filename="../qml/pages/About.qml" line="409"/>
         <source>Hungarian translators</source>
         <extracomment>Hungarian (hu) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Hongaars</translation>
     </message>
     <message id="whisperfish-translators-pt_PT">
         <location filename="../qml/pages/About.qml" line="427"/>
         <source>Portuguese (Portugal) translators</source>
         <extracomment>Portuguese (Portugal) (pt_PT) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Portugees (Portugal)</translation>
     </message>
     <message id="whisperfish-translators-cs">
         <location filename="../qml/pages/About.qml" line="446"/>
         <source>Czech translators</source>
         <extracomment>Czech (cs) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Tsjechisch</translation>
     </message>
     <message id="whisperfish-translators-ca">
         <location filename="../qml/pages/About.qml" line="462"/>
         <source>Catalan translators</source>
         <extracomment>Catalan (ca) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Catalaans</translation>
     </message>
     <message id="whisperfish-translators-ru">
         <location filename="../qml/pages/About.qml" line="478"/>
         <source>Russian translators</source>
         <extracomment>Russian (ru) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Russisch</translation>
     </message>
     <message id="whisperfish-translators-pt_BR">
         <location filename="../qml/pages/About.qml" line="494"/>
         <source>Portuguese (Brazil) translators</source>
         <extracomment>Portuguese (Brazil) (pt_BR) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Braziliaans-Portugees</translation>
     </message>
     <message id="whisperfish-translators-ro">
         <location filename="../qml/pages/About.qml" line="511"/>
         <source>Romanian translators</source>
         <extracomment>Romanian (ro) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Roemeens</translation>
     </message>
     <message id="whisperfish-translators-tr">
         <location filename="../qml/pages/About.qml" line="527"/>
         <source>Turkish translators</source>
         <extracomment>Turkish (tr) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Turks</translation>
     </message>
     <message id="whisperfish-translators-el">
         <location filename="../qml/pages/About.qml" line="543"/>
         <source>Greek translators</source>
         <extracomment>Greek (el) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Grieks</translation>
     </message>
     <message id="whisperfish-translators-eu">
         <location filename="../qml/pages/About.qml" line="560"/>
         <source>Basque translators</source>
         <extracomment>Basque (eu) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Baskisch</translation>
     </message>
     <message id="whisperfish-translators-es">
         <location filename="../qml/pages/About.qml" line="576"/>
         <source>Spanish translators</source>
         <extracomment>Spanish (es) language about page translation section</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vertalers Spaans</translation>
     </message>
     <message id="whisperfish-liberapay">
         <location filename="../qml/pages/About.qml" line="118"/>
@@ -1261,55 +1261,55 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="93"/>
         <source>Notification privacy</source>
         <extracomment>Settings page notification privacy</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Privacyniveau meldingen</translation>
     </message>
     <message id="whisperfish-settings-notifications-disable">
         <location filename="../qml/pages/Settings.qml" line="104"/>
         <source>Disable notifications</source>
         <extracomment>Settings page, turn notifications off</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meldingen uitschakelen</translation>
     </message>
     <message id="whisperfish-settings-notifications-disable-description">
         <location filename="../qml/pages/Settings.qml" line="107"/>
         <source>Whisperfish will not display any notification</source>
         <extracomment>Settings page, turn notifications off description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Whisperfish toont geen enkele melding</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimal">
         <location filename="../qml/pages/Settings.qml" line="113"/>
         <source>Minimal notifications</source>
         <extracomment>Settings page, minimal notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Minimale meldingen</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimal-description">
         <location filename="../qml/pages/Settings.qml" line="116"/>
         <source>Notification without disclosing the sender or content of the message</source>
         <extracomment>Settings page, minimal notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meldingen tonen noch de afzender, noch de inhoud van een bericht</translation>
     </message>
     <message id="whisperfish-settings-notifications-sender-only">
         <location filename="../qml/pages/Settings.qml" line="122"/>
         <source>Sender-only notifications</source>
         <extracomment>Settings page, sender-only notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alleen-afzender meldingen</translation>
     </message>
     <message id="whisperfish-settings-notifications-sender-only-description">
         <location filename="../qml/pages/Settings.qml" line="125"/>
         <source>Notifications displaying the sender of a message, without the contents</source>
         <extracomment>Settings page, sender-only notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meldingen tonen de afzender van een bericht zonder de inhoud</translation>
     </message>
     <message id="whisperfish-settings-notifications-complete">
         <location filename="../qml/pages/Settings.qml" line="131"/>
         <source>Complete notifications</source>
         <extracomment>Settings page, complete notifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Volledige meldingen</translation>
     </message>
     <message id="whisperfish-settings-notifications-complete-description">
         <location filename="../qml/pages/Settings.qml" line="134"/>
         <source>Notifications displaying the contents and sender of a message</source>
         <extracomment>Settings page, sender-only notifications description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Meldingen tonen de inhoud en de afzender van een bericht</translation>
     </message>
     <message id="whisperfish-settings-notifications-minimise">
         <location filename="../qml/pages/Settings.qml" line="152"/>
@@ -1437,7 +1437,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="500"/>
         <source>Test captcha</source>
         <extracomment>Settings page, test captcha button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Captcha testen</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="511"/>
@@ -1580,13 +1580,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/GroupProfilePage.qml" line="193"/>
         <source>Administrator</source>
         <extracomment>Group member section label for administrator level user</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beheerder</translation>
     </message>
     <message id="whisperfish-group-member-regular">
         <location filename="../qml/pages/GroupProfilePage.qml" line="196"/>
         <source>Member</source>
         <extracomment>Group member section label for regular level user</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lid</translation>
     </message>
     <message id="whisperfish-group-member-menu-open-note-to-self">
         <location filename="../qml/pages/GroupProfilePage.qml" line="231"/>
@@ -2097,7 +2097,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/TestCaptchaPage.qml" line="15"/>
         <source>Captcha Test</source>
         <extracomment>Captcha test page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Captchatest</translation>
     </message>
     <message id="whisperfish-captcha-test-message">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="19"/>
@@ -2105,25 +2105,25 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/TestCaptchaPage.qml" line="84"/>
         <source>You can use this page to test the Whisperfish captcha challenge integration</source>
         <extracomment>Captcha test page description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Je kan deze pagina gebruiken om Whisperfish&apos; captchaintegratie te testen</translation>
     </message>
     <message id="whisperfish-captcha-test-success">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="56"/>
         <source>Captcha token received!</source>
         <extracomment>Captcha test successful message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Captcha token ontvangen!</translation>
     </message>
     <message id="whisperfish-start-test-button-label">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="80"/>
         <source>Start</source>
         <extracomment>continue button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Begin</translation>
     </message>
     <message id="whisperfish-captcha-test-started">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="87"/>
         <source>Test started...</source>
         <extracomment>Captcha test has been started message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Test begonnen...</translation>
     </message>
 </context>
 </TS>
