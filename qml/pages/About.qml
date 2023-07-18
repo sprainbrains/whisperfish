@@ -60,7 +60,7 @@ Page {
                 //% "Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. "
                 //% "Whisperfish is highly usable, but is still considered beta quality software. "
                 //% "Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! "
-                //% "Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!."
+                //% "Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!"
                 text: qsTrId("whisperfish-long-description")
             }
 
