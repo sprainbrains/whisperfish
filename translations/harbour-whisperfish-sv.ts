@@ -207,9 +207,10 @@
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="64"/>
-        <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
+        <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!</source>
+        <oldsource>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</oldsource>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation>Whisperfish är en inofficiell, men avancerad Signal-klient för Sailfish OS. Whisperfish är mycket användbar, men anses fortfarande vara programvara av betakvalitet. Se till att uppdatera regelbundet! Kolla också vår Wiki och bidra gärna till den! Kontakta aldrig Signal-utvecklarna om ett problem med Whisperfish, kontakta oss istället!</translation>
+        <translation type="unfinished">Whisperfish är en inofficiell, men avancerad Signal-klient för Sailfish OS. Whisperfish är mycket användbar, men anses fortfarande vara programvara av betakvalitet. Se till att uppdatera regelbundet! Kolla också vår Wiki och bidra gärna till den! Kontakta aldrig Signal-utvecklarna om ett problem med Whisperfish, kontakta oss istället!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="78"/>

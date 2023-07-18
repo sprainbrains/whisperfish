@@ -207,9 +207,10 @@
     </message>
     <message id="whisperfish-long-description">
         <location filename="../qml/pages/About.qml" line="64"/>
-        <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</source>
+        <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!</source>
+        <oldsource>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</oldsource>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation>Whisperfish est un client Signal non officiel, mais avancé, pour Sailfish OS. Whisperfish est hautement utilisable, mais est toujours considéré comme un logiciel de qualité bêta. Veillez à le mettre à jour régulièrement ! Consultez également notre Wiki et n&apos;hésitez pas à y contribuer ! Ne contactez jamais les développeurs de Signal à propos d&apos;un problème lié à Whisperfish, contactez-nous plutôt&#xa0;!</translation>
+        <translation type="unfinished">Whisperfish est un client Signal non officiel, mais avancé, pour Sailfish OS. Whisperfish est hautement utilisable, mais est toujours considéré comme un logiciel de qualité bêta. Veillez à le mettre à jour régulièrement ! Consultez également notre Wiki et n&apos;hésitez pas à y contribuer ! Ne contactez jamais les développeurs de Signal à propos d&apos;un problème lié à Whisperfish, contactez-nous plutôt&#xa0;!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="78"/>
