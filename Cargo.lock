@@ -1531,7 +1531,7 @@ dependencies = [
 [[package]]
 name = "libsignal-protocol"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#3f04330b777b937407b01c190c8727f5b332cd66"
 dependencies = [
  "aes",
  "aes-gcm-siv",
@@ -2119,7 +2119,7 @@ dependencies = [
 [[package]]
 name = "poksho"
 version = "0.7.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#3f04330b777b937407b01c190c8727f5b332cd66"
 dependencies = [
  "curve25519-dalek",
  "hmac 0.11.0",
@@ -2879,7 +2879,7 @@ dependencies = [
 [[package]]
 name = "signal-crypto"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#3f04330b777b937407b01c190c8727f5b332cd66"
 dependencies = [
  "aes",
  "block-modes",
@@ -3842,7 +3842,7 @@ dependencies = [
 [[package]]
 name = "zkcredential"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#3f04330b777b937407b01c190c8727f5b332cd66"
 dependencies = [
  "curve25519-dalek",
  "lazy_static",
@@ -3853,7 +3853,7 @@ dependencies = [
 [[package]]
 name = "zkgroup"
 version = "0.9.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#3f04330b777b937407b01c190c8727f5b332cd66"
 dependencies = [
  "aead",
  "aes-gcm-siv",
