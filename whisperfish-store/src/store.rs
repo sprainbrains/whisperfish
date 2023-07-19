@@ -853,6 +853,15 @@ impl Storage {
         if is_unset || trust_level == TrustLevel::Certain {
             if recipient.profile_key.as_deref() == Some(new_profile_key) {
                 log::trace!("Profile key up-to-date");
+                // Key remained the same, but we got an assertion on the profile key, so we will
+                // retry sending unidentified.
+                if recipient.unidentified_access_mode == UnidentifiedAccessMode::Disabled {
+                    let _affected_rows = diesel::update(recipients)
+                        .set((unidentified_access_mode.eq(UnidentifiedAccessMode::Unknown),))
+                        .filter(id.eq(recipient.id))
+                        .execute(&mut *self.db())
+                        .expect("existing record updated");
+                }
                 return (recipient, false);
             }
 
