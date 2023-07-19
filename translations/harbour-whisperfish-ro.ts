@@ -1089,7 +1089,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="28"/>
         <source>Linked Devices</source>
         <extracomment>Linked devices menu option</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dispozitive conectate</translation>
     </message>
     <message id="whisperfish-settings-reconnect-menu">
         <location filename="../qml/pages/Settings.qml" line="38"/>
