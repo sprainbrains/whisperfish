@@ -5,6 +5,7 @@ use crate::store::observer::{EventObserving, Interest};
 use crate::store::orm;
 use actix::{ActorContext, Handler};
 use futures::TryFutureExt;
+use libsignal_protocol::SessionStore;
 use libsignal_service::prelude::protocol::SessionStoreExt;
 use qmeta_async::with_executor;
 use qmetaobject::prelude::*;
@@ -17,7 +18,7 @@ pub struct RecipientImpl {
     base: qt_base_class!(trait QObject),
     recipient_id: Option<i32>,
     recipient_uuid: Option<Uuid>,
-    recipient: Option<RecipientWithFingerprint>,
+    recipient: Option<RecipientWithAnalyzedSession>,
 }
 
 crate::observing_model! {
@@ -25,7 +26,7 @@ crate::observing_model! {
         recipientId: i32; READ get_recipient_id WRITE set_recipient_id,
         recipientUuid: String; READ get_recipient_uuid WRITE set_recipient_uuid,
         valid: bool; READ get_valid,
-    } WITH OPTIONAL PROPERTIES FROM recipient WITH ROLE RecipientWithFingerprintRoles {
+    } WITH OPTIONAL PROPERTIES FROM recipient WITH ROLE RecipientWithAnalyzedSessionRoles {
         id Id,
         directMessageSessionId DirectMessageSessionId,
         uuid Uuid,
@@ -36,6 +37,7 @@ crate::observing_model! {
         email Email,
 
         sessionFingerprint SessionFingerprint,
+        sessionIsPostQuantum SessionIsPostQuantum,
 
         blocked Blocked,
 
@@ -72,20 +74,22 @@ impl EventObserving for RecipientImpl {
 
 #[derive(actix::Message)]
 #[rtype(result = "()")]
-struct FingerprintComputed {
+struct SessionAnalyzed {
     recipient_id: i32,
     fingerprint: String,
+    versions: Vec<(u32, u32)>,
 }
 
-impl Handler<FingerprintComputed> for ObservingModelActor<RecipientImpl> {
+impl Handler<SessionAnalyzed> for ObservingModelActor<RecipientImpl> {
     type Result = ();
 
     fn handle(
         &mut self,
-        FingerprintComputed {
+        SessionAnalyzed {
             recipient_id,
             fingerprint,
-        }: FingerprintComputed,
+            versions,
+        }: SessionAnalyzed,
         ctx: &mut Self::Context,
     ) -> Self::Result {
         match self.model.upgrade() {
@@ -97,6 +101,7 @@ impl Handler<FingerprintComputed> for ObservingModelActor<RecipientImpl> {
                         log::trace!("Different recipient_id requested, dropping fingerprint");
                     } else {
                         recipient.fingerprint = Some(fingerprint);
+                        recipient.versions = versions;
                         // TODO: trigger something changed
                     }
                 }
@@ -161,10 +166,11 @@ impl RecipientImpl {
                     .unwrap_or(-1);
                 self.recipient_id = Some(inner.id);
                 // XXX trigger Qt signal for this?
-                RecipientWithFingerprint {
+                RecipientWithAnalyzedSession {
                     inner,
                     direct_message_recipient_id,
                     fingerprint: None,
+                    versions: Vec::new(),
                 }
             })
         } else if let Some(id) = self.recipient_id {
@@ -177,10 +183,11 @@ impl RecipientImpl {
                     // XXX Clean this up after #532
                     self.recipient_uuid = Some(inner.uuid.expect("valid uuid in db"));
                     // XXX trigger Qt signal for this?
-                    RecipientWithFingerprint {
+                    RecipientWithAnalyzedSession {
                         inner,
                         direct_message_recipient_id,
                         fingerprint: None,
+                        versions: Vec::new(),
                     }
                 })
             } else {
@@ -205,10 +212,23 @@ impl RecipientImpl {
                     let fingerprint = storage
                         .compute_safety_number(&local_svc, &recipient_svc, None)
                         .await?;
+                    let sessions = storage.get_sub_device_sessions(&recipient_svc).await?;
+                    let mut versions = Vec::new();
+                    for device_id in sessions {
+                        let session = storage
+                            .load_session(&recipient_svc.to_protocol_address(device_id), None)
+                            .await?;
+                        let version = session
+                            .map(|x| x.session_version())
+                            .transpose()?
+                            .unwrap_or(0);
+                        versions.push((device_id, version));
+                    }
                     ctx.addr()
-                        .send(FingerprintComputed {
+                        .send(SessionAnalyzed {
                             recipient_id: id,
                             fingerprint,
+                            versions,
                         })
                         .await?;
 
@@ -227,13 +247,24 @@ pub struct RecipientListModel {
     content: Vec<orm::Recipient>,
 }
 
-pub struct RecipientWithFingerprint {
+pub struct RecipientWithAnalyzedSession {
     inner: orm::Recipient,
     direct_message_recipient_id: i32,
     fingerprint: Option<String>,
+    versions: Vec<(u32, u32)>,
 }
 
-impl std::ops::Deref for RecipientWithFingerprint {
+impl RecipientWithAnalyzedSession {
+    fn session_is_post_quantum(&self) -> bool {
+        const KYBER_AWARE_MESSAGE_VERSION: u32 = 4;
+
+        self.versions
+            .iter()
+            .all(|(_, version)| *version >= KYBER_AWARE_MESSAGE_VERSION)
+    }
+}
+
+impl std::ops::Deref for RecipientWithAnalyzedSession {
     type Target = orm::Recipient;
 
     fn deref(&self) -> &Self::Target {
@@ -244,7 +275,7 @@ impl std::ops::Deref for RecipientWithFingerprint {
 impl RecipientListModel {}
 
 define_model_roles! {
-    pub(super) enum RecipientWithFingerprintRoles for RecipientWithFingerprint {
+    pub(super) enum RecipientWithAnalyzedSessionRoles for RecipientWithAnalyzedSession {
         Id(id): "id",
         DirectMessageSessionId(direct_message_recipient_id): "directMessageSessionId",
         Uuid(uuid via qstring_from_optional_to_string): "uuid",
@@ -268,6 +299,8 @@ define_model_roles! {
         ProfileSharing(profile_sharing): "profileSharing",
 
         SessionFingerprint(fingerprint via qstring_from_option): "sessionFingerprint",
+
+        SessionIsPostQuantum(fn session_is_post_quantum(&self)): "sessionIsPostQuantum",
     }
 }
 
