@@ -12,6 +12,7 @@ members = [
 libsignal-protocol = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 poksho = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
+zkcredential = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 
 # [patch.crates-io]
 # qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
@@ -21,6 +22,7 @@ curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', bran
 
 qmetaobject = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
 qttypes = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
+pqcrypto-internals = { git = "https://github.com/whisperfish/pqcrypto", branch = "whisperfork" }
 
 # [patch."https://github.com/whisperfish/libsignal-service-rs"]
 # libsignal-service = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service" }

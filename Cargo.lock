@@ -821,7 +821,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "3.2.1"
-source = "git+https://github.com/signalapp/curve25519-dalek.git?branch=lizard2#4f0aa6653c51598daa0a2f53b8ba54ce0eedfbdd"
+source = "git+https://github.com/signalapp/curve25519-dalek?branch=lizard2#4f0aa6653c51598daa0a2f53b8ba54ce0eedfbdd"
 dependencies = [
  "byteorder",
  "digest 0.9.0",
@@ -1207,6 +1207,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glob"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
+
+[[package]]
 name = "h2"
 version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1525,7 +1531,7 @@ dependencies = [
 [[package]]
 name = "libsignal-protocol"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#463e82200f9d6639dd7bfa647cac45db18eca2b0"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
 dependencies = [
  "aes",
  "aes-gcm-siv",
@@ -1534,18 +1540,23 @@ dependencies = [
  "block-modes",
  "curve25519-dalek",
  "displaydoc",
+ "generic-array",
  "hex",
  "hkdf 0.11.0",
  "hmac 0.11.0",
  "itertools 0.10.5",
  "log",
  "num_enum",
+ "pqcrypto-kyber",
+ "pqcrypto-traits",
  "prost 0.9.0",
  "prost-build 0.9.0",
  "rand 0.7.3",
  "sha2 0.9.9",
+ "signal-crypto",
  "subtle",
  "thiserror",
+ "typenum",
  "uuid",
  "x25519-dalek",
 ]
@@ -1553,7 +1564,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#5dfe90b5caa90ede538e9b508a44544c0733a704"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#a0da5a160e355d13b07f0e0ad64031860326591f"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1586,7 +1597,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#5dfe90b5caa90ede538e9b508a44544c0733a704"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#a0da5a160e355d13b07f0e0ad64031860326591f"
 dependencies = [
  "actix",
  "actix-http",
@@ -2108,7 +2119,7 @@ dependencies = [
 [[package]]
 name = "poksho"
 version = "0.7.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#463e82200f9d6639dd7bfa647cac45db18eca2b0"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
 dependencies = [
  "curve25519-dalek",
  "hmac 0.11.0",
@@ -2132,6 +2143,35 @@ name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b40af805b3121feab8a3c29f04d8ad262fa8e0561883e7653e024ae4479e6de"
+
+[[package]]
+name = "pqcrypto-internals"
+version = "0.2.4"
+source = "git+https://github.com/whisperfish/pqcrypto?branch=whisperfork#2730e5abd02cbb35aaa5978fb98e8cd18a5aaa62"
+dependencies = [
+ "cc",
+ "getrandom 0.2.10",
+ "libc",
+]
+
+[[package]]
+name = "pqcrypto-kyber"
+version = "0.7.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe9d9695c19e525d5366c913562a331fbeef9a2ad801d9a9ded61a0e4c2fe0fb"
+dependencies = [
+ "cc",
+ "glob",
+ "libc",
+ "pqcrypto-internals",
+ "pqcrypto-traits",
+]
+
+[[package]]
+name = "pqcrypto-traits"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97e91cb6af081c6daad5fa705f8adb0634c027662052cb3174bdf2957bf07e25"
 
 [[package]]
 name = "proc-macro-crate"
@@ -2834,6 +2874,23 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest 0.10.7",
+]
+
+[[package]]
+name = "signal-crypto"
+version = "0.1.0"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+dependencies = [
+ "aes",
+ "block-modes",
+ "displaydoc",
+ "generic-array",
+ "ghash",
+ "hmac 0.11.0",
+ "sha-1 0.9.8",
+ "sha2 0.9.9",
+ "subtle",
+ "thiserror",
 ]
 
 [[package]]
@@ -3783,9 +3840,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "zkcredential"
+version = "0.1.0"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
+dependencies = [
+ "curve25519-dalek",
+ "lazy_static",
+ "poksho",
+ "serde",
+]
+
+[[package]]
 name = "zkgroup"
 version = "0.9.0"
-source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#463e82200f9d6639dd7bfa647cac45db18eca2b0"
+source = "git+https://gitlab.com/whisperfish/libsignal-client?branch=whisperfork#a5acde6d2387172a65f6461834e0fc5db00a8360"
 dependencies = [
  "aead",
  "aes-gcm-siv",
@@ -3797,6 +3865,9 @@ dependencies = [
  "poksho",
  "serde",
  "sha2 0.9.9",
+ "signal-crypto",
+ "subtle",
+ "zkcredential",
 ]
 
 [[package]]

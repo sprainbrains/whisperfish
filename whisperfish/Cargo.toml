@@ -34,8 +34,8 @@ actix-http = "=3.0.0-beta.19"
 libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
 libsignal-service-actix = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main" }
 
-libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.22.2" }
-zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.22.2" }
+libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.28.1" }
+zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.28.1" }
 
 proc-macro2 = "=1.0.43" # 1.0.44: unknown feature `proc_macro_span_shrink`
 quote = "=1.0.23"
