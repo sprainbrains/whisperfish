@@ -2383,7 +2383,7 @@ impl Storage {
 
         if !message.is_outbound {
             log::trace!("Message is from someone else, deleting attachments...");
-            let regex = self.config.get_attachments_regex();
+            let regex = self.config.attachments_regex();
             self.fetch_attachments_for_message(message.id)
                 .into_iter()
                 .for_each(|attachment| {

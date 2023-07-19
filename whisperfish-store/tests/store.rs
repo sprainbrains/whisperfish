@@ -879,7 +879,7 @@ async fn test_recipient_actions() {
 /// Test the regex we use to make sure we don't remove attachmets
 /// from anywhere else than from 'storage/[attachments|camera]' folders.
 fn test_remove_attachment_filenames() {
-    let regex = SignalConfig::default().get_attachments_regex();
+    let regex = SignalConfig::default().attachments_regex();
 
     // List of known good and bad locations, feel free to add samples.
     let test_data: [(bool, &str); 21]= [
