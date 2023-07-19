@@ -476,9 +476,10 @@ async fn test_create_and_open_storage(
             assert_eq!(signaling_key, $storage.signaling_key().await?);
             assert_eq!(regid, $storage.get_local_registration_id(None).await?);
 
-            let (signed, unsigned) = $storage.next_pre_key_ids().await;
+            let (signed, kyber, unsigned) = $storage.next_pre_key_ids().await;
             // Unstarted client will have no pre-keys.
             assert_eq!(0, signed);
+            assert_eq!(0, kyber);
             assert_eq!(0, unsigned);
 
             Result::<_, anyhow::Error>::Ok(())

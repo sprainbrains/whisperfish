@@ -1,4 +1,5 @@
 use super::*;
+use libsignal_protocol::GenericSignedPreKey;
 use libsignal_service::prelude::protocol::{self, Context};
 use libsignal_service::provisioning::generate_registration_id;
 use protocol::IdentityKeyPair;
@@ -79,8 +80,8 @@ impl ProtocolStore {
 }
 
 impl Storage {
-    /// Returns a tuple of the next free signed pre-key ID and the next free pre-key ID
-    pub async fn next_pre_key_ids(&self) -> (u32, u32) {
+    /// Returns a tuple of the next free signed pre-key ID, the next Kyber pre-key ID, and the next free pre-key ID
+    pub async fn next_pre_key_ids(&self) -> (u32, u32, u32) {
         use diesel::dsl::*;
         use diesel::prelude::*;
 
@@ -89,6 +90,16 @@ impl Storage {
 
             prekeys.select(max(id)).first(&mut *self.db()).expect("db")
         };
+
+        let kyber_max: Option<i32> = {
+            use crate::schema::kyber_prekeys::dsl::*;
+
+            kyber_prekeys
+                .select(max(id))
+                .first(&mut *self.db())
+                .expect("db")
+        };
+
         let signed_prekey_max: Option<i32> = {
             use crate::schema::signed_prekeys::dsl::*;
 
@@ -100,6 +111,7 @@ impl Storage {
 
         (
             (signed_prekey_max.unwrap_or(-1) + 1) as u32,
+            (kyber_max.unwrap_or(-1) + 1) as u32,
             (prekey_max.unwrap_or(-1) + 1) as u32,
         )
     }
@@ -588,6 +600,70 @@ impl protocol::SignedPreKeyStore for Storage {
 }
 
 #[async_trait::async_trait(?Send)]
+impl protocol::KyberPreKeyStore for Storage {
+    async fn mark_kyber_pre_key_used(
+        &mut self,
+        kyber_prekey_id: KyberPreKeyId,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
+        // TODO: only remove the kyber pre key if it concerns an ephemeral pre key; last-resort
+        // keys should be retained!  See libsignal-service/src/account_manager.rs `if use_last_resort_key`
+        log::trace!("Removing Kyber prekey {}", kyber_prekey_id);
+        use crate::schema::kyber_prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        diesel::delete(kyber_prekeys)
+            .filter(id.eq((u32::from(kyber_prekey_id)) as i32))
+            .execute(&mut *self.db())
+            .expect("db");
+        Ok(())
+    }
+
+    async fn get_kyber_pre_key(
+        &self,
+        kyber_prekey_id: KyberPreKeyId,
+        _: Context,
+    ) -> Result<KyberPreKeyRecord, SignalProtocolError> {
+        log::trace!("Loading Kyber prekey {}", kyber_prekey_id);
+        use crate::schema::kyber_prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        let prekey_record: Option<crate::store::orm::KyberPrekey> = kyber_prekeys
+            .filter(id.eq(u32::from(kyber_prekey_id) as i32))
+            .first(&mut *self.db())
+            .optional()
+            .expect("db");
+        if let Some(pkr) = prekey_record {
+            Ok(KyberPreKeyRecord::deserialize(&pkr.record)?)
+        } else {
+            Err(SignalProtocolError::InvalidSignedPreKeyId)
+        }
+    }
+
+    async fn save_kyber_pre_key(
+        &mut self,
+        kyber_prekey_id: KyberPreKeyId,
+        body: &KyberPreKeyRecord,
+        _: Context,
+    ) -> Result<(), SignalProtocolError> {
+        log::trace!("Storing Kyber prekey {}", kyber_prekey_id);
+        use crate::schema::kyber_prekeys::dsl::*;
+        use diesel::prelude::*;
+
+        // Insert or replace?
+        diesel::insert_into(kyber_prekeys)
+            .values(crate::store::orm::KyberPrekey {
+                id: u32::from(kyber_prekey_id) as _,
+                record: body.serialize()?,
+            })
+            .execute(&mut *self.db())
+            .expect("db");
+
+        Ok(())
+    }
+}
+
+#[async_trait::async_trait(?Send)]
 impl SenderKeyStore for Storage {
     async fn store_sender_key(
         &mut self,
@@ -681,6 +757,7 @@ impl Storage {
 mod tests {
     use std::sync::Arc;
 
+    use libsignal_protocol::GenericSignedPreKey;
     use libsignal_service::{prelude::protocol::*, ServiceAddress};
     use rstest::rstest;
 
@@ -1146,7 +1223,7 @@ mod tests {
         let key3 = create_random_signed_prekey();
 
         // In the beginning zero should be returned
-        assert_eq!(storage.next_pre_key_ids().await, (0, 0));
+        assert_eq!(storage.next_pre_key_ids().await, (0, 0, 0));
 
         // Now, we add our keys
         storage
@@ -1163,6 +1240,6 @@ mod tests {
             .unwrap();
 
         // Adapt to keys in the storage
-        assert_eq!(storage.next_pre_key_ids().await, (1, 2));
+        assert_eq!(storage.next_pre_key_ids().await, (1, 0, 2));
     }
 }

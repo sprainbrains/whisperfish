@@ -87,6 +87,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    kyber_prekeys (id) {
+        id -> Integer,
+        record -> Binary,
+    }
+}
+
+diesel::table! {
     messages (id) {
         id -> Integer,
         session_id -> Integer,
@@ -248,6 +255,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     group_v2_members,
     group_v2s,
     identity_records,
+    kyber_prekeys,
     messages,
     prekeys,
     reactions,

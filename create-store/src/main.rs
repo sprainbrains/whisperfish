@@ -1,4 +1,4 @@
-use libsignal_protocol::DeviceId;
+use libsignal_service::prelude::protocol::*;
 use std::{path::PathBuf, sync::Arc};
 use structopt::StructOpt;
 use whisperfish::{config::SignalConfig, store};
@@ -60,35 +60,25 @@ async fn create_storage(
 }
 
 async fn add_dummy_data(storage: &mut store::Storage) {
-    use libsignal_service::prelude::protocol::{IdentityKeyStore, SessionStore};
     use std::str::FromStr;
     let mut rng = rand::thread_rng();
 
     // Invent two users with devices
     let user_id = uuid::Uuid::from_str("5844fce4-4407-401a-9dbc-fc86c6def4e6").unwrap();
     let device_id = 1;
-    let addr_1 = libsignal_service::prelude::protocol::ProtocolAddress::new(
-        user_id.to_string(),
-        DeviceId::from(device_id),
-    );
+    let addr_1 = ProtocolAddress::new(user_id.to_string(), DeviceId::from(device_id));
 
     let user_id = uuid::Uuid::from_str("7bec59e1-140d-4b53-98f1-dc8fd2c011c8").unwrap();
     let device_id = 2;
-    let addr_2 = libsignal_service::prelude::protocol::ProtocolAddress::new(
-        user_id.to_string(),
-        DeviceId::from(device_id),
-    );
+    let addr_2 = ProtocolAddress::new(user_id.to_string(), DeviceId::from(device_id));
 
     let device_id = 3;
-    let addr_3 = libsignal_service::prelude::protocol::ProtocolAddress::new(
-        "+32412345678".into(),
-        DeviceId::from(device_id),
-    );
+    let addr_3 = ProtocolAddress::new("+32412345678".into(), DeviceId::from(device_id));
 
     // Create two identities and two sessions
-    let key_1 = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
-    let key_2 = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
-    let key_3 = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
+    let key_1 = IdentityKeyPair::generate(&mut rng);
+    let key_2 = IdentityKeyPair::generate(&mut rng);
+    let key_3 = IdentityKeyPair::generate(&mut rng);
 
     storage
         .save_identity(&addr_1, key_1.identity_key(), None)
@@ -103,9 +93,9 @@ async fn add_dummy_data(storage: &mut store::Storage) {
         .await
         .unwrap();
 
-    let session_1 = libsignal_service::prelude::protocol::SessionRecord::new_fresh();
-    let session_2 = libsignal_service::prelude::protocol::SessionRecord::new_fresh();
-    let session_3 = libsignal_service::prelude::protocol::SessionRecord::new_fresh();
+    let session_1 = SessionRecord::new_fresh();
+    let session_2 = SessionRecord::new_fresh();
+    let session_3 = SessionRecord::new_fresh();
     storage
         .store_session(&addr_1, &session_1, None)
         .await

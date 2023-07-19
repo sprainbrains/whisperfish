@@ -34,20 +34,20 @@ impl UnidentifiedCertificates {
     /// Look up the correct access key for a certain recipient.
     ///
     /// Java equivalent: UnidentifiedAccessUtil::getTargetUnidentifiedAccessKey
-    pub fn access_key_for(&self, recipient: &orm::Recipient, for_story: bool) -> Option<Vec<u8>> {
+    pub fn access_key_for(&self, recipient: &orm::Recipient, for_story: bool) -> Option<[u8; 16]> {
         match recipient.unidentified_access_mode {
             UnidentifiedAccessMode::Unknown => Some(
                 recipient
                     .unidentified_access_key()
-                    .unwrap_or(UNRESTRICTED_ACCESS_KEY.to_vec()),
+                    .unwrap_or(UNRESTRICTED_ACCESS_KEY),
             ),
             UnidentifiedAccessMode::Disabled => None,
             UnidentifiedAccessMode::Enabled => recipient.unidentified_access_key(),
-            UnidentifiedAccessMode::Unrestricted => Some(UNRESTRICTED_ACCESS_KEY.to_vec()),
+            UnidentifiedAccessMode::Unrestricted => Some(UNRESTRICTED_ACCESS_KEY),
         }
         .or_else(|| {
             if for_story {
-                Some(UNRESTRICTED_ACCESS_KEY.to_vec())
+                Some(UNRESTRICTED_ACCESS_KEY)
             } else {
                 None
             }
@@ -64,7 +64,7 @@ impl UnidentifiedCertificates {
             self.access_key_for(recipient, for_story)
                 .map(|key| UnidentifiedAccess {
                     certificate: cert.clone(),
-                    key,
+                    key: key.to_vec(),
                 })
         })
     }

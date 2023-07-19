@@ -345,6 +345,8 @@ Page {
                             }
                         }
                         numericFingerprint.text = pretty_fp
+                        isKyberEnabled.checked = recipient.sessionIsPostQuantum
+                        isKyberEnabled.visible = true
                     }
                 }
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -374,6 +376,34 @@ Page {
                 //: Numeric fingerprint instructions
                 //% "If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device."
                 text: qsTrId("whisperfish-numeric-fingerprint-directions").arg(recipient.name)
+            }
+
+            IconTextSwitch {
+                automaticCheck: false
+                visible: false
+                id: isKyberEnabled
+                anchors.horizontalCenter: parent.horizontalCenter
+                //: Profile page: whether a contact has post-quantum secure sessions
+                //% "Post-quantum keys in use"
+                text: qsTrId("whisperfish-profile-pq-enabled")
+                //: Profile page: description for post-quantum secure sessions
+                //% "If checked, this session was initialized with post-quantum secure cryptography."
+                description: qsTrId("whisperfish-profile-pq-enabled-description")
+                checked: recipient.sessionIsPostQuantum
+                icon.source: "image://theme/icon-m-device-lock"
+
+                onClicked: {
+                    if (recipient.sessionIsPostQuantum) {
+                        return;
+                    }
+                    //: Upgrading the session to Kyber remorse popup, past tense
+                    //% "Session reset for post-quantum upgrade"
+                    remorse.execute(qsTrId("whisperfish-kyber-click-explanation"),
+                        function() {
+                            console.log("Resetting secure session (pq upgrade) with " + recipient.e164)
+                            MessageModel.endSession(recipient.recipientId)
+                        })
+                }
             }
 
             Separator {

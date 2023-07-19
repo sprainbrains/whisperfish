@@ -48,9 +48,9 @@ tempfile = { version = "3.4.0", default-features = false }
 tokio = { version="=1.26.0", features = ["fs", "macros"] }
 uuid = { version = "=1.3.2", features=["v4"] }
 
-libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.22.2" }
+libsignal-protocol = { git = "https://github.com/signalapp/libsignal", tag = "v0.28.1" }
+zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.28.1" }
 libsignal-service = { git = "https://github.com/whisperfish/libsignal-service-rs", branch = "main", features = ["unsend-futures"] }
-zkgroup = { git = "https://github.com/signalapp/libsignal", tag = "v0.22.2" }
 
 [build-dependencies]
 anyhow = "1.0"
