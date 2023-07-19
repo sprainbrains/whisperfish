@@ -1730,19 +1730,37 @@ Settings page share contacts</extracomment>
         <translation>Afficher l&apos;empreinte digitale</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="376"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="378"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Si vous souhaitez vérifier la fiabilité de votre chiffrement de bout en bout avec %1, comparez les chiffres ci-dessus avec les chiffres sur votre appareil.</translation>
     </message>
+    <message id="whisperfish-profile-pq-enabled">
+        <location filename="../qml/pages/ProfilePage.qml" line="388"/>
+        <source>Post-quantum keys in use</source>
+        <extracomment>Profile page: whether a contact has post-quantum secure sessions</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-profile-pq-enabled-description">
+        <location filename="../qml/pages/ProfilePage.qml" line="391"/>
+        <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
+        <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-kyber-click-explanation">
+        <location filename="../qml/pages/ProfilePage.qml" line="401"/>
+        <source>Session reset for post-quantum upgrade</source>
+        <extracomment>Upgrading the session to Kyber remorse popup, past tense</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-own-profile-help-text">
-        <location filename="../qml/pages/ProfilePage.qml" line="393"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="423"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
         <translation>Votre profil est chiffré. Votre profil et les modifications qui y sont apportées sont visibles par vos contacts et lorsque vous commencez ou acceptez de nouvelles discussions.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
-        <location filename="../qml/pages/ProfilePage.qml" line="401"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="431"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
         <translation>En savoir plus</translation>
