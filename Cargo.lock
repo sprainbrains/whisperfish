@@ -681,7 +681,6 @@ dependencies = [
  "actix-rt",
  "anyhow",
  "env_logger",
- "libsignal-protocol",
  "libsignal-service",
  "rand 0.7.3",
  "structopt",
