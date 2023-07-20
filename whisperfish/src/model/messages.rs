@@ -41,6 +41,7 @@ crate::observing_model! {
         outgoing Outgoing,
         queued Queued,
         failed Failed,
+        remoteDeleted RemoteDeleted,
 
         unidentifiedSender Unidentified,
         quotedMessageId QuotedMessageId,
@@ -319,6 +320,7 @@ define_model_roles! {
         Outgoing(is_outbound):                                "outgoing",
         Queued(fn queued(&self)):                             "queued",
         Failed(sending_has_failed):                           "failed",
+        RemoteDeleted(is_remote_deleted):                     "remoteDeleted",
 
         Attachments(fn attachments(&self)): "attachments",
 

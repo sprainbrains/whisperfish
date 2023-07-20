@@ -281,6 +281,7 @@ define_model_roles! {
         Message(fn last_message_text(&self) via qstring_from_option): "message",
         Section(fn section(&self) via QString::from):                      "section",
         Timestamp(fn timestamp(&self) via qdatetime_from_naive_option):    "timestamp",
+        RemoteDeleted(fn is_remote_deleted(&self)):                        "remoteDeleted",
         IsRead(fn is_read(&self)):                                         "read",
         Sent(fn sent(&self)):                                              "sent",
         Delivered(fn delivered(&self)):                                    "deliveryCount",

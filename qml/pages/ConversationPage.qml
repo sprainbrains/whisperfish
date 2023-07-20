@@ -18,6 +18,7 @@ Page {
     property DockedPanel activePanel: actionsPanel.open ? actionsPanel : panel
 
     property int _selectedCount: messages.selectedCount // proxy to avoid some costly lookups
+    property bool _showDeleteAll: false
 
     Session {
         id: session
@@ -150,6 +151,9 @@ Page {
             if (selectionBlocked) actionsPanel.hide()
             else if (isSelecting) actionsPanel.show()
         }
+        onShouldShowDeleteAll: {
+            _showDeleteAll = showDeleteAll
+        }
     }
 
     OpacityRampEffect {
@@ -189,7 +193,7 @@ Page {
             Component.onCompleted: text = session.draft
 
             Component.onDestruction: {
-                if(session.draft !== text) {
+                if(session !== undefined && session.draft !== text) {
                     SessionModel.saveDraft(sessionId, text)
                 }
             }
@@ -333,6 +337,7 @@ Page {
                     visible: root.isLandscape
                 }
                 IconButton {
+                    id: deleteAllPortrait
                     width: Theme.itemSizeSmall; height: width
                     icon.source: "../../icons/icon-m-delete-all.png"
                     //: Message action description
@@ -340,7 +345,7 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-all", _selectedCount))
                     onClicked: messages.messageAction(messages.deleteSelectedForAll)
-                    enabled: false // TODO enable once implemented
+                    enabled: _showDeleteAll
                     visible: root.isLandscape
                 }
             }
@@ -362,6 +367,7 @@ Page {
                     onClicked: messages.messageAction(messages.deleteSelectedForSelf)
                 }
                 IconButton {
+                    id: deleteAllLandscape
                     width: Theme.itemSizeSmall; height: width
                     icon.source: "../../icons/icon-m-delete-all.png"
                     //: Message action description
@@ -369,7 +375,7 @@ Page {
                     onPressedChanged: infoLabel.toggleHint(
                                           qsTrId("whisperfish-message-action-delete-for-all", _selectedCount))
                     onClicked: messages.messageAction(messages.deleteSelectedForAll)
-                    enabled: false // TODO enable once implemented
+                    enabled: _showDeleteAll
                 }
 
                 // TODO find a way to count failed messages in the current selection

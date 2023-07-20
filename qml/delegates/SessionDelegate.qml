@@ -34,7 +34,9 @@ ListItem {
                 //% "Attachment"
                 ? qsTrId("whisperfish-session-has-attachment") : '')
             ) : ''
-        ) + (model.message !== undefined ? model.message : '')
+            //: Placeholder note for a deleted message
+            //% "this message was deleted"
+        ) + (model.message !== undefined ? (model.remoteDeleted ? qsTrId("whisperfish-message-deleted-note") : model.message) : '')
 
     signal relocateItem(int sessionId)
 
@@ -228,6 +230,7 @@ ListItem {
                       message
             highlighted: _labelsHighlighted
             verticalAlignment: Text.AlignTop
+            font.italic: model.remoteDeleted
         }
 
         Row {

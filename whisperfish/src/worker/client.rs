@@ -13,7 +13,7 @@ use self::migrations::MigrationCondVar;
 pub use self::profile::*;
 pub use self::profile_upload::*;
 use self::unidentified::UnidentifiedCertificates;
-use libsignal_service::proto::data_message::Quote;
+use libsignal_service::proto::data_message::{Delete, Quote};
 use libsignal_service::proto::sync_message::Sent;
 pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
 pub use libsignal_service::push_service::DeviceInfo;
@@ -112,7 +112,7 @@ struct DeliverMessage<T> {
     timestamp: u64,
     online: bool,
     for_story: bool,
-    session_id: i32,
+    session: orm::Session,
 }
 
 #[derive(actix::Message)]
@@ -380,7 +380,7 @@ impl ClientActor {
             content,
             timestamp: Utc::now().timestamp_millis() as u64,
             // XXX Session ID is artificial here.
-            session_id: session.id,
+            session,
             online: false,
             for_story: false,
         });
@@ -498,7 +498,6 @@ impl ClientActor {
             log::warn!("Received a sticker, but inserting empty message.");
             Some("This is a sticker, but stickers are currently unsupported.".into())
         } else if msg.payment.is_some()
-            || msg.delete.is_some()
             || msg.group_call_update.is_some()
             || !msg.contact.is_empty()
         {
@@ -506,6 +505,33 @@ impl ClientActor {
         } else {
             None
         };
+
+        if let Some(msg_delete) = &msg.delete {
+            let target_sent_timestamp = millis_to_naive_chrono(
+                msg_delete
+                    .target_sent_timestamp
+                    .expect("Delete message has no timestamp"),
+            );
+            let db_message = storage.fetch_message_by_timestamp(target_sent_timestamp);
+            if let Some(db_message) = db_message {
+                let own_id = storage
+                    .fetch_self_recipient()
+                    .expect("self recipient in db")
+                    .id;
+                // Missing sender_recipient_id => we are the sender
+                let sender_id = db_message.sender_recipient_id.unwrap_or(own_id);
+                if sender_id != sender_recipient.as_ref().unwrap().id {
+                    log::warn!("Received a delete message from a different user, ignoring it.");
+                } else {
+                    storage.delete_message(db_message.id);
+                }
+            } else {
+                log::warn!(
+                    "Message {} not found for deletion!",
+                    target_sent_timestamp.timestamp_millis()
+                );
+            }
+        }
 
         let body = msg.body.clone().or(alt_body);
         let text = if let Some(body) = body {
@@ -1296,7 +1322,7 @@ impl Handler<SendMessage> for ClientActor {
                         content,
                         online: false,
                         timestamp,
-                        session_id,
+                        session,
                         for_story: false,
                     })
                     .await?;
@@ -1347,7 +1373,7 @@ impl Handler<SendMessage> for ClientActor {
                         if all_ok {
                             storage.dequeue_message(mid, chrono::Utc::now().naive_utc(), unidentified);
 
-                            Ok((session.id, mid, msg.inner.text))
+                            Ok((session_id, mid, msg.inner.text))
                         } else {
                             storage.fail_message(mid);
                             for error in results.iter().filter_map(|res| res.as_ref().err()) {
@@ -1511,11 +1537,11 @@ impl Handler<SendTypingNotification> for ClientActor {
                     content,
                     online: true,
                     timestamp: now,
-                    session_id,
+                    session,
                     for_story: false,
                 })
                 .await?
-                .map(|_unidentified| session.id)
+                .map(|_unidentified| session_id)
             }
             .into_actor(self)
             .map(move |res, _act, _ctx| {
@@ -1614,7 +1640,7 @@ impl Handler<SendReaction> for ClientActor {
                     content,
                     online: false,
                     timestamp: now.timestamp_millis() as u64,
-                    session_id: session.id,
+                    session,
                     for_story: false,
                 })
                 .await?
@@ -1673,7 +1699,7 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
             content,
             timestamp,
             online,
-            session_id,
+            session,
             for_story,
         } = msg;
         let content = content.into();
@@ -1681,7 +1707,6 @@ impl<T: Into<ContentBody>> Handler<DeliverMessage<T>> for ClientActor {
         log::trace!("Transmitting {:?} with timestamp {}", content, timestamp);
 
         let storage = self.storage.clone().unwrap();
-        let session = storage.fetch_session_by_id(session_id).unwrap();
         let sender = self.message_sender();
         let local_addr = self.local_addr.unwrap();
 
@@ -2510,6 +2535,56 @@ impl Handler<ProofAccepted> for ClientActor {
             .pinned()
             .borrow_mut()
             .proofCaptchaResult(accepted.result);
+    }
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub struct DeleteMessageForAll(pub i32);
+
+impl Handler<DeleteMessageForAll> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        DeleteMessageForAll(id): DeleteMessageForAll,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        self.clear_transient_timstamps();
+
+        let storage = self.storage.as_mut().unwrap();
+        let self_recipient = storage.fetch_self_recipient().expect("self recipient");
+
+        let message = storage
+            .fetch_message_by_id(id)
+            .expect("message to delete by id");
+        let session = storage
+            .fetch_session_by_id(message.session_id)
+            .expect("session to delete message from by id");
+
+        let now = Utc::now().timestamp_millis() as u64;
+        self.transient_timestamps.insert(now);
+
+        let delete_message = DeliverMessage {
+            content: DataMessage {
+                group_v2: session.group_context_v2(),
+                profile_key: self_recipient.profile_key,
+                timestamp: Some(now),
+                delete: Some(Delete {
+                    target_sent_timestamp: Some(message.server_timestamp.timestamp_millis() as u64),
+                }),
+                required_protocol_version: Some(4),
+                ..Default::default()
+            },
+            for_story: false,
+            timestamp: now,
+            online: false,
+            session,
+        };
+
+        // XXX: We can't get a result back, I think we should?
+        ctx.notify(delete_message);
+        storage.delete_message(message.id);
     }
 }
 

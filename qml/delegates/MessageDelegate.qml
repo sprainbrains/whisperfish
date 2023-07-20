@@ -13,6 +13,7 @@ ListItem {
     highlighted: down || menuOpen || replyArea.pressed || isSelected
     _backgroundColor: "transparent"
     hidden: !!(isSelected && listView.hideSelected)
+    enabled: !modelData.remoteDeleted
 
     // REQUIRED PROPERTIES
     property QtObject modelData
@@ -76,8 +77,8 @@ ListItem {
     property real backgroundCornerRadius: Theme.paddingLarge
 
     property bool showSender: isInGroup && !isOutbound
-    property bool showQuotedMessage: hasQuotedMessage
-    property bool showExpand: !isEmpty && _message.length > shortenThreshold
+    property bool showQuotedMessage: hasQuotedMessage && !isRemoteDeleted
+    property bool showExpand: !isEmpty && !isRemoteDeleted && _message.length > shortenThreshold
 
     readonly property bool hasData: modelData !== null && modelData !== undefined
     readonly property bool hasReactions: hasData && reactions.count > 0
@@ -88,6 +89,7 @@ ListItem {
     readonly property bool isOutbound: hasData && (modelData.outgoing === true)
     readonly property bool isInGroup: session.isGroup
     readonly property bool isEmpty: !hasText && !hasAttachments
+    readonly property bool isRemoteDeleted: hasData && ((isSelected && listView.appearDeleted) || modelData.remoteDeleted)
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 
@@ -242,11 +244,14 @@ ListItem {
             LinkedEmojiLabel {
                 id: messageLabel
                 visible: isEmpty || hasText
-                plainText: isEmpty ?
-                               //: Placeholder note if an empty message is encountered.
-                               //% "this message is empty"
-                               qsTrId("whisperfish-message-empty-note") :
-                               (isExpanded ? _message : _message.substr(0, shortenThreshold) + (showExpand ? ' ...' : ''))
+                plainText:  //: Placeholder note for a deleted message
+                            //% "this message was deleted"
+                            isRemoteDeleted ? qsTrId("whisperfish-message-deleted-note") :
+                            //: Placeholder note if an empty message is encountered.
+                            //% "this message is empty"
+                            (isEmpty ? qsTrId("whisperfish-message-empty-note") :
+                            (isExpanded ? _message : _message.substr(0, shortenThreshold) + (showExpand ? ' ...' : '')))
+                font.italic: model.remoteDeleted
                 wrapMode: Text.Wrap
                 anchors { left: parent.left; right: parent.right }
                 horizontalAlignment: emojiOnly ? Text.AlignHCenter :

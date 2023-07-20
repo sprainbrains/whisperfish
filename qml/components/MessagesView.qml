@@ -43,14 +43,17 @@ SilicaListView {
     property bool menuOpen: false
     property var selectedMessages: ({}) // changed by assignment in resetSelection()/onItemSel...Toggled
     property int selectedCount: 0
+    property bool showDeleteAll: false
     property bool isSelecting: false
     property bool selectionBlocked: false
     property bool hideSelected: false
+    property bool appearDeleted: false
     property var __running_remorse: null
 
     signal replyTriggered(var index, var modelData)
     signal quoteClicked(var clickedIndex, var quotedData)
     signal itemSelectionToggled(var modelData)
+    signal shouldShowDeleteAll(var shouldShow)
 
     function startSelection() {
         isSelecting = true
@@ -70,6 +73,9 @@ SilicaListView {
         selectedCount = 0
         selectionBlocked = false
         hideSelected = false
+        appearDeleted = false
+        showDeleteAll = false
+        shouldShowDeleteAll(showDeleteAll)
         if (!keepRemorse) __running_remorse = null
     }
 
@@ -148,7 +154,7 @@ SilicaListView {
 
     function deleteSelectedForSelf() { // call through messageAction()
         var selectedIds = _getSelectedIds()
-        hideSelected = true
+        appearDeleted = true
 
         return Remorse.popupAction(
             //: Remorse: *locally* deleted one or multiple message (past tense)
@@ -163,8 +169,19 @@ SilicaListView {
     }
 
     function deleteSelectedForAll() { // call through messageAction()
-        // TODO implement in the model
-        Remorse.popupAction(root, "Deleting for all peers is not yet implemented.", function(){})
+        var selectedIds = _getSelectedIds()
+        appearDeleted = true
+
+        return Remorse.popupAction(
+            //: Remorse: *globally* deleted one or multiple message (past tense)
+            //% "Deleted %n message(s) for everyone"
+            root, qsTrId("whisperfish-remorse-deleted-messages-globally", selectedCount),
+            function() {
+                for (var i in selectedIds) {
+                    console.log("Delete message (id):", selectedIds[i])
+                    MessageModel.removeForAll(selectedIds[i])
+                }
+            })
     }
 
     function showMessageInfo() { // call through messageAction()
@@ -196,14 +213,30 @@ SilicaListView {
 
     onSelectedCountChanged: if (selectedCount === 0) isSelecting = false
     onItemSelectionToggled: {
+        var recalculate = false
         if (selectedMessages[modelData.id] === undefined) {
             selectedMessages[modelData.id] = modelData
             selectedCount++
+            if (selectedCount === 1) {
+                showDeleteAll = modelData.outgoing
+            } else if (showDeleteAll && !modelData.outgoing) {
+                showDeleteAll = false
+            }
         } else {
             delete selectedMessages[modelData.id]
             selectedCount--
+            if (!showDeleteAll && !modelData.outgoing) {
+                showDeleteAll = true
+                for (var i in selectedMessages) {
+                    if (selectedMessages.hasOwnProperty(i) && !selectedMessages[i].outgoing) {
+                        showDeleteAll = false
+                        break
+                    }
+                }
+            }
         }
         selectedMessages = selectedMessages // notify changes
+        shouldShowDeleteAll(showDeleteAll)
     }
 
     verticalLayoutDirection: ListView.BottomToTop

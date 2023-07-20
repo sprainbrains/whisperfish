@@ -678,11 +678,18 @@ async fn test_recipient_actions() {
 
     assert_eq!(storage.fetch_all_sessions_augmented().len(), 1);
 
+    assert!(!msg.is_remote_deleted);
+    assert!(msg.text.is_some());
     storage.delete_message(msg.id);
-    assert!(storage.fetch_message_by_id(msg.id).is_none());
+    let msg = storage.fetch_message_by_id(msg.id).unwrap();
+    assert!(msg.is_remote_deleted);
+    assert!(msg.text.is_none());
+    let r = storage.fetch_reactions_for_message(msg.id);
+    assert!(r.is_empty());
     drop(msg);
 
-    assert_eq!(storage.fetch_all_messages_augmented(session.id).len(), 0);
+    // The one deleted message is "only" marked as deleted
+    assert_eq!(storage.fetch_all_messages_augmented(session.id).len(), 1);
 
     storage.delete_session(session.id);
     assert_eq!(storage.fetch_all_sessions_augmented().len(), 0);
@@ -868,3 +875,55 @@ async fn test_recipient_actions() {
 //     // By default, attachments are not saved, so this should not exist
 //     assert!(message.attachment.is_none());
 // }
+
+#[test]
+/// Test the regex we use to make sure we don't remove attachmets
+/// from anywhere else than from 'storage/[attachments|camera]' folders.
+fn test_remove_attachment_filenames() {
+    let regex = SignalConfig::default().attachments_regex();
+
+    // List of known good and bad locations, feel free to add samples.
+    let test_data: [(bool, &str); 21]= [
+        // defaultuser, new
+        (true, "/home/defaultuser/.local/share/be.rubdos/harbour-whisperfish/storage/attachments/5da77b73f271bd460956d3807643f6b8.png"),
+        (true, "/home/defaultuser/.local/share/be.rubdos/harbour-whisperfish/storage/attachments/Photo_20220417_233207.jpg"),
+        (true, "/home/defaultuser/.local/share/be.rubdos/harbour-whisperfish/storage/camera/Photo_20220617_183938.jpg"),
+        // defaultuser, old
+        (true, "/home/defaultuser/.local/share/harbour-whisperfish/storage/attachments/d801caeea1cc119aac4fe6a64d1ecc3e.jpg"),
+        (true, "/home/defaultuser/.local/share/harbour-whisperfish/storage/camera/Photo_20220617_192842.jpg"),
+        // nemo, new
+        (true, "/home/nemo/.local/share/be.rubdos/harbour-whisperfish/storage/attachments/3a9f821ec8395b9a6565df0e1a952a85.jpg"),
+        (true, "/home/nemo/.local/share/be.rubdos/harbour-whisperfish/storage/camera/Photo_20230703_174003.jpg"),
+        // nemo, old
+        (true, "/home/nemo/.local/share/harbour-whisperfish/storage/attachments/bd09cdd805f5aa07aa3ee950a9b1fef9.pdf"),
+        (true, "/home/nemo/.local/share/harbour-whisperfish/storage/camera/Photo_20221108_202942.jpg"),
+        // Android storage
+        (false, "/home/defaultuser/android_storage/Download/cat-meme.jpg"),
+        // Downloads
+        (false, "/home/defaultuser/Downloads/Photo_20220422_144241.jpg"),
+        // Pictures
+        (false, "/home/defaultuser/Pictures/AdvancedCam/IMG_20210730_160213.jpg"),
+        (false, "/home/defaultuser/Pictures/Camera/20211103_184820.jpg"),
+        (false, "/home/defaultuser/Pictures/MMS/mms-20230409.jpg"),
+        (false, "/home/defaultuser/Pictures/Screenshots/Näyttökuva_20210502_001.png"),
+        (false, "/home/defaultuser/Pictures/totally_legit_png_just_without_extension"),
+        // Videos
+        (false, "/home/defaultuser/Videos/Camera/20210812_232017.mp4"),
+        // MicroSD card
+        (false, "/run/media/defaultuser/0123-4567/Pictures/Camera/20220611_203625.jpg"),
+        (false, "/run/media/defaultuser/0123-4567/Videos/Camera/20230703_144325.mp4"),
+        (false, "/run/media/defaultuser/6738bbbc-5a3b-4505-971e-9f40ff14d51f/Pictures/Camera/20210425_134502.jpg"),
+        // Local storage
+        (false, "/home/defaultuser/.local/share/commhistory/data/1241/image000000.jpg"),
+    ];
+
+    test_data.map(|(deleted, filename)| {
+        assert_eq!(
+            deleted,
+            regex.is_match(filename),
+            "{} should {} deleted",
+            filename,
+            if deleted { "BE" } else { "NOT BE" }
+        );
+    });
+}
