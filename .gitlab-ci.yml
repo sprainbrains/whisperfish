@@ -354,6 +354,7 @@ clippy:stable:
   needs:
     - test:stable
   script:
+    - rustup default 1.61
     - rustup component add clippy
     # the following command should be used but needs sailfish SDK
     # - cargo clippy --all-targets --all-features -- -D warnings
