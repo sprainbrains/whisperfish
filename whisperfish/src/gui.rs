@@ -189,6 +189,8 @@ impl WhisperfishApp {
     }
 }
 
+// Allow if-same-cond, because CI_COMMIT_TAG and GIT_VERSION might have the same content.
+#[allow(clippy::ifs_same_cond)]
 fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
 
