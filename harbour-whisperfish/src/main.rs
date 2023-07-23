@@ -195,7 +195,9 @@ fn main() {
 
     const MAX_LOGFILE_COUNT: usize = 5;
     const LOGFILE_REGEX: &str = r"harbour-whisperfish.\d{8}_\d{6}\.log";
-    store::Storage::clear_old_logs(&shared_dir, MAX_LOGFILE_COUNT, LOGFILE_REGEX);
+    if config.logfile {
+        store::Storage::clear_old_logs(&shared_dir, MAX_LOGFILE_COUNT, LOGFILE_REGEX);
+    }
 
     let instance_lock = SingleInstance::new("whisperfish").unwrap();
     if !instance_lock.is_single() {
