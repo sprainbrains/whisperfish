@@ -91,7 +91,7 @@ pub fn clear_old_logs(path: &std::path::PathBuf, keep_count: usize, filename_reg
 
                 for file in file_list[keep_count..].iter() {
                     match std::fs::remove_file(path.join(file)) {
-                        Ok(()) => log::info!("Deleted old log file: {}", file),
+                        Ok(()) => log::trace!("Deleted old log file: {}", file),
                         Err(e) => {
                             log::error!("Could not delete old log file {}: {:?}", file, e);
                             return false;
