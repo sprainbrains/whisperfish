@@ -1928,6 +1928,7 @@ Settings page share contacts</extracomment>
         <translation>Remetente desconhecido</translation>
     </message>
     <message id="whisperfish-quoted-message-preview-attachment">
+        <location filename="../qml/components/attachment/AttachmentItemFile.qml" line="20"/>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="130"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
@@ -2065,20 +2066,32 @@ Settings page share contacts</extracomment>
         <extracomment>Page description for a very long message shown on a page of its own</extracomment>
         <translation>de %1</translation>
     </message>
+    <message id="whisperfish-export-image-menu">
+        <location filename="../qml/pages/ViewImagePage.qml" line="66"/>
+        <source>Export image</source>
+        <extracomment>Copy the attachment image out of Whisperfish</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-view-image-page-loading">
-        <location filename="../qml/pages/ViewImagePage.qml" line="253"/>
+        <location filename="../qml/pages/ViewImagePage.qml" line="268"/>
         <source>Loading image</source>
         <extracomment>Full page placeholder shown while a large image is being loaded</extracomment>
         <translation>A carregar a imagem</translation>
     </message>
     <message id="whisperfish-view-image-page-error">
-        <location filename="../qml/pages/ViewImagePage.qml" line="263"/>
+        <location filename="../qml/pages/ViewImagePage.qml" line="278"/>
         <source>Failed to load</source>
         <extracomment>Full page placeholder shown when an image failed to load</extracomment>
         <translation>Carregamento falhou</translation>
     </message>
+    <message id="whisperfish-export-video-menu">
+        <location filename="../qml/pages/ViewVideoPage.qml" line="57"/>
+        <source>Export video</source>
+        <extracomment>Copy the attachment video out of Whisperfish</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-view-video-page-error">
-        <location filename="../qml/pages/ViewVideoPage.qml" line="109"/>
+        <location filename="../qml/pages/ViewVideoPage.qml" line="124"/>
         <source>Failed to play</source>
         <extracomment>Full page placeholder shown when a video failed to load</extracomment>
         <translation>Reprodução falhou</translation>
@@ -2271,6 +2284,12 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/TestCaptchaPage.qml" line="87"/>
         <source>Test started...</source>
         <extracomment>Captcha test has been started message</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message id="whisperfish-export-file-menu">
+        <location filename="../qml/pages/ViewFilePage.qml" line="28"/>
+        <source>Export file</source>
+        <extracomment>Copy the attachment file out of Whisperfish</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
