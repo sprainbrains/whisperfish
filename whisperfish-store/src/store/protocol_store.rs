@@ -1,6 +1,5 @@
 use super::*;
-use libsignal_protocol::GenericSignedPreKey;
-use libsignal_service::prelude::protocol::{self, Context};
+use libsignal_service::prelude::protocol::{self, Context, GenericSignedPreKey};
 use libsignal_service::provisioning::generate_registration_id;
 use protocol::IdentityKeyPair;
 use protocol::SignalProtocolError;
@@ -757,7 +756,6 @@ impl Storage {
 mod tests {
     use std::sync::Arc;
 
-    use libsignal_protocol::GenericSignedPreKey;
     use libsignal_service::{prelude::protocol::*, ServiceAddress};
     use rstest::rstest;
 
