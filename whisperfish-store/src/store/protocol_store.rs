@@ -1,8 +1,9 @@
 use super::*;
-use libsignal_service::prelude::protocol::{self, Context, GenericSignedPreKey};
+use libsignal_service::protocol::{
+    self, Context, GenericSignedPreKey, IdentityKeyPair, SignalProtocolError,
+};
 use libsignal_service::provisioning::generate_registration_id;
-use protocol::IdentityKeyPair;
-use protocol::SignalProtocolError;
+use libsignal_service::session_store::SessionStoreExt;
 use std::path::Path;
 
 pub struct ProtocolStore;
@@ -493,7 +494,7 @@ impl Storage {
 // END identity key
 
 #[async_trait::async_trait(?Send)]
-impl protocol::SessionStoreExt for Storage {
+impl SessionStoreExt for Storage {
     async fn get_sub_device_sessions(
         &self,
         addr: &ServiceAddress,
@@ -756,7 +757,8 @@ impl Storage {
 mod tests {
     use std::sync::Arc;
 
-    use libsignal_service::{prelude::protocol::*, ServiceAddress};
+    use libsignal_service::session_store::SessionStoreExt;
+    use libsignal_service::{protocol::*, ServiceAddress};
     use rstest::rstest;
 
     use crate::config::SignalConfig;

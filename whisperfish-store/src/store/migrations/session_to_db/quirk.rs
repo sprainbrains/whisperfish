@@ -6,7 +6,7 @@
 //!
 //! This module maps on <https://gitlab.com/rubdos/whisperfish/-/issues/74>.
 
-use libsignal_service::prelude::protocol::SignalProtocolError;
+use libsignal_service::protocol::SignalProtocolError;
 use prost::Message;
 
 include!(concat!(env!("OUT_DIR"), "/textsecure.rs"));
