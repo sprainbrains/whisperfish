@@ -22,6 +22,8 @@ Page {
     property string path: ''
     property bool isAnimated: false
     property bool enableDarkBackground: true
+    property var attachment
+    property bool isViewOnce
 
     readonly property bool isImageReady: image.status === Image.Ready
     readonly property Flickable flickable: flick
@@ -46,14 +48,27 @@ Page {
         }
     }
 
-    MediaTitleOverlay { id: _titleOverlayItem }
-
-    Flickable {
+    SilicaFlickable {
         id: flick
         anchors.fill: parent
         contentWidth: imageView.width
         contentHeight: imageView.height
         onHeightChanged: if (isImageReady) image.fitToScreen()
+
+        MediaTitleOverlay { id: _titleOverlayItem }
+
+        PullDownMenu {
+            MenuItem {
+                enabled: attachment.id > 0 && !isViewOnce
+                visible: enabled
+                //: Copy the attachment image out of Whisperfish
+                //% "Export image"
+                text: qsTrId("whisperfish-export-image-menu")
+                onClicked: {
+                    MessageModel.exportAttachment(attachment.id)
+                }
+            }
+        }
 
         Item {
             id: imageView

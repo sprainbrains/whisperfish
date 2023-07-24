@@ -355,6 +355,7 @@ Loader {
         id: detail_fileComponent
         AttachmentItemFile {
             attach: JSON.parse(detailAttachments.get(currentAttachmentIndex))
+            recipientId: message.senderRecipientId
             onPressAndHold: root.pressAndHold(mouse)
         }
     }

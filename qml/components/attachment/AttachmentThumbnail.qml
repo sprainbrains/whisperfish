@@ -3,6 +3,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Nemo.Thumbnailer 1.0
+import be.rubdos.whisperfish 1.0
 
 MouseArea {
     id: root
@@ -15,6 +16,12 @@ MouseArea {
     property bool _isAnimated: _hasAttach ? /\.(gif)$/i.test(attach.data) : false
     property bool _isVideo: _hasAttach ? /^video\//.test(attach.type) : false
     property bool _isAnimatedPaused: false
+
+    Recipient {
+        id: recipient
+        app: AppState
+        recipientId: message ? message.senderRecipientId : -1
+    }
 
     Connections {
         target: attachments
@@ -35,19 +42,20 @@ MouseArea {
             animationLoader.item.paused = false
         } else {
             var _debugMode = SettingsBridge.debug_mode
-            var _viewPage = '../../pages/ViewImagePage.qml'
-            if (_isVideo) _viewPage = '../../pages/ViewVideoPage.qml'
+            var _viewPage = _isVideo ? '../../pages/ViewVideoPage.qml' : '../../pages/ViewImagePage.qml'
 
             pageStack.push(_viewPage, {
-                               'title': message.recipientName,
-                               // TODO don't show the file path once attachments work reliably (#many)
-                               //      and attachments are saved in a WF-controlled directory (#253)
-                               'subtitle': attach.data,
-                               // when not in debug mode, it is ok to fade the file path if it is too long
-                               'titleOverlay.subtitleItem.wrapMode': _debugMode ? Text.Wrap : Text.NoWrap,
-                               'path': attach.data,
-                               'isAnimated': _isAnimated,
-                           })
+                'title': message ? recipient.name : "",
+                // TODO don't show the file path once attachments work reliably (#many)
+                //      and attachments are saved in a WF-controlled directory (#253)
+                'subtitle': attach.original_name && attach.original_name.length > 0 ? attach.original_name : attach.data,
+                // when not in debug mode, it is ok to fade the file path if it is too long
+                'titleOverlay.subtitleItem.wrapMode': _debugMode ? Text.Wrap : Text.NoWrap,
+                'path': attach.data,
+                'isAnimated': _isAnimated,
+                'attachment': attach,
+                'isViewOnce': false, // TODO: Implement attachment can only be viewed once
+            })
         }
     }
 

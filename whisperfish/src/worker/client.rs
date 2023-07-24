@@ -65,6 +65,7 @@ use std::fmt::{Display, Error, Formatter};
 use std::fs::remove_file;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 use std::time::Duration;
 
 // Maximum theoretical TypingMessage send rate,
@@ -2585,6 +2586,127 @@ impl Handler<DeleteMessageForAll> for ClientActor {
         // XXX: We can't get a result back, I think we should?
         ctx.notify(delete_message);
         storage.delete_message(message.id);
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ExportAttachment {
+    pub attachment_id: i32,
+}
+
+impl Handler<ExportAttachment> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        ExportAttachment { attachment_id }: ExportAttachment,
+        _ctx: &mut Self::Context,
+    ) {
+        let storage = self.storage.as_mut().unwrap();
+
+        // 1) Chech the attachment
+
+        let attachment = storage.fetch_attachment(attachment_id);
+        if attachment.is_none() {
+            log::error!(
+                "Attachment id {} doesn't exist, can't export it!",
+                attachment_id
+            );
+            return;
+        }
+        let attachment = attachment.unwrap();
+        if attachment.attachment_path.is_none() {
+            log::error!(
+                "Attachment id {} has no path stored, can't export it!",
+                attachment_id
+            );
+            return;
+        }
+
+        // 2) Check the source file
+
+        let source = PathBuf::from_str(&attachment.attachment_path.unwrap()).unwrap();
+        if !source.exists() {
+            log::error!(
+                "Attachment {} doesn't exist anymore, not exporting!",
+                source.to_str().unwrap()
+            );
+            return;
+        }
+
+        // 3) Check the target dir
+
+        let target_dir = (if attachment.content_type.starts_with("image") {
+            dirs::picture_dir()
+        } else if attachment.content_type.starts_with("audio") {
+            dirs::audio_dir()
+        } else if attachment.content_type.starts_with("video") {
+            dirs::video_dir()
+        } else {
+            dirs::download_dir()
+        })
+        .unwrap()
+        .join("Whisperfish");
+
+        if !std::path::Path::exists(&target_dir) && std::fs::create_dir(&target_dir).is_err() {
+            log::error!(
+                "Couldn't create directory {}, can't export attachment!",
+                target_dir.to_str().unwrap()
+            );
+            return;
+        }
+
+        // 4) Check free space
+        let free_space = fs2::free_space(&target_dir).expect("checking free space");
+        let file_size = std::fs::metadata(&source)
+            .expect("attachment file size")
+            .len();
+        if (free_space - file_size) < (100 * 1024 * 1024) {
+            // 100 MiB
+            log::error!("Not enough free space after copying, not exporting the attachment!");
+            return;
+        };
+
+        // 5) Check the target filename
+
+        let mut target = match attachment.file_name {
+            Some(name) => target_dir.join(name),
+            None => target_dir.join(source.file_name().unwrap()),
+        };
+
+        let basename = target
+            .file_stem()
+            .expect("attachment filename (before the dot)")
+            .to_owned();
+        let basename = basename.to_str().unwrap();
+        let mut count = 0;
+        while target.exists() {
+            count += 1;
+            if target.extension().is_some() {
+                target.set_file_name(format!(
+                    "{}-{}.{}",
+                    basename,
+                    count,
+                    target.extension().unwrap().to_str().unwrap()
+                ));
+            } else {
+                target.set_file_name(format!("{}-{}", basename, count));
+            }
+        }
+        let target = target.to_str().unwrap();
+
+        // 6) Copy the file
+
+        match std::fs::copy(source, target) {
+            Err(e) => log::trace!("Copying attachment failed: {}", e),
+            Ok(size) => log::trace!(
+                "Attachent {} exported to {} ({} bytes)",
+                attachment_id,
+                target,
+                size
+            ),
+        };
     }
 }
 

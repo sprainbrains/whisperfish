@@ -45,7 +45,7 @@ impl UnidentifiedCertificates {
             UnidentifiedAccessMode::Enabled => recipient.unidentified_access_key(),
             UnidentifiedAccessMode::Unrestricted => Some(UNRESTRICTED_ACCESS_KEY),
         }
-        .or_else(|| {
+        .or({
             if for_story {
                 Some(UNRESTRICTED_ACCESS_KEY)
             } else {
