@@ -664,9 +664,10 @@
         <location filename="../qml/components/MessagesView.qml" line="178"/>
         <source>Deleted %n message(s) for everyone</source>
         <extracomment>Remorse: *globally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n mensaje eliminado para todos</numerusform>
+            <numerusform>%n mensajes eliminados para todos</numerusform>
+            <numerusform>%n mensajes eliminados para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-copy-message-menu">
@@ -847,19 +848,19 @@
         <location filename="../qml/pages/ProfilePage.qml" line="388"/>
         <source>Post-quantum keys in use</source>
         <extracomment>Profile page: whether a contact has post-quantum secure sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Claves poscuánticas en uso</translation>
     </message>
     <message id="whisperfish-profile-pq-enabled-description">
         <location filename="../qml/pages/ProfilePage.qml" line="391"/>
         <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
         <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Si está marcada, esta sesión se inicializo con la criptografía segura postcuántica.</translation>
     </message>
     <message id="whisperfish-kyber-click-explanation">
         <location filename="../qml/pages/ProfilePage.qml" line="401"/>
         <source>Session reset for post-quantum upgrade</source>
         <extracomment>Upgrading the session to Kyber remorse popup, past tense</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Reinicio de sesión para la actualización postcuántica</translation>
     </message>
     <message id="whisperfish-own-profile-help-text">
         <location filename="../qml/pages/ProfilePage.qml" line="423"/>
@@ -1950,7 +1951,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/SessionDelegate.qml" line="39"/>
         <source>this message was deleted</source>
         <extracomment>Placeholder note for a deleted message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>este mensaje fue borrado</translation>
     </message>
     <message id="whisperfish-message-empty-note">
         <location filename="../qml/delegates/MessageDelegate.qml" line="252"/>
@@ -2075,7 +2076,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewImagePage.qml" line="66"/>
         <source>Export image</source>
         <extracomment>Copy the attachment image out of Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar la imagen</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
         <location filename="../qml/pages/ViewImagePage.qml" line="268"/>
@@ -2093,7 +2094,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewVideoPage.qml" line="57"/>
         <source>Export video</source>
         <extracomment>Copy the attachment video out of Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar el vídeo</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
         <location filename="../qml/pages/ViewVideoPage.qml" line="124"/>
@@ -2295,7 +2296,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewFilePage.qml" line="28"/>
         <source>Export file</source>
         <extracomment>Copy the attachment file out of Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar el archivo</translation>
     </message>
 </context>
 </TS>
