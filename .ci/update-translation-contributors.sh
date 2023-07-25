@@ -88,6 +88,6 @@ if [ "$CI" = "true" ]; then
         git remote add origin-ssh git@gitlab.com:whisperfish/whisperfish.git
 
         . .ci/load-ssh-key
-        git push origin-ssh HEAD:master
+        git push origin-ssh HEAD:main
     fi
 fi

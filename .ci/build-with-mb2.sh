@@ -90,8 +90,8 @@ sudo cp -ar ~/whisperfish-build/target/* target/
 
 sudo mv ~/cargo $CI_PROJECT_DIR/cargo
 
-# Only upload on tags or master
-if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+# Only upload on tags or main
+if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
     for RPM_PATH in RPMS/*.rpm; do
         echo Found RPM: $RPM_PATH
         RPM_PATH="${RPM_PATH[0]}"
