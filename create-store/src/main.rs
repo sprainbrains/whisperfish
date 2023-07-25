@@ -1,4 +1,4 @@
-use libsignal_service::prelude::protocol::*;
+use libsignal_service::protocol::*;
 use std::{path::PathBuf, sync::Arc};
 use structopt::StructOpt;
 use whisperfish::{config::SignalConfig, store};

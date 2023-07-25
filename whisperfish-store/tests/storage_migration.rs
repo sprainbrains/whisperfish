@@ -7,7 +7,7 @@
 //! e8ef69ba76b5f40fc149bf1c240df99b62f19b60. Be aware that only necessary parts were copied that
 //! were changed in later commits.
 
-use libsignal_service::prelude::protocol::{DeviceId, IdentityKeyStore, SessionStore};
+use libsignal_service::protocol::{DeviceId, IdentityKeyStore, SessionStore};
 use rstest::rstest;
 use std::{ops::Deref, sync::Arc};
 use whisperfish_store as current_storage;
@@ -60,23 +60,23 @@ async fn open_storage(
         .unwrap()
 }
 
-fn create_random_protocol_address() -> libsignal_service::prelude::protocol::ProtocolAddress {
+fn create_random_protocol_address() -> libsignal_service::protocol::ProtocolAddress {
     use rand::Rng;
     let mut rng = rand::thread_rng();
 
     let user_id = uuid::Uuid::new_v4();
     let device_id = rng.gen_range(2, 20);
 
-    libsignal_service::prelude::protocol::ProtocolAddress::new(
+    libsignal_service::protocol::ProtocolAddress::new(
         user_id.to_string(),
         DeviceId::from(device_id),
     )
 }
 
-fn create_random_identity_key() -> libsignal_service::prelude::protocol::IdentityKey {
+fn create_random_identity_key() -> libsignal_service::protocol::IdentityKey {
     let mut rng = rand::thread_rng();
 
-    let key_pair = libsignal_service::prelude::protocol::IdentityKeyPair::generate(&mut rng);
+    let key_pair = libsignal_service::protocol::IdentityKeyPair::generate(&mut rng);
 
     *key_pair.identity_key()
 }
@@ -290,14 +290,14 @@ async fn test_2022_06_migration(
 
     let user_id = uuid::Uuid::from_str("5844fce4-4407-401a-9dbc-fc86c6def4e6").unwrap();
     let device_id = 1;
-    let addr_1 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+    let addr_1 = libsignal_service::protocol::ProtocolAddress::new(
         user_id.to_string(),
         DeviceId::from(device_id),
     );
 
     let user_id = uuid::Uuid::from_str("7bec59e1-140d-4b53-98f1-dc8fd2c011c8").unwrap();
     let device_id = 2;
-    let addr_2 = libsignal_service::prelude::protocol::ProtocolAddress::new(
+    let addr_2 = libsignal_service::protocol::ProtocolAddress::new(
         user_id.to_string(),
         DeviceId::from(device_id),
     );

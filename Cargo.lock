@@ -1573,7 +1573,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#3c65765e8610790afc419af306aa0c1ac77e72af"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#6d2649d1487a8808dfdf03324502886110d8dab7"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1606,7 +1606,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#3c65765e8610790afc419af306aa0c1ac77e72af"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#6d2649d1487a8808dfdf03324502886110d8dab7"
 dependencies = [
  "actix",
  "actix-http",
@@ -3606,7 +3606,6 @@ dependencies = [
  "hex",
  "hmac 0.11.0",
  "itertools 0.10.5",
- "libsignal-protocol",
  "libsignal-service",
  "libsqlite3-sys",
  "log",
@@ -3627,7 +3626,6 @@ dependencies = [
  "tempfile",
  "tokio",
  "uuid",
- "zkgroup",
 ]
 
 [[package]]

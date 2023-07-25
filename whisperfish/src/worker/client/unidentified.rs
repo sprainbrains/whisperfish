@@ -4,7 +4,7 @@ use crate::store::orm::{self, UnidentifiedAccessMode};
 
 use super::ClientActor;
 use actix::prelude::*;
-use libsignal_service::{prelude::*, unidentified_access::UnidentifiedAccess};
+use libsignal_service::{prelude::*, protocol, unidentified_access::UnidentifiedAccess};
 
 #[derive(Hash, Eq, PartialEq, Clone, Copy)]
 pub enum CertType {

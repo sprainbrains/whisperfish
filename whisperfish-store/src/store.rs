@@ -21,16 +21,16 @@ use diesel::result::*;
 use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
-use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::{attachment_pointer, data_message::Reaction, DataMessage};
+use libsignal_service::protocol::{self, *};
+use libsignal_service::zkgroup::api::groups::GroupSecretParams;
 use phonenumber::PhoneNumber;
 use protocol_store::ProtocolStore;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard};
 use uuid::Uuid;
-use zkgroup::api::groups::GroupSecretParams;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 

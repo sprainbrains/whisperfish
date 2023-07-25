@@ -1,5 +1,5 @@
 use anyhow::Context;
-use libsignal_protocol::DeviceId;
+use libsignal_service::protocol::DeviceId;
 use phonenumber::PhoneNumber;
 use uuid::Uuid;
 

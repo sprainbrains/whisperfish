@@ -45,10 +45,10 @@ use libsignal_service::content::{
     sync_message, AttachmentPointer, ContentBody, DataMessage, GroupContextV2, Metadata, Reaction,
     TypingMessage,
 };
-use libsignal_service::prelude::protocol::*;
 use libsignal_service::prelude::*;
 use libsignal_service::proto::typing_message::Action;
 use libsignal_service::proto::{receipt_message, ReceiptMessage};
+use libsignal_service::protocol::*;
 use libsignal_service::provisioning::ProvisioningManager;
 use libsignal_service::push_service::{AccountAttributes, DeviceCapabilities, DeviceId};
 use libsignal_service::sender::AttachmentSpec;

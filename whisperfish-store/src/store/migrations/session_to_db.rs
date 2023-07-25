@@ -2,9 +2,7 @@ mod quirk;
 
 use crate::store::orm::{Prekey, SessionRecord, SignedPrekey};
 use crate::store::Storage;
-use libsignal_protocol::{IdentityKey, PreKeyId, SignedPreKeyId};
-use libsignal_service::prelude::protocol;
-use libsignal_service::prelude::protocol::ProtocolAddress;
+use libsignal_service::protocol::{self, IdentityKey, PreKeyId, ProtocolAddress, SignedPreKeyId};
 use libsignal_service::push_service::DEFAULT_DEVICE_ID;
 use protocol::SignalProtocolError;
 use std::path::{Path, PathBuf};
