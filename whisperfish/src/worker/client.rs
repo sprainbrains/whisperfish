@@ -15,9 +15,7 @@ pub use self::profile_upload::*;
 use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::{Delete, Quote};
 use libsignal_service::proto::sync_message::Sent;
-pub use libsignal_service::provisioning::{VerificationCodeResponse, VerifyAccountResponse};
-pub use libsignal_service::push_service::DeviceInfo;
-use libsignal_service::push_service::ServiceIds;
+use libsignal_service::push_service::RegistrationMethod;
 use libsignal_service::sender::SendMessageResult;
 use libsignal_service::sender::SentMessage;
 use uuid::Uuid;
@@ -49,8 +47,10 @@ use libsignal_service::prelude::*;
 use libsignal_service::proto::typing_message::Action;
 use libsignal_service::proto::{receipt_message, ReceiptMessage};
 use libsignal_service::protocol::*;
-use libsignal_service::provisioning::ProvisioningManager;
-use libsignal_service::push_service::{AccountAttributes, DeviceCapabilities, DeviceId};
+use libsignal_service::push_service::{
+    AccountAttributes, DeviceCapabilities, DeviceId, RegistrationSessionMetadataResponse,
+    ServiceIds, VerificationTransport, VerifyAccountResponse,
+};
 use libsignal_service::sender::AttachmentSpec;
 use libsignal_service::websocket::SignalWebSocket;
 use libsignal_service::AccountManager;
@@ -228,6 +228,8 @@ pub struct ClientActor {
     start_time: DateTime<Local>,
 
     outdated_profile_stream_handle: Option<SpawnHandle>,
+
+    registration_session: Option<RegistrationSessionMetadataResponse>,
 }
 
 fn whisperfish_device_capabilities() -> DeviceCapabilities {
@@ -276,6 +278,8 @@ impl ClientActor {
             start_time: Local::now(),
 
             outdated_profile_stream_handle: None,
+
+            registration_session: None,
         })
     }
 
@@ -2066,8 +2070,14 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
 pub struct Register {
     pub phonenumber: PhoneNumber,
     pub password: String,
-    pub use_voice: bool,
+    pub transport: VerificationTransport,
     pub captcha: Option<String>,
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub enum VerificationCodeResponse {
+    Issued,
+    CaptchaRequired,
 }
 
 impl Handler<Register> for ClientActor {
@@ -2077,7 +2087,7 @@ impl Handler<Register> for ClientActor {
         let Register {
             phonenumber,
             password,
-            use_voice,
+            transport,
             captcha,
         } = reg;
 
@@ -2088,35 +2098,65 @@ impl Handler<Register> for ClientActor {
             signaling_key: None,
             device_id: None, // !77
         });
+
+        let session = self.registration_session.clone();
+
         // XXX add profile key when #192 implemneted
         let registration_procedure = async move {
-            let captcha = captcha
-                .as_deref()
-                .map(|captcha| captcha.trim())
-                .and_then(|captcha| captcha.strip_prefix("signalcaptcha://"));
-
-            let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
-                &mut push_service,
-                phonenumber,
-                password,
-            );
-            if use_voice {
-                provisioning_manager
-                    .request_voice_verification_code(captcha, None)
-                    .await
-                    .map(Into::into)
+            let mut session = if let Some(session) = session {
+                session
             } else {
-                provisioning_manager
-                    .request_sms_verification_code(captcha, None)
-                    .await
-                    .map(Into::into)
+                let number = phonenumber.to_string();
+                let carrier = phonenumber.carrier();
+                let (mcc, mnc) = if let Some(carrier) = carrier {
+                    (Some(&carrier[0..3]), Some(&carrier[3..]))
+                } else {
+                    (None, None)
+                };
+                push_service
+                    .create_verification_session(&number, None, mcc, mnc)
+                    .await?
+            };
+
+            if session.captcha_required() {
+                let captcha = captcha
+                    .as_deref()
+                    .map(|captcha| captcha.trim())
+                    .and_then(|captcha| captcha.strip_prefix("signalcaptcha://"));
+                session = push_service
+                    .patch_verification_session(&session.id, None, None, None, captcha, None)
+                    .await?;
             }
+
+            if session.captcha_required() {
+                return Ok((session, VerificationCodeResponse::CaptchaRequired));
+            }
+
+            if session.push_challenge_required() {
+                anyhow::bail!("Push challenge requested after captcha is accepted.");
+            }
+
+            if !session.allowed_to_request_code {
+                anyhow::bail!(
+                    "Not allowed to request verification code, reason unknown: {:?}",
+                    session
+                );
+            }
+
+            session = push_service
+                .request_verification_code(&session.id, "whisperfish", transport)
+                .await?;
+            Ok((session, VerificationCodeResponse::Issued))
         };
 
         Box::pin(
             registration_procedure
                 .into_actor(self)
-                .map(|result, _act, _ctx| Ok(result?)),
+                .map(|result, act, _ctx| {
+                    let (session, result) = result?;
+                    act.registration_session = Some(session);
+                    Ok(result)
+                }),
         )
     }
 }
@@ -2151,17 +2191,16 @@ impl Handler<ConfirmRegistration> for ClientActor {
 
         let mut push_service = self.authenticated_service_with_credentials(ServiceCredentials {
             uuid: None,
-            phonenumber: phonenumber.clone(),
-            password: Some(password.clone()),
+            phonenumber,
+            password: Some(password),
             signaling_key: None,
             device_id: None, // !77
         });
+        let mut session = self
+            .registration_session
+            .clone()
+            .expect("confirm registration after creating registration session");
         let confirmation_procedure = async move {
-            let mut provisioning_manager = ProvisioningManager::<AwcPushService>::new(
-                &mut push_service,
-                phonenumber,
-                password,
-            );
             // XXX centralize the place where attributes are generated.
             let account_attrs = AccountAttributes {
                 // XXX probably we should remove the signaling key.
@@ -2179,15 +2218,34 @@ impl Handler<ConfirmRegistration> for ClientActor {
                 name: Some("Whisperfish".into()),
                 pni_registration_id,
             };
-            provisioning_manager
-                .confirm_verification_code(confirm_code, account_attrs)
-                .await
+            session = push_service
+                .submit_verification_code(&session.id, &confirm_code)
+                .await?;
+            if !session.verified {
+                anyhow::bail!("Session is not verified");
+            }
+            // XXX: We explicitely opt out of skipping device transfer (the false argument). Double
+            //      check whether that's what we want!
+            let result = push_service
+                .submit_registration_request(
+                    RegistrationMethod::SessionId(&session.id),
+                    account_attrs,
+                    false,
+                )
+                .await?;
+
+            Ok(result)
         };
 
         Box::pin(
             confirmation_procedure
                 .into_actor(self)
-                .map(move |result, _act, _ctx| Ok((registration_id, pni_registration_id, result?))),
+                .map(move |result, act, _ctx| {
+                    if result.is_ok() {
+                        act.registration_session = None;
+                    }
+                    Ok((registration_id, pni_registration_id, result?))
+                }),
         )
     }
 }
