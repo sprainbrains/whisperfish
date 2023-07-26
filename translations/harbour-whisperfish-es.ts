@@ -667,7 +667,6 @@
         <translation>
             <numerusform>%n mensaje eliminado para todos</numerusform>
             <numerusform>%n mensajes eliminados para todos</numerusform>
-            <numerusform>%n mensajes eliminados para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-copy-message-menu">
