@@ -2108,9 +2108,11 @@ impl Handler<Register> for ClientActor {
             } else {
                 let number = phonenumber.to_string();
                 let carrier = phonenumber.carrier();
-                let (mcc, mnc) = carrier
-                    .map(|carrier| (&carrier[0..3], &carrier[3..]))
-                    .unzip();
+                let (mcc, mnc) = if let Some(carrier) = carrier {
+                    (Some(&carrier[0..3]), Some(&carrier[3..]))
+                } else {
+                    (None, None)
+                };
                 push_service
                     .create_verification_session(&number, None, mcc, mnc)
                     .await?
