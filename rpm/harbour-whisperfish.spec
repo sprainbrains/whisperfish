@@ -57,9 +57,9 @@ Requires: sailfish-version < 6.0
 Requires: sailfish-version >= 5.0
 %endif
 
-BuildRequires:  rust == 1.52.1+git3-1
-BuildRequires:  rust-std-static == 1.52.1+git3-1
-BuildRequires:  cargo == 1.52.1+git3-1
+BuildRequires:  rust >= 1.52.1+git3-1, rust <= 1.52.1+git4-1.9.1.jolla
+BuildRequires:  rust-std-static >= 1.52.1+git3-1, rust-std-static <= 1.52.1+git4-1.9.1.jolla
+BuildRequires:  cargo >= 1.52.1+git3-1, cargo <= 1.52.1+git4-1.9.1.jolla
 BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
