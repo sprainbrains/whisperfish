@@ -26,11 +26,14 @@ Requires:   sailfish-components-contacts-qt5
 Requires:   nemo-qml-plugin-contacts-qt5
 Requires:   nemo-qml-plugin-configuration-qt5
 Requires:   nemo-qml-plugin-notifications-qt5
-Requires:   sailfish-components-webview-qt5
 Requires:   openssl-libs
 Requires:   dbus
 
-Requires:  qtmozembed-qt5
+# For the captcha QML application
+Requires:   qtmozembed-qt5
+Requires:   sailfish-components-webview-qt5
+Requires:   sailfish-components-webview-qt5-popups
+Requires:   sailfish-components-webview-qt5-pickers
 
 Recommends:   sailjail
 Recommends:   sailjail-permissions
