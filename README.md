@@ -70,13 +70,13 @@ When you have the Aurora PSDK up and running, and the Whisperfish sources fetche
 it compiles just like any other native Aurora OS/Sailfish OS application.
 For Aurora OS you need to set up a patched version of Rust.
 
-1. Make sure you have access to the `sfdk` tool; we will use it for setting
+1.Make sure you have access to the `sfdk` tool; we will use it for setting
    up the environment.
-   
+
    Clone Whisperfish to a subdirectory of your SFDK project root,
    just like any other Sailfish OS project.
 
-2. Enable the repository that contains the patched Rust compiler and cargo tooling.
+2.Enable the repository that contains the patched Rust compiler and cargo tooling.
    This repository contains `rubdos.key`, which is used to sign the packages, if you want to check.::
 
     $ sfdk tools exec SailfishOS-4.4.0.58 \
@@ -88,7 +88,7 @@ For Aurora OS you need to set up a patched version of Rust.
     $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
         ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
 
-3. Install the tooling and development packages::
+3.Install the tooling and development packages::
 
     $ sfdk tools exec SailfishOS-4.4.0.58 \
       zypper install --oldpackage -y \
@@ -100,7 +100,7 @@ For Aurora OS you need to set up a patched version of Rust.
     $ sfdk engine exec \
       sudo zypper install -y openssl-devel sqlcipher-devel
 
-4. Install the stub compilers.
+4.Install the stub compilers.
 
    For aarch64::
 
@@ -132,7 +132,7 @@ For Aurora OS you need to set up a patched version of Rust.
    to explicitly tell it's ok to use "third-party" packages, and `--force` to
    re-download and re-install packages.
 
-5. You can now proceed to build as you would with a normal SailfishOS application::
+5.You can now proceed to build as you would with a normal SailfishOS application::
 
    Choose your architecture::
 
@@ -148,7 +148,7 @@ For Aurora OS you need to set up a patched version of Rust.
 
     $ sfdk -c target=SailfishOS-4.4.0.58-aarch64 build
 
-6. If you want to also build the sharing plugin for SFOS 4.3+, use this command::
+6.If you want to also build the sharing plugin for SFOS 4.3+, use this command::
 
     $ sfdk -c target=SailfishOS-4.4.0.58-aarch64 build -- --with shareplugin_v2
 
