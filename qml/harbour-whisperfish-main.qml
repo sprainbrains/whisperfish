@@ -2,10 +2,10 @@ import QtQuick 2.2
 import Sailfish.Silica 1.0
 import Nemo.Notifications 1.0
 import Nemo.DBus 2.0
-import org.nemomobile.contacts 1.0
+// import org.nemomobile.contacts 1.0
 import "pages"
 
-// Note: This is the main QML file for Whisperfish.
+// Note: This is the main QML file for ыWhisperfish.
 // The signalcaptcha helper uses harbour-whisperfish.qml by design.
 
 ApplicationWindow
