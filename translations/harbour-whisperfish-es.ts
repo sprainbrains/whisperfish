@@ -267,103 +267,103 @@
         <translation>Traductores de Alemán</translation>
     </message>
     <message id="whisperfish-translators-fr">
-        <location filename="../qml/pages/About.qml" line="295"/>
+        <location filename="../qml/pages/About.qml" line="296"/>
         <source>French translators</source>
         <extracomment>French (fr) language about page translation section</extracomment>
         <translation>Traductores de Francés</translation>
     </message>
     <message id="whisperfish-translators-fi">
-        <location filename="../qml/pages/About.qml" line="315"/>
+        <location filename="../qml/pages/About.qml" line="316"/>
         <source>Finnish translators</source>
         <extracomment>Finnish (fi) language about page translation section</extracomment>
         <translation>Traductores finlandeses</translation>
     </message>
     <message id="whisperfish-translators-sl">
-        <location filename="../qml/pages/About.qml" line="336"/>
+        <location filename="../qml/pages/About.qml" line="337"/>
         <source>Slovenian translators</source>
         <extracomment>Slovenian (sl) language about page translation section</extracomment>
         <translation>Traductores de Esloveno</translation>
     </message>
     <message id="whisperfish-translators-sv">
-        <location filename="../qml/pages/About.qml" line="352"/>
+        <location filename="../qml/pages/About.qml" line="353"/>
         <source>Swedish translators</source>
         <extracomment>Swedish (sv) language about page translation section</extracomment>
         <translation>Traductores de Sueco</translation>
     </message>
     <message id="whisperfish-translators-pl">
-        <location filename="../qml/pages/About.qml" line="371"/>
+        <location filename="../qml/pages/About.qml" line="372"/>
         <source>Polish translators</source>
         <extracomment>Polish (pl) language about page translation section</extracomment>
         <translation>Traductores de Polaco</translation>
     </message>
     <message id="whisperfish-translators-zh_CN">
-        <location filename="../qml/pages/About.qml" line="390"/>
+        <location filename="../qml/pages/About.qml" line="391"/>
         <source>Chinese (Simplified) translators</source>
         <extracomment>Chinese (Simplified) (zh_CN) language about page translation section</extracomment>
         <translation>Traductores de Chino (Simplificado)</translation>
     </message>
     <message id="whisperfish-translators-hu">
-        <location filename="../qml/pages/About.qml" line="409"/>
+        <location filename="../qml/pages/About.qml" line="410"/>
         <source>Hungarian translators</source>
         <extracomment>Hungarian (hu) language about page translation section</extracomment>
         <translation>Traductores de Húngaro</translation>
     </message>
     <message id="whisperfish-translators-pt_PT">
-        <location filename="../qml/pages/About.qml" line="427"/>
+        <location filename="../qml/pages/About.qml" line="428"/>
         <source>Portuguese (Portugal) translators</source>
         <extracomment>Portuguese (Portugal) (pt_PT) language about page translation section</extracomment>
         <translation>Traductores de Portugués (Portugal)</translation>
     </message>
     <message id="whisperfish-translators-cs">
-        <location filename="../qml/pages/About.qml" line="446"/>
+        <location filename="../qml/pages/About.qml" line="447"/>
         <source>Czech translators</source>
         <extracomment>Czech (cs) language about page translation section</extracomment>
         <translation>Traductores de Checo</translation>
     </message>
     <message id="whisperfish-translators-ca">
-        <location filename="../qml/pages/About.qml" line="462"/>
+        <location filename="../qml/pages/About.qml" line="463"/>
         <source>Catalan translators</source>
         <extracomment>Catalan (ca) language about page translation section</extracomment>
         <translation>Traductores de Catalán</translation>
     </message>
     <message id="whisperfish-translators-ru">
-        <location filename="../qml/pages/About.qml" line="478"/>
+        <location filename="../qml/pages/About.qml" line="479"/>
         <source>Russian translators</source>
         <extracomment>Russian (ru) language about page translation section</extracomment>
         <translation>Traductores de Ruso</translation>
     </message>
     <message id="whisperfish-translators-pt_BR">
-        <location filename="../qml/pages/About.qml" line="494"/>
+        <location filename="../qml/pages/About.qml" line="495"/>
         <source>Portuguese (Brazil) translators</source>
         <extracomment>Portuguese (Brazil) (pt_BR) language about page translation section</extracomment>
         <translation>Traductores de Portugués (Brasil)</translation>
     </message>
     <message id="whisperfish-translators-ro">
-        <location filename="../qml/pages/About.qml" line="511"/>
+        <location filename="../qml/pages/About.qml" line="512"/>
         <source>Romanian translators</source>
         <extracomment>Romanian (ro) language about page translation section</extracomment>
         <translation>Traductores de Rumano</translation>
     </message>
     <message id="whisperfish-translators-tr">
-        <location filename="../qml/pages/About.qml" line="527"/>
+        <location filename="../qml/pages/About.qml" line="528"/>
         <source>Turkish translators</source>
         <extracomment>Turkish (tr) language about page translation section</extracomment>
         <translation>Traductores del Turco</translation>
     </message>
     <message id="whisperfish-translators-el">
-        <location filename="../qml/pages/About.qml" line="543"/>
+        <location filename="../qml/pages/About.qml" line="544"/>
         <source>Greek translators</source>
         <extracomment>Greek (el) language about page translation section</extracomment>
         <translation>Traductores del Griego</translation>
     </message>
     <message id="whisperfish-translators-eu">
-        <location filename="../qml/pages/About.qml" line="560"/>
+        <location filename="../qml/pages/About.qml" line="561"/>
         <source>Basque translators</source>
         <extracomment>Basque (eu) language about page translation section</extracomment>
         <translation>Traductores del Vasco</translation>
     </message>
     <message id="whisperfish-translators-es">
-        <location filename="../qml/pages/About.qml" line="576"/>
+        <location filename="../qml/pages/About.qml" line="577"/>
         <source>Spanish translators</source>
         <extracomment>Spanish (es) language about page translation section</extracomment>
         <translation>Traductores del Español</translation>
