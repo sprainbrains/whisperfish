@@ -8,32 +8,32 @@
         <location filename="../qml/delegates/SessionDelegate.qml" line="35"/>
         <source>Attachment</source>
         <extracomment>Session contains an attachment label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Вложение</translation>
     </message>
     <message id="whisperfish-session-delete-all">
         <location filename="../qml/delegates/SessionDelegate.qml" line="60"/>
         <source>All messages deleted</source>
         <oldsource>Deleting all messages</oldsource>
         <extracomment>Delete all messages from session (past tense)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Все сообщения удалены</translation>
     </message>
     <message id="whisperfish-typing-1">
         <location filename="../qml/delegates/SessionDelegate.qml" line="114"/>
         <source>%1 is typing</source>
         <extracomment>Text shown when one person is typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 пишет</translation>
     </message>
     <message id="whisperfish-typing-2">
         <location filename="../qml/delegates/SessionDelegate.qml" line="118"/>
         <source>%1 and %2 are typing</source>
         <extracomment>Text shown when two persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 и %2 пишут</translation>
     </message>
     <message id="whisperfish-typing-3-plus">
         <location filename="../qml/delegates/SessionDelegate.qml" line="122"/>
         <source>%1 and %n others are typing</source>
         <extracomment>Text shown when three or more persons are typing</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 и %n другие печатают</translation>
     </message>
     <message id="whisperfish-session-note-to-self">
         <location filename="../qml/delegates/SessionDelegate.qml" line="208"/>
@@ -42,39 +42,39 @@
         <location filename="../qml/pages/ShareDestinationV2.qml" line="99"/>
         <source>Note to self</source>
         <extracomment>Name of the conversation with one&apos;s own number</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Примечание для себя</translation>
     </message>
     <message id="whisperfish-message-preview-draft">
         <location filename="../qml/delegates/SessionDelegate.qml" line="229"/>
         <source>Draft: %1</source>
         <extracomment>Message preview for a saved, unsent message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Черновик: %1</translation>
     </message>
     <message id="whisperfish-session-mark-unpinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="350"/>
         <source>Unpin</source>
         <extracomment>&apos;Unpin&apos; conversation from the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Открепить</translation>
     </message>
     <message id="whisperfish-session-mark-pinned">
         <location filename="../qml/delegates/SessionDelegate.qml" line="353"/>
         <source>Pin to top</source>
         <extracomment>&apos;Pin&apos; conversation to the top of the view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Закрепить сверху</translation>
     </message>
     <message id="whisperfish-session-mark-unmuted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="362"/>
         <source>Unmute conversation</source>
         <oldsource>Mark as unmuted</oldsource>
         <extracomment>Mark conversation as unmuted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Включить звук в беседе</translation>
     </message>
     <message id="whisperfish-session-mark-muted">
         <location filename="../qml/delegates/SessionDelegate.qml" line="365"/>
         <source>Mute conversation</source>
         <oldsource>Mark as muted</oldsource>
         <extracomment>Mark conversation as muted</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Выключить звук в беседе</translation>
     </message>
     <message id="whisperfish-session-mark-unarchived">
         <location filename="../qml/delegates/SessionDelegate.qml" line="373"/>
