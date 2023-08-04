@@ -56,101 +56,108 @@ entity in Sailfish OS. Luckily, Jolla has provided a more or less decent
 Rust compiler since Sailfish OS 3.4, but it had some issues, which were
 [https://github.com/sailfishos/rust/pull/14](fixed) only in Sailfish OS
 4.5. Using the corresponding Sailfish SDK 3.10.4 is *highly* recommended.
+For Aurora OS using AuroraPlatformSDK 4.0.2.249 or above.
 
 **Note:** Only the Docker build engine supports Rust compiling. VirtualBox build engine will not work.
 
 Building Whisperfish for yourself is, despite its size and it being a Rust
-project, very simple! Just install Sailfish SDK 3.10.4 or newer, download the
+project, very simple! Just install Sailfish SDK 3.10.4 or newer (AuroraPlatformSDK 4.0.2.249 or above), download the
 source and compile it! (Older SDK versions and build targets work too, but
-they need a good amount of setup. Please see
-[the previous version](https://gitlab.com/whisperfish/whisperfish/-/blob/1af345a5deb7900e9dd540aacb57b3ba50fb6cd8/README.rst)
-of the readme for instructions.)
+they need a good amount of setup.
 
 When you have the Aurora PSDK up and running, and the Whisperfish sources fetched,
 it compiles just like any other native Aurora OS/Sailfish OS application.
 For Aurora OS you need to set up a patched version of Rust.
 
-1.Make sure you have access to the `sfdk` tool; we will use it for setting
+1.Make sure you have access to the `aurora_psdk` tool; we will use it for setting
    up the environment.
 
    Clone Whisperfish to a subdirectory of your SFDK project root,
    just like any other Sailfish OS project.
 
-2.Enable the repository that contains the patched Rust compiler and cargo tooling.
-   This repository contains `rubdos.key`, which is used to sign the packages, if you want to check.::
+2.Install the tooling and development packages::
 
-    $ sfdk tools exec SailfishOS-4.4.0.58 \
-        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-    $ sfdk tools exec SailfishOS-4.4.0.58-aarch64 \
-        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-    $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
-        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
-    $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
-        ssu ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+    [~/AuroraPlatformSDK$]./toolings/AuroraOS-4.0.2.249-base/mer-tooling-chroot
 
-3.Install the tooling and development packages::
+    [AuroraOS-4.0.2.249-base tooling) bash-5.0$] zypper ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
 
-    $ sfdk tools exec SailfishOS-4.4.0.58 \
-      zypper install --oldpackage -y \
-        rust=1.52.1+git3-1 \
+    [AuroraOS-4.0.2.249-base tooling) bash-5.0$] zypper ref
+
+    [AuroraOS-4.0.2.249-base tooling) bash-5.0$] zypper install --oldpackage -y \
+        rust=1.52.1+git3-1  \
         cargo=1.52.1+git3-1 \
         rust-std-static-aarch64-unknown-linux-gnu=1.52.1+git3-1 \
         rust-std-static-armv7-unknown-linux-gnueabihf=1.52.1+git3-1 \
         rust-std-static-i686-unknown-linux-gnu=1.52.1+git3-1
-    $ sfdk engine exec \
-      sudo zypper install -y openssl-devel sqlcipher-devel
 
-4.Install the stub compilers.
+    [AuroraOS-4.0.2.249-base tooling) bash-5.0$] exit
+
+    [~/AuroraPlatformSDK$] sudo zypper ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+
+    [~/AuroraPlatformSDK$] sudo zypper ref
+
+    [~/AuroraPlatformSDK$] sudo zypper install -y openssl-devel sqlcipher-devel
+
+
+3.Install the stub compilers.
 
    For aarch64::
 
-    $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
-      zypper install --oldpackage --repo rubdos -y \
-        rust=1.52.1+git3-1 \
-        cargo=1.52.1+git3-1 \
+    [~/AuroraPlatformSDK$ ] sb2 -t AuroraOS-4.0.2.249-base-aarch64 -m sdk-install -R
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-aarch64 ] root@home AuroraPlatformSDK$ zypper ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-aarch64 ] root@home AuroraPlatformSDK$ zypper ref
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-aarch64 ] root@home AuroraPlatformSDK$  zypper install --oldpackage --repo rubdos -y \
+        rust=1.52.1+git3-1 cargo=1.52.1+git3-1 \
         rust-std-static-aarch64-unknown-linux-gnu=1.0+git3-1 \
         rust-std-static-i686-unknown-linux-gnu=1.0+git3-1
 
+
    For armv7hl::
 
-    $ sfdk tools exec SailfishOS-4.4.0.58-armv7hl \
-      zypper install --oldpackage --repo rubdos -y \
-        rust=1.52.1+git3-1 \
-        cargo=1.52.1+git3-1 \
-        ust-std-static-armv7-unknown-linux-gnueabihf=1.0+git3-1 \
+    [~/AuroraPlatformSDK$ ] sb2 -t AuroraOS-4.0.2.249-base-armv7hl -m sdk-install -R
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-armv7hl ] root@home AuroraPlatformSDK$ zypper ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-armv7hl ] root@home AuroraPlatformSDK$ zypper ref
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-armv7hl ] root@home AuroraPlatformSDK$  zypper install --oldpackage --repo rubdos -y \
+        rust=1.52.1+git3-1 cargo=1.52.1+git3-1 \
+        rust-std-static-armv7-unknown-linux-gnueabihf=1.0+git3-1 \
         rust-std-static-i686-unknown-linux-gnu=1.0+git3-1
+
 
    For i486::
 
-    $ sfdk tools exec SailfishOS-4.4.0.58-i486 \
-      zypper install --oldpackage --repo rubdos -y \
-        rust=1.52.1+git3-1 \
-        cargo=1.52.1+git3-1 \
+    [~/AuroraPlatformSDK$ ] sb2 -t AuroraOS-4.0.2.249-base-i486 -m sdk-install -R
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-i486 ] root@home AuroraPlatformSDK$ zypper ar https://nas.rubdos.be/~rsmet/sailfish-repo/ rubdos
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-i486 ] root@home AuroraPlatformSDK$ zypper ref
+
+    [SB2 sdk-install AuroraOS-4.0.2.249-base-i486 ] root@home AuroraPlatformSDK$  zypper install --oldpackage --repo rubdos -y \
+        rust=1.52.1+git3-1 cargo=1.52.1+git3-1 \
         rust-std-static-i686-unknown-linux-gnu=1.52.1+git3-1
 
-   If there are errors with the commands, you can try adding `--allow-vendor-change`
+
+   If there are errors with the commands, you can try adding for zypper `--allow-vendor-change`
    to explicitly tell it's ok to use "third-party" packages, and `--force` to
    re-download and re-install packages.
 
-5.You can now proceed to build as you would with a normal SailfishOS application::
+4.You can now proceed to build as you would with a normal SailfishOS application::
 
-   Choose your architecture::
+   Choose your architecture and build::
 
-    $ sfdk config --push target SailfishOS-4.4.0.58-aarch64 # or
-    $ sfdk config --push target SailfishOS-4.4.0.58-armv7hl # or
-    $ sfdk config --push target SailfishOS-4.4.0.58-i486
+    $ mb2 -t AuroraOS-4.0.2.249-base-aarch64  build # or
+    $ mb2 -t AuroraOS-4.0.2.249-base-armv7hl  build # or
+    $ mb2 -t AuroraOS-4.0.2.249-base-i486     build
 
-   Then start the build::
 
-    $ sfdk build
+5.If you want to also build the sharing plugin, use this command::
 
-   Or in a single command. e.g. for aarch64::
-
-    $ sfdk -c target=SailfishOS-4.4.0.58-aarch64 build
-
-6.If you want to also build the sharing plugin for SFOS 4.3+, use this command::
-
-    $ sfdk -c target=SailfishOS-4.4.0.58-aarch64 build -- --with shareplugin_v2
+    $ mb2 -t AuroraOS-4.0.2.249-base-armv7hl  build --with shareplugin_v2
 
    For Sailfish 4.2 and older, use `shareplugin_v1` instead.
 
