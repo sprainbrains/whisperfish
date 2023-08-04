@@ -285,6 +285,7 @@ Page {
                     "Stephan Lohse" + "\n" +
                     "Alexander Schlarb" + "\n" +
                     "Sebastian Maus" + "\n" +
+                    "Simon Hahne" + "\n" +
                     "carlosgonz"
                 }
             }
