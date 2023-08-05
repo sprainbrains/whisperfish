@@ -20,17 +20,19 @@ License: GPLv3+
 Group: Qt/Qt
 URL: https://gitlab.com/whisperfish/whisperfish/
 Source0: %{name}-%{version}.tar.gz
+AutoReqProv: no
 Requires:   sailfishsilica-qt5 >= 0.10.9
-Requires:   libsailfishapp-launcher
-Requires:   sailfish-components-contacts-qt5
-Requires:   nemo-qml-plugin-contacts-qt5
-Requires:   nemo-qml-plugin-configuration-qt5
-Requires:   nemo-qml-plugin-notifications-qt5
+#Requires:   libsailfishapp-launcher
+#Requires:   sailfish-components-contacts-qt5
+#Requires:   nemo-qml-plugin-contacts-qt5
+#Requires:   nemo-qml-plugin-configuration-qt5
+#Requires:   nemo-qml-plugin-notifications-qt5
 Requires:   sailfish-components-webview-qt5
-Requires:   openssl-libs
-Requires:   dbus
+#Requires:   openssl-libs
+#Requires:   dbus
+Requires: nemo-qml-plugin-dbus-qt5
 
-Requires:  qtmozembed-qt5
+#Requires:  qtmozembed-qt5
 
 Recommends:   sailjail
 Recommends:   sailjail-permissions
@@ -40,7 +42,7 @@ Recommends:   sailjail-permissions
 # We're aiming to support 3.4 as long as possible, since Jolla 1 will be stuck on that.
 #
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
-Requires:   sailfish-version >= 3.3
+#Requires:   sailfish-version >= 3.3
 
 %if "%{release}" == "0.sf3"
 Requires: sailfish-version < 4.0
@@ -64,11 +66,20 @@ BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
 BuildRequires:  qt5-qtwebsockets-devel
-BuildRequires:  openssl-devel
-BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
 BuildRequires:  coreutils
+BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
+BuildRequires:  desktop-file-utils
+BuildRequires:  pkgconfig(openssl) >= 1.1.1k
+BuildRequires:  dbus-devel
+BuildRequires:  pkgconfig(nemonotifications-qt5)
+BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  pkgconfig(Qt5Qml)
+BuildRequires:  pkgconfig(Qt5Quick)
+BuildRequires:  pkgconfig(Qt5DBus)
+BuildRequires:  pkgconfig(Qt5Sql)
+BuildRequires:  pkgconfig(Qt5Multimedia)
 
 BuildRequires:  meego-rpm-config
 
@@ -249,6 +260,7 @@ fi
 %define sharingsubdir .
 %endif
 
+#cargo update
 cargo build \
           -j 1 \
           -vv \
@@ -306,7 +318,7 @@ desktop-file-install \
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.profile \
     %{buildroot}%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
-    %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
+   %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
     %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-whisperfish-message.conf
 
@@ -350,17 +362,17 @@ install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
 rm -rf %{buildroot}
 
 %if %{without harbour}
-%post
-systemctl-user daemon-reload
-if pidof harbour-whisperfish >/dev/null; then
-  kill -INT $(pidof harbour-whisperfish) || true
-fi
+#%post
+#systemctl-user daemon-reload
+#if pidof harbour-whisperfish >/dev/null; then
+#  kill -INT $(pidof harbour-whisperfish) || true
+#fi
 %endif
 
 %if %{without harbour}
-%preun
-systemctl-user stop harbour-whisperfish.service || true
-systemctl-user disable harbour-whisperfish.service || true
+#%preun
+#systemctl-user stop harbour-whisperfish.service || true
+#systemctl-user disable harbour-whisperfish.service || true
 %endif
 
 %files
