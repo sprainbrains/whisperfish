@@ -327,37 +327,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-translators-pt_BR">
-        <location filename="../qml/pages/About.qml" line="495"/>
+        <location filename="../qml/pages/About.qml" line="496"/>
         <source>Portuguese (Brazil) translators</source>
         <extracomment>Portuguese (Brazil) (pt_BR) language about page translation section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-translators-ro">
-        <location filename="../qml/pages/About.qml" line="512"/>
+        <location filename="../qml/pages/About.qml" line="513"/>
         <source>Romanian translators</source>
         <extracomment>Romanian (ro) language about page translation section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-translators-tr">
-        <location filename="../qml/pages/About.qml" line="528"/>
+        <location filename="../qml/pages/About.qml" line="529"/>
         <source>Turkish translators</source>
         <extracomment>Turkish (tr) language about page translation section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-translators-el">
-        <location filename="../qml/pages/About.qml" line="544"/>
+        <location filename="../qml/pages/About.qml" line="545"/>
         <source>Greek translators</source>
         <extracomment>Greek (el) language about page translation section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-translators-eu">
-        <location filename="../qml/pages/About.qml" line="561"/>
+        <location filename="../qml/pages/About.qml" line="562"/>
         <source>Basque translators</source>
         <extracomment>Basque (eu) language about page translation section</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-translators-es">
-        <location filename="../qml/pages/About.qml" line="577"/>
+        <location filename="../qml/pages/About.qml" line="578"/>
         <source>Spanish translators</source>
         <extracomment>Spanish (es) language about page translation section</extracomment>
         <translation type="unfinished"></translation>
@@ -1739,7 +1739,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/components/QuotedMessagePreview.qml" line="130"/>
         <source>Attachment</source>
         <extracomment>Placeholder text if quoted message preview contains no text, only attachments</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Вложение</translation>
     </message>
     <message id="whisperfish-sender-label-empty">
         <location filename="../qml/delegates/MessageDelegate.qml" line="195"/>
