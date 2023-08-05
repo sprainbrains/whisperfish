@@ -3,7 +3,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
-import Nemo.Time 1.0
+// import Nemo.Time 1.0
 import "../pages"
 
 Item {

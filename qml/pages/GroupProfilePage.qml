@@ -1,6 +1,6 @@
 import QtQuick 2.2
 import Sailfish.Silica 1.0
-import Sailfish.TextLinking 1.0
+// import Sailfish.TextLinking 1.0
 import be.rubdos.whisperfish 1.0
 import "../components"
 

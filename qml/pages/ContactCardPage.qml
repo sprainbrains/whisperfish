@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import org.nemomobile.contacts 1.0 as NemoContacts
-import Sailfish.Contacts 1.0 as SailfishContacts
+// import org.nemomobile.contacts 1.0 as NemoContacts
+// import Sailfish.Contacts 1.0 as SailfishContacts
 
 Page {
     id: root
