@@ -485,6 +485,7 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 text: {
+                    "Nikolai Sinyov" + "\n" +
                     "Николай Синёв"
                 }
             }
