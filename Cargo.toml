@@ -20,8 +20,8 @@ zkcredential = { git = "https://gitlab.com/whisperfish/libsignal-client", branch
 [patch.crates-io]
 curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = 'lizard2' }
 
-qmetaobject = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
-qttypes = { git = "https://github.com/whisperfish/qmetaobject-rs", branch = "whisperfork" }
+qmetaobject = { git = "https://github.com/sprainbrains/qmetaobject-rs", branch = "aurora_whisperfork" }
+qttypes = { git = "https://github.com/sprainbrains/qmetaobject-rs", branch = "aurora_whisperfork" }
 pqcrypto-internals = { git = "https://github.com/whisperfish/pqcrypto", branch = "whisperfork" }
 
 # [patch."https://github.com/whisperfish/libsignal-service-rs"]

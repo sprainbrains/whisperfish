@@ -91,7 +91,7 @@ secrecy = "0.7"
 
 regex = "=1.7.3"
 
-sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", optional = true }
+sailors = { git = "https://github.com/sprainbrains/sailo-rs.git", branch = "aurora_whisperfork", optional = true }
 whisperfish-store = { path = "../whisperfish-store" }
 
 
