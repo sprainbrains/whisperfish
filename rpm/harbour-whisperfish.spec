@@ -11,14 +11,14 @@
 %define builddir target/sailfishos/%{_target_cpu}
 %endif
 
-Name: harbour-whisperfish
+Name: be.rubdos.harbour.whisperfish
 Summary: Private messaging using Signal for SailfishOS.
 
 Version: 0.6.0
 Release: 0%{?dist}
 License: GPLv3+
 Group: Qt/Qt
-URL: https://gitlab.com/whisperfish/whisperfish/
+URL: https://github.com/sprainbrains/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 AutoReqProv: no
 Requires:   sailfishsilica-qt5 >= 0.10.9
@@ -299,11 +299,19 @@ lrelease -idbased %{_sourcedir}/../translations/*.ts
 
 %install
 
-install -d %{buildroot}%{_datadir}/harbour-whisperfish/translations
-install -Dm 644 %{_sourcedir}/../translations/*.qm \
-        %{buildroot}%{_datadir}/harbour-whisperfish/translations
+%{__mkdir_p} %{_sourcedir}/../translations_new/
+%{__cp} -r %{_sourcedir}/../translations/*.qm %{_sourcedir}/../translations_new/
 
-install -D %{targetdir}/harbour-whisperfish %{buildroot}%{_bindir}/harbour-whisperfish
+rename 'harbour-whisperfish' 'harbour.whisperfish' %{_sourcedir}/../translations_new/*.qm
+
+install -d %{buildroot}%{_datadir}/%{name}/translations
+
+install -Dm 644 %{_sourcedir}/../translations_new/*.qm \
+        %{buildroot}%{_datadir}/%{name}/translations
+
+%{__rm} -rf %{_sourcedir}/../translations_new
+
+install -D %{targetdir}/harbour-whisperfish %{buildroot}%{_bindir}/%{name}
 %if %{without harbour}
 %if %{with tools}
 install -D %{targetdir}/fetch-signal-attachment %{buildroot}%{_bindir}/fetch-signal-attachment
@@ -311,43 +319,48 @@ install -D %{targetdir}/whisperfish-migration-dry-run %{buildroot}%{_bindir}/whi
 %endif
 %endif
 
-desktop-file-install \
-  --dir %{buildroot}%{_datadir}/applications \
-   %{_sourcedir}/../harbour-whisperfish.desktop
 
-install -Dm 644 %{_sourcedir}/../harbour-whisperfish.profile \
-    %{buildroot}%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
-install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
-   %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
-install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
-    %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-whisperfish-message.conf
+
+install -D %{_sourcedir}/../harbour-whisperfish.desktop %{_sourcedir}/../%{name}.desktop
+
+desktop-file-install --delete-original \
+ --dir %{buildroot}%{_datadir}/applications \
+   %{_sourcedir}/../%{name}.desktop
+
+
+#install -Dm 644 %{_sourcedir}/../harbour-whisperfish.profile \
+#    %{buildroot}%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
+#install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
+#   %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
+#install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
+#    %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-whisperfish-message.conf
 
 # Application icons
 install -Dm 644 %{_sourcedir}/../icons/86x86/harbour-whisperfish.png \
-    %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/harbour-whisperfish.png
+    %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/%{name}.png
 install -Dm 644 %{_sourcedir}/../icons/108x108/harbour-whisperfish.png \
-    %{buildroot}%{_datadir}/icons/hicolor/108x108/apps/harbour-whisperfish.png
+    %{buildroot}%{_datadir}/icons/hicolor/108x108/apps/%{name}.png
 install -Dm 644 %{_sourcedir}/../icons/128x128/harbour-whisperfish.png \
-    %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/harbour-whisperfish.png
+    %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/%{name}.png
 install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
-    %{buildroot}%{_datadir}/icons/hicolor/172x172/apps/harbour-whisperfish.png
+    %{buildroot}%{_datadir}/icons/hicolor/172x172/apps/%{name}.png
 
 # QML & icons
 (cd %{_sourcedir}/../ && find ./qml ./icons \
     -type f \
     -exec \
-        install -Dm 644 "{}" "%{buildroot}%{_datadir}/harbour-whisperfish/{}" \; )
+        install -Dm 644 "{}" "%{buildroot}%{_datadir}/%{name}/{}" \; )
 
 # Set the build date to the update notification
 CURR_DATE=$(date "+%Y-%m-%d")
-sed -i -r "s/buildDate: \"[0-9\-]{10}\".*/buildDate: \"${CURR_DATE}\"/g" "%{buildroot}%{_datadir}/harbour-whisperfish/qml/pages/MainPage.qml"
+sed -i -r "s/buildDate: \"[0-9\-]{10}\".*/buildDate: \"${CURR_DATE}\"/g" "%{buildroot}%{_datadir}/%{name}/qml/pages/MainPage.qml"
 
 %if %{without harbour}
 # Dbus service
-install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
-    %{buildroot}%{_unitdir}/be.rubdos.whisperfish.service
-install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
-    %{buildroot}%{_userunitdir}/harbour-whisperfish.service
+#install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
+#    %{buildroot}%{_unitdir}/be.rubdos.whisperfish.service
+#install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
+#    %{buildroot}%{_userunitdir}/harbour-whisperfish.service
 
 # Share plugin
 %if %{with shareplugin_v1} || %{with shareplugin_v2}
@@ -380,15 +393,15 @@ rm -rf %{buildroot}
 %{_bindir}/*
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
-%{_datadir}/mapplauncherd/privileges.d/%{name}.privileges
+#%{_datadir}/mapplauncherd/privileges.d/%{name}.privileges
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
-%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
+#%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 
-%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
+#%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
 
 %if %{without harbour}
-%{_userunitdir}/harbour-whisperfish.service
-%{_unitdir}/be.rubdos.whisperfish.service
+#%{_userunitdir}/harbour-whisperfish.service
+#%{_unitdir}/be.rubdos.whisperfish.service
 
 %if %{with shareplugin_v1} || %{with shareplugin_v2}
 %files shareplugin

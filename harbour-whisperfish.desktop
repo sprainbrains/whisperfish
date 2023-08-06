@@ -4,18 +4,14 @@ Version=1.0
 Type=Application
 Name=Whisperfish
 X-Nemo-Application-Type=silica-qt5
-#X-Nemo-Application-Type=qtquick2
 X-Nemo-Single-Instance=no
-Exec=harbour-whisperfish
-Icon=harbour-whisperfish
+Exec=be.rubdos.harbour.whisperfish
+Icon=be.rubdos.harbour.whisperfish
 X-Desktop-File-Install-Version=0.20
 
-#[X-HarbourBackup]
-#BackupPathList=.config/be.rubdos/harbour-whisperfish/:.local/share/be.rubdos/harbour-whisperfish/
-#BackupConfigList=/apps/harbour-whisperfish/
-
-[X-Sailjail]
-Permissions=Internet;Pictures;MediaIndexing;Downloads;Pictures;Videos;UserDirs;WebView;Camera;RemovableMedia;PublicDir;
-#Audio;Documents;Downloads;Internet;Location;MediaIndexing;Microphone;Music;Pictures;PublicDir;RemovableMedia;UserDirs;Videos
+[X-Application]
+Permissions=Internet;Pictures;MediaIndexing;Documents;Downloads;Videos;Audio;UserDirs;WebView;Camera;Microphone;RemovableMedia;PublicDir;
 OrganizationName=be.rubdos
-ApplicationName=harbour-whisperfish
+ApplicationName=harbour.whisperfish
+ExportDBusInterfaces=be.rubdos.harbour.whisperfish
+ExecDBus=/usr/bin/be.rubdos.harbour.whisperfish --prestart
