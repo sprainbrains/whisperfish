@@ -2361,7 +2361,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject"
 version = "0.2.5"
-source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#a8dc43bd86d380fcfcbc5f21309bad36175c8c48"
+source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#f03701ac40b23fd9c90adc5d9c16b56580a14c47"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -2375,7 +2375,7 @@ dependencies = [
 [[package]]
 name = "qmetaobject_impl"
 version = "0.2.5"
-source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#a8dc43bd86d380fcfcbc5f21309bad36175c8c48"
+source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#f03701ac40b23fd9c90adc5d9c16b56580a14c47"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2395,7 +2395,7 @@ dependencies = [
 [[package]]
 name = "qttypes"
 version = "0.2.6"
-source = "git+https://github.com/whisperfish/qmetaobject-rs?branch=whisperfork#a8dc43bd86d380fcfcbc5f21309bad36175c8c48"
+source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#f03701ac40b23fd9c90adc5d9c16b56580a14c47"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -2682,7 +2682,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 [[package]]
 name = "sailors"
 version = "0.1.0"
-source = "git+https://gitlab.com/whisperfish/sailo-rs.git#71ab6ef7001b501ab376f0d62119df4a531eb00b"
+source = "git+https://github.com/sprainbrains/sailo-rs.git?branch=aurora_whisperfork#b2f62d3264a0b4f5fc9d4f37e6f2f677bab69d83"
 dependencies = [
  "anyhow",
  "cpp",
