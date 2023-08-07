@@ -1965,10 +1965,10 @@ impl Storage {
         }
     }
 
-    pub fn mark_recipient_registered(&self, uuid_str: &str, registered: bool) -> usize {
+    pub fn mark_recipient_registered(&self, r_uuid: Uuid, registered: bool) -> usize {
         log::trace!(
             "Called mark_recipient_registered({}, {})",
-            uuid_str,
+            r_uuid,
             registered
         );
 
@@ -1976,18 +1976,18 @@ impl Storage {
 
         let rid: Vec<i32> = recipients
             .select(id)
-            .filter(uuid.eq(uuid_str))
+            .filter(uuid.eq(r_uuid.to_string()))
             .load(&mut *self.db())
             .expect("Recipient id by UUID");
 
         if rid.is_empty() {
-            log::trace!("Recipient with UUID {} not found in database", uuid_str);
+            log::trace!("Recipient with UUID {} not found in database", r_uuid);
             return 0;
         }
 
         let rid = rid.first().unwrap();
 
-        let affected_rows = diesel::update(recipients.filter(uuid.eq(uuid_str)))
+        let affected_rows = diesel::update(recipients.filter(uuid.eq(r_uuid.to_string())))
             .set(is_registered.eq(registered))
             .execute(&mut *self.db())
             .expect("mark recipient (un)registered");
