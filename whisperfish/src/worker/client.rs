@@ -1378,7 +1378,17 @@ impl Handler<SendMessage> for ClientActor {
                         } else {
                             storage.fail_message(mid);
                             for error in results.iter().filter_map(|res| res.as_ref().err()) {
-                                log::error!("Could not deliver message: {}", error)
+                                log::error!("Could not deliver message: {}", error);
+                                // XXX This is copy-paste from 40 linew below
+                                if let MessageSenderError::NotFound { uuid } = error {
+                                    let uuid_s = uuid.to_string();
+                                    log::warn!("Recipient not found, removing device sessions {}", uuid_s);
+                                    let mut num = storage.delete_all_sessions(&ServiceAddress { uuid: *uuid }).await?;
+                                    log::trace!("Removed {} device session(s)", num);
+                                    num = storage.mark_recipient_registered(&uuid_s, false);
+                                    log::trace!("Marked {} recipient(s) as unregistered", num);
+                                    anyhow::bail!(MessageSenderError::NotFound { uuid: uuid.to_owned() });
+                                };
                             }
                             log::error!("Successfully delivered message to {} out of {} recipients", successes, results.len());
                             anyhow::bail!("Could not deliver message.")
