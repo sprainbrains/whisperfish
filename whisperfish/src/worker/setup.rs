@@ -1,7 +1,9 @@
 use crate::gui::WhisperfishApp;
 use crate::store::{Storage, TrustLevel};
 use anyhow::Context;
-use libsignal_service::push_service::{DeviceId, ServiceIds, DEFAULT_DEVICE_ID};
+use libsignal_service::push_service::{
+    DeviceId, ServiceIds, VerificationTransport, DEFAULT_DEVICE_ID,
+};
 use phonenumber::PhoneNumber;
 use qmetaobject::prelude::*;
 use std::rc::Rc;
@@ -284,12 +286,17 @@ impl SetupWorker {
         if let Some(captcha) = &config.override_captcha {
             log::info!("Using override captcha {}", captcha);
         }
+        let transport = if this.borrow().useVoice {
+            VerificationTransport::Voice
+        } else {
+            VerificationTransport::Sms
+        };
         let mut res = app
             .client_actor
             .send(super::client::Register {
                 phonenumber: number.clone(),
                 password: password.to_string(),
-                use_voice: this.borrow().useVoice,
+                transport,
                 captcha: config.override_captcha.clone(),
             })
             .await??;
@@ -308,7 +315,7 @@ impl SetupWorker {
                 .send(super::client::Register {
                     phonenumber: number.clone(),
                     password: password.to_string(),
-                    use_voice: this.borrow().useVoice,
+                    transport,
                     captcha: Some(captcha),
                 })
                 .await??;

@@ -820,7 +820,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "3.2.1"
-source = "git+https://github.com/signalapp/curve25519-dalek?branch=lizard2#4f0aa6653c51598daa0a2f53b8ba54ce0eedfbdd"
+source = "git+https://github.com/signalapp/curve25519-dalek?branch=lizard2#829f52e79c6d920243c8bf30c7f4ee2e8eac5246"
 dependencies = [
  "byteorder",
  "digest 0.9.0",
@@ -1573,7 +1573,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#6d2649d1487a8808dfdf03324502886110d8dab7"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#87899201123b8095cd0f30317620a6d5b7fd652b"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1606,7 +1606,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#6d2649d1487a8808dfdf03324502886110d8dab7"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#87899201123b8095cd0f30317620a6d5b7fd652b"
 dependencies = [
  "actix",
  "actix-http",
