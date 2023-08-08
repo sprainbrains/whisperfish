@@ -2123,12 +2123,16 @@ impl Storage {
 
         if let Some(path) = &new_message.attachment {
             let affected_rows = {
+                let att_path = Path::new(path);
+                let att_file = att_path.file_name().map(|s| s.to_str().unwrap());
+
                 use schema::attachments::dsl::*;
                 diesel::insert_into(attachments)
                     .values((
                         message_id.eq(latest_message.id),
                         content_type.eq(new_message.mime_type.as_ref().unwrap()),
                         attachment_path.eq(path),
+                        file_name.eq(att_file),
                         is_voice_note.eq(false),
                         is_borderless.eq(false),
                         is_quote.eq(false),
