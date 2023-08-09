@@ -1319,6 +1319,7 @@ impl Handler<SendMessage> for ClientActor {
                             anyhow::bail!("Failed to upload attachment: {}", e);
                         }
                     };
+                    storage.store_attachment_pointer(attachment.id, &ptr);
                     content.attachments.push(ptr);
                 }
 

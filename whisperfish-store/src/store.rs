@@ -2040,6 +2040,28 @@ impl Storage {
         latest_attachment
     }
 
+    pub fn store_attachment_pointer(
+        &self,
+        attachment_id: i32,
+        attachment_pointer: &AttachmentPointer,
+    ) {
+        use schema::attachments::dsl::*;
+
+        let count = diesel::update(attachments.filter(id.eq(attachment_id)))
+            .set(pointer.eq(attachment_pointer.encode_to_vec()))
+            .execute(&mut *self.db())
+            .expect("store sent attachment pointer");
+
+        if count == 1 {
+            log::trace!("Attachment pointer saved to id {}", attachment_id);
+        } else {
+            log::error!(
+                "Could not save attachment pointer to attachment {}",
+                attachment_id
+            );
+        };
+    }
+
     /// Create a new message. This was transparent within SaveMessage in Go.
     ///
     /// Panics is new_message.session_id is None.
