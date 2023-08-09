@@ -27,6 +27,7 @@ use libsignal_service::protocol::{self, *};
 use libsignal_service::zkgroup::api::groups::GroupSecretParams;
 use phonenumber::PhoneNumber;
 use protocol_store::ProtocolStore;
+use std::fs::File;
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -2018,6 +2019,7 @@ impl Storage {
                 is_quote.eq(false),
                 message_id.eq(mid),
                 visual_hash.eq(&ptr.blur_hash),
+                size.eq(&ptr.size.map(|x| x as i32)),
                 file_name.eq(&ptr.file_name),
                 caption.eq(&ptr.caption),
                 data_hash.eq(&ptr.digest),
@@ -2123,8 +2125,14 @@ impl Storage {
 
         if let Some(path) = &new_message.attachment {
             let affected_rows = {
+                let att_file = File::open(path).unwrap();
+                let att_size = match att_file.metadata() {
+                    Ok(m) => Some(m.len() as i32),
+                    Err(_) => None,
+                };
+
                 let att_path = Path::new(path);
-                let att_file = att_path.file_name().map(|s| s.to_str().unwrap());
+                let att_filename = att_path.file_name().map(|s| s.to_str().unwrap());
 
                 use schema::attachments::dsl::*;
                 diesel::insert_into(attachments)
@@ -2132,7 +2140,8 @@ impl Storage {
                         message_id.eq(latest_message.id),
                         content_type.eq(new_message.mime_type.as_ref().unwrap()),
                         attachment_path.eq(path),
-                        file_name.eq(att_file),
+                        size.eq(att_size),
+                        file_name.eq(att_filename),
                         is_voice_note.eq(false),
                         is_borderless.eq(false),
                         is_quote.eq(false),
