@@ -17,7 +17,12 @@ Page {
                 //% "Add"
                 text: qsTrId("whisperfish-add-linked-device")
                 onClicked: {
-                    var d = pageStack.push(Qt.resolvedUrl("AddDevice.qml"))
+                    var d
+                    if (addDeviceLoader.status == Loader.Ready) {
+                        d = pageStack.push(addDeviceLoader.item)
+                    } else {
+                        d = pageStack.push(Qt.resolvedUrl("OldAddDevice.qml"))
+                    }
                     d.addDevice.connect(function(tsurl) {
                         console.log("Add device: "+tsurl)
                         // TODO: handle errors
@@ -38,6 +43,11 @@ Page {
             //: Title for Linked Devices page
             //% "Linked Devices"
             title: qsTrId("whisperfish-linked-devices")
+        }
+        Loader {
+            id: addDeviceLoader
+            visible: false
+            source: "AddDevice.qml"
         }
         delegate: ListItem {
             contentHeight: created.y + created.height + lastSeen.height + Theme.paddingMedium
