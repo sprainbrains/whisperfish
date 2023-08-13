@@ -162,14 +162,14 @@
         <translation>Fast nålade</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/LinkedDevices.qml" line="107"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="117"/>
         <location filename="../qml/pages/MainPage.qml" line="290"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Idag</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/LinkedDevices.qml" line="110"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="120"/>
         <location filename="../qml/pages/MainPage.qml" line="295"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
@@ -514,25 +514,32 @@
         <translation>Ytterligare upphovsrätt</translation>
     </message>
     <message id="whisperfish-add-confirm">
-        <location filename="../qml/pages/AddDevice.qml" line="25"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
         <translation>Lägg till</translation>
     </message>
     <message id="whisperfish-add-device">
-        <location filename="../qml/pages/AddDevice.qml" line="33"/>
+        <location filename="../qml/pages/AddDevice.qml" line="42"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
         <translation>Lägg till en enhet</translation>
     </message>
+    <message id="whisperfish-qr-scanning-instructions">
+        <location filename="../qml/pages/AddDevice.qml" line="82"/>
+        <source>Scan the QR code displayed by the Signal application that you wish to link</source>
+        <extracomment>Instructions on how to scan QR code for device linking</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-device-url">
-        <location filename="../qml/pages/AddDevice.qml" line="43"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="43"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
         <translation>Enhetens URL</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
-        <location filename="../qml/pages/AddDevice.qml" line="76"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="76"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>Installera Signal Desktop. Använd programmet CodeReader för att skanna QR-koden som visas på Signal Desktop och kopiera och klistra in webbadressen här.</translation>
@@ -549,50 +556,50 @@
         <translation>Lägg till</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
-        <location filename="../qml/pages/LinkedDevices.qml" line="31"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="36"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
         <translation>Uppdatera</translation>
     </message>
     <message id="whisperfish-linked-devices">
-        <location filename="../qml/pages/LinkedDevices.qml" line="40"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="45"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
         <translation>Länkade enheter</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
-        <location filename="../qml/pages/LinkedDevices.qml" line="50"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="60"/>
         <source>Unlinked</source>
         <oldsource>Unlinking</oldsource>
         <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
         <translation>Olänkad</translation>
     </message>
     <message id="whisperfish-current-device-name">
-        <location filename="../qml/pages/LinkedDevices.qml" line="67"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="77"/>
         <source>Current device (Whisperfish, %1)</source>
         <extracomment>Linked device title for current Whisperfish</extracomment>
         <translation>Nuvarande enhet (Whisperfish, %1)</translation>
     </message>
     <message id="whisperfish-device-name">
-        <location filename="../qml/pages/LinkedDevices.qml" line="71"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
         <translation>Enhet %1</translation>
     </message>
     <message id="whisperfish-device-link-date">
-        <location filename="../qml/pages/LinkedDevices.qml" line="85"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="95"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
         <translation>Länkad: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
-        <location filename="../qml/pages/LinkedDevices.qml" line="116"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="126"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
         <translation>Senast aktiv: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
-        <location filename="../qml/pages/LinkedDevices.qml" line="138"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="148"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
         <translation>Ta bort länken</translation>
