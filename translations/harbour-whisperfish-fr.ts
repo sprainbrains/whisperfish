@@ -1131,7 +1131,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProofSubmitPage.qml" line="100"/>
         <location filename="../qml/pages/RegisterPage.qml" line="258"/>
         <location filename="../qml/pages/SetupPasswordPage.qml" line="130"/>
-        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="140"/>
+        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="130"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
         <translation>Continuer</translation>
