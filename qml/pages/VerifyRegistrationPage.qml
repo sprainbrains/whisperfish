@@ -80,7 +80,7 @@ BlockingInfoPageBase {
             width: parent.width - 4*Theme.horizontalPageMargin
             anchors.horizontalCenter: parent.horizontalCenter
             inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhNoPredictiveText | Qt.ImhSensitiveData
-            validator: RegExpValidator{ regExp: /|[0-9]{3}-[0-9]{3}/;}
+            validator: RegExpValidator{ regExp: /|[0-9]{6}/; }
             //: verification code input label
             //% "Verification code"
             label: qsTrId("whisperfish-verify-code-input-label")
@@ -89,24 +89,14 @@ BlockingInfoPageBase {
             placeholderText: qsTrId("whisperfish-verify-code-input-placeholder")
             horizontalAlignment: TextInput.AlignHCenter
             font.pixelSize: Theme.fontSizeLarge
-            EnterKey.onClicked: parent.forceActiveFocus() // CONTINUE?
-
-            property bool textBusy: false
-            onTextChanged: {
-                if(!textBusy) {
-                    textBusy = true
-                    // Keep only digits
-                    text = text.replace(/[^0-9]/g, '')
-                    if(text.length > 3) {
-                        // Insert the dash and keep the six first digits
-                        text = text.slice(0, 3) + '-' + text.slice(3, 6)
-                    }
-                    textBusy = false
+            EnterKey.onClicked: {
+                if (_canAccept) {
+                    accept()
                 }
             }
-
             errorHighlight: !_canAccept
 
+            // For SFOS 3.4 compatibility
             Component.onCompleted: {
                 if(codeField.rightItem !== undefined) {
                     _codeFieldLoader.active = true
