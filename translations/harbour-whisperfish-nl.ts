@@ -234,13 +234,13 @@
         <location filename="../qml/pages/About.qml" line="184"/>
         <source>Norwegian Bokmål translators</source>
         <extracomment>Norwegian Bokmål (nb_NO) language about page translation section</extracomment>
-        <translation>Vertalers Bokmål Noors</translation>
+        <translation>Vertalers Noors Bokmål</translation>
     </message>
     <message id="whisperfish-translators-nl_BE">
         <location filename="../qml/pages/About.qml" line="200"/>
         <source>Dutch (Belgium) translators</source>
         <extracomment>Dutch (Belgium) (nl_BE) language about page translation section</extracomment>
-        <translation>Vertalers Belgisch Nederlands</translation>
+        <translation>Vertalers Vlaams</translation>
     </message>
     <message id="whisperfish-translators-lt">
         <location filename="../qml/pages/About.qml" line="220"/>
@@ -415,7 +415,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="82"/>
         <source>Scan the QR code displayed by the Signal application that you wish to link</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Scan de QR-code van de Signal-app die je wil toevoegen</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/OldAddDevice.qml" line="43"/>
@@ -745,7 +745,7 @@
         <location filename="../qml/pages/ProfilePage.qml" line="391"/>
         <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
         <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
-        <translation>Indien aangevinkt, was deze sessie geïnitialiseerd met postkwantumveliige cryptografie.</translation>
+        <translation>Indien aangevinkt, was deze sessie geïnitialiseerd met postkwantumveilige cryptografie.</translation>
     </message>
     <message id="whisperfish-kyber-click-explanation">
         <location filename="../qml/pages/ProfilePage.qml" line="401"/>
@@ -2160,13 +2160,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/TestCaptchaPage.qml" line="84"/>
         <source>You can use this page to test the Whisperfish captcha challenge integration</source>
         <extracomment>Captcha test page description</extracomment>
-        <translation>Je kan deze pagina gebruiken om Whisperfish&apos; captchaintegratie te testen</translation>
+        <translation>Je kan deze pagina gebruiken om de captchaintegratie van Whisperfish te testen</translation>
     </message>
     <message id="whisperfish-captcha-test-success">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="56"/>
         <source>Captcha token received!</source>
         <extracomment>Captcha test successful message</extracomment>
-        <translation>Captcha token ontvangen!</translation>
+        <translation>Captchatoken ontvangen!</translation>
     </message>
     <message id="whisperfish-start-test-button-label">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="80"/>
