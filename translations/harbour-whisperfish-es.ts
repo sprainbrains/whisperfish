@@ -530,7 +530,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="82"/>
         <source>Scan the QR code displayed by the Signal application that you wish to link</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Escanea el código QR que se muestra por la aplicación Signal que quieres vincular</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/OldAddDevice.qml" line="43"/>
