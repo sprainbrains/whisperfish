@@ -219,6 +219,8 @@ Item {
                         qsTrId("whisperfish-chat-input-placeholder-default")
                     }
 
+                focusOutBehavior: FocusBehavior.KeepFocus
+
                 EnterKey.onClicked: {
                     if (canSend && SettingsBridge.enable_enter_send) {
                         _send()
