@@ -1683,7 +1683,7 @@ Settings page share contacts</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
-        <location filename="../qml/components/ChatTextInput.qml" line="369"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="371"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
         <translation type="unfinished"></translation>
