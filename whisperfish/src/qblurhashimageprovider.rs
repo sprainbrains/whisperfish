@@ -60,16 +60,13 @@ cpp! {{
                         std::borrow::Cow::Borrowed(&id as &str)
                     }
                 };
-                let img = match blurhash::decode(id.as_ref(), width, height, 1.0) {
-                    Ok(img) => img,
-                    Err(e) => {
-                        log::warn!("Could not decode blurhash: {}", e);
-                        return -2;
-                    }
-                };
-                assert_eq!(img.len(), size_in_bytes);
+
                 let slice = unsafe { std::slice::from_raw_parts_mut(buf, size_in_bytes) };
-                slice.copy_from_slice(&img);
+
+                if let Err(e) = blurhash::decode_into(slice, id.as_ref(), width, height, 1.0) {
+                    log::warn!("Could not decode blurhash: {}", e);
+                    return -2;
+                }
                 0
             });
 
