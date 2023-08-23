@@ -436,7 +436,7 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 [[package]]
 name = "blurhash"
 version = "0.1.1"
-source = "git+https://github.com/Raincal/blurhash-rs.git?branch=master#fa6a6a31e6ba416ee651ad09c81368afca595405"
+source = "git+https://github.com/whisperfish/blurhash-rs.git?branch=main#b02b2ec0fb099c252ed5d9d57fe939c2b6576700"
 
 [[package]]
 name = "brotli"
