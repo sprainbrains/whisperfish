@@ -1381,44 +1381,43 @@ impl Handler<SendMessage> for ClientActor {
                             Ok((session_id, mid, msg.inner.text))
                         } else {
                             storage.fail_message(mid);
-                            for error in results.iter().filter_map(|res| res.as_ref().err()) {
-                                log::error!("Could not deliver message: {}", error)
+                            let result_count = results.len();
+                            for error in results.into_iter().filter_map(Result::err) {
+                                log::error!("Could not deliver message: {}", error);
+                                match error {
+                                    MessageSenderError::ProofRequired { token, options } => {
+                                        // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
+                                        let recaptcha = String::from("recaptcha");
+
+                                        if options.contains(&recaptcha) {
+                                            addr.send(ProofRequired {
+                                                token: token.to_owned(),
+                                                r#type: recaptcha,
+                                            })
+                                            .await
+                                            .expect("deliver captcha required");
+                                        } else {
+                                            log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
+                                        }
+                                    },
+                                    MessageSenderError::NotFound { uuid } => {
+                                        log::warn!("Recipient not found, removing device sessions {}", uuid);
+                                        let mut num = storage.delete_all_sessions(&ServiceAddress { uuid }).await?;
+                                        log::trace!("Removed {} device session(s)", num);
+                                        num = storage.mark_recipient_registered(uuid, false);
+                                        log::trace!("Marked {} recipient(s) as unregistered", num);
+                                    },
+                                    _ => {
+                                        log::error!("The above error goes unhandled.");
+                                    }
+                                };
                             }
-                            log::error!("Successfully delivered message to {} out of {} recipients", successes, results.len());
+                            log::error!("Successfully delivered message to {} out of {} recipients", successes, result_count);
                             anyhow::bail!("Could not deliver message.")
                         }
                     }
                     Err(e) => {
                         storage.fail_message(mid);
-
-                        match &e.downcast_ref() {
-                            Some(MessageSenderError::ProofRequired { token, options }) => {
-                                // Note: 'recaptcha' can refer to reCAPTCHA or hCaptcha
-                                let recaptcha = String::from("recaptcha");
-
-                                if options.contains(&recaptcha) {
-                                    addr.send(ProofRequired {
-                                        token: token.to_owned(),
-                                        r#type: recaptcha,
-                                    })
-                                    .await
-                                    .expect("deliver captcha required");
-                                } else {
-                                    log::warn!("Rate limit proof requested, but type 'recaptcha' wasn't available!");
-                                }
-                            },
-                            Some(MessageSenderError::NotFound { uuid }) => {
-                                let uuid_s = uuid.to_string();
-                                log::warn!("Recipient not found, removing device sessions {}", uuid_s);
-                                let mut num = storage.delete_all_sessions(&ServiceAddress { uuid: *uuid }).await?;
-                                log::trace!("Removed {} device session(s)", num);
-                                num = storage.mark_recipient_registered(&uuid_s, false);
-                                log::trace!("Marked {} recipient(s) as unregistered", num);
-                                anyhow::bail!(MessageSenderError::NotFound { uuid: uuid.to_owned() });
-                            },
-                            _ => (),
-                        };
-
                         Err(e)
                     }
                 }
