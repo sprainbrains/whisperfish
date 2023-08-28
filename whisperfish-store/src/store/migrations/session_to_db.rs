@@ -179,7 +179,7 @@ impl SessionStorageMigration {
                             u32::from(prekey)
                         );
                     }
-                    Err(e) => Err(e).expect("well behaving database"),
+                    Err(e) => panic!("{1}: {:?}", e, "well behaving database"),
                 }
             }
 
@@ -257,7 +257,7 @@ impl SessionStorageMigration {
                             u32::from(prekey)
                         );
                     }
-                    Err(e) => Err(e).expect("well behaving database"),
+                    Err(e) => panic!("{1}: {:?}", e, "well behaving database"),
                 }
             }
 
@@ -349,7 +349,7 @@ impl SessionStorageMigration {
                     Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
                         log::warn!("Already found a session for {} in the database. Skipping and deleting the one on storage.", addr);
                     }
-                    Err(e) => Err(e).expect("well behaving database"),
+                    Err(e) => panic!("{1}: {:?}", e, "well behaving database"),
                 }
             }
 
@@ -431,7 +431,7 @@ impl SessionStorageMigration {
                 Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
                     log::warn!("Already found an identity for {} in the database. Skipping and deleting the one on storage.", addr);
                 }
-                Err(e) => Err(e).expect("well behaving database"),
+                Err(e) => panic!("{1}: {:?}", e, "well behaving database"),
             }
 
             // By now, the identity is safely stored in the database, so we can remove the file.

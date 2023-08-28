@@ -215,7 +215,7 @@ impl QAbstractListModel for GroupMembershipListModel {
     fn role_names(&self) -> HashMap<i32, QByteArray> {
         GroupMembershipRoles::role_names()
             .into_iter()
-            .chain(RecipientRoles::role_names().into_iter())
+            .chain(RecipientRoles::role_names())
             .collect()
     }
 }
