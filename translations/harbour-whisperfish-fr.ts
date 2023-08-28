@@ -149,34 +149,40 @@
         <extracomment>Whisperfish subtitle for archived conversations</extracomment>
         <translation>Conversations archivées</translation>
     </message>
+    <message id="whisperfish-no-messages-hint-text-237">
+        <location filename="../qml/pages/MainPage.qml" line="265"/>
+        <source>Start a new conversation through a linked device, or let someone message you</source>
+        <extracomment>No messages found, hint on what to do</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-no-archived-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="267"/>
+        <location filename="../qml/pages/MainPage.qml" line="275"/>
         <source>No archived conversations</source>
         <extracomment>Showing archived conversations, but the list is empty</extracomment>
         <translation>Aucune conversation archivée</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
-        <location filename="../qml/pages/MainPage.qml" line="285"/>
+        <location filename="../qml/pages/MainPage.qml" line="293"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
         <translation>Épinglé</translation>
     </message>
     <message id="whisperfish-session-section-today">
         <location filename="../qml/pages/LinkedDevices.qml" line="117"/>
-        <location filename="../qml/pages/MainPage.qml" line="290"/>
+        <location filename="../qml/pages/MainPage.qml" line="298"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Aujourd&apos;hui</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
         <location filename="../qml/pages/LinkedDevices.qml" line="120"/>
-        <location filename="../qml/pages/MainPage.qml" line="295"/>
+        <location filename="../qml/pages/MainPage.qml" line="303"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Hier</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="300"/>
+        <location filename="../qml/pages/MainPage.qml" line="308"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Plus ancien</translation>
@@ -708,7 +714,7 @@
         <translation>Supprimer le lien</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="263"/>
+        <location filename="../qml/pages/MainPage.qml" line="271"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Tirez vers le bas pour commencer une nouvelle conversation.</translation>
