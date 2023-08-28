@@ -258,6 +258,14 @@ Page {
                         //% "Locked"
                         qsTrId("whisperfish-locked-message")
                     } else if(visualSessionModel.filterOnGroup === "active") {
+                        // XXX Temporary branch for "active"
+                        //     https://gitlab.com/whisperfish/whisperfish/-/issues/237
+                        //: No messages found, hint on what to do
+                        //% "Start a new conversation through a linked device, or let someone message you"
+                        qsTrId("whisperfish-no-messages-hint-text-237")
+                    } else if(visualSessionModel.filterOnGroup === "active") {
+                        // XXX "Real" branch for "active"
+                        //     https://gitlab.com/whisperfish/whisperfish/-/issues/237
                         //: No messages found, hint on what to do
                         //% "Pull down to start a new conversation."
                         qsTrId("whisperfish-no-messages-hint-text")
