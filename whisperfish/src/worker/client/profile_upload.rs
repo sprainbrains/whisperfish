@@ -1,4 +1,4 @@
-use super::*;
+use super::{profile::ProfileFetched, *};
 use crate::store::TrustLevel;
 use actix::prelude::*;
 use libsignal_service::profile_name::ProfileName;

@@ -5,6 +5,7 @@ use libsignal_service::profile_cipher::ProfileCipher;
 use libsignal_service::profile_service::ProfileService;
 use libsignal_service::push_service::SignalServiceProfile;
 use tokio::io::AsyncWriteExt;
+use whisperfish_store::StoreProfile;
 
 impl StreamHandler<OutdatedProfile> for ClientActor {
     fn handle(&mut self, OutdatedProfile(uuid, key): OutdatedProfile, ctx: &mut Self::Context) {
@@ -49,117 +50,6 @@ impl StreamHandler<OutdatedProfile> for ClientActor {
     }
 }
 
-/// Queue a force-refresh of a profile avatar
-#[derive(Message)]
-#[rtype(result = "()")]
-pub struct RefreshProfileAvatar(uuid::Uuid);
-
-impl Handler<RefreshProfileAvatar> for ClientActor {
-    type Result = ();
-
-    fn handle(
-        &mut self,
-        RefreshProfileAvatar(uuid): RefreshProfileAvatar,
-        ctx: &mut Self::Context,
-    ) {
-        log::trace!("Received RefreshProfileAvatar(..), fetching.");
-        let storage = self.storage.as_ref().unwrap();
-        let recipient = {
-            match storage.fetch_recipient_by_uuid(uuid) {
-                Some(r) => r,
-                None => {
-                    log::error!("No recipient with uuid {}", uuid);
-                    return;
-                }
-            }
-        };
-        let (avatar, key) = match recipient.signal_profile_avatar {
-            Some(avatar) => (
-                avatar,
-                recipient.profile_key.expect("avatar comes with a key"),
-            ),
-            None => {
-                log::error!(
-                    "Recipient without avatar; not refreshing avatar: {:?}",
-                    recipient
-                );
-                return;
-            }
-        };
-        let mut service = self.authenticated_service();
-        ctx.spawn(
-            async move {
-                let mut bytes = [0u8; 32];
-                bytes.copy_from_slice(&key);
-                let key = zkgroup::profiles::ProfileKey::create(bytes);
-                let cipher = ProfileCipher::from(key);
-                let mut avatar = service.retrieve_profile_avatar(&avatar).await?;
-                // 10MB is what Signal Android allocates
-                let mut contents = Vec::with_capacity(10 * 1024 * 1024);
-                let len = avatar.read_to_end(&mut contents).await?;
-                contents.truncate(len);
-                Ok((uuid, cipher.decrypt_avatar(&contents)?))
-            }
-            .into_actor(self)
-            .map(|res: anyhow::Result<_>, _act, ctx| {
-                match res {
-                    Ok((recipient_uuid, avatar)) => {
-                        ctx.notify(ProfileAvatarFetched(recipient_uuid, avatar))
-                    }
-                    Err(e) => {
-                        log::error!("Error fetching profile avatar: {}", e);
-                    }
-                };
-            }),
-        );
-    }
-}
-
-#[derive(actix::Message)]
-#[rtype(result = "()")]
-pub struct ProfileAvatarFetched(uuid::Uuid, Vec<u8>);
-
-impl Handler<ProfileAvatarFetched> for ClientActor {
-    type Result = ResponseActFuture<Self, ()>;
-
-    fn handle(
-        &mut self,
-        ProfileAvatarFetched(uuid, bytes): ProfileAvatarFetched,
-        _ctx: &mut Self::Context,
-    ) -> Self::Result {
-        Box::pin(
-            async move {
-                let settings = crate::config::SettingsBridge::default();
-                let avatar_dir = settings.get_string("avatar_dir");
-                let avatar_dir = Path::new(&avatar_dir);
-
-                if !avatar_dir.exists() {
-                    std::fs::create_dir(avatar_dir)?;
-                }
-
-                let out_path = avatar_dir.join(uuid.to_string());
-
-                let mut f = tokio::fs::File::create(out_path).await?;
-                f.write_all(&bytes).await?;
-
-                Ok(())
-            }
-            .into_actor(self)
-            .map(move |res: anyhow::Result<_>, _act, _ctx| {
-                match res {
-                    Ok(()) => {
-                        // XXX this is basically incomplete.
-                        // Storage should send out some NotifyRecipientUpdated
-                    }
-                    Err(e) => {
-                        log::warn!("Error with fetched avatar: {}", e);
-                    }
-                }
-            }),
-        )
-    }
-}
-
 #[derive(actix::Message)]
 #[rtype(result = "()")]
 pub(super) struct ProfileFetched(pub uuid::Uuid, pub Option<SignalServiceProfile>);
@@ -197,11 +87,6 @@ impl ClientActor {
             })?;
         let key = &recipient.profile_key;
 
-        let mut db = storage.db();
-
-        use crate::store::schema::recipients::dsl::*;
-        use diesel::prelude::*;
-
         if let Some(profile) = profile {
             let cipher = if let Some(key) = key {
                 let mut bytes = [0u8; 32];
@@ -215,50 +100,117 @@ impl ClientActor {
 
             let profile_decrypted = profile.decrypt(cipher)?;
 
-            log::info!(
-                "Decrypted profile {:?}.  Updating database.",
-                profile_decrypted
-            );
+            log::info!("Decrypted profile {:?}", profile_decrypted);
 
-            if let Some(avatar) = &profile.avatar {
-                if !avatar.is_empty() {
-                    ctx.notify(RefreshProfileAvatar(recipient_uuid));
-                }
-            }
-
-            let new_unidentified_identified_mode = if profile.unrestricted_unidentified_access {
-                UnidentifiedAccessMode::Unrestricted
-            } else {
-                recipient.unidentified_access_mode
+            let profile_data = StoreProfile {
+                given_name: profile_decrypted
+                    .name
+                    .as_ref()
+                    .map(|x| x.given_name.to_owned()),
+                family_name: profile_decrypted
+                    .name
+                    .as_ref()
+                    .and_then(|x| x.family_name.to_owned()),
+                joined_name: profile_decrypted.name.as_ref().map(|x| x.to_string()),
+                about_text: profile_decrypted.about,
+                emoji: profile_decrypted.about_emoji,
+                unidentified: if profile.unrestricted_unidentified_access {
+                    UnidentifiedAccessMode::Unrestricted
+                } else {
+                    recipient.unidentified_access_mode
+                },
+                avatar: profile.avatar,
+                last_fetch: Utc::now().naive_utc(),
+                r_uuid: recipient.uuid.unwrap(),
+                r_id: recipient.id,
+                r_key: recipient.profile_key,
             };
 
-            diesel::update(recipients)
-                .set((
-                    profile_given_name.eq(profile_decrypted.name.as_ref().map(|x| &x.given_name)),
-                    profile_family_name.eq(profile_decrypted
-                        .name
-                        .as_ref()
-                        .and_then(|x| x.family_name.as_ref())),
-                    profile_joined_name.eq(profile_decrypted.name.as_ref().map(|x| x.to_string())),
-                    about.eq(profile_decrypted.about),
-                    about_emoji.eq(profile_decrypted.about_emoji),
-                    unidentified_access_mode.eq(new_unidentified_identified_mode),
-                    signal_profile_avatar.eq(profile.avatar),
-                    last_profile_fetch.eq(Utc::now().naive_utc()),
-                ))
-                .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
-                .execute(&mut *db)
-                .expect("db");
+            ctx.notify(ProfileCreated(profile_data));
         } else {
             // XXX: We came here through 404 error, can that mean unregistered user?
+            log::trace!(
+                "Recipient {} doesn't have a profile on the server",
+                recipient.uuid()
+            );
+            let mut db = storage.db();
+
+            use crate::store::schema::recipients::dsl::*;
+            use diesel::prelude::*;
+
             diesel::update(recipients)
                 .set((last_profile_fetch.eq(Utc::now().naive_utc()),))
                 .filter(uuid.nullable().eq(&recipient_uuid.to_string()))
                 .execute(&mut *db)
                 .expect("db");
         }
-        // TODO For completeness, we should tickle the GUI for an update.
 
         Ok(())
+    }
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+struct ProfileCreated(StoreProfile);
+
+impl Handler<ProfileCreated> for ClientActor {
+    type Result = ();
+
+    fn handle(
+        &mut self,
+        ProfileCreated(store_profile): ProfileCreated,
+        ctx: &mut Self::Context,
+    ) -> Self::Result {
+        let mut service = self.authenticated_service();
+        let storage = self.storage.clone().unwrap();
+        ctx.spawn(
+            async move {
+                let settings = crate::config::SettingsBridge::default();
+                let avatar_dir = settings.get_string("avatar_dir");
+                let avatar_dir = Path::new(&avatar_dir);
+                if !avatar_dir.exists() {
+                    std::fs::create_dir(avatar_dir)?;
+                }
+                let avatar_path = avatar_dir.join(store_profile.r_uuid.to_string());
+
+                match store_profile.avatar.as_ref() {
+                    Some(avatar) => {
+                        let mut bytes = [0u8; 32];
+                        bytes.copy_from_slice(store_profile.r_key.as_ref().unwrap());
+                        let key = zkgroup::profiles::ProfileKey::create(bytes);
+                        let cipher = ProfileCipher::from(key);
+                        let mut avatar = service.retrieve_profile_avatar(avatar).await?;
+                        // 10MB is what Signal Android allocates
+                        let mut contents = Vec::with_capacity(10 * 1024 * 1024);
+                        let len = avatar.read_to_end(&mut contents).await?;
+                        contents.truncate(len);
+
+                        let avatar_bytes = cipher.decrypt_avatar(&contents)?;
+
+                        let mut f = tokio::fs::File::create(avatar_path).await?;
+                        f.write_all(&avatar_bytes).await?;
+                        log::info!("Profile avatar saved!");
+                    }
+                    None => match avatar_path.exists() {
+                        true => {
+                            std::fs::remove_file(avatar_path)?;
+                            log::trace!("Profile avatar removed!");
+                        }
+                        false => log::trace!("Profile has no avatar to remove."),
+                    },
+                };
+
+                let uuid = store_profile.r_uuid.to_owned();
+                storage.save_profile(store_profile);
+                Ok(uuid)
+            }
+            .into_actor(self)
+            .map(|res: anyhow::Result<_>, _act, _ctx| {
+                match res {
+                    Ok(uuid) => log::info!("Profile for {} saved!", uuid),
+                    Err(e) => log::error!("Error fetching profile avatar: {}", e),
+                };
+            }),
+        );
     }
 }
