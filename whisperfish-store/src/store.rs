@@ -110,6 +110,20 @@ pub struct NewMessage {
     pub expires_in: Option<std::time::Duration>,
 }
 
+pub struct StoreProfile {
+    pub given_name: Option<String>,
+    pub family_name: Option<String>,
+    pub joined_name: Option<String>,
+    pub about_text: Option<String>,
+    pub emoji: Option<String>,
+    pub avatar: Option<String>,
+    pub unidentified: UnidentifiedAccessMode,
+    pub last_fetch: NaiveDateTime,
+    pub r_uuid: Uuid,
+    pub r_id: i32,
+    pub r_key: Option<Vec<u8>>,
+}
+
 #[derive(Clone, Debug)]
 #[allow(clippy::large_enum_variant)]
 pub enum GroupContext {
@@ -887,6 +901,31 @@ impl Storage {
                 .expect("fetch existing record"),
             true,
         )
+    }
+
+    /// Save profile data to db and trigger GUI update.
+    /// Assumes the avatar image has been saved/deleted in advance.
+    pub fn save_profile(&self, profile: StoreProfile) {
+        use crate::store::schema::recipients::dsl::*;
+        use diesel::prelude::*;
+        diesel::update(recipients)
+            .set((
+                profile_given_name.eq(profile.given_name),
+                profile_family_name.eq(profile.family_name),
+                profile_joined_name.eq(profile.joined_name),
+                about.eq(profile.about_text),
+                about_emoji.eq(profile.emoji),
+                unidentified_access_mode.eq(profile.unidentified),
+                signal_profile_avatar.eq(profile.avatar),
+                last_profile_fetch.eq(profile.last_fetch),
+            ))
+            .filter(uuid.nullable().eq(&profile.r_uuid.to_string()))
+            .execute(&mut *self.db())
+            .expect("db");
+
+        log::trace!("Profile saved to database");
+
+        self.observe_update(schema::recipients::table, profile.r_id);
     }
 
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
