@@ -2003,8 +2003,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                         Err(ServiceError::SignalProtocolError(
                             SignalProtocolError::UntrustedIdentity(addr),
                         )) => {
-                            // This branch is the only one that loops, and it *should not* loop
-                            // more than once.
+                            // This branch is the only one that loops, and it *should not* loop more than once.
                             let source_uuid = Uuid::parse_str(addr.name()).expect("only uuid-based identities accessible in the database");
                             log::warn!("Untrusted identity for {}; replacing identity and inserting a warning.", addr);
                             let recipient = storage.fetch_or_insert_recipient_by_uuid(source_uuid);
@@ -2013,7 +2012,7 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                                 session_id: session.id,
                                 source_e164: None,
                                 source_uuid: Some(source_uuid),
-                                text: "[Whisperfish] The identity key for this contact has changed.  Please verify your safety number.".into(),
+                                text: "[Whisperfish] The identity key for this contact has changed. Please verify your safety number.".into(), // XXX Translate
                                 timestamp: chrono::Utc::now().naive_utc(),
                                 sent: false,
                                 received: true,
@@ -2028,6 +2027,12 @@ impl StreamHandler<Result<Envelope, ServiceError>> for ClientActor {
                                 expires_in: session.expiring_message_timeout,
                             };
                             storage.create_message(&msg);
+
+                            if !recipient.is_registered {
+                                log::warn!("Recipient was marked as unregistered, marking as registered.");
+                                storage.mark_recipient_registered(source_uuid, true);
+                            }
+
                             let removed = storage.delete_identity_key(&addr);
                             if ! removed {
                                 log::error!("Could not remove identity key for {}.  Please file a bug.", addr);
