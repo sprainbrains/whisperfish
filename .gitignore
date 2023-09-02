@@ -9,6 +9,8 @@ moc.*
 qml/i18n/whisperfish_*.qm
 harbour-whisperfish.pro.user
 
+whisperfish.sql
+whisperfish.sqlite
 harbour-whisperfish.o
 translations/*.qm
 libsignal-build/

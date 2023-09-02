@@ -131,6 +131,16 @@ Because of a bug in `sb2`, it is currently not possible to (reliably) build Whis
 
 If you get errors (command not found or status 126) at linking stage, make sure that you are not using `~/.cargo/config` to override linkers or compilers.
 
+## Database
+
+Whisperfish uses SQLCipher to store its data. SQLCipher is essentially SQLite with encryption features.
+Entering a password when registering Whisperfish makes the database encrypted,
+without password it's just a plain SQLite database.
+
+During development it's often handy to have a database or schema at hand.
+If you don't want to mess with your Whisperfish database, or even a copy of it,
+you can create a plain SQLite database with `create-database.sh`.
+
 ## Development environment tips, tricks and hacks
 
 See doc: [Cool hacks for development](doc/dev-env-hacks.md)
