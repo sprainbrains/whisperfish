@@ -436,7 +436,7 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 [[package]]
 name = "blurhash"
 version = "0.1.1"
-source = "git+https://github.com/Raincal/blurhash-rs.git?branch=master#fa6a6a31e6ba416ee651ad09c81368afca595405"
+source = "git+https://github.com/whisperfish/blurhash-rs.git?branch=main#b02b2ec0fb099c252ed5d9d57fe939c2b6576700"
 
 [[package]]
 name = "brotli"
@@ -820,7 +820,7 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "3.2.1"
-source = "git+https://github.com/signalapp/curve25519-dalek?branch=lizard2#4f0aa6653c51598daa0a2f53b8ba54ce0eedfbdd"
+source = "git+https://github.com/signalapp/curve25519-dalek?branch=lizard2#829f52e79c6d920243c8bf30c7f4ee2e8eac5246"
 dependencies = [
  "byteorder",
  "digest 0.9.0",
@@ -1573,7 +1573,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#6d2649d1487a8808dfdf03324502886110d8dab7"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#87899201123b8095cd0f30317620a6d5b7fd652b"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -1606,7 +1606,7 @@ dependencies = [
 [[package]]
 name = "libsignal-service-actix"
 version = "0.1.0"
-source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#6d2649d1487a8808dfdf03324502886110d8dab7"
+source = "git+https://github.com/whisperfish/libsignal-service-rs?branch=main#87899201123b8095cd0f30317620a6d5b7fd652b"
 dependencies = [
  "actix",
  "actix-http",
@@ -2360,8 +2360,8 @@ dependencies = [
 
 [[package]]
 name = "qmetaobject"
-version = "0.2.5"
-source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#f03701ac40b23fd9c90adc5d9c16b56580a14c47"
+version = "0.2.9"
+source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#11e4d6672952473404807e2ba3c3cc01f5f2a106"
 dependencies = [
  "cpp",
  "cpp_build",
@@ -2374,8 +2374,8 @@ dependencies = [
 
 [[package]]
 name = "qmetaobject_impl"
-version = "0.2.5"
-source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#f03701ac40b23fd9c90adc5d9c16b56580a14c47"
+version = "0.2.9"
+source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#11e4d6672952473404807e2ba3c3cc01f5f2a106"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2394,8 +2394,8 @@ dependencies = [
 
 [[package]]
 name = "qttypes"
-version = "0.2.6"
-source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#f03701ac40b23fd9c90adc5d9c16b56580a14c47"
+version = "0.2.9"
+source = "git+https://github.com/sprainbrains/qmetaobject-rs?branch=aurora_whisperfork#11e4d6672952473404807e2ba3c3cc01f5f2a106"
 dependencies = [
  "cpp",
  "cpp_build",

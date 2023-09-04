@@ -285,6 +285,7 @@ Page {
                     "Stephan Lohse" + "\n" +
                     "Alexander Schlarb" + "\n" +
                     "Sebastian Maus" + "\n" +
+                    "Simon Hahne" + "\n" +
                     "carlosgonz"
                 }
             }
@@ -484,6 +485,7 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 text: {
+                    "Nikolai Sinyov" + "\n" +
                     "Николай Синёв"
                 }
             }

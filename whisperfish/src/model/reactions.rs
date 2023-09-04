@@ -166,7 +166,7 @@ impl QAbstractListModel for ReactionListModel {
     fn role_names(&self) -> HashMap<i32, QByteArray> {
         ReactionRoles::role_names()
             .into_iter()
-            .chain(RecipientRoles::role_names().into_iter())
+            .chain(RecipientRoles::role_names())
             .collect()
     }
 }

@@ -162,6 +162,16 @@ For Aurora OS you need to set up a patched version of Rust.
    For Sailfish 4.2 and older, use `shareplugin_v1` instead.
 
 
+## Database
+
+Whisperfish uses SQLCipher to store its data. SQLCipher is essentially SQLite with encryption features.
+Entering a password when registering Whisperfish makes the database encrypted,
+without password it's just a plain SQLite database.
+
+During development it's often handy to have a database or schema at hand.
+If you don't want to mess with your Whisperfish database, or even a copy of it,
+you can create a plain SQLite database with `create-database.sh`.
+
 ## Development environment tips, tricks and hacks
 
 See doc: [Cool hacks for development](doc/dev-env-hacks.md)

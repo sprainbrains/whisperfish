@@ -417,7 +417,7 @@ impl SettingsBridge {
         let settings = self.inner_mut();
         let old_path = ".local/share/harbour-whisperfish";
         let new_path = ".local/share/be.rubdos/harbour-whisperfish";
-        let keys = vec!["attachment_dir", "camera_dir"];
+        let keys = ["attachment_dir", "camera_dir"];
         for key in keys.iter() {
             if settings.contains("attachment_dir") {
                 settings.set_string(

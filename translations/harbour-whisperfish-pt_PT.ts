@@ -154,7 +154,7 @@
         <source>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!</source>
         <oldsource>Whisperfish is an unofficial, but advanced Signal client for Sailfish OS. Whisperfish is highly usable, but is still considered beta quality software. Make sure to update regularily! Also, check our Wiki and feel free to contribute to it! Do not ever contact the Signal developers about a Whisperfish issue, contact us instead!.</oldsource>
         <extracomment>Whisperfish description, longer version, also for Jolla Store</extracomment>
-        <translation type="unfinished">Whisperfish é um cliente Signal não oficial para o Sailfish OS. A usabilidade já é boa, mas ainda é considerado software de qualidade beta. Atualiza-o frequentemente! Dá também uma espreitadela no Wiki e está à vontade para contribuir. Nunca contactes os programadores do Signal com assuntos relacionados com o Whisperfish, entra sim em contacto connosco!</translation>
+        <translation>O Whisperfish é um cliente não oficial, mas avançado, para o Signal no Sailfish OS. O Whisperfish tem uma elevada usabilidade, contudo ainda é considerado software de qualidade beta. Atualiza-o frequentemente! Consulta o nosso Wiki e está à vontade para contribuir. Nunca contactes os programadores do Signal com assuntos relacionados com o Whisperfish, entra sim em contacto connosco!</translation>
     </message>
     <message id="whisperfish-build-id">
         <location filename="../qml/pages/About.qml" line="78"/>
@@ -211,103 +211,103 @@
         <translation>Tradutores de Alemão</translation>
     </message>
     <message id="whisperfish-translators-fr">
-        <location filename="../qml/pages/About.qml" line="295"/>
+        <location filename="../qml/pages/About.qml" line="296"/>
         <source>French translators</source>
         <extracomment>French (fr) language about page translation section</extracomment>
         <translation>Tradutores de Francês</translation>
     </message>
     <message id="whisperfish-translators-fi">
-        <location filename="../qml/pages/About.qml" line="315"/>
+        <location filename="../qml/pages/About.qml" line="316"/>
         <source>Finnish translators</source>
         <extracomment>Finnish (fi) language about page translation section</extracomment>
         <translation>Tradutores de Filandês</translation>
     </message>
     <message id="whisperfish-translators-sl">
-        <location filename="../qml/pages/About.qml" line="336"/>
+        <location filename="../qml/pages/About.qml" line="337"/>
         <source>Slovenian translators</source>
         <extracomment>Slovenian (sl) language about page translation section</extracomment>
         <translation>Tradutores de Esloveno</translation>
     </message>
     <message id="whisperfish-translators-sv">
-        <location filename="../qml/pages/About.qml" line="352"/>
+        <location filename="../qml/pages/About.qml" line="353"/>
         <source>Swedish translators</source>
         <extracomment>Swedish (sv) language about page translation section</extracomment>
         <translation>Tradutores de Sueco</translation>
     </message>
     <message id="whisperfish-translators-pl">
-        <location filename="../qml/pages/About.qml" line="371"/>
+        <location filename="../qml/pages/About.qml" line="372"/>
         <source>Polish translators</source>
         <extracomment>Polish (pl) language about page translation section</extracomment>
         <translation>Tradutores de Polaco</translation>
     </message>
     <message id="whisperfish-translators-zh_CN">
-        <location filename="../qml/pages/About.qml" line="390"/>
+        <location filename="../qml/pages/About.qml" line="391"/>
         <source>Chinese (Simplified) translators</source>
         <extracomment>Chinese (Simplified) (zh_CN) language about page translation section</extracomment>
         <translation>Tradutores de Chinês (Simplificado)</translation>
     </message>
     <message id="whisperfish-translators-hu">
-        <location filename="../qml/pages/About.qml" line="409"/>
+        <location filename="../qml/pages/About.qml" line="410"/>
         <source>Hungarian translators</source>
         <extracomment>Hungarian (hu) language about page translation section</extracomment>
         <translation>Tradutores de Húngaro</translation>
     </message>
     <message id="whisperfish-translators-pt_PT">
-        <location filename="../qml/pages/About.qml" line="427"/>
+        <location filename="../qml/pages/About.qml" line="428"/>
         <source>Portuguese (Portugal) translators</source>
         <extracomment>Portuguese (Portugal) (pt_PT) language about page translation section</extracomment>
         <translation>Tradutores de Português (Portugal)</translation>
     </message>
     <message id="whisperfish-translators-cs">
-        <location filename="../qml/pages/About.qml" line="446"/>
+        <location filename="../qml/pages/About.qml" line="447"/>
         <source>Czech translators</source>
         <extracomment>Czech (cs) language about page translation section</extracomment>
         <translation>Tradutores de Checo</translation>
     </message>
     <message id="whisperfish-translators-ca">
-        <location filename="../qml/pages/About.qml" line="462"/>
+        <location filename="../qml/pages/About.qml" line="463"/>
         <source>Catalan translators</source>
         <extracomment>Catalan (ca) language about page translation section</extracomment>
         <translation>Tradutores de Catalão</translation>
     </message>
     <message id="whisperfish-translators-ru">
-        <location filename="../qml/pages/About.qml" line="478"/>
+        <location filename="../qml/pages/About.qml" line="479"/>
         <source>Russian translators</source>
         <extracomment>Russian (ru) language about page translation section</extracomment>
         <translation>Tradutores de Russo</translation>
     </message>
     <message id="whisperfish-translators-pt_BR">
-        <location filename="../qml/pages/About.qml" line="494"/>
+        <location filename="../qml/pages/About.qml" line="496"/>
         <source>Portuguese (Brazil) translators</source>
         <extracomment>Portuguese (Brazil) (pt_BR) language about page translation section</extracomment>
         <translation>Tradutores de Português (Brasil)</translation>
     </message>
     <message id="whisperfish-translators-ro">
-        <location filename="../qml/pages/About.qml" line="511"/>
+        <location filename="../qml/pages/About.qml" line="513"/>
         <source>Romanian translators</source>
         <extracomment>Romanian (ro) language about page translation section</extracomment>
         <translation>Tradutores de Romeno</translation>
     </message>
     <message id="whisperfish-translators-tr">
-        <location filename="../qml/pages/About.qml" line="527"/>
+        <location filename="../qml/pages/About.qml" line="529"/>
         <source>Turkish translators</source>
         <extracomment>Turkish (tr) language about page translation section</extracomment>
         <translation>Tradutores de Turco</translation>
     </message>
     <message id="whisperfish-translators-el">
-        <location filename="../qml/pages/About.qml" line="543"/>
+        <location filename="../qml/pages/About.qml" line="545"/>
         <source>Greek translators</source>
         <extracomment>Greek (el) language about page translation section</extracomment>
         <translation>Tradutores de Grego</translation>
     </message>
     <message id="whisperfish-translators-eu">
-        <location filename="../qml/pages/About.qml" line="560"/>
+        <location filename="../qml/pages/About.qml" line="562"/>
         <source>Basque translators</source>
         <extracomment>Basque (eu) language about page translation section</extracomment>
         <translation>Tradutores de Basco</translation>
     </message>
     <message id="whisperfish-translators-es">
-        <location filename="../qml/pages/About.qml" line="576"/>
+        <location filename="../qml/pages/About.qml" line="578"/>
         <source>Spanish translators</source>
         <extracomment>Spanish (es) language about page translation section</extracomment>
         <translation>Tradutores de Espanhol</translation>
@@ -458,25 +458,32 @@
         <translation>Direitos de autor adicionais</translation>
     </message>
     <message id="whisperfish-add-confirm">
-        <location filename="../qml/pages/AddDevice.qml" line="25"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="25"/>
         <source>Add</source>
         <extracomment>&quot;Add&quot; message, shown in the link device dialog</extracomment>
         <translation>Adicionar</translation>
     </message>
     <message id="whisperfish-add-device">
-        <location filename="../qml/pages/AddDevice.qml" line="33"/>
+        <location filename="../qml/pages/AddDevice.qml" line="42"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="33"/>
         <source>Add Device</source>
         <extracomment>Add Device, shown as pull-down menu item</extracomment>
         <translation>Adicionar dispositivo</translation>
     </message>
+    <message id="whisperfish-qr-scanning-instructions">
+        <location filename="../qml/pages/AddDevice.qml" line="82"/>
+        <source>Scan the QR code displayed by the Signal application that you wish to link</source>
+        <extracomment>Instructions on how to scan QR code for device linking</extracomment>
+        <translation>Digitaliza o código QR mostrado pela aplicação Signal que queres ligar</translation>
+    </message>
     <message id="whisperfish-device-url">
-        <location filename="../qml/pages/AddDevice.qml" line="43"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="43"/>
         <source>Device URL</source>
         <extracomment>Device URL, text input for pasting the QR-scanned code</extracomment>
         <translation>Endereço do dispositivo</translation>
     </message>
     <message id="whisperfish-device-link-instructions">
-        <location filename="../qml/pages/AddDevice.qml" line="76"/>
+        <location filename="../qml/pages/OldAddDevice.qml" line="76"/>
         <source>Install Signal Desktop. Use the CodeReader application to scan the QR code displayed on Signal Desktop and copy and paste the URL here.</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
         <translation>Instala o Signal Desktop. Usa a aplicação CodeReader para ler o código QR exibido no Signal Desktop e copia o endereço para aqui.</translation>
@@ -596,50 +603,50 @@
         <translation>Adicionar</translation>
     </message>
     <message id="whisperfish-refresh-linked-devices">
-        <location filename="../qml/pages/LinkedDevices.qml" line="31"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="36"/>
         <source>Refresh</source>
         <extracomment>Menu option to refresh linked devices</extracomment>
         <translation>Atualizar</translation>
     </message>
     <message id="whisperfish-linked-devices">
-        <location filename="../qml/pages/LinkedDevices.qml" line="40"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="45"/>
         <source>Linked Devices</source>
         <extracomment>Title for Linked Devices page</extracomment>
         <translation>Dispositivos associados</translation>
     </message>
     <message id="whisperfish-device-unlink-message">
-        <location filename="../qml/pages/LinkedDevices.qml" line="50"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="60"/>
         <source>Unlinked</source>
         <oldsource>Unlinking</oldsource>
         <extracomment>Unlinking remorse info message for unlinking secondary devices (past tense)</extracomment>
         <translation>Não associado</translation>
     </message>
     <message id="whisperfish-current-device-name">
-        <location filename="../qml/pages/LinkedDevices.qml" line="67"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="77"/>
         <source>Current device (Whisperfish, %1)</source>
         <extracomment>Linked device title for current Whisperfish</extracomment>
         <translation>Dispositivo atual (Whisperfish, %1)</translation>
     </message>
     <message id="whisperfish-device-name">
-        <location filename="../qml/pages/LinkedDevices.qml" line="71"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="81"/>
         <source>Device %1</source>
         <extracomment>Linked device name</extracomment>
         <translation>Dispositivo %1</translation>
     </message>
     <message id="whisperfish-device-link-date">
-        <location filename="../qml/pages/LinkedDevices.qml" line="85"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="95"/>
         <source>Linked: %1</source>
         <extracomment>Linked device date</extracomment>
         <translation>Associado: %1</translation>
     </message>
     <message id="whisperfish-device-last-active">
-        <location filename="../qml/pages/LinkedDevices.qml" line="116"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="126"/>
         <source>Last active: %1</source>
         <extracomment>Linked device last active date</extracomment>
         <translation>Última atividade: %1</translation>
     </message>
     <message id="whisperfish-device-unlink">
-        <location filename="../qml/pages/LinkedDevices.qml" line="138"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="148"/>
         <source>Unlink</source>
         <extracomment>Device unlink menu option</extracomment>
         <translation>Desassociar</translation>
@@ -710,40 +717,46 @@
         <extracomment>Whisperfish locked message</extracomment>
         <translation>Bloqueado</translation>
     </message>
+    <message id="whisperfish-no-messages-hint-text-237">
+        <location filename="../qml/pages/MainPage.qml" line="265"/>
+        <source>Start a new conversation through a linked device, or let someone message you</source>
+        <extracomment>No messages found, hint on what to do</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
     <message id="whisperfish-no-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="263"/>
+        <location filename="../qml/pages/MainPage.qml" line="271"/>
         <source>Pull down to start a new conversation.</source>
         <extracomment>No messages found, hint on what to do</extracomment>
         <translation>Desliza para baixo para iniciar uma nova conversa.</translation>
     </message>
     <message id="whisperfish-no-archived-messages-hint-text">
-        <location filename="../qml/pages/MainPage.qml" line="267"/>
+        <location filename="../qml/pages/MainPage.qml" line="275"/>
         <source>No archived conversations</source>
         <extracomment>Showing archived conversations, but the list is empty</extracomment>
         <translation>Sem conversas arquivadas</translation>
     </message>
     <message id="whisperfish-session-section-pinned">
-        <location filename="../qml/pages/MainPage.qml" line="285"/>
+        <location filename="../qml/pages/MainPage.qml" line="293"/>
         <source>Pinned</source>
         <extracomment>Session section label for pinned messages</extracomment>
         <translation>Afixado</translation>
     </message>
     <message id="whisperfish-session-section-today">
-        <location filename="../qml/pages/LinkedDevices.qml" line="107"/>
-        <location filename="../qml/pages/MainPage.qml" line="290"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="117"/>
+        <location filename="../qml/pages/MainPage.qml" line="298"/>
         <source>Today</source>
         <extracomment>Session section label for today</extracomment>
         <translation>Hoje</translation>
     </message>
     <message id="whisperfish-session-section-yesterday">
-        <location filename="../qml/pages/LinkedDevices.qml" line="110"/>
-        <location filename="../qml/pages/MainPage.qml" line="295"/>
+        <location filename="../qml/pages/LinkedDevices.qml" line="120"/>
+        <location filename="../qml/pages/MainPage.qml" line="303"/>
         <source>Yesterday</source>
         <extracomment>Session section label for yesterday</extracomment>
         <translation>Ontem</translation>
     </message>
     <message id="whisperfish-session-section-older">
-        <location filename="../qml/pages/MainPage.qml" line="300"/>
+        <location filename="../qml/pages/MainPage.qml" line="308"/>
         <source>Older</source>
         <extracomment>Session section label for older</extracomment>
         <translation>Mais antigas</translation>
@@ -767,9 +780,9 @@
         <location filename="../qml/components/MessagesView.qml" line="178"/>
         <source>Deleted %n message(s) for everyone</source>
         <extracomment>Remorse: *globally* deleted one or multiple message (past tense)</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n mensagem eliminada para todos</numerusform>
+            <numerusform>%n mensagens eliminadas para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-copy-message-menu">
@@ -1124,7 +1137,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProofSubmitPage.qml" line="100"/>
         <location filename="../qml/pages/RegisterPage.qml" line="258"/>
         <location filename="../qml/pages/SetupPasswordPage.qml" line="130"/>
-        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="140"/>
+        <location filename="../qml/pages/VerifyRegistrationPage.qml" line="130"/>
         <source>Continue</source>
         <extracomment>continue button label</extracomment>
         <translation>Continuar</translation>
@@ -1271,7 +1284,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="330"/>
         <source>Unlock Password</source>
         <extracomment>Settings page autostart password field</extracomment>
-        <translation>Senha</translation>
+        <translation>Desbloquear Senha</translation>
     </message>
     <message id="whisperfish-settings-save-password-button">
         <location filename="../qml/pages/Settings.qml" line="342"/>
@@ -1503,7 +1516,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="500"/>
         <source>Test captcha</source>
         <extracomment>Settings page, test captcha button</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Testar o captcha</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="511"/>
@@ -1521,7 +1534,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="520"/>
         <source>Connected</source>
         <extracomment>Settings page connected message</extracomment>
-        <translation>Ligado</translation>
+        <translation>Conectado</translation>
     </message>
     <message id="whisperfish-settings-disconnected">
         <location filename="../qml/pages/Settings.qml" line="523"/>
@@ -1745,19 +1758,19 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="388"/>
         <source>Post-quantum keys in use</source>
         <extracomment>Profile page: whether a contact has post-quantum secure sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Chaves pós-quânticas em uso</translation>
     </message>
     <message id="whisperfish-profile-pq-enabled-description">
         <location filename="../qml/pages/ProfilePage.qml" line="391"/>
         <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
         <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Se indicado, esta sessão foi inicializado com criptografia segura pós-quântica.</translation>
     </message>
     <message id="whisperfish-kyber-click-explanation">
         <location filename="../qml/pages/ProfilePage.qml" line="401"/>
         <source>Session reset for post-quantum upgrade</source>
         <extracomment>Upgrading the session to Kyber remorse popup, past tense</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sessão reiniciada para atualização pós-quântica</translation>
     </message>
     <message id="whisperfish-own-profile-help-text">
         <location filename="../qml/pages/ProfilePage.qml" line="423"/>
@@ -1871,7 +1884,7 @@ Settings page share contacts</extracomment>
         <translation>Escreve uma mensagem</translation>
     </message>
     <message id="whisperfish-select-attachments-page-title">
-        <location filename="../qml/components/ChatTextInput.qml" line="369"/>
+        <location filename="../qml/components/ChatTextInput.qml" line="371"/>
         <source>Select attachments</source>
         <extracomment>Attachment picker page title</extracomment>
         <translation>Seleciona anexos</translation>
@@ -1945,7 +1958,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/delegates/SessionDelegate.qml" line="39"/>
         <source>this message was deleted</source>
         <extracomment>Placeholder note for a deleted message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>esta mensagem foi eliminada</translation>
     </message>
     <message id="whisperfish-message-empty-note">
         <location filename="../qml/delegates/MessageDelegate.qml" line="252"/>
@@ -2070,7 +2083,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewImagePage.qml" line="66"/>
         <source>Export image</source>
         <extracomment>Copy the attachment image out of Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar imagem</translation>
     </message>
     <message id="whisperfish-view-image-page-loading">
         <location filename="../qml/pages/ViewImagePage.qml" line="268"/>
@@ -2088,7 +2101,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ViewVideoPage.qml" line="57"/>
         <source>Export video</source>
         <extracomment>Copy the attachment video out of Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar vídeo</translation>
     </message>
     <message id="whisperfish-view-video-page-error">
         <location filename="../qml/pages/ViewVideoPage.qml" line="124"/>
@@ -2158,8 +2171,8 @@ Settings page share contacts</extracomment>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
         <translation>
-            <numerusform>Apagar %n mensagem em todos os locais</numerusform>
-            <numerusform>Apagar %n mensagens em todos os locais</numerusform>
+            <numerusform>Apagar %n mensagem para todos</numerusform>
+            <numerusform>Apagar %n mensagens para todos</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -2258,7 +2271,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/TestCaptchaPage.qml" line="15"/>
         <source>Captcha Test</source>
         <extracomment>Captcha test page title</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Teste do Captcha</translation>
     </message>
     <message id="whisperfish-captcha-test-message">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="19"/>
@@ -2266,31 +2279,31 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/TestCaptchaPage.qml" line="84"/>
         <source>You can use this page to test the Whisperfish captcha challenge integration</source>
         <extracomment>Captcha test page description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Podes usar esta página para testar a integração do desafio captcha no Whisperfish</translation>
     </message>
     <message id="whisperfish-captcha-test-success">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="56"/>
         <source>Captcha token received!</source>
         <extracomment>Captcha test successful message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Token do captcha recebido!</translation>
     </message>
     <message id="whisperfish-start-test-button-label">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="80"/>
         <source>Start</source>
         <extracomment>continue button label</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar</translation>
     </message>
     <message id="whisperfish-captcha-test-started">
         <location filename="../qml/pages/TestCaptchaPage.qml" line="87"/>
         <source>Test started...</source>
         <extracomment>Captcha test has been started message</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Teste iniciado...</translation>
     </message>
     <message id="whisperfish-export-file-menu">
         <location filename="../qml/pages/ViewFilePage.qml" line="28"/>
         <source>Export file</source>
         <extracomment>Copy the attachment file out of Whisperfish</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Exportar ficheiro</translation>
     </message>
 </context>
 </TS>

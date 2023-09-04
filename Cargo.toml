@@ -14,15 +14,15 @@ zkgroup = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "w
 poksho = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 zkcredential = { git = "https://gitlab.com/whisperfish/libsignal-client", branch = "whisperfork" }
 
-# [patch.crates-io]
-# qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
-
 [patch.crates-io]
 curve25519-dalek = { git = 'https://github.com/signalapp/curve25519-dalek', branch = 'lizard2' }
 
 qmetaobject = { git = "https://github.com/sprainbrains/qmetaobject-rs", branch = "aurora_whisperfork" }
 qttypes = { git = "https://github.com/sprainbrains/qmetaobject-rs", branch = "aurora_whisperfork" }
 pqcrypto-internals = { git = "https://github.com/whisperfish/pqcrypto", branch = "whisperfork" }
+
+# qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
+# qttypes = { path="../qmetaobject-rs/qttypes" }
 
 # [patch."https://github.com/whisperfish/libsignal-service-rs"]
 # libsignal-service = { path = "/home/rsmet/src/libsignal-service-rs/libsignal-service" }

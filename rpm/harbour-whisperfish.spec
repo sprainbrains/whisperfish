@@ -31,6 +31,9 @@ Requires:   sailfish-components-webview-qt5
 #Requires:   openssl-libs
 #Requires:   dbus
 Requires: nemo-qml-plugin-dbus-qt5
+Requires: sailfish-components-webview-qt5
+Requires: sailfish-components-webview-qt5-popups
+Requires: sailfish-components-webview-qt5-pickers
 
 #Requires:  qtmozembed-qt5
 
