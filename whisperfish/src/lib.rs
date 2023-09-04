@@ -19,7 +19,7 @@ pub fn conf_dir() -> std::path::PathBuf {
     let conf_dir = dirs::config_dir()
         .expect("config directory")
         .join("be.rubdos")
-        .join("harbour-whisperfish");
+        .join("harbour.whisperfish");
 
     if !conf_dir.exists() {
         std::fs::create_dir(&conf_dir).unwrap();

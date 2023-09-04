@@ -11,7 +11,7 @@ static QLEVEL: &[Level] = &[
     Level::Error, // 6 = _
 ];
 
-const FILE_START: &str = "file:///usr/share/harbour-whisperfish/";
+const FILE_START: &str = "file:///usr/share/be.rubdos.harbour.whisperfish/";
 
 #[no_mangle]
 pub extern "C" fn log_qt(msg_type: QtMsgType, msg_context: &QMessageLogContext, msg: &QString) {

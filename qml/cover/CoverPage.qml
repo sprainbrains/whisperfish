@@ -147,7 +147,7 @@ CoverBackground {
     }
 
     Image {
-        source: "/usr/share/harbour-whisperfish/icons/172x172/cover-background.png"
+        source: "/usr/share/be.rubdos.harbour.whisperfish/icons/172x172/cover-background.png"
         anchors.centerIn: parent
         width: Math.max(parent.width, parent.height)
         height: width
@@ -161,11 +161,11 @@ CoverBackground {
         CoverAction {
             iconSource: {
                 if (ClientWorker.connected) {
-                    return "/usr/share/harbour-whisperfish/icons/172x172/connected.png"
+                    return "/usr/share/be.rubdos.harbour.whisperfish/icons/172x172/connected.png"
                 } else if (!ClientWorker.connected) {
-                    return "/usr/share/harbour-whisperfish/icons/172x172/disconnected.png"
+                    return "/usr/share/be.rubdos.harbour.whisperfish/icons/172x172/disconnected.png"
                 } else {
-                    return "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+                    return "/usr/share/icons/hicolor/172x172/apps/be.rubdos.harbour.whisperfish.png"
                 }
             }
             onTriggered: {

@@ -229,7 +229,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
 
             // Register types
             {
-                let uri = cstr!("be.rubdos.harbour.whisperfish");
+                let uri = cstr!("be.rubdos.whisperfish");
                 qml_register_type::<model::Sessions>(uri, 1, 0, cstr!("Sessions"));
                 qml_register_type::<model::Session>(uri, 1, 0, cstr!("Session"));
                 qml_register_type::<model::CreateConversation>(
