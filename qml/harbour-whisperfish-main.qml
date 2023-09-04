@@ -24,21 +24,21 @@ ApplicationWindow
     // methods (showMainPage() etc.)
     property bool fatalOccurred: false
 
-    property alias contactsReady: resolvePeopleModel.populated
+    //property alias contactsReady: resolvePeopleModel.populated
 
     property string shareClientId: ""
     property string proofCaptchaToken: ''
 
-    PeopleModel {
-        id: resolvePeopleModel
+    // PeopleModel {
+    //     id: resolvePeopleModel
 
-        // Specify the PhoneNumberRequired flag to ensure that all phone number
-        // data will be loaded before the model emits populated.
-        // This ensures that we resolve numbers to contacts appropriately, in
-        // the case where we attempt to message a newly-created contact via
-        // the action shortcut icon in the contact card.
-        requiredProperty: PeopleModel.PhoneNumberRequired
-    }
+    //     // Specify the PhoneNumberRequired flag to ensure that all phone number
+    //     // data will be loaded before the model emits populated.
+    //     // This ensures that we resolve numbers to contacts appropriately, in
+    //     // the case where we attempt to message a newly-created contact via
+    //     // the action shortcut icon in the contact card.
+    //     requiredProperty: PeopleModel.PhoneNumberRequired
+    // }
 
     Component {
         id: messageNotification
@@ -77,7 +77,8 @@ ApplicationWindow
     // user selected preference. Do not use for groups (there's no choice).
     function getRecipientAvatar(e164, uuid) {
         // Only try to search for contact name if contact is a phone number
-        var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        //var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        var contact = null
 
         var contact_avatar = (contact && contact.avatarPath) ? contact.avatarPath.toString() : null
         var contact_avatar_ok = (contact_avatar !== null) && (contact_avatar !== 'image://theme/icon-m-telephony-contact-avatar')
@@ -124,7 +125,9 @@ ApplicationWindow
         }
 
         // Only try to search for contact name if contact is a phone number
-        var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        //var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
+        var contact = null
+
         if(SettingsBridge.prefer_device_contacts) {
             return (contact && contact.displayLabel !== '') ? contact.displayLabel : recipientName
         } else {
