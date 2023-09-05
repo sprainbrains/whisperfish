@@ -21,7 +21,7 @@ CoverBackground {
         horizontalAlignment: Text.AlignHCenter
         width: parent.width * 0.3
         height: width
-        source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+        source: "/usr/share/icons/hicolor/172x172/apps/be.rubdos.harbour.whisperfish.png"
         anchors {
             bottom: parent.bottom
             bottomMargin: Theme.itemSizeHuge

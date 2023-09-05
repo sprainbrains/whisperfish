@@ -24,7 +24,7 @@ Page {
 
             Image {
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: "/usr/share/icons/hicolor/172x172/apps/harbour-whisperfish.png"
+                source: "/usr/share/icons/hicolor/172x172/apps/be.rubdos.harbour.whisperfish.png"
             }
 
             Label {

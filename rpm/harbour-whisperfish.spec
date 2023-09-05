@@ -305,7 +305,7 @@ lrelease -idbased %{_sourcedir}/../translations/*.ts
 %{__mkdir_p} %{_sourcedir}/../translations_new/
 %{__cp} -r %{_sourcedir}/../translations/*.qm %{_sourcedir}/../translations_new/
 
-rename 'harbour-whisperfish' '%{name}' %{_sourcedir}/../translations_new/*.qm
+rename 'harbour-whisperfish' 'harbour.whisperfish' %{_sourcedir}/../translations_new/*.qm
 
 install -d %{buildroot}%{_datadir}/%{name}/translations
 
