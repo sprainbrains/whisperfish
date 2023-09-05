@@ -84,7 +84,7 @@ Label {
     onLinkActivated: defaultLinkActions ? linkedTextProxy.linkActivated(link) : {}
     linkColor: color
 
-    LinkedText {
+    LinkedLabel {
         id: linkedTextProxy
         visible: false
         plainText: _elideEnabled ? elideFixProxy.elidedText :
