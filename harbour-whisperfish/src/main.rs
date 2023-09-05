@@ -194,7 +194,7 @@ fn main() {
     qtlog::enable();
 
     const MAX_LOGFILE_COUNT: usize = 5;
-    const LOGFILE_REGEX: &str = r"harbour-whisperfish.\d{8}_\d{6}\.log";
+    const LOGFILE_REGEX: &str = r"harbour.whisperfish.\d{8}_\d{6}\.log";
     if config.logfile {
         store::Storage::clear_old_logs(&shared_dir, MAX_LOGFILE_COUNT, LOGFILE_REGEX);
     }
@@ -218,12 +218,12 @@ fn dbus_show_app() -> Result<(), dbus::Error> {
 
     let c = Connection::new_session()?;
     let proxy = c.with_proxy(
-        "be.rubdos.whisperfish",
-        "/be/rubdos/whisperfish/app",
+        "be.rubdos.harbour.whisperfish",
+        "/be/rubdos/harbour/whisperfish/app",
         Duration::from_millis(20000),
     );
 
-    proxy.method_call("be.rubdos.whisperfish.app", "show", ())
+    proxy.method_call("be.rubdos.harbour.whisperfish.app", "show", ())
 }
 
 fn dbus_quit_app() -> Result<(), dbus::Error> {
@@ -236,7 +236,7 @@ fn dbus_quit_app() -> Result<(), dbus::Error> {
         Duration::from_millis(1000),
     );
 
-    proxy.method_call("be.rubdos.whisperfish.app", "quit", ())
+    proxy.method_call("be.rubdos.harbour.whisperfish.app", "quit", ())
 }
 
 fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
