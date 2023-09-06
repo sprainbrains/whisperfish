@@ -191,7 +191,7 @@ pub fn default_location() -> Result<StorageLocation<PathBuf>, anyhow::Error> {
     let data_dir = dirs::data_local_dir().context("Could not find data directory.")?;
 
     Ok(StorageLocation::Path(
-        data_dir.join("be.rubdos").join("harbour-whisperfish"),
+        data_dir.join("be.rubdos").join("harbour.whisperfish"),
     ))
 }
 
@@ -212,7 +212,7 @@ impl<P: AsRef<Path>> StorageLocation<P> {
             StorageLocation::Path(p) => p
                 .as_ref()
                 .join("db")
-                .join("harbour-whisperfish.db")
+                .join("harbour.whisperfish.db")
                 .to_str()
                 .context("path to db contains a non-UTF8 character, please file a bug.")?
                 .to_string(),
@@ -2601,7 +2601,7 @@ impl Storage {
         let old_db = &old_path.join("db");
         let old_storage = &old_path.join("storage");
 
-        let new_path = data_dir.join("be.rubdos").join("harbour-whisperfish");
+        let new_path = data_dir.join("be.rubdos").join("harbour.whisperfish");
         let new_db = &new_path.join("db");
         let new_storage = &new_path.join("storage");
 

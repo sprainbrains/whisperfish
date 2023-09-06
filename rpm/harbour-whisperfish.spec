@@ -112,7 +112,7 @@ Recommends:    %{name}-shareplugin
 %{summary}
 
 %prep
-%setup -q -n %{?with_harbour:harbour-}whisperfish
+%setup -q -n %{?with_harbour:harbour.}whisperfish
 
 # harbour-whisperfish-shareplugin
 %if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )

@@ -296,9 +296,9 @@ ApplicationWindow
     }
 
     DBusAdaptor {
-        service: "be.rubdos.whisperfish"
-        path: "/be/rubdos/whisperfish/app"
-        iface: "be.rubdos.whisperfish.app"
+        service: "be.rubdos.harbour.whisperfish"
+        path: "/be/rubdos/harbour/whisperfish/app"
+        iface: "be.rubdos.harbour.whisperfish.app"
 
         function show() {
             console.log("DBus app.show() call received")
@@ -350,9 +350,9 @@ ApplicationWindow
     }
     DBusInterface {
         id: dbusShareClient
-        service: "be.rubdos.whisperfish.shareClient.c" + shareClientId
-        path: "/be/rubdos/whisperfish/shareClient/c" + shareClientId
-        iface: "be.rubdos.whisperfish.shareClient"
+        service: "be.rubdos.harbour.whisperfish.shareClient.c" + shareClientId
+        path: "/be/rubdos/harbour.whisperfish/shareClient/c" + shareClientId
+        iface: "be.rubdos.harbour.whisperfish.shareClient"
     }
 
     function clearNotifications(sid) {

@@ -10,7 +10,7 @@ use simplelog::*;
 
 /// Unofficial but advanced Signal client for Sailfish OS
 #[derive(StructOpt, Debug)]
-#[structopt(name = "harbour-whisperfish")]
+#[structopt(name = "harbour.whisperfish")]
 struct Opts {
     /// Captcha override
     ///
@@ -136,7 +136,7 @@ fn main() {
     let shared_dir = config.get_share_dir();
 
     let log_file_path = shared_dir.join(format!(
-        "harbour-whisperfish.{}.log",
+        "harbour.whisperfish.{}.log",
         // Keep in sync with regex above
         chrono::Utc::now().format("%Y%m%d_%H%M%S")
     ));
@@ -231,8 +231,8 @@ fn dbus_quit_app() -> Result<(), dbus::Error> {
 
     let c = Connection::new_session()?;
     let proxy = c.with_proxy(
-        "be.rubdos.whisperfish",
-        "/be/rubdos/whisperfish/app",
+        "be.rubdos.harbour.whisperfish",
+        "/be/rubdos/harbour/whisperfish/app",
         Duration::from_millis(1000),
     );
 

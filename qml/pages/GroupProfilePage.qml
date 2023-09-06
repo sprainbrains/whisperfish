@@ -344,7 +344,7 @@ Page {
                                       qsTrId("whisperfish-unknown-contact") :
                                       name)
                     }
-                    LinkedText {
+                    LinkedLabel {
                         id: phonenumberLink
                         linkColor: color
                         color: item.down ? Theme.secondaryHighlightColor :

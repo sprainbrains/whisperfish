@@ -9,8 +9,9 @@ Exec=be.rubdos.harbour.whisperfish
 Icon=be.rubdos.harbour.whisperfish
 X-Desktop-File-Install-Version=0.20
 
-[X-Application]
-Permissions=Internet;Pictures;MediaIndexing;Documents;Downloads;Videos;Audio;UserDirs;WebView;Camera;Microphone;RemovableMedia;PublicDir;
+
+[X-Sailjail]
+Permissions=Internet;Pictures;MediaIndexing;Documents;Downloads;Music;Videos;Audio;UserDirs;WebView;Camera;Microphone;RemovableMedia;PublicDir;
 OrganizationName=be.rubdos
 ApplicationName=harbour.whisperfish
 ExportDBusInterfaces=be.rubdos.harbour.whisperfish

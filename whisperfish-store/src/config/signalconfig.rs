@@ -114,7 +114,7 @@ impl SignalConfig {
 
         let old_path = config_dir.join("harbour-whisperfish");
 
-        let new_path = config_dir.join("be.rubdos").join("harbour-whisperfish");
+        let new_path = config_dir.join("be.rubdos").join("harbour.whisperfish");
 
         let old_file = &old_path.join("config.yml");
         let new_file = &new_path.join("config.yml");
@@ -151,7 +151,7 @@ impl SignalConfig {
         let path = dirs::config_dir()
             .context("Could not get xdg config directory path")?
             .join("be.rubdos")
-            .join("harbour-whisperfish")
+            .join("harbour.whisperfish")
             .join("config.yml");
 
         let fd = std::fs::File::open(&path)
@@ -167,7 +167,7 @@ impl SignalConfig {
             // XXX use anyhow context here
             .expect("No config directory found")
             .join("be.rubdos")
-            .join("harbour-whisperfish");
+            .join("harbour.whisperfish");
 
         // create config directory if it does not exist
         if !path.exists() {
@@ -195,7 +195,7 @@ impl SignalConfig {
     }
 
     pub fn attachments_regex(&self) -> regex::Regex {
-        regex::Regex::new(r"/home/[a-zA-Z][a-zA-Z0-9]*/\.local/share(/be.rubdos)?/harbour-whisperfish/storage/(attachments|camera)/([a-zA-Z0-9_-]+\.[a-zA-Z0-9]+)").unwrap()
+        regex::Regex::new(r"/home/[a-zA-Z][a-zA-Z0-9]*/\.local/share(/be.rubdos)?/harbour.whisperfish/storage/(attachments|camera)/([a-zA-Z0-9_-]+\.[a-zA-Z0-9]+)").unwrap()
     }
 
     pub fn default_attachment_dir(&self) -> std::path::PathBuf {

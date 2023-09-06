@@ -72,8 +72,8 @@ impl Default for SettingsBridge {
                     .context("Could not get xdg config directory path")
                     .unwrap()
                     .join("be.rubdos")
-                    .join("harbour-whisperfish")
-                    .join("harbour-whisperfish.conf")
+                    .join("harbour.whisperfish")
+                    .join("harbour.whisperfish.conf")
                     .to_str()
                     .unwrap(),
             ),
@@ -416,7 +416,7 @@ impl SettingsBridge {
     pub fn migrate_qsettings_paths(&mut self) {
         let settings = self.inner_mut();
         let old_path = ".local/share/harbour-whisperfish";
-        let new_path = ".local/share/be.rubdos/harbour-whisperfish";
+        let new_path = ".local/share/be.rubdos/harbour.whisperfish";
         let keys = ["attachment_dir", "camera_dir"];
         for key in keys.iter() {
             if settings.contains("attachment_dir") {
@@ -437,10 +437,10 @@ impl SettingsBridge {
 
         let old_path = config_dir.join("harbour-whisperfish");
 
-        let new_path = config_dir.join("be.rubdos").join("harbour-whisperfish");
+        let new_path = config_dir.join("be.rubdos").join("harbour.whisperfish");
 
         let old_file = &old_path.join("harbour-whisperfish.conf");
-        let new_file = &new_path.join("harbour-whisperfish.conf");
+        let new_file = &new_path.join("harbour.whisperfish.conf");
 
         if new_file.exists() {
             return Ok(());
@@ -548,11 +548,11 @@ mod tests {
 
             assert_eq!(
                 settings.get_string("attachment_dir"),
-                "/x/.local/share/be.rubdos/harbour-whisperfish/a"
+                "/x/.local/share/be.rubdos/harbour.whisperfish/a"
             );
             assert_eq!(
                 settings.get_string("camera_dir"),
-                "/x/.local/share/be.rubdos/harbour-whisperfish/c"
+                "/x/.local/share/be.rubdos/harbour.whisperfish/c"
             );
 
             // Triggers QSettings::sync()
@@ -562,9 +562,9 @@ mod tests {
             let mut content = String::new();
             file.read_to_string(&mut content).unwrap();
             assert!(
-                content.contains("attachment_dir=/x/.local/share/be.rubdos/harbour-whisperfish/a")
+                content.contains("attachment_dir=/x/.local/share/be.rubdos/harbour.whisperfish/a")
             );
-            assert!(content.contains("camera_dir=/x/.local/share/be.rubdos/harbour-whisperfish/c"));
+            assert!(content.contains("camera_dir=/x/.local/share/be.rubdos/harbour.whisperfish/c"));
             drop(file);
 
             drop(temp_dir);

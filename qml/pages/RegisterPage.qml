@@ -70,9 +70,9 @@ BlockingInfoPageBase {
     }
 
     DBusAdaptor {
-        service: "be.rubdos.whisperfish"
-        path: "/be/rubdos/whisperfish/captcha"
-        iface: "be.rubdos.whisperfish.captcha"
+        service: "be.rubdos.harbour.whisperfish"
+        path: "/be/rubdos/harbour/whisperfish/captcha"
+        iface: "be.rubdos.harbour.whisperfish.captcha"
 
         function handleCaptcha(code) {
             console.log("Received captcha:",code)

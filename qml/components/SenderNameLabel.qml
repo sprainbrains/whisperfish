@@ -40,7 +40,7 @@ Item {
         text: label.plainText
     }
 
-    LinkedText {
+    LinkedLabel {
         id: hackishClickHandler
         visible: false
     }

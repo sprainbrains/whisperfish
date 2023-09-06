@@ -118,11 +118,12 @@ Page {
                 //: Show a peer's system contact page (menu item)
                 //% "Show contact"
                 text: qsTrId("whisperfish-show-contact-page-menu")
-                enabled: !isOwnProfile && recipient.e164.length > 0
+                //enabled: !isOwnProfile && recipient.e164.length > 0
+                enabled: !isOwnProfile && recipient.e164 > 0
                 visible: enabled
                 // TODO maybe: replace with a custom link handler
                 onClicked: phoneNumberLinker.linkActivated('tel:' + recipient.e164)
-                LinkedText { id: phoneNumberLinker; visible: false }
+                LinkedLabel { id: phoneNumberLinker; visible: false }
             }
             MenuItem {
                 //: Undo changes and exit editing you profile details menu item

@@ -81,11 +81,11 @@ Item {
         if (clearAfterSend) reset()
     }
 
-    WallClock {
-        id: clock
-        enabled: parent.enabled && Qt.application.active
-        updateFrequency: WallClock.Minute
-    }
+    // WallClock {
+    //     id: clock
+    //     enabled: parent.enabled && Qt.application.active
+    //     updateFrequency: WallClock.Minute
+    // }
 
     Separator {
         opacity: showSeparator ? Theme.opacityHigh : 0.0
@@ -193,7 +193,9 @@ Item {
                     left: parent.left
                     right: moreButton.left; rightMargin: Theme.paddingSmall
                 }
-                label: Format.formatDate(clock.time, Formatter.TimeValue) +
+                // label: Format.formatDate(clock.time, Formatter.TimeValue) +
+                label: Format.formatDate(Date(), Formatter.TimeValue) +
+
                        (attachments.length > 0 ?
                             " — " +
                             //: Number of attachments currently selected for sending
