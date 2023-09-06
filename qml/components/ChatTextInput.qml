@@ -203,6 +203,7 @@ Item {
                 hideLabelOnEmptyField: false
                 textRightMargin: 0
                 font.pixelSize: Theme.fontSizeSmall
+                enabled: recipientIsRegistered || text.length > 0
                 placeholderText: if (!recipientIsRegistered) {
                         //: Chat text input placeholder for deleted/unregistered recipient
                         //% "The recipient is not registered"

@@ -173,7 +173,8 @@ ListItem {
             }
             infoMarkEmoji: isRegistered ? delegate.emoji : ""
             infoMarkRotation: {
-                if (hasDraft) -90
+                if (!isRegistered) 0
+                else if (hasDraft) -90
                 else 0
             }
             anchors {
