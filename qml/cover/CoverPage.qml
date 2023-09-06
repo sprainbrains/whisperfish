@@ -104,7 +104,9 @@ CoverBackground {
 
         delegate: Item {
             width: sessionList.width
-            height: messageLabel.height + recipientLabel.height
+            height: model.isArchived ? 0 : messageLabel.height + recipientLabel.height
+            enabled: !model.isArchived
+            visible: !model.isArchived
 
             Label {
                 id: messageLabel
