@@ -315,6 +315,9 @@ install -Dm 644 %{_sourcedir}/../translations_new/*.qm \
 install -Dm 644 %{_sourcedir}/../translations/harbour-whisperfish.qm \
         %{buildroot}%{_datadir}/%{name}/translations/harbour.whisperfish.qm
 
+install -Dm 644 %{_sourcedir}/../translations/harbour-whisperfish-ru.qm \
+        %{buildroot}%{_datadir}/%{name}/translations/harbour.whisperfish-ru.qm
+
 
 
 %{__rm} -rf %{_sourcedir}/../translations_new

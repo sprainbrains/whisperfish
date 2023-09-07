@@ -26,7 +26,7 @@ WebViewPage {
     }
 
     ConfigurationValue {
-        key: "/apps/be.rubdos.harbour.whisperfish/captchaType"
+        key: "/apps/harbour-whisperfish/captchaType"
         Component.onCompleted: {
             if(value === "registration") {
                 webView.url = "https://signalcaptchas.org/registration/generate.html"

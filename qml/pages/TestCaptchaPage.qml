@@ -27,7 +27,7 @@ BlockingInfoPageBase {
     showNavigationIndicator: true
 
     ConfigurationValue {
-        key: "/apps/be.rubdos.harbour.whisperfish/captchaType"
+        key: "/apps/harbour-whisperfish/captchaType"
         Component.onCompleted: {
             // Registration captcha doesn't require
             // additional information, so let's use that.
