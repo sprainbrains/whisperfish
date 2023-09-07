@@ -210,9 +210,9 @@ impl Prompt {
     fn startCaptcha(&mut self) {
         // Rust 2021
         #[allow(clippy::needless_borrow)]
-        Command::new("/usr/bin/sailfish-qml")
-            .args(&["harbour-whisperfish"])
+        Command::new("/usr/bin/aurora-qml")
+            .args(&["be.rubdos.harbour.whisperfish"])
             .spawn()
-            .expect("/usr/bin/sailfish-qml not found, libsailfishapp-launcher not installed?");
+            .expect("/usr/bin/aurora-qml not found, libsailfishapp-launcher not installed?");
     }
 }
