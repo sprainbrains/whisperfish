@@ -22,7 +22,7 @@ URL: https://github.com/sprainbrains/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 AutoReqProv: no
 Requires:   sailfishsilica-qt5 >= 0.10.9
-#Requires:   libsailfishapp-launcher
+#Requires:   libauroraapp-launcher
 #Requires:   sailfish-components-contacts-qt5
 #Requires:   nemo-qml-plugin-contacts-qt5
 #Requires:   nemo-qml-plugin-configuration-qt5
@@ -37,8 +37,8 @@ Requires: sailfish-components-webview-qt5-pickers
 
 #Requires:  qtmozembed-qt5
 
-Recommends:   sailjail
-Recommends:   sailjail-permissions
+#Recommends:   sailjail
+#Recommends:   sailjail-permissions
 
 # This comment lists SailfishOS-version specific code,
 # for future reference, to track the reasoning behind the minimum SailfishOS version.
@@ -47,20 +47,20 @@ Recommends:   sailjail-permissions
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
 #Requires:   sailfish-version >= 3.3
 
-%if "%{release}" == "0.sf3"
-Requires: sailfish-version < 4.0
-Requires: sailfish-version >= 3.0
-%endif
+#%if "%{release}" == "0.sf3"
+#Requires: sailfish-version < 4.0
+#Requires: sailfish-version >= 3.0
+#%endif
 
-%if "%{release}" == "0.sf4"
-Requires: sailfish-version < 5.0
-Requires: sailfish-version >= 4.0
-%endif
+#%if "%{release}" == "0.sf4"
+#Requires: sailfish-version < 5.0
+#Requires: sailfish-version >= 4.0
+#%endif
 
-%if "%{release}" == "0.sf5"
-Requires: sailfish-version < 6.0
-Requires: sailfish-version >= 5.0
-%endif
+#%if "%{release}" == "0.sf5"
+#Requires: sailfish-version < 6.0
+#Requires: sailfish-version >= 5.0
+#%endif
 
 BuildRequires:  rust == 1.52.1+git3-1
 BuildRequires:  rust-std-static == 1.52.1+git3-1
@@ -72,7 +72,7 @@ BuildRequires:  qt5-qtwebsockets-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
 BuildRequires:  coreutils
-BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
+BuildRequires:  pkgconfig(auroraapp)
 BuildRequires:  desktop-file-utils
 BuildRequires:  pkgconfig(openssl) >= 1.1.1k
 BuildRequires:  dbus-devel
@@ -305,12 +305,17 @@ lrelease -idbased %{_sourcedir}/../translations/*.ts
 %{__mkdir_p} %{_sourcedir}/../translations_new/
 %{__cp} -r %{_sourcedir}/../translations/*.qm %{_sourcedir}/../translations_new/
 
-rename 'harbour-whisperfish' 'harbour.whisperfish' %{_sourcedir}/../translations_new/*.qm
+rename 'harbour-whisperfish' '%{name}' %{_sourcedir}/../translations_new/*.qm
 
 install -d %{buildroot}%{_datadir}/%{name}/translations
 
 install -Dm 644 %{_sourcedir}/../translations_new/*.qm \
         %{buildroot}%{_datadir}/%{name}/translations
+
+install -Dm 644 %{_sourcedir}/../translations/harbour-whisperfish.qm \
+        %{buildroot}%{_datadir}/%{name}/translations/harbour.whisperfish.qm
+
+
 
 %{__rm} -rf %{_sourcedir}/../translations_new
 
@@ -354,6 +359,8 @@ install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
     -type f \
     -exec \
         install -Dm 644 "{}" "%{buildroot}%{_datadir}/%{name}/{}" \; )
+
+rename 'harbour-whisperfish' '%{name}' %{buildroot}%{_datadir}/%{name}/qml/*.qml
 
 # Set the build date to the update notification
 CURR_DATE=$(date "+%Y-%m-%d")

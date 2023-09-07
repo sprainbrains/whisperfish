@@ -10,7 +10,7 @@ Icon=be.rubdos.harbour.whisperfish
 X-Desktop-File-Install-Version=0.20
 
 
-[X-Sailjail]
+[X-Application]
 Permissions=Internet;Pictures;MediaIndexing;Documents;Downloads;Music;Videos;Audio;UserDirs;WebView;Camera;Microphone;RemovableMedia;PublicDir;
 OrganizationName=be.rubdos
 ApplicationName=harbour.whisperfish

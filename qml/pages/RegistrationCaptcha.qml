@@ -20,13 +20,13 @@ WebViewPage {
 
     DBusInterface {
         id: whisperfishApp
-        service: "be.rubdos.whisperfish"
-        path: "/be/rubdos/whisperfish/captcha"
-        iface: "be.rubdos.whisperfish.captcha"
+        service: "be.rubdos.harbour.whisperfish"
+        path: "/be/rubdos/harbour/whisperfish/captcha"
+        iface: "be.rubdos.harbour.whisperfish.captcha"
     }
 
     ConfigurationValue {
-        key: "/apps/harbour-whisperfish/captchaType"
+        key: "/apps/be.rubdos.harbour.whisperfish/captchaType"
         Component.onCompleted: {
             if(value === "registration") {
                 webView.url = "https://signalcaptchas.org/registration/generate.html"

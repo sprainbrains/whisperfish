@@ -303,7 +303,7 @@ pub fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
 
             // We need harbour-whisperfish.qml for the QML-only signalcaptcha application
             // so we have to use another filename for the main QML file for Whisperfish.
-            app.set_source(QmlApp::path_to("qml/harbour-whisperfish-main.qml".into()));
+            app.set_source(QmlApp::path_to("qml/be.rubdos.harbour.whisperfish-main.qml".into()));
 
             if config.autostart
                 && !whisperfish

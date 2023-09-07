@@ -27,7 +27,7 @@ BlockingInfoPageBase {
     showNavigationIndicator: true
 
     ConfigurationValue {
-        key: "/apps/harbour-whisperfish/captchaType"
+        key: "/apps/be.rubdos.harbour.whisperfish/captchaType"
         Component.onCompleted: {
             // Registration captcha doesn't require
             // additional information, so let's use that.
@@ -37,9 +37,9 @@ BlockingInfoPageBase {
     }
 
     DBusAdaptor {
-        service: "be.rubdos.whisperfish"
-        path: "/be/rubdos/whisperfish/captcha"
-        iface: "be.rubdos.whisperfish.captcha"
+        service: "be.rubdos.harbour.whisperfish"
+        path: "/be/rubdos/harbour/whisperfish/captcha"
+        iface: "be.rubdos.harbour.whisperfish.captcha"
 
         function handleCaptcha(captchaResponse) {
             console.log("handleCaptcha()")
