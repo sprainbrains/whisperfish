@@ -213,6 +213,6 @@ impl Prompt {
         Command::new("/usr/bin/aurora-qml")
             .args(&["be.rubdos.harbour.whisperfish"])
             .spawn()
-            .expect("/usr/bin/aurora-qml not found, libsailfishapp-launcher not installed?");
+            .expect("/usr/bin/aurora-qml not found, libauroraapp-launcher not installed?");
     }
 }

@@ -2682,7 +2682,7 @@ checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
 [[package]]
 name = "sailors"
 version = "0.1.0"
-source = "git+https://github.com/sprainbrains/sailo-rs.git?branch=aurora_whisperfork#b2f62d3264a0b4f5fc9d4f37e6f2f677bab69d83"
+source = "git+https://github.com/sprainbrains/sailo-rs.git?branch=aurora_whisperfork#d80f633ba1dce513044c32b588e948a2dbc71a65"
 dependencies = [
  "anyhow",
  "cpp",

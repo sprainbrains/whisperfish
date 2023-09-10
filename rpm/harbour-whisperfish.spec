@@ -20,9 +20,9 @@ License: GPLv3+
 Group: Qt/Qt
 URL: https://github.com/sprainbrains/whisperfish/
 Source0: %{name}-%{version}.tar.gz
-AutoReqProv: no
+#AutoReqProv: no
 Requires:   sailfishsilica-qt5 >= 0.10.9
-#Requires:   libauroraapp-launcher
+Requires:   libauroraapp-launcher
 #Requires:   sailfish-components-contacts-qt5
 #Requires:   nemo-qml-plugin-contacts-qt5
 #Requires:   nemo-qml-plugin-configuration-qt5
@@ -45,22 +45,22 @@ Requires: sailfish-components-webview-qt5-pickers
 # We're aiming to support 3.4 as long as possible, since Jolla 1 will be stuck on that.
 #
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
-#Requires:   sailfish-version >= 3.3
 
-#%if "%{release}" == "0.sf3"
-#Requires: sailfish-version < 4.0
-#Requires: sailfish-version >= 3.0
-#%endif
 
-#%if "%{release}" == "0.sf4"
-#Requires: sailfish-version < 5.0
-#Requires: sailfish-version >= 4.0
-#%endif
 
-#%if "%{release}" == "0.sf5"
-#Requires: sailfish-version < 6.0
-#Requires: sailfish-version >= 5.0
-#%endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 BuildRequires:  rust == 1.52.1+git3-1
 BuildRequires:  rust-std-static == 1.52.1+git3-1
@@ -234,7 +234,7 @@ BINS="--bin harbour-whisperfish"
 
 if [ -z "$TARGET_VERSION" ]
 then
-TARGET_VERSION=$(grep VERSION_ID /etc/sailfish-release | cut -d "=" -f2)
+TARGET_VERSION=$(grep VERSION_ID /etc/aurora-release | cut -d "=" -f2)
 fi
 
 # To make comparing easier: 4.4.0.58 >> 4.4
@@ -340,12 +340,12 @@ desktop-file-install --delete-original \
    %{_sourcedir}/../%{name}.desktop
 
 
-#install -Dm 644 %{_sourcedir}/../harbour-whisperfish.profile \
-#    %{buildroot}%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
-#install -Dm 644 %{_sourcedir}/../harbour-whisperfish.privileges \
-#   %{buildroot}%{_datadir}/mapplauncherd/privileges.d/harbour-whisperfish.privileges
-#install -Dm 644 %{_sourcedir}/../harbour-whisperfish-message.conf \
-#    %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-whisperfish-message.conf
+#
+#
+#
+#
+#
+#
 
 # Application icons
 install -Dm 644 %{_sourcedir}/../icons/86x86/harbour-whisperfish.png \
@@ -371,10 +371,10 @@ sed -i -r "s/buildDate: \"[0-9\-]{10}\".*/buildDate: \"${CURR_DATE}\"/g" "%{buil
 
 %if %{without harbour}
 # Dbus service
-#install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
-#    %{buildroot}%{_unitdir}/be.rubdos.whisperfish.service
-#install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
-#    %{buildroot}%{_userunitdir}/harbour-whisperfish.service
+#
+#
+#
+#
 
 # Share plugin
 %if %{with shareplugin_v1} || %{with shareplugin_v2}
@@ -389,34 +389,35 @@ install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
 rm -rf %{buildroot}
 
 %if %{without harbour}
-#%post
-#systemctl-user daemon-reload
-#if pidof harbour-whisperfish >/dev/null; then
-#  kill -INT $(pidof harbour-whisperfish) || true
-#fi
+
+
+
+
+
 %endif
 
 %if %{without harbour}
-#%preun
-#systemctl-user stop harbour-whisperfish.service || true
-#systemctl-user disable harbour-whisperfish.service || true
+
+
+
 %endif
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/*
+%{_bindir}/%{name}
+%defattr(644,root,root,-)
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
-#%{_datadir}/mapplauncherd/privileges.d/%{name}.privileges
+
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
-#%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 
-#%{_sysconfdir}/sailjail/permissions/harbour-whisperfish.profile
+
+
 
 %if %{without harbour}
-#%{_userunitdir}/harbour-whisperfish.service
-#%{_unitdir}/be.rubdos.whisperfish.service
+
+
 
 %if %{with shareplugin_v1} || %{with shareplugin_v2}
 %files shareplugin

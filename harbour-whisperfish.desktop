@@ -1,13 +1,10 @@
 [Desktop Entry]
-Encoding=UTF-8
-Version=1.0
 Type=Application
-Name=Whisperfish
 X-Nemo-Application-Type=silica-qt5
 X-Nemo-Single-Instance=no
 Exec=be.rubdos.harbour.whisperfish
 Icon=be.rubdos.harbour.whisperfish
-X-Desktop-File-Install-Version=0.20
+Name=Whisperfish
 
 
 [X-Application]
