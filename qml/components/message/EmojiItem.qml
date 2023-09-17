@@ -4,31 +4,23 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import ".."
 
-// This component must be a child of MessageDelegate.
-LinkedEmojiLabel {
-    property var reactions: null
-
-    Component.onCompleted: {
-        if(reactions.count == 0)
-            return;
-        var emojis = reactions.groupedReactions
-        var text = ''
-        if (emojis) {
-            for (var key in emojis) {
-                text = text + key + " " + (emojis[key] > 1 ? (emojis[key] + " ") : '')
-            }
-        }
-        emojiLabel.plainText = text
-    }
-
-    plainText: ''
-    id: emojiLabel
+Row {
+    id: emojiItem
+    property alias reactions: repeater.model
     anchors.margins: Theme.paddingMedium
-    visible: plainText.length > 0
-    font.pixelSize: Theme.fontSizeExtraSmall
-    color: isOutbound ?
-                (highlighted ? Theme.secondaryHighlightColor :
-                                Theme.secondaryHighlightColor) :
-                (highlighted ? Theme.secondaryHighlightColor :
-                                Theme.secondaryColor)
+    visible: reactions.count > 0
+    property var color: isOutbound ?
+            (highlighted ? Theme.secondaryHighlightColor :
+                            Theme.secondaryHighlightColor) :
+            (highlighted ? Theme.secondaryHighlightColor :
+                            Theme.secondaryColor)
+    Repeater {
+        id: repeater
+        model: emojiItem.model
+        LinkedEmojiLabel {
+            color: emojiItem.color
+            plainText: model.reaction
+            font.pixelSize: Theme.fontSizeExtraSmall
+        }
+    }
 }

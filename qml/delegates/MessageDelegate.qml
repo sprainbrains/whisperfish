@@ -286,7 +286,7 @@ ListItem {
 
             EmojiItem {
                 id: emojiItem
-                reactions: reactions
+                reactions: reactions.reactions
                 anchors.top: parent.top
                 anchors.left: isOutbound ? parent.left : undefined
                 anchors.right: isOutbound ? undefined : parent.right
