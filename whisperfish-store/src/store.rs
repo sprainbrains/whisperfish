@@ -658,23 +658,15 @@ impl Storage {
 
     pub fn remove_reaction(&mut self, msg_id: i32, sender_id: i32) {
         use crate::schema::reactions::dsl::*;
-        let removed = diesel::delete(reactions)
+        diesel::delete(reactions)
             .filter(author.eq(sender_id))
             .filter(message_id.eq(msg_id))
             .execute(&mut *self.db())
             .expect("remove old reaction from database");
-        if removed > 0 {
-            log::trace!("Removed reaction for message {}", msg_id);
-            self.observe_delete(reactions, PrimaryKey::Unknown)
-                .with_relation(schema::recipients::table, sender_id)
-                .with_relation(schema::messages::table, msg_id);
-        } else {
-            log::trace!(
-                "Reaction not removed for message {} from {}",
-                msg_id,
-                sender_id
-            );
-        }
+        log::trace!("Removed reaction for message {}", msg_id);
+        self.observe_upsert(reactions, PrimaryKey::Unknown)
+            .with_relation(schema::recipients::table, sender_id)
+            .with_relation(schema::messages::table, msg_id);
     }
 
     pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
