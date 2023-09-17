@@ -224,15 +224,14 @@ impl EventObserving for SessionImpl {
                 .and_then(|x| x.as_i32());
 
             if event.for_table(schema::attachments::table) && event.is_update() {
-                // Don't care, because AugmentedMessage only takes into account the number of
-                // attachments.
-                return;
-            }
-
-            if event.for_row(schema::sessions::table, id) {
+                // AugmentedMessage only cares about the number of attachments.
+                log::trace!("Skipping attachment update");
+            } else if event.relation_key_for(schema::reactions::table).is_some() {
+                // Reactions update themselves.
+                log::trace!("Skipping reaction update");
+            } else if event.for_row(schema::sessions::table, id) {
                 self.session = storage.fetch_session_by_id_augmented(id);
                 // XXX how to trigger a Qt signal now?
-                return;
             } else if message_id.is_some() {
                 self.session = storage.fetch_session_by_id_augmented(id);
                 self.message_list
@@ -240,14 +239,13 @@ impl EventObserving for SessionImpl {
                     .borrow_mut()
                     .observe(storage, id, event);
                 // XXX how to trigger a Qt signal now?
-                return;
+            } else {
+                log::debug!(
+                    "Falling back to reloading the whole Session for event {:?}",
+                    event
+                );
+                self.fetch(storage, id);
             }
-
-            log::debug!(
-                "Falling back to reloading the whole Session for event {:?}",
-                event
-            );
-            self.fetch(storage, id);
         }
     }
 
