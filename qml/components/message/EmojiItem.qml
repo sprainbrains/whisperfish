@@ -8,7 +8,7 @@ Row {
     id: emojiItem
     property alias reactions: repeater.model
     anchors.margins: Theme.paddingMedium
-    visible: reactions.count > 0
+    visible: repeater.count > 0
     property var color: isOutbound ?
             (highlighted ? Theme.secondaryHighlightColor :
                             Theme.secondaryHighlightColor) :
@@ -19,7 +19,7 @@ Row {
         model: emojiItem.model
         LinkedEmojiLabel {
             color: emojiItem.color
-            plainText: model.reaction
+            plainText: model.reaction + (model.count > 1 ? model.count : '')
             font.pixelSize: Theme.fontSizeExtraSmall
         }
     }

@@ -18,6 +18,7 @@ use chrono::prelude::*;
 use diesel::debug_query;
 use diesel::prelude::*;
 use diesel::result::*;
+use diesel::sql_types::Integer;
 use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
@@ -37,7 +38,7 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 sql_function!(
     // Represents the Sqlite last_insert_rowid() function
-    fn last_insert_rowid() -> diesel::sql_types::Integer;
+    fn last_insert_rowid() -> Integer;
 );
 
 /// How much trust you put into the correctness of the data.
@@ -664,7 +665,7 @@ impl Storage {
             .execute(&mut *self.db())
             .expect("remove old reaction from database");
         log::trace!("Removed reaction for message {}", msg_id);
-        self.observe_upsert(reactions, PrimaryKey::Unknown)
+        self.observe_delete(reactions, PrimaryKey::Unknown)
             .with_relation(schema::recipients::table, sender_id)
             .with_relation(schema::messages::table, msg_id);
     }
@@ -1552,6 +1553,21 @@ impl Storage {
         reactions::table
             .inner_join(recipients::table)
             .filter(reactions::message_id.eq(mid))
+            .load(&mut *self.db())
+            .expect("db")
+    }
+
+    pub fn fetch_grouped_reactions_for_message(&self, mid: i32) -> Vec<orm::GroupedReaction> {
+        use diesel::dsl::sql;
+        use schema::reactions;
+        reactions::table
+            .select((
+                reactions::message_id,
+                reactions::emoji,
+                sql::<Integer>("count(emoji) AS count"),
+            ))
+            .filter(reactions::message_id.eq(mid))
+            .group_by((reactions::message_id, reactions::emoji))
             .load(&mut *self.db())
             .expect("db")
     }
