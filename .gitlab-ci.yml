@@ -325,7 +325,7 @@ coverage:stable:
     # Add --all-features and --all-targets some time in the future. Tarpaulin
     # runs only at linux-x86 and would need the whisperfish sdk to build all
     # features.
-    - cargo tarpaulin --features bundled-sqlcipher -v --exclude-files cargo/* --out Xml
+    - cargo tarpaulin --features bundled-sqlcipher --exclude-files cargo/* --out xml
   artifacts:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
     reports:
