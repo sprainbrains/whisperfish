@@ -94,7 +94,6 @@ regex = "=1.7.3"
 sailors = { git = "https://gitlab.com/whisperfish/sailo-rs.git", optional = true }
 whisperfish-store = { path = "../whisperfish-store" }
 
-
 [build-dependencies]
 cmake = "=0.1.48"
 cpp_build = "0.5"
@@ -115,3 +114,5 @@ rstest_reuse = { version = "0.1.0" }
 bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher", "whisperfish-store/bundled-sqlcipher"]
 sailfish = ["bundled-sqlcipher", "sailors", "libsignal-protocol/whisperfork", "zkgroup/whisperfork", "whisperfish-store/sailfish"]
 harbour = ["sailfish"]
+
+bundled-openssl = ["libsqlite3-sys/bundled-sqlcipher-vendored-openssl"]
