@@ -67,4 +67,6 @@ rstest_reuse = "0.1.0"
 
 [features]
 bundled-sqlcipher = ["libsqlite3-sys/bundled-sqlcipher"]
-sailfish = ["bundled-sqlcipher"]
+sailfish = ["bundled-sqlcipher", "bundled-openssl"]
+
+bundled-openssl = ["libsqlite3-sys/bundled-sqlcipher-vendored-openssl"]
