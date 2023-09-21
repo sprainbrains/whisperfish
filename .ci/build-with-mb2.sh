@@ -5,15 +5,11 @@ set -e
 echo "Building for $SFOS_VERSION"
 
 sudo zypper install -y \
-    sqlcipher-devel \
-    openssl-devel \
     zlib-devel \
 
 # Tooling-side dependencies used in build.rs
 sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
     zypper install -y \
-        sqlcipher-devel \
-        openssl-devel \
         zlib-devel \
 
 if [ -z "$CI_COMMIT_TAG" ]; then
