@@ -289,8 +289,8 @@ allow-git = []
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
-github = [""]
+github = ["whisperfish", "signalapp"]
 # 1 or more gitlab.com organizations to allow git sources for
-gitlab = [""]
+gitlab = ["whisperfish", "rubdos"]
 # 1 or more bitbucket.org organizations to allow git sources for
-bitbucket = [""]
+# bitbucket = [""]
