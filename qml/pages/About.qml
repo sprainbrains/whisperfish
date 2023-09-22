@@ -359,8 +359,8 @@ Page {
                 horizontalAlignment: TextEdit.Center
                 readOnly: true
                 text: {
-                    "Tuomas F Nyqvist" + "\n" +
                     "Luna Jernberg" + "\n" +
+                    "Tuomas F Nyqvist" + "\n" +
                     "fluffysfriends" + "\n" +
                     "bittin1ddc447d824349b2"
                 }

@@ -191,7 +191,7 @@
         <location filename="../qml/pages/About.qml" line="22"/>
         <source>About Whisperfish</source>
         <extracomment>Title for about page</extracomment>
-        <translation>О Whisperfish</translation>
+        <translation>Об Whisperfish</translation>
     </message>
     <message id="whisperfish-version">
         <location filename="../qml/pages/About.qml" line="35"/>
@@ -845,7 +845,7 @@ Summary of all selected recipients, e.g. &quot;Bob, Jane, 75553243&quot;</extrac
         <location filename="../qml/pages/SetupPasswordPage.qml" line="18"/>
         <source>Welcome to Whisperfish</source>
         <extracomment>welcome screen title when creating a new database</extracomment>
-        <translation>Доброе пожаловать в Whisperfish</translation>
+        <translation>Приветствуем в Whisperfish</translation>
     </message>
     <message id="whisperfish-setup-password-prompt">
         <location filename="../qml/pages/SetupPasswordPage.qml" line="22"/>
