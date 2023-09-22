@@ -2337,7 +2337,7 @@ dependencies = [
 [[package]]
 name = "qmeta-async"
 version = "0.1.0"
-source = "git+https://gitlab.com/rubdos/qmeta-async.git#848052c7dc80d5c363894483c9b1cfe116e56cb2"
+source = "git+https://gitlab.com/rubdos/qmeta-async.git#654a04045789ccb4d84f316dd919657a9179ba1f"
 dependencies = [
  "anyhow",
  "futures",
@@ -2351,7 +2351,7 @@ dependencies = [
 [[package]]
 name = "qmeta-async-macros"
 version = "0.1.0"
-source = "git+https://gitlab.com/rubdos/qmeta-async.git#848052c7dc80d5c363894483c9b1cfe116e56cb2"
+source = "git+https://gitlab.com/rubdos/qmeta-async.git#654a04045789ccb4d84f316dd919657a9179ba1f"
 dependencies = [
  "proc-macro2",
  "quote",
