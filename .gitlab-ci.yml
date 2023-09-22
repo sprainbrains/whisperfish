@@ -89,20 +89,6 @@ build:sailfishos:latest:armv7hl:
     <<: *variables
     MER_ARCH: armv7hl
     TARGET_VERSION: $SFOS_VERSION
-    DIST: .sf4
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - when: on_success
-
-build:sailfishos:3.4:armv7hl:
-  extends: .build-sailfishos
-  variables:
-    <<: *variables
-    MER_ARCH: armv7hl
-    TARGET_VERSION: 3.4.0.24
-    SFOS_VERSION: 4.1.0.24
-    DIST: .sf3
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -114,7 +100,6 @@ build:sailfishos:latest:i486:
     <<: *variables
     MER_ARCH: i486
     TARGET_VERSION: $SFOS_VERSION
-    DIST: .sf4
   cache:
     <<: *rust-cache
     key: "target-i486-$CI_COMMIT_REF_SLUG"
@@ -123,43 +108,12 @@ build:sailfishos:latest:i486:
       when: never
     - when: on_success
 
-## We don't build 3.4 for i486, because
-#  in that case, rust 1.52 gets installed without the sb2 passthrough,
-#  and the 3.4 runtime doesn't provide all necessary dependencies.
-#  If this bothers someone (I don't think there's any i486 device that doesn't support 4.3;
-#  check conversation at https://matrix.to/#/!clfpfblSRQUbEUGwsD:rubdos.be/$QANC2ZqJuGElnp2Bkvll_4KLmmSmZUqPgthzzT1KRT0?via=libera.chat&via=matrix.org&via=rubdos.be)
-# build:sailfishos:3.4:i486:
-#  extends: .build-sailfishos
-#   variables:
-#     <<: *variables
-#     MER_ARCH: i486
-#     TARGET_VERSION: 3.4.0.24
-#     DIST: .sf3
-#   rules:
-#    - if: $CI_PIPELINE_SOURCE == "schedule"
-#      when: never
-#    - when: on_success
-
 build:sailfishos:latest:aarch64:
   extends: .build-sailfishos
   variables:
     <<: *variables
     MER_ARCH: aarch64
     TARGET_VERSION: $SFOS_VERSION
-    DIST: .sf4
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - when: on_success
-
-build:sailfishos:3.4:aarch64:
-  extends: .build-sailfishos
-  variables:
-    <<: *variables
-    MER_ARCH: aarch64
-    TARGET_VERSION: 3.4.0.24
-    SFOS_VERSION: 4.1.0.24
-    DIST: .sf3
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
@@ -484,32 +438,13 @@ pages:
     - build:sailfishos:latest:armv7hl
     - build:sailfishos:latest:i486
     - build:sailfishos:latest:aarch64
-    - build:sailfishos:3.4:armv7hl
-    # - build:sailfishos:3.4:i486
-    - build:sailfishos:3.4:aarch64
     - test:stable
   dependencies:
     - build:sailfishos:latest:armv7hl
     - build:sailfishos:latest:i486
     - build:sailfishos:latest:aarch64
-    - build:sailfishos:3.4:armv7hl
-    # - build:sailfishos:3.4:i486
-    - build:sailfishos:3.4:aarch64
   only:
     - tags
-
-deploy:openrepos:wf-sf3:
-  <<: *deploy-openrepos
-  variables:
-    <<: *openrepos-vars
-    OPENREPOS_UPLOAD_RPM_APPNAME: "Whisperfish (SailfishOS 3.4)"
-  environment:
-      name: OpenRepos SF3
-      url: https://openrepos.net/content/rubdos/whisperfish-sailfishos-34
-  before_script:
-    - mv RPMS/*.sf3.*.rpm .
-    - rm *shareplugin*rpm
-    - ls *.rpm
 
 deploy:openrepos:wf-sf4:
   <<: *deploy-openrepos

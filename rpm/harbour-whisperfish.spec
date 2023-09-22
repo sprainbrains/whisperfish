@@ -15,7 +15,7 @@ Name: harbour-whisperfish
 Summary: Private messaging using Signal for SailfishOS.
 
 Version: 0.6.0
-Release: 0%{?dist}
+Release: 0
 License: GPLv3+
 Group: Qt/Qt
 URL: https://gitlab.com/whisperfish/whisperfish/
@@ -43,21 +43,6 @@ Recommends:   sailjail-permissions
 #
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
 Requires:   sailfish-version >= 3.3
-
-%if "%{release}" == "0.sf3"
-Requires: sailfish-version < 4.0
-Requires: sailfish-version >= 3.0
-%endif
-
-%if "%{release}" == "0.sf4"
-Requires: sailfish-version < 5.0
-Requires: sailfish-version >= 4.0
-%endif
-
-%if "%{release}" == "0.sf5"
-Requires: sailfish-version < 6.0
-Requires: sailfish-version >= 5.0
-%endif
 
 BuildRequires:  rust == 1.52.1+git3-1
 BuildRequires:  rust-std-static == 1.52.1+git3-1
