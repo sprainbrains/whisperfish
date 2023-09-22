@@ -26,7 +26,6 @@ Requires:   sailfish-components-contacts-qt5
 Requires:   nemo-qml-plugin-contacts-qt5
 Requires:   nemo-qml-plugin-configuration-qt5
 Requires:   nemo-qml-plugin-notifications-qt5
-Requires:   openssl-libs
 Requires:   dbus
 
 # For the captcha QML application
@@ -67,7 +66,6 @@ BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
 BuildRequires:  qt5-qtwebsockets-devel
-BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
