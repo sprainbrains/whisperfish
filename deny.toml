@@ -71,7 +71,11 @@ notice = "warn"
 # A list of advisory IDs to ignore. Note that ignored advisories will still
 # output a note when they are encountered.
 ignore = [
-    #"RUSTSEC-0000-0000",
+    # The `time` crate is a dependency of chrono, fixed in chrono 0.4.30, MSRV 1.57
+    # https://rustsec.org/advisories/RUSTSEC-2020-0071
+    # Impact is a potential SEGFAULT when a certain environment variable is set.
+    # Expected impact on Whisperfish: none
+    "RUSTSEC-2020-0071",
 ]
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories
