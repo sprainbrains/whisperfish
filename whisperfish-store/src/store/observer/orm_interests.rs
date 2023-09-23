@@ -95,6 +95,7 @@ impl orm::Reaction {
 
 impl orm::GroupedReaction {
     pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
+        // XXX: We should register interest for message_id + the specific emoji
         std::iter::once(Interest::whole_table_with_relation(
             schema::reactions::table,
             schema::messages::table,
