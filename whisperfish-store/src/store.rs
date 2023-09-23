@@ -653,7 +653,6 @@ impl Storage {
             .expect("insert reaction into database");
         log::trace!("Saved reaction for message {} from {}", msg_id, sender_id);
         self.observe_upsert(reactions, PrimaryKey::Unknown)
-            .with_relation(schema::recipients::table, sender_id)
             .with_relation(schema::messages::table, msg_id);
     }
 
@@ -666,7 +665,6 @@ impl Storage {
             .expect("remove old reaction from database");
         log::trace!("Removed reaction for message {}", msg_id);
         self.observe_delete(reactions, PrimaryKey::Unknown)
-            .with_relation(schema::recipients::table, sender_id)
             .with_relation(schema::messages::table, msg_id);
     }
 
