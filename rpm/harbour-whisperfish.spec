@@ -3,6 +3,11 @@
 %bcond_with sccache
 %bcond_with tools
 
+# Targets 4.5 and newer default to Zstd RPM compression,
+# which is not supported on 4.4 and older
+%define _source_payload w6.xzdio
+%define _binary_payload w6.xzdio
+
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
 %else
