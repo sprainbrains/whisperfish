@@ -1,3 +1,5 @@
+# Requires Sailfish OS build target 4.3 (or newer)
+
 TEMPLATE = lib
 TARGET = $$qtLibraryTarget(whisperfishshareplugin)
 CONFIG += plugin
