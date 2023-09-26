@@ -1016,8 +1016,9 @@ impl Handler<FetchAttachment> for ClientActor {
         let message = storage
             .fetch_message_by_id(attachment.message_id)
             .expect("existing message");
+        // XXX We probably don't need the session object itself anymore in this part of the code.
         let session = storage
-            .fetch_message_by_id(message.session_id)
+            .fetch_session_by_id(message.session_id)
             .expect("existing session");
         // XXX We may want some graceful error handling here
         let ptr = AttachmentPointer::decode(
