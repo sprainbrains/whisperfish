@@ -27,19 +27,4 @@ popd
 mkdir -p RPMS target
 sudo cp -ar ~/whisperfish-build/shareplugin_v$SHAREPLUGIN_VERSION/RPMS/* RPMS/
 
-# Only upload on tags or main
-if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
-    for RPM_PATH in RPMS/*.rpm; do
-        echo Found RPM: $RPM_PATH
-        RPM_PATH="${RPM_PATH[0]}"
-        RPM=$(basename $RPM_PATH)
-
-        URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$VERSION/$RPM"
-        echo Posting to $URL
-
-        # Upload to Gitlab
-        curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
-             --upload-file "$RPM_PATH" \
-             $URL
-    done
-fi
+.ci/upload-rpms.sh
