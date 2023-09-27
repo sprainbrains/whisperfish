@@ -594,179 +594,179 @@
     </message>
     <message id="whisperfish-reset-identity-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="279"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="81"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="79"/>
         <source>Reset identity key</source>
         <extracomment>Reset identity key menu item</extracomment>
         <translation>Επαναφορά κλειδιού ταυτότητας</translation>
     </message>
     <message id="whisperfish-reset-identity-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="286"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="86"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="84"/>
         <source>Identity key reset</source>
         <extracomment>Reset identity key remorse message (past tense)</extracomment>
         <translation>Έγινε επαναφορά του κλειδιού ταυτότητας</translation>
     </message>
     <message id="whisperfish-reset-session-menu">
         <location filename="../qml/pages/GroupProfilePage.qml" line="295"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="96"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="94"/>
         <source>Reset Secure Session</source>
         <extracomment>Reset secure session menu item</extracomment>
         <translation>Επαναφορά Ασφαλούς Συνεδρίας</translation>
     </message>
     <message id="whisperfish-reset-session-message">
         <location filename="../qml/pages/GroupProfilePage.qml" line="302"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="101"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="99"/>
         <source>Secure session reset</source>
         <oldsource>Resetting secure session</oldsource>
         <extracomment>Reset secure session remorse message (past tense)</extracomment>
         <translation>Έγινε επαναφορά ασφαλούς συνεδρίας</translation>
     </message>
     <message id="whisperfish-refresh-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="111"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="109"/>
         <source>Refresh Signal profile</source>
         <extracomment>Refresh contact profile menu item</extracomment>
         <translation>Ανανέωση του προφίλ Signal</translation>
     </message>
     <message id="whisperfish-show-contact-page-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="120"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="118"/>
         <source>Show contact</source>
         <extracomment>Show a peer&apos;s system contact page (menu item)</extracomment>
         <translation>Προβολή επαφής</translation>
     </message>
     <message id="whisperfish-revert-profile-changes-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="130"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="128"/>
         <source>Discard changes</source>
         <extracomment>Undo changes and exit editing you profile details menu item</extracomment>
         <translation>Απόρριψη αλλαγών</translation>
     </message>
     <message id="whisperfish-save-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="139"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="137"/>
         <source>Save profile changes</source>
         <extracomment>Save changes to your profile menu item</extracomment>
         <translation>Αποθήκευση αλλαγών προφίλ</translation>
     </message>
     <message id="whisperfish-edit-profile-menu">
-        <location filename="../qml/pages/ProfilePage.qml" line="142"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="140"/>
         <source>Edit profile</source>
         <extracomment>Edit your own profile menu item</extracomment>
         <translation>Επεξεργασία προφίλ</translation>
     </message>
     <message id="whisperfish-profile-page-unregistered-profile">
-        <location filename="../qml/pages/ProfilePage.qml" line="190"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="188"/>
         <source>The recipient is not currently registered to Signal, so sending and receiving messages is not possible.</source>
         <extracomment>Profile page, user is not registered warning</extracomment>
         <translation>Ο παραλήπτης δεν είναι εγγεγραμένος στο Signal, επομένως η αποστολή και λήψη μηνυμάτων δεν είναι δυνατή.</translation>
     </message>
     <message id="whisperfish-profile-joined-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="203"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="201"/>
         <source>Name</source>
         <extracomment>Profile, name field (first name + last name)</extracomment>
         <translation>Όνομα</translation>
     </message>
     <message id="whisperfish-profile-given-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="217"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="215"/>
         <source>First name (required)</source>
         <extracomment>Profile, first (given) name field, required</extracomment>
         <translation>Μικρό όνομα (απαραίτητο)</translation>
     </message>
     <message id="whisperfish-profile-family-name">
-        <location filename="../qml/pages/ProfilePage.qml" line="235"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="233"/>
         <source>Last name (optional)</source>
         <extracomment>Profile, last (family) name field, optional</extracomment>
         <translation>Επώνυμο (προαιρετικό)</translation>
     </message>
     <message id="whisperfish-profile-uuid">
-        <location filename="../qml/pages/ProfilePage.qml" line="249"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="247"/>
         <source>UUID</source>
         <extracomment>Profile UUID field</extracomment>
         <translation>UUID</translation>
     </message>
     <message id="whisperfish-profile-phone-number">
-        <location filename="../qml/pages/ProfilePage.qml" line="261"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="259"/>
         <source>Phone number</source>
         <extracomment>Profile phone number field</extracomment>
         <translation>Αριθμός τηλεφώνου</translation>
     </message>
     <message id="whisperfish-profile-about">
-        <location filename="../qml/pages/ProfilePage.qml" line="273"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="271"/>
         <source>Write something about yourself</source>
         <extracomment>Profile, about you (greeting/status) field</extracomment>
         <translation>Γράψτε κάτι για τον εαυτό σας</translation>
     </message>
     <message id="whisperfish-profile-unidentified">
-        <location filename="../qml/pages/ProfilePage.qml" line="282"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="280"/>
         <source>Sealed sending mode</source>
         <extracomment>Profile, sealed sending mode option</extracomment>
         <translation>Προστατευμένος αποστολέας</translation>
     </message>
     <message id="whisperfish-unidentified-unknown">
-        <location filename="../qml/pages/ProfilePage.qml" line="289"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="287"/>
         <source>Unknown</source>
         <extracomment>Profile, sealed sending mode, unknown option</extracomment>
         <translation>Άγνωστος</translation>
     </message>
     <message id="whisperfish-unidentified-disabled">
-        <location filename="../qml/pages/ProfilePage.qml" line="294"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="292"/>
         <source>Disabled</source>
         <extracomment>Profile, sealed sending mode, disabled option</extracomment>
         <translation>Απενεργοποιημένο</translation>
     </message>
     <message id="whisperfish-unidentified-enabled">
-        <location filename="../qml/pages/ProfilePage.qml" line="299"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="297"/>
         <source>Enabled</source>
         <extracomment>Profile, sealed sending mode, enabled option</extracomment>
         <translation>Ενεργοποιημένο</translation>
     </message>
     <message id="whisperfish-unidentified-unrestricted">
-        <location filename="../qml/pages/ProfilePage.qml" line="304"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="302"/>
         <source>Unrestricted</source>
         <extracomment>Profile, sealed sending mode, unrestricted option</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-emoji">
-        <location filename="../qml/pages/ProfilePage.qml" line="319"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="317"/>
         <source>A few words about yourself</source>
         <extracomment>Profile, emoji symbol field</extracomment>
         <translation>Λίγα λόγια για εσάς</translation>
     </message>
     <message id="whisperfish-show-fingerprint">
-        <location filename="../qml/pages/ProfilePage.qml" line="333"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="331"/>
         <source>Show fingerprint</source>
         <extracomment>Show fingerprint button</extracomment>
         <translation>Εμφάνιση δακτυλικού αποτυπώματος</translation>
     </message>
     <message id="whisperfish-numeric-fingerprint-directions">
-        <location filename="../qml/pages/ProfilePage.qml" line="378"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="376"/>
         <source>If you wish to verify the security of your end-to-end encryption with %1, compare the numbers above with the numbers on their device.</source>
         <extracomment>Numeric fingerprint instructions</extracomment>
         <translation>Εαν επιθυμείτε να επιβεβαιώσετε την ασφάλεια της κρυπτογράφησης με %1, συγκρίνετε τους παραπάνω αριθμούς με τους αριθμούς στη δική τους συσκευή.</translation>
     </message>
     <message id="whisperfish-profile-pq-enabled">
-        <location filename="../qml/pages/ProfilePage.qml" line="388"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="386"/>
         <source>Post-quantum keys in use</source>
         <extracomment>Profile page: whether a contact has post-quantum secure sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-profile-pq-enabled-description">
-        <location filename="../qml/pages/ProfilePage.qml" line="391"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="389"/>
         <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
         <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-kyber-click-explanation">
-        <location filename="../qml/pages/ProfilePage.qml" line="401"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="399"/>
         <source>Session reset for post-quantum upgrade</source>
         <extracomment>Upgrading the session to Kyber remorse popup, past tense</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message id="whisperfish-own-profile-help-text">
-        <location filename="../qml/pages/ProfilePage.qml" line="423"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="421"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
         <translation>Το προφίλ σας είναι κρυπτογραφημένο. Το προφίλ σας και οι αλλαγές σε αυτό θα είναι ορατά στα άτομα στα οποία στέλνετε μηνύματα, στις επαφές και στις ομάδες σας.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
-        <location filename="../qml/pages/ProfilePage.qml" line="431"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="429"/>
         <source>Learn more</source>
         <extracomment>Button to open link to Signal help page about profiles</extracomment>
         <translation>Μάθετε περισσότερα</translation>
@@ -1577,7 +1577,7 @@ Settings page share contacts</extracomment>
         <translation>Απενεργοποιημένη</translation>
     </message>
     <message id="whisperfish-verify-contact-identity-title">
-        <location filename="../qml/pages/ProfilePage.qml" line="327"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="325"/>
         <source>Verify safety numbers</source>
         <oldsource>Verify %1</oldsource>
         <extracomment>Verify safety numbers</extracomment>
