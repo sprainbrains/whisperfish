@@ -27,6 +27,7 @@ pub struct SettingsBridge {
     scale_image_attachments: qt_property!(bool; READ get_scale_image_attachments WRITE set_scale_image_attachments NOTIFY scale_image_attachments_changed),
     attachment_log: qt_property!(bool; READ get_attachment_log WRITE set_attachment_log NOTIFY attachment_log_changed),
     quit_on_ui_close: qt_property!(bool; READ get_quit_on_ui_close WRITE set_quit_on_ui_close NOTIFY quit_on_ui_close_changed),
+    show_phone_number: qt_property!(bool; READ get_show_phone_number WRITE set_show_phone_number NOTIFY show_phone_number_changed),
 
     // These will be mirrored to `config.yml` at Whisperfish exit
     verbose: qt_property!(bool; READ get_verbose WRITE set_verbose NOTIFY verbose_changed),
@@ -49,6 +50,7 @@ pub struct SettingsBridge {
     scale_image_attachments_changed: qt_signal!(value: bool),
     attachment_log_changed: qt_signal!(value: bool),
     quit_on_ui_close_changed: qt_signal!(value: bool),
+    show_phone_number_changed: qt_signal!(value: bool),
 
     verbose_changed: qt_signal!(value: bool),
     logfile_changed: qt_signal!(value: bool),
@@ -89,6 +91,7 @@ impl Default for SettingsBridge {
             scale_image_attachments: false,
             attachment_log: false,
             quit_on_ui_close: true,
+            show_phone_number: true,
 
             verbose: false,
             logfile: false,
@@ -115,6 +118,7 @@ impl Default for SettingsBridge {
             attachment_dir_changed: Default::default(),
             camera_dir_changed: Default::default(),
             plaintext_password_changed: Default::default(),
+            show_phone_number_changed: Default::default(),
 
             verbose_changed: Default::default(),
             logfile_changed: Default::default(),
@@ -235,6 +239,10 @@ impl SettingsBridge {
         self.get_bool("quit_on_ui_close")
     }
 
+    pub fn get_show_phone_number(&self) -> bool {
+        self.get_bool("show_phone_number")
+    }
+
     pub fn get_verbose(&self) -> bool {
         self.get_bool("verbose")
     }
@@ -316,6 +324,11 @@ impl SettingsBridge {
     pub fn set_quit_on_ui_close(&mut self, value: bool) {
         self.set_bool("quit_on_ui_close", value);
         self.quit_on_ui_close_changed(value);
+    }
+
+    pub fn set_show_phone_number(&mut self, value: bool) {
+        self.set_bool("show_phone_number", value);
+        self.show_phone_number_changed(value);
     }
 
     pub fn set_verbose(&mut self, value: bool) {
