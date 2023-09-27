@@ -2,8 +2,11 @@
 %bcond_with lto
 %bcond_with sccache
 %bcond_with tools
-%bcond_with shareplugin_v1
-%bcond_with shareplugin_v2
+
+# Targets 4.5 and newer default to Zstd RPM compression,
+# which is not supported on 4.4 and older
+%define _source_payload w6.xzdio
+%define _binary_payload w6.xzdio
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -15,7 +18,7 @@ Name: harbour-whisperfish
 Summary: Private messaging using Signal for SailfishOS.
 
 Version: 0.6.0
-Release: 0%{?dist}
+Release: 0
 License: GPLv3+
 Group: Qt/Qt
 URL: https://gitlab.com/whisperfish/whisperfish/
@@ -26,7 +29,6 @@ Requires:   sailfish-components-contacts-qt5
 Requires:   nemo-qml-plugin-contacts-qt5
 Requires:   nemo-qml-plugin-configuration-qt5
 Requires:   nemo-qml-plugin-notifications-qt5
-Requires:   openssl-libs
 Requires:   dbus
 
 # For the captcha QML application
@@ -37,6 +39,7 @@ Requires:   sailfish-components-webview-qt5-pickers
 
 Recommends:   sailjail
 Recommends:   sailjail-permissions
+Recommends:   harbour-whisperfish-shareplugin
 
 # This comment lists SailfishOS-version specific code,
 # for future reference, to track the reasoning behind the minimum SailfishOS version.
@@ -45,21 +48,6 @@ Recommends:   sailjail-permissions
 # - Contacts/contacts.db phoneNumbers.normalizedNumber: introduced in 3.3
 Requires:   sailfish-version >= 3.3
 
-%if "%{release}" == "0.sf3"
-Requires: sailfish-version < 4.0
-Requires: sailfish-version >= 3.0
-%endif
-
-%if "%{release}" == "0.sf4"
-Requires: sailfish-version < 5.0
-Requires: sailfish-version >= 4.0
-%endif
-
-%if "%{release}" == "0.sf5"
-Requires: sailfish-version < 6.0
-Requires: sailfish-version >= 5.0
-%endif
-
 BuildRequires:  rust == 1.52.1+git3-1
 BuildRequires:  rust-std-static == 1.52.1+git3-1
 BuildRequires:  cargo == 1.52.1+git3-1
@@ -67,7 +55,6 @@ BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
 BuildRequires:  qt5-qtwebsockets-devel
-BuildRequires:  openssl-devel
 BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
@@ -78,11 +65,6 @@ BuildRequires:  meego-rpm-config
 # For vendored sqlcipher
 BuildRequires:  tcl
 BuildRequires:  automake
-
-%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
-BuildRequires: pkgconfig(nemotransferengine-qt5)
-Recommends:    %{name}-shareplugin
-%endif
 
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
@@ -102,18 +84,6 @@ Recommends:    %{name}-shareplugin
 
 %prep
 %setup -q -n %{?with_harbour:harbour-}whisperfish
-
-# harbour-whisperfish-shareplugin
-%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
-%package shareplugin
-Summary: Share plugin for Whisperfish
-%description shareplugin
-%{summary}
-
-Group: Qt/Qt
-
-%endif
-# end harbour-whisperfish-shareplugin
 
 %build
 
@@ -229,29 +199,6 @@ fi
 # To make comparing easier: 4.4.0.58 >> 4.4
 MAJOR_VERSION=$(echo $TARGET_VERSION | awk -F. '{print $1 FS $2}')
 
-%if %{with shareplugin_v1} && %{with shareplugin_v2}
-echo "Error: only give shareplugin_v1 or shareplugin_v2"
-exit 1
-%endif
-
-%if %{with shareplugin_v2}
-if [[ "$MAJOR_VERSION" < "4.4" ]]
-then
-    echo "Error: trying to compile shareplugin v2 for SFOS < 4.4"
-    exit 1
-fi
-%define sharingsubdir sharing
-%endif
-
-%if %{with shareplugin_v1}
-if [[ ! "$MAJOR_VERSION" < "4.4" ]]
-then
-    echo "Error: trying to compile shareplugin v1 for SFOS >= 4.4"
-    exit 1
-fi
-%define sharingsubdir .
-%endif
-
 cargo build \
           -j 1 \
           -vv \
@@ -260,27 +207,6 @@ cargo build \
           $BINS \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
-
-%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
-
-mkdir -p %{targetdir}/shareplugin/
-cd %{targetdir}/shareplugin/
-
-%if %{with shareplugin_v2}
-    # Share plugin API v2
-    cp -ar %{_sourcedir}/../shareplugin_v2/* .
-    %qmake5
-    make %{?_smp_mflags}
-%endif
-
-%if %{with shareplugin_v1}
-    # Share plugin API v1
-    cp -ar %{_sourcedir}/../shareplugin_v1/* .
-    %qmake5
-    make %{?_smp_mflags}
-%endif
-
-%endif
 
 %if %{with sccache}
 sccache -s
@@ -339,14 +265,6 @@ install -Dm 644 %{_sourcedir}/../be.rubdos.whisperfish.service \
     %{buildroot}%{_unitdir}/be.rubdos.whisperfish.service
 install -Dm 644 %{_sourcedir}/../harbour-whisperfish.service \
     %{buildroot}%{_userunitdir}/harbour-whisperfish.service
-
-# Share plugin
-%if %{with shareplugin_v1} || %{with shareplugin_v2}
-install -Dm 644 %{targetdir}/shareplugin/WhisperfishShare.qml \
-    %{buildroot}%{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
-install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
-    %{buildroot}%{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
-%endif
 %endif
 
 %clean
@@ -380,10 +298,4 @@ systemctl-user disable harbour-whisperfish.service || true
 %if %{without harbour}
 %{_userunitdir}/harbour-whisperfish.service
 %{_unitdir}/be.rubdos.whisperfish.service
-
-%if %{with shareplugin_v1} || %{with shareplugin_v2}
-%files shareplugin
-%{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
-%{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
-%endif
 %endif
