@@ -619,7 +619,7 @@ impl Display for Reaction {
 pub struct GroupedReaction {
     pub message_id: i32,
     pub emoji: String,
-    pub count: i32,
+    pub count: i64,
 }
 
 impl Display for GroupedReaction {

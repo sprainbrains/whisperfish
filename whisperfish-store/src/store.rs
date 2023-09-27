@@ -18,7 +18,6 @@ use chrono::prelude::*;
 use diesel::debug_query;
 use diesel::prelude::*;
 use diesel::result::*;
-use diesel::sql_types::Integer;
 use diesel_migrations::EmbeddedMigrations;
 use itertools::Itertools;
 use libsignal_service::groups_v2::InMemoryCredentialsCache;
@@ -1556,16 +1555,15 @@ impl Storage {
     }
 
     pub fn fetch_grouped_reactions_for_message(&self, mid: i32) -> Vec<orm::GroupedReaction> {
-        use diesel::dsl::sql;
         use schema::reactions;
         reactions::table
+            .filter(reactions::message_id.eq(mid))
+            .group_by((reactions::message_id, reactions::emoji))
             .select((
                 reactions::message_id,
                 reactions::emoji,
-                sql::<Integer>("count(emoji) AS count"),
+                diesel::dsl::count(reactions::emoji),
             ))
-            .filter(reactions::message_id.eq(mid))
-            .group_by((reactions::message_id, reactions::emoji))
             .load(&mut *self.db())
             .expect("db")
     }
