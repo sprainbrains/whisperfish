@@ -58,6 +58,88 @@ stages:
       files:
         - Cargo.lock
 
+.build:sailfishos:latest:shareplugin: &build-shareplugin
+  image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
+  stage: build
+  artifacts:
+    paths:
+      - RPMS/*.rpm
+  script:
+    - .ci/build-shareplugin.sh
+
+# BEGIN shareplugin v1
+build:sailfishos:latest:shareplugin_v1:armv7hl:
+  extends: .build:sailfishos:latest:shareplugin
+  variables:
+    <<: *variables
+    MER_ARCH: armv7hl
+    SHAREPLUGIN_VERSION: 1
+    SFOS_VERSION: 4.1.0.24
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+
+build:sailfishos:latest:shareplugin_v1:i486:
+  extends: .build:sailfishos:latest:shareplugin
+  variables:
+    <<: *variables
+    MER_ARCH: i486
+    SHAREPLUGIN_VERSION: 1
+    SFOS_VERSION: 4.1.0.24
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+
+build:sailfishos:latest:shareplugin_v1:aarch64:
+  extends: .build:sailfishos:latest:shareplugin
+  variables:
+    <<: *variables
+    MER_ARCH: aarch64
+    SHAREPLUGIN_VERSION: 1
+    SFOS_VERSION: 4.1.0.24
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+# end shareplugin v1
+
+# begin shareplugin v2
+build:sailfishos:latest:shareplugin_v2:armv7hl:
+  extends: .build:sailfishos:latest:shareplugin
+  variables:
+    <<: *variables
+    MER_ARCH: armv7hl
+    SHAREPLUGIN_VERSION: 2
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+
+build:sailfishos:latest:shareplugin_v2:i486:
+  extends: .build:sailfishos:latest:shareplugin
+  variables:
+    <<: *variables
+    MER_ARCH: i486
+    SHAREPLUGIN_VERSION: 2
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+
+build:sailfishos:latest:shareplugin_v2:aarch64:
+  extends: .build:sailfishos:latest:shareplugin
+  variables:
+    <<: *variables
+    MER_ARCH: aarch64
+    SHAREPLUGIN_VERSION: 2
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+# end shareplugin v2
+
 .build-sailfishos: &build-sailfishos
   image: registry.gitlab.com/whisperfish/sailo-rs/rust-$MER_ARCH-$SFOS_VERSION:latest
   stage: build
