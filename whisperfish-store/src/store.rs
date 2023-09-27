@@ -37,7 +37,7 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 sql_function!(
     // Represents the Sqlite last_insert_rowid() function
-    fn last_insert_rowid() -> diesel::sql_types::Integer;
+    fn last_insert_rowid() -> Integer;
 );
 
 /// How much trust you put into the correctness of the data.
@@ -666,29 +666,19 @@ impl Storage {
             .expect("insert reaction into database");
         log::trace!("Saved reaction for message {} from {}", msg_id, sender_id);
         self.observe_upsert(reactions, PrimaryKey::Unknown)
-            .with_relation(schema::recipients::table, sender_id)
             .with_relation(schema::messages::table, msg_id);
     }
 
     pub fn remove_reaction(&mut self, msg_id: i32, sender_id: i32) {
         use crate::schema::reactions::dsl::*;
-        let removed = diesel::delete(reactions)
+        diesel::delete(reactions)
             .filter(author.eq(sender_id))
             .filter(message_id.eq(msg_id))
             .execute(&mut *self.db())
             .expect("remove old reaction from database");
-        if removed > 0 {
-            log::trace!("Removed reaction for message {}", msg_id);
-            self.observe_delete(reactions, PrimaryKey::Unknown)
-                .with_relation(schema::recipients::table, sender_id)
-                .with_relation(schema::messages::table, msg_id);
-        } else {
-            log::trace!(
-                "Reaction not removed for message {} from {}",
-                msg_id,
-                sender_id
-            );
-        }
+        log::trace!("Removed reaction for message {}", msg_id);
+        self.observe_delete(reactions, PrimaryKey::Unknown)
+            .with_relation(schema::messages::table, msg_id);
     }
 
     pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
@@ -1599,6 +1589,20 @@ impl Storage {
         reactions::table
             .inner_join(recipients::table)
             .filter(reactions::message_id.eq(mid))
+            .load(&mut *self.db())
+            .expect("db")
+    }
+
+    pub fn fetch_grouped_reactions_for_message(&self, mid: i32) -> Vec<orm::GroupedReaction> {
+        use schema::reactions;
+        reactions::table
+            .filter(reactions::message_id.eq(mid))
+            .group_by((reactions::message_id, reactions::emoji))
+            .select((
+                reactions::message_id,
+                reactions::emoji,
+                diesel::dsl::count(reactions::emoji),
+            ))
             .load(&mut *self.db())
             .expect("db")
     }
