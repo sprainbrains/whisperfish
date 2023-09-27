@@ -516,7 +516,20 @@ pages:
   variables: &openrepos-vars
     OPENREPOS_UPLOAD_RPM_PLATFORM: SailfishOS
     OPENREPOS_UPLOAD_RPM_CATEGORY: Applications
-  needs: &openrepos-needs
+  only:
+    - tags
+  before_script:
+    - mv RPMS/*.rpm .
+
+deploy:openrepos:whisperfish:
+  <<: *deploy-openrepos
+  variables:
+    <<: *openrepos-vars
+    OPENREPOS_UPLOAD_RPM_APPNAME:  Whisperfish
+  environment:
+      name: OpenRepos
+      url: https://openrepos.net/content/rubdos/whisperfish
+  needs:
     - build:sailfishos:latest:armv7hl
     - build:sailfishos:latest:i486
     - build:sailfishos:latest:aarch64
@@ -525,23 +538,8 @@ pages:
     - build:sailfishos:latest:armv7hl
     - build:sailfishos:latest:i486
     - build:sailfishos:latest:aarch64
-  only:
-    - tags
 
-deploy:openrepos:wf-sf4:
-  <<: *deploy-openrepos
-  variables:
-    <<: *openrepos-vars
-    OPENREPOS_UPLOAD_RPM_APPNAME:  Whisperfish
-  environment:
-      name: OpenRepos
-      url: https://openrepos.net/content/rubdos/whisperfish
-  before_script:
-    - mv RPMS/*.sf4.*.rpm .
-    - rm *shareplugin*rpm
-    - ls *.rpm
-
-deploy:openrepos:wf-shareplugin-sf3:
+deploy:openrepos:wf-shareplugin_v1:
   <<: *deploy-openrepos
   variables:
     <<: *openrepos-vars
@@ -549,11 +547,17 @@ deploy:openrepos:wf-shareplugin-sf3:
   environment:
       name: "OpenRepos shareplugin 4.3"
       url: https://openrepos.net/content/rubdos/whisperfish-shareplugin-sailfishos-42-or-below
-  before_script:
-    - mv RPMS/*shareplugin*.sf3.*.rpm .
-    - ls *.rpm
+  needs:
+    - build:sailfishos:latest:shareplugin_v1:armv7hl
+    - build:sailfishos:latest:shareplugin_v1:i486
+    - build:sailfishos:latest:shareplugin_v1:aarch64
+    - test:stable
+  dependencies:
+    - build:sailfishos:latest:shareplugin_v1:armv7hl
+    - build:sailfishos:latest:shareplugin_v1:i486
+    - build:sailfishos:latest:shareplugin_v1:aarch64
 
-deploy:openrepos:wf-shareplugin-sf4:
+deploy:openrepos:wf-shareplugin_v2:
   <<: *deploy-openrepos
   variables:
     <<: *openrepos-vars
@@ -561,9 +565,15 @@ deploy:openrepos:wf-shareplugin-sf4:
   environment:
       name: "OpenRepos shareplugin 4.3"
       url: https://openrepos.net/content/rubdos/whisperfish-shareplugin-sailfishos-43
-  before_script:
-    - mv RPMS/*shareplugin*.sf4.*.rpm .
-    - ls *.rpm
+  needs:
+    - build:sailfishos:latest:shareplugin_v2:armv7hl
+    - build:sailfishos:latest:shareplugin_v2:i486
+    - build:sailfishos:latest:shareplugin_v2:aarch64
+    - test:stable
+  dependencies:
+    - build:sailfishos:latest:shareplugin_v2:armv7hl
+    - build:sailfishos:latest:shareplugin_v2:i486
+    - build:sailfishos:latest:shareplugin_v2:aarch64
 
 deploy:gitlab:tarball:
   stage: deploy
