@@ -39,6 +39,7 @@ Requires:   sailfish-components-webview-qt5-pickers
 
 Recommends:   sailjail
 Recommends:   sailjail-permissions
+Recommends:   harbour-whisperfish-shareplugin
 
 # This comment lists SailfishOS-version specific code,
 # for future reference, to track the reasoning behind the minimum SailfishOS version.

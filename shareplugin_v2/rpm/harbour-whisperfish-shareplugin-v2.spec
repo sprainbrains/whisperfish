@@ -2,7 +2,7 @@
 %define _binary_payload w6.xzdio
 
 Name: harbour-whisperfish-shareplugin-v2
-Summary: Shareplugin v2 for Whisperfish 
+Summary: Shareplugin v2 for Whisperfish
 
 Version: 1.0.0
 Release: 0%{?dist}
@@ -16,6 +16,9 @@ Requires:  declarative-transferengine-qt5 >= 0.0.44
 Requires:  qt5-qtdeclarative-import-sensors >= 5.2
 
 Requires:   sailfish-version >= 4.3
+
+Requires:   harbour-whisperfish
+Provides:   harbour-whisperfish-shareplugin
 
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5Qml)

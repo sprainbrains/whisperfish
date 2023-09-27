@@ -14,6 +14,9 @@ Requires:  qt5-qtdeclarative-import-sensors >= 5.2
 
 Requires:   sailfish-version <= 4.2
 
+Requires:   harbour-whisperfish
+Provides:   harbour-whisperfish-shareplugin
+
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5Qml)
 BuildRequires: pkgconfig(nemotransferengine-qt5)
