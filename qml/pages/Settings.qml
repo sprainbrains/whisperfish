@@ -10,7 +10,7 @@ Page {
 
     SystemdUserService {
         id: autostartService
-        serviceName: 'harbour-whisperfish.service'
+        serviceName: 'be.rubdos.harbour.whisperfish'
     }
 
     // Cache encryption state so it's only queried once from storage
