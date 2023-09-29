@@ -76,6 +76,7 @@ ApplicationWindow
     // Return peer contacts avatar or Signal profile avatar based on
     // user selected preference. Do not use for groups (there's no choice).
     function getRecipientAvatar(e164, uuid) {
+        if (e164 == null) { e164 = '' }
         // Only try to search for contact name if contact is a phone number
         //var contact = (contactsReady && e164[0] === '+') ? resolvePeopleModel.personByPhoneNumber(e164, true) : null
         var contact = null

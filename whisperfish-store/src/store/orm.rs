@@ -616,6 +616,19 @@ impl Display for Reaction {
 }
 
 #[derive(Queryable, Debug, Clone)]
+pub struct GroupedReaction {
+    pub message_id: i32,
+    pub emoji: String,
+    pub count: i64,
+}
+
+impl Display for GroupedReaction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+        write!(f, "{{ \"{}\": {} }}", &self.emoji, &self.count,)
+    }
+}
+
+#[derive(Queryable, Debug, Clone)]
 pub struct Receipt {
     pub message_id: i32,
     pub recipient_id: i32,

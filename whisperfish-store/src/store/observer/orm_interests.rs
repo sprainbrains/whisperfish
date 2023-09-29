@@ -93,6 +93,17 @@ impl orm::Reaction {
     }
 }
 
+impl orm::GroupedReaction {
+    pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
+        // XXX: We should register interest for message_id + the specific emoji
+        std::iter::once(Interest::whole_table_with_relation(
+            schema::reactions::table,
+            schema::messages::table,
+            self.message_id,
+        ))
+    }
+}
+
 impl orm::Receipt {
     pub fn interests(&self) -> impl Iterator<Item = Interest> + '_ {
         // XXX This is a composite primary key, but we're only watching one foreign key

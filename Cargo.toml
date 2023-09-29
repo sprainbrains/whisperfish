@@ -21,6 +21,8 @@ qmetaobject = { git = "https://github.com/sprainbrains/qmetaobject-rs", branch =
 qttypes = { git = "https://github.com/sprainbrains/qmetaobject-rs", branch = "aurora_whisperfork" }
 pqcrypto-internals = { git = "https://github.com/whisperfish/pqcrypto", branch = "whisperfork" }
 
+openssl-src = { git = "https://github.com/whisperfish/openssl-src-rs", branch = "111.25.0-111" }
+
 # qmetaobject = { path="../qmetaobject-rs/qmetaobject" }
 # qttypes = { path="../qmetaobject-rs/qttypes" }
 

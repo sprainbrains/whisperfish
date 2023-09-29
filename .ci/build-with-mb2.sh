@@ -5,15 +5,11 @@ set -e
 echo "Building for $SFOS_VERSION"
 
 sudo zypper install -y \
-    sqlcipher-devel \
-    openssl-devel \
     zlib-devel \
 
 # Tooling-side dependencies used in build.rs
 sdk-manage tooling maintain SailfishOS-$SFOS_VERSION \
     zypper install -y \
-        sqlcipher-devel \
-        openssl-devel \
         zlib-devel \
 
 if [ -z "$CI_COMMIT_TAG" ]; then
@@ -58,23 +54,14 @@ EOF
 
 MAJOR_VERSION=$(echo $TARGET_VERSION | awk -F. '{print $1 FS $2}')
 
-if [[ "$MAJOR_VERSION" < "4.4" ]]
-then
-    SHAREPLUGIN="shareplugin_v1"
-else
-    SHAREPLUGIN="shareplugin_v2"
-fi
-
 mb2 -t SailfishOS-$TARGET_VERSION-$MER_ARCH build \
     --enable-debug \
     --no-check \
     -- \
-    --define "dist $DIST" \
     --define "cargo_version $VERSION"\
     --with lto \
     --with sccache \
     --with tools \
-    --with $SHAREPLUGIN \
 
 rm -rf $TMPDIR
 export TMPDIR="$TMPDIR2"
@@ -90,19 +77,4 @@ sudo cp -ar ~/whisperfish-build/target/* target/
 
 sudo mv ~/cargo $CI_PROJECT_DIR/cargo
 
-# Only upload on tags or main
-if [ -n "$CI_COMMIT_TAG" ] || [[ "$CI_COMMIT_BRANCH" == "main" ]]; then
-    for RPM_PATH in RPMS/*.rpm; do
-        echo Found RPM: $RPM_PATH
-        RPM_PATH="${RPM_PATH[0]}"
-        RPM=$(basename $RPM_PATH)
-
-        URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/harbour-whisperfish/$VERSION/$RPM"
-        echo Posting to $URL
-
-        # Upload to Gitlab
-        curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" \
-             --upload-file "$RPM_PATH" \
-             $URL
-    done
-fi
+.ci/upload-rpms.sh

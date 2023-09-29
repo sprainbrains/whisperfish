@@ -9,7 +9,7 @@ Page {
     objectName: "profilePage"
 
     property string profilePicture: ""
-    property string recipientUuid: ""
+    property alias recipientUuid: recipient.recipientUuid
 
     property bool isOwnProfile: SetupWorker.uuid === recipient.uuid
     property bool editingProfile: false
@@ -23,9 +23,6 @@ Page {
     Recipient {
         id: recipient
         app: AppState
-        recipientUuid: profilePage.recipientUuid
-        Component.onCompleted: profilePage.profilePicture = getRecipientAvatar(recipient.e164 != null ? recipient.e164 : '', recipient.uuid)
-
     }
 
     // Enter edit mode, or save changes
@@ -163,7 +160,7 @@ Page {
                 width: height
                 highlighted: false
                 labelsHighlighted: false
-                imageSource: profilePage.profilePicture
+                imageSource: getRecipientAvatar(recipient.e164, recipient.uuid)
                 isGroup: false
                 showInfoMark: true
                 infoMarkSource: 'image://theme/icon-s-chat'
@@ -235,7 +232,6 @@ Page {
                 //% "Last name (optional)"
                 label: qsTrId("whisperfish-profile-family-name")
                 text: recipient.familyName != null ? recipient.familyName : ''
-
                 // Disable prediction on lastname too for consistency.
                 inputMethodHints: Qt.ImhNoPredictiveText
             }
@@ -262,7 +258,6 @@ Page {
                 //% "Phone number"
                 label: qsTrId("whisperfish-profile-phone-number")
                 text: recipient.e164 != null ? recipient.e164 : ''
-
             }
 
             TextField {

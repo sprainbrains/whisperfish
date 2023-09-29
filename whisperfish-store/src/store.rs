@@ -37,7 +37,7 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 sql_function!(
     // Represents the Sqlite last_insert_rowid() function
-    fn last_insert_rowid() -> diesel::sql_types::Integer;
+    fn last_insert_rowid() -> Integer;
 );
 
 /// How much trust you put into the correctness of the data.
@@ -108,6 +108,20 @@ pub struct NewMessage {
     pub is_unidentified: bool,
     pub quote_timestamp: Option<u64>,
     pub expires_in: Option<std::time::Duration>,
+}
+
+pub struct StoreProfile {
+    pub given_name: Option<String>,
+    pub family_name: Option<String>,
+    pub joined_name: Option<String>,
+    pub about_text: Option<String>,
+    pub emoji: Option<String>,
+    pub avatar: Option<String>,
+    pub unidentified: UnidentifiedAccessMode,
+    pub last_fetch: NaiveDateTime,
+    pub r_uuid: Uuid,
+    pub r_id: i32,
+    pub r_key: Option<Vec<u8>>,
 }
 
 #[derive(Clone, Debug)]
@@ -652,29 +666,19 @@ impl Storage {
             .expect("insert reaction into database");
         log::trace!("Saved reaction for message {} from {}", msg_id, sender_id);
         self.observe_upsert(reactions, PrimaryKey::Unknown)
-            .with_relation(schema::recipients::table, sender_id)
             .with_relation(schema::messages::table, msg_id);
     }
 
     pub fn remove_reaction(&mut self, msg_id: i32, sender_id: i32) {
         use crate::schema::reactions::dsl::*;
-        let removed = diesel::delete(reactions)
+        diesel::delete(reactions)
             .filter(author.eq(sender_id))
             .filter(message_id.eq(msg_id))
             .execute(&mut *self.db())
             .expect("remove old reaction from database");
-        if removed > 0 {
-            log::trace!("Removed reaction for message {}", msg_id);
-            self.observe_delete(reactions, PrimaryKey::Unknown)
-                .with_relation(schema::recipients::table, sender_id)
-                .with_relation(schema::messages::table, msg_id);
-        } else {
-            log::trace!(
-                "Reaction not removed for message {} from {}",
-                msg_id,
-                sender_id
-            );
-        }
+        log::trace!("Removed reaction for message {}", msg_id);
+        self.observe_delete(reactions, PrimaryKey::Unknown)
+            .with_relation(schema::messages::table, msg_id);
     }
 
     pub fn fetch_self_recipient(&self) -> Option<orm::Recipient> {
@@ -887,6 +891,31 @@ impl Storage {
                 .expect("fetch existing record"),
             true,
         )
+    }
+
+    /// Save profile data to db and trigger GUI update.
+    /// Assumes the avatar image has been saved/deleted in advance.
+    pub fn save_profile(&self, profile: StoreProfile) {
+        use crate::store::schema::recipients::dsl::*;
+        use diesel::prelude::*;
+        diesel::update(recipients)
+            .set((
+                profile_given_name.eq(profile.given_name),
+                profile_family_name.eq(profile.family_name),
+                profile_joined_name.eq(profile.joined_name),
+                about.eq(profile.about_text),
+                about_emoji.eq(profile.emoji),
+                unidentified_access_mode.eq(profile.unidentified),
+                signal_profile_avatar.eq(profile.avatar),
+                last_profile_fetch.eq(profile.last_fetch),
+            ))
+            .filter(uuid.nullable().eq(&profile.r_uuid.to_string()))
+            .execute(&mut *self.db())
+            .expect("db");
+
+        log::trace!("Profile saved to database");
+
+        self.observe_update(schema::recipients::table, profile.r_id);
     }
 
     /// Equivalent of Androids `RecipientDatabase::getAndPossiblyMerge`.
@@ -1560,6 +1589,20 @@ impl Storage {
         reactions::table
             .inner_join(recipients::table)
             .filter(reactions::message_id.eq(mid))
+            .load(&mut *self.db())
+            .expect("db")
+    }
+
+    pub fn fetch_grouped_reactions_for_message(&self, mid: i32) -> Vec<orm::GroupedReaction> {
+        use schema::reactions;
+        reactions::table
+            .filter(reactions::message_id.eq(mid))
+            .group_by((reactions::message_id, reactions::emoji))
+            .select((
+                reactions::message_id,
+                reactions::emoji,
+                diesel::dsl::count(reactions::emoji),
+            ))
             .load(&mut *self.db())
             .expect("db")
     }

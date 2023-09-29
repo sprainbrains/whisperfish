@@ -93,7 +93,7 @@ ListItem {
     property bool isExpanded: false
     property bool isSelected: listView !== null && listView.selectedMessages[modelData.id] !== undefined
 
-    Reactions {
+    GroupedReactions {
         id: reactions
         app: AppState
         messageId: modelData.id
@@ -286,7 +286,7 @@ ListItem {
 
             EmojiItem {
                 id: emojiItem
-                reactions: reactions
+                reactions: reactions.groupedReactions
                 anchors.top: parent.top
                 anchors.left: isOutbound ? parent.left : undefined
                 anchors.right: isOutbound ? undefined : parent.right

@@ -9,28 +9,28 @@ use qmetaobject::prelude::*;
 
 /// QML-constructable object that interacts with a single message.
 #[derive(Default, QObject)]
-pub struct ReactionsImpl {
+pub struct GroupedReactionsImpl {
     base: qt_base_class!(trait QObject),
     message_id: Option<i32>,
 
-    reaction_list: QObjectBox<ReactionListModel>,
+    grouped_reaction_list: QObjectBox<GroupedReactionListModel>,
 }
 
 crate::observing_model! {
-    pub struct Reactions(ReactionsImpl) {
+    pub struct GroupedReactions(GroupedReactionsImpl) {
         messageId: i32;                READ get_message_id    WRITE set_message_id NOTIFY message_id_changed,
         valid: bool;                   READ get_valid                              NOTIFY valid_changed,
-        reactions: QVariant;           READ reactions                              NOTIFY reactions_changed,
+        groupedReactions: QVariant;    READ reactions                              NOTIFY reactions_changed,
         count: i32;                    READ reaction_count                         NOTIFY count_changed,
     }
 }
 
-impl EventObserving for ReactionsImpl {
+impl EventObserving for GroupedReactionsImpl {
     type Context = ModelContext<Self>;
 
     fn observe(&mut self, ctx: Self::Context, event: crate::store::observer::Event) {
         if let Some(message_id) = self.message_id {
-            self.reaction_list
+            self.grouped_reaction_list
                 .pinned()
                 .borrow_mut()
                 .observe(ctx, message_id, event);
@@ -47,32 +47,18 @@ impl EventObserving for ReactionsImpl {
                     id,
                 )
             })
-            .chain(
-                self.reaction_list
-                    .pinned()
-                    .borrow()
-                    .reactions
-                    .iter()
-                    .flat_map(|(reaction, recipient)| {
-                        reaction.interests().chain(recipient.interests())
-                    }),
-            )
             .collect()
     }
 }
 
 define_model_roles! {
-    pub(super) enum ReactionRoles for orm::Reaction [with offset 100] {
-        Id(reaction_id): "id",
-        MessageId(message_id): "messageId",
-        Author(author): "authorRecipientId",
+    pub(super) enum GroupedReactionRoles for orm::GroupedReaction {
         Reaction(emoji via QString::from): "reaction",
-        SentTime(sent_time via qdatetime_from_naive): "sentTime",
-        ReceivedTime(received_time via qdatetime_from_naive): "receivedTime",
+        Count(count): "count",
     }
 }
 
-impl ReactionsImpl {
+impl GroupedReactionsImpl {
     fn get_message_id(&self) -> i32 {
         self.message_id.unwrap_or(-1)
     }
@@ -82,11 +68,11 @@ impl ReactionsImpl {
     }
 
     fn reaction_count(&self) -> i32 {
-        self.reaction_list.pinned().borrow().row_count()
+        self.grouped_reaction_list.pinned().borrow().row_count()
     }
 
     fn fetch(&mut self, storage: Storage, id: i32) {
-        self.reaction_list
+        self.grouped_reaction_list
             .pinned()
             .borrow_mut()
             .load_all(storage, id);
@@ -106,26 +92,26 @@ impl ReactionsImpl {
     }
 
     fn reactions(&self) -> QVariant {
-        self.reaction_list.pinned().into()
+        self.grouped_reaction_list.pinned().into()
     }
 }
 
 #[derive(QObject, Default)]
-pub struct ReactionListModel {
+pub struct GroupedReactionListModel {
     base: qt_base_class!(trait QAbstractListModel),
-    reactions: Vec<(orm::Reaction, orm::Recipient)>,
+    grouped_reactions: Vec<orm::GroupedReaction>,
 }
 
-impl ReactionListModel {
+impl GroupedReactionListModel {
     fn load_all(&mut self, storage: Storage, message_id: i32) {
         self.begin_reset_model();
-        self.reactions = storage.fetch_reactions_for_message(message_id);
+        self.grouped_reactions = storage.fetch_grouped_reactions_for_message(message_id);
         self.end_reset_model();
     }
 
     fn observe(
         &mut self,
-        ctx: ModelContext<ReactionsImpl>,
+        ctx: ModelContext<GroupedReactionsImpl>,
         message_id: i32,
         _event: crate::store::observer::Event,
     ) {
@@ -133,26 +119,17 @@ impl ReactionListModel {
     }
 }
 
-impl QAbstractListModel for ReactionListModel {
+impl QAbstractListModel for GroupedReactionListModel {
     fn row_count(&self) -> i32 {
-        self.reactions.len() as i32
+        self.grouped_reactions.len() as i32
     }
 
     fn data(&self, index: QModelIndex, role: i32) -> QVariant {
-        const OFFSET: i32 = 100;
-        if role > OFFSET {
-            let role = ReactionRoles::from(role - OFFSET);
-            role.get(&self.reactions[index.row() as usize].0)
-        } else {
-            let role = RecipientRoles::from(role);
-            role.get(&self.reactions[index.row() as usize].1)
-        }
+        let role = GroupedReactionRoles::from(role);
+        role.get(&self.grouped_reactions[index.row() as usize])
     }
 
     fn role_names(&self) -> HashMap<i32, QByteArray> {
-        ReactionRoles::role_names()
-            .into_iter()
-            .chain(RecipientRoles::role_names())
-            .collect()
+        GroupedReactionRoles::role_names()
     }
 }

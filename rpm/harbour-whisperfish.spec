@@ -2,8 +2,11 @@
 %bcond_with lto
 %bcond_with sccache
 %bcond_with tools
-%bcond_with shareplugin_v1
-%bcond_with shareplugin_v2
+
+# Targets 4.5 and newer default to Zstd RPM compression,
+# which is not supported on 4.4 and older
+%define _source_payload w6.xzdio
+%define _binary_payload w6.xzdio
 
 %if %{with harbour}
 %define builddir target/sailfishos-harbour/%{_target_cpu}
@@ -12,10 +15,10 @@
 %endif
 
 Name: be.rubdos.harbour.whisperfish
-Summary: Private messaging using Signal for SailfishOS.
+Summary: Private messaging using Signal for SailfishOS/AuroraOS.
 
 Version: 0.6.0
-Release: 0%{?dist}
+Release: 0
 License: GPLv3+
 Group: Qt/Qt
 URL: https://github.com/sprainbrains/whisperfish/
@@ -27,6 +30,11 @@ Requires:   libauroraapp-launcher
 #Requires:   nemo-qml-plugin-contacts-qt5
 #Requires:   nemo-qml-plugin-configuration-qt5
 #Requires:   nemo-qml-plugin-notifications-qt5
+
+
+# For the captcha QML application
+#Requires:   qtmozembed-qt5
+
 Requires:   sailfish-components-webview-qt5
 #Requires:   openssl-libs
 #Requires:   dbus
@@ -35,10 +43,11 @@ Requires: sailfish-components-webview-qt5
 Requires: sailfish-components-webview-qt5-popups
 Requires: sailfish-components-webview-qt5-pickers
 
-#Requires:  qtmozembed-qt5
 
 #Recommends:   sailjail
 #Recommends:   sailjail-permissions
+#Recommends:   harbour-whisperfish-shareplugin
+
 
 # This comment lists SailfishOS-version specific code,
 # for future reference, to track the reasoning behind the minimum SailfishOS version.
@@ -69,6 +78,7 @@ BuildRequires:  git
 BuildRequires:  protobuf-compiler
 BuildRequires:  nemo-qml-plugin-notifications-qt5-devel
 BuildRequires:  qt5-qtwebsockets-devel
+BuildRequires:  dbus-devel
 BuildRequires:  gcc-c++
 BuildRequires:  zlib-devel
 BuildRequires:  coreutils
@@ -90,11 +100,6 @@ BuildRequires:  meego-rpm-config
 BuildRequires:  tcl
 BuildRequires:  automake
 
-%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
-BuildRequires: pkgconfig(nemotransferengine-qt5)
-Recommends:    %{name}-shareplugin
-%endif
-
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 
@@ -113,18 +118,6 @@ Recommends:    %{name}-shareplugin
 
 %prep
 %setup -q -n %{?with_harbour:harbour.}whisperfish
-
-# harbour-whisperfish-shareplugin
-%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
-%package shareplugin
-Summary: Share plugin for Whisperfish
-%description shareplugin
-%{summary}
-
-Group: Qt/Qt
-
-%endif
-# end harbour-whisperfish-shareplugin
 
 %build
 
@@ -273,27 +266,6 @@ cargo build \
           --features $FEATURES \
           --manifest-path %{_sourcedir}/../Cargo.toml
 
-%if %{without harbour} && ( %{with shareplugin_v1} || %{with shareplugin_v2} )
-
-mkdir -p %{targetdir}/shareplugin/
-cd %{targetdir}/shareplugin/
-
-%if %{with shareplugin_v2}
-    # Share plugin API v2
-    cp -ar %{_sourcedir}/../shareplugin_v2/* .
-    %qmake5
-    make %{?_smp_mflags}
-%endif
-
-%if %{with shareplugin_v1}
-    # Share plugin API v1
-    cp -ar %{_sourcedir}/../shareplugin_v1/* .
-    %qmake5
-    make %{?_smp_mflags}
-%endif
-
-%endif
-
 %if %{with sccache}
 sccache -s
 %endif
@@ -383,6 +355,7 @@ install -Dm 644 %{targetdir}/shareplugin/WhisperfishShare.qml \
 install -Dm 755 %{targetdir}/shareplugin/libwhisperfishshareplugin.so \
     %{buildroot}%{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
 %endif
+
 %endif
 
 %clean
@@ -419,9 +392,11 @@ rm -rf %{buildroot}
 
 
 
+
 %if %{with shareplugin_v1} || %{with shareplugin_v2}
 %files shareplugin
 %{_datadir}/nemo-transferengine/plugins/%{sharingsubdir}/WhisperfishShare.qml
 %{_libdir}/nemo-transferengine/plugins/%{sharingsubdir}/libwhisperfishshareplugin.so
 %endif
+
 %endif

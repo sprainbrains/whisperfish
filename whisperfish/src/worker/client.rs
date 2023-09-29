@@ -10,7 +10,6 @@ mod unidentified;
 pub use self::groupv2::*;
 pub use self::linked_devices::*;
 use self::migrations::MigrationCondVar;
-pub use self::profile::*;
 pub use self::profile_upload::*;
 use self::unidentified::UnidentifiedCertificates;
 use libsignal_service::proto::data_message::{Delete, Quote};
