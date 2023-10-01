@@ -494,7 +494,7 @@
         <location filename="../qml/pages/AddDevice.qml" line="82"/>
         <source>Scan the QR code displayed by the Signal application that you wish to link</source>
         <extracomment>Instructions on how to scan QR code for device linking</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lue QR-koodi sen laitteen Signal-sovelluksella jonka haluat linkittää</translation>
     </message>
     <message id="whisperfish-device-url">
         <location filename="../qml/pages/OldAddDevice.qml" line="43"/>
@@ -644,7 +644,7 @@
         <location filename="../qml/pages/MainPage.qml" line="265"/>
         <source>Start a new conversation through a linked device, or let someone message you</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aloita keskustelu käyttämällä linkitettyä laitetta tai vastaanottamalla viesti toiselta käyttäjältä</translation>
     </message>
     <message id="whisperfish-no-archived-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="275"/>

@@ -1498,13 +1498,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Show phone number</source>
         <extracomment>Settings page, show recipient phone number in conversation view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar el número de teléfono</translation>
     </message>
     <message id="whisperfish-settings-show-phone-number-description">
         <location filename="../qml/pages/Settings.qml" line="275"/>
         <source>Show the phone number of the recipient in the conversation page header.</source>
         <extracomment>Settings page, show recipient phone number in conversation view description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar el número de teléfono del destinatario en la cabecera de la página de la conversación.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="323"/>
