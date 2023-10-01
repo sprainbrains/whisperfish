@@ -25,7 +25,7 @@ URL: https://github.com/sprainbrains/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 #AutoReqProv: no
 Requires:   sailfishsilica-qt5 >= 0.10.9
-Requires:   libauroraapp-launcher
+#Requires:   libauroraapp-launcher
 #Requires:   sailfish-components-contacts-qt5
 #Requires:   nemo-qml-plugin-contacts-qt5
 #Requires:   nemo-qml-plugin-configuration-qt5
