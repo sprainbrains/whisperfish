@@ -44,7 +44,8 @@ WebViewPage {
         interval: 750
         running: false
         repeat: false
-        onTriggered: Qt.quit()
+        //onTriggered: Qt.quit()
+        onTriggered: pageStack.pop()
     }
 
     PageHeader {

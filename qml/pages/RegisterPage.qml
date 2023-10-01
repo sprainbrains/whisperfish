@@ -91,7 +91,8 @@ BlockingInfoPageBase {
         repeat: false
         onTriggered: {
             captchaReceived = false
-            Prompt.startCaptcha()
+            //Prompt.startCaptcha()
+            pageStack.push(Qt.resolvedUrl("RegistrationCaptcha.qml"), { }, PageStackAction.Immediate)
         }
     }
 
