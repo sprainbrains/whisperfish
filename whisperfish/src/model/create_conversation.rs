@@ -19,13 +19,13 @@ pub struct CreateConversationImpl {
 
 crate::observing_model! {
     pub struct CreateConversation(CreateConversationImpl) {
-        sessionId: i32; READ get_session_id                NOTIFY session_id_changed,
-        uuid: QString;  READ get_uuid       WRITE set_uuid NOTIFY uuid_changed,
-        e164: QString;  READ get_e164       WRITE set_e164 NOTIFY e164_changed,
-        ready: bool;    READ get_ready                     NOTIFY ready_changed,
-        invalid: bool;  READ get_invalid                   NOTIFY invalid_changed,
-        hasName: bool;  READ has_name                      NOTIFY has_name_changed,
-        name: QString;  READ get_name                      NOTIFY name_changed,
+        sessionId: i32; READ get_session_id,
+        uuid: QString; READ get_uuid WRITE set_uuid,
+        e164: QString; READ get_e164 WRITE set_e164,
+        ready: bool; READ get_ready,
+        invalid: bool; READ get_invalid,
+        hasName: bool; READ has_name,
+        name: QString; READ get_name,
     }
 }
 
