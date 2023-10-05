@@ -19,10 +19,10 @@ pub struct SessionsImpl {
 
 crate::observing_model! {
     pub struct Sessions(SessionsImpl) {
-        sessions: QVariant; READ sessions NOTIFY sessions_changed,
-        count: usize;       READ count    NOTIFY count_changed,
+        sessions: QVariant; READ sessions,
 
-        unread: usize;      READ unread   NOTIFY unread_changed,
+        count: usize; READ count,
+        unread: usize; READ unread,
     }
 }
 

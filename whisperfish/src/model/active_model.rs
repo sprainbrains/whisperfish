@@ -9,10 +9,10 @@ use crate::store::Storage;
 #[macro_export]
 macro_rules! observing_model {
     ($vis:vis struct $model:ident($encapsulated:ty) {
-        $($property:ident: $prop_type:ty; READ $getter:ident $(WRITE $setter:ident)? NOTIFY $notifier:ident),* $(,)?
+        $($property:ident: $t:ty; READ $getter:ident $(WRITE $setter:ident)?),* $(,)?
     } $(
         WITH OPTIONAL PROPERTIES FROM $field:ident WITH ROLE $role:ident {
-            $($opt_property:ident: $opt_prop_type:ty; ROLE $role_variant:ident READ $opt_getter:ident NOTIFY $opt_notifier:ident),* $(,)?
+            $($opt_property:ident $role_variant:ident),* $(,)?
         }
     )?) => {
         #[derive(QObject)]
@@ -28,15 +28,17 @@ macro_rules! observing_model {
 
             $(
                 #[allow(unused)]
-                $property: qt_property!($prop_type; READ $getter $(WRITE $setter)? NOTIFY $notifier),
-                $notifier: qt_signal!(value: $prop_type),
+                $property: qt_property!($t; READ $getter $(WRITE $setter)? NOTIFY something_changed),
             )*
 
-            $($(
+            $(
+            $(
                 #[allow(unused)]
-                $opt_property: qt_property!($opt_prop_type; READ $opt_getter NOTIFY $opt_notifier),
-                $opt_notifier: qt_signal!(value: $opt_prop_type),
-            )*)?
+                $opt_property: qt_property!(QVariant; READ $opt_property NOTIFY something_changed),
+            )*
+            )?
+
+            something_changed: qt_signal!(),
         }
 
         impl Default for $model {
@@ -50,14 +52,9 @@ macro_rules! observing_model {
                     actor: None,
                     observer_handle: None,
                     reinit: Default::default(),
-                    $(
-                        $property: Default::default(),
-                        $notifier: Default::default(),
-                    )*
-                    $($(
-                        $opt_property: Default::default(),
-                        $opt_notifier: Default::default(),
-                    )*)?
+                    $( $property: Default::default(), )*
+                    $($( $opt_property: Default::default(), )*)?
+                    something_changed: Default::default(),
                 }
             }
         }
@@ -86,36 +83,34 @@ macro_rules! observing_model {
                         };
                         self.actor = Some(actor);
                         self.inner.pinned().borrow_mut().init(ctx);
-                        let handle = storage.register_observer(
-                            $crate::store::observer::EventObserving::interests(&*self.inner.pinned().borrow()),
-                            subscriber,
-                        );
+                        let handle = storage.register_observer($crate::store::observer::EventObserving::interests(&*self.inner.pinned().borrow()), subscriber);
                         self.observer_handle = Some(handle);
 
-                        $(self.$notifier(self.$property.to_owned());)*
-                        $($(self.$opt_notifier(self.$opt_property.to_owned());)*)?
+                        self.something_changed();
                     }
                 }
             }
 
-            $($(
-                fn $opt_getter(&self) -> qmetaobject::QVariant {
+            $(
+            $(
+                fn $opt_property(&self) -> qmetaobject::QVariant {
                     match self.inner.pinned().borrow().$field.as_ref() {
                         Some(x) => {
-                            ($role::$role_variant).get(x).into()
+                            ($role::$role_variant).get(x)
                         }
                         None => qmetaobject::QVariant::default()
                     }
                 }
-            )*)?
+            )*
+            )?
             $(
-                fn $getter(&self) -> $prop_type {
+                fn $getter(&self) -> $t {
                     self.inner.pinned().borrow().$getter()
                 }
 
                 $(
                 #[qmeta_async::with_executor]
-                fn $setter(&mut self, v: $prop_type) {
+                fn $setter(&mut self, v: $t) {
                     let storage = self.app.as_pinned().and_then(|app| app.borrow().storage.borrow().clone());
                     let addr = self.actor.clone();
                     let ctx = storage.clone().zip(addr).map(|(storage, addr)| {
@@ -131,7 +126,7 @@ macro_rules! observing_model {
                     if let (Some(mut storage), Some(handle)) = (storage, self.observer_handle) {
                         storage.update_interests(handle, self.inner.pinned().borrow().interests());
                     }
-                    self.$notifier(self.$property.to_owned());
+                    self.something_changed();
                 }
                 )?
             )*

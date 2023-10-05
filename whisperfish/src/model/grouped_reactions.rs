@@ -18,10 +18,10 @@ pub struct GroupedReactionsImpl {
 
 crate::observing_model! {
     pub struct GroupedReactions(GroupedReactionsImpl) {
-        messageId: i32;                READ get_message_id    WRITE set_message_id NOTIFY message_id_changed,
-        valid: bool;                   READ get_valid                              NOTIFY valid_changed,
-        groupedReactions: QVariant;    READ reactions                              NOTIFY reactions_changed,
-        count: i32;                    READ reaction_count                         NOTIFY count_changed,
+        messageId: i32;                READ get_message_id    WRITE set_message_id,
+        valid: bool;                   READ get_valid,
+        groupedReactions: QVariant;    READ reactions,
+        count: i32;                    READ reaction_count,
     }
 }
 
