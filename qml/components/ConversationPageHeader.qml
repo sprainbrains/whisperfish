@@ -73,7 +73,7 @@ SilicaItem {
 
     width: parent ? parent.width : Screen.width
     // set height that keeps the first line of text aligned with the page indicator
-    height: Math.max(headerText.y + headerText.height + _descriptionLabel.height + _isTypingLabel.height + Theme.paddingMedium,
+    height: Math.max(headerText.y + headerText.height + _isTypingLabel.height + Theme.paddingMedium,
                      _preferredHeight)
 
     Label {
@@ -99,17 +99,24 @@ SilicaItem {
         }
     }
 
+    // _descriptionLabel and _isTypingLabel are rendered at the same position.
+    // If _isTypingLabel has text, only it will be visible.
+    // If not, only _descriptionLabel will be visible - empty or not.
+    // No more visual elements bouncing around when someone is typing!
+
     Label {
         id: _descriptionLabel
-        height: text.length > 0 ? descrMetrics.height : 0
-        Behavior on height {
+        opacity: _isTypingLabel.text.length > 0 ? 0.0 : 1.0
+        Behavior on opacity {
             NumberAnimation {}
         }
         clip: true
         anchors {
             top: _titleItem.bottom
-            right: parent.right; rightMargin: parent.rightMargin
-            left: extraContent.right; leftMargin: Theme.paddingMedium
+            right: parent.right;
+            rightMargin: parent.rightMargin
+            left: extraContent.right;
+            leftMargin: Theme.paddingMedium
         }
         font.pixelSize: Theme.fontSizeSmall
         color: highlighted ? Theme.secondaryColor : Theme.secondaryHighlightColor
@@ -118,25 +125,21 @@ SilicaItem {
         truncationMode: TruncationMode.Fade
         text: pageHeader.description
         wrapMode: pageHeader.wrapMode
-
-        TextMetrics {
-            id: descrMetrics
-            text: "X"
-            font.pixelSize: Theme.fontSizeSmall
-        }
     }
 
     Label {
         id: _isTypingLabel
-        height: incomingText.length > 0 ? isTypingMetrics.height : 0
-        Behavior on height {
+        opacity: text.length > 0 ? 1.0 : 0.0
+        Behavior on opacity {
             NumberAnimation {}
         }
         clip: true
         anchors {
-            top: _descriptionLabel.bottom
-            right: parent.right; rightMargin: parent.rightMargin
-            left: extraContent.right; leftMargin: Theme.paddingMedium
+            top: _titleItem.bottom
+            right: parent.right;
+            rightMargin: parent.rightMargin
+            left: extraContent.right;
+            leftMargin: Theme.paddingMedium
         }
         font.pixelSize: Theme.fontSizeSmall
         color: highlighted ? Theme.secondaryColor : Theme.secondaryHighlightColor
@@ -146,12 +149,6 @@ SilicaItem {
         property string incomingText: pageHeader.isTypingMessage
         text: incomingText
         wrapMode: pageHeader.wrapMode
-
-        TextMetrics {
-            id: isTypingMetrics
-            text: "X"
-            font.pixelSize: Theme.fontSizeSmall
-        }
     }
 
     ProfilePicture {
@@ -162,10 +159,7 @@ SilicaItem {
         isGroup: pageHeader.isGroup
         showInfoMark: false
         anchors {
-            // NOTE This should feel like it is vertically centered in the
-            // header (not just in "parent").
-            top: headerText.top; topMargin: -Theme.paddingMedium
-            bottom: _descriptionLabel.bottom; bottomMargin: Theme.paddingSmall
+            verticalCenter: parent.verticalCenter
             left: parent.left; leftMargin: pageHeader.leftMargin
         }
         onClicked: pageStack.navigateForward(PageStackAction.Animated)

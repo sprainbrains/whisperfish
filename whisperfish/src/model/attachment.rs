@@ -15,12 +15,12 @@ pub struct AttachmentImpl {
 
 crate::observing_model! {
     pub struct Attachment(AttachmentImpl) {
-        attachmentId: i32; READ get_attachment_id WRITE set_attachment_id NOTIFY attachment_id_changed,
-        valid: bool;       READ get_valid                                 NOTIFY validChanged,
+        attachmentId: i32; READ get_attachment_id WRITE set_attachment_id,
+        valid: bool; READ get_valid,
     } WITH OPTIONAL PROPERTIES FROM attachment WITH ROLE AttachmentRoles {
-        r#type: QVariant;      ROLE MimeType   READ get_type        NOTIFY type_changed,
-        data: QVariant;        ROLE Data       READ get_data        NOTIFY data_changed,
-        visual_hash: QVariant; ROLE VisualHash READ get_visual_hash NOTIFY visual_hash_changed,
+        r#type MimeType,
+        data Data,
+        visual_hash VisualHash,
     }
 }
 

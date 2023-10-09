@@ -22,14 +22,14 @@ pub struct GroupImpl {
 
 crate::observing_model! {
     pub struct Group(GroupImpl) {
-        groupId: QString;  READ get_group_id    WRITE set_group_id NOTIFY group_id_changed,
-        isGroupV1: bool;   READ get_is_group_v1                    NOTIFY group_v1_changed,
-        isGroupV2: bool;   READ get_is_group_v2                    NOTIFY group_v2_changed,
+        groupId: QString; READ get_group_id WRITE set_group_id,
+        isGroupV1: bool; READ get_is_group_v1,
+        isGroupV2: bool; READ get_is_group_v2,
 
-        valid: bool;       READ get_valid                          NOTIFY valid_changed,
+        valid: bool; READ get_valid,
 
-        members: QVariant; READ members                            NOTIFY members_changed,
-        member_count: i32; READ member_count                       NOTIFY member_count_changed,
+        members: QVariant; READ members,
+        member_count: i32; READ member_count,
     }
 }
 
