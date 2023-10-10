@@ -2142,7 +2142,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensaje</numerusform>
             <numerusform>%n mensajes</numerusform>
-            <numerusform>%n mensajes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
