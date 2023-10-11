@@ -23,35 +23,35 @@ pub struct RecipientImpl {
 
 crate::observing_model! {
     pub struct Recipient(RecipientImpl) {
-        recipientId: i32;      READ get_recipient_id   WRITE set_recipient_id   NOTIFY recipient_id_changed,
-        recipientUuid: String; READ get_recipient_uuid WRITE set_recipient_uuid NOTIFY recipient_uuid_changed,
-        valid: bool;           READ get_valid                                   NOTIFY valid_changed,
+        recipientId: i32; READ get_recipient_id WRITE set_recipient_id,
+        recipientUuid: String; READ get_recipient_uuid WRITE set_recipient_uuid,
+        valid: bool; READ get_valid,
     } WITH OPTIONAL PROPERTIES FROM recipient WITH ROLE RecipientWithAnalyzedSessionRoles {
-        id: QVariant;                     ROLE Id                     READ get_id                        NOTIFY id_changed,
-        directMessageSessionId: QVariant; ROLE DirectMessageSessionId READ get_direct_message_session_id NOTIFY direct_message_session_id_changed,
-        uuid: QVariant;                   ROLE Uuid                   READ get_uuid                      NOTIFY uuid_changed,
+        id Id,
+        directMessageSessionId DirectMessageSessionId,
+        uuid Uuid,
         // These two are aliases
-        e164: QVariant;                   ROLE E164                   READ get_e164                      NOTIFY e164_changed,
-        phoneNumber: QVariant;            ROLE PhoneNumber            READ get_phone_number              NOTIFY phone_number_changed,
-        username: QVariant;               ROLE Username               READ get_username                  NOTIFY username_changed,
-        email: QVariant;                  ROLE Email                  READ get_email                     NOTIFY email_changed,
+        e164 E164,
+        phoneNumber PhoneNumber,
+        username Username,
+        email Email,
 
-        sessionFingerprint: QVariant;     ROLE SessionFingerprint     READ get_session_fingerprint       NOTIFY session_fingerprint_changed,
-        sessionIsPostQuantum: QVariant;   ROLE SessionIsPostQuantum   READ get_post_quantum              NOTIFY post_quantum_changed,
+        sessionFingerprint SessionFingerprint,
+        sessionIsPostQuantum SessionIsPostQuantum,
 
-        blocked: QVariant;                ROLE Blocked                READ get_blocked                   NOTIFY blocked_changed,
+        blocked Blocked,
 
-        name: QVariant;                   ROLE JoinedName             READ get_name                      NOTIFY name_changed,
-        familyName: QVariant;             ROLE FamilyName             READ get_family_name               NOTIFY family_name_changed,
-        givenName: QVariant;              ROLE GivenName              READ get_given_name                NOTIFY given_name_changed,
+        name JoinedName,
+        familyName FamilyName,
+        givenName GivenName,
 
-        about: QVariant;                  ROLE About                  READ get_about                     NOTIFY about_changed,
-        emoji: QVariant;                  ROLE Emoji                  READ get_emoji                     NOTIFY emoji_changed,
+        about About,
+        emoji Emoji,
 
-        unidentifiedAccessMode: QVariant; ROLE UnidentifiedAccessMode READ get_unidentified_access_mode  NOTIFY unidentified_access_mode_changed,
-        profileSharing: QVariant;         ROLE ProfileSharing         READ get_profile_sharing           NOTIFY profile_sharing_changed,
+        unidentifiedAccessMode UnidentifiedAccessMode,
+        profileSharing ProfileSharing,
 
-        isRegistered: QVariant;           ROLE IsRegistered           READ get_is_registered             NOTIFY is_registered_changed,
+        isRegistered IsRegistered,
     }
 }
 

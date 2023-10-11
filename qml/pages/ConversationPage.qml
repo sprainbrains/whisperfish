@@ -76,8 +76,17 @@ Page {
                 //% "%n member(s)"
                 return qsTrId("whisperfish-group-n-members", group.member_count)
             }
-            else return (!SettingsBridge.show_phone_number || session.recipientName === session.recipientE164 ?
-                             "" : session.recipientE164)
+            else return (
+                !SettingsBridge.show_phone_number || conversationName === session.recipientE164 || session.recipientE164 == ''
+                ? (
+                    session.recipientAboutText != ''
+                    ? session.recipientAboutText
+                    //: The number of messages in a conversation, displayed in page header
+                    //% "%n message(s)"
+                    : qsTrId("whisperfish-chat-n-messages", messages.count)
+                )
+                : session.recipientE164
+            )
         }
         profilePicture: root.profilePicture
 

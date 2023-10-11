@@ -153,7 +153,7 @@
         <location filename="../qml/pages/MainPage.qml" line="265"/>
         <source>Start a new conversation through a linked device, or let someone message you</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Begin een nieuw gesprek via een gekoppeld apparaat, of laat iemand jou een bericht sturen</translation>
     </message>
     <message id="whisperfish-no-archived-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="275"/>
@@ -1380,13 +1380,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Show phone number</source>
         <extracomment>Settings page, show recipient phone number in conversation view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Telefoonnummer tonen</translation>
     </message>
     <message id="whisperfish-settings-show-phone-number-description">
         <location filename="../qml/pages/Settings.qml" line="275"/>
         <source>Show the phone number of the recipient in the conversation page header.</source>
         <extracomment>Settings page, show recipient phone number in conversation view description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Toon het telefoonnummer van de ontvanger bovenaan de conversatie.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="323"/>
@@ -2017,8 +2017,17 @@ Settings page share contacts</extracomment>
             <numerusform>%n leden</numerusform>
         </translation>
     </message>
+    <message id="whisperfish-chat-n-messages" numerus="yes">
+        <location filename="../qml/pages/ConversationPage.qml" line="86"/>
+        <source>%n message(s)</source>
+        <extracomment>The number of messages in a conversation, displayed in page header</extracomment>
+        <translation>
+            <numerusform>%n bericht</numerusform>
+            <numerusform>%n berichten</numerusform>
+        </translation>
+    </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="282"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="291"/>
         <source>%n message(s) selected</source>
         <oldsource>%1 message(s) selected</oldsource>
         <extracomment>Info label shown while selecting messages</extracomment>
@@ -2028,7 +2037,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="305"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="314"/>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
@@ -2037,7 +2046,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="314"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="323"/>
         <source>Copy %n message(s)</source>
         <oldsource>Copy %1 message(s)</oldsource>
         <extracomment>Message action description</extracomment>
@@ -2047,14 +2056,14 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
-        <location filename="../qml/pages/ConversationPage.qml" line="322"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="331"/>
         <source>Show message info</source>
         <extracomment>Message action description (only available if n==1)</extracomment>
         <translation>Berichtinfo tonen</translation>
     </message>
     <message id="whisperfish-message-action-delete-for-self" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="334"/>
-        <location filename="../qml/pages/ConversationPage.qml" line="366"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="343"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="375"/>
         <source>Locally delete %n message(s)</source>
         <oldsource>Delete %1 message(s) for me</oldsource>
         <extracomment>Message action description</extracomment>
@@ -2064,8 +2073,8 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="346"/>
-        <location filename="../qml/pages/ConversationPage.qml" line="376"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="355"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="385"/>
         <source>Delete %n message(s) for all</source>
         <oldsource>Delete %1 message(s) for all</oldsource>
         <extracomment>Message action description</extracomment>
@@ -2075,7 +2084,7 @@ Settings page share contacts</extracomment>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
-        <location filename="../qml/pages/ConversationPage.qml" line="388"/>
+        <location filename="../qml/pages/ConversationPage.qml" line="397"/>
         <source>Retry sending (the) failed message(s)</source>
         <extracomment>Message action description</extracomment>
         <translation>
