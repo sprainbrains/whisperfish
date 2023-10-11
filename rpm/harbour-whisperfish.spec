@@ -14,6 +14,10 @@
 %define builddir target/sailfishos/%{_target_cpu}
 %endif
 
+%global __provides_exclude_from ^%{_datadir}/%{name}/lib/.*\\.so.*$
+%global __requires_exclude_from ^%{_datadir}/%{name}/lib/.*$
+
+
 Name: be.rubdos.harbour.whisperfish
 Summary: Private messaging using Signal for SailfishOS/AuroraOS.
 
@@ -25,7 +29,7 @@ URL: https://github.com/sprainbrains/whisperfish/
 Source0: %{name}-%{version}.tar.gz
 #AutoReqProv: no
 Requires:   sailfishsilica-qt5 >= 0.10.9
-Requires:   libauroraapp-launcher
+#Requires:   libauroraapp-launcher
 #Requires:   sailfish-components-contacts-qt5
 #Requires:   nemo-qml-plugin-contacts-qt5
 #Requires:   nemo-qml-plugin-configuration-qt5
@@ -328,6 +332,12 @@ install -Dm 644 %{_sourcedir}/../icons/128x128/harbour-whisperfish.png \
     %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/%{name}.png
 install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
     %{buildroot}%{_datadir}/icons/hicolor/172x172/apps/%{name}.png
+
+# Libs
+#%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/lib/
+#%{__cp} %{_sourcedir}/../lib/program/* %{buildroot}%{_datadir}/%{name}/lib/program
+install -Dm 777 %{_sourcedir}/../lib/program/aurora-qml %{buildroot}%{_datadir}/%{name}/lib/qml-start
+#chmod +x %{buildroot}%{_datadir}/%{name}/lib/program/aurora-qml
 
 # QML & icons
 (cd %{_sourcedir}/../ && find ./qml ./icons \
