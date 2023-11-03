@@ -16,7 +16,7 @@ BlockingInfoPageBase {
 
     detailedDescription: SetupWorker.useVoice ?
                              //: verify registration instructions: voice
-                             //% "Signal should have called you with a a 6-digit "
+                             //% "Signal should have called you with a 6-digit "
                              //% "verification code. Please wait a moment, or "
                              //% "restart the process if you have not received a call."
                              qsTrId("whisperfish-verify-instructions-voice") :
