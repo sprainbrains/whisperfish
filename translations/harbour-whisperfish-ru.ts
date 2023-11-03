@@ -1638,9 +1638,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="22"/>
-        <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation>Signal должен был позвонить вам и сообщить 6-значный проверочный код. Пожалуйста, подождите немного или перезапустите процесс, если вы не получили звонок.</translation>
+        <translation type="unfinished">Signal должен был позвонить вам и сообщить 6-значный проверочный код. Пожалуйста, подождите немного или перезапустите процесс, если вы не получили звонок.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>

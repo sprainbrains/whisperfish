@@ -1726,9 +1726,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="22"/>
-        <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation>Signal turėjo paskambinti jums ir nurodyti 6 skaitmenų patvirtinimo kodą. Jei skambučio nesulaukėte, palaukite akimirką arba pradėkite procesą iš naujo.</translation>
+        <translation type="unfinished">Signal turėjo paskambinti jums ir nurodyti 6 skaitmenų patvirtinimo kodą. Jei skambučio nesulaukėte, palaukite akimirką arba pradėkite procesą iš naujo.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>
