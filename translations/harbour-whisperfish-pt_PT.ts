@@ -1788,7 +1788,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="421"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation>O teu perfil está encriptado. As modificações ao teu perfil serão visíveis para os teus contactos quando começares ou aceitares novas conversas.</translation>
+        <translation>O teu perfil está encriptado. As modificações ao teu perfil serão visíveis para os teus contactos e quando começares ou aceitares novas conversas.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="429"/>
