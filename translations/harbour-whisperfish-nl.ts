@@ -1724,7 +1724,7 @@ Settings page share contacts</extracomment>
         <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation type="unfinished">Signal zou je gebeld moeten hebben met een 6-cijferige verificatiecode. Wacht even, of begin opnieuw als je geen telefoontje ontvangen hebt.</translation>
+        <translation>Signal zou je gebeld moeten hebben met een 6-cijferige verificatiecode. Wacht even, of begin opnieuw als je geen telefoontje ontvangen hebt.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>
