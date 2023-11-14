@@ -721,7 +721,7 @@
         <location filename="../qml/pages/MainPage.qml" line="265"/>
         <source>Start a new conversation through a linked device, or let someone message you</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation>Inicía uma conversa através de um dispositivo associado, ou deixa alguém mandar uma mensagem para ti</translation>
+        <translation>Inicia uma conversa através de um dispositivo associado, ou deixa alguém enviar uma mensagem para ti</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
@@ -1837,7 +1837,7 @@ Settings page share contacts</extracomment>
         <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation type="unfinished">Deverias ter recebido uma chamada do Signal com um código de verificação de 6 dígitos. Por favor espera um pouco, ou reinicia o processo se não recebeste a chamada.</translation>
+        <translation>Deverias ter recebido uma chamada do Signal com um código de verificação de 6 dígitos. Por favor espera um pouco, ou reinicia o processo se não recebeste a chamada.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>
