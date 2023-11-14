@@ -769,7 +769,6 @@
         <translation>
             <numerusform>%n mensagem foi apagada localmente</numerusform>
             <numerusform>%n mensagens foram apagadas localmente</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -784,7 +783,6 @@
         <translation>
             <numerusform>%n mensagem eliminada para todos</numerusform>
             <numerusform>%n mensagens eliminadas para todos</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-copy-message-menu">
@@ -1878,7 +1876,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n anexo</numerusform>
             <numerusform>%n anexos</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
@@ -1912,7 +1909,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1923,7 +1919,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>e mais %n</numerusform>
             <numerusform>e mais %n</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -2134,7 +2129,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membro</numerusform>
             <numerusform>%n membros</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-n-messages" numerus="yes">
@@ -2144,7 +2138,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensagem</numerusform>
             <numerusform>%n mensagens</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -2155,7 +2148,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensagem selecionada</numerusform>
             <numerusform>%n mensagens selecionadas</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -2165,7 +2157,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Cancelar seleção</numerusform>
             <numerusform>Cancelar seleção</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -2176,7 +2167,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Copiar %n mensagem</numerusform>
             <numerusform>Copiar %n mensagens</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -2194,7 +2184,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem localmente</numerusform>
             <numerusform>Apagar %n mensagens localmente</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -2206,7 +2195,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem para todos</numerusform>
             <numerusform>Apagar %n mensagens para todos</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -2216,7 +2204,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Tenta enviar a mensagem falhada outra vez</numerusform>
             <numerusform>Tenta enviar as mensagens falhadas outra vez</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
@@ -2239,7 +2226,6 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Mensagem&lt;br/&gt;não lida</numerusform>
             <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
