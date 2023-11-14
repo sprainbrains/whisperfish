@@ -1254,7 +1254,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando esta opção é desativada.</translation>
+        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando esta opção está desativada.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="289"/>
