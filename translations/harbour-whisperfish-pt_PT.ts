@@ -769,6 +769,7 @@
         <translation>
             <numerusform>%n mensagem foi apagada localmente</numerusform>
             <numerusform>%n mensagens foram apagadas localmente</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -783,6 +784,7 @@
         <translation>
             <numerusform>%n mensagem eliminada para todos</numerusform>
             <numerusform>%n mensagens eliminadas para todos</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-copy-message-menu">
@@ -1254,7 +1256,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando está opção é desativada.</translation>
+        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando esta opção é desativada.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="289"/>
@@ -1418,13 +1420,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Show phone number</source>
         <extracomment>Settings page, show recipient phone number in conversation view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar número de telefone</translation>
     </message>
     <message id="whisperfish-settings-show-phone-number-description">
         <location filename="../qml/pages/Settings.qml" line="275"/>
         <source>Show the phone number of the recipient in the conversation page header.</source>
         <extracomment>Settings page, show recipient phone number in conversation view description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o número de telefone do destinatário no cabeçalho da conversa.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="323"/>
@@ -1776,7 +1778,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="389"/>
         <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
         <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
-        <translation>Se indicado, esta sessão foi inicializado com criptografia segura pós-quântica.</translation>
+        <translation>Se assinalado, esta sessão foi inicializada com criptografia segura pós-quântica.</translation>
     </message>
     <message id="whisperfish-kyber-click-explanation">
         <location filename="../qml/pages/ProfilePage.qml" line="399"/>
@@ -1876,6 +1878,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n anexo</numerusform>
             <numerusform>%n anexos</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
@@ -1909,6 +1912,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1919,6 +1923,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>e mais %n</numerusform>
             <numerusform>e mais %n</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-no-timestamp">
@@ -2129,14 +2134,16 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membro</numerusform>
             <numerusform>%n membros</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-n-messages" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="86"/>
         <source>%n message(s)</source>
         <extracomment>The number of messages in a conversation, displayed in page header</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n mensagem</numerusform>
+            <numerusform>%n mensagens</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2148,6 +2155,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n mensagem selecionada</numerusform>
             <numerusform>%n mensagens selecionadas</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -2157,6 +2165,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Cancelar seleção</numerusform>
             <numerusform>Cancelar seleção</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-copy" numerus="yes">
@@ -2167,6 +2176,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Copiar %n mensagem</numerusform>
             <numerusform>Copiar %n mensagens</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-info">
@@ -2184,6 +2194,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem localmente</numerusform>
             <numerusform>Apagar %n mensagens localmente</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -2195,6 +2206,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Apagar %n mensagem para todos</numerusform>
             <numerusform>Apagar %n mensagens para todos</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -2204,6 +2216,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Tenta enviar a mensagem falhada outra vez</numerusform>
             <numerusform>Tenta enviar as mensagens falhadas outra vez</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-share-page-title">
@@ -2226,6 +2239,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Mensagem&lt;br/&gt;não lida</numerusform>
             <numerusform>Mensagens&lt;br/&gt;não lidas</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message id="whisperfish-registration-type-message">
