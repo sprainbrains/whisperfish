@@ -1641,7 +1641,7 @@ Settings page share contacts</extracomment>
         <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation type="unfinished">Signal должен был позвонить вам и сообщить 6-значный проверочный код. Пожалуйста, подождите немного или перезапустите процесс, если вы не получили звонок.</translation>
+        <translation>Signal должен был позвонить вам и сообщить 6-значный проверочный код. Пожалуйста, подождите немного или перезапустите процесс, если вы не получили звонок.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>
@@ -1943,10 +1943,10 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="86"/>
         <source>%n message(s)</source>
         <extracomment>The number of messages in a conversation, displayed in page header</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n сообщение</numerusform>
+            <numerusform>%n сообщения</numerusform>
+            <numerusform>%n сообщений</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
