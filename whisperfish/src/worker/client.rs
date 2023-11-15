@@ -1046,9 +1046,12 @@ impl Handler<FetchAttachment> for ClientActor {
             "text/x-signal-plain" => "txt",
             "application/x-signal-view-once" => "bin",
             other => mime_guess::get_mime_extensions_str(other)
-                .expect("Could not find mime")
-                .first()
-                .unwrap(),
+                .and_then(|x| x.first())
+                .copied() // &&str -> &str
+                .unwrap_or_else(|| {
+                    log::warn!("Could not find mime type; defaulting to .bin");
+                    "bin"
+                }),
         };
 
         let ptr2 = attachment.clone();
