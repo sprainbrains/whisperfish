@@ -769,6 +769,7 @@
         <translation>
             <numerusform>%n message supprimé localement</numerusform>
             <numerusform>%n messages supprimés localement</numerusform>
+            <numerusform>%n messages supprimés localement</numerusform>
         </translation>
     </message>
     <message id="whisperfish-react-message-menu">
@@ -782,6 +783,7 @@
         <extracomment>Remorse: *globally* deleted one or multiple message (past tense)</extracomment>
         <translation>
             <numerusform>A supprimé %n message pour tout le monde</numerusform>
+            <numerusform>A supprimé %n messages pour tout le monde</numerusform>
             <numerusform>A supprimé %n messages pour tout le monde</numerusform>
         </translation>
     </message>
@@ -1421,13 +1423,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Show phone number</source>
         <extracomment>Settings page, show recipient phone number in conversation view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le numéro de téléphone</translation>
     </message>
     <message id="whisperfish-settings-show-phone-number-description">
         <location filename="../qml/pages/Settings.qml" line="275"/>
         <source>Show the phone number of the recipient in the conversation page header.</source>
         <extracomment>Settings page, show recipient phone number in conversation view description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le numéro de téléphone du destinataire dans l&apos;en-tête de la page de conversation.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="323"/>
@@ -1531,7 +1533,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="516"/>
         <source>Test captcha</source>
         <extracomment>Settings page, test captcha button</extracomment>
-        <translation type="unfinished">Tester le CAPTCHA</translation>
+        <translation>Tester le CAPTCHA</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="527"/>
@@ -1840,7 +1842,7 @@ Settings page share contacts</extracomment>
         <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
         <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation type="unfinished">Signal aurait dû vous appeler avec un code de vérification à 6 chiffres. Veuillez patienter un moment ou redémarrer le processus si vous n&apos;avez pas reçu d&apos;appel.</translation>
+        <translation>Signal aurait dû vous appeler avec un code de vérification à 6 chiffres. Veuillez patienter un moment ou redémarrer le processus si vous n&apos;avez pas reçu d&apos;appel.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>
@@ -1879,6 +1881,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n pièce jointe</numerusform>
             <numerusform>%n pièces jointes</numerusform>
+            <numerusform>%n pièces jointes</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-input-recipient-is-unregistered">
@@ -1912,6 +1915,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>+%n</numerusform>
             <numerusform>+%n</numerusform>
+            <numerusform>+%n</numerusform>
         </translation>
     </message>
     <message id="whisperfish-attachments-loader-show-more" numerus="yes">
@@ -1920,6 +1924,7 @@ Settings page share contacts</extracomment>
         <oldsource>and %1 more</oldsource>
         <extracomment>Note if some message attachments are hidden instead of being shown inline</extracomment>
         <translation>
+            <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
             <numerusform>et %1 de plus</numerusform>
         </translation>
@@ -2132,15 +2137,17 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n membre</numerusform>
             <numerusform>%n membres</numerusform>
+            <numerusform>%n membres</numerusform>
         </translation>
     </message>
     <message id="whisperfish-chat-n-messages" numerus="yes">
         <location filename="../qml/pages/ConversationPage.qml" line="86"/>
         <source>%n message(s)</source>
         <extracomment>The number of messages in a conversation, displayed in page header</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n message</numerusform>
+            <numerusform>%n messages</numerusform>
+            <numerusform>%n messages</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
@@ -2151,6 +2158,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>%n message sélectionné</numerusform>
             <numerusform>%n messages sélectionnés</numerusform>
+            <numerusform>%n messages sélectionnés</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-clear-selection" numerus="yes">
@@ -2158,6 +2166,7 @@ Settings page share contacts</extracomment>
         <source>Clear selection</source>
         <extracomment>Message action description, shown if one or more messages are selected</extracomment>
         <translation>
+            <numerusform>Effacer la sélection</numerusform>
             <numerusform>Effacer la sélection</numerusform>
             <numerusform>Effacer la sélection</numerusform>
         </translation>
@@ -2169,6 +2178,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Copier %n message</numerusform>
+            <numerusform>Copier %n messages</numerusform>
             <numerusform>Copier %n messages</numerusform>
         </translation>
     </message>
@@ -2187,6 +2197,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Supprimer %n message pour moi</numerusform>
             <numerusform>Supprimer %n messages pour moi</numerusform>
+            <numerusform>Supprimer %n messages pour moi</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-delete-for-all" numerus="yes">
@@ -2198,6 +2209,7 @@ Settings page share contacts</extracomment>
         <translation>
             <numerusform>Supprimer %n message pour tous</numerusform>
             <numerusform>Supprimer %n messages pour tous</numerusform>
+            <numerusform>Supprimer %n messages pour tous</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-action-resend" numerus="yes">
@@ -2206,6 +2218,7 @@ Settings page share contacts</extracomment>
         <extracomment>Message action description</extracomment>
         <translation>
             <numerusform>Réessayer d’envoyer le message non envoyé</numerusform>
+            <numerusform>Réessayer d’envoyer les messages non envoyés</numerusform>
             <numerusform>Réessayer d’envoyer les messages non envoyés</numerusform>
         </translation>
     </message>
@@ -2228,6 +2241,7 @@ Settings page share contacts</extracomment>
         <extracomment>Unread messages count cover label. Code requires exact line break tag &quot;&lt;br/&gt;&quot;.</extracomment>
         <translation>
             <numerusform>Message&lt;br/&gt;non lu</numerusform>
+            <numerusform>Messages&lt;br/&gt;non lus</numerusform>
             <numerusform>Messages&lt;br/&gt;non lus</numerusform>
         </translation>
     </message>
