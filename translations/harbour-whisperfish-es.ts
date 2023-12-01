@@ -1839,9 +1839,10 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="22"/>
-        <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
-        <translation>Signal debería haberle llamado con un código de verificación de 6 dígitos. Por favor espere un momento, o reinicie el proceso si no ha recibido ninguna llamada.</translation>
+        <translation>Signal debería haberte llamado con un código de verificación de 6 dígitos. Espera un momento o reinicia el proceso si no has recibido la llamada.</translation>
     </message>
     <message id="whisperfish-verify-instructions-sms">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="27"/>

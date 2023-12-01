@@ -721,7 +721,7 @@
         <location filename="../qml/pages/MainPage.qml" line="265"/>
         <source>Start a new conversation through a linked device, or let someone message you</source>
         <extracomment>No messages found, hint on what to do</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Inicia uma conversa através de um dispositivo associado, ou deixa alguém enviar uma mensagem para ti</translation>
     </message>
     <message id="whisperfish-no-messages-hint-text">
         <location filename="../qml/pages/MainPage.qml" line="271"/>
@@ -1254,7 +1254,7 @@ Settings page share contacts</extracomment>
         <source>Attachments are stored at %1. Currently, when disabled, attachments will not work.</source>
         <oldsource>Attachments are stored at %1</oldsource>
         <extracomment>Settings page save attachments description</extracomment>
-        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando está opção é desativada.</translation>
+        <translation>Anexos são guardados em %1. Atualmente, os anexos não funcionam quando esta opção está desativada.</translation>
     </message>
     <message id="whisperfish-settings-enable-enter-send">
         <location filename="../qml/pages/Settings.qml" line="289"/>
@@ -1418,13 +1418,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Show phone number</source>
         <extracomment>Settings page, show recipient phone number in conversation view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar número de telefone</translation>
     </message>
     <message id="whisperfish-settings-show-phone-number-description">
         <location filename="../qml/pages/Settings.qml" line="275"/>
         <source>Show the phone number of the recipient in the conversation page header.</source>
         <extracomment>Settings page, show recipient phone number in conversation view description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o número de telefone do destinatário no cabeçalho da conversa.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="323"/>
@@ -1776,7 +1776,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="389"/>
         <source>If checked, this session was initialized with post-quantum secure cryptography.</source>
         <extracomment>Profile page: description for post-quantum secure sessions</extracomment>
-        <translation>Se indicado, esta sessão foi inicializado com criptografia segura pós-quântica.</translation>
+        <translation>Se assinalado, esta sessão foi inicializada com criptografia segura pós-quântica.</translation>
     </message>
     <message id="whisperfish-kyber-click-explanation">
         <location filename="../qml/pages/ProfilePage.qml" line="399"/>
@@ -1788,7 +1788,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ProfilePage.qml" line="421"/>
         <source>Your profile is encrypted. Your profile and changes to it will be visible to your contacts and when you start or accept new chats.</source>
         <extracomment>Signal Profile description / help text</extracomment>
-        <translation>O teu perfil está encriptado. As modificações ao teu perfil serão visíveis para os teus contactos quando começares ou aceitares novas conversas.</translation>
+        <translation>O teu perfil está encriptado. As modificações ao teu perfil serão visíveis para os teus contactos e quando começares ou aceitares novas conversas.</translation>
     </message>
     <message id="whisperfish-own-profile-learn-more-button">
         <location filename="../qml/pages/ProfilePage.qml" line="429"/>
@@ -1834,7 +1834,8 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="22"/>
-        <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
         <translation>Deverias ter recebido uma chamada do Signal com um código de verificação de 6 dígitos. Por favor espera um pouco, ou reinicia o processo se não recebeste a chamada.</translation>
     </message>
@@ -2134,9 +2135,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="86"/>
         <source>%n message(s)</source>
         <extracomment>The number of messages in a conversation, displayed in page header</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n mensagem</numerusform>
+            <numerusform>%n mensagens</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">

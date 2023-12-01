@@ -1421,13 +1421,13 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="272"/>
         <source>Show phone number</source>
         <extracomment>Settings page, show recipient phone number in conversation view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le numéro de téléphone</translation>
     </message>
     <message id="whisperfish-settings-show-phone-number-description">
         <location filename="../qml/pages/Settings.qml" line="275"/>
         <source>Show the phone number of the recipient in the conversation page header.</source>
         <extracomment>Settings page, show recipient phone number in conversation view description</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Afficher le numéro de téléphone du destinataire dans l&apos;en-tête de la page de conversation.</translation>
     </message>
     <message id="whisperfish-settings-enable-autostart-description">
         <location filename="../qml/pages/Settings.qml" line="323"/>
@@ -1531,7 +1531,7 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/Settings.qml" line="516"/>
         <source>Test captcha</source>
         <extracomment>Settings page, test captcha button</extracomment>
-        <translation type="unfinished">Tester le CAPTCHA</translation>
+        <translation>Tester le CAPTCHA</translation>
     </message>
     <message id="whisperfish-settings-stats-section">
         <location filename="../qml/pages/Settings.qml" line="527"/>
@@ -1837,7 +1837,8 @@ Settings page share contacts</extracomment>
     </message>
     <message id="whisperfish-verify-instructions-voice">
         <location filename="../qml/pages/VerifyRegistrationPage.qml" line="22"/>
-        <source>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <source>Signal should have called you with a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</source>
+        <oldsource>Signal should have called you with a a 6-digit verification code. Please wait a moment, or restart the process if you have not received a call.</oldsource>
         <extracomment>verify registration instructions: voice</extracomment>
         <translation>Signal aurait dû vous appeler avec un code de vérification à 6 chiffres. Veuillez patienter un moment ou redémarrer le processus si vous n&apos;avez pas reçu d&apos;appel.</translation>
     </message>
@@ -2137,9 +2138,9 @@ Settings page share contacts</extracomment>
         <location filename="../qml/pages/ConversationPage.qml" line="86"/>
         <source>%n message(s)</source>
         <extracomment>The number of messages in a conversation, displayed in page header</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n message</numerusform>
+            <numerusform>%n messages</numerusform>
         </translation>
     </message>
     <message id="whisperfish-message-actions-info-label" numerus="yes">
