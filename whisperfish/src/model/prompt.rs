@@ -210,7 +210,7 @@ impl Prompt {
     fn startCaptcha(&mut self) {
         // Rust 2021
         #[allow(clippy::needless_borrow)]
-        Command::new("/usr/share/be.rubdos.harbour.whisperfish/lib/program/qml-start")
+        Command::new("/usr/libexec/be.rubdos.harbour.whisperfish/be.rubdos.harbour.whisperfish")
             .args(&["be.rubdos.harbour.whisperfish"])
             .spawn()
             .expect("/usr/bin/aurora-qml not found, libauroraapp-launcher not installed?");

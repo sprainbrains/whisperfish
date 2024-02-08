@@ -336,7 +336,8 @@ install -Dm 644 %{_sourcedir}/../icons/172x172/harbour-whisperfish.png \
 # Libs
 #%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/lib/
 #%{__cp} %{_sourcedir}/../lib/program/* %{buildroot}%{_datadir}/%{name}/lib/program
-install -Dm 777 %{_sourcedir}/../lib/program/aurora-qml %{buildroot}%{_datadir}/%{name}/lib/qml-start
+
+install -Dm 777 %{_sourcedir}/../lib/program/aurora-qml %{buildroot}%{_libexecdir}/%{name}/%{name}
 #chmod +x %{buildroot}%{_datadir}/%{name}/lib/program/aurora-qml
 
 # QML & icons
@@ -388,6 +389,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %{_bindir}/%{name}
+%{_libexecdir}/%{name}
 %defattr(644,root,root,-)
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
